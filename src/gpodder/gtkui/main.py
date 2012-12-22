@@ -1652,6 +1652,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         util.run_in_background(lambda: convert_and_send_thread(episodes_to_copy))
 
+    def _add_sub_menu(self, menu, label):
+        root_item = gtk.MenuItem(label)
+        menu.append(root_item)
+        sub_menu = gtk.Menu()        
+        root_item.set_submenu(sub_menu)
+        return sub_menu
+
     def treeview_available_show_context_menu(self, treeview, event=None):
         model, paths = self.treeview_handle_context_menu_click(treeview, event)
         if not paths:
@@ -1706,18 +1713,26 @@ class gPodder(BuilderWidget, dbus.service.Object):
             result = gpodder.user_extensions.on_episodes_context_menu(episodes)
             if result:
                 menu.append(gtk.SeparatorMenuItem())
+                submenus = {}
                 for label, callback in result:
-                    item = gtk.MenuItem(label)
-                    item.connect('activate', lambda item, callback:
-                            callback(episodes), callback)
-                    menu.append(item)
+                    key, sep, titel = label.rpartition('/')
+                    item = gtk.ImageMenuItem(titel)
+                    item.connect('button-press-event',
+                        lambda w, ee, callback: callback(episodes), callback)
+                    if key:
+                        if key not in submenus:
+                            sub_menu = self._add_sub_menu(menu, key)
+                            submenus[key] = sub_menu
+                        else:
+                            sub_menu = submenus[key]
+                        sub_menu.append(item)
+                    else:
+                        menu.append(item)
 
             # Ok, this probably makes sense to only display for downloaded files
             if downloaded:
                 menu.append(gtk.SeparatorMenuItem())
-                share_item = gtk.MenuItem(_('Send to'))
-                menu.append(share_item)
-                share_menu = gtk.Menu()
+                share_menu = self._add_sub_menu(menu, _('Send to'))
 
                 item = gtk.ImageMenuItem(_('Local folder'))
                 item.set_image(gtk.image_new_from_stock(gtk.STOCK_DIRECTORY, gtk.ICON_SIZE_MENU))
@@ -1728,8 +1743,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     item.set_image(gtk.image_new_from_icon_name('bluetooth', gtk.ICON_SIZE_MENU))
                     item.connect('button-press-event', lambda w, ee: self.copy_episodes_bluetooth(episodes))
                     share_menu.append(item)
-
-                share_item.set_submenu(share_menu)
 
             menu.append(gtk.SeparatorMenuItem())
 

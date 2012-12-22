@@ -61,7 +61,7 @@ class gPodderExtension:
         if 'audio/ogg' not in mimetypes and 'audio/mpeg' not in mimetypes:
             return None
 
-        return [(self.container.metadata.title, self._convert_episodes)]
+        return [(self.container.metadata.title, self.convert_episodes)]
 
     def _convert_episode(self, episode):
         if episode.file_type() != 'audio':
@@ -82,11 +82,11 @@ class gPodderExtension:
         if p.returncode == 0:
             logger.info('normalize-audio processing successful.')
             gpodder.user_extensions.on_notification_show(_('File normalized'),
-                    episode)
+                    episode.title)
         else:
             logger.warn('normalize-audio failed: %s / %s', stdout, stderr)
 
-    def _convert_episodes(self, episodes):
+    def convert_episodes(self, episodes):
         for episode in episodes:
             self._convert_episode(episode)
 
