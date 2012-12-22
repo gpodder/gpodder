@@ -2,7 +2,6 @@ import QtQuick 1.1
 import QtDesktop 0.1
 
 Window {
-  //Item {
   id: addpodcast
   width: 400
   height: 100
