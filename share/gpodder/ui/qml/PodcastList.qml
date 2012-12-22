@@ -46,6 +46,13 @@ Item {
         }
     }
 
+    PullDownHandle {
+        target: listView
+        pullDownText: _('Pull down to refresh')
+        releaseText: _('Release to refresh')
+        onRefresh: controller.updateAllPodcasts()
+    }
+
     ListView {
         id: listView
         anchors.fill: parent
