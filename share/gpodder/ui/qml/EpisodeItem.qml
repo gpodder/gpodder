@@ -78,14 +78,12 @@ SelectableItem {
                     Config.downloadColor
                 } else if (episodeItem.playing) {
                     Config.playbackColor
+                } else if (isnew && !downloaded) {
+                    Config.newColor
                 } else if (episodeItem.inSelection) {
                     Config.selectColor
-                } else if (isnew) {
-                    if (downloaded) {
-                        'white'
-                    } else {
-                        Config.newColor
-                    }
+                } else if (isnew && downloaded) {
+                    'white'
                 } else {
                     '#999'
                 }
