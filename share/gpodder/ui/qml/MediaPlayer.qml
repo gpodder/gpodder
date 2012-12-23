@@ -177,10 +177,8 @@ Item {
         audioPlayer.source = ''
     }
 
-
     Rectangle {
         id: mediaPlayerButtons
-        visible: true
         color: 'black'
         anchors {
             top: mediaPlayerMain.bottom
@@ -192,21 +190,21 @@ Item {
         Button {
             id: showNotesButton
             anchors.left: parent.left
-	    anchors.top: parent.top
-	    anchors.horizontalCenter: parent.horizontalCenter
-            text: 'Shownotes'
+            anchors.top: parent.top
+            anchors.horizontalCenter: parent.horizontalCenter
+            text: _('Shownotes')
             onClicked: { 
-	        nowPlayingThrobber.opened = false
-		main.openShowNotes(episode)
-	    }
+                nowPlayingThrobber.opened = false
+                main.openShowNotes(episode)
+            }
         }
 
         Button {
             visible: playQueue.length > 0
             id: playQueueButton
             anchors.left: parent.left
-	    anchors.top: showNotesButton.bottom
-	    anchors.horizontalCenter: parent.horizontalCenter
+            anchors.top: showNotesButton.bottom
+            anchors.horizontalCenter: parent.horizontalCenter
             text: _('Play queue') + ' (' + playQueue.length + ')'
             onClicked: playQueueDialog.showQueue();
         }
