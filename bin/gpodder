@@ -20,14 +20,10 @@
 #
 
 """
-gPodder enables you to subscribe to RSS feeds and download
-podcast episodes from these feeds.
+gPodder enables you to subscribe to media feeds (RSS, Atom, YouTube,
+Soundcloud, Vimeo and XSPF) and automatically download new content.
 
-Downloaded podcasts can either be synchronized to portable
-MP3 players (including iPods) or played back on the user's
-desktop.
-
-See gpo(1) for the command-line interface.
+This is the gPodder GUI. See gpo(1) for the command-line interface.
 """
 
 import sys
@@ -109,18 +105,14 @@ def main():
 
     parser.add_option("-v", "--verbose",
                       action="store_true", dest="verbose", default=False,
-                      help=_("Print debugging output to stdout"))
+                      help=_("print logging output on the console"))
 
     parser.add_option("-q", "--qml",
                       action="store_true", dest="qml", default=False,
-                      help=_("Start the QML interface of gPodder"))
-    
-    parser.add_option("-d", "--qml_desktop",
-                      action="store_true", dest="qml_desktop", default=False,
-                      help=_("Start the QML Desktop interface of gPodder"))
+                      help=_("use the QML-based MeeGo 1.2 Harmattan UI"))
 
     parser.add_option('-s', '--subscribe', dest='subscribe', metavar='URL',
-                      help=_('Subscribe to the given URL'))
+                      help=_('subscribe to the feed at URL'))
 
     # On Mac OS X, support the "psn" parameter for compatibility (bug 939)
     if gpodder.ui.osx:
@@ -131,8 +123,6 @@ def main():
 
     if options.qml or gpodder.ui.harmattan:
         gpodder.ui.qml = True
-    elif options.qml_desktop:
-        gpodder.ui.qml_desktop = True
     else:
         gpodder.ui.gtk = True
     
@@ -173,10 +163,6 @@ def main():
         from gpodder import qmlui
         gpodder.ui_folders.insert(0, os.path.join(ui_folder, 'qml'))
         sys.exit(qmlui.main(args))
-    elif gpodder.ui.qml_desktop:
-        from gpodder import qmldesktopui
-        gpodder.ui_folders.insert(0, os.path.join(ui_folder, 'qmldesktop'))
-        sys.exit(qmldesktopui.main(args))
     elif gpodder.ui.gtk:
         from gpodder.gtkui import main
         gpodder.ui_folders.insert(0, os.path.join(ui_folder, 'gtk'))
