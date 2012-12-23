@@ -96,11 +96,11 @@ SelectableItem {
 
         Label {
             text: {
-	          if (episodeItem.playbackDuration && episodeItem.playbackPosition) {
+                  if (episodeItem.playbackDuration && episodeItem.playbackPosition) {
                     Util.formatPosition(episodeItem.playbackPosition,episodeItem.playbackDuration)
                   } else if (episodeItem.playbackDuration) {
                     Util.formatDuration(episodeItem.playbackDuration)
-		  } else {
+                  } else {
                     '-'
                   }
             }
