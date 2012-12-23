@@ -177,22 +177,40 @@ Item {
         audioPlayer.source = ''
     }
 
+
     Rectangle {
-        visible: playQueue.length > 0
+        id: mediaPlayerButtons
+        visible: true
         color: 'black'
         anchors {
             top: mediaPlayerMain.bottom
             left: parent.left
             right: parent.right
         }
-        height: playQueueButton.height + Config.smallSpacing
+        height: showNotesButton.height + playQueueButton.height + 2 * Config.smallSpacing
 
         Button {
+            id: showNotesButton
+            anchors.left: parent.left
+	    anchors.top: parent.top
+	    anchors.horizontalCenter: parent.horizontalCenter
+            text: 'Shownotes'
+            onClicked: { 
+	        nowPlayingThrobber.opened = false
+		main.openShowNotes(episode)
+	    }
+        }
+
+        Button {
+            visible: playQueue.length > 0
             id: playQueueButton
-            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.left: parent.left
+	    anchors.top: showNotesButton.bottom
+	    anchors.horizontalCenter: parent.horizontalCenter
             text: _('Play queue') + ' (' + playQueue.length + ')'
             onClicked: playQueueDialog.showQueue();
         }
+
 
         MultiSelectionDialog {
             id: playQueueDialog
