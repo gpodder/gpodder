@@ -178,20 +178,44 @@ Item {
     }
 
     Rectangle {
-        visible: playQueue.length > 0
+        id: mediaPlayerButtons
         color: 'black'
         anchors {
             top: mediaPlayerMain.bottom
             left: parent.left
             right: parent.right
         }
-        height: playQueueButton.height + Config.smallSpacing
 
-        Button {
-            id: playQueueButton
-            anchors.horizontalCenter: parent.horizontalCenter
-            text: _('Play queue') + ' (' + playQueue.length + ')'
-            onClicked: playQueueDialog.showQueue();
+        height: mediaPlayerButtonsColumn.height + 2 * Config.smallSpacing
+
+        Column {
+            id: mediaPlayerButtonsColumn
+
+            spacing: Config.smallSpacing
+            width: parent.width
+
+            Button {
+                id: showNotesButton
+                width: parent.width * .9
+                anchors.horizontalCenter: parent.horizontalCenter
+
+                text: _('Shownotes')
+                onClicked: {
+                    nowPlayingThrobber.opened = false
+                    main.openShowNotes(episode)
+                }
+            }
+
+            Button {
+                id: playQueueButton
+                width: parent.width * .9
+                anchors.horizontalCenter: parent.horizontalCenter
+
+                visible: playQueue.length > 0
+
+                text: _('Play queue') + ' (' + playQueue.length + ')'
+                onClicked: playQueueDialog.showQueue();
+            }
         }
 
         MultiSelectionDialog {
