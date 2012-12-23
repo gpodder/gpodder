@@ -14,3 +14,6 @@ function formatDuration(duration) {
     return hh + ms
 }
 
+function formatPosition(position,duration) {
+  return formatDuration(position) + " / " + formatDuration(duration)
+}
