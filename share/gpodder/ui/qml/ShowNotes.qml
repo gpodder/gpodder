@@ -37,6 +37,7 @@ Rectangle {
             function formatSubtitle() {
                 var pubdate = episode.qpubdate;
                 var filesize = episode.qfilesize;
+                var filename = episode.qsourceurl
                 if (filesize !== '') {
                     if (episode.qdownloaded) {
                         var filename = episode.qsourceurl.split('/').pop();
