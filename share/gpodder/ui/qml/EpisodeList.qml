@@ -1,5 +1,5 @@
 
-import Qt 4.7
+import QtQuick 1.1
 
 import com.nokia.meego 1.0
 
@@ -10,10 +10,10 @@ Item {
     property string currentFilterText
     property string mainState
 
-    onMainStateChanged: {
+    /*onMainStateChanged: {
         // Don't remember contentY when leaving episode list
         listView.lastContentY = 0;
-    }
+    }*/
 
     property alias model: listView.model
     property alias moving: listView.moving
@@ -29,7 +29,7 @@ Item {
         listView.openedIndex = -1
     }
 
-    onModelChanged: {
+    function resetFilterDialog() {
         filterDialog.resetSelection();
     }
 
@@ -49,13 +49,7 @@ Item {
 
     ListView {
         id: listView
-
-        onContentHeightChanged: {
-            if (count > 0 && openedIndex == count - 1 && !flicking && !moving) {
-                /* Scroll the "opening" item into view at the bottom */
-                listView.positionViewAtEnd();
-            }
-        }
+        cacheBuffer: 10000
 
         property real lastContentY: 0
 
@@ -65,12 +59,10 @@ Item {
                 if (lastContentY > 0) {
                     contentY = lastContentY;
                 }
-            } else {
-                if (episodeList.mainState === 'episodes') {
-                    // Only store scroll position when the episode list is
-                    // shown (avoids overwriting it in onMainStateChanged)
-                    lastContentY = contentY;
-                }
+            } else if (episodeList.mainState === 'episodes') {
+                // Only store scroll position when the episode list is
+                // shown (avoids overwriting it in onMainStateChanged)
+                lastContentY = contentY;
             }
         }
 
@@ -78,66 +70,81 @@ Item {
         property int openedIndex: -1
         visible: count > 0
 
-        delegate: Item {
-            id: listItem
+        delegate: EpisodeItem {
+            id: episodeItem
+            property variant modelData: episode
+            property bool playing: (episode === mediaPlayer.episode) && mediaPlayer.playing
 
-            height: listItem.opened?(Config.listItemHeight + Config.smallSpacing * 3 + Config.headerHeight):(Config.listItemHeight)
-            width: parent.width
-            property bool opened: (index == listView.openedIndex)
-
-            Image {
-                source: 'artwork/episode-background.png'
-                anchors {
-                    fill: parent
-                    topMargin: 3
-                    bottomMargin: 3
+            inSelection: (index === listView.openedIndex)
+            opacity: {
+                if ((listView.openedIndex === -1) || inSelection) {
+                    1
+                } else {
+                    .3
                 }
-                visible: listItem.opened
             }
 
-            Loader {
-                id: loader
-                clip: true
-                source: listItem.opened?'EpisodeActions.qml':''
+            height: Config.listItemHeight
+            width: listView.width
 
-                Behavior on opacity { PropertyAnimation { } }
-
-                opacity: listItem.opened
-
-                onItemChanged: {
-                    if (item) {
-                        item.episode = modelData
-                    }
+            onSelected: {
+                if (listView.openedIndex !== -1) {
+                    listView.openedIndex = -1
+                } else {
+                    listView.openedIndex = index
                 }
-
-                anchors {
-                    left: parent.left
-                    right: parent.right
-                    top: parent.top
-                    topMargin: episodeItem.y + episodeItem.height
-                    bottom: parent.bottom
-                }
-
-                width: parent.width
             }
 
-            Behavior on height { PropertyAnimation { } }
+            onContextMenu: episodeList.episodeContextMenu(episode)
+        }
+    }
 
-            EpisodeItem {
-                id: episodeItem
-                y: listItem.opened?Config.smallSpacing:0
-                width: parent.width
-                onSelected: {
-                    if (listView.openedIndex == index) {
-                        listView.openedIndex = -1
-                    } else {
-                        listView.openedIndex = index
-                    }
-                }
-                onContextMenu: episodeList.episodeContextMenu(item)
+    EpisodeActions {
+        id: episodeActions
+        visible: (listView.openedIndex !== -1) && listView.visible
 
-                Behavior on y { PropertyAnimation { } }
+        episode: episodeListModel.get(listView.openedIndex)
+        playing: {
+            if (episode !== undefined) {
+                (episode.episode === mediaPlayer.episode) && mediaPlayer.playing
+            } else {
+                false
             }
+        }
+
+        property alias modelData: episodeActions.episode
+
+        anchors {
+            top: parent.top
+            topMargin: {
+                var overlayIndex = listView.openedIndex + 1
+                if (listView.count === listView.openedIndex + 1 && listView.height < listView.contentHeight) {
+                    overlayIndex = listView.openedIndex - 1
+                }
+                overlayIndex * Config.listItemHeight - listView.contentY
+            }
+            left: parent.left
+            right: parent.right
+        }
+    }
+
+    Image {
+        id: archiveIcon
+        source: 'artwork/episode-archive.png'
+
+        visible: (listView.openedIndex !== -1) && model.get(listView.openedIndex).archive
+
+        sourceSize {
+            width: Config.iconSize
+            height: Config.iconSize
+        }
+
+        anchors {
+            top: parent.top
+            topMargin: {
+                (listView.openedIndex + 1) * Config.listItemHeight - height - Config.smallSpacing - listView.contentY
+            }
+            left: parent.left
         }
     }
 
@@ -150,13 +157,17 @@ Item {
         titleText: _('Show episodes')
 
         function resetSelection() {
-            selectedIndex = episodeList.model.getFilter();
-            accepted();
+            if (main.episodeModel !== undefined) {
+                selectedIndex = main.episodeModel.getFilter();
+                accepted();
+            }
         }
 
         onAccepted: {
-            episodeList.currentFilterText = model.get(selectedIndex).name;
-            episodeList.model.setFilter(selectedIndex);
+            if (main.episodeModel !== undefined) {
+                episodeList.currentFilterText = model.get(selectedIndex).name;
+                episodeModel.setFilter(selectedIndex);
+            }
         }
 
         model: ListModel {}

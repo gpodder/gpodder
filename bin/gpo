@@ -61,8 +61,11 @@
     rewrite OLDURL NEWURL      Change the feed URL of [OLDURL] to [NEWURL]
     webui [public]             Start gPodder's Web UI server
                                (public = listen on all network interfaces)
+    pipe                       Start gPodder in pipe-based IPC server mode
 
 """
+
+from __future__ import print_function
 
 import sys
 import collections
@@ -111,6 +114,7 @@ import gpodder
 _ = gpodder.gettext
 N_ = gpodder.ngettext
 
+gpodder.images_folder = os.path.join(prefix, 'share', 'gpodder', 'images')
 gpodder.prefix = prefix
 
 # This is the command-line UI variant
@@ -119,21 +123,22 @@ gpodder.ui.cli = True
 # Platform detection (i.e. MeeGo 1.2 Harmattan, etc..)
 gpodder.detect_platform()
 
-have_ansi = sys.stdout.isatty() and not gpodder.win32
+have_ansi = sys.stdout.isatty() and not gpodder.ui.win32
 interactive_console = sys.stdin.isatty() and sys.stdout.isatty()
 is_single_command = False
 
 from gpodder import log
 log.setup(verbose)
 
-from gpodder import api
+from gpodder import core
+from gpodder import download
 from gpodder import my
 from gpodder import opml
 from gpodder import util
 from gpodder.config import config_value_to_string
 
 def incolor(color_id, s):
-    if have_ansi and cli.config.ui.cli.colors:
+    if have_ansi and cli._config.ui.cli.colors:
         return '\033[9%dm%s\033[0m' % (color_id, s)
     return s
 
@@ -151,7 +156,7 @@ def safe_print(*args, **kwargs):
     try:
         ofile.write(output)
     except Exception, e:
-        print """
+        print("""
         *** ENCODING FAIL ***
 
         Please report this to http://bugs.gpodder.org/:
@@ -160,11 +165,15 @@ def safe_print(*args, **kwargs):
         map(convert, args) = %s
 
         Exception = %s
-        """ % (repr(args), repr(map(convert, args)), e)
+        """ % (repr(args), repr(map(convert, args)), e))
 
-    if kwargs.get('newline', True):
-        ofile.write(os.linesep)
+    ofile.write(kwargs.get('end', os.linesep))
     ofile.flush()
+
+# On Python 3 the encoding insanity is gone, so our safe_print()
+# function simply becomes the normal print() function. Good stuff!
+if sys.version_info >= (3,):
+    safe_print = print
 
 # ANSI Colors: red = 1, green = 2, yellow = 3, blue = 4
 inred, ingreen, inyellow, inblue = (functools.partial(incolor, x)
@@ -190,8 +199,10 @@ class gPodderCli(object):
     EXIT_COMMANDS = ('quit', 'exit', 'bye')
 
     def __init__(self):
-        self.client = api.PodcastClient()
-        self.config = self.client._config
+        self.core = core.Core()
+        self._db = self.core.db
+        self._config = self.core.config
+        self._model = self.core.model
 
         self._current_action = ''
         self._commands = dict((name.rstrip('_'), func)
@@ -200,7 +211,7 @@ class gPodderCli(object):
         self._prefixes, self._expansions = self._build_prefixes_expansions()
         self._prefixes.update({'?': 'help'})
         self._valid_commands = sorted(self._prefixes.values())
-        gpodder.user_extensions.on_ui_initialized(self.client.core.model,
+        gpodder.user_extensions.on_ui_initialized(self.core.model,
                 self._extensions_podcast_update_cb,
                 self._extensions_episode_download_cb)
 
@@ -247,13 +258,13 @@ class gPodderCli(object):
         else:
             line = line + (' '*(self.COLUMNS-7-len(line)))
         self._current_action = line
-        safe_print(self._current_action, newline=False)
+        safe_print(self._current_action, end='')
 
     def _update_action(self, progress):
         if have_ansi:
             progress = '%3.0f%%' % (progress*100.,)
             result = '['+inblue(progress)+']'
-            safe_print('\r' + self._current_action + result, newline=False)
+            safe_print('\r' + self._current_action + result, end='')
 
     def _finish_action(self, success=True, skip=False):
         if skip:
@@ -270,7 +281,7 @@ class gPodderCli(object):
         self._current_action = ''
 
     def _atexit(self):
-        self.client.finish()
+        self.core.shutdown()
 
     # -------------------------------------------------------------------
 
@@ -279,23 +290,38 @@ class gPodderCli(object):
             self.subscribe(channel['url'], channel.get('title'))
 
     def export(self, filename):
-        podcasts = self.client._model.get_podcasts()
+        podcasts = self._model.get_podcasts()
         opml.Exporter(filename).write(podcasts)
 
-    def subscribe(self, url, title=None):
+    def get_podcast(self, url, create=False):
+        """Get a specific podcast by URL
+
+        Returns a podcast object for the URL or None if
+        the podcast has not been subscribed to.
+        """
         url = util.normalize_feed_url(url)
         if url is None:
-            self._error(_('Invalid URL.'))
-            return True
+            self._error(_('Invalid url: %s') % url)
+            return None
+            
+        podcast = self._model.load_podcast(url, create=create, \
+                    max_episodes=self._config.max_episodes_per_feed)
+        if podcast is None:
+            self._error(_('You are not subscribed to %s.') % url)
+            return None
+            
+        return podcast
 
-        if self.client.get_podcast(url) is not None:
-            self._info(_('You are already subscribed to %s.') % url)
-            return True
-
+    def subscribe(self, url, title=None):
         try:
-            if self.client.create_podcast(url, title) is None:
+            podcast = self.get_podcast(url, create=True)
+            if podcast is None:
                 self._error(_('Cannot subscribe to %s.') % url)
                 return True
+                
+            if title is not None:
+                podcast.rename(title)
+            podcast.save()
         except Exception, e:
             if hasattr(e, 'strerror'):
                 self._error(e.strerror)
@@ -303,15 +329,15 @@ class gPodderCli(object):
                 self._error(str(e))
             return True
 
-        self.client.commit()
+        self._db.commit()
 
         self._info(_('Successfully added %s.' % url))
         return True
 
     def _print_config(self, search_for):
-        for key in self.config.all_keys():
+        for key in self._config.all_keys():
             if search_for is None or search_for.lower() in key.lower():
-                value = config_value_to_string(self.config._lookup(key))
+                value = config_value_to_string(self._config._lookup(key))
                 safe_print(key, '=', value)
 
     def set(self, key=None, value=None):
@@ -320,7 +346,7 @@ class gPodderCli(object):
             return
 
         try:
-            current_value = self.config._lookup(key)
+            current_value = self._config._lookup(key)
             current_type = type(current_value)
         except KeyError:
             self._error(_('This configuration option does not exist.'))
@@ -330,19 +356,17 @@ class gPodderCli(object):
             self._error(_('Can only set leaf configuration nodes.'))
             return
 
-        self.config.update_field(key, value)
+        self._config.update_field(key, value)
         self.set(key)
 
     @FirstArgumentIsPodcastURL
     def rename(self, url, title):
-        podcast = self.client.get_podcast(url)
+        podcast = self.get_podcast(url)
 
-        if podcast is None:
-            self._error(_('You are not subscribed to %s.') % url)
-        else:
+        if podcast is not None:
             old_title = podcast.title
             podcast.rename(title)
-            self.client.commit()
+            self._db.commit()
             self._info(_('Renamed %(old_title)s to %(new_title)s.') % {
                 'old_title': util.convert_bytes(old_title),
                 'new_title': util.convert_bytes(title),
@@ -352,40 +376,52 @@ class gPodderCli(object):
 
     @FirstArgumentIsPodcastURL
     def unsubscribe(self, url):
-        podcast = self.client.get_podcast(url)
+        podcast = self.get_podcast(url)
 
         if podcast is None:
             self._error(_('You are not subscribed to %s.') % url)
         else:
             podcast.delete()
-            self.client.commit()
+            self._db.commit()
             self._error(_('Unsubscribed from %s.') % url)
 
         return True
+        
+    def is_episode_new(self, episode):
+        return (episode.state == gpodder.STATE_NORMAL and episode.is_new)
 
     def _episodesList(self, podcast):
         def status_str(episode):
-            if episode.is_new:
+            # is new
+            if self.is_episode_new(episode):
                 return u' * '
-            if episode.is_downloaded:
+            # is downloaded
+            if (episode.state == gpodder.STATE_DOWNLOADED):
                 return u' ▉ '
-            if episode.is_deleted:
+            # is deleted
+            if (episode.state == gpodder.STATE_DELETED):
                 return u' ░ '
     
             return u'   '
 
         episodes = (u'%3d. %s %s' % (i+1, status_str(e), e.title)
-                for i, e in enumerate(podcast.get_episodes()))
+                for i, e in enumerate(podcast.get_all_episodes()))
         return episodes
 
     @FirstArgumentIsPodcastURL
     def info(self, url):
-        podcast = self.client.get_podcast(url)
+        podcast = self.get_podcast(url)
 
         if podcast is None:
             self._error(_('You are not subscribed to %s.') % url)
         else:
-            title, url, status = podcast.title, podcast.url, podcast.feed_update_status_msg()
+            def feed_update_status_msg(podcast):
+                if podcast.pause_subscription:
+                    return "disabled"
+                return "enabled"
+            
+            title, url, status = podcast.title, podcast.url, \
+                feed_update_status_msg(podcast)
             episodes = self._episodesList(podcast)
             episodes = u'\n      '.join(episodes)
             self._pager(u"""
@@ -402,7 +438,7 @@ class gPodderCli(object):
     @FirstArgumentIsPodcastURL
     def episodes(self, url=None):
         output = []
-        for podcast in self.client.get_podcasts():
+        for podcast in self._model.get_podcasts():
             podcast_printed = False
             if url is None or podcast.url == url:
                 episodes = self._episodesList(podcast)
@@ -416,8 +452,8 @@ class gPodderCli(object):
         return True
 
     def list(self):
-        for podcast in self.client.get_podcasts():
-            if podcast.update_enabled():
+        for podcast in self._model.get_podcasts():
+            if not podcast.pause_subscription:
                 safe_print('#', ingreen(podcast.title))
             else:
                 safe_print('#', inred(podcast.title),
@@ -443,13 +479,13 @@ class gPodderCli(object):
     def update(self, url=None):
         count = 0
         safe_print(_('Checking for new episodes'))
-        for podcast in self.client.get_podcasts():
+        for podcast in self._model.get_podcasts():
             if url is not None and podcast.url != url:
                 continue
 
-            if podcast.update_enabled():
+            if not podcast.pause_subscription:
                 self._update_podcast(podcast)
-                count += sum(1 for e in podcast.get_episodes() if e.is_new)
+                count += sum(1 for e in podcast.get_all_episodes() if self.is_episode_new(e))
             else:
                 self._start_action(_('Skipping %(podcast)s') % {
                     'podcast': podcast.title})
@@ -461,11 +497,11 @@ class gPodderCli(object):
     @FirstArgumentIsPodcastURL
     def pending(self, url=None):
         count = 0
-        for podcast in self.client.get_podcasts():
+        for podcast in self._model.get_podcasts():
             podcast_printed = False
             if url is None or podcast.url == url:
-                for episode in podcast.get_episodes():
-                    if episode.is_new:
+                for episode in podcast.get_all_episodes():
+                    if self.is_episode_new(episode):
                         if not podcast_printed:
                             safe_print('#', ingreen(podcast.title))
                             podcast_printed = True
@@ -477,17 +513,22 @@ class gPodderCli(object):
 
     def _download_episode(self, episode):
         self._start_action('Downloading %s', episode.title)
-        episode.download(self._update_action)
+        
+        task = download.DownloadTask(episode, self._config)
+        task.add_progress_callback(self._update_action)
+        task.status = download.DownloadTask.QUEUED
+        task.run()
+        
         self._finish_action()
 
     @FirstArgumentIsPodcastURL
     def download(self, url=None):
         count = 0
-        for podcast in self.client.get_podcasts():
+        for podcast in self._model.get_podcasts():
             podcast_printed = False
             if url is None or podcast.url == url:
-                for episode in podcast.get_episodes():
-                    if episode.is_new:
+                for episode in podcast.get_all_episodes():
+                    if self.is_episode_new(episode):
                         if not podcast_printed:
                             safe_print(inblue(podcast.title))
                             podcast_printed = True
@@ -499,33 +540,39 @@ class gPodderCli(object):
 
     @FirstArgumentIsPodcastURL
     def disable(self, url):
-        podcast = self.client.get_podcast(url)
+        podcast = self.get_podcast(url)
 
         if podcast is None:
             self._error(_('You are not subscribed to %s.') % url)
         else:
-            podcast.disable()
-            self.client.commit()
+            if not podcast.pause_subscription:
+                podcast.pause_subscription = True
+                podcast.save()
+            self._db.commit()
             self._error(_('Disabling feed update from %s.') % url)
 
         return True
 
     @FirstArgumentIsPodcastURL
     def enable(self, url):
-        podcast = self.client.get_podcast(url)
+        podcast = self.get_podcast(url)
 
         if podcast is None:
             self._error(_('You are not subscribed to %s.') % url)
         else:
-            podcast.enable()
-            self.client.commit()
+            if podcast.pause_subscription:
+                podcast.pause_subscription = False
+                podcast.save()
+            self._db.commit()
             self._error(_('Enabling feed update from %s.') % url)
 
         return True
 
     def youtube(self, url):
-        yurl = self.client.youtube_url_resolver(url)
+        fmt_ids = youtube.get_fmt_ids(self._config.youtube)
+        yurl = youtube.get_real_download_url(url, fmt_ids)
         safe_print(yurl)
+
         return True
 
     def webui(self, public=None):
@@ -535,9 +582,13 @@ class gPodderCli(object):
             # interfaces, which could lead to problems.
             # Only use this on a trusted, private network!
             self._warn(_('Listening on ALL network interfaces.'))
-            webui.main(only_localhost=False, core=self.client.core)
+            webui.main(only_localhost=False, core=self.core)
         else:
-            webui.main(core=self.client.core)
+            webui.main(core=self.core)
+
+    def pipe(self):
+        from gpodder import pipe
+        pipe.main(core=self.core)
 
     def search(self, *terms):
         query = ' '.join(terms)
@@ -598,7 +649,7 @@ class gPodderCli(object):
 
     @FirstArgumentIsPodcastURL
     def rewrite(self, old_url, new_url):
-        podcast = self.client.get_podcast(old_url)
+        podcast = self.get_podcast(old_url)
         if podcast is None:
             self._error(_('You are not subscribed to %s.') % old_url)
         else:
@@ -615,7 +666,7 @@ class gPodderCli(object):
         return True
 
     def help(self):
-        safe_print(stylize(__doc__), file=sys.stderr, newline=False)
+        safe_print(stylize(__doc__), file=sys.stderr, end='')
         return True
 
     # -------------------------------------------------------------------
@@ -700,7 +751,7 @@ class gPodderCli(object):
 
     def _tab_completion_podcast(self, text, count):
         """Tab completion for podcast URLs"""
-        urls = [p.url for p in self.client.get_podcasts() if text in p.url]
+        urls = [p.url for p in self._model.get_podcasts() if text in p.url]
         if count < len(urls):
             return urls[count]
 
@@ -780,5 +831,5 @@ if __name__ == '__main__':
     elif interactive_console:
         cli._shell()
     else:
-        safe_print(__doc__, newline=False)
+        safe_print(__doc__, end='')
 

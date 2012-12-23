@@ -529,6 +529,8 @@ class DownloadTask(object):
     # Wheter this task represents a file download or a device sync operation
     ACTIVITY_DOWNLOAD, ACTIVITY_SYNCHRONIZE = range(2)
 
+    # Minimum time between progress updates (in seconds)
+    MIN_TIME_BETWEEN_UPDATES = 1.
 
     def __str__(self):
         return self.__episode.title
@@ -610,8 +612,9 @@ class DownloadTask(object):
         self.__limit_rate_value = self._config.limit_rate_value
         self.__limit_rate = self._config.limit_rate
 
-        # Callbacks
-        self._progress_updated = lambda x: None
+        # Progress update functions
+        self._progress_updated = None
+        self._last_progress_updated = 0.
 
         # If the tempname already exists, set progress accordingly
         if os.path.exists(self.tempname):
@@ -665,7 +668,11 @@ class DownloadTask(object):
 
         if self.total_size > 0:
             self.progress = max(0.0, min(1.0, float(count*blockSize)/self.total_size))
-            self._progress_updated(self.progress)
+            if self._progress_updated is not None:
+                diff = time.time() - self._last_progress_updated
+                if diff > self.MIN_TIME_BETWEEN_UPDATES or self.progress == 1.:
+                    self._progress_updated(self.progress)
+                    self._last_progress_updated = time.time()
 
         self.calculate_speed(count, blockSize)
 
@@ -740,8 +747,8 @@ class DownloadTask(object):
 
         try:
             # Resolve URL and start downloading the episode
-            url = youtube.get_real_download_url(self.__episode.url, \
-                    self._config.youtube_preferred_fmt_id)
+            fmt_ids = youtube.get_fmt_ids(self._config.youtube)
+            url = youtube.get_real_download_url(self.__episode.url, fmt_ids)
             url = vimeo.get_real_download_url(url)
 
             downloader = DownloadURLOpener(self.__episode.channel)

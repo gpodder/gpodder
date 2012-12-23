@@ -37,6 +37,7 @@ class gPodderChannel(BuilderWidget):
         self.entryTitle.set_text( self.channel.title)
         self.labelURL.set_text(self.channel.url)
         self.cbSkipFeedUpdate.set_active(self.channel.pause_subscription)
+        self.cbEnableDeviceSync.set_active(self.channel.sync_to_mp3_player)
 
         self.section_list = gtk.ListStore(str)
         active_index = 0
@@ -49,6 +50,19 @@ class gPodderChannel(BuilderWidget):
         self.combo_section.pack_start(cell_renderer)
         self.combo_section.add_attribute(cell_renderer, 'text', 0)
         self.combo_section.set_active(active_index)
+
+        self.strategy_list = gtk.ListStore(str, int)
+        active_index = 0
+        for index, (checked, strategy_id, strategy) in \
+            enumerate(self.channel.get_download_strategies()):
+            self.strategy_list.append([strategy, strategy_id])
+            if checked:
+                active_index = index
+        self.combo_strategy.set_model(self.strategy_list)
+        cell_renderer = gtk.CellRendererText()
+        self.combo_strategy.pack_start(cell_renderer)
+        self.combo_strategy.add_attribute(cell_renderer, 'text', 0)
+        self.combo_strategy.set_active(active_index)
 
         self.LabelDownloadTo.set_text( self.channel.save_dir)
         self.LabelWebsite.set_text( self.channel.link)
@@ -131,8 +145,9 @@ class gPodderChannel(BuilderWidget):
 
     def cover_download_finished(self, channel, pixbuf):
         def set_cover(channel, pixbuf):
-            self.imgCover.set_from_pixbuf(self.scale_pixbuf(pixbuf))
-            self.gPodderChannel.show()
+            if self.channel == channel:
+                self.imgCover.set_from_pixbuf(self.scale_pixbuf(pixbuf))
+                self.gPodderChannel.show()
 
         util.idle_add(set_cover, channel, pixbuf)
 
@@ -172,6 +187,7 @@ class gPodderChannel(BuilderWidget):
 
     def on_btnOK_clicked(self, widget, *args):
         self.channel.pause_subscription = self.cbSkipFeedUpdate.get_active()
+        self.channel.sync_to_mp3_player = self.cbEnableDeviceSync.get_active()
         self.channel.rename(self.entryTitle.get_text())
         self.channel.auth_username = self.FeedUsername.get_text().strip()
         self.channel.auth_password = self.FeedPassword.get_text()
@@ -185,6 +201,9 @@ class gPodderChannel(BuilderWidget):
             section_changed = True
         else:
             section_changed = False
+
+        new_strategy = self.strategy_list[self.combo_strategy.get_active()][1]
+        self.channel.set_download_strategy(new_strategy)
 
         self.channel.save()
 

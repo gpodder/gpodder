@@ -15,8 +15,9 @@ _ = gpodder.gettext
 
 __title__ = _('Subtitle Downloader for TED Talks')
 __description__ = _('Downloads .srt subtitles for TED Talks Videos')
-__only_for__ = 'gtk, cli, qml'
 __authors__ = 'Danilo Shiga <daniloshiga@gmail.com>'
+__category__ = 'post-download'
+__only_for__ = 'gtk, cli, qml'
 
 
 class gPodderExtension(object):
@@ -85,7 +86,9 @@ class gPodderExtension(object):
         if not episode_data:
             return
 
-        intro = episode_data.split('introDuration=')[1].split('&')[0] or 0
+        intro = episode_data.split('introDuration%22%3A')[1] \
+                            .split('%2C')[0] or 15
+        intro = intro*1000
         current_filename = episode.local_filename(create=False)
         srt_filename = self.get_srt_filename(current_filename)
         sub = self.ted_to_srt(sub_data, int(intro))

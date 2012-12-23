@@ -1,5 +1,5 @@
 
-import Qt 4.7
+import QtQuick 1.1
 
 import com.nokia.meego 1.0
 
@@ -32,12 +32,18 @@ Rectangle {
             anchors.right: parent.right
             wrapMode: Text.Wrap
             text: episode!=undefined?('<h3 color="#666">'+episode.qtitle+'</h3><small>'+formatSubtitle()+'</small><p>'+episode.qdescription+'</p>'):'No episode selected'
+            onLinkActivated: Qt.openUrlExternally(link)
 
             function formatSubtitle() {
                 var pubdate = episode.qpubdate;
                 var filesize = episode.qfilesize;
+                var filename = ''
+                var httpPat = /^https?:\/\//
+                if ( ! httpPat.test(episode.qsourceurl) ) {
+                   filename = ' | ' + episode.qsourceurl.split('/').pop()
+                }
                 if (filesize !== '') {
-                    return pubdate + ' | ' + filesize;
+                    return pubdate + ' | ' + filesize + filename;
                 } else {
                     return pubdate;
                 }
