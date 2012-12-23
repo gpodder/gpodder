@@ -20,9 +20,9 @@
 # This metadata block gets parsed by setup.py - use single quotes only
 __tagline__   = 'Media aggregator and podcast client'
 __author__    = 'Thomas Perl <thp@gpodder.org>'
-__version__   = '3.3.0'
-__date__      = '2012-09-24'
-__relname__   = 'Intermission'
+__version__   = '3.4.0'
+__date__      = '2012-12-23'
+__relname__   = 'Quiet Earth'
 __copyright__ = '© 2005-2012 Thomas Perl and the gPodder Team'
 __license__   = 'GNU General Public License, version 3 or later'
 __url__       = 'http://gpodder.org/'
@@ -93,9 +93,9 @@ dbus_podcasts = 'org.gpodder.podcasts'
 dbus_session_bus = None
 
 # Set "win32" to True if we are on Windows
-win32 = (platform.system() == 'Windows')
+ui.win32 = (platform.system() == 'Windows')
 # Set "osx" to True if we are on Mac OS X
-osx = (platform.system() == 'Darwin')
+ui.osx = (platform.system() == 'Darwin')
 
 # i18n setup (will result in "gettext" to be available)
 # Use   _ = gpodder.gettext   in modules to enable string translations
@@ -112,7 +112,7 @@ except AttributeError:
     gettext = t.gettext
     ngettext = t.ngettext
 
-if win32:
+if ui.win32:
     try:
         # Workaround for bug 650
         from gtk.glade import bindtextdomain

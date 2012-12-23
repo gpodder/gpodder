@@ -1,5 +1,5 @@
 
-import Qt 4.7
+import QtQuick 1.1
 
 import com.nokia.meego 1.0
 
@@ -32,6 +32,7 @@ Rectangle {
             anchors.right: parent.right
             wrapMode: Text.Wrap
             text: episode!=undefined?('<h3 color="#666">'+episode.qtitle+'</h3><small>'+formatSubtitle()+'</small><p>'+episode.qdescription+'</p>'):'No episode selected'
+            onLinkActivated: Qt.openUrlExternally(link)
 
             function formatSubtitle() {
                 var pubdate = episode.qpubdate;

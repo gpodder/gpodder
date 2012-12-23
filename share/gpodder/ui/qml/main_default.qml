@@ -1,5 +1,5 @@
 
-import Qt 4.7
+import QtQuick 1.1
 import com.nokia.meego 1.0
 import QtWebKit 1.0
 
@@ -18,7 +18,7 @@ PageStackWindow {
     //  - platformWindow.visible - Visible somewhere
     //  - platformWindow.active - Active (input focus?)
 
-    showToolBar: (mainObject.canGoBack || mainObject.hasPlayButton || mainObject.hasSearchButton) && (mainObject.hasPodcasts || mainObject.canGoBack) || pageStack.depth > 1
+    showToolBar: !mainObject.multiEpisodesSheetOpened && ((mainObject.canGoBack || mainObject.hasPlayButton || mainObject.hasSearchButton) && (mainObject.hasPodcasts || mainObject.canGoBack) || pageStack.depth > 1)
 
     // Hide status bar in landscape mode
     showStatusBar: screen.currentOrientation == Screen.Portrait
@@ -86,14 +86,6 @@ PageStackWindow {
                 anchors.right: parent.right
                 iconId: "toolbar-view-menu"
                 visible: (!toolBack.visible && mainObject.state == 'podcasts') || (mainObject.currentPodcast !== undefined && mainObject.state == 'episodes')
-            }
-
-            ToolIcon {
-                id: toolRefresh
-                iconId: 'icon-m-toolbar-refresh-white'
-                onClicked: controller.updateAllPodcasts()
-                visible: mainObject.hasSearchButton && mainObject.hasPodcasts
-                anchors.left: parent.left
             }
 
             ToolIcon {

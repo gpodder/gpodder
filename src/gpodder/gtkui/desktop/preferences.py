@@ -31,6 +31,7 @@ _ = gpodder.gettext
 N_ = gpodder.ngettext
 
 from gpodder import util
+from gpodder import youtube
 
 from gpodder.gtkui.interface.common import BuilderWidget
 from gpodder.gtkui.interface.configeditor import gPodderConfigEditor
@@ -136,9 +137,35 @@ class gPodderFlattrSignIn(BuilderWidget):
     def on_btn_close_clicked(self, widget):
         util.idle_add(self.main_window.destroy)
 
+class VideoFormatList(gtk.ListStore):
+    C_CAPTION, C_ID = range(2)
+
+    def __init__(self, config):
+        gtk.ListStore.__init__(self, str, int)
+        self._config = config
+
+        if self._config.youtube.preferred_fmt_ids:
+            caption = _('Custom (%(format_ids)s)') % {
+                    'format_ids': ', '.join(self.custom_format_ids),
+            }
+            self.append((caption, -1))
+        else:
+            for id, (fmt_id, path, description) in youtube.formats:
+                self.append((description, id))
+
+    def get_index(self):
+        for index, row in enumerate(self):
+            if self._config.youtube.preferred_fmt_id == row[self.C_ID]:
+                return index
+        return 0
+
+    def set_index(self, index):
+        value = self[index][self.C_ID]
+        if value > 0:
+            self._config.youtube.preferred_fmt_id = value
 
 class gPodderPreferences(BuilderWidget):
-    C_TOGGLE, C_LABEL, C_EXTENSION = range(3)
+    C_TOGGLE, C_LABEL, C_EXTENSION, C_SHOW_TOGGLE = range(4)
 
     def new(self):
         for cb in (self.combo_audio_player_app, self.combo_video_player_app):
@@ -160,6 +187,13 @@ class gPodderPreferences(BuilderWidget):
         self.combo_video_player_app.set_model(self.video_player_model)
         index = self.video_player_model.get_index(self._config.videoplayer)
         self.combo_video_player_app.set_active(index)
+
+        self.preferred_video_format_model = VideoFormatList(self._config)
+        self.combobox_preferred_video_format.set_model(self.preferred_video_format_model)
+        cellrenderer = gtk.CellRendererText()
+        self.combobox_preferred_video_format.pack_start(cellrenderer, True)
+        self.combobox_preferred_video_format.add_attribute(cellrenderer, 'text', self.preferred_video_format_model.C_CAPTION)
+        self.combobox_preferred_video_format.set_active(self.preferred_video_format_model.get_index())
 
         self.update_interval_presets = [0, 10, 30, 60, 2*60, 6*60, 12*60]
         adjustment_update_interval = self.hscale_update_interval.get_adjustment()
@@ -214,7 +248,6 @@ class gPodderPreferences(BuilderWidget):
 
         self._config.connect_gtk_togglebutton('device_sync.skip_played_episodes', self.checkbutton_skip_played_episodes)
 
-
         # Have to do this before calling set_active on checkbutton_enable
         self._enable_mygpo = self._config.mygpo.enabled
 
@@ -231,29 +264,48 @@ class gPodderPreferences(BuilderWidget):
         self.set_flattr_preferences()
 
         # Configure the extensions manager GUI
+        self.set_extension_preferences()
+        
+    def set_extension_preferences(self):        
         toggle_cell = gtk.CellRendererToggle()
-        toggle_cell.connect('toggled', self.on_extensions_cell_toggled)
-        toggle_column = gtk.TreeViewColumn('', toggle_cell, active=self.C_TOGGLE)
-        toggle_column.set_clickable(True)
-        self.treeviewExtensions.append_column(toggle_column)
+        toggle_cell.connect('toggled', self.on_extensions_cell_toggled)        
 
-        renderer = gtk.CellRendererText()
-        renderer.set_property('ellipsize', pango.ELLIPSIZE_END)
-        column = gtk.TreeViewColumn(_('Name'), renderer, markup=self.C_LABEL)
-        column.set_clickable(False)
-        column.set_resizable(True)
-        column.set_expand(True)
-        self.treeviewExtensions.append_column(column)
+        name_cell = gtk.CellRendererText()
+        name_cell.set_property('ellipsize', pango.ELLIPSIZE_END)
+        
+        extension_column = gtk.TreeViewColumn(_('Name'))
+        extension_column.pack_start(toggle_cell, False)
+        extension_column.add_attribute(toggle_cell, 'active', self.C_TOGGLE)
+        extension_column.add_attribute(toggle_cell, 'visible', self.C_SHOW_TOGGLE)
+        extension_column.pack_start(name_cell, True)
+        extension_column.add_attribute(name_cell, 'markup', self.C_LABEL)
+        extension_column.set_clickable(False)
+        extension_column.set_resizable(True)
+        extension_column.set_expand(True)
+        self.treeviewExtensions.append_column(extension_column)
 
-        self.extensions_model = gtk.ListStore(bool, str, object)
+        self.extensions_model = gtk.ListStore(bool, str, object, bool)
+        
+        def key_func(pair):
+            category, container = pair
+            return (category, container.metadata.title)
 
-        for container in gpodder.user_extensions.get_extensions():
+        def convert(extensions):
+            for container in extensions:
+                yield (container.metadata.category, container)
+                
+        old_category = None
+        for category, container in sorted(convert(gpodder.user_extensions.get_extensions()), key=key_func):
+            if old_category != category:
+                label = '<span weight="bold">%s</span>' % cgi.escape(category)
+                self.extensions_model.append((None, label, None, False))
+                old_category = category
+                
             label = '%s\n<small>%s</small>' % (
                     cgi.escape(container.metadata.title),
                     cgi.escape(container.metadata.description))
-            self.extensions_model.append([container.enabled, label, container])
+            self.extensions_model.append((container.enabled, label, container, True))
 
-        self.extensions_model.set_sort_column_id(self.C_LABEL, gtk.SORT_ASCENDING)
         self.treeviewExtensions.set_model(self.extensions_model)
         self.treeviewExtensions.columns_autosize()
 
@@ -312,18 +364,27 @@ class gPodderPreferences(BuilderWidget):
             self.show_message(container.error.message,
                     _('Extension cannot be activated'), important=True)
             model.set_value(it, self.C_TOGGLE, False)
+            
+    def on_treeview_button_press_event(self, treeview, event):
+        if event.button != 3:
+            return
 
-    def on_extensions_row_activated(self, treeview, path, view_column):
+        x = int(event.x)
+        y = int(event.y)
+        path, _, _, _ = treeview.get_path_at_pos(x, y)
         model = treeview.get_model()
         container = model.get_value(model.get_iter(path), self.C_EXTENSION)
+        self.show_extension_info(model, container)
 
-        # This is one ugly hack, but it displays the container's attributes
-        # and the attributes of the metadata object of the container..
+    def show_extension_info(self, model, container):
+        if not container or not model:
+            return
+
+        # This is one ugly hack, but it displays the attributes of 
+        # the metadata object of the container..
         info = '\n'.join('<b>%s:</b> %s' %
                 tuple(map(cgi.escape, map(str, (key, value))))
-                for key, value in sorted(container.__dict__.items() +
-                    [('metadata.'+k, v)
-                        for k, v in container.metadata.__dict__.items()]))
+                for key, value in container.metadata.get_sorted())
 
         self.show_message(info, _('Extension module info'), important=True)
 
@@ -349,6 +410,10 @@ class gPodderPreferences(BuilderWidget):
     def on_combo_video_player_app_changed(self, widget):
         index = self.combo_video_player_app.get_active()
         self._config.videoplayer = self.video_player_model.get_command(index)
+
+    def on_combobox_preferred_video_format_changed(self, widget):
+        index = self.combobox_preferred_video_format.get_active()
+        self.preferred_video_format_model.set_index(index)
 
     def on_button_audio_player_clicked(self, widget):
         result = self.show_text_edit_dialog(_('Configure audio player'), \

@@ -1,5 +1,5 @@
 
-import Qt 4.7
+import QtQuick 1.1
 
 import com.nokia.meego 1.0
 
@@ -58,7 +58,6 @@ Item {
         id: subscribe
         visible: contextMenuArea.subscribeMode && (contextMenuArea.state == 'opened')
         anchors.fill: parent
-        anchors.topMargin: Config.headerHeight
 
         onSubscribe: {
             controller.addSubscriptions(urls)

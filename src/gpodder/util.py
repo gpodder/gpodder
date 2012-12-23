@@ -67,6 +67,13 @@ import feedparser
 import StringIO
 import xml.dom.minidom
 
+if gpodder.ui.win32:
+    try:
+        import win32file
+    except ImportError:
+        logger.warn('Running on Win32 but win32api/win32file not installed.')
+        win32file = None
+
 _ = gpodder.gettext
 N_ = gpodder.ngettext
 
@@ -87,7 +94,7 @@ if encoding is None:
         logger.info('Detected encoding: %s', encoding)
     elif gpodder.ui.harmattan:
         encoding = 'utf-8'
-    elif gpodder.win32:
+    elif gpodder.ui.win32:
         # To quote http://docs.python.org/howto/unicode.html:
         # ,,on Windows, Python uses the name "mbcs" to refer
         #   to whatever the currently configured encoding is``
@@ -411,6 +418,19 @@ def file_age_to_string(days):
         return N_('%(count)d day ago', '%(count)d days ago', days) % {'count':days}
 
 
+def is_system_file(filename):
+    """
+    Checks to see if the given file is a system file.
+    """
+    if gpodder.ui.win32 and win32file is not None:
+        result = win32file.GetFileAttributes(filename)
+        #-1 is returned by GetFileAttributes when an error occurs
+        #0x4 is the FILE_ATTRIBUTE_SYSTEM constant
+        return result != -1 and result & 0x4 != 0
+    else:
+        return False
+
+
 def get_free_disk_space_win32(path):
     """
     Win32-specific code to determine the free disk space remaining
@@ -418,18 +438,13 @@ def get_free_disk_space_win32(path):
 
     http://mail.python.org/pipermail/python-list/2003-May/203223.html
     """
+    if win32file is None:
+        # Cannot determine free disk space
+        return 0
 
     drive, tail = os.path.splitdrive(path)
-
-    try:
-        import win32file
-        userFree, userTotal, freeOnDisk = win32file.GetDiskFreeSpaceEx(drive)
-        return userFree
-    except ImportError:
-        logger.warn('Running on Win32 but win32api/win32file not installed.')
-
-    # Cannot determine free disk space
-    return 0
+    userFree, userTotal, freeOnDisk = win32file.GetDiskFreeSpaceEx(drive)
+    return userFree
 
 
 def get_free_disk_space(path):
@@ -444,7 +459,7 @@ def get_free_disk_space(path):
     if not os.path.exists(path):
         return 0
 
-    if gpodder.win32:
+    if gpodder.ui.win32:
         return get_free_disk_space_win32(path)
 
     s = os.statvfs(path)
@@ -1020,7 +1035,7 @@ def find_command(command):
 
     for path in os.environ['PATH'].split(os.pathsep):
         command_file = os.path.join(path, command)
-        if gpodder.win32 and not os.path.exists(command_file):
+        if gpodder.ui.win32 and not os.path.exists(command_file):
             for extension in ('.bat', '.exe'):
                 cmd = command_file + extension
                 if os.path.isfile(cmd):
@@ -1230,9 +1245,9 @@ def gui_open(filename):
        on Win32, os.startfile() is used
     """
     try:
-        if gpodder.win32:
+        if gpodder.ui.win32:
             os.startfile(filename)
-        elif gpodder.osx:
+        elif gpodder.ui.osx:
             subprocess.Popen(['open', filename])
         else:
             subprocess.Popen(['xdg-open', filename])
@@ -1560,7 +1575,7 @@ def atomic_rename(old_name, new_name):
     the new contents into a temporary file and then moving the
     temporary file over the original file to replace it.
     """
-    if gpodder.win32:
+    if gpodder.ui.win32:
         # Win32 does not support atomic rename with os.rename
         shutil.move(old_name, new_name)
     else:
@@ -1628,15 +1643,68 @@ def run_in_background(function, daemon=False):
     return thread
 
 
-def website_reachable(url='http://www.google.com'):
+def linux_get_active_interfaces():
+    """Get active network interfaces using 'ip link'
+
+    Returns a list of active network interfaces or an
+    empty list if the device is offline. The loopback
+    interface is not included.
+    """
+    process = subprocess.Popen(['ip', 'link'], stdout=subprocess.PIPE)
+    data, _ = process.communicate()
+    for interface, _ in re.findall(r'\d+: ([^:]+):.*state (UP|UNKNOWN)', data):
+        if interface != 'lo':
+            yield interface
+
+
+def osx_get_active_interfaces():
+    """Get active network interfaces using 'ifconfig'
+
+    Returns a list of active network interfaces or an
+    empty list if the device is offline. The loopback
+    interface is not included.
+    """
+    stdout = subprocess.check_output(['ifconfig'])
+    for i in re.split('\n(?!\t)', stdout, re.MULTILINE):
+        b = re.match('(\\w+):.*status: active$', i, re.MULTILINE | re.DOTALL)
+        if b:
+            yield b.group(1)
+
+
+def connection_available():
+    """Check if an Internet connection is available
+
+    Returns True if a connection is available (or if there
+    is no way to determine the connection). Returns False
+    if no network interfaces are up (i.e. no connectivity).
+    """
+    try:
+        if gpodder.ui.win32:
+            # FIXME: Implement for Windows
+            return True
+        elif gpodder.ui.osx:
+            return len(list(osx_get_active_interfaces())) > 0
+            return True
+        else:
+            return len(list(linux_get_active_interfaces())) > 0
+    except Exception, e:
+        logger.warn('Cannot get connection status: %s', e, exc_info=True)
+        return False
+
+
+def website_reachable(url):
     """
     Check if a specific website is available.
-    """  
+    """
+    if not connection_available():
+        # No network interfaces up - assume website not reachable
+        return (False, None)
+
     try:
         response = urllib2.urlopen(url, timeout=1)
         return (True, response)
     except urllib2.URLError as err:
         pass
-        
+
     return (False, None)
 

@@ -34,7 +34,7 @@ import re
 
 VIMEOCOM_RE = re.compile(r'http://vimeo\.com/(\d+)$', re.IGNORECASE)
 MOOGALOOP_RE = re.compile(r'http://vimeo\.com/moogaloop\.swf\?clip_id=(\d+)$', re.IGNORECASE)
-SIGNATURE_RE = re.compile(r'"signature":"([^"]+)","timestamp":(\d+)')
+SIGNATURE_RE = re.compile(r'"timestamp":(\d+),"signature":"([^"]+)"')
 
 class VimeoError(BaseException): pass
 
@@ -54,7 +54,7 @@ def get_real_download_url(url):
     if sig_pair is None:
         raise VimeoError('Cannot get signature pair from Vimeo')
 
-    signature, timestamp = sig_pair.groups()
+    timestamp, signature = sig_pair.groups()
     params = '&'.join('%s=%s' % i for i in [
         ('clip_id', video_id),
         ('sig', signature),

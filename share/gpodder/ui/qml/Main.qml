@@ -1,10 +1,11 @@
 
-import Qt 4.7
+import QtQuick 1.1
 import com.nokia.meego 1.0
 
 import 'config.js' as Config
+import 'util.js' as Util
 
-Image {
+Item {
     id: main
     focus: true
 
@@ -17,7 +18,9 @@ Image {
     }
 
     property alias podcastModel: podcastList.model
-    property alias episodeModel: episodeList.model
+    property variant episodeModel
+    property alias multiEpisodesSheetOpened: multiEpisodesSheet.opened
+    onEpisodeModelChanged: episodeList.resetFilterDialog()
     property alias currentEpisode: mediaPlayer.episode
     property alias showNotesEpisode: showNotes.episode
     property variant currentPodcast: undefined
@@ -30,12 +33,47 @@ Image {
     property bool hasSearchButton: (contextMenu.state == 'closed' && main.state == 'podcasts') && !mediaPlayer.visible && !progressIndicator.opacity
     property bool hasFilterButton: state == 'episodes' && !mediaPlayer.visible
 
+    property bool loadingEpisodes: false
+
+    function clearEpisodeListModel() {
+        loadingEpisodes = true
+        startProgress(_('Loading episodes'))
+    }
+
+    function setEpisodeListModel(model) {
+        episodeListModel.clear();
+        for (var i=0; i<model.length; i++) {
+            episodeListModel.append(model[i]);
+        }
+        loadingEpisodes = false
+        endProgress()
+    }
+
+    function episodeUpdated(id) {
+        for (var i=0; i<episodeListModel.count; i++) {
+            var element = episodeListModel.get(i);
+            if (element.episode_id === id) {
+                var episode = element.episode;
+                element.duration = episode.qduration;
+                element.downloading = episode.qdownloading;
+                element.position = episode.qposition;
+                element.progress = episode.qprogress;
+                element.downloaded = episode.qdownloaded;
+                element.isnew = episode.qnew;
+                element.archive = episode.qarchive;
+                break;
+            }
+        }
+    }
+
     function clickSearchButton() {
         contextMenu.showSubscribe()
     }
 
     function goBack() {
-        if (contextMenu.state == 'opened') {
+        if (nowPlayingThrobber.opened) {
+            clickPlayButton()
+        } else if (contextMenu.state == 'opened') {
             contextMenu.state = 'closed'
         } else if (main.state == 'podcasts') {
             mediaPlayer.stop()
@@ -67,18 +105,6 @@ Image {
 
     width: 800
     height: 480
-
-    property bool useEmptyBackground: !podcastList.hasItems
-
-    anchors.topMargin: useEmptyBackground?-35:0
-    fillMode: useEmptyBackground?Image.Tile:Image.Stretch
-    source: {
-        if (useEmptyBackground) {
-            '/usr/share/themes/blanco/meegotouch/images/backgrounds/meegotouch-empty-application-background-black-portrait.png'
-        } else {
-            'artwork/background-harmattan.png'
-        }
-    }
 
     state: 'podcasts'
 
@@ -152,7 +178,7 @@ Image {
             name: 'episodes'
             PropertyChanges {
                 target: episodeList
-                opacity: 1
+                opacity: !main.loadingEpisodes
             }
             PropertyChanges {
                 target: podcastList
@@ -182,7 +208,6 @@ Image {
     Item {
         id: listContainer
         anchors.fill: parent
-        anchors.topMargin: titleBar.height
 
         PodcastList {
             id: podcastList
@@ -205,6 +230,8 @@ Image {
             id: episodeList
             mainState: main.state
 
+            model: ListModel { id: episodeListModel }
+
             opacity: 0
 
             anchors.fill: parent
@@ -224,7 +251,7 @@ Image {
 
         anchors {
             left: parent.left
-            top: titleBar.bottom
+            top: parent.top
             bottom: parent.bottom
         }
         width: parent.width
@@ -236,7 +263,6 @@ Image {
     Item {
         id: overlayInteractionBlockWall
         anchors.fill: parent
-        anchors.topMargin: (nowPlayingThrobber.opened || messageDialog.opacity > 0 || inputDialog.opacity > 0 || progressIndicator.opacity > 0)?0:titleBar.height
         z: (contextMenu.state != 'opened')?2:0
 
         opacity: (nowPlayingThrobber.opened || contextMenu.state == 'opened' || messageDialog.opacity || inputDialog.opacity || progressIndicator.opacity)?1:0
@@ -362,52 +388,6 @@ Image {
         }
     }
 
-    Item {
-        id: titleBar
-        visible: podcastList.hasItems
-        height: visible?Config.headerHeight*.8:0
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.top: parent.top
-
-        //anchors.topMargin: mediaPlayer.fullscreen?-height:0
-        //opacity: mediaPlayer.fullscreen?0:1
-
-        Behavior on opacity { PropertyAnimation { } }
-        Behavior on anchors.topMargin { PropertyAnimation { } }
-
-        Rectangle {
-            anchors.fill: parent
-            color: "black"
-            opacity: .9
-
-            MouseArea {
-                // clicks should not fall through!
-                anchors.fill: parent
-            }
-        }
-
-        Label {
-            id: titleBarText
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.leftMargin: Config.largeSpacing
-            wrapMode: Text.NoWrap
-            clip: true
-            text: multiEpisodesSheet.opened?multiEpisodesSheet.title:((contextMenu.state == 'opened')?(contextMenu.subscribeMode?_('Add a new podcast'):_('Context menu')):((main.state == 'episodes' || main.state == 'shownotes')?(controller.episodeListTitle + ' (' + episodeList.count + ')'):"gPodder"))
-            color: 'white'
-            font.pixelSize: parent.height * .5
-            font.bold: false
-        }
-
-        Binding {
-            target: controller
-            property: 'windowTitle'
-            value: titleBarText.text
-        }
-    }
-
     function showMessage(message) {
         messageDialogText.text = message
         messageDialog.opacity = 1
@@ -423,10 +403,19 @@ Image {
 
         Label {
             id: messageDialogText
-            anchors.centerIn: parent
+            anchors {
+                left: parent.left
+                right: parent.right
+                verticalCenter: parent.verticalCenter
+                leftMargin: Config.largeSpacing
+                rightMargin: Config.largeSpacing
+            }
             color: 'white'
             font.pixelSize: 20
             font.bold: true
+            width: parent.width
+            horizontalAlignment: Text.AlignHCenter
+            wrapMode: Text.WordWrap
         }
     }
 
@@ -462,6 +451,9 @@ Image {
         property bool opened: false
         property string title: ''
         acceptButtonText: _('Delete')
+        visualParent: episodeList
+        anchors.fill: parent
+        anchors.topMargin: -36
 
         rejectButtonText: _('Cancel')
 
@@ -481,10 +473,10 @@ Image {
                 property variant selected: []
 
                 anchors.fill: parent
-                anchors.bottomMargin: Config.largeSpacing
                 model: episodeList.model
 
                 delegate: EpisodeItem {
+                    property variant modelData: episode
                     inSelection: multiEpisodesList.selected.indexOf(index) !== -1
                     onSelected: {
                         var newSelection = [];
@@ -536,7 +528,7 @@ Image {
                         onClicked: {
                             var newSelection = [];
                             for (var i=0; i<multiEpisodesList.count; i++) {
-                                if (episodeList.model.get_object_by_index(i).qdownloaded) {
+                                if (main.episodeModel.get_object_by_index(i).downloaded) {
                                     newSelection.push(i);
                                 }
                             }
@@ -671,6 +663,5 @@ Image {
             running: parent.opacity > 0
         }
     }
-
 }
 

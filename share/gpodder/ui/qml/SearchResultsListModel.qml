@@ -1,5 +1,5 @@
 
-import Qt 4.7
+import QtQuick 1.1
 
 /**
  * XmlListModel exposing the podcasts in an OPML file:

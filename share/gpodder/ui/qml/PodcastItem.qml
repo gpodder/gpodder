@@ -1,5 +1,5 @@
 
-import Qt 4.7
+import QtQuick 1.1
 
 import com.nokia.meego 1.0
 
@@ -8,9 +8,6 @@ import 'util.js' as Util
 
 SelectableItem {
     id: podcastItem
-
-    // Show context menu when single-touching the count or cover art
-    singlePressContextMenuLeftBorder: titleBox.x
 
     Item {
         id: counterBox
@@ -56,7 +53,7 @@ SelectableItem {
     Image {
     	id: cover
 
-        source: Util.formatCoverURL(modelData)
+        source: modelData.qcoverart
         asynchronous: true
         width: podcastItem.height * .8
         height: width

@@ -16,10 +16,13 @@ var quickTransition = 50
 var slowTransition = 150
 var fadeTransition = 300
 
-var selectColor = '#a07f5785' /* gpodder dark purple */
+var selectColor = '#7f5785' /* gpodder dark purple */
 var newColor = '#cf65de' /* gpodder purple */
-var downloadColor = '#a08ae234' /* download green */
-var playbackColor = '#a0729fcf' /* playback blue */
+var downloadColor = '#8ae234' /* download green */
+var playbackColor = '#729fcf' /* playback blue */
+var selectColorBg = Qt.darker(selectColor, 5)
+var downloadColorBg = Qt.darker(downloadColor, 4)
+var playbackColorBg = Qt.darker(playbackColor, 4)
 
 var baseColor = '#2b2b2b'
 var offlineColor = '#4b4b4b'

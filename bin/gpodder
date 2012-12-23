@@ -20,14 +20,10 @@
 #
 
 """
-gPodder enables you to subscribe to RSS feeds and download
-podcast episodes from these feeds.
+gPodder enables you to subscribe to media feeds (RSS, Atom, YouTube,
+Soundcloud, Vimeo and XSPF) and automatically download new content.
 
-Downloaded podcasts can either be synchronized to portable
-MP3 players (including iPods) or played back on the user's
-desktop.
-
-See gpo(1) for the command-line interface.
+This is the gPodder GUI. See gpo(1) for the command-line interface.
 """
 
 import sys
@@ -109,17 +105,17 @@ def main():
 
     parser.add_option("-v", "--verbose",
                       action="store_true", dest="verbose", default=False,
-                      help=_("Print debugging output to stdout"))
+                      help=_("print logging output on the console"))
 
     parser.add_option("-q", "--qml",
                       action="store_true", dest="qml", default=False,
-                      help=_("Start the QML interface of gPodder"))
+                      help=_("use the QML-based MeeGo 1.2 Harmattan UI"))
 
     parser.add_option('-s', '--subscribe', dest='subscribe', metavar='URL',
-                      help=_('Subscribe to the given URL'))
+                      help=_('subscribe to the feed at URL'))
 
     # On Mac OS X, support the "psn" parameter for compatibility (bug 939)
-    if gpodder.osx:
+    if gpodder.ui.osx:
         parser.add_option('-p', '--psn', dest='macpsn', metavar='PSN',
                           help=_('Mac OS X application process number'))
 
@@ -129,6 +125,9 @@ def main():
         gpodder.ui.qml = True
     else:
         gpodder.ui.gtk = True
+    
+    gpodder.ui.unity = (os.environ.get('DESKTOP_SESSION', 'unknown').lower() in 
+        ('ubuntu', 'ubuntu-2d'))
 
     from gpodder import log
     log.setup(options.verbose)
@@ -156,7 +155,7 @@ def main():
             except dbus.exceptions.DBusException, dbus_exception:
                 logger.info('Cannot connect to remote object.', exc_info=True)
 
-    if not gpodder.win32 and os.environ.get('DISPLAY', '') == '':
+    if not gpodder.ui.win32 and os.environ.get('DISPLAY', '') == '':
         logger.error('Cannot start gPodder: $DISPLAY is not set.')
         sys.exit(1)
 

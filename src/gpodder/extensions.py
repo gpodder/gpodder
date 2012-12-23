@@ -51,6 +51,14 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+CATEGORY_DICT = {
+    'desktop-integration': _('Desktop Integration'),
+    'interface': _('Interface'),
+    'post-download': _('Post download'),
+}
+DEFAULT_CATEGORY = _('Other')
+
+
 def call_extensions(func):
     """Decorator to create handler functions in ExtensionManager
 
@@ -91,44 +99,79 @@ class ExtensionMetadata(object):
     DEFAULTS = {
         'description': _('No description for this extension.'),
     }
+    SORTKEYS = {
+        'title': 1,
+        'description': 2,
+        'category': 3,
+        'author': 4,
+        'only_for': 5,
+        'mandatory_in': 6,
+        'disable_in': 7,
+    }
 
     def __init__(self, container, metadata):
         if 'title' not in metadata:
             metadata['title'] = container.name
 
+        category = metadata.get('category', 'other')
+        metadata['category'] = CATEGORY_DICT.get(category, DEFAULT_CATEGORY)
+        
         self.__dict__.update(metadata)
-
+        
     def __getattr__(self, name):
         try:
             return self.DEFAULTS[name]
-        except KeyError:
-            raise AttributeError(name)
+        except KeyError, e:
+            raise AttributeError(name, e)
+            
+    def get_sorted(self):
+        kf = lambda x: self.SORTKEYS.get(x[0], 99)
+        return sorted([(k, v) for k, v in self.__dict__.items()], key=kf)
 
-    @property
-    def for_current_ui(self):
-        """Check if this extension makes sense for the current UI
+    def check_ui(self, target, default):
+        """Checks metadata information like
+            __only_for__ = 'gtk'
+            __mandatory_in__ = 'gtk'
+            __disable_in__ = 'gtk'
 
-        The __only_for__ metadata field in an extension can be a string with
-        comma-separated values for UIs. This will be checked against boolean
-        variables in the "gpodder.ui" object.
+        The metadata fields in an extension can be a string with
+        comma-separated values for UIs. This will be checked against
+        boolean variables in the "gpodder.ui" object.
 
         Example metadata field in an extension:
 
             __only_for__ = 'gtk,qml'
+            __only_for__ = 'unity'
 
-        In this case, this function will return True if any of the following
-        expressions will evaluate to True:
+        In this case, this function will return the value of the default
+        if any of the following expressions will evaluate to True:
 
             gpodder.ui.gtk
             gpodder.ui.qml
+            gpodder.ui.unity
+            gpodder.ui.cli
+            gpodder.ui.osx
+            gpodder.ui.win32
 
         New, unknown UIs are silently ignored and will evaluate to False.
         """
-        if not hasattr(self, 'only_for'):
-            return True
+        if not hasattr(self, target):
+            return default
 
-        uis = filter(None, [x.strip() for x in self.only_for.split(',')])
+        uis = filter(None, [x.strip() for x in getattr(self, target).split(',')])
         return any(getattr(gpodder.ui, ui.lower(), False) for ui in uis)
+
+    @property   
+    def available_for_current_ui(self):
+        return self.check_ui('only_for', True)
+    
+    @property
+    def mandatory_in_current_ui(self):
+        return self.check_ui('mandatory_in', False)
+        
+    @property
+    def disable_in_current_ui(self):
+        return self.check_ui('disable_in', False)
 
 class MissingDependency(Exception):
     def __init__(self, message, dependency, cause=None):
@@ -217,7 +260,7 @@ class ExtensionContainer(object):
             logger.info('Module already loaded.')
             return
 
-        if not self.metadata.for_current_ui:
+        if not self.metadata.available_for_current_ui:
             logger.info('Not loading "%s" (only_for = "%s")',
                     self.name, self.metadata.only_for)
             return
@@ -264,8 +307,12 @@ class ExtensionManager(object):
             logger.debug('Found extension "%s" in %s', name, filename)
             config = getattr(core.config.extensions, name)
             container = ExtensionContainer(self, name, config, filename)
-            if name in enabled_extensions:
+            if (name in enabled_extensions or
+                    container.metadata.mandatory_in_current_ui):
                 container.set_enabled(True)
+            if (name in enabled_extensions and
+                    container.metadata.disable_in_current_ui):
+                container.set_enabled(False)
             self.containers.append(container)
 
     def shutdown(self):
@@ -273,19 +320,23 @@ class ExtensionManager(object):
             container.set_enabled(False)
 
     def _config_value_changed(self, name, old_value, new_value):
-        if name == 'extensions.enabled':
-            for container in self.containers:
-                new_enabled = (container.name in new_value)
-                if new_enabled != container.enabled:
-                    logger.info('Extension "%s" is now %s', container.name,
-                            'enabled' if new_enabled else 'disabled')
-                    container.set_enabled(new_enabled)
-                    if new_enabled and not container.enabled:
-                        logger.warn('Could not enable extension: %s',
-                                container.error)
-                        self.core.config.extensions.enabled = [x
-                                for x in self.core.config.extensions.enabled
-                                if x != container.name]
+        if name != 'extensions.enabled':
+            return
+            
+        for container in self.containers:
+            new_enabled = (container.name in new_value)
+            if new_enabled == container.enabled:
+                continue
+                
+            logger.info('Extension "%s" is now %s', container.name,
+                    'enabled' if new_enabled else 'disabled')
+            container.set_enabled(new_enabled)
+            if new_enabled and not container.enabled:
+                logger.warn('Could not enable extension: %s',
+                        container.error)
+                self.core.config.extensions.enabled = [x
+                        for x in self.core.config.extensions.enabled
+                        if x != container.name]
 
     def _find_extensions(self):
         extensions = {}
@@ -309,7 +360,10 @@ class ExtensionManager(object):
 
     def get_extensions(self):
         """Get a list of all loaded extensions and their enabled flag"""
-        return self.containers
+        return [c for c in self.containers 
+            if c.metadata.available_for_current_ui and 
+            not c.metadata.mandatory_in_current_ui and
+            not c.metadata.disable_in_current_ui]
 
     # Define all known handler functions here, decorate them with the
     # "call_extension" decorator to forward all calls to extension scripts that have

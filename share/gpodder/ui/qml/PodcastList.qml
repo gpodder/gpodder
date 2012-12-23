@@ -1,5 +1,5 @@
 
-import Qt 4.7
+import QtQuick 1.1
 
 import com.nokia.meego 1.0
 
@@ -44,6 +44,13 @@ Item {
             bottom: podcastList.bottom
             margins: 70
         }
+    }
+
+    PullDownHandle {
+        target: listView
+        pullDownText: _('Pull down to refresh')
+        releaseText: _('Release to refresh')
+        onRefresh: controller.updateAllPodcasts()
     }
 
     ListView {

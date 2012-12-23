@@ -88,7 +88,7 @@ defaults = {
 
     # Software updates from gpodder.org (primary audience: Windows users)
     'software_update': {
-        'check_on_startup': gpodder.win32, # check for updates on start
+        'check_on_startup': gpodder.ui.win32, # check for updates on start
         'last_check': 0, # unix timestamp of last update check
         'interval': 5, # interval (in days) to check for updates
     },
@@ -146,7 +146,6 @@ defaults = {
                 'descriptions': True,
                 'view_mode': 1,
                 'columns': int('101', 2), # bitfield of visible columns
-                'embed_shownotes': False, # show shownotes below episode list
             },
 
             'download_list': {
@@ -177,7 +176,8 @@ defaults = {
     },
 
     'youtube': {
-        'preferred_fmt_id': 18,
+        'preferred_fmt_id': 18, # default fmt_id (see fallbacks in youtube.py)
+        'preferred_fmt_ids': [], # for advanced uses (custom fallback sequence)
     },
 
     'extensions': {
@@ -212,7 +212,6 @@ gPodderSettings_LegacySupport = {
     'episode_list_view_mode': 'ui.gtk.episode_list.view_mode',
     'podcast_list_view_mode': 'ui.gtk.podcast_list.view_mode',
     'podcast_list_hide_boring': 'ui.gtk.podcast_list.hide_empty',
-    'youtube_preferred_fmt_id': 'youtube.preferred_fmt_id',
     'episode_list_columns': 'ui.gtk.episode_list.columns',
     'auto_cleanup_downloads': 'ui.gtk.download_list.remove_finished',
     'auto_update_feeds': 'auto.update.enabled',
