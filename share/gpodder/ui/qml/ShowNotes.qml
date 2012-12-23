@@ -38,10 +38,10 @@ Rectangle {
                 var pubdate = episode.qpubdate;
                 var filesize = episode.qfilesize;
                 var filename = ''
-		var httpPat = /^https?:\/\//
-		if ( ! httpPat.test(episode.qsourceurl) ) {
-		   filename = ' | ' + episode.qsourceurl.split('/').pop()
-		}
+                var httpPat = /^https?:\/\//
+                if ( ! httpPat.test(episode.qsourceurl) ) {
+                   filename = ' | ' + episode.qsourceurl.split('/').pop()
+                }
                 if (filesize !== '') {
                     return pubdate + ' | ' + filesize + filename;
                 } else {
