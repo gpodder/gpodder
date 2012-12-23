@@ -94,11 +94,13 @@ SelectableItem {
 
         Label {
             text: {
-                if (episodeItem.playbackDuration) {
+	          if (episodeItem.playbackDuration && episodeItem.playbackPosition) {
+                    Util.formatPosition(episodeItem.playbackPosition,episodeItem.playbackDuration)
+                  } else if (episodeItem.playbackDuration) {
                     Util.formatDuration(episodeItem.playbackDuration)
-                } else {
+		  } else {
                     '-'
-                }
+                  }
             }
             font.pixelSize: Config.listItemHeight * .2
             color: labelTitle.color
