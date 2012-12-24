@@ -21,7 +21,7 @@ SelectableItem {
     }
 
     Image {
-    	id: cover
+        id: cover
 
         source: modelData.qcoverart
         asynchronous: true
@@ -61,7 +61,7 @@ SelectableItem {
         width: Config.iconSize * 1.3
 
         anchors {
-	    left: titleBox.right
+            left: titleBox.right
             right: parent.right
             top: parent.top
             bottom: parent.bottom
