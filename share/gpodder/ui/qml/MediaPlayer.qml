@@ -186,18 +186,16 @@ Item {
             right: parent.right
         }
 
-        height: mediaPlayerButtonsColumn.height + 2 * Config.smallSpacing
+        Grid {
+            columns: Util.isScreenPortrait() ? 1 : 2
 
-        Column {
-            id: mediaPlayerButtonsColumn
+            spacing: 2
 
-            spacing: Config.smallSpacing
-            width: parent.width
+            anchors.horizontalCenter: parent.horizontalCenter
 
             Button {
                 id: showNotesButton
                 width: parent.width * .9
-                anchors.horizontalCenter: parent.horizontalCenter
 
                 text: _('Shownotes')
                 onClicked: {
@@ -209,7 +207,6 @@ Item {
             Button {
                 id: playQueueButton
                 width: parent.width * .9
-                anchors.horizontalCenter: parent.horizontalCenter
 
                 visible: playQueue.length > 0
 
