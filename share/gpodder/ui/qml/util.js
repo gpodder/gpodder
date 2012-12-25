@@ -17,3 +17,7 @@ function formatDuration(duration) {
 function formatPosition(position,duration) {
   return formatDuration(position) + " / " + formatDuration(duration)
 }
+
+function isScreenPortrait() {
+  return screen.currentOrientation == Screen.Portrait || screen.currentOrientation == Screen.PortraitInverted 
+}
