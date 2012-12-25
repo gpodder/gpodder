@@ -60,6 +60,24 @@ SelectableItem {
         cache: true
     }
 
+    Image {
+        id: archiveIcon
+        source: 'artwork/episode-archive.png'
+
+        visible: modelData.qarchive
+
+        sourceSize {
+            width: Config.iconSize
+            height: Config.iconSize
+        }
+
+        anchors {
+            top: parent.top
+            left: parent.left
+            topMargin: Config.listItemHeight - height - Config.smallSpacing
+        }
+    }
+
     Column {
         anchors {
             left: icon.right
@@ -99,7 +117,7 @@ SelectableItem {
                 } else if (episodeItem.playbackDuration) {
                     Util.formatDuration(episodeItem.playbackDuration)
                 } else {
-                    '-'
+                    ''
                 }
             }
             font.pixelSize: Config.listItemHeight * .2
