@@ -185,31 +185,26 @@ Item {
             left: parent.left
             right: parent.right
         }
-        height: showNotesButton.height + playQueueButton.height + 2 * Config.smallSpacing
-
-        Button {
+        Grid {
+          columns: Util.isScreenPortrait() ? 1 : 2
+          spacing: 2
+          anchors.horizontalCenter: parent.horizontalCenter
+          Button {
             id: showNotesButton
-            anchors.left: parent.left
-            anchors.top: parent.top
-            anchors.horizontalCenter: parent.horizontalCenter
             text: _('Shownotes')
             onClicked: { 
                 nowPlayingThrobber.opened = false
                 main.openShowNotes(episode)
             }
-        }
+          }
 
-        Button {
+          Button {
             visible: playQueue.length > 0
             id: playQueueButton
-            anchors.left: parent.left
-            anchors.top: showNotesButton.bottom
-            anchors.horizontalCenter: parent.horizontalCenter
             text: _('Play queue') + ' (' + playQueue.length + ')'
             onClicked: playQueueDialog.showQueue();
+          }
         }
-
-
         MultiSelectionDialog {
             id: playQueueDialog
 
