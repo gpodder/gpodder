@@ -59,19 +59,26 @@ Item {
         visible: count > 1
 
         section.property: 'section'
-        section.delegate: Item {
-            height: Config.headerHeight
-            Label {
-                font.pixelSize: parent.height * .5
+        section.delegate: Column {
+            spacing: Config.smallSpacing 
+            anchors.topMargin: Config.largeSpacing
+
+            Text {
+                font.pixelSize: Config.headerHeight * .5
                 wrapMode: Text.NoWrap
                 text: section
-                color: "#aaa"
+                style: Text.Raised
+                color: "#bbb"
                 anchors {
-                    leftMargin: Config.iconSize * 1.3 + Config.smallSpacing
-                    bottom: parent.bottom
                     left: parent.left
-                    right: parent.right
+                    leftMargin: Config.smallSpacing
                 }
+            }
+            Rectangle {
+              height: 1
+              border.width: 0
+              color: "#bbb"
+              width: listView.width
             }
         }
 
