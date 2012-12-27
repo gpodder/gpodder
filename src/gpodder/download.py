@@ -69,7 +69,8 @@ def get_header_param(headers, param, header_name):
         msg = email.message_from_string('\n'.join(headers_string))
         if header_name in msg:
             raw_value = msg.get_param(param, header=header_name)
-            value = email.utils.collapse_rfc2231_value(raw_value)
+            if raw_value is not None:
+                value = email.utils.collapse_rfc2231_value(raw_value)
     except Exception, e:
         logger.error('Cannot get %s from %s', param, header_name, exc_info=True)
 
