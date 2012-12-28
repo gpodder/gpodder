@@ -188,6 +188,10 @@ class PodcastEpisode(PodcastModelObject):
         else:
             episode.description = entry.get('summary', '')
 
+        # Fallback to subtitle if summary is not available
+        if not episode.description:
+            episode.description = entry.get('subtitle', '')
+
         try:
             total_time = 0
 
@@ -207,10 +211,6 @@ class PodcastEpisode(PodcastModelObject):
             episode.total_time = total_time
         except:
             pass
-
-        # Fallback to subtitle if summary is not available0
-        if not episode.description:
-            episode.description = entry.get('subtitle', '')
 
         episode.published = feedcore.get_pubdate(entry)
 
@@ -313,14 +313,6 @@ class PodcastEpisode(PodcastModelObject):
 
             # The link points to a audio or video file - use it!
             if file_type is not None:
-                return episode
-
-        # Scan MP3 links in description text
-        mp3s = re.compile(r'http://[^"]*\.mp3')
-        for content in entry.get('content', ()):
-            html = content.value
-            for match in mp3s.finditer(html):
-                episode.url = match.group(0)
                 return episode
 
         return None
@@ -764,15 +756,6 @@ class PodcastEpisode(PodcastModelObject):
         else:
             return '-'
 
-    def is_duplicate(self, episode):
-        if self.title == episode.title and self.published == episode.published:
-            logger.warn('Possible duplicate detected: %s', self.title)
-            return True
-        return False
-
-    def duplicate_id(self):
-        return hash((self.title, self.published))
-
     def update_from(self, episode):
         for k in ('title', 'url', 'description', 'link', 'published', 'guid', 'file_size', 'payment_url'):
             setattr(self, k, getattr(episode, k))
@@ -1009,69 +992,67 @@ class PodcastChannel(PodcastModelObject):
                 self.title = self.title[len(VIMEO_PREFIX):] + ' on Vimeo'
             # End YouTube- and Vimeo-specific title FIX
 
-    def _consume_custom_feed(self, custom_feed, max_episodes=0):
-        self._consume_updated_title(custom_feed.get_title())
-        self.link = custom_feed.get_link()
-        self.description = custom_feed.get_description()
-        self.cover_url = custom_feed.get_image()
+    def _consume_metadata(self, title, link, description, cover_url,
+            payment_url):
+        self._consume_updated_title(title)
+        self.link = link
+        self.description = description
+        self.cover_url = cover_url
+        self.payment_url = payment_url
         self.save()
+
+    def _consume_custom_feed(self, custom_feed, max_episodes=0):
+        self._consume_metadata(custom_feed.get_title(),
+                custom_feed.get_link(),
+                custom_feed.get_description(),
+                custom_feed.get_image(),
+                None)
 
         existing = self.get_all_episodes()
         existing_guids = [episode.guid for episode in existing]
 
-        assert self.children is not None
-
         # Insert newly-found episodes into the database + local cache
-        new_episodes, seen_guids = custom_feed.get_new_episodes(self,
-                existing_guids)
+        new_episodes, seen_guids = custom_feed.get_new_episodes(self, existing_guids)
         self.children.extend(new_episodes)
 
         self.remove_unreachable_episodes(existing, seen_guids, max_episodes)
 
     def _consume_updated_feed(self, feed, max_episodes=0):
-        #self.parse_error = feed.get('bozo_exception', None)
-
-        self._consume_updated_title(feed.feed.get('title', self.url))
-        self.link = feed.feed.get('link', self.link)
-        self.description = feed.feed.get('subtitle', self.description)
-
-        # read the flattr auto-url, if exists
-        payment_info = [link['href'] for link in feed.feed.get('links', [])
-            if link['rel'] == 'payment']
-        if payment_info:
-            self.payment_url = sorted(payment_info, key=get_payment_priority)[0]
-
+        # Cover art URL
         if hasattr(feed.feed, 'image'):
             for attribute in ('href', 'url'):
                 new_value = getattr(feed.feed.image, attribute, None)
                 if new_value is not None:
-                    self.cover_url = new_value
+                    cover_url = new_value
+        elif hasattr(feed.feed, 'icon'):
+            cover_url = feed.feed.icon
 
-        if hasattr(feed.feed, 'icon'):
-            self.cover_url = feed.feed.icon
+        # Payment URL (Flattr auto-payment) information
+        payment_info = [link['href'] for link in feed.feed.get('links', [])
+            if link['rel'] == 'payment']
+        if payment_info:
+            payment_url = sorted(payment_info, key=get_payment_priority)[0]
+        else:
+            payment_url = None
 
-        self.save()
+        self._consume_metadata(feed.feed.get('title', self.url),
+                feed.feed.get('link', self.link),
+                feed.feed.get('subtitle', self.description),
+                cover_url,
+                payment_url)
 
         # Load all episodes to update them properly.
         existing = self.get_all_episodes()
 
-        try:
-            # We have to sort the entries in descending chronological order,
-            # because if the feed lists items in ascending order and has >
-            # max_episodes old episodes, new episodes will not be shown.
-            # See also: gPodder Bug 1186
-            entries = sorted(feed.entries, key=feedcore.get_pubdate,
-                    reverse=True)
-        except Exception, e:
-            logger.warn('Could not sort episodes: %s', e, exc_info=True)
-            entries = feed.entries
+        # We have to sort the entries in descending chronological order,
+        # because if the feed lists items in ascending order and has >
+        # max_episodes old episodes, new episodes will not be shown.
+        # See also: gPodder Bug 1186
+        entries = sorted(feed.entries, key=feedcore.get_pubdate, reverse=True)
 
         # We can limit the maximum number of entries that gPodder will parse
         if max_episodes > 0 and len(entries) > max_episodes:
             entries = entries[:max_episodes]
-
-        # Title + PubDate hashes for existing episodes
-        existing_dupes = dict((e.duplicate_id(), e) for e in existing)
 
         # GUID-based existing episode list
         existing_guids = dict((e.guid, e) for e in existing)
@@ -1087,27 +1068,20 @@ class PodcastChannel(PodcastModelObject):
 
         # Search all entries for new episodes
         for entry in entries:
-            try:
-                episode = self.EpisodeClass.from_feedparser_entry(entry, self)
-                if episode is not None:
-                    if not episode.title:
-                        logger.warn('Using filename as title for %s',
-                                episode.url)
-                        basename = os.path.basename(episode.url)
-                        episode.title, ext = os.path.splitext(basename)
+            episode = self.EpisodeClass.from_feedparser_entry(entry, self)
+            if episode is not None:
+                if not episode.title:
+                    logger.warn('Using filename as title for %s', episode.url)
+                    basename = os.path.basename(episode.url)
+                    episode.title, ext = os.path.splitext(basename)
 
-                    # Maemo bug 12073
-                    if not episode.guid:
-                        logger.warn('Using download URL as GUID for %s',
-                                episode.title)
-                        episode.guid = episode.url
+                # Maemo bug 12073
+                if not episode.guid:
+                    logger.warn('Using download URL as GUID for %s', episode.title)
+                    episode.guid = episode.url
 
-                    seen_guids.add(episode.guid)
-            except Exception, e:
-                logger.error('Skipping episode: %s', e, exc_info=True)
-                continue
-
-            if episode is None:
+                seen_guids.add(episode.guid)
+            else:
                 continue
 
             # Detect (and update) existing episode based on GUIDs
@@ -1117,20 +1091,6 @@ class PodcastChannel(PodcastModelObject):
                 existing_episode.save()
                 continue
 
-            # Detect (and update) existing episode based on duplicate ID
-            existing_episode = existing_dupes.get(episode.duplicate_id(), None)
-            if existing_episode:
-                if existing_episode.is_duplicate(episode):
-                    existing_episode.update_from(episode)
-                    existing_episode.save()
-                    continue
-
-            new_episodes += 1
-            # Only allow a certain number of new episodes per update
-            if (self.download_strategy == PodcastChannel.STRATEGY_LATEST and
-                    new_episodes > 1):
-                episode.is_new = False
-
             # Workaround for bug 340: If the episode has been
             # published earlier than one week before the most
             # recent existing episode, do not mark it as new.
@@ -1138,12 +1098,16 @@ class PodcastChannel(PodcastModelObject):
                 logger.debug('Episode with old date: %s', episode.title)
                 episode.is_new = False
 
-            episode.save()
+            if episode.is_new:
+                new_episodes += 1
 
-            # This episode is new - if we already loaded the
-            # list of "children" episodes, add it to this list
-            if self.children is not None:
-                self.children.append(episode)
+            # Only allow a certain number of new episodes per update
+            if (self.download_strategy == PodcastChannel.STRATEGY_LATEST and
+                    new_episodes > 1):
+                episode.is_new = False
+
+            episode.save()
+            self.children.append(episode)
 
         self.remove_unreachable_episodes(existing, seen_guids, max_episodes)
 
