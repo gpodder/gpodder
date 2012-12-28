@@ -59,9 +59,10 @@ class gPodderExtension:
         converted_filename = self._convert_mp4(episode, current_filename)
 
         if converted_filename is not None:
-            self.rename_episode_file(episode, converted_filename)
+            util.rename_episode_file(episode, converted_filename)
             os.remove(current_filename)
             logger.info('Conversion for %s was successfully' % current_filename)
+            gpodder.user_extensions.on_notification_show(_('File converted'), episode.title)
 
     def _get_rockbox_filename(self, origin_filename):
         if not os.path.exists(origin_filename):
@@ -111,7 +112,7 @@ class gPodderExtension:
             return to_file
 
         logger.info("Converting: %s", from_file)
-        gpodder.user_extensions.on_notification_show("Converting", episode)
+        gpodder.user_extensions.on_notification_show("Converting", episode.title)
 
         # calculationg the new screen resolution
         info = kaa.metadata.parse(from_file)
@@ -143,6 +144,6 @@ class gPodderExtension:
             logger.error(stderr)
             return None
 
-        gpodder.user_extensions.on_notification_show("Converting finished", episode)
+        gpodder.user_extensions.on_notification_show("Converting finished", episode.title)
 
         return to_file
