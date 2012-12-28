@@ -2622,7 +2622,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         episodes = []
         for channel in channels:
-            for episode in channel.get_downloaded_episodes():
+            for episode in channel.get_episodes(gpodder.STATE_DOWNLOADED):
                 # Disallow deletion of locked episodes that still exist
                 if not episode.archive or not episode.file_exists():
                     episodes.append(episode)

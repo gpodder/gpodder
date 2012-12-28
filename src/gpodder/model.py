@@ -596,12 +596,6 @@ class PodcastEpisode(PodcastModelObject):
         return os.path.join(util.sanitize_encoding(self.channel.save_dir),
                 util.sanitize_encoding(self.download_filename))
 
-    def set_mimetype(self, mimetype, commit=False):
-        """Sets the mimetype for this episode"""
-        self.mime_type = mimetype
-        if commit:
-            self.db.commit()
-
     def extension(self, may_call_local_filename=True):
         filename, ext = util.filename_from_url(self.url)
         if may_call_local_filename:
@@ -689,16 +683,6 @@ class PodcastEpisode(PodcastModelObject):
     def sortdate(self):
 	    return str(datetime.datetime.fromtimestamp(self.published).strftime('%F'))
 
-    def calculate_filesize(self):
-        filename = self.local_filename(create=False)
-        if filename is None:
-            return
-
-        try:
-            self.file_size = os.path.getsize(filename)
-        except:
-            logger.error('Could not get file size: %s', filename, exc_info=True)
-
     def is_finished(self):
         """Return True if this episode is considered "finished playing"
 
@@ -749,11 +733,11 @@ class PodcastChannel(PodcastModelObject):
 
     feed_fetcher = gPodderFetcher()
 
-    def __init__(self, model):
+    def __init__(self, model, id=None):
         self.parent = model
-        self.children = None
+        self.children = []
 
-        self.id = None
+        self.id = id
         self.url = None
         self.title = ''
         self.link = ''
@@ -775,6 +759,10 @@ class PodcastChannel(PodcastModelObject):
         self.section = _('Other')
         self._common_prefix = None
         self.download_strategy = PodcastChannel.STRATEGY_DEFAULT
+
+        if self.id:
+            self.children = self.db.load_episodes(self, self.episode_factory)
+            self._determine_common_prefix()
 
     @property
     def model(self):
@@ -809,7 +797,7 @@ class PodcastChannel(PodcastModelObject):
         """
         known_files = set()
 
-        for episode in self.get_downloaded_episodes():
+        for episode in self.get_episodes(gpodder.STATE_DOWNLOADED):
             if episode.was_downloaded():
                 filename = episode.local_filename(create=False)
                 if not os.path.exists(filename):
@@ -1205,11 +1193,6 @@ class PodcastChannel(PodcastModelObject):
     def authenticate_url(self, url):
         return util.url_add_authentication(url, self.auth_username, self.auth_password)
 
-    def _get_cover_url(self):
-        return self.cover_url
-
-    image = property(_get_cover_url)
-
     def rename(self, new_title):
         new_title = new_title.strip()
         if self.title == new_title:
@@ -1237,9 +1220,6 @@ class PodcastChannel(PodcastModelObject):
         self.title = new_title
         self.save()
 
-    def get_downloaded_episodes(self):
-        return filter(lambda e: e.was_downloaded(), self.get_all_episodes())
-
     def _determine_common_prefix(self):
         # We need at least 2 episodes for the prefix to be "common" ;)
         if len(self.children) < 2:
@@ -1255,11 +1235,10 @@ class PodcastChannel(PodcastModelObject):
         self._common_prefix = prefix
 
     def get_all_episodes(self):
-        if self.children is None:
-            self.children = self.db.load_episodes(self, self.episode_factory)
-            self._determine_common_prefix()
-
         return self.children
+
+    def get_episodes(self, state):
+        return filter(lambda e: e.state == state, self.get_all_episodes())
 
     def find_unique_folder_name(self, download_folder):
         # Remove trailing dots to avoid errors on Windows (bug 600)
@@ -1310,7 +1289,7 @@ class PodcastChannel(PodcastModelObject):
 
     def remove_downloaded(self):
         # Remove the download directory
-        for episode in self.get_downloaded_episodes():
+        for episode in self.get_episodes(gpodder.STATE_DOWNLOADED):
             filename = episode.local_filename(create=False, check_only=True)
             if filename is not None:
                 gpodder.user_extensions.on_episode_delete(episode, filename)
@@ -1339,7 +1318,7 @@ class Model(object):
 
     def get_podcasts(self):
         def podcast_factory(dct, db):
-            return self.PodcastClass.create_from_dict(dct, self)
+            return self.PodcastClass.create_from_dict(dct, self, dct['id'])
 
         if self.children is None:
             self.children = self.db.load_podcasts(podcast_factory)
