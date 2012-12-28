@@ -113,7 +113,7 @@ class PodcastModelObject(object):
     A generic base class for our podcast model providing common helper
     and utility functions.
     """
-    __slots__ = ('id', 'parent', 'children', 'changed')
+    __slots__ = ('id', 'parent', 'children')
 
     @classmethod
     def create_from_dict(cls, d, *args):
@@ -123,40 +123,11 @@ class PodcastModelObject(object):
         """
         o = cls(*args)
 
-        o.changed = None
-
         # XXX: all(map(lambda k: hasattr(o, k), d))?
         for k, v in d.iteritems():
             setattr(o, k, v)
 
-        o.changed = {}
-
         return o
-
-    def __setattr__(self, name, value):
-        """Track changes once "self.changed" is a dictionary
-
-        The changed values will be stored in self.changed until
-        _clear_changes is called.
-        """
-        if getattr(self, 'changed', None) is not None and self.id is not None:
-            old_value = getattr(self, name, None)
-
-            if old_value is not None and value != old_value:
-                # Value changed (and it is not an initialization)
-                if name not in self.changed:
-                    self.changed[name] = old_value
-                # logger.debug("%s: %s.%s changed: %s -> %s"
-                #              % (self.__class__.__name__, self.id, name,
-                #                 old_value, value))
-
-        super(PodcastModelObject, self).__setattr__(name, value)
-
-    def _clear_changes(self):
-        # logger.debug("Changes: %s: %s"
-        #              % ([getattr (self, a) for a in self.__slots__],
-        #                 str(self.changed),))
-        self.changed = {}
 
 class PodcastEpisode(PodcastModelObject):
     """holds data for one object in a channel"""
@@ -418,9 +389,6 @@ class PodcastEpisode(PodcastModelObject):
 
     def save(self):
         gpodder.user_extensions.on_episode_save(self)
-
-        self._clear_changes()
-
         self.db.save_episode(self)
 
     def on_downloaded(self, filename):
@@ -1195,8 +1163,6 @@ class PodcastChannel(PodcastModelObject):
             self.get_save_dir()
 
         gpodder.user_extensions.on_podcast_save(self)
-
-        self._clear_changes()
 
         self.db.save_podcast(self)
         self.model._append_podcast(self)
