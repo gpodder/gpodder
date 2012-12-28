@@ -300,15 +300,6 @@ def get_pubdate(entry):
         pubdate = entry.get('updated_parsed', None)
 
     if pubdate is None:
-        # See http://code.google.com/p/feedparser/issues/detail?id=327
-        updated = entry.get('published', entry.get('updated', None))
-        if updated is not None:
-            # FIXME: This is kludgy. We should write our own date handler
-            # and register it with feedparser.registerDateHandler() and/or
-            # wait for feedparser to add support for this bogus date format.
-            pubdate = feedparser._parse_date(updated.replace(',', ''))
-
-    if pubdate is None:
         # Cannot determine pubdate - party like it's 1970!
         return 0
 
