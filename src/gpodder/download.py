@@ -831,7 +831,7 @@ class DownloadTask(object):
                 if new_mimetype is not None:
                     logger.info('Using content-disposition mimetype: %s',
                             new_mimetype)
-                    self.__episode.set_mimetype(new_mimetype, commit=True)
+                    self.__episode.mime_type = new_mimetype
 
             # Re-evaluate filename and tempname to take care of podcast renames
             # while downloads are running (which will change both file names)
