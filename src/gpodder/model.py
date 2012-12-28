@@ -1026,6 +1026,8 @@ class PodcastChannel(PodcastModelObject):
                     cover_url = new_value
         elif hasattr(feed.feed, 'icon'):
             cover_url = feed.feed.icon
+        else:
+            cover_url = None
 
         # Payment URL (Flattr auto-payment) information
         payment_info = [link['href'] for link in feed.feed.get('links', [])
