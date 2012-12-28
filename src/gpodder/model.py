@@ -676,12 +676,12 @@ class PodcastEpisode(PodcastModelObject):
             return '(%s)' % _('unknown')
         else:
             return result
-    
+
     pubdate_prop = property(fget=cute_pubdate)
 
     @property
     def sortdate(self):
-	    return str(datetime.datetime.fromtimestamp(self.published).strftime('%F'))
+        return str(datetime.datetime.fromtimestamp(self.published).strftime('%F'))
 
     def is_finished(self):
         """Return True if this episode is considered "finished playing"
@@ -1284,7 +1284,7 @@ class PodcastChannel(PodcastModelObject):
             logger.error('Could not create save_dir: %s', save_dir)
 
         return save_dir
-    
+
     save_dir = property(fget=get_save_dir)
 
     def remove_downloaded(self):
