@@ -50,7 +50,9 @@ except ImportError:
 class gPodderShownotes:
     def __init__(self, scrolled_window):
         self.scrolled_window = scrolled_window
-        self.scrolled_window.add(self.init())
+        notes = self.init()
+        if notes.get_parent() is not self.scrolled_window:
+            self.scrolled_window.add(notes)
         self.scrolled_window.show_all()
 
     def set_episode(self, episode):
