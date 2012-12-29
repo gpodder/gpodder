@@ -280,6 +280,8 @@ class Fetcher(object):
             return self._check_statuscode(feed)
 
     def fetch(self, url, etag=None, modified=None):
+        if modified is not None:
+            modified = feedparser._parse_date(modified)
         return self._parse_feed(url, etag, modified)
 
 

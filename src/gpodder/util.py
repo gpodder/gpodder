@@ -62,7 +62,13 @@ import webbrowser
 import mimetypes
 import itertools
 
-import feedparser
+try:
+    # Python 2
+    from rfc822 import mktime_tz, parsedate_tz
+except ImportError:
+    # Python 3
+    from email.utils import mktime_tz, parsedate_tz
+
 
 import StringIO
 import xml.dom.minidom
@@ -1162,6 +1168,25 @@ def format_time(value):
         return dt.strftime('%M:%S')
     else:
         return dt.strftime('%H:%M:%S')
+
+def parse_date(value):
+    """Parse a date string into a Unix timestamp
+
+    >>> parse_date('Sat Dec 29 18:23:19 CET 2012')
+    1356801799
+    >>> parse_date('')
+    0
+    """
+    if not value:
+        return 0
+
+    parsed = parsedate_tz(value)
+    if parsed is not None:
+        return int(mktime_tz(parsed))
+
+    logger.error('Cannot parse date: %s', repr(value))
+    #return int(mktime_tz(feedparser._parse_date(text) + (0,)))
+    return 0
 
 def parse_time(value):
     """Parse a time string into seconds

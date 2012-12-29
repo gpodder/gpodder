@@ -29,17 +29,7 @@ from gpodder import vimeo
 import re
 import os
 import time
-import rfc822
 import urlparse
-
-try:
-    # Python 2
-    from rfc822 import mktime_tz
-except ImportError:
-    # Python 3
-    from email.utils import mktime_tz
-
-from feedparser import _parse_date
 
 class Target:
     WANT_TEXT = False
@@ -198,11 +188,7 @@ def parse_type(text):
     return text
 
 def parse_pubdate(text):
-    parsed = rfc822.parsedate(text)
-    if parsed is None:
-        print 'WARNING DATE:', repr(text)
-        parsed = _parse_date(text)
-    return mktime_tz(parsed + (0,))
+    return util.parse_date(text)
 
 
 MAPPING = {

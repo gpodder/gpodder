@@ -41,7 +41,6 @@ import os
 import time
 
 import re
-import feedparser
 
 from xml.dom import minidom
 
@@ -59,8 +58,7 @@ def get_metadata(url):
     filetype = headers['content-type'] or 'application/octet-stream'
 
     if 'last-modified' in headers:
-        parsed_date = feedparser._parse_date(headers['last-modified'])
-        filedate = time.mktime(parsed_date)
+        filedate = util.parse_date(headers['last-modified'])
     else:
         filedate = None
 
