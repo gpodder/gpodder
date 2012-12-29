@@ -185,30 +185,38 @@ Item {
             left: parent.left
             right: parent.right
         }
-        height: showNotesButton.height + playQueueButton.height + 2 * Config.smallSpacing
 
-        Button {
-            id: showNotesButton
-            anchors.left: parent.left
-            anchors.top: parent.top
-            anchors.horizontalCenter: parent.horizontalCenter
-            text: _('Shownotes')
-            onClicked: { 
-                nowPlayingThrobber.opened = false
-                main.openShowNotes(episode)
+        height: mediaPlayerButtonsColumn.height + 2 * Config.smallSpacing
+
+        Column {
+            id: mediaPlayerButtonsColumn
+
+            spacing: Config.smallSpacing
+            width: parent.width
+
+            Button {
+                id: showNotesButton
+                width: parent.width * .9
+                anchors.horizontalCenter: parent.horizontalCenter
+
+                text: _('Shownotes')
+                onClicked: {
+                    nowPlayingThrobber.opened = false
+                    main.openShowNotes(episode)
+                }
+            }
+
+            Button {
+                id: playQueueButton
+                width: parent.width * .9
+                anchors.horizontalCenter: parent.horizontalCenter
+
+                visible: playQueue.length > 0
+
+                text: _('Play queue') + ' (' + playQueue.length + ')'
+                onClicked: playQueueDialog.showQueue();
             }
         }
-
-        Button {
-            visible: playQueue.length > 0
-            id: playQueueButton
-            anchors.left: parent.left
-            anchors.top: showNotesButton.bottom
-            anchors.horizontalCenter: parent.horizontalCenter
-            text: _('Play queue') + ' (' + playQueue.length + ')'
-            onClicked: playQueueDialog.showQueue();
-        }
-
 
         MultiSelectionDialog {
             id: playQueueDialog

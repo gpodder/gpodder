@@ -88,7 +88,7 @@ class gPodderExtension(object):
 
         intro = episode_data.split('introDuration%22%3A')[1] \
                             .split('%2C')[0] or 15
-        intro = intro*1000
+        intro = int(intro)*1000
         current_filename = episode.local_filename(create=False)
         srt_filename = self.get_srt_filename(current_filename)
         sub = self.ted_to_srt(sub_data, int(intro))

@@ -141,7 +141,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.sw_shownotes = gtk.ScrolledWindow()
         self.sw_shownotes.set_shadow_type(gtk.SHADOW_IN)
-        self.sw_shownotes.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
+        self.sw_shownotes.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
         self.vbox_episode_list.add(self.sw_shownotes)
 
         if self.config.enable_html_shownotes and shownotes.have_webkit:
@@ -1652,6 +1652,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         util.run_in_background(lambda: convert_and_send_thread(episodes_to_copy))
 
+    def _add_sub_menu(self, menu, label):
+        root_item = gtk.MenuItem(label)
+        menu.append(root_item)
+        sub_menu = gtk.Menu()        
+        root_item.set_submenu(sub_menu)
+        return sub_menu
+
     def treeview_available_show_context_menu(self, treeview, event=None):
         model, paths = self.treeview_handle_context_menu_click(treeview, event)
         if not paths:
@@ -1664,6 +1671,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             episodes = self.get_selected_episodes()
             any_locked = any(e.archive for e in episodes)
             any_new = any(e.is_new for e in episodes)
+            any_flattrable = any(e.payment_url for e in episodes)
             downloaded = all(e.was_downloaded(and_exists=True) for e in episodes)
             downloading = any(e.downloading for e in episodes)
 
@@ -1705,18 +1713,26 @@ class gPodder(BuilderWidget, dbus.service.Object):
             result = gpodder.user_extensions.on_episodes_context_menu(episodes)
             if result:
                 menu.append(gtk.SeparatorMenuItem())
+                submenus = {}
                 for label, callback in result:
-                    item = gtk.MenuItem(label)
-                    item.connect('activate', lambda item, callback:
-                            callback(episodes), callback)
-                    menu.append(item)
+                    key, sep, titel = label.rpartition('/')
+                    item = gtk.ImageMenuItem(titel)
+                    item.connect('button-press-event',
+                        lambda w, ee, callback: callback(episodes), callback)
+                    if key:
+                        if key not in submenus:
+                            sub_menu = self._add_sub_menu(menu, key)
+                            submenus[key] = sub_menu
+                        else:
+                            sub_menu = submenus[key]
+                        sub_menu.append(item)
+                    else:
+                        menu.append(item)
 
             # Ok, this probably makes sense to only display for downloaded files
             if downloaded:
                 menu.append(gtk.SeparatorMenuItem())
-                share_item = gtk.MenuItem(_('Send to'))
-                menu.append(share_item)
-                share_menu = gtk.Menu()
+                share_menu = self._add_sub_menu(menu, _('Send to'))
 
                 item = gtk.ImageMenuItem(_('Local folder'))
                 item.set_image(gtk.image_new_from_stock(gtk.STOCK_DIRECTORY, gtk.ICON_SIZE_MENU))
@@ -1727,8 +1743,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     item.set_image(gtk.image_new_from_icon_name('bluetooth', gtk.ICON_SIZE_MENU))
                     item.connect('button-press-event', lambda w, ee: self.copy_episodes_bluetooth(episodes))
                     share_menu.append(item)
-
-                share_item.set_submenu(share_menu)
 
             menu.append(gtk.SeparatorMenuItem())
 
@@ -1744,6 +1758,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 item = gtk.CheckMenuItem(_('Archive'))
                 item.set_active(any_locked)
                 item.connect('activate', lambda w: self.on_item_toggle_lock_activate( w, False, not any_locked))
+                menu.append(item)
+                
+            if any_flattrable and self.config.flattr.token:
+                menu.append(gtk.SeparatorMenuItem())
+                item = gtk.MenuItem(_('Flattr this'))
+                item.connect('activate', self.flattr_selected_episodes)
                 menu.append(item)
 
             menu.append(gtk.SeparatorMenuItem())
@@ -2602,7 +2622,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         episodes = []
         for channel in channels:
-            for episode in channel.get_downloaded_episodes():
+            for episode in channel.get_episodes(gpodder.STATE_DOWNLOADED):
                 # Disallow deletion of locked episodes that still exist
                 if not episode.archive or not episode.file_exists():
                     episodes.append(episode)
@@ -2633,6 +2653,15 @@ class gPodder(BuilderWidget, dbus.service.Object):
         for episode in self.get_selected_episodes():
             episode.mark_old()
         self.on_selected_episodes_status_changed()
+        
+    def flattr_selected_episodes(self, w=None):
+        if not self.config.flattr.token:
+            return
+
+        for episode in [e for e in self.get_selected_episodes() if e.payment_url]:
+            success, message = self.flattr.flattr_url(episode.payment_url)
+            self.show_message(message, title=_('Flattr status'),
+                important=not success)
 
     def on_item_toggle_played_activate( self, widget, toggle = True, new_value = False):
         for episode in self.get_selected_episodes():

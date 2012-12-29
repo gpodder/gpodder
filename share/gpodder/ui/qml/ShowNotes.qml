@@ -37,13 +37,13 @@ Rectangle {
             function formatSubtitle() {
                 var pubdate = episode.qpubdate;
                 var filesize = episode.qfilesize;
-                var filename = ''
-                var httpPat = /^https?:\/\//
-                if ( ! httpPat.test(episode.qsourceurl) ) {
-                   filename = ' | ' + episode.qsourceurl.split('/').pop()
-                }
                 if (filesize !== '') {
-                    return pubdate + ' | ' + filesize + filename;
+                    if (episode.qdownloaded) {
+                        var filename = episode.qsourceurl.split('/').pop();
+                        return pubdate + ' | ' + filesize + ' | ' + filename;
+                    }
+
+                    return pubdate + ' | ' + filesize;
                 } else {
                     return pubdate;
                 }

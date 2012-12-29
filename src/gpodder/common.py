@@ -95,7 +95,7 @@ def find_partial_downloads(channels, start_progress_callback, progress_callback,
 
 def get_expired_episodes(channels, config):
     for channel in channels:
-        for index, episode in enumerate(channel.get_downloaded_episodes()):
+        for index, episode in enumerate(channel.get_episodes(gpodder.STATE_DOWNLOADED)):
             # Never consider archived episodes as old
             if episode.archive:
                 continue
