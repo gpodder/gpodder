@@ -183,6 +183,7 @@ if ENV_DOWNLOADS in os.environ:
 DEFAULT_PLUGINS = [
     'gpodder.plugins.soundcloud',
     'gpodder.plugins.xspf',
+    'gpodder.plugins.parser2',
 ]
 
 def load_plugins():

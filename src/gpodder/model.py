@@ -71,7 +71,7 @@ class gPodderFetcher(feedcore.Fetcher):
     def __init__(self):
         feedcore.Fetcher.__init__(self, gpodder.user_agent)
 
-    def fetch_channel(self, channel):
+    def fetch_channel(self, channel, max_episodes):
         etag = channel.http_etag
         modified = feedparser._parse_date(channel.http_last_modified)
         # If we have a username or password, rebuild the url with them included
@@ -79,7 +79,7 @@ class gPodderFetcher(feedcore.Fetcher):
         # know the realm. It can be done, but I think this method works, too
         url = channel.authenticate_url(channel.url)
         for handler in self.custom_handlers:
-            custom_feed = handler.handle_url(url)
+            custom_feed = handler.handle_url(url, etag, modified, max_episodes)
             if custom_feed is not None:
                 return feedcore.Result(feedcore.CUSTOM_FEED, custom_feed)
         return self.fetch(url, etag, modified)
@@ -123,7 +123,6 @@ class PodcastModelObject(object):
         """
         o = cls(*args)
 
-        # XXX: all(map(lambda k: hasattr(o, k), d))?
         for k, v in d.iteritems():
             setattr(o, k, v)
 
@@ -976,11 +975,17 @@ class PodcastChannel(PodcastModelObject):
         self.save()
 
     def _consume_custom_feed(self, custom_feed, max_episodes=0):
+        if not custom_feed.was_updated():
+            return
+
         self._consume_metadata(custom_feed.get_title(),
                 custom_feed.get_link(),
                 custom_feed.get_description(),
                 custom_feed.get_image(),
                 None)
+
+        self.http_etag = custom_feed.get_etag(self.http_etag)
+        self.http_last_modified = custom_feed.get_modified(self.http_last_modified)
 
         existing = self.get_all_episodes()
         existing_guids = [episode.guid for episode in existing]
@@ -1117,7 +1122,7 @@ class PodcastChannel(PodcastModelObject):
 
     def update(self, max_episodes=0):
         try:
-            result = self.feed_fetcher.fetch_channel(self)
+            result = self.feed_fetcher.fetch_channel(self, max_episodes)
 
             if result.status == feedcore.CUSTOM_FEED:
                 self._consume_custom_feed(result.feed, max_episodes)
@@ -1158,7 +1163,7 @@ class PodcastChannel(PodcastModelObject):
         # Re-determine the common prefix for all episodes
         self._determine_common_prefix()
 
-        self.db.commit()
+        #self.db.commit()
 
     def delete(self):
         self.db.delete_podcast(self)

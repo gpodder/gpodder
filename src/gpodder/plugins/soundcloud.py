@@ -166,7 +166,7 @@ class SoundcloudFeed(object):
     URL_REGEX = re.compile('http://([a-z]+\.)?soundcloud\.com/([^/]+)$', re.I)
 
     @classmethod
-    def handle_url(cls, url):
+    def handle_url(cls, url, etag, modified, max_episodes):
         m = cls.URL_REGEX.match(url)
         if m is not None:
             subdomain, username = m.groups()
@@ -175,6 +175,15 @@ class SoundcloudFeed(object):
     def __init__(self, username):
         self.username = username
         self.sc_user = SoundcloudUser(username)
+
+    def was_updated(self):
+        return True
+
+    def get_etag(self, default):
+        return default
+
+    def get_modified(self, default):
+        return default
 
     def get_title(self):
         return _('%s on Soundcloud') % self.username

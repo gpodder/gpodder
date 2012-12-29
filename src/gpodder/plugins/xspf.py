@@ -93,7 +93,7 @@ class FM4OnDemandPlaylist(object):
     }
 
     @classmethod
-    def handle_url(cls, url):
+    def handle_url(cls, url, etag, modified, max_episodes):
         m = cls.URL_REGEX.match(url)
         if m is not None:
             category = m.group(1)
@@ -115,6 +115,15 @@ class FM4OnDemandPlaylist(object):
         #       conditional GETs (If-Modified-Since, ETag, ...)
         self.data = minidom.parse(util.urlopen(url))
         self.playlist = self.data.getElementsByTagName('playlist')[0]
+
+    def was_updated(self):
+        return True
+
+    def get_etag(self, default):
+        return default
+
+    def get_modified(self, default):
+        return default
 
     def get_title(self):
         title = self.playlist.getElementsByTagName('title')[0]
