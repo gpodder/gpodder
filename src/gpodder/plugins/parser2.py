@@ -87,7 +87,7 @@ class PodcastParserFeed(object):
         return self.parsed['title']
 
     def get_image(self):
-        return self.parsed['cover_url']
+        return self.parsed.get('cover_url')
 
     def get_link(self):
         return self.parsed['link']

@@ -21,32 +21,30 @@ except ImportError:
 from feedparser import _parse_date
 
 class Target:
+    WANT_TEXT = False
+
     def __init__(self, key=None, filter_func=lambda x: x.strip()):
         self.key = key
         self.filter_func = filter_func
 
     def start(self, handler, attrs): pass
-    def chars(self, handler, text): pass
-    def end(self, handler): pass
+    def end(self, handler, text): pass
 
 class RSS(Target):
     def start(self, handler, attrs):
         handler.base = attrs.get('xml:base')
 
 class PodcastItem(Target):
-    def end(self, handler):
+    def end(self, handler, text):
         handler.data['entries'].sort(key=lambda entry: entry['published'], reverse=True)
-        handler.data['entries'] = handler.data['entries'][:handler.max_episodes]
+        if handler.max_episodes:
+            handler.data['entries'] = handler.data['entries'][:handler.max_episodes]
 
 class Podcast(Target):
-    def start(self, handler, attrs):
-        handler.data[self.key] = ''
+    WANT_TEXT = True
 
-    def chars(self, handler, text):
-        handler.data[self.key] += text
-
-    def end(self, handler):
-        handler.data[self.key] = self.filter_func(handler.data[self.key])
+    def end(self, handler, text):
+        handler.data[self.key] = self.filter_func(text)
 
 class PodcastFromHref(Target):
     def start(self, handler, attrs):
@@ -58,7 +56,7 @@ class EpisodeItem(Target):
     def start(self, handler, attrs):
         handler.entries.append({'enclosures': []})
 
-    def end(self, handler):
+    def end(self, handler, text):
         entry = handler.entries[-1]
 
         # No enclosures for this item
@@ -92,14 +90,10 @@ class EpisodeItem(Target):
             del entry['_guid_is_permalink']
 
 class Episode(Target):
-    def start(self, handler, attrs):
-        handler.entries[-1][self.key] = ''
+    WANT_TEXT = True
 
-    def chars(self, handler, text):
-        handler.entries[-1][self.key] += text
-
-    def end(self, handler):
-        handler.entries[-1][self.key] = self.filter_func(handler.entries[-1][self.key])
+    def end(self, handler, text):
+        handler.entries[-1][self.key] = self.filter_func(text)
 
 class EpisodeGuid(Episode):
     def start(self, handler, attrs):
@@ -110,7 +104,7 @@ class EpisodeGuid(Episode):
 
         Episode.start(self, handler, attrs)
 
-    def end(self, handler):
+    def end(self, handler, text):
         def filter_func(guid):
             guid = guid.strip()
             if handler.base is not None:
@@ -118,7 +112,7 @@ class EpisodeGuid(Episode):
             return guid
 
         self.filter_func = filter_func
-        Episode.end(self, handler)
+        Episode.end(self, handler, text)
 
 class EpisodeFromHref(Target):
     def start(self, handler, attrs):
@@ -206,6 +200,7 @@ class PodcastHandler(sax.handler.ContentHandler):
         self.url = url
         self.max_episodes = max_episodes
         self.base = None
+        self.text = None
         self.entries = []
         self.data = {'entries': self.entries}
         self.target_stack = []
@@ -218,20 +213,22 @@ class PodcastHandler(sax.handler.ContentHandler):
         for expr, target in MAPPING.iteritems():
             if match_filter(path, attrs, expr):
                 target.start(self, attrs)
+                if target.WANT_TEXT:
+                    self.text = []
                 self.target_stack.append((path, target))
                 break
 
     def characters(self, chars):
-        if self.target_stack:
-            path, target = self.target_stack[-1]
-            target.chars(self, chars)
+        if self.text is not None:
+            self.text.append(chars)
 
     def endElement(self, name):
         if self.target_stack:
             path, target = self.target_stack[-1]
             if path == '/'.join(self.path_stack):
                 self.target_stack.pop()
-                target.end(self)
+                target.end(self, ''.join(self.text) if self.text is not None else '')
+                self.text = None
 
         self.path_stack.pop()
 
