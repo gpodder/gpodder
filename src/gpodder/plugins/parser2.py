@@ -96,12 +96,12 @@ class PodcastParserFeed(object):
         return self.parsed['description']
 
     def get_new_episodes(self, channel, existing_guids):
-        seen_guids = [entry['guid'] for entry in self.parsed['entries']]
+        seen_guids = [entry['guid'] for entry in self.parsed['episodes']]
         episodes = []
 
-        for entry in self.parsed['entries']:
-            if entry['guid'] not in existing_guids:
-                episode = channel.episode_factory(entry)
+        for episode_dict in self.parsed['episodes']:
+            if episode_dict['guid'] not in existing_guids:
+                episode = channel.episode_factory(episode_dict)
                 episode.save()
                 episodes.append(episode)
 

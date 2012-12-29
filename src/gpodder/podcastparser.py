@@ -1,3 +1,24 @@
+# -*- coding: utf-8 -*-
+#
+# gPodder - A media aggregator and podcast client
+# Copyright (c) 2005-2012 Thomas Perl and the gPodder Team
+#
+# gPodder is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# gPodder is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+# gpodder.podcastparser - Simplified, fast RSS parser
+# Thomas Perl <thp@gpodder.org>; 2012-12-29
 
 from xml import sax
 
@@ -36,9 +57,9 @@ class RSS(Target):
 
 class PodcastItem(Target):
     def end(self, handler, text):
-        handler.data['entries'].sort(key=lambda entry: entry['published'], reverse=True)
+        handler.data['episodes'].sort(key=lambda entry: entry.get('published'), reverse=True)
         if handler.max_episodes:
-            handler.data['entries'] = handler.data['entries'][:handler.max_episodes]
+            handler.data['episodes'] = handler.data['episodes'][:handler.max_episodes]
 
 class Podcast(Target):
     WANT_TEXT = True
@@ -59,10 +80,22 @@ class PodcastFromPaymentHref(PodcastFromHref):
 
 class EpisodeItem(Target):
     def start(self, handler, attrs):
-        handler.entries.append({'enclosures': []})
+        handler.episodes.append({
+            # title
+            'description': '',
+            # url
+            'published': 0,
+            # guid
+            'link': '',
+            'file_size': -1,
+            'mime_type': 'application/octet-stream',
+            'total_time': 0,
+            'payment_url': None,
+            'enclosures': [],
+        })
 
     def end(self, handler, text):
-        entry = handler.entries[-1]
+        entry = handler.episodes[-1]
 
         # No enclosures for this item
         if len(entry['enclosures']) == 0:
@@ -74,7 +107,7 @@ class EpisodeItem(Target):
                     'mime_type': 'video/mp4',
                 })
             else:
-                handler.entries.pop()
+                handler.episodes.pop()
                 return
 
         # Here we could pick a good enclosure
@@ -85,11 +118,11 @@ class EpisodeItem(Target):
             # Maemo bug 12073
             entry['guid'] = entry['url']
 
+        if 'title' not in entry:
+            entry['title'] = entry['url']
+
         if not entry.get('link') and entry.get('_guid_is_permalink'):
             entry['link'] = entry['guid']
-
-        if not entry.get('total_time'):
-            entry['total_time'] = 0
 
         if '_guid_is_permalink' in entry:
             del entry['_guid_is_permalink']
@@ -98,14 +131,14 @@ class Episode(Target):
     WANT_TEXT = True
 
     def end(self, handler, text):
-        handler.entries[-1][self.key] = self.filter_func(text)
+        handler.episodes[-1][self.key] = self.filter_func(text)
 
 class EpisodeGuid(Episode):
     def start(self, handler, attrs):
         if attrs.get('isPermaLink', 'true').lower() == 'true':
-            handler.entries[-1]['_guid_is_permalink'] = True
+            handler.episodes[-1]['_guid_is_permalink'] = True
         else:
-            handler.entries[-1]['_guid_is_permalink'] = False
+            handler.episodes[-1]['_guid_is_permalink'] = False
 
         Episode.start(self, handler, attrs)
 
@@ -123,7 +156,7 @@ class EpisodeFromHref(Target):
     def start(self, handler, attrs):
         value = self.filter_func(attrs.get('href', ''))
         if value:
-            handler.entries[-1][self.key] = value
+            handler.episodes[-1][self.key] = value
 
 class EpisodeFromPaymentHref(EpisodeFromHref):
     def start(self, handler, attrs):
@@ -135,9 +168,9 @@ class Enclosure(Target):
         url_target, length_target, type_target = self.key
         url_filter, length_filter, type_filter = self.filter_func
 
-        handler.entries[-1]['enclosures'].append({
+        handler.episodes[-1]['enclosures'].append({
             url_target: url_filter(attrs.get('url')),
-            length_target: length_filter(attrs.get('length')),
+            length_target: length_filter(attrs.get('length', '')),
             type_target: type_filter(attrs.get('type')),
         })
 
@@ -152,10 +185,13 @@ def parse_url(text):
     return util.normalize_feed_url(text.strip())
 
 def parse_length(text):
-    return long(text.strip()) or -1
+    try:
+        return long(text.strip()) or -1
+    except ValueError:
+        return -1
 
 def parse_type(text):
-    if text == '':
+    if not text or '/' not in text:
         # Maemo bug 10036
         return 'application/octet-stream'
 
@@ -201,8 +237,11 @@ class PodcastHandler(sax.handler.ContentHandler):
         self.max_episodes = max_episodes
         self.base = None
         self.text = None
-        self.entries = []
-        self.data = {'entries': self.entries}
+        self.episodes = []
+        self.data = {
+            'title': '',
+            'episodes': self.episodes
+        }
         self.target_stack = []
         self.path_stack = []
 
