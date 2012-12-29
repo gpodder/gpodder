@@ -35,25 +35,17 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-def format_modified(modified):
-    short_weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-    months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-    return '%s, %02d %s %04d %02d:%02d:%02d GMT' % (short_weekdays[modified[6]],
-            modified[2], months[modified[1] - 1], modified[0], modified[3], modified[4], modified[5])
-
 class PodcastParserFeed(object):
-    @classmethod
-    def handle_url(cls, url, etag, modified, max_episodes):
-        return cls(url, etag, modified, max_episodes)
+    def __init__(self, channel, max_episodes):
+        url = channel.authenticate_url(channel.url)
 
-    def __init__(self, url, etag, modified, max_episodes):
-        self.url = url
         logger.info('Parsing via podcastparser: %s', url)
+
         headers = {}
-        if etag:
-            headers['If-None-Match'] = etag
-        if modified:
-            headers['If-Modified-Since'] = format_modified(modified)
+        if channel.http_etag:
+            headers['If-None-Match'] = channel.http_etag
+        if channel.http_last_modified:
+            headers['If-Modified-Since'] = channel.http_last_modified
 
         try:
             stream = util.urlopen(url, headers)
@@ -116,6 +108,7 @@ class PodcastParserFeed(object):
 
         return new_episodes, seen_guids
 
-# Register our URL handler
-model.register_custom_handler(PodcastParserFeed)
+@model.register_custom_handler
+def podcast_parser_handler(channel, max_episodes):
+    return PodcastParserFeed(channel, max_episodes)
 

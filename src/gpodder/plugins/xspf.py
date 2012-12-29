@@ -70,7 +70,6 @@ def get_metadata(url):
 
 
 class FM4OnDemandPlaylist(object):
-    URL_REGEX = re.compile('http://onapp1\.orf\.at/webcam/fm4/fod/([^/]+)\.xspf$')
     CONTENT = {
             'spezialmusik': (
                 'FM4 Sendungen',
@@ -91,13 +90,6 @@ class FM4OnDemandPlaylist(object):
                 'Nacht von Sonntag auf Montag (1-6 Uhr)',
             ),
     }
-
-    @classmethod
-    def handle_url(cls, url, etag, modified, max_episodes):
-        m = cls.URL_REGEX.match(url)
-        if m is not None:
-            category = m.group(1)
-            return cls(url, category)
 
     @classmethod
     def get_text_contents(cls, node):
@@ -174,7 +166,11 @@ class FM4OnDemandPlaylist(object):
 
         return tracks, seen_guids
 
+@model.register_custom_handler
+def fm4_on_demand_playlist_handler(channel, max_episodes):
+    m = re.match(r'http://onapp1\.orf\.at/webcam/fm4/fod/([^/]+)\.xspf$', channel.url)
 
-# Register our URL handlers
-model.register_custom_handler(FM4OnDemandPlaylist)
+    if m is not None:
+        category = m.group(1)
+        return FM4OnDemandPlaylist(channel.url, category)
 

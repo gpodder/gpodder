@@ -72,16 +72,17 @@ class gPodderFetcher(feedcore.Fetcher):
         feedcore.Fetcher.__init__(self, gpodder.user_agent)
 
     def fetch_channel(self, channel, max_episodes):
-        etag = channel.http_etag
-        modified = feedparser._parse_date(channel.http_last_modified)
+        for handler in self.custom_handlers:
+            custom_feed = handler(channel, max_episodes)
+            if custom_feed is not None:
+                return feedcore.Result(feedcore.CUSTOM_FEED, custom_feed)
+
         # If we have a username or password, rebuild the url with them included
         # Note: using a HTTPBasicAuthHandler would be pain because we need to
         # know the realm. It can be done, but I think this method works, too
         url = channel.authenticate_url(channel.url)
-        for handler in self.custom_handlers:
-            custom_feed = handler.handle_url(url, etag, modified, max_episodes)
-            if custom_feed is not None:
-                return feedcore.Result(feedcore.CUSTOM_FEED, custom_feed)
+        etag = channel.http_etag
+        modified = feedparser._parse_date(channel.http_last_modified)
         return self.fetch(url, etag, modified)
 
     def _resolve_url(self, url):

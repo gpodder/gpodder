@@ -163,15 +163,6 @@ class SoundcloudUser(object):
             self.commit_cache()
 
 class SoundcloudFeed(object):
-    URL_REGEX = re.compile('http://([a-z]+\.)?soundcloud\.com/([^/]+)$', re.I)
-
-    @classmethod
-    def handle_url(cls, url, etag, modified, max_episodes):
-        m = cls.URL_REGEX.match(url)
-        if m is not None:
-            subdomain, username = m.groups()
-            return cls(username)
-
     def __init__(self, username):
         self.username = username
         self.sc_user = SoundcloudUser(username)
@@ -219,11 +210,8 @@ class SoundcloudFeed(object):
         return new_episodes, seen_guids
 
 class SoundcloudFavFeed(SoundcloudFeed):
-    URL_REGEX = re.compile('http://([a-z]+\.)?soundcloud\.com/([^/]+)/favorites', re.I)
-
-
     def __init__(self, username):
-        super(SoundcloudFavFeed,self).__init__(username)
+        super(SoundcloudFavFeed, self).__init__(username)
 
     def get_title(self):
         return _('%s\'s favorites on Soundcloud') % self.username
@@ -237,6 +225,20 @@ class SoundcloudFavFeed(SoundcloudFeed):
     def get_new_episodes(self, channel):
         return self._get_new_episodes(channel, 'favorites')
 
-# Register our URL handlers
-model.register_custom_handler(SoundcloudFeed)
-model.register_custom_handler(SoundcloudFavFeed)
+
+@model.register_custom_handler
+def soundcloud_feed_handler(channel, max_episodes):
+    m = re.match(r'http://([a-z]+\.)?soundcloud\.com/([^/]+)$', channel.url, re.I)
+
+    if m is not None:
+        subdomain, username = m.groups()
+        return SoundcloudFeed(username)
+
+@model.register_custom_handler
+def soundcloud_fav_feed_handler(channel, max_episodes):
+    m = re.match(r'http://([a-z]+\.)?soundcloud\.com/([^/]+)/favorites', channel.url, re.I)
+
+    if m is not None:
+        subdomain, username = m.groups()
+        return SoundcloudFavFeed(username)
+
