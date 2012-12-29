@@ -211,9 +211,6 @@ class PodcastHandler(sax.handler.ContentHandler):
         self.target_stack = []
         self.path_stack = []
 
-    def _handle_metadata(self, key, chars):
-        self.metadata[key] += chars
-
     def startElement(self, name, attrs):
         self.path_stack.append(name)
 
