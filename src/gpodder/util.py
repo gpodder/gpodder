@@ -1174,6 +1174,8 @@ def parse_time(value):
     3600
     >>> parse_time('03:02:01')
     10921
+    >>> parse_time('61:08')
+    3668
     """
     if not value:
         raise ValueError('Invalid value: %s' % (str(value),))
@@ -1184,6 +1186,11 @@ def parse_time(value):
             return (t.tm_hour * 60 + t.tm_min) * 60 + t.tm_sec
         except ValueError, ve:
             continue
+
+    m = re.match(r'(\d+):(\d{2})', value)
+    if m:
+        minutes, seconds = m.groups()
+        return int(minutes) * 60 + int(seconds)
 
     return int(value)
 
