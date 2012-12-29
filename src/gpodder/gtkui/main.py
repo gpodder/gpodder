@@ -141,7 +141,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.sw_shownotes = gtk.ScrolledWindow()
         self.sw_shownotes.set_shadow_type(gtk.SHADOW_IN)
-        self.sw_shownotes.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
+        self.sw_shownotes.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
         self.vbox_episode_list.add(self.sw_shownotes)
 
         if self.config.enable_html_shownotes and shownotes.have_webkit:
