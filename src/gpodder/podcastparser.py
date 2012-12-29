@@ -52,6 +52,11 @@ class PodcastFromHref(Target):
         if value:
             handler.data[self.key] = value
 
+class PodcastFromPaymentHref(PodcastFromHref):
+    def start(self, handler, attrs):
+        if attrs.get('rel') == 'payment':
+            PodcastFromHref.start(self, handler, attrs)
+
 class EpisodeItem(Target):
     def start(self, handler, attrs):
         handler.entries.append({'enclosures': []})
@@ -65,8 +70,8 @@ class EpisodeItem(Target):
                     vimeo.is_video_link(entry['link'])):
                 entry['enclosures'].append({
                     'url': entry['link'],
+                    'file_size': -1,
                     'mime_type': 'video/mp4',
-                    'length': -1,
                 })
             else:
                 handler.entries.pop()
@@ -120,6 +125,11 @@ class EpisodeFromHref(Target):
         if value:
             handler.entries[-1][self.key] = value
 
+class EpisodeFromPaymentHref(EpisodeFromHref):
+    def start(self, handler, attrs):
+        if attrs.get('rel') == 'payment':
+            EpisodeFromHref.start(self, handler, attrs)
+
 class Enclosure(Target):
     def start(self, handler, attrs):
         url_target, length_target, type_target = self.key
@@ -167,7 +177,7 @@ MAPPING = {
     'rss/channel/description': Podcast('description', squash_whitespace),
     'rss/channel/image/url': Podcast('cover_url'),
     'rss/channel/itunes:image': PodcastFromHref('cover_url'),
-    'rss/channel/atom:link[rel=payment]': PodcastFromHref('payment_url'),
+    'rss/channel/atom:link': PodcastFromPaymentHref('payment_url'),
 
     'rss/channel/item': EpisodeItem(),
     'rss/channel/item/guid': EpisodeGuid('guid'),
@@ -177,23 +187,13 @@ MAPPING = {
     # Alternatives for description: itunes:summary, itunes:subtitle, content:encoded
     'rss/channel/item/itunes:duration': Episode('total_time', parse_duration),
     'rss/channel/item/pubDate': Episode('published', parse_pubdate),
-    'rss/channel/item/atom:link[rel=payment]': EpisodeFromHref('payment_url'),
+    'rss/channel/item/atom:link': EpisodeFromPaymentHref('payment_url'),
 
     'rss/channel/item/enclosure': Enclosure(
         ('url', 'file_size', 'mime_type'),
         (parse_url, parse_length, parse_type),
     ),
 }
-
-def match_filter(path, attrs, expr):
-    # path[key=value]
-    m = re.match(r'([^[]+)\[([^=]+)=([^]]+)\]', expr)
-    if m is not None:
-        path_match, key, value = m.groups()
-        return path == path_match and attrs.get(key) == value
-
-    # path
-    return path == expr
 
 class PodcastHandler(sax.handler.ContentHandler):
     def __init__(self, url, max_episodes):
@@ -210,13 +210,12 @@ class PodcastHandler(sax.handler.ContentHandler):
         self.path_stack.append(name)
 
         path = '/'.join(self.path_stack)
-        for expr, target in MAPPING.iteritems():
-            if match_filter(path, attrs, expr):
-                target.start(self, attrs)
-                if target.WANT_TEXT:
-                    self.text = []
-                self.target_stack.append((path, target))
-                break
+        target = MAPPING.get(path)
+        if target is not None:
+            target.start(self, attrs)
+            if target.WANT_TEXT:
+                self.text = []
+            self.target_stack.append((path, target))
 
     def characters(self, chars):
         if self.text is not None:
