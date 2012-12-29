@@ -1111,12 +1111,6 @@ class PodcastChannel(PodcastModelObject):
                 if self.children is not None:
                     self.children.remove(episode)
 
-        # This *might* cause episodes to be skipped if there were more than
-        # max_episodes_per_feed items added to the feed between updates.
-        # The benefit is that it prevents old episodes from apearing as new
-        # in certain situations (see bug #340).
-        self.db.purge(max_episodes, self.id) # TODO: Remove from self.children!
-
         # Sort episodes by pubdate, descending
         self.children.sort(key=lambda e: e.published, reverse=True)
 

@@ -62,29 +62,6 @@ class Database(object):
         self._db.close()
         self._db = None
 
-    def purge(self, max_episodes, podcast_id):
-        """
-        Deletes old episodes.  Should be called
-        before adding new episodes to a podcast.
-        """
-        if max_episodes == 0:
-            return
-
-        with self.lock:
-            cur = self.cursor()
-
-            logger.debug('Purge requested for podcast %d', podcast_id)
-            sql = """
-                DELETE FROM %s
-                WHERE podcast_id = ?
-                AND state <> ?
-                AND id NOT IN
-                (SELECT id FROM %s WHERE podcast_id = ?
-                ORDER BY published DESC LIMIT ?)""" % (self.TABLE_EPISODE, self.TABLE_EPISODE)
-            cur.execute(sql, (podcast_id, gpodder.STATE_DOWNLOADED, podcast_id, max_episodes))
-
-            cur.close()
-
     @property
     def db(self):
         if self._db is None:
