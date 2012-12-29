@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # gPodder - A media aggregator and podcast client
-# Copyright (c) 2005-2011 Thomas Perl and the gPodder Team
+# Copyright (c) 2005-2012 Thomas Perl and the gPodder Team
 #
 # gPodder is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,10 +17,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-# Bernd Schlapsi <brot@gmx.info>; 2011-11-20
+# Notification implementation for Windows
+# Sean Munkel; 2012-12-29
 
-__title__ = 'Gtk+ Desktop Notifications'
+__title__ = 'Notification Bubbles for Windows'
 __description__ = 'Display notification bubbles for different events.'
+__authors__ = 'Sean Munkel <SeanMunkel@gmail.com>'
+__category__ = 'desktop-integration'
 __only_for__ = 'win32'
 
 import functools
@@ -29,25 +32,25 @@ import os.path
 import gpodder
 import pywintypes
 import win32gui
+
 import logging
+
 logger = logging.getLogger(__name__)
 
 IDI_APPLICATION = 32512
 WM_TASKBARCREATED = win32gui.RegisterWindowMessage('TaskbarCreated')
 WM_TRAYMESSAGE = 1044
 
-#based on http://code.activestate.com/recipes/334779/
+# based on http://code.activestate.com/recipes/334779/
 class NotifyIcon(object):
     def __init__(self, hwnd):
         self._hwnd = hwnd
         self._id = 0
         self._flags = win32gui.NIF_MESSAGE | win32gui.NIF_ICON
         self._callbackmessage = WM_TRAYMESSAGE
-        path = os.path.join(os.path.dirname(__file__),
-                            r"..\\..\\icons\\hicolor\\16x16\\apps\\gpodder.ico")
+        path = os.path.join(os.path.dirname(__file__), '..', '..',
+                'icons', 'hicolor', '16x16', 'apps', 'gpodder.ico')
         icon_path = os.path.abspath(path)
-        print os.path.exists(icon_path)
-        print icon_path
 
         try:
             self._hicon = win32gui.LoadImage(None, icon_path, 1, 0, 0, 0x50)
@@ -62,31 +65,27 @@ class NotifyIcon(object):
         self._infoflags = win32gui.NIIF_NONE
         win32gui.Shell_NotifyIcon(win32gui.NIM_ADD, self.notify_config_data)
 
-
     @property
     def notify_config_data(self):
         """ Function to retrieve the NOTIFYICONDATA Structure. """
-        return  (self._hwnd, self._id, self._flags, self._callbackmessage,
-                 self._hicon, self._tip, self._info, self._timeout,
-                 self._infotitle, self._infoflags)
-
+        return (self._hwnd, self._id, self._flags, self._callbackmessage,
+                self._hicon, self._tip, self._info, self._timeout,
+                self._infotitle, self._infoflags)
 
     def remove(self):
         """ Removes the tray icon. """
-        win32gui.Shell_NotifyIcon(win32gui.NIM_DELETE, 
-                                  self.notify_config_data)
-
+        win32gui.Shell_NotifyIcon(win32gui.NIM_DELETE,
+                self.notify_config_data)
 
     def set_tooltip(self, tooltip):
         """ Sets the tray icon tooltip. """
         self._flags = self._flags | win32gui.NIF_TIP
         self._tip = tooltip
-        win32gui.Shell_NotifyIcon(win32gui.NIM_MODIFY, 
-                                  self.notify_config_data)
+        win32gui.Shell_NotifyIcon(win32gui.NIM_MODIFY,
+                self.notify_config_data)
 
-
-    def show_balloon(self, title, text, timeout=10, 
-                     icon=win32gui.NIIF_NONE):
+    def show_balloon(self, title, text, timeout=10,
+            icon=win32gui.NIIF_NONE):
         """ Shows a balloon tooltip from the tray icon. """
         self._flags = self._flags | win32gui.NIF_INFO
         self._infotitle = title
@@ -94,7 +93,7 @@ class NotifyIcon(object):
         self._timeout = timeout * 1000
         self._infoflags = icon
         win32gui.Shell_NotifyIcon(win32gui.NIM_MODIFY,
-                                  self.notify_config_data)
+                self.notify_config_data)
 
 
 class gPodderExtension(object):
@@ -106,8 +105,8 @@ class gPodderExtension(object):
             self.notifier = NotifyIcon(window.window.handle)
 
         if name == 'gpodder-gtk':
-            ui_object.main_window.connect('realize', 
-                                          functools.partial(callback, self))
+            ui_object.main_window.connect('realize',
+                    functools.partial(callback, self))
 
     def on_notification_show(self, title, message):
         if self.notifier is not None:
