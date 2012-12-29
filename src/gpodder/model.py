@@ -554,8 +554,10 @@ class PodcastEpisode(PodcastModelObject):
                 episode_filename, _ = util.filename_from_url(url)
                 fn_template = util.sanitize_filename(episode_filename, self.MAX_FILENAME_LENGTH)
 
-            # Use title for YouTube downloads and Soundcloud streams
-            if youtube.is_video_link(self.url) or fn_template == 'stream':
+            # Use title for YouTube, Vimeo and Soundcloud downloads
+            if (youtube.is_video_link(self.url) or
+                    vimeo.is_video_link(self.url) or
+                    fn_template == 'stream'):
                 sanitized = util.sanitize_filename(self.title, self.MAX_FILENAME_LENGTH)
                 if sanitized:
                     fn_template = sanitized
