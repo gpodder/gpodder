@@ -197,22 +197,26 @@ class SoundcloudFeed(object):
     def get_description(self):
         return _('Tracks published by %s on Soundcloud.') % self.username
 
-    def get_new_episodes(self, channel, existing_guids):
-        return self._get_new_episodes(channel, existing_guids, 'tracks')
+    def get_payment_url(self):
+        return None
 
-    def _get_new_episodes(self, channel, existing_guids, track_type):
+    def get_new_episodes(self, channel):
+        return self._get_new_episodes(channel, 'tracks')
+
+    def _get_new_episodes(self, channel, track_type):
         tracks = [t for t in self.sc_user.get_tracks(track_type)]
 
+        existing_guids = [episode.guid for episode in channel.children]
         seen_guids = [track['guid'] for track in tracks]
-        episodes = []
+        new_episodes = []
 
         for track in tracks:
             if track['guid'] not in existing_guids:
                 episode = channel.episode_factory(track)
                 episode.save()
-                episodes.append(episode)
+                new_episodes.append(episode)
 
-        return episodes, seen_guids
+        return new_episodes, seen_guids
 
 class SoundcloudFavFeed(SoundcloudFeed):
     URL_REGEX = re.compile('http://([a-z]+\.)?soundcloud\.com/([^/]+)/favorites', re.I)
@@ -230,8 +234,8 @@ class SoundcloudFavFeed(SoundcloudFeed):
     def get_description(self):
         return _('Tracks favorited by %s on Soundcloud.') % self.username
 
-    def get_new_episodes(self, channel, existing_guids):
-        return self._get_new_episodes(channel, existing_guids, 'favorites')
+    def get_new_episodes(self, channel):
+        return self._get_new_episodes(channel, 'favorites')
 
 # Register our URL handlers
 model.register_custom_handler(SoundcloudFeed)

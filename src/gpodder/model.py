@@ -132,6 +132,8 @@ class PodcastEpisode(PodcastModelObject):
     """holds data for one object in a channel"""
     MAX_FILENAME_LENGTH = 200
 
+    UPDATE_KEYS = ('title', 'url', 'description', 'link', 'published', 'guid', 'file_size', 'payment_url')
+
     __slots__ = schema.EpisodeColumns
 
     def _deprecated(self):
@@ -726,8 +728,12 @@ class PodcastEpisode(PodcastModelObject):
             return '-'
 
     def update_from(self, episode):
-        for k in ('title', 'url', 'description', 'link', 'published', 'guid', 'file_size', 'payment_url'):
+        for k in self.UPDATE_KEYS:
             setattr(self, k, getattr(episode, k))
+
+    def update_from_dict(self, episode_dict):
+        for k in self.UPDATE_KEYS:
+            setattr(self, k, episode_dict[k])
 
 
 class PodcastChannel(PodcastModelObject):
@@ -982,19 +988,13 @@ class PodcastChannel(PodcastModelObject):
                 custom_feed.get_link(),
                 custom_feed.get_description(),
                 custom_feed.get_image(),
-                None)
+                custom_feed.get_payment_url())
 
         self.http_etag = custom_feed.get_etag(self.http_etag)
         self.http_last_modified = custom_feed.get_modified(self.http_last_modified)
 
-        existing = self.get_all_episodes()
-        existing_guids = [episode.guid for episode in existing]
-
-        # Insert newly-found episodes into the database + local cache
-        new_episodes, seen_guids = custom_feed.get_new_episodes(self, existing_guids)
-        self.children.extend(new_episodes)
-
-        self.remove_unreachable_episodes(existing, seen_guids, max_episodes)
+        new_episodes, seen_guids = custom_feed.get_new_episodes(self)
+        self.finalize_feed_update(new_episodes, seen_guids)
 
     def _consume_updated_feed(self, feed, max_episodes=0):
         # Cover art URL
@@ -1022,9 +1022,6 @@ class PodcastChannel(PodcastModelObject):
                 cover_url,
                 payment_url)
 
-        # Load all episodes to update them properly.
-        existing = self.get_all_episodes()
-
         # We have to sort the entries in descending chronological order,
         # because if the feed lists items in ascending order and has >
         # max_episodes old episodes, new episodes will not be shown.
@@ -1032,20 +1029,16 @@ class PodcastChannel(PodcastModelObject):
         entries = sorted(feed.entries, key=feedcore.get_pubdate, reverse=True)
 
         # We can limit the maximum number of entries that gPodder will parse
-        if max_episodes > 0 and len(entries) > max_episodes:
+        if max_episodes:
             entries = entries[:max_episodes]
 
         # GUID-based existing episode list
-        existing_guids = dict((e.guid, e) for e in existing)
-
-        # Get most recent published of all episodes
-        last_published = self.db.get_last_published(self) or 0
+        existing_guids = dict((e.guid, e) for e in self.children)
 
         # Keep track of episode GUIDs currently seen in the feed
         seen_guids = set()
 
-        # Number of new episodes found
-        new_episodes = 0
+        new_episodes = []
 
         # Search all entries for new episodes
         for entry in entries:
@@ -1072,44 +1065,54 @@ class PodcastChannel(PodcastModelObject):
                 existing_episode.save()
                 continue
 
-            # Workaround for bug 340: If the episode has been
-            # published earlier than one week before the most
-            # recent existing episode, do not mark it as new.
-            if episode.published < last_published - self.SECONDS_PER_WEEK:
-                logger.debug('Episode with old date: %s', episode.title)
-                episode.is_new = False
-
-            if episode.is_new:
-                new_episodes += 1
-
-            # Only allow a certain number of new episodes per update
-            if (self.download_strategy == PodcastChannel.STRATEGY_LATEST and
-                    new_episodes > 1):
-                episode.is_new = False
-
             episode.save()
-            self.children.append(episode)
+            new_episodes.append(episode)
 
-        self.remove_unreachable_episodes(existing, seen_guids, max_episodes)
+        self.finalize_feed_update(new_episodes, seen_guids)
 
-    def remove_unreachable_episodes(self, existing, seen_guids, max_episodes):
+    def finalize_feed_update(self, new_episodes, seen_guids):
         # Remove "unreachable" episodes - episodes that have not been
         # downloaded and that the feed does not list as downloadable anymore
         # Keep episodes that are currently being downloaded, though (bug 1534)
         if self.id is not None:
-            episodes_to_purge = (e for e in existing if
-                    e.state != gpodder.STATE_DOWNLOADED and
-                    e.guid not in seen_guids and not e.downloading)
+            episodes_to_purge = [episode for episode in self.children if
+                    episode.state != gpodder.STATE_DOWNLOADED and
+                    episode.guid not in seen_guids and
+                    not episode.downloading]
 
             for episode in episodes_to_purge:
                 logger.debug('Episode removed from feed: %s (%s)',
                         episode.title, episode.guid)
                 gpodder.user_extensions.on_episode_removed_from_podcast(episode)
                 self.db.delete_episode_by_guid(episode.guid, self.id)
+                self.children.remove(episode)
 
-                # Remove the episode from the "children" episodes list
-                if self.children is not None:
-                    self.children.remove(episode)
+        # Get most recent published of all episodes
+        last_published = self.db.get_last_published(self) or 0
+
+        # Mark newly-found episodes as old in certain cases
+        new_episodes.sort(key=lambda e: e.published, reverse=True)
+        new_episodes_count = 0
+        for episode in new_episodes:
+            # Workaround for bug 340: If the episode has been
+            # published earlier than one week before the most
+            # recent existing episode, do not mark it as new.
+            if episode.published < last_published - self.SECONDS_PER_WEEK:
+                logger.debug('Episode with old date: %s', episode.title)
+                episode.is_new = False
+                episode.save()
+
+            if episode.is_new:
+                new_episodes_count += 1
+
+                # Only allow a certain number of new episodes per update
+                if (self.download_strategy == PodcastChannel.STRATEGY_LATEST
+                        and new_episodes_count > 1):
+                    episode.is_new = False
+                    episode.save()
+
+        # Add new episodes to children
+        self.children.extend(new_episodes)
 
         # Sort episodes by pubdate, descending
         self.children.sort(key=lambda e: e.published, reverse=True)

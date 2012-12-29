@@ -143,8 +143,12 @@ class FM4OnDemandPlaylist(object):
         return self.CONTENT.get(self.category, \
                 (None, None, None, 'XSPF playlist'))[3]
 
-    def get_new_episodes(self, channel, existing_guids):
+    def get_payment_url(self):
+        return None
+
+    def get_new_episodes(self, channel):
         tracks = []
+        existing_guids = [episode.guid for episode in channel.children]
         seen_guids = []
 
         for track in self.playlist.getElementsByTagName('track'):

@@ -95,17 +95,26 @@ class PodcastParserFeed(object):
     def get_description(self):
         return self.parsed['description']
 
-    def get_new_episodes(self, channel, existing_guids):
+    def get_payment_url(self):
+        return self.parsed.get('payment_url')
+
+    def get_new_episodes(self, channel):
+        existing_guids = dict((episode.guid, episode) for episode in channel.children)
         seen_guids = [entry['guid'] for entry in self.parsed['episodes']]
-        episodes = []
+        new_episodes = []
 
         for episode_dict in self.parsed['episodes']:
-            if episode_dict['guid'] not in existing_guids:
+            episode = existing_guids.get(episode_dict['guid'])
+            if episode is None:
                 episode = channel.episode_factory(episode_dict)
-                episode.save()
-                episodes.append(episode)
+                new_episodes.append(episode)
+                logger.info('Found new episode: %s', episode.guid)
+            else:
+                episode.update_from_dict(episode_dict)
+                logger.info('Updating existing episode: %s', episode.guid)
+            episode.save()
 
-        return episodes, seen_guids
+        return new_episodes, seen_guids
 
 # Register our URL handler
 model.register_custom_handler(PodcastParserFeed)
