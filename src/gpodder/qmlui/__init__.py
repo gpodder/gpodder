@@ -137,6 +137,8 @@ class Controller(QObject):
         self.root.config.add_observer(self.on_config_changed)
         self._flattr = self.root.core.flattr
         self.flattr_button_text = u''
+        self._busy = False
+        self.updating_podcasts = 0
 
     def on_config_changed(self, name, old_value, new_value):
         logger.info('Config changed: %s (%s -> %s)', name,
@@ -149,6 +151,18 @@ class Controller(QObject):
             self.myGpoPasswordChanged.emit()
         elif name == 'mygpo.device.caption':
             self.myGpoDeviceCaptionChanged.emit()
+
+    busyChanged = Signal()
+
+    def getBusy(self):
+        return self._busy
+
+    def setBusy(self, busy):
+        if self._busy != busy:
+            self._busy = busy
+            self.busyChanged.emit()
+
+    busy = Property(bool, getBusy, setBusy, notify=busyChanged)
 
     episodeListTitleChanged = Signal()
 
@@ -462,6 +476,12 @@ class Controller(QObject):
         self.context_menu_actions = actions
         self.root.open_context_menu(self.context_menu_actions)
 
+    def finished_update(self):
+        if self.updating_podcasts > 0:
+            self.updating_podcasts -= 1
+            self.setBusy(self.updating_podcasts > 0)
+        self.update_subset_stats()
+
     def update_subset_stats(self):
         # This should be called when an episode changes state,
         # so that all subset views (e.g. "All episodes") can
@@ -481,7 +501,10 @@ class Controller(QObject):
     @Slot()
     def updateAllPodcasts(self):
         if not self.request_connection():
+            self.setBusy(False)
             return
+
+        self.setBusy(True)
 
         # Process episode actions received from gpodder.net
         def merge_proc(self):
@@ -503,8 +526,12 @@ class Controller(QObject):
         util.run_in_background(lambda: merge_proc(self))
 
         for podcast in self.root.podcast_model.get_objects():
-            if not podcast.pause_subscription:
-                podcast.qupdate(finished_callback=self.update_subset_stats)
+            if not podcast.pause_subscription and not podcast.qupdating:
+                if podcast.qtitle != 'All episodes':
+                    self.updating_podcasts += 1
+                podcast.qupdate(finished_callback=self.finished_update)
+
+        self.setBusy(self.updating_podcasts > 0)
 
     def request_connection(self):
         """Request an internet connection
