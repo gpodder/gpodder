@@ -93,17 +93,33 @@ SelectableItem {
         }
 
         Label {
-            text: {
-                if (episodeItem.playbackDuration && episodeItem.playbackPosition) {
-                    Util.formatPosition(episodeItem.playbackPosition, episodeItem.playbackDuration)
-                } else if (episodeItem.playbackDuration) {
-                    Util.formatDuration(episodeItem.playbackDuration)
-                } else {
-                    '-'
-                }
-            }
+            text: formatSubtitle()
             font.pixelSize: Config.listItemHeight * .2
             color: labelTitle.color
+
+            function formatSubtitle() {
+                var res      = ''
+                var add      = function (data) {
+                    if (data == '')
+                       return
+                    if (res != '')
+                       res = res + ' | ' + data
+                    else
+                       res = data
+                }
+                add(modelData.qpubdate)
+                add(episode.qfilesize)
+                var positionText = ''
+                var duration = episodeItem.playbackDuration
+                var position = episodeItem.playbackPosition
+                if ( duration && position && duration != position ) {
+                    positionText = Util.formatPosition(position, duration)
+                } else if (episodeItem.playbackDuration) {
+                    positionText = Util.formatDuration(duration)
+                }
+                add(positionText)
+                return res
+            }
         }
     }
 }
