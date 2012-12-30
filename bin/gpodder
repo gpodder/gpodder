@@ -114,6 +114,10 @@ def main():
     parser.add_option("-q", "--qml",
                       action="store_true", dest="qml", default=False,
                       help=_("Start the QML interface of gPodder"))
+    
+    parser.add_option("-d", "--qml_desktop",
+                      action="store_true", dest="qml_desktop", default=False,
+                      help=_("Start the QML Desktop interface of gPodder"))
 
     parser.add_option('-s', '--subscribe', dest='subscribe', metavar='URL',
                       help=_('Subscribe to the given URL'))
@@ -127,6 +131,8 @@ def main():
 
     if options.qml or gpodder.ui.harmattan:
         gpodder.ui.qml = True
+    elif options.qml_desktop:
+        gpodder.ui.qml_desktop = True
     else:
         gpodder.ui.gtk = True
 
@@ -164,6 +170,10 @@ def main():
         from gpodder import qmlui
         gpodder.ui_folders.insert(0, os.path.join(ui_folder, 'qml'))
         sys.exit(qmlui.main(args))
+    elif gpodder.ui.qml_desktop:
+        from gpodder import qmldesktopui
+        gpodder.ui_folders.insert(0, os.path.join(ui_folder, 'qmldesktop'))
+        sys.exit(qmldesktopui.main(args))
     elif gpodder.ui.gtk:
         from gpodder.gtkui import main
         gpodder.ui_folders.insert(0, os.path.join(ui_folder, 'gtk'))

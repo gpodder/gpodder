@@ -2,9 +2,54 @@ import QtQuick 1.1
 import QtDesktop 0.1
 
 ApplicationWindow {
-  id: gpodderWindow
+  id: mainwindow
   width: 600
   height: 400
+  visible: true
+  property variant main: mainwindow
+
+  GpodderMenu{}
+
+  ToolBar {
+    id: toolbar
+    anchors.right: parent.right
+    anchors.left: parent.left
+
+    ToolButton {
+      id: toolPlay
+      text: "Play"
+      anchors.left: toolDownload.right
+      anchors.verticalCenter: parent.verticalCenter
+    }
+
+    ToolButton {
+      id: toolCancel
+      text: "Cancel"
+      anchors.left: toolPlay.right
+      anchors.verticalCenter: parent.verticalCenter
+    }
+
+    ToolButton {
+      id: toolQuit
+      text: ""
+      anchors.left: toolPreferences.right
+      anchors.verticalCenter: parent.verticalCenter
+    }
+
+    ToolButton {
+      id: toolPreferences
+      text: ""
+      anchors.left: toolCancel.right
+      anchors.verticalCenter: parent.verticalCenter
+    }
+
+    ToolButton {
+      id: toolDownload
+      text: "Download"
+      anchors.left: parent.left
+      anchors.verticalCenter: parent.verticalCenter
+    }
+  }
 
   TabFrame {
     id: hboxContainer
@@ -128,6 +173,7 @@ ApplicationWindow {
           anchors.bottom: parent.bottom
           anchors.top: parent.top
           anchors.right: parent.right
+          Splitter.minimumWidth: 100
 
           ScrollArea {
             id: scrollarea1
@@ -142,7 +188,6 @@ ApplicationWindow {
               anchors.left: parent.left
               anchors.right: parent.right
 
-              Splitter.minimumWidth: 100
               delegate: Item {
                 height: 40
                 Row {
@@ -184,6 +229,7 @@ ApplicationWindow {
               }
             }
           }
+
           Button {
             id: button_search_episodes_clear
             anchors.right: parent.right
@@ -195,6 +241,7 @@ ApplicationWindow {
             anchors.left: label_search_episodes.right
             anchors.right: button_search_episodes_clear.left
             anchors.bottom: parent.bottom
+            anchors.bottomMargin: 50
           }
 
           Text {
@@ -204,8 +251,6 @@ ApplicationWindow {
             verticalAlignment: Text.AlignVCenter
             anchors.verticalCenter: button_search_episodes_clear.verticalCenter
           }
-
-
         }
       }
     }
@@ -221,7 +266,6 @@ ApplicationWindow {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: parent.top
-
       }
 
       Flow {
@@ -234,83 +278,29 @@ ApplicationWindow {
         CheckBox {
           id: cbLimitDownloads
           text: qsTr("Limit rate to")
-          anchors.left: parent.left
-          anchors.verticalCenter: spinLimitDownloads.verticalCenter
-        }
-
-        CheckBox {
-          id: cbMaxDownloads
-          text: qsTr("Limit downloads to")
-          checked: true
-          anchors.right: spinMaxDownloads.left
-          anchors.verticalCenter: spinMaxDownloads.verticalCenter
-        }
-
-        SpinBox {
-          id: spinMaxDownloads
-          maximumValue: 1000
-          minimumValue: 1
-          anchors.right: parent.right
-          anchors.bottom: parent.bottom
         }
 
         SpinBox {
           id: spinLimitDownloads
           width: Math.ceil(Math.log(spinLimitDownloads.value)/Math.log(10))*10+70
-          anchors.top: parent.top
-          anchors.left: cbLimitDownloads.right
 
           maximumValue: 1073741824
           value: 500
           postfix: qsTr("KiB/s")
         }
 
+        CheckBox {
+          id: cbMaxDownloads
+          text: qsTr("Limit downloads to")
+          checked: true
+        }
 
-
+        SpinBox {
+          id: spinMaxDownloads
+          maximumValue: 1000
+          minimumValue: 1
+        }
       }
-
-    }
-  }
-
-  ToolBar {
-    id: toolbar
-    anchors.right: parent.right
-    anchors.left: parent.left
-    anchors.top: parent.top
-
-    ToolButton {
-      id: toolPlay
-      text: "Play"
-      anchors.left: toolDownload.right
-      anchors.verticalCenter: parent.verticalCenter
-    }
-
-    ToolButton {
-      id: toolCancel
-      text: "Cancel"
-      anchors.left: toolPlay.right
-      anchors.verticalCenter: parent.verticalCenter
-    }
-
-    ToolButton {
-      id: toolQuit
-      text: ""
-      anchors.left: toolPreferences.right
-      anchors.verticalCenter: parent.verticalCenter
-    }
-
-    ToolButton {
-      id: toolPreferences
-      text: ""
-      anchors.left: toolCancel.right
-      anchors.verticalCenter: parent.verticalCenter
-    }
-
-    ToolButton {
-      id: toolDownload
-      text: "Download"
-      anchors.left: parent.left
-      anchors.verticalCenter: parent.verticalCenter
     }
   }
 }

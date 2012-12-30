@@ -79,6 +79,7 @@ class UI(object):
         self.harmattan = False
         self.gtk = False
         self.qml = False
+        self.qml_desktop = False
         self.cli = False
 
 
