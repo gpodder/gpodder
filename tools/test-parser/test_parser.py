@@ -38,7 +38,7 @@ for rss_filename in glob.glob(RSS_FILES):
     json_filename = basename + '.json'
 
     expected = json.load(open(json_filename))
-    parsed = podcastparser.parse(rss_filename, open(rss_filename))
+    parsed = podcastparser.parse('file://' + rss_filename, open(rss_filename))
 
     if expected != parsed:
         print 'FAIL:    ', basename

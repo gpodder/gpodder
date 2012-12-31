@@ -43,7 +43,7 @@ class Target:
 
 class RSS(Target):
     def start(self, handler, attrs):
-        handler.base = attrs.get('xml:base')
+        handler.set_base(attrs.get('xml:base'))
 
 class PodcastItem(Target):
     def end(self, handler, text):
@@ -51,22 +51,22 @@ class PodcastItem(Target):
         if handler.max_episodes:
             handler.data['episodes'] = handler.data['episodes'][:handler.max_episodes]
 
-class Podcast(Target):
+class PodcastAttr(Target):
     WANT_TEXT = True
 
     def end(self, handler, text):
-        handler.data[self.key] = self.filter_func(text)
+        handler.set_podcast_attr(self.key, self.filter_func(text))
 
-class PodcastFromHref(Target):
+class PodcastAttrFromHref(Target):
     def start(self, handler, attrs):
-        value = self.filter_func(attrs.get('href', ''))
+        value = attrs.get('href')
         if value:
-            handler.data[self.key] = value
+            handler.set_podcast_attr(self.key, self.filter_func(value))
 
-class PodcastFromPaymentHref(PodcastFromHref):
+class PodcastAttrFromPaymentHref(PodcastAttrFromHref):
     def start(self, handler, attrs):
         if attrs.get('rel') == 'payment':
-            PodcastFromHref.start(self, handler, attrs)
+            PodcastAttrFromHref.start(self, handler, attrs)
 
 class EpisodeItem(Target):
     def start(self, handler, attrs):
@@ -82,6 +82,7 @@ class EpisodeItem(Target):
             'total_time': 0,
             'payment_url': None,
             'enclosures': [],
+            '_guid_is_permalink': False,
         })
 
     def end(self, handler, text):
@@ -114,23 +115,20 @@ class EpisodeItem(Target):
         if not entry.get('link') and entry.get('_guid_is_permalink'):
             entry['link'] = entry['guid']
 
-        if '_guid_is_permalink' in entry:
-            del entry['_guid_is_permalink']
+        del entry['_guid_is_permalink']
 
-class Episode(Target):
+class EpisodeAttr(Target):
     WANT_TEXT = True
 
     def end(self, handler, text):
-        handler.episodes[-1][self.key] = self.filter_func(text)
+        handler.set_episode_attr(self.key, self.filter_func(text))
 
-class EpisodeGuid(Episode):
+class EpisodeGuid(EpisodeAttr):
     def start(self, handler, attrs):
         if attrs.get('isPermaLink', 'true').lower() == 'true':
-            handler.episodes[-1]['_guid_is_permalink'] = True
+            handler.set_episode_attr('_guid_is_permalink', True)
         else:
-            handler.episodes[-1]['_guid_is_permalink'] = False
-
-        Episode.start(self, handler, attrs)
+            handler.set_episode_attr('_guid_is_permalink', False)
 
     def end(self, handler, text):
         def filter_func(guid):
@@ -140,29 +138,30 @@ class EpisodeGuid(Episode):
             return guid
 
         self.filter_func = filter_func
-        Episode.end(self, handler, text)
+        EpisodeAttr.end(self, handler, text)
 
-class EpisodeFromHref(Target):
+class EpisodeAttrFromHref(Target):
     def start(self, handler, attrs):
-        value = self.filter_func(attrs.get('href', ''))
+        value = attrs.get('href')
         if value:
-            handler.episodes[-1][self.key] = value
+            handler.set_episode_attr(self.key, self.filter_func(value))
 
-class EpisodeFromPaymentHref(EpisodeFromHref):
+class EpisodeAttrFromPaymentHref(EpisodeAttrFromHref):
     def start(self, handler, attrs):
         if attrs.get('rel') == 'payment':
-            EpisodeFromHref.start(self, handler, attrs)
+            EpisodeAttrFromHref.start(self, handler, attrs)
 
 class Enclosure(Target):
     def start(self, handler, attrs):
-        url_target, length_target, type_target = self.key
-        url_filter, length_filter, type_filter = self.filter_func
+        url = attrs.get('url')
+        if url is None:
+            return
 
-        handler.episodes[-1]['enclosures'].append({
-            url_target: url_filter(attrs.get('url')),
-            length_target: length_filter(attrs.get('length', '')),
-            type_target: type_filter(attrs.get('type')),
-        })
+        url = parse_url(urlparse.urljoin(handler.url, url))
+        file_size = parse_length(attrs.get('length'))
+        mime_type = parse_type(attrs.get('type'))
+
+        handler.add_enclosure(url, file_size, mime_type)
 
 
 def squash_whitespace(text):
@@ -175,6 +174,9 @@ def parse_url(text):
     return util.normalize_feed_url(text.strip())
 
 def parse_length(text):
+    if text is None:
+        return -1
+
     try:
         return long(text.strip()) or -1
     except ValueError:
@@ -194,27 +196,24 @@ def parse_pubdate(text):
 MAPPING = {
     'rss': RSS(),
     'rss/channel': PodcastItem(),
-    'rss/channel/title': Podcast('title', squash_whitespace),
-    'rss/channel/link': Podcast('link'),
-    'rss/channel/description': Podcast('description', squash_whitespace),
-    'rss/channel/image/url': Podcast('cover_url'),
-    'rss/channel/itunes:image': PodcastFromHref('cover_url'),
-    'rss/channel/atom:link': PodcastFromPaymentHref('payment_url'),
+    'rss/channel/title': PodcastAttr('title', squash_whitespace),
+    'rss/channel/link': PodcastAttr('link'),
+    'rss/channel/description': PodcastAttr('description', squash_whitespace),
+    'rss/channel/image/url': PodcastAttr('cover_url'),
+    'rss/channel/itunes:image': PodcastAttrFromHref('cover_url'),
+    'rss/channel/atom:link': PodcastAttrFromPaymentHref('payment_url'),
 
     'rss/channel/item': EpisodeItem(),
     'rss/channel/item/guid': EpisodeGuid('guid'),
-    'rss/channel/item/title': Episode('title', squash_whitespace),
-    'rss/channel/item/link': Episode('link'),
-    'rss/channel/item/description': Episode('description', squash_whitespace),
+    'rss/channel/item/title': EpisodeAttr('title', squash_whitespace),
+    'rss/channel/item/link': EpisodeAttr('link'),
+    'rss/channel/item/description': EpisodeAttr('description', squash_whitespace),
     # Alternatives for description: itunes:summary, itunes:subtitle, content:encoded
-    'rss/channel/item/itunes:duration': Episode('total_time', parse_duration),
-    'rss/channel/item/pubDate': Episode('published', parse_pubdate),
-    'rss/channel/item/atom:link': EpisodeFromPaymentHref('payment_url'),
+    'rss/channel/item/itunes:duration': EpisodeAttr('total_time', parse_duration),
+    'rss/channel/item/pubDate': EpisodeAttr('published', parse_pubdate),
+    'rss/channel/item/atom:link': EpisodeAttrFromPaymentHref('payment_url'),
 
-    'rss/channel/item/enclosure': Enclosure(
-        ('url', 'file_size', 'mime_type'),
-        (parse_url, parse_length, parse_type),
-    ),
+    'rss/channel/item/enclosure': Enclosure(),
 }
 
 class PodcastHandler(sax.handler.ContentHandler):
@@ -228,31 +227,42 @@ class PodcastHandler(sax.handler.ContentHandler):
             'title': '',
             'episodes': self.episodes
         }
-        self.target_stack = []
         self.path_stack = []
+
+    def set_base(self, base):
+        self.base = base
+
+    def set_podcast_attr(self, key, value):
+        self.data[key] = value
+
+    def set_episode_attr(self, key, value):
+        self.episodes[-1][key] = value
+
+    def add_enclosure(self, url, file_size, mime_type):
+        self.episodes[-1]['enclosures'].append({
+            'url': url,
+            'file_size': file_size,
+            'mime_type': mime_type,
+        })
 
     def startElement(self, name, attrs):
         self.path_stack.append(name)
 
-        path = '/'.join(self.path_stack)
-        target = MAPPING.get(path)
+        target = MAPPING.get('/'.join(self.path_stack))
         if target is not None:
             target.start(self, attrs)
             if target.WANT_TEXT:
                 self.text = []
-            self.target_stack.append((path, target))
 
     def characters(self, chars):
         if self.text is not None:
             self.text.append(chars)
 
     def endElement(self, name):
-        if self.target_stack:
-            path, target = self.target_stack[-1]
-            if path == '/'.join(self.path_stack):
-                self.target_stack.pop()
-                target.end(self, ''.join(self.text) if self.text is not None else '')
-                self.text = None
+        target = MAPPING.get('/'.join(self.path_stack))
+        if target is not None:
+            target.end(self, ''.join(self.text) if self.text is not None else '')
+            self.text = None
 
         self.path_stack.pop()
 
