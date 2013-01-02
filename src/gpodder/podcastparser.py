@@ -212,6 +212,21 @@ class PodcastHandler(sax.handler.ContentHandler):
             '_guid_is_permalink': False,
         })
 
+    def pick_enclosure(self, enclosures):
+        def key_func(enclosure):
+            mime_type = enclosure['mime_type']
+
+            if mime_type.startswith('video/'):
+                return 100
+            elif mime_type.startswith('audio/'):
+                return 10
+            elif mime_type.startswith('image/'):
+                return 1
+
+            return 0
+
+        return sorted(enclosures, key=key_func, reverse=True)[0]
+
     def validate_episode(self):
         entry = self.episodes[-1]
 
@@ -228,8 +243,8 @@ class PodcastHandler(sax.handler.ContentHandler):
                 self.episodes.pop()
                 return
 
-        # Here we could pick a good enclosure
-        entry.update(entry['enclosures'][0])
+        # Pick one of multiple enclosures
+        entry.update(self.pick_enclosure(entry['enclosures']))
         del entry['enclosures']
 
         if 'guid' not in entry:
