@@ -70,52 +70,10 @@ class PodcastAttrFromPaymentHref(PodcastAttrFromHref):
 
 class EpisodeItem(Target):
     def start(self, handler, attrs):
-        handler.episodes.append({
-            # title
-            'description': '',
-            # url
-            'published': 0,
-            # guid
-            'link': '',
-            'file_size': -1,
-            'mime_type': 'application/octet-stream',
-            'total_time': 0,
-            'payment_url': None,
-            'enclosures': [],
-            '_guid_is_permalink': False,
-        })
+        handler.add_episode()
 
     def end(self, handler, text):
-        entry = handler.episodes[-1]
-
-        # No enclosures for this item
-        if len(entry['enclosures']) == 0:
-            if (youtube.is_video_link(entry['link']) or
-                    vimeo.is_video_link(entry['link'])):
-                entry['enclosures'].append({
-                    'url': entry['link'],
-                    'file_size': -1,
-                    'mime_type': 'video/mp4',
-                })
-            else:
-                handler.episodes.pop()
-                return
-
-        # Here we could pick a good enclosure
-        entry.update(entry['enclosures'][0])
-        del entry['enclosures']
-
-        if 'guid' not in entry:
-            # Maemo bug 12073
-            entry['guid'] = entry['url']
-
-        if 'title' not in entry:
-            entry['title'] = entry['url']
-
-        if not entry.get('link') and entry.get('_guid_is_permalink'):
-            entry['link'] = entry['guid']
-
-        del entry['_guid_is_permalink']
+        handler.validate_episode()
 
 class EpisodeAttr(Target):
     WANT_TEXT = True
@@ -237,6 +195,54 @@ class PodcastHandler(sax.handler.ContentHandler):
 
     def set_episode_attr(self, key, value):
         self.episodes[-1][key] = value
+
+    def add_episode(self):
+        self.episodes.append({
+            # title
+            'description': '',
+            # url
+            'published': 0,
+            # guid
+            'link': '',
+            'file_size': -1,
+            'mime_type': 'application/octet-stream',
+            'total_time': 0,
+            'payment_url': None,
+            'enclosures': [],
+            '_guid_is_permalink': False,
+        })
+
+    def validate_episode(self):
+        entry = self.episodes[-1]
+
+        # No enclosures for this item
+        if len(entry['enclosures']) == 0:
+            if (youtube.is_video_link(entry['link']) or
+                    vimeo.is_video_link(entry['link'])):
+                entry['enclosures'].append({
+                    'url': entry['link'],
+                    'file_size': -1,
+                    'mime_type': 'video/mp4',
+                })
+            else:
+                self.episodes.pop()
+                return
+
+        # Here we could pick a good enclosure
+        entry.update(entry['enclosures'][0])
+        del entry['enclosures']
+
+        if 'guid' not in entry:
+            # Maemo bug 12073
+            entry['guid'] = entry['url']
+
+        if 'title' not in entry:
+            entry['title'] = entry['url']
+
+        if not entry.get('link') and entry.get('_guid_is_permalink'):
+            entry['link'] = entry['guid']
+
+        del entry['_guid_is_permalink']
 
     def add_enclosure(self, url, file_size, mime_type):
         self.episodes[-1]['enclosures'].append({
