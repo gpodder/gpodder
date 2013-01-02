@@ -15,14 +15,13 @@ Window {
     anchors.bottom: btn_close.top
 
     WebView {
-      id: web_view1
-      url: "http://onet.pl/"
+      id: web_view
     }
   }
 
   Button {
     id: btn_close
-    text: "Cancel"
+    text: _("Cancel")
     anchors.right: parent.right
     anchors.bottom: parent.bottom
     anchors.left: parent.left

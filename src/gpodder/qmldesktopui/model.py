@@ -19,10 +19,8 @@
 
 
 from PySide.QtCore import QObject, Property, Signal, Slot
+from PySide.QtCore import QAbstractListModel, QModelIndex
 
-import gpodder
-
-_ = gpodder.gettext
 
 import logging
 logger = logging.getLogger(__name__)
@@ -32,10 +30,9 @@ from gpodder import util
 from gpodder import youtube
 from gpodder import download
 from gpodder import query
-from gpodder import model
 from gpodder import coverart
 
-import os
+from qmlcommon import _, EPISODE_LIST_FILTERS
 
 convert = util.convert_bytes
 
@@ -443,4 +440,116 @@ class EpisodeSubsetView(QObject):
 
     qnew = Property(int, _new, notify=changed)
 
+class gPodderListModel(QAbstractListModel):
+    def __init__(self, objects=None):
+        QAbstractListModel.__init__(self)
+        if objects is None:
+            objects = []
+        self._objects = objects
+        self.setRoleNames({0: 'modelData', 1: 'section'})
 
+    def sort(self):
+        # Unimplemented for the generic list model
+        self.reset()
+
+    def insert_object(self, o):
+        self._objects.append(o)
+        self.sort()
+
+    def remove_object(self, o):
+        self._objects.remove(o)
+        self.reset()
+
+    def set_objects(self, objects):
+        self._objects = objects
+        self.sort()
+
+    def get_objects(self):
+        return self._objects
+
+    def get_object(self, index):
+        return self._objects[index.row()]
+
+    def rowCount(self, parent=QModelIndex()):
+        return len(self.get_objects())
+
+    def data(self, index, role):
+        if index.isValid():
+            if role == 0:
+                return self.get_object(index)
+            elif role == 1:
+                return self.get_object(index).qsection
+        return None
+
+class gPodderPodcastListModel(gPodderListModel):
+    def set_podcasts(self, db, podcasts):
+        views = [
+            EpisodeSubsetView(db, self, _('All episodes'), ''),
+        ]
+        self.set_objects(views + podcasts)
+
+    def get_podcasts(self):
+        return filter(lambda podcast: isinstance(podcast, QPodcast),
+                self.get_objects())
+
+    def sort(self):
+        self._objects = sorted(self._objects, key=QPodcast.sort_key)
+        self.reset()
+
+class gPodderEpisodeListModel(gPodderListModel):
+    def __init__(self, config):
+        gPodderListModel.__init__(self)
+        self._filter = config.ui.qml.state.episode_list_filter
+        self._filtered = []
+        self._is_subset_view = False
+
+        self._config = config
+        config.add_observer(self._on_config_changed)
+
+    is_subset_view_changed = Signal()
+
+    def get_is_subset_view(self):
+        return self._is_subset_view
+
+    def set_is_subset_view(self, is_subset_view):
+        if is_subset_view != self.is_subset_view:
+            self._is_subset_view = is_subset_view
+            self.is_subset_view_changed.emit()
+
+    is_subset_view = Property(bool, get_is_subset_view,
+            set_is_subset_view, notify=is_subset_view_changed)
+
+    def _on_config_changed(self, name, old_value, new_value):
+        if name == 'ui.qml.state.episode_list_filter':
+            self._filter = new_value
+            self.sort()
+
+    def sort(self):
+        caption, eql = EPISODE_LIST_FILTERS[self._filter]
+
+        if eql is None:
+            self._filtered = self._objects
+        else:
+            eql = query.EQL(eql)
+            match = lambda episode: eql.match(episode._episode)
+            self._filtered = filter(match, self._objects)
+
+        self.reset()
+
+    def get_objects(self):
+        return self._filtered
+
+    def get_object(self, index):
+        return self._filtered[index.row()]
+
+    @Slot(int, result=QObject)
+    def get_object_by_index(self, index):
+        return self._filtered[int(index)]
+
+    @Slot(result=int)
+    def getFilter(self):
+        return self._filter
+
+    @Slot(int)
+    def setFilter(self, filter_index):
+        self._config.ui.qml.state.episode_list_filter = filter_index

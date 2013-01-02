@@ -7,7 +7,7 @@ Window {
 
   Label {
     id: labelInstructions
-    text: qsTr("additional text")
+    text: _("additional text")
     anchors.right: parent.right
     anchors.left: parent.left
     anchors.top: parent.top
@@ -74,12 +74,12 @@ Window {
 
     Button {
       id: btnCheckAll
-      text: "Select all"
+      text: _("Select all")
     }
 
     Button {
       id: btnCheckNone
-      text: "Select none"
+      text: _("Select none")
     }
   }
 
@@ -91,17 +91,17 @@ Window {
 
     Button {
       id: btnRemoveAction
-      text: "Remove"
+      text: _("Remove")
     }
 
     Button {
       id: btnCancel
-      text: "Cancel"
+      text: _("Cancel")
     }
 
     Button {
       id: btnOK
-      text: "OK"
+      text: _("OK")
     }
   }
 }

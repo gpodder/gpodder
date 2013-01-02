@@ -6,9 +6,13 @@ Window {
   width: 400
   height: 300
 
+  function _(x){
+    return x
+  }
+
   TabFrame {
     id: tabgroup1
-    anchors.bottom: button1.top
+    anchors.bottom: btnOK.top
     anchors.right: parent.right
     anchors.left: parent.left
     anchors.top: parent.top
@@ -16,7 +20,7 @@ Window {
     TabBar {
       id: tabbar1
       anchors.fill: parent
-      property string title: qsTr("General")
+      property string title: _("General")
 
       Image {
         id: imgCover
@@ -29,7 +33,6 @@ Window {
 
       TextField {
         id: entryTitle
-        text: ""
         anchors.right: parent.right
         anchors.left: imgCover.right
         anchors.top: parent.top
@@ -37,7 +40,7 @@ Window {
 
       CheckBox {
         id: cbSkipFeedUpdate
-        text: "Disable feed updates (pause subscription)"
+        text: _("Disable feed updates (pause subscription)")
         anchors.right: parent.right
         anchors.left: imgCover.right
         anchors.top: entryTitle.bottom
@@ -45,7 +48,7 @@ Window {
 
       Label {
         id: label_section
-        text: qsTr("Section:")
+        text: _("Section:")
         anchors.left: imgCover.right
         anchors.verticalCenter: combo_section.verticalCenter
       }
@@ -59,9 +62,23 @@ Window {
 
       Button {
         id: button_add_section
-        text: "Add"
+        text: _("Add")
         anchors.right: parent.right
         anchors.verticalCenter: combo_section.verticalCenter
+      }
+
+      Label {
+        id: label_strategy
+        text: _("Strategy:")
+        anchors.left: imgCover.right
+        anchors.verticalCenter: combo_strategy.verticalCenter
+      }
+
+      ComboBox {
+        id: combo_strategy
+        anchors.right: parent.right
+        anchors.left: label_strategy.right
+        anchors.top: combo_section.bottom
       }
 
       TextArea {
@@ -77,18 +94,18 @@ Window {
     TabBar {
       id: tabbar2
       anchors.fill: parent
-      property string title: qsTr("Advanced")
+      property string title: _("Advanced")
 
       GroupBox {
         id: groupbox1
         anchors.right: parent.right
         anchors.left: parent.left
         anchors.top: parent.top
-        title: "HTTP/FTP Authentication"
+        title: _("HTTP/FTP Authentication")
 
         Label {
           id: label2
-          text: qsTr("Username:")
+          text: _("Username:")
           anchors.left: parent.left
           anchors.verticalCenter: feedUsername.verticalCenter
         }
@@ -101,7 +118,7 @@ Window {
 
         Label {
           id: label3
-          text: qsTr("Password:")
+          text: _("Password:")
           anchors.left: parent.left
           anchors.verticalCenter: feedPassword.verticalCenter
         }
@@ -120,11 +137,11 @@ Window {
         anchors.right: parent.right
         anchors.left: parent.left
         anchors.top: groupbox1.bottom
-        title: "Locations"
+        title: _("Locations")
 
         Label {
           id: label4
-          text: qsTr("Download to:")
+          text: _("Download to:")
           anchors.left: parent.left
           anchors.verticalCenter: labelDownloadTo.verticalCenter
         }
@@ -139,7 +156,7 @@ Window {
 
         Label {
           id: label6
-          text: qsTr("Website:")
+          text: _("Website:")
           anchors.left: parent.left
           anchors.verticalCenter: labelWebsite.verticalCenter
         }
@@ -154,23 +171,18 @@ Window {
 
         Button {
           id: btn_website
-          text: "Website"
+          text: _("Website")
           anchors.right:  parent.right
           anchors.verticalCenter: labelWebsite.verticalCenter
         }
       }
-
     }
   }
 
   Button {
-    id: button1
-    x: 158
-    y: 217
-    width: 100
-    text: "Button"
+    id: btnOK
+    text: _("Close")
     anchors.right: parent.right
     anchors.bottom: parent.bottom
   }
-
 }

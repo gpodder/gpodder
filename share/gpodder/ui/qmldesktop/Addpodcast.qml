@@ -8,7 +8,7 @@ Window {
 
   Text {
     id: label_add
-    text: qsTr("URL:")
+    text: _("URL:")
     anchors.left: parent.left
     anchors.verticalCenter: entry_url.verticalCenter
   }
@@ -22,21 +22,21 @@ Window {
 
   Button {
     id: btn_paste
-    text: "Paste"
+    text: _("Paste")
     anchors.right: parent.right
     anchors.verticalCenter: parent.verticalCenter
   }
 
   Button {
     id: btn_add
-    text: "Add"
+    text: _("Add")
     anchors.bottom: parent.bottom
     anchors.right: parent.right
   }
 
   Button {
     id: btn_close
-    text: "Cancel"
+    text: _("Cancel")
     anchors.right: btn_add.left
     anchors.bottom: parent.bottom
   }

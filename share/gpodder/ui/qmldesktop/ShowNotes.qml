@@ -29,7 +29,7 @@ Window {
 
     Button {
       id: flattr_button
-      text: "Flattr this"
+      text: _("Flattr this")
     }
 
     Image {
@@ -41,24 +41,22 @@ Window {
 
     Button {
       id: btnPlay
-      text: "Play"
+      text: _("Play")
     }
 
     Button {
       id: btnDownload
-      text: "_Download"
+      text: _("&Download")
     }
 
     Button {
       id: btnCancel
-      text: "C_ancel download"
+      text: _("C&ancel download")
     }
 
     Button {
       id: btnClose
-      text: "Close"
+      text: _("Close")
     }
-
-
   }
 }

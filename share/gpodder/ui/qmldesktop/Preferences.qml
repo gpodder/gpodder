@@ -17,7 +17,7 @@ Window {
 
     TabBar {
       id: general
-      property string title: qsTr("General")
+      property string title: _("General")
       anchors.fill: parent
 
       Item {
@@ -32,7 +32,7 @@ Window {
           id: label_audio_player
           anchors.left: parent.left
           anchors.verticalCenter: parent.verticalCenter
-          text: qsTr("Audio player:")
+          text: _("Audio player:")
           verticalAlignment: Text.AlignVCenter
         }
 
@@ -45,7 +45,7 @@ Window {
 
         Button {
           id: button_audio_player
-          text: "Edit"
+          text: _("Edit")
           anchors.verticalCenter: parent.verticalCenter
           anchors.right: parent.right
         }
@@ -62,7 +62,7 @@ Window {
           id: label_video_player
           anchors.verticalCenter: parent.verticalCenter
           anchors.left: parent.left
-          text: qsTr("Video player:")
+          text: _("Video player:")
           verticalAlignment: Text.AlignVCenter
         }
 
@@ -71,12 +71,12 @@ Window {
           anchors.verticalCenter: parent.verticalCenter
           anchors.left: label_video_player.right
           anchors.right: button_video_player.left
-          hoveredText: ""
+          hoveredtext: _("")
         }
 
         Button {
           id: button_video_player
-          text: "Edit"
+          text: _("Edit")
           anchors.verticalCenter: parent.verticalCenter
           anchors.right: parent.right
         }
@@ -86,7 +86,7 @@ Window {
 
     ScrollArea {
       id: extensions
-      property string title: qsTr("Extensions")
+      property string title: _("Extensions")
       anchors.fill: parent
 
       ListView {
@@ -140,7 +140,7 @@ Window {
 
     TabBar {
       id: flattr_config
-      property string title: qsTr("Flattr")
+      property string title: _("Flattr")
       anchors.fill: parent
 
       Label {
@@ -148,7 +148,7 @@ Window {
         anchors.top: parent.top
         anchors.right: parent.right
         anchors.left: parent.left
-        text: "Please sign in with Flattr and Support Publishers"
+        text: _("Please sign in with Flattr and Support Publishers")
         verticalAlignment: Text.AlignVCenter
       }
 
@@ -157,7 +157,7 @@ Window {
         anchors.top: label_flattr.bottom
         anchors.right: parent.right
         anchors.left: parent.left
-        text: "Sign in"
+        text: _("Sign in")
       }
 
       CheckBox {
@@ -165,19 +165,19 @@ Window {
         anchors.top: button_flattr_login.bottom
         anchors.right: parent.right
         anchors.left: parent.left
-        text: "Automatically flattr episodes on playback"
+        text: _("Automatically flattr episodes on playback")
       }
     }
 
 
     TabBar {
       id: mygpo_config
-      property string title: qsTr("Gpodder config")
+      property string title: _("Gpodder config")
       anchors.fill: parent
 
       CheckBox {
         id: checkbutton_enable
-        text: "Synchronize subscriptions and episode actions"
+        text: _("Synchronize subscriptions and episode actions")
         anchors.top: parent.top
       }
 
@@ -191,7 +191,7 @@ Window {
 
         Label {
           id: label_username
-          text: qsTr("Username:")
+          text: _("Username:")
           horizontalAlignment: Text.AlignRight
           verticalAlignment: Text.AlignVCenter
         }
@@ -202,7 +202,7 @@ Window {
 
         Label {
           id: label_password
-          text: qsTr("Password:")
+          text: _("Password:")
           horizontalAlignment: Text.AlignRight
           verticalAlignment: Text.AlignVCenter
         }
@@ -213,7 +213,7 @@ Window {
 
         Label {
           id: label_caption
-          text: qsTr("Device name:")
+          text: _("Device name:")
           horizontalAlignment: Text.AlignRight
           verticalAlignment: Text.AlignVCenter
         }
@@ -226,14 +226,14 @@ Window {
 
       Button {
         id: button_overwrite
-        text: "Replace list on server with local subscriptions"
+        text: _("Replace list on server with local subscriptions")
         anchors.top: grid1.bottom
       }
     }
 
     TabBar {
       id: updating
-      property string title: qsTr("Updating")
+      property string title: _("Updating")
       anchors.fill: parent
 
       Item {
@@ -241,7 +241,7 @@ Window {
 
         Label {
           id: label_update_interval
-          text: qsTr("Update interval:")
+          text: _("Update interval:")
           anchors.top: parent.top
           anchors.left: parent.left
         }
@@ -260,7 +260,7 @@ Window {
 
         Label {
           id: label_episode_limit
-          text: qsTr("Maximum number of episodes per podcast:")
+          text: _("Maximum number of episodes per podcast:")
         }
 
         SpinBox {
@@ -270,7 +270,7 @@ Window {
 
       Label {
         id: label_auto_download
-        text: qsTr("When new episodes are found:")
+        text: _("When new episodes are found:")
       }
 
       ComboBox {
@@ -280,12 +280,12 @@ Window {
 
     TabBar {
       id: downloads
-      property string title: qsTr("Downloads")
+      property string title: _("Downloads")
       anchors.fill: parent
 
       Label {
         id: label_expiration
-        text: qsTr("Delete played episodes:")
+        text: _("Delete played episodes:")
         verticalAlignment: Text.AlignVCenter
         anchors.left: parent.left
         anchors.verticalCenter: hscale_expiration.verticalCenter
@@ -300,14 +300,14 @@ Window {
 
       CheckBox {
         id: checkbutton_expiration_unfinished
-        text: "Remove played episodes even if unfinished"
+        text: _("Remove played episodes even if unfinished")
         anchors.top: hscale_expiration.bottom
         anchors.left: parent.left
       }
 
       CheckBox {
         id: checkbutton_expiration_unplayed
-        text: "Also remove unplayed episodes"
+        text: _("Also remove unplayed episodes")
         anchors.top: checkbutton_expiration_unfinished.bottom
         anchors.left: parent.left
       }
@@ -316,14 +316,14 @@ Window {
 
     TabBar {
       id: devices
-      property string title: qsTr("Devices")
+      property string title: _("Devices")
       anchors.fill: parent
 
       Label {
         id: label_device_type
         anchors.left: parent.left
         anchors.verticalCenter: combobox_device_type.verticalCenter
-        text: qsTr("Device type:")
+        text: _("Device type:")
       }
 
       ComboBox {
@@ -337,7 +337,7 @@ Window {
         id: label_device_mount
         anchors.left: parent.left
         anchors.verticalCenter: btn_filesystemMountpoint.verticalCenter
-        text: qsTr("Mountpoint:")
+        text: _("Mountpoint:")
       }
 
       ComboBox {
@@ -351,7 +351,7 @@ Window {
         id: label_on_sync
         anchors.left: parent.left
         anchors.verticalCenter: combobox_on_sync.verticalCenter
-        text: qsTr("After syncing an episode:")
+        text: _("After syncing an episode:")
       }
 
       ComboBox {
@@ -364,13 +364,9 @@ Window {
         id: checkbutton_skip_played_episodes
         anchors.top: combobox_on_sync.bottom
         anchors.left: parent.left
-        text: "Only sync unplayed episodes"
+        text: _("Only sync unplayed episodes")
       }
     }
-
-
-
-
   }
 
   ButtonRow {
@@ -383,12 +379,12 @@ Window {
 
     Button {
       id: button_advanced
-      text: qsTr("Edit config")
+      text: _("Edit config")
     }
 
     Button {
       id: button_close
-      text: qsTr("Close")
+      text: _("Close")
       iconSource: ""
     }
   }

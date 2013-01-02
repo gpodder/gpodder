@@ -25,7 +25,7 @@ Window {
 
       Button {
         id: btnDownloadOpml
-        text: "Download"
+        text: _("Download")
         anchors.right: parent.right
         anchors.verticalCenter: entryURL.verticalCenter
       }
@@ -149,7 +149,7 @@ Window {
 
       Button {
         id: btnSearchYouTube
-        text: "Search"
+        text: _("Search")
         anchors.right: parent.right
         anchors.verticalCenter: entryYoutubeSearch.verticalCenter
       }
@@ -220,22 +220,22 @@ Window {
 
     Button {
       id: btnSelectAll
-      text: "Select All"
+      text: _("Select All")
     }
 
     Button {
       id: btnSelectNone
-      text: "Select None"
+      text: _("Select None")
     }
 
     Button {
       id: btnCancel
-      text: "Cancel"
+      text: _("Cancel")
     }
 
     Button {
       id: btnOK
-      text: "Add"
+      text: _("Add")
     }
 
   }

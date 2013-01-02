@@ -6,7 +6,26 @@ ApplicationWindow {
   width: 600
   height: 400
   visible: true
+
   property variant main: mainwindow
+
+  property alias podcastModel: channels.model
+  property alias episodeModel: avaliableEpisodes.model
+  //property alias showNotesEpisode: showNotes.episode
+ /// //property variant currentPodcast: undefined
+  //property bool hasPodcasts: podcastList.hasItems
+  //property alias currentFilterText: avaliableEpisodes.currentFilterText
+
+  //property bool canGoBack: (main.state != 'podcasts' || contextMenu.state != 'closed' || mediaPlayer.visible) && !progressIndicator.opacity
+  //property bool hasPlayButton: nowPlayingThrobber.shouldAppear && !progressIndicator.opacity
+ // property bool hasSearchButton: (contextMenu.state == 'closed' && main.state == 'podcasts') && !mediaPlayer.visible && !progressIndicator.opacity
+  //property bool hasFilterButton: state == 'episodes' && !mediaPlayer.visible
+
+  property int splitterLimit: 100
+
+  function _(x){
+    return controller.translate(x)
+  }
 
   GpodderMenu{}
 
@@ -16,38 +35,40 @@ ApplicationWindow {
     anchors.left: parent.left
 
     ToolButton {
-      id: toolPlay
-      text: "Play"
-      anchors.left: toolDownload.right
+      id: toolDownload
+      text: _("Download")
+      anchors.left: parent.left
       anchors.verticalCenter: parent.verticalCenter
     }
 
     ToolButton {
+      id: toolPlay
+      text: _("Play")
+      anchors.left: toolDownload.right
+      anchors.verticalCenter: parent.verticalCenter
+      onClicked: controller.onPlayback
+    }
+
+    ToolButton {
       id: toolCancel
-      text: "Cancel"
+      text: _("Cancel")
       anchors.left: toolPlay.right
       anchors.verticalCenter: parent.verticalCenter
     }
 
     ToolButton {
-      id: toolQuit
-      text: ""
-      anchors.left: toolPreferences.right
-      anchors.verticalCenter: parent.verticalCenter
-    }
-
-    ToolButton {
       id: toolPreferences
-      text: ""
+      text: _("Preferences")
       anchors.left: toolCancel.right
       anchors.verticalCenter: parent.verticalCenter
     }
 
     ToolButton {
-      id: toolDownload
-      text: "Download"
-      anchors.left: parent.left
+      id: toolQuit
+      text: _("Quit")
+      anchors.left: toolPreferences.right
       anchors.verticalCenter: parent.verticalCenter
+      onClicked: controller.quit()
     }
   }
 
@@ -62,10 +83,9 @@ ApplicationWindow {
     Tab {
       id: podcasts
       anchors.fill: parent
-      title: qsTr("Podcasts")
+      title: _("Podcasts")
 
       SplitterRow {
-        //Item{
         id: item2
         anchors.fill: parent
 
@@ -75,7 +95,7 @@ ApplicationWindow {
           anchors.bottom: parent.bottom
           anchors.left: parent.left
           anchors.top: parent.top
-          Splitter.minimumWidth: 100
+          Splitter.minimumWidth: splitterLimit
 
           ScrollArea {
             anchors.top: parent.top
@@ -83,56 +103,17 @@ ApplicationWindow {
             anchors.right: parent.right
             anchors.bottom: entry_search_podcasts.top
 
-            ListView {
+            PodcastList {
               id: channels
               anchors.top: parent.top
               anchors.left: parent.left
               anchors.right: parent.right
-              delegate: Item {
-                height: 40
-                Row {
-                  id: row1
-                  spacing: 10
-                  Rectangle {
-                    width: 40
-                    height: 40
-                    color: colorCode
-                  }
-
-                  Text {
-                    text: name
-                    anchors.verticalCenter: parent.verticalCenter
-                    font.bold: true
-                  }
-                }
-              }
-              model: ListModel {
-                ListElement {
-                  name: "Grey"
-                  colorCode: "grey"
-                }
-
-                ListElement {
-                  name: "Red"
-                  colorCode: "red"
-                }
-
-                ListElement {
-                  name: "Blue"
-                  colorCode: "blue"
-                }
-
-                ListElement {
-                  name: "Green"
-                  colorCode: "green"
-                }
-              }
             }
           }
 
           Button {
             id: btnUpdateFeeds
-            text: qsTr("Check for new episodes")
+            text: _("Check for new episodes")
             anchors.bottom: pbFeedUpdate.top
             anchors.left: parent.left
             anchors.right: parent.right
@@ -173,7 +154,7 @@ ApplicationWindow {
           anchors.bottom: parent.bottom
           anchors.top: parent.top
           anchors.right: parent.right
-          Splitter.minimumWidth: 100
+          Splitter.minimumWidth: splitterLimit
 
           ScrollArea {
             id: scrollarea1
@@ -181,52 +162,13 @@ ApplicationWindow {
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.bottom: entry_search_episodes.top
-            ListView {
+
+            EpisodeList {
               id: avaliableEpisodes
               anchors.top: parent.top
               anchors.bottom: parent.bottom
               anchors.left: parent.left
               anchors.right: parent.right
-
-              delegate: Item {
-                height: 40
-                Row {
-                  id: row2
-                  spacing: 10
-                  Rectangle {
-                    width: 40
-                    height: 40
-                    color: colorCode
-                  }
-
-                  Text {
-                    text: name
-                    anchors.verticalCenter: parent.verticalCenter
-                    font.bold: true
-                  }
-                }
-              }
-              model: ListModel {
-                ListElement {
-                  name: "Grey"
-                  colorCode: "grey"
-                }
-
-                ListElement {
-                  name: "Red"
-                  colorCode: "red"
-                }
-
-                ListElement {
-                  name: "Blue"
-                  colorCode: "blue"
-                }
-
-                ListElement {
-                  name: "Green"
-                  colorCode: "green"
-                }
-              }
             }
           }
 
@@ -246,7 +188,7 @@ ApplicationWindow {
 
           Text {
             id: label_search_episodes
-            text: qsTr("Filter:")
+            text: _("Filter:")
             anchors.left: parent.left
             verticalAlignment: Text.AlignVCenter
             anchors.verticalCenter: button_search_episodes_clear.verticalCenter
@@ -258,7 +200,7 @@ ApplicationWindow {
     Tab {
       id: progress
       anchors.fill: parent
-      title: qsTr("Progress")
+      title: _("Progress")
 
       ListView {
         id: progressList
@@ -277,7 +219,7 @@ ApplicationWindow {
 
         CheckBox {
           id: cbLimitDownloads
-          text: qsTr("Limit rate to")
+          text: _("Limit rate to")
         }
 
         SpinBox {
@@ -286,12 +228,12 @@ ApplicationWindow {
 
           maximumValue: 1073741824
           value: 500
-          postfix: qsTr("KiB/s")
+          postfix: _("KiB/s")
         }
 
         CheckBox {
           id: cbMaxDownloads
-          text: qsTr("Limit downloads to")
+          text: _("Limit downloads to")
           checked: true
         }
 

@@ -21,15 +21,12 @@ from PySide.QtCore import Qt
 from PySide.QtGui import QImage
 from PySide.QtDeclarative import QDeclarativeImageProvider
 
-import gpodder
-
 from gpodder import util
 from gpodder import coverart
 
 import logging
 logger = logging.getLogger(__name__)
 
-import os
 import urllib
 
 class LocalCachedImageProvider(QDeclarativeImageProvider):

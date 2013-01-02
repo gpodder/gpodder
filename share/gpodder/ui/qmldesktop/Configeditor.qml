@@ -8,7 +8,7 @@ Window {
 
   Label {
     id: label1
-    text: qsTr("Search for:")
+    text: _("Search for:")
     anchors.left: parent.left
     anchors.verticalCenter: entryFilter.verticalCenter
   }
@@ -22,14 +22,14 @@ Window {
 
   Button {
     id: btnShowAll
-    text: "Show All"
+    text: _("Show All")
     anchors.right: parent.right
     anchors.verticalCenter: entryFilter.verticalCenter
   }
 
   Button {
     id: button2
-    text: "Button"
+    text: _("Button")
     anchors.right: parent.right
     anchors.bottom: parent.bottom
   }
