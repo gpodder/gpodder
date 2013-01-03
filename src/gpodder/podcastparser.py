@@ -213,19 +213,28 @@ class PodcastHandler(sax.handler.ContentHandler):
         })
 
     def pick_enclosure(self, enclosures):
-        def key_func(enclosure):
-            mime_type = enclosure['mime_type']
+        enclosure = enclosures[0]
+        enclosure_score = self.rate_enclosure(enclosure)
 
-            if mime_type.startswith('video/'):
-                return 100
-            elif mime_type.startswith('audio/'):
-                return 10
-            elif mime_type.startswith('image/'):
-                return 1
+        for e in enclosures:
+            e_score = self.rate_enclosure(e)
+            if e_score > enclosure_score:
+                enclosure = e
+                enclosure_score = e_score
 
-            return 0
+        return enclosure
 
-        return sorted(enclosures, key=key_func, reverse=True)[0]
+    def rate_enclosure(self, enclosure):
+        mime_type = enclosure['mime_type']
+
+        if mime_type.startswith('video/'):
+            return 100
+        elif mime_type.startswith('audio/'):
+            return 10
+        elif mime_type.startswith('image/'):
+            return 1
+
+        return 0
 
     def validate_episode(self):
         entry = self.episodes[-1]
