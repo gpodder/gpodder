@@ -96,6 +96,8 @@ dbus_session_bus = None
 ui.win32 = (platform.system() == 'Windows')
 # Set "osx" to True if we are on Mac OS X
 ui.osx = (platform.system() == 'Darwin')
+# Set "freebsd" to True if we are on FreeBSD
+ui.freebsd = (platform.system() == 'FreeBSD')
 
 # i18n setup (will result in "gettext" to be available)
 # Use   _ = gpodder.gettext   in modules to enable string translations
