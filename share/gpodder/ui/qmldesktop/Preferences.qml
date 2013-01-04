@@ -1,11 +1,12 @@
 import QtQuick 1.1
 import QtDesktop 0.1
+import "config.js" as Config
+import "util.js" as Util
 
 Window {
   id: configDialog
   width: 400
   height: 300
-  property int spacing: 5
 
   TabFrame {
     id: notebook
@@ -13,7 +14,7 @@ Window {
     anchors.right: parent.right
     anchors.left: parent.left
     anchors.top: parent.top
-    anchors.bottomMargin: configDialog.spacing
+    anchors.bottomMargin: Config.smallSpacing
 
     TabBar {
       id: general
@@ -71,7 +72,6 @@ Window {
           anchors.verticalCenter: parent.verticalCenter
           anchors.left: label_video_player.right
           anchors.right: button_video_player.left
-          hoveredtext: _("")
         }
 
         Button {
@@ -372,14 +372,15 @@ Window {
   ButtonRow {
     id: action_area
     anchors.bottom: parent.bottom
-    anchors.bottomMargin: configDialog.spacing
+    anchors.bottomMargin: Config.smallSpacing
     anchors.right: parent.right
-    anchors.rightMargin: configDialog.spacing
-    spacing: configDialog.spacing
+    anchors.rightMargin: Config.smallSpacing
+    spacing: Config.smallSpacing
 
     Button {
       id: button_advanced
       text: _("Edit config")
+      onClicked: Util.createWindow(parent, "ConfigEditor.qml")
     }
 
     Button {

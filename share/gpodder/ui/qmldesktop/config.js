@@ -1,4 +1,7 @@
 
+var wikiPage = 'http://gpodder.org/wiki/User_Manual'
+var bugTrackerURL = 'https://bugs.gpodder.org/enter_bug.cgi?product=gPodder&component=Application&version=' + controller.getVersion()
+
 var scale = 1
 
 var smallSpacing = 7 * scale

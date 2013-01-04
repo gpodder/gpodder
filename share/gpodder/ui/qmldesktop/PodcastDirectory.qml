@@ -15,6 +15,7 @@ Window {
     TabBar {
       id: tabbar1
       anchors.fill: parent
+      property string title: _("&OPML/Search")
 
       TextField {
         id: entryURL
@@ -82,13 +83,13 @@ Window {
           }
         }
       }
-
     }
 
 
     ScrollArea {
       id: scrollarea1
       anchors.fill: parent
+      property string title: _("Top &podcasts")
 
       ListView {
         id: treeviewTopPodcastsChooser
@@ -139,6 +140,7 @@ Window {
     TabBar {
       id: tabbar2
       anchors.fill: parent
+      property string title: _("&YouTube")
 
       TextField {
         id: entryYoutubeSearch
@@ -207,9 +209,6 @@ Window {
         }
       }
     }
-
-
-
   }
 
   ButtonRow {
@@ -237,6 +236,5 @@ Window {
       id: btnOK
       text: _("Add")
     }
-
   }
 }

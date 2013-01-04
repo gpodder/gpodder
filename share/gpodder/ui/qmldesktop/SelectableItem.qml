@@ -14,7 +14,8 @@ Item {
     property bool pressed: mouseArea.pressed
     property bool inSelection: false
 
-    height: Config.listItemHeight
+//    height: Config.listItemHeight
+//    height: childrenRect.height
     width: parent.width
 
     Rectangle {

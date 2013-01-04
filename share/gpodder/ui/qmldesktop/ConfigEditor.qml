@@ -28,8 +28,8 @@ Window {
   }
 
   Button {
-    id: button2
-    text: _("Button")
+    id: btnClose
+    text: _("Close")
     anchors.right: parent.right
     anchors.bottom: parent.bottom
   }
@@ -37,7 +37,7 @@ Window {
   ScrollArea {
     id: scrollarea1
     anchors.top: entryFilter.bottom
-    anchors.bottom: button2.top
+    anchors.bottom: btnClose.top
     anchors.left: parent.left
     anchors.right: parent.right
 

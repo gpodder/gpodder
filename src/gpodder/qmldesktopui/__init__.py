@@ -21,43 +21,37 @@
 # Thomas Perl <thp@gpodder.org>; 2011-02-06
 # Mikołaj Milej <mikolajmm@gmail.com>; 2012-12-24
 
+import os
+import io
+import signal
+import functools
+import subprocess
+import logging
+logger = logging.getLogger("qmldesktopui")
+
+import dbus
+import dbus.service
+from dbus.mainloop.glib import DBusGMainLoop
 
 from PySide.QtGui import QApplication
 from PySide.QtCore import Qt, QObject, Signal, Slot, Property, QUrl
 from PySide.QtDeclarative import QDeclarativeComponent, QDeclarativeContext, QDeclarativeEngine
 from PySide.QtDeclarative import QDeclarativeError
 
-import os
-import signal
-import functools
-import subprocess
-
-import dbus
-import dbus.service
-
-from dbus.mainloop.glib import DBusGMainLoop
-
-
 import gpodder
-import qmlcommon
-from qmlcommon import _, EPISODE_LIST_FILTERS
-
 from gpodder import core
 from gpodder import util
 from gpodder import my
 from gpodder import query
 from gpodder import common
-
 from gpodder.model import Model
-
 from gpodder.qmldesktopui import model
 from gpodder.qmldesktopui import helper
 from gpodder.qmldesktopui import images
 from gpodder.qmldesktopui.controller import Controller
 
-import logging
-import io
-logger = logging.getLogger("qmldesktopui")
+import qmlcommon
+from qmlcommon import _, EPISODE_LIST_FILTERS
 
 class ConfigProxy(QObject):
     def __init__(self, config):

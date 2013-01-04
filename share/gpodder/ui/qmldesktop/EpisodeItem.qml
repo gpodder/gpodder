@@ -84,7 +84,7 @@ SelectableItem {
 
     Image {
         id: archiveIcon
-        source: 'artwork/episode-archive.png'
+        source: '../qml/artwork/episode-archive.png'
         opacity: .5
         visible: modelData.qarchive
         width: Config.iconSize

@@ -1,9 +1,14 @@
 import QtQuick 1.1
 import QtDesktop 0.1
+import "util.js" as Util
+import "config.js" as Config
 
 MenuBar{
+  property GpodderToolBar toolbarAlias: undefined
+
   Menu {
     text: _("&Podcasts")
+
 
     MenuItem {
       text: _("Check for new episodes")
@@ -24,7 +29,7 @@ MenuBar{
 
     MenuItem {
       text: _("Preferences")
-      onTriggered: itemPreferences
+      onTriggered: Util.createWindow(parent, "Preferences.qml")
     }
 
     Separator {}
@@ -40,12 +45,12 @@ MenuBar{
 
     MenuItem {
       text: _("Discover new podcasts")
-      onTriggered: itemFind
+      onTriggered: Util.createWindow(parent, "PodcastDirectory.qml")
     }
 
     MenuItem {
       text: _("Add podcast via URL")
-      onTriggered: itemAddChannel
+      onTriggered: Util.createWindow(parent, "AddPodcast.qml")
     }
 
     MenuItem {
@@ -62,7 +67,7 @@ MenuBar{
 
     MenuItem {
       text: _("Podcast settings")
-      onTriggered: itemEditChannel
+      onTriggered: Util.createWindow(parent, "Channel.qml")
     }
 
     Separator {}
@@ -152,7 +157,7 @@ MenuBar{
 
     MenuItem {
       text: _("Toolbar")
-      onTriggered: itemShowToolbar
+      onTriggered: toolbarAlias.toggleVisible()
     }
 
     MenuItem {
@@ -195,12 +200,12 @@ MenuBar{
 
     MenuItem {
       text: _("User manual")
-      onTriggered: wiki
+      onTriggered: Qt.openUrlExternally(Config.wikiPage)
     }
 
     MenuItem {
       text: _("Go to gpodder.net")
-      onTriggered: item_goto_mygpo
+      onTriggered: Qt.openUrlExternally('http://gpodder.net')
     }
 
     MenuItem {
@@ -212,7 +217,7 @@ MenuBar{
 
     MenuItem {
       text: _("About")
-      onTriggered: itemAbout
+      onTriggered: Util.createWindow(parent, "About.qml")
     }
   }
 }

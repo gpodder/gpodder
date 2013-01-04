@@ -12,69 +12,33 @@ ApplicationWindow {
   property alias podcastModel: channels.model
   property alias episodeModel: avaliableEpisodes.model
   //property alias showNotesEpisode: showNotes.episode
- /// //property variant currentPodcast: undefined
-  //property bool hasPodcasts: podcastList.hasItems
-  //property alias currentFilterText: avaliableEpisodes.currentFilterText
+  property variant currentPodcast: undefined
+  property bool hasPodcasts: channels.hasItems
+  property alias currentFilterText: avaliableEpisodes.currentFilterText
 
   //property bool canGoBack: (main.state != 'podcasts' || contextMenu.state != 'closed' || mediaPlayer.visible) && !progressIndicator.opacity
   //property bool hasPlayButton: nowPlayingThrobber.shouldAppear && !progressIndicator.opacity
- // property bool hasSearchButton: (contextMenu.state == 'closed' && main.state == 'podcasts') && !mediaPlayer.visible && !progressIndicator.opacity
+  // property bool hasSearchButton: (contextMenu.state == 'closed' && main.state == 'podcasts') && !mediaPlayer.visible && !progressIndicator.opacity
   //property bool hasFilterButton: state == 'episodes' && !mediaPlayer.visible
 
-  property int splitterLimit: 100
+  property int splitterMinWidth: 200
+  property int strangeMargin: 20
 
   function _(x){
     return controller.translate(x)
   }
 
-  GpodderMenu{}
+  GpodderMenu {
+    id: menu
+    toolbarAlias: toolbar
+  }
 
-  ToolBar {
+  GpodderToolBar {
     id: toolbar
-    anchors.right: parent.right
-    anchors.left: parent.left
-
-    ToolButton {
-      id: toolDownload
-      text: _("Download")
-      anchors.left: parent.left
-      anchors.verticalCenter: parent.verticalCenter
-    }
-
-    ToolButton {
-      id: toolPlay
-      text: _("Play")
-      anchors.left: toolDownload.right
-      anchors.verticalCenter: parent.verticalCenter
-      onClicked: controller.onPlayback
-    }
-
-    ToolButton {
-      id: toolCancel
-      text: _("Cancel")
-      anchors.left: toolPlay.right
-      anchors.verticalCenter: parent.verticalCenter
-    }
-
-    ToolButton {
-      id: toolPreferences
-      text: _("Preferences")
-      anchors.left: toolCancel.right
-      anchors.verticalCenter: parent.verticalCenter
-    }
-
-    ToolButton {
-      id: toolQuit
-      text: _("Quit")
-      anchors.left: toolPreferences.right
-      anchors.verticalCenter: parent.verticalCenter
-      onClicked: controller.quit()
-    }
   }
 
   TabFrame {
     id: hboxContainer
-    current: 0
     anchors.top: toolbar.bottom
     anchors.right: parent.right
     anchors.bottom: parent.bottom
@@ -91,11 +55,10 @@ ApplicationWindow {
 
         Item {
           id: podcastGroup
-          width: 300
           anchors.bottom: parent.bottom
           anchors.left: parent.left
           anchors.top: parent.top
-          Splitter.minimumWidth: splitterLimit
+          Splitter.minimumWidth: splitterMinWidth
 
           ScrollArea {
             anchors.top: parent.top
@@ -105,9 +68,18 @@ ApplicationWindow {
 
             PodcastList {
               id: channels
-              anchors.top: parent.top
-              anchors.left: parent.left
-              anchors.right: parent.right
+              anchors {
+                top: parent.top
+                left: parent.left
+              }
+              width: parent.parent.width - strangeMargin
+
+              onPodcastSelected: {
+                controller.podcastSelected(podcast)
+                mainwindow.currentPodcast = podcast
+              }
+              onPodcastContextMenu: controller.podcastContextMenu(podcast)
+              onSubscribe: contextMenu.showSubscribe()
             }
           }
 
@@ -154,44 +126,58 @@ ApplicationWindow {
           anchors.bottom: parent.bottom
           anchors.top: parent.top
           anchors.right: parent.right
-          Splitter.minimumWidth: splitterLimit
+          Splitter.minimumWidth: splitterMinWidth
 
           ScrollArea {
             id: scrollarea1
             anchors.top: parent.top
             anchors.left: parent.left
             anchors.right: parent.right
-            anchors.bottom: entry_search_episodes.top
+            anchors.bottom: episodesFilterBox.top
 
             EpisodeList {
               id: avaliableEpisodes
               anchors.top: parent.top
-              anchors.bottom: parent.bottom
               anchors.left: parent.left
-              anchors.right: parent.right
+              width: parent.parent.width - strangeMargin
+
+              Keys.onPressed: {
+                d.text = event.key
+              }
+
+              onModelChanged: {
+                currentFilterText.text = ""
+              }
             }
           }
 
-          Button {
-            id: button_search_episodes_clear
-            anchors.right: parent.right
-            anchors.verticalCenter: entry_search_episodes.verticalCenter
-          }
-
-          TextField {
-            id: entry_search_episodes
-            anchors.left: label_search_episodes.right
-            anchors.right: button_search_episodes_clear.left
-            anchors.bottom: parent.bottom
-            anchors.bottomMargin: 50
-          }
-
-          Text {
-            id: label_search_episodes
-            text: _("Filter:")
+          Item {
+            id: episodesFilterBox
             anchors.left: parent.left
-            verticalAlignment: Text.AlignVCenter
-            anchors.verticalCenter: button_search_episodes_clear.verticalCenter
+            anchors.right: parent.right
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: toolbar.height
+
+            Text {
+              id: label_search_episodes
+              text: _("Filter:")
+              anchors.left: parent.left
+              verticalAlignment: Text.AlignVCenter
+              anchors.verticalCenter: button_search_episodes_clear.verticalCenter
+            }
+
+            TextField {
+              id: currentFilterText
+              anchors.left: label_search_episodes.right
+              anchors.right: button_search_episodes_clear.left
+              anchors.bottom: parent.bottom
+            }
+
+            Button {
+              id: button_search_episodes_clear
+              anchors.right: parent.right
+              anchors.verticalCenter: currentFilterText.verticalCenter
+            }
           }
         }
       }

@@ -28,7 +28,6 @@ Window {
         height: 100
         anchors.left: parent.left
         anchors.top: parent.top
-        source: "qrc:/qtquickplugin/images/template_image.png"
       }
 
       TextField {

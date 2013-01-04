@@ -3,6 +3,8 @@ import 'config.js' as Config
 
 Item {
     id: episodeList
+    height: childrenRect.height
+//    width: childrenRect.width
     property string currentFilterText
     property string mainState
 
@@ -25,12 +27,7 @@ Item {
         listView.openedIndex = -1
     }
 
-    onModelChanged: {
-        filterDialog.resetSelection();
-    }
-
     Text {
-        anchors.centerIn: parent
         color: 'white'
         font.pixelSize: 30
         horizontalAlignment: Text.AlignHCenter
@@ -45,6 +42,7 @@ Item {
 
     ListView {
         id: listView
+        focus: true
 
         onContentHeightChanged: {
             if (count > 0 && openedIndex == count - 1 && !flicking && !moving) {
@@ -70,7 +68,6 @@ Item {
             }
         }
 
-        anchors.fill: parent
         property int openedIndex: -1
         visible: count > 0
 
