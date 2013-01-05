@@ -1678,6 +1678,19 @@ def osx_get_active_interfaces():
         if b:
             yield b.group(1)
 
+def unix_get_active_interfaces():
+    """Get active network interfaces using 'ifconfig'
+
+    Returns a list of active network interfaces or an
+    empty list if the device is offline. The loopback
+    interface is not included.
+    """
+    stdout = subprocess.check_output(['ifconfig'])
+    for i in re.split('\n(?!\t)', stdout, re.MULTILINE):
+        b = re.match('(\\w+):.*status: active$', i, re.MULTILINE | re.DOTALL)
+        if b:
+            yield b.group(1)
+
 
 def connection_available():
     """Check if an Internet connection is available
@@ -1692,9 +1705,13 @@ def connection_available():
             return True
         elif gpodder.ui.osx:
             return len(list(osx_get_active_interfaces())) > 0
-            return True
         else:
-            return len(list(linux_get_active_interfaces())) > 0
+            if len(list(unix_get_active_interfaces())) > 0:
+                return True
+            elif len(list(linux_get_active_interfaces())) > 0:
+                return True
+
+        return False
     except Exception, e:
         logger.warn('Cannot get connection status: %s', e, exc_info=True)
         return False
