@@ -2516,7 +2516,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if macapp is None:
             sys.exit(0)
 
-    def delete_episode_list(self, episodes, confirm=True, skip_locked=True):
+    def delete_episode_list(self, episodes, confirm=True, skip_locked=True,callback=None):
         if not episodes:
             return False
 
@@ -2569,7 +2569,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.mygpo_client.on_delete(episodes_status_update)
             self.mygpo_client.flush()
 
-            util.idle_add(finish_deletion, episode_urls, channel_urls)
+            if callback==None:
+                util.idle_add(finish_deletion, episode_urls, channel_urls)
+            else:
+                util.idle_add(callback, episode_urls, channel_urls,progress)
 
         return True
 
@@ -3408,11 +3411,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.update_episode_list_icons,
                 self.update_podcast_list_model,
                 self.toolPreferences,
-                gPodderEpisodeSelector,
+                self.channels,
                 self.download_status_model,
                 self.download_queue_manager,
                 self.enable_download_list_update,
-                self.commit_changes_to_database)
+                self.commit_changes_to_database,
+                self.delete_episode_list)
 
         self.sync_ui.on_synchronize_episodes(self.channels, episodes, force_played)
 

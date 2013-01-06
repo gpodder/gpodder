@@ -229,14 +229,17 @@ class gPodderPreferences(BuilderWidget):
         else:
             self.hscale_expiration.set_value(0)
 
-        self._config.connect_gtk_togglebutton('auto_remove_unplayed_episodes', self.checkbutton_expiration_unplayed)
-        self._config.connect_gtk_togglebutton('auto_remove_unfinished_episodes', self.checkbutton_expiration_unfinished)
+        self._config.connect_gtk_togglebutton('auto_remove_unplayed_episodes',
+                                              self.checkbutton_expiration_unplayed)
+        self._config.connect_gtk_togglebutton('auto_remove_unfinished_episodes',
+                                              self.checkbutton_expiration_unfinished)
 
         self.device_type_model = DeviceTypeActionList(self._config)
         self.combobox_device_type.set_model(self.device_type_model)
         cellrenderer = gtk.CellRendererText()
         self.combobox_device_type.pack_start(cellrenderer, True)
-        self.combobox_device_type.add_attribute(cellrenderer, 'text', DeviceTypeActionList.C_CAPTION)
+        self.combobox_device_type.add_attribute(cellrenderer, 'text',
+                                                DeviceTypeActionList.C_CAPTION)
         self.combobox_device_type.set_active(self.device_type_model.get_index())
 
         self.on_sync_model = OnSyncActionList(self._config)
@@ -246,7 +249,19 @@ class gPodderPreferences(BuilderWidget):
         self.combobox_on_sync.add_attribute(cellrenderer, 'text', OnSyncActionList.C_CAPTION)
         self.combobox_on_sync.set_active(self.on_sync_model.get_index())
 
-        self._config.connect_gtk_togglebutton('device_sync.skip_played_episodes', self.checkbutton_skip_played_episodes)
+        self._config.connect_gtk_togglebutton('device_sync.skip_played_episodes',
+                                              self.checkbutton_skip_played_episodes)
+        self._config.connect_gtk_togglebutton('device_sync.playlists.create',
+                                              self.checkbutton_create_playlists)
+        #if playlists.create  is false, need to inactivate
+        #playlist section of UI for initial showing
+        if not self._config.device_sync.playlists.create:
+            self.btn_playlistfolder.set_label('')
+            self.btn_playlistfolder.set_sensitive(False)
+            self.checkbutton_delete_using_playlists.set_sensitive(False)
+
+        self._config.connect_gtk_togglebutton('device_sync.playlists.two_way_sync',
+                                              self.checkbutton_delete_using_playlists)
 
 
         # Have to do this before calling set_active on checkbutton_enable
@@ -474,6 +489,30 @@ class gPodderPreferences(BuilderWidget):
         index = self.combobox_on_sync.get_active()
         self.on_sync_model.set_index(index)
 
+    def update_check_create_playlists(self, widget):
+        if not widget.get_active():
+            self._config.device_sync.playlists.create=False
+            #need to read value of checkbutton from interface,
+            #rather than value of parameter
+            self.btn_playlistfolder.set_label('')
+            self.btn_playlistfolder.set_sensitive(False)
+            self.checkbutton_delete_using_playlists.set_sensitive(False)
+        else:
+            self._config.device_sync.playlists.create=True
+            self.btn_playlistfolder.set_sensitive(True)
+            self.btn_playlistfolder.set_label(self._config.device_sync.playlists.folder)
+            self.checkbutton_delete_using_playlists.set_sensitive(True)
+            children = self.btn_playlistfolder.get_children()
+            if children:
+                label = children.pop()
+                label.set_alignment(0., .5)
+
+
+    def on_checkbutton_create_playlists_toggled(self, widget):
+
+        self.update_check_create_playlists(widget)
+
+
     def on_combobox_device_type_changed(self, widget):
         index = self.combobox_device_type.get_active()
         self.device_type_model.set_index(index)
@@ -481,17 +520,33 @@ class gPodderPreferences(BuilderWidget):
         if device_type == 'none':
             self.btn_filesystemMountpoint.set_label('')
             self.btn_filesystemMountpoint.set_sensitive(False)
+            self.checkbutton_create_playlists.set_sensitive(False)
+            self.btn_playlistfolder.set_sensitive(False)
+            self.btn_playlistfolder.set_label('')
+            self.checkbutton_delete_using_playlists.set_sensitive(False)
         elif device_type == 'filesystem':
             self.btn_filesystemMountpoint.set_label(self._config.device_sync.device_folder)
             self.btn_filesystemMountpoint.set_sensitive(True)
+            self.checkbutton_create_playlists.set_sensitive(True)
+            self.btn_playlistfolder.set_sensitive(True)
+            self.btn_playlistfolder.set_label(self._config.device_sync.playlists.folder)
+            
+            self.checkbutton_delete_using_playlists.set_sensitive(True)
+
+            children = self.btn_filesystemMountpoint.get_children()
+            if children:
+                label = children.pop()
+                label.set_alignment(0., .5)
+            children = self.btn_playlistfolder.get_children()
+            if children:
+                label = children.pop()
+                label.set_alignment(0., .5)   
+                        
         else:
             # TODO: Add support for iPod and MTP devices
             pass
 
-        children = self.btn_filesystemMountpoint.get_children()
-        if children:
-            label = children.pop()
-            label.set_alignment(0., .5)
+               
 
     def on_btn_device_mountpoint_clicked(self, widget):
         fs = gtk.FileChooserDialog(title=_('Select folder for mount point'),
@@ -509,3 +564,21 @@ class gPodderPreferences(BuilderWidget):
 
         fs.destroy()
 
+    def on_btn_playlist_folder_clicked(self, widget):
+        fs = gtk.FileChooserDialog(title=_('Select folder for playlists'),
+                action=gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER)
+        fs.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
+        fs.add_button(gtk.STOCK_OPEN, gtk.RESPONSE_OK)
+        fs.set_current_folder(self.btn_playlistfolder.get_label())
+        if fs.run() == gtk.RESPONSE_OK:
+            filename = util.relpath(self._config.device_sync.device_folder,
+                                    fs.get_filename())
+            if self._config.device_sync.device_type == 'filesystem':
+                self._config.device_sync.playlists.folder = filename
+                self.btn_playlistfolder.set_label(filename)
+                children = self.btn_playlistfolder.get_children()
+                if children:
+                    label = children.pop()
+                    label.set_alignment(0., .5)
+
+        fs.destroy()
