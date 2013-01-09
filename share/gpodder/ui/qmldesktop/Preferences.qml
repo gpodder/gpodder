@@ -4,7 +4,7 @@ import "config.js" as Config
 import "util.js" as Util
 
 Window {
-  id: configDialog
+  id: preferences
   width: 400
   height: 300
 
@@ -311,7 +311,6 @@ Window {
         anchors.top: checkbutton_expiration_unfinished.bottom
         anchors.left: parent.left
       }
-
     }
 
     TabBar {
@@ -380,13 +379,14 @@ Window {
     Button {
       id: button_advanced
       text: _("Edit config")
-      onClicked: Util.createWindow(parent, "ConfigEditor.qml")
+      onClicked: Util.createWindow(preferences, "ConfigEditor.qml")
     }
 
     Button {
       id: button_close
       text: _("Close")
       iconSource: ""
+      onClicked: preferences.close()
     }
   }
 }

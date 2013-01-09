@@ -2,7 +2,7 @@ import QtQuick 1.1
 import QtDesktop 0.1
 
 Window {
-  id: item1
+  id: configEditor
   width: 400
   height: 300
 
@@ -25,13 +25,6 @@ Window {
     text: _("Show All")
     anchors.right: parent.right
     anchors.verticalCenter: entryFilter.verticalCenter
-  }
-
-  Button {
-    id: btnClose
-    text: _("Close")
-    anchors.right: parent.right
-    anchors.bottom: parent.bottom
   }
 
   ScrollArea {
@@ -87,4 +80,11 @@ Window {
     }
   }
 
+  Button {
+    id: btnClose
+    text: _("Close")
+    anchors.right: parent.right
+    anchors.bottom: parent.bottom
+    onClicked: configEditor.close()
+  }
 }

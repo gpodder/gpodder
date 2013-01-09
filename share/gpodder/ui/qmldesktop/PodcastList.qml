@@ -5,14 +5,17 @@ import 'config.js' as Config
 Item {
   id: podcastList
   height: childrenRect.height
+  width: 1
 
   property alias model: listView.model
   property alias moving: listView.moving
+  property alias currentIndex: listView.currentIndex
   property bool hasItems: listView.visible
 
   signal podcastSelected(variant podcast)
+  signal podcastSelected2(variant index)
   signal podcastContextMenu(variant podcast)
-  signal subscribe
+  signal subscribe()
 
   Text {
     id: addFirstPodcast
@@ -20,7 +23,6 @@ Item {
     horizontalAlignment: Text.AlignHCenter
     text: _('No podcasts.') + '\n' + _('Add your first podcast now.')
     visible: !listView.visible
-    wrapMode: Text.WordWrap
 
     MouseArea {
       anchors.fill: parent
@@ -40,44 +42,39 @@ Item {
     }
   }
 
+  onPodcastSelected2: listView.currentIndex = index
+
   ListView {
     id: listView
+    height: contentHeight
+    width: parent.width
     visible: count > 1
-    anchors{
-      left: parent.left
-      right: parent.right
-    }
+    interactive: false
 
-    Text {
-      id: name
-      text: listView.count
+    highlightFollowsCurrentItem : true
+    highlight: Rectangle {
+      color: "lightsteelblue"
+      width: listView.width
     }
+    highlightMoveDuration: Config.fadeTransition
+    currentIndex: -1
 
     section.property: 'section'
-    section.delegate: Item {
+    section.delegate: Label {
       height: Config.headerHeight
-      Label {
-        font.pixelSize: parent.height * .5
-        wrapMode: Text.NoWrap
-        text: section
-        color: "#aaa"
-        anchors {
-          leftMargin: Config.iconSize * 1.3 + Config.smallSpacing
-//          bottom: parent.bottom
-          left: parent.left
-          right: parent.right
-        }
+      text: section
+      font.bold: true
+      verticalAlignment: Text.AlignBottom
+      anchors {
+        leftMargin: Config.smallSpacing
+        left: parent.left
+        right: parent.right
       }
     }
 
     delegate: PodcastItem {
-      anchors{
-        left: parent.left
-        right: parent.right
-      }
-      onSelected: podcastList.podcastSelected(item)
-      onContextMenu: podcastList.podcastContextMenu(item)
+      height: Config.listItemHeight
     }
-    //        cacheBuffer: height
+    cacheBuffer: height
   }
 }

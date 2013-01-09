@@ -2,125 +2,88 @@ import QtQuick 1.1
 import 'config.js' as Config
 
 Item {
-    id: episodeList
-    height: childrenRect.height
-//    width: childrenRect.width
-    property string currentFilterText
-    property string mainState
+  id: episodeList
+  height: childrenRect.height
+  width: 1
 
-    onMainStateChanged: {
-        // Don't remember contentY when leaving episode list
-        listView.lastContentY = 0;
+  property string currentFilterText
+  property string mainState
+
+  onMainStateChanged: {
+    // Don't remember contentY when leaving episode list
+    listView.lastContentY = 0;
+  }
+
+  property alias model: listView.model
+  property alias moving: listView.moving
+  property alias count: listView.count
+  property alias currentIndex: listView.currentIndex
+  property string description: ""
+
+  signal episodeContextMenu(variant episode)
+  signal episodeItemChange(variant episode)
+
+  signal activateFilter();
+
+  function resetSelection() {
+    listView.openedIndex = -1
+  }
+
+  Text {
+    color: 'white'
+    font.pixelSize: 30
+    horizontalAlignment: Text.AlignHCenter
+    text: '<big>' + _('No episodes') + '</big>' + '<br><small>' + _('Touch to change filter') + '</small>'
+    visible: !listView.visible
+
+    MouseArea {
+      anchors.fill: parent
+      onClicked: episodeList.activateFilter()
+    }
+  }
+
+  ListView {
+    id: listView
+    width: parent.width
+    height: contentHeight
+    interactive: false
+    currentIndex: -1
+    visible: count > 0
+    property real lastContentY: 0
+
+    highlightMoveDuration: Config.fadeTransition
+    highlightFollowsCurrentItem : true
+    highlight: Rectangle {
+      color: "lightsteelblue"
+      width: episodeList.width
     }
 
-    property alias model: listView.model
-    property alias moving: listView.moving
-    property alias count: listView.count
+    delegate: EpisodeItem {
+      id: episodeItem
 
-    signal episodeContextMenu(variant episode)
-
-    function showFilterDialog() {
-        filterDialog.open();
+      width: listView.width
+      height: Config.listItemHeight
+      onSelected: {
+        description = item.qdescription
+        episodeList.episodeItemChange(item)
+      }
+      onContextMenu: episodeList.episodeContextMenu(item)
     }
 
-    function resetSelection() {
-        listView.openedIndex = -1
-    }
-
-    Text {
-        color: 'white'
-        font.pixelSize: 30
-        horizontalAlignment: Text.AlignHCenter
-        text: '<big>' + _('No episodes') + '</big>' + '<br><small>' + _('Touch to change filter') + '</small>'
-        visible: !listView.visible
-
-        MouseArea {
-            anchors.fill: parent
-            onClicked: episodeList.showFilterDialog()
+    onContentYChanged: {
+      // Keep Y scroll position when deleting episodes (bug 1660)
+      if (contentY === 0) {
+        if (lastContentY > 0) {
+          contentY = lastContentY;
         }
+      } else {
+        if (episodeList.mainState === 'episodes') {
+          // Only store scroll position when the episode list is
+          // shown (avoids overwriting it in onMainStateChanged)
+          lastContentY = contentY;
+        }
+      }
     }
-
-    ListView {
-        id: listView
-        focus: true
-
-        onContentHeightChanged: {
-            if (count > 0 && openedIndex == count - 1 && !flicking && !moving) {
-                /* Scroll the "opening" item into view at the bottom */
-                listView.positionViewAtEnd();
-            }
-        }
-
-        property real lastContentY: 0
-
-        onContentYChanged: {
-            // Keep Y scroll position when deleting episodes (bug 1660)
-            if (contentY === 0) {
-                if (lastContentY > 0) {
-                    contentY = lastContentY;
-                }
-            } else {
-                if (episodeList.mainState === 'episodes') {
-                    // Only store scroll position when the episode list is
-                    // shown (avoids overwriting it in onMainStateChanged)
-                    lastContentY = contentY;
-                }
-            }
-        }
-
-        property int openedIndex: -1
-        visible: count > 0
-
-        delegate: Item {
-            id: listItem
-
-            height: listItem.opened?(Config.listItemHeight + Config.smallSpacing * 3 + Config.headerHeight):(Config.listItemHeight)
-            width: parent.width
-            property bool opened: (index == listView.openedIndex)
-
-            Loader {
-                id: loader
-                clip: true
-                source: listItem.opened?'EpisodeActions.qml':''
-
-                Behavior on opacity { PropertyAnimation { } }
-
-                opacity: listItem.opened
-
-                onItemChanged: {
-                    if (item) {
-                        item.episode = modelData
-                    }
-                }
-
-                anchors {
-                    left: parent.left
-                    right: parent.right
-                    top: parent.top
-                    topMargin: episodeItem.y + episodeItem.height
-                    bottom: parent.bottom
-                }
-
-                width: parent.width
-            }
-
-            Behavior on height { PropertyAnimation { } }
-
-            EpisodeItem {
-                id: episodeItem
-                y: listItem.opened?Config.smallSpacing:0
-                width: parent.width
-                onSelected: {
-                    if (listView.openedIndex == index) {
-                        listView.openedIndex = -1
-                    } else {
-                        listView.openedIndex = index
-                    }
-                }
-                onContextMenu: episodeList.episodeContextMenu(item)
-
-                Behavior on y { PropertyAnimation { } }
-            }
-        }
-    }
+  }
 }
+

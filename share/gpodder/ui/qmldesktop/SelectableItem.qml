@@ -5,6 +5,7 @@ import 'config.js' as Config
 Item {
     id: selectableItem
     signal selected(variant item)
+    signal selected2(variant index)
     signal contextMenu(variant item)
 
     /* The width of the area from the left edge that when
@@ -14,8 +15,6 @@ Item {
     property bool pressed: mouseArea.pressed
     property bool inSelection: false
 
-//    height: Config.listItemHeight
-//    height: childrenRect.height
     width: parent.width
 
     Rectangle {
@@ -58,7 +57,8 @@ Item {
             if (mouse.x <= selectableItem.singlePressContextMenuLeftBorder) {
                 selectableItem.contextMenu(modelData)
             } else if (mouse.button == Qt.LeftButton) {
-                selectableItem.selected(modelData)
+              selectableItem.selected(modelData)
+              selectableItem.selected2(index)
             } else if (mouse.button == Qt.RightButton) {
                 selectableItem.contextMenu(modelData)
             }

@@ -5,18 +5,16 @@ import 'util.js' as Util
 
 SelectableItem {
   id: podcastItem
-  height: 50
-  anchors{
-    left: parent.left
-    right: parent.right
-  }
+
+  onSelected: podcastList.podcastSelected(item)
+  onSelected2: podcastList.currentIndex = index
+  onContextMenu: podcastList.podcastContextMenu(item)
 
   // Show context menu when single-touching the count or cover art
   singlePressContextMenuLeftBorder: titleBox.x
 
   Image {
     id: cover
-    z:-1
 
     source: Util.formatCoverURL(modelData)
     asynchronous: true
@@ -34,58 +32,49 @@ SelectableItem {
 
   Label {
     id: titleBox
-
     text: modelData.qtitle
-    color: (counters.newEpisodes > 0)?Config.newColor:"white"
+    font.bold: true
+    clip: true
 
     anchors {
-      verticalCenter: parent.verticalCenter
-//      left: cover.visible?cover.right:cover.left
-      left: cover.right
+      bottom: parent.verticalCenter
+      left: cover.visible?cover.right:cover.left
       leftMargin: Config.smallSpacing
-//      right: parent.right
+      right: counters.left
       rightMargin: Config.smallSpacing
     }
   }
 
-  Item {
-    id: spinner
+  Label {
+    id: descriptionBox
+    text: modelData.qdescription
+    clip: true
+
     anchors {
-      verticalCenter: parent.verticalCenter
-      right: titleBox.left
+      top: titleBox.bottom
+      left: titleBox.left
+      leftMargin: Config.smallSpacing
+      right: counters.left
       rightMargin: Config.smallSpacing
     }
-    visible: modelData.qupdating
   }
 
-  Rectangle {
-    id: counterBox
-    width: Config.iconSize
-    height: width
-    color: "black"
+  TextPill {
+    id: counters
+    property int newEpisodes: modelData.qnew
+    property int downloadedEpisodes: modelData.qdownloaded
+    z: -1
+
+    visible: downloadedEpisodes > 0
+    radius: 5
+    leftText: newEpisodes
+    rightText: downloadedEpisodes
+    width: 40
+    height: width / 2
 
     anchors {
       right: parent.right
       verticalCenter: parent.verticalCenter
-    }
-
-    Label {
-      id: counters
-
-      property int newEpisodes: modelData.qnew
-      property int downloadedEpisodes: modelData.qdownloaded
-
-      anchors {
-        verticalCenter: parent.verticalCenter
-        right: parent.right
-        rightMargin: 3
-      }
-
-      visible: !spinner.visible && (downloadedEpisodes > 0)
-      text: counters.downloadedEpisodes
-      color: "white"
-
-      font.pixelSize: podcastItem.height * .4
     }
   }
 }

@@ -1,4 +1,5 @@
 
+var artworkDir = '../qml/artwork/'
 var wikiPage = 'http://gpodder.org/wiki/User_Manual'
 var bugTrackerURL = 'https://bugs.gpodder.org/enter_bug.cgi?product=gPodder&component=Application&version=' + controller.getVersion()
 
@@ -8,9 +9,9 @@ var smallSpacing = 7 * scale
 var largeSpacing = smallSpacing * 2
 
 var switcherWidth = 90 * scale
-var headerHeight = 56 * scale
+var headerHeight = 25 * scale
 
-var listItemHeight = 70 * scale
+var listItemHeight = 50 * scale
 var iconSize = 36 * scale
 
 var fadeHeight = 26 * scale

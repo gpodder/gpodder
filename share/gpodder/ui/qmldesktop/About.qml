@@ -16,7 +16,7 @@ Window {
     height: 50
     fillMode: Image.PreserveAspectFit
     smooth: true
-    source: '../qml/artwork/gpodder200.png'
+    source: Config.artworkDir + 'gpodder200.png'
   }
 
   Label {
@@ -28,10 +28,11 @@ Window {
 
   Label {
     id: url
-    text: "<small><a href=\"%s\">" + controller.getURL() + "</a></small>"
+    text: '<small><a href="'+ controller.getURL() +'">' + controller.getURL() + '</a></small>'
     anchors.top: appName.bottom
     anchors.left: image1.right
     anchors.margins: Config.smallSpacing
+    onLinkActivated: Qt.openUrlExternally(link)
   }
 
   Rectangle {

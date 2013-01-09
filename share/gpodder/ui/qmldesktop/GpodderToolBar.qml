@@ -7,7 +7,9 @@ ToolBar {
   id: toolbar
   anchors.right: parent.right
   anchors.left: parent.left
+
   property bool aboutToHide: false
+  property variant episode: undefined
 
   function toggleVisible(){
     aboutToHide = !aboutToHide
@@ -39,6 +41,9 @@ ToolBar {
     text: _("Download")
     anchors.left: parent.left
     anchors.verticalCenter: parent.verticalCenter
+
+    enabled: (episode!==undefined) ? (!episode.qdownloaded && !episode.qdownloading) : false
+    onClicked: controller.downloadEpisode(episode)
   }
 
   ToolButton {
@@ -46,7 +51,9 @@ ToolBar {
     text: _("Play")
     anchors.left: toolDownload.right
     anchors.verticalCenter: parent.verticalCenter
-    onClicked: controller.onPlayback
+
+    enabled: (episode!==undefined) ? (episode.qdownloaded) : false
+    onClicked: controller.playback_selected_episodes(episode)
   }
 
   ToolButton {
@@ -54,6 +61,10 @@ ToolBar {
     text: _("Cancel")
     anchors.left: toolPlay.right
     anchors.verticalCenter: parent.verticalCenter
+
+    enabled: (episode!==undefined) ? (!episode.qdownloaded && episode.qdownloading) : false
+
+    onClicked: controller.cancelDownload(episode)
   }
 
   ToolButton {

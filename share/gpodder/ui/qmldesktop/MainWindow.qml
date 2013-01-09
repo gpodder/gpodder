@@ -3,8 +3,8 @@ import QtDesktop 0.1
 
 ApplicationWindow {
   id: mainwindow
-  width: 600
-  height: 400
+  width: 640
+  height: 480
   visible: true
 
   property variant main: mainwindow
@@ -22,10 +22,21 @@ ApplicationWindow {
   //property bool hasFilterButton: state == 'episodes' && !mediaPlayer.visible
 
   property int splitterMinWidth: 200
+  property int splitterMinHeight: 200
   property int strangeMargin: 20
+  property int bottomMarginHack: 20
 
   function _(x){
     return controller.translate(x)
+  }
+
+  function startProgress(message, progress){
+    pbFeedUpdate.value = progress
+    console.log(progress)
+  }
+
+  function endProgress(){
+    pbFeedUpdate.value = 0
   }
 
   GpodderMenu {
@@ -39,14 +50,19 @@ ApplicationWindow {
 
   TabFrame {
     id: hboxContainer
-    anchors.top: toolbar.bottom
-    anchors.right: parent.right
-    anchors.bottom: parent.bottom
-    anchors.left: parent.left
+    anchors{
+      top: toolbar.bottom
+      right: parent.right
+      bottom: parent.bottom
+      left: parent.left
+      bottomMargin: bottomMarginHack
+    }
 
     Tab {
       id: podcasts
-      anchors.fill: parent
+      anchors {
+        fill: parent
+      }
       title: _("Podcasts")
 
       SplitterRow {
@@ -72,7 +88,7 @@ ApplicationWindow {
                 top: parent.top
                 left: parent.left
               }
-              width: parent.parent.width - strangeMargin
+              width: podcastGroup.width - strangeMargin
 
               onPodcastSelected: {
                 controller.podcastSelected(podcast)
@@ -81,28 +97,6 @@ ApplicationWindow {
               onPodcastContextMenu: controller.podcastContextMenu(podcast)
               onSubscribe: contextMenu.showSubscribe()
             }
-          }
-
-          Button {
-            id: btnUpdateFeeds
-            text: _("Check for new episodes")
-            anchors.bottom: pbFeedUpdate.top
-            anchors.left: parent.left
-            anchors.right: parent.right
-          }
-
-          ProgressBar {
-            id: pbFeedUpdate
-            anchors.right: btnCancelFeedUpdate.left
-            anchors.left: parent.left
-            anchors.bottom: parent.bottom
-          }
-
-          Button {
-            id: btnCancelFeedUpdate
-            anchors.right: parent.right
-            anchors.bottom: parent.bottom
-            anchors.verticalCenter: pbFeedUpdate.verticalCenter
           }
 
           TextField {
@@ -115,48 +109,94 @@ ApplicationWindow {
           Button {
             id: button_search_podcasts_clear
             iconSource: ""
+            text: _("Clear")
             anchors.right: parent.right
             anchors.verticalCenter: entry_search_podcasts.verticalCenter
+          }
+
+          Button {
+            id: btnUpdateFeeds
+            text: _("Check for new episodes")
+            anchors.bottom: progressRow.top
+            anchors.left: parent.left
+            anchors.right: parent.right
+            onClicked: controller.updateAllPodcasts()
+          }
+
+          Hideable {
+            id: progressRow
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.bottom: parent.bottom
+
+            ProgressBar {
+              id: pbFeedUpdate
+              anchors.left: parent.left
+              anchors.right: btnCancelFeedUpdate.left
+              anchors.verticalCenter: parent.verticalCenter
+            }
+
+            Button {
+              id: btnCancelFeedUpdate
+              text: _("Cancel")
+              anchors.right: parent.right
+              anchors.verticalCenter: parent.verticalCenter
+            }
           }
         }
 
         Item {
           id: episodesGroup
-          width: 200
-          anchors.bottom: parent.bottom
-          anchors.top: parent.top
           anchors.right: parent.right
+          anchors.top: parent.top
+          anchors.bottom: parent.bottom
           Splitter.minimumWidth: splitterMinWidth
 
-          ScrollArea {
-            id: scrollarea1
-            anchors.top: parent.top
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.bottom: episodesFilterBox.top
+          SplitterColumn {
+            anchors {
+              top: parent.top
+              right: parent.right
+              bottom: episodesFilterBox.top
+            }
+            width: parent.width
 
-            EpisodeList {
-              id: avaliableEpisodes
+            ScrollArea {
+              id: scrollarea1
               anchors.top: parent.top
-              anchors.left: parent.left
-              width: parent.parent.width - strangeMargin
+              width: parent.width
+              Splitter.minimumHeight: splitterMinHeight
 
-              Keys.onPressed: {
-                d.text = event.key
-              }
+              EpisodeList {
+                id: avaliableEpisodes
+                anchors.top: parent.top
+                anchors.left: parent.left
+                width: episodesGroup.width - strangeMargin
 
-              onModelChanged: {
-                currentFilterText.text = ""
+                onModelChanged: currentFilterText.text = ""
+                onEpisodeItemChange: toolbar.episode = episode
+                onActivateFilter: currentFilterText.focus = true
               }
+            }
+
+            TextArea {
+              id: description
+              text: avaliableEpisodes.description
+              readOnly: true
+              width: parent.width
+
+              anchors {
+                bottom: parent.bottom
+              }
+              clip: true
             }
           }
 
           Item {
             id: episodesFilterBox
+            height: childrenRect.height
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.bottom: parent.bottom
-            anchors.bottomMargin: toolbar.height
 
             Text {
               id: label_search_episodes
@@ -171,10 +211,13 @@ ApplicationWindow {
               anchors.left: label_search_episodes.right
               anchors.right: button_search_episodes_clear.left
               anchors.bottom: parent.bottom
+
+              //              onTextChanged: controller.
             }
 
             Button {
               id: button_search_episodes_clear
+              text: _("Clear")
               anchors.right: parent.right
               anchors.verticalCenter: currentFilterText.verticalCenter
             }

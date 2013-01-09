@@ -4,15 +4,15 @@ import "util.js" as Util
 import "config.js" as Config
 
 MenuBar{
+  id: menuBar
   property GpodderToolBar toolbarAlias: undefined
 
   Menu {
     text: _("&Podcasts")
 
-
     MenuItem {
       text: _("Check for new episodes")
-      onTriggered: itemUpdate
+      onTriggered: controller.updateAllPodcasts()
     }
 
     MenuItem {

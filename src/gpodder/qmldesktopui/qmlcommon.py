@@ -19,6 +19,8 @@
 
 # Mikołaj Milej <mikolajmm@gmail.com>; 2013-01-02
 
+import os
+import gpodder
 from gpodder import gettext, ngettext
 
 _ = gettext
@@ -37,3 +39,9 @@ EPISODE_LIST_FILTERS = [
     (_('Partially played'), 'downloaded and played and not finished'),
     (_('Unplayed downloads'), 'downloaded and not played'),
 ]
+                
+def QML(filename):
+    for folder in gpodder.ui_folders:
+        filename = os.path.join(folder, filename)
+        if os.path.exists(filename):
+            return filename
