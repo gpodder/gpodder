@@ -73,7 +73,6 @@ class gPodderShownotesText(gPodderShownotes):
         self.text_buffer.create_tag('heading', scale=pango.SCALE_LARGE, weight=pango.WEIGHT_BOLD)
         self.text_buffer.create_tag('subheading', scale=pango.SCALE_SMALL)
         self.text_view.set_buffer(self.text_buffer)
-        self.scrolled_window.add(self.text_view)
         self.text_view.modify_bg(gtk.STATE_NORMAL,
                 gtk.gdk.color_parse('#ffffff'))
         return self.text_view

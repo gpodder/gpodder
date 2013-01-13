@@ -139,6 +139,7 @@ _MIME_TYPE_LIST = [
     ('.flv', 'video/x-flv'),
     ('.mkv', 'video/x-matroska'),
     ('.wmv', 'video/x-ms-wmv'),
+    ('.opus', 'audio/opus'),
 ]
 
 _MIME_TYPES = dict((k, v) for v, k in _MIME_TYPE_LIST)
@@ -1159,9 +1160,9 @@ def format_time(value):
     else:
         return dt.strftime('%H:%M:%S')
 
-
 def parse_time(value):
     """Parse a time string into seconds
+
     >>> parse_time('00:00')
     0
     >>> parse_time('00:00:00')
@@ -1176,16 +1177,16 @@ def parse_time(value):
     10921
     >>> parse_time('61:08')
     3668
+    >>> parse_time('25:03:30')
+    90210
     """
     if not value:
         raise ValueError('Invalid value: %s' % (str(value),))
 
-    for format in ('%H:%M:%S', '%M:%S'):
-        try:
-            t = time.strptime(value, format)
-            return (t.tm_hour * 60 + t.tm_min) * 60 + t.tm_sec
-        except ValueError, ve:
-            continue
+    m = re.match(r'(\d+):(\d{2}):(\d{2})', value)
+    if m:
+        hours, minutes, seconds = m.groups()
+        return (int(hours) * 60 + int(minutes)) * 60 + int(seconds)
 
     m = re.match(r'(\d+):(\d{2})', value)
     if m:
@@ -1677,6 +1678,19 @@ def osx_get_active_interfaces():
         if b:
             yield b.group(1)
 
+def unix_get_active_interfaces():
+    """Get active network interfaces using 'ifconfig'
+
+    Returns a list of active network interfaces or an
+    empty list if the device is offline. The loopback
+    interface is not included.
+    """
+    stdout = subprocess.check_output(['ifconfig'])
+    for i in re.split('\n(?!\t)', stdout, re.MULTILINE):
+        b = re.match('(\\w+):.*status: active$', i, re.MULTILINE | re.DOTALL)
+        if b:
+            yield b.group(1)
+
 
 def connection_available():
     """Check if an Internet connection is available
@@ -1691,9 +1705,13 @@ def connection_available():
             return True
         elif gpodder.ui.osx:
             return len(list(osx_get_active_interfaces())) > 0
-            return True
         else:
-            return len(list(linux_get_active_interfaces())) > 0
+            if len(list(unix_get_active_interfaces())) > 0:
+                return True
+            elif len(list(linux_get_active_interfaces())) > 0:
+                return True
+
+        return False
     except Exception, e:
         logger.warn('Cannot get connection status: %s', e, exc_info=True)
         return False
