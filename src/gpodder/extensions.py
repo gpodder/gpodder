@@ -429,6 +429,17 @@ class ExtensionManager(object):
         pass
 
     @call_extensions
+    def on_episode_playback(self, episode):
+        """Called when an episode is played back
+
+        This function will be called when the user clicks on "Play" or
+        "Open" in the GUI to open an episode with the media player.
+
+        @param episode: A gpodder.model.PodcastEpisode instance
+        """
+        pass
+
+    @call_extensions
     def on_episode_save(self, episode):
         """Called when an episode is saved to the database
 
