@@ -110,13 +110,17 @@ class EpisodeAttrFromPaymentHref(EpisodeAttrFromHref):
             EpisodeAttrFromHref.start(self, handler, attrs)
 
 class Enclosure(Target):
+    def __init__(self, file_size_attribute):
+        Target.__init__(self)
+        self.file_size_attribute = file_size_attribute
+
     def start(self, handler, attrs):
         url = attrs.get('url')
         if url is None:
             return
 
         url = parse_url(urlparse.urljoin(handler.url, url))
-        file_size = parse_length(attrs.get('length'))
+        file_size = parse_length(attrs.get(self.file_size_attribute))
         mime_type = parse_type(attrs.get('type'))
 
         handler.add_enclosure(url, file_size, mime_type)
@@ -175,7 +179,8 @@ MAPPING = {
     'rss/channel/item/pubDate': EpisodeAttr('published', parse_pubdate),
     'rss/channel/item/atom:link': EpisodeAttrFromPaymentHref('payment_url'),
 
-    'rss/channel/item/enclosure': Enclosure(),
+    'rss/channel/item/media:content': Enclosure('fileSize'),
+    'rss/channel/item/enclosure': Enclosure('length'),
 }
 
 class PodcastHandler(sax.handler.ContentHandler):
