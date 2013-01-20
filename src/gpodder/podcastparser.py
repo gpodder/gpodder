@@ -121,6 +121,10 @@ class Enclosure(Target):
 
         handler.add_enclosure(url, file_size, mime_type)
 
+def file_basename_no_extension(filename):
+    base = os.path.basename(filename)
+    name, extension = os.path.splitext(base)
+    return name
 
 def squash_whitespace(text):
     return re.sub('\s+', ' ', text.strip())
@@ -182,7 +186,7 @@ class PodcastHandler(sax.handler.ContentHandler):
         self.text = None
         self.episodes = []
         self.data = {
-            'title': '',
+            'title': file_basename_no_extension(url),
             'episodes': self.episodes
         }
         self.path_stack = []
@@ -204,64 +208,34 @@ class PodcastHandler(sax.handler.ContentHandler):
             'published': 0,
             # guid
             'link': '',
-            'file_size': -1,
-            'mime_type': 'application/octet-stream',
             'total_time': 0,
             'payment_url': None,
             'enclosures': [],
             '_guid_is_permalink': False,
         })
 
-    def pick_enclosure(self, enclosures):
-        enclosure = enclosures[0]
-        enclosure_score = self.rate_enclosure(enclosure)
-
-        for e in enclosures:
-            e_score = self.rate_enclosure(e)
-            if e_score > enclosure_score:
-                enclosure = e
-                enclosure_score = e_score
-
-        return enclosure
-
-    def rate_enclosure(self, enclosure):
-        mime_type = enclosure['mime_type']
-
-        if mime_type.startswith('video/'):
-            return 100
-        elif mime_type.startswith('audio/'):
-            return 10
-        elif mime_type.startswith('image/'):
-            return 1
-
-        return 0
-
     def validate_episode(self):
         entry = self.episodes[-1]
 
-        # No enclosures for this item
-        if len(entry['enclosures']) == 0:
-            if (youtube.is_video_link(entry['link']) or
-                    vimeo.is_video_link(entry['link'])):
-                entry['enclosures'].append({
-                    'url': entry['link'],
-                    'file_size': -1,
-                    'mime_type': 'video/mp4',
-                })
+        if 'guid' not in entry:
+            if entry.get('link'):
+                # Link element can serve as GUID
+                entry['guid'] = entry['link']
             else:
+                if len(entry['enclosures']) != 1:
+                    # Multi-enclosure feeds MUST have a GUID
+                    self.episodes.pop()
+                    return
+
+                # Maemo bug 12073
+                entry['guid'] = entry['enclosures'][0]['url']
+
+        if 'title' not in entry:
+            if len(entry['enclosures']) != 1:
                 self.episodes.pop()
                 return
 
-        # Pick one of multiple enclosures
-        entry.update(self.pick_enclosure(entry['enclosures']))
-        del entry['enclosures']
-
-        if 'guid' not in entry:
-            # Maemo bug 12073
-            entry['guid'] = entry['url']
-
-        if 'title' not in entry:
-            entry['title'] = entry['url']
+            entry['title'] = file_basename_no_extension(entry['enclosures'][0]['url'])
 
         if not entry.get('link') and entry.get('_guid_is_permalink'):
             entry['link'] = entry['guid']

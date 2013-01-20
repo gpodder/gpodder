@@ -3,15 +3,24 @@
     "episodes": [
         {
             "title": "Episode",
-            "file_size": -1,
-            "mime_type": "audio/mpeg",
-            "url": "http://example.net/audio.mp3",
-            "guid": "http://example.net/audio.mp3",
+            "guid": "episode::x",
             "total_time": 0,
             "description": "",
             "payment_url": null,
             "published": 0,
-            "link": ""
+            "link": "episode::x",
+            "enclosures": [
+                {
+                    "file_size": -1,
+                    "mime_type": "image/jpeg",
+                    "url": "http://example.org/coverart.jpg"
+                },
+                {
+                    "file_size": -1,
+                    "mime_type": "audio/mpeg",
+                    "url": "http://example.net/audio.mp3"
+                }
+            ]
         }
     ]
 }

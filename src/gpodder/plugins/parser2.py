@@ -90,12 +90,27 @@ class PodcastParserFeed(object):
     def get_payment_url(self):
         return self.parsed.get('payment_url')
 
+    def _pick_enclosure(self, episode_dict):
+        if not episode_dict['enclosures']:
+            return False
+
+        # FIXME: YouTube and Vimeo handling
+
+        # FIXME: Pick the right enclosure from multiple ones
+        episode_dict.update(episode_dict['enclosures'][0])
+        del episode_dict['enclosures']
+
+        return True
+
     def get_new_episodes(self, channel):
         existing_guids = dict((episode.guid, episode) for episode in channel.children)
         seen_guids = [entry['guid'] for entry in self.parsed['episodes']]
         new_episodes = []
 
         for episode_dict in self.parsed['episodes']:
+            if not self._pick_enclosure(episode_dict):
+                continue
+
             episode = existing_guids.get(episode_dict['guid'])
             if episode is None:
                 episode = channel.episode_factory(episode_dict)
