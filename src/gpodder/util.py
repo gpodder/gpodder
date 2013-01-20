@@ -1191,6 +1191,10 @@ def parse_date(value):
 def parse_time(value):
     """Parse a time string into seconds
 
+    >>> parse_time('0')
+    0
+    >>> parse_time('128')
+    128
     >>> parse_time('00:00')
     0
     >>> parse_time('00:00:00')
