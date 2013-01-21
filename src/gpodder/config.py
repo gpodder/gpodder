@@ -173,6 +173,13 @@ defaults = {
             'delete_episodes': False,
             'sync_disks': False,
         },
+        'playlists': {
+            'create': True,
+            'two_way_sync': True,
+            'use_absolute_path': True,
+            'folder': 'Playlists',
+        }
+
     },
 
     'youtube': {
