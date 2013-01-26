@@ -93,8 +93,8 @@ from gpodder import extensions
 macapp = None
 if gpodder.ui.osx and getattr(gtk.gdk, 'WINDOWING', 'x11') == 'quartz':
     try:
-        from gtk_osxapplication import *
-        macapp = OSXApplication()
+        from gtkosx_application import *
+        macapp = Application()
     except ImportError:
         print >> sys.stderr, """
         Warning: gtk-mac-integration not found, disabling native menus 
