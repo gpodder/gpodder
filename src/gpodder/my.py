@@ -57,10 +57,20 @@ if not hasattr(mygpoclient, 'require_version') or \
     """ % (MYGPOCLIENT_REQUIRED, mygpoclient.__version__)
     sys.exit(1)
 
+try:
+    from mygpoclient.simple import MissingCredentials
+
+except ImportError:
+    # if MissingCredentials does not yet exist in the installed version of
+    # mygpoclient, we use an object that can never be raised/caught
+    MissingCredentials = object()
+
+
 from mygpoclient import api
 
 from mygpoclient import util as mygpoutil
 
+EPISODE_ACTIONS_BATCH_SIZE=100
 
 # Database model classes
 class SinceValue(object):
@@ -445,21 +455,38 @@ class MygPoClient(object):
 
                 # Save the "since" value for later use
                 self._store.update(since_o, since=changes.since)
+
+            except MissingCredentials:
+                # handle outside
+                raise
+
             except Exception, e:
                 log('Exception while polling for episodes.', sender=self, traceback=True)
 
             # Step 2: Upload Episode actions
 
-            # Convert actions to the mygpoclient format for uploading
-            episode_actions = [convert_to_api(a) for a in actions]
+            # Uploads are done in batches; uploading can resume if only parts
+            # be uploaded; avoids empty uploads as well
+            for lower in range(0, len(actions), EPISODE_ACTIONS_BATCH_SIZE):
+                batch = actions[lower:lower+EPISODE_ACTIONS_BATCH_SIZE]
 
-            # Upload the episode actions
-            self._client.upload_episode_actions(episode_actions)
+                # Convert actions to the mygpoclient format for uploading
+                episode_actions = [convert_to_api(a) for a in batch]
 
-            # Actions have been uploaded to the server - remove them
-            self._store.remove(actions)
-            log('Episode actions have been uploaded to the server.', sender=self)
+                # Upload the episode actions
+                self._client.upload_episode_actions(episode_actions)
+
+                # Actions have been uploaded to the server - remove them
+                self._store.remove(batch)
+
+            logger.debug('Episode actions have been uploaded to the server.')
             return True
+
+        except MissingCredentials:
+            logger.warn('No credentials configured. Disabling gpodder.net.')
+            self._config.mygpo.enabled = False
+            return False
+
         except Exception, e:
             log('Cannot upload episode actions: %s', str(e), sender=self, traceback=True)
             return False
@@ -519,6 +546,12 @@ class MygPoClient(object):
             self._store.remove(actions)
             log('All actions have been uploaded to the server.', sender=self)
             return True
+
+        except MissingCredentials:
+            logger.warn('No credentials configured. Disabling gpodder.net.')
+            self._config.mygpo.enabled = False
+            return False
+
         except Exception, e:
             log('Cannot upload subscriptions: %s', str(e), sender=self, traceback=True)
             return False
@@ -530,13 +563,28 @@ class MygPoClient(object):
                     action.caption, action.device_type)
             log('Device settings uploaded.', sender=self)
             return True
+
+        except MissingCredentials:
+            logger.warn('No credentials configured. Disabling gpodder.net.')
+            self._config.mygpo.enabled = False
+            return False
+
         except Exception, e:
             log('Cannot update device %s: %s', self.device_id, str(e), sender=self, traceback=True)
             return False
 
     def get_devices(self):
         result = []
-        for d in self._client.get_devices():
+
+        try:
+            devices = self._client.get_devices()
+
+        except MissingCredentials:
+            logger.warn('No credentials configured. Disabling gpodder.net.')
+            self._config.mygpo.enabled = False
+            raise
+
+        for d in devices:
             result.append((d.device_id, d.caption, d.type))
         return result
 
