@@ -33,8 +33,12 @@ for filename in filenames:
                 translators.append(match.group(1))
             else:
                 in_translators = False
+        elif line.startswith('"Last-Translator:'):
+            match = re.search(r'Last-Translator: ([^<]* <[^>]*>)', line)
+            if match:
+                translators.append(match.group(1))
 
-        match = re.match(r'"Language-Team: ([^\(]+) \(http://www.transifex.net/', line)
+        match = re.match(r'"Language-Team: (.+) \(http://www.transifex.com/', line)
         if not match:
             match = re.match(r'"Language-Team: ([^\(]+).*\\n"', line, re.DOTALL)
         if match:
@@ -42,7 +46,7 @@ for filename in filenames:
 
     if translators and language is not None:
         if len(translators) != 1:
-            print '# Warning: %d other translators' % (len(translators) - 1,)
+            print '# Warning: %d other translators: %s' % (len(translators) - 1, ', '.join(translators[1:]))
         print 'git commit --author="%s" --message="Updated %s translation" %s' % (translators[0], language, filename)
     else:
         print '# FIXME (could not parse):', '!'*10, filename, '!'*10
