@@ -404,6 +404,7 @@ class PodcastEpisode(PodcastModelObject):
     def playback_mark(self):
         self.is_new = False
         self.last_playback = int(time.time())
+        gpodder.user_extensions.on_episode_playback(self)
         self.save()
 
     def mark(self, state=None, is_played=None, is_locked=None):

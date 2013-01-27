@@ -56,8 +56,7 @@ echo "Merging translations..."
 
 for POFILE in $FILES; do
     echo -n "Merging $POFILE"
-    msgmerge --compendium="$MERGE_DIR/$POFILE" \
-             "$POFILE" "$MESSAGES_POT" --output-file="$POFILE"
+    msgmerge --compendium="$POFILE" "$MERGE_DIR/$POFILE" "$MESSAGES_POT" --output-file="$POFILE"
 done
 
 echo "Removing merge directory..."
