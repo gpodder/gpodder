@@ -1706,15 +1706,23 @@ def connection_available():
         elif gpodder.ui.osx:
             return len(list(osx_get_active_interfaces())) > 0
         else:
-            if (find_command('ifconfig') is not None and
-                    len(list(unix_get_active_interfaces())) > 0):
-                return True
-            elif (find_command('ip') is not None and
-                    len(list(linux_get_active_interfaces())) > 0):
-                return True
-            else:
-                # If we have neither "ifconfig" nor "ip", assume we're online (bug 1730)
-                return True
+            # By default, we assume we're not offline (bug 1730)
+            offline = False
+
+            if find_command('ifconfig') is not None:
+                # If ifconfig is available, and it says we don't have
+                # any active interfaces, assume we're offline
+                if len(list(unix_get_active_interfaces())) == 0:
+                    offline = True
+
+            # If we assume we're offline, try the "ip" command as fallback
+            if offline and find_command('ip') is not None:
+                if len(list(linux_get_active_interfaces())) == 0:
+                    offline = True
+                else:
+                    offline = False
+
+            return not offline
 
         return False
     except Exception, e:
