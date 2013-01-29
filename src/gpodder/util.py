@@ -1706,15 +1706,21 @@ def connection_available():
         elif gpodder.ui.osx:
             return len(list(osx_get_active_interfaces())) > 0
         else:
-            if len(list(unix_get_active_interfaces())) > 0:
+            if (find_command('ifconfig') is not None and
+                    len(list(unix_get_active_interfaces())) > 0):
                 return True
-            elif len(list(linux_get_active_interfaces())) > 0:
+            elif (find_command('ip') is not None and
+                    len(list(linux_get_active_interfaces())) > 0):
+                return True
+            else:
+                # If we have neither "ifconfig" nor "ip", assume we're online (bug 1730)
                 return True
 
         return False
     except Exception, e:
         logger.warn('Cannot get connection status: %s', e, exc_info=True)
-        return False
+        # When we can't determine the connection status, act as if we're online (bug 1730)
+        return True
 
 
 def website_reachable(url):
