@@ -1672,7 +1672,8 @@ def osx_get_active_interfaces():
     empty list if the device is offline. The loopback
     interface is not included.
     """
-    stdout = subprocess.check_output(['ifconfig'])
+    process = subprocess.Popen(['ifconfig'], stdout=subprocess.PIPE)
+    stdout, _ = process.communicate()
     for i in re.split('\n(?!\t)', stdout, re.MULTILINE):
         b = re.match('(\\w+):.*status: active$', i, re.MULTILINE | re.DOTALL)
         if b:
@@ -1685,7 +1686,8 @@ def unix_get_active_interfaces():
     empty list if the device is offline. The loopback
     interface is not included.
     """
-    stdout = subprocess.check_output(['ifconfig'])
+    process = subprocess.Popen(['ifconfig'], stdout=subprocess.PIPE)
+    stdout, _ = process.communicate()
     for i in re.split('\n(?!\t)', stdout, re.MULTILINE):
         b = re.match('(\\w+):.*status: active$', i, re.MULTILINE | re.DOTALL)
         if b:
