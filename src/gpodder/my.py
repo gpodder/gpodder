@@ -44,6 +44,7 @@ from gpodder import minidb
 import mygpoclient
 mygpoclient.user_agent += ' ' + gpodder.user_agent
 
+# 2013-02-08: We should update this to 1.7 once we use the new features
 MYGPOCLIENT_REQUIRED = '1.4'
 
 if not hasattr(mygpoclient, 'require_version') or \
