@@ -37,10 +37,10 @@ class gPodderDevicePlaylist(object):
         if self.mountpoint == '/':
             self.mountpoint = self.playlist_folder
             logger.warning('MP3 player resides on / - using %s as MP3 player root', self.mountpoint)
-        self.playlist_absolute_filename=os.path.join(self.playlist_folder, self.playlist_file) 
+        self.playlist_absolute_filename=os.path.join(self.playlist_folder, self.playlist_file)
 
     def build_extinf(self, filename):
-#TO DO: Windows playlists        
+#TO DO: Windows playlists
 #        if self._config.mp3_player_playlist_win_path:
 #            filename = filename.replace('\\', os.sep)
 
@@ -75,7 +75,7 @@ class gPodderDevicePlaylist(object):
             self._config.device_sync.custom_sync_name_enabled,
             self._config.device_sync.custom_sync_name),
             self._config.device_sync.max_filename_length)
-        filename = filename_base + os.path.splitext(episode.local_filename(create=False))[1].lower()                 
+        filename = filename_base + os.path.splitext(episode.local_filename(create=False))[1].lower()
         return filename
 
     def get_absolute_filename_for_playlist(self, episode):
@@ -84,9 +84,9 @@ class gPodderDevicePlaylist(object):
         """
         filename = self.get_filename_for_playlist(episode)
         if self._config.device_sync.one_folder_per_podcast:
-            filename = os.path.join(episode.channel.title, filename)                    
+            filename = os.path.join(episode.channel.title, filename)
         if self._config.device_sync.playlist.absolute_path:
-            filename = os.path.join(util.relpath(self.mountpoint, self._config.device_sync.device_folder), filename)   
+            filename = os.path.join(util.relpath(self.mountpoint, self._config.device_sync.device_folder), filename)
         return filename
 
     def write_m3u(self, episodes):
@@ -105,7 +105,7 @@ class gPodderDevicePlaylist(object):
                     self._config.device_sync.custom_sync_name),
                     self._config.device_sync.max_filename_length)
                 filename = filename_base + os.path.splitext(current_episode.local_filename(create=False))[1].lower()
-                filename = self.get_filename_for_playlist(current_episode)                 
+                filename = self.get_filename_for_playlist(current_episode)
                 fp.write(self.build_extinf(filename))
                 filename = self.get_absolute_filename_for_playlist(current_episode)
                 fp.write(filename)

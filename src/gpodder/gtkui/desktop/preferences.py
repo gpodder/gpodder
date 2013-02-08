@@ -273,14 +273,14 @@ class gPodderPreferences(BuilderWidget):
 
         # Configure the extensions manager GUI
         self.set_extension_preferences()
-        
-    def set_extension_preferences(self):        
+
+    def set_extension_preferences(self):
         toggle_cell = gtk.CellRendererToggle()
-        toggle_cell.connect('toggled', self.on_extensions_cell_toggled)        
+        toggle_cell.connect('toggled', self.on_extensions_cell_toggled)
 
         name_cell = gtk.CellRendererText()
         name_cell.set_property('ellipsize', pango.ELLIPSIZE_END)
-        
+
         extension_column = gtk.TreeViewColumn(_('Name'))
         extension_column.pack_start(toggle_cell, False)
         extension_column.add_attribute(toggle_cell, 'active', self.C_TOGGLE)
@@ -293,7 +293,7 @@ class gPodderPreferences(BuilderWidget):
         self.treeviewExtensions.append_column(extension_column)
 
         self.extensions_model = gtk.ListStore(bool, str, object, bool)
-        
+
         def key_func(pair):
             category, container = pair
             return (category, container.metadata.title)
@@ -301,14 +301,14 @@ class gPodderPreferences(BuilderWidget):
         def convert(extensions):
             for container in extensions:
                 yield (container.metadata.category, container)
-                
+
         old_category = None
         for category, container in sorted(convert(gpodder.user_extensions.get_extensions()), key=key_func):
             if old_category != category:
                 label = '<span weight="bold">%s</span>' % cgi.escape(category)
                 self.extensions_model.append((None, label, None, False))
                 old_category = category
-                
+
             label = '%s\n<small>%s</small>' % (
                     cgi.escape(container.metadata.title),
                     cgi.escape(container.metadata.description))
@@ -372,7 +372,7 @@ class gPodderPreferences(BuilderWidget):
             self.show_message(container.error.message,
                     _('Extension cannot be activated'), important=True)
             model.set_value(it, self.C_TOGGLE, False)
-            
+
     def on_treeview_button_press_event(self, treeview, event):
         if event.button != 3:
             return
@@ -388,7 +388,7 @@ class gPodderPreferences(BuilderWidget):
         if not container or not model:
             return
 
-        # This is one ugly hack, but it displays the attributes of 
+        # This is one ugly hack, but it displays the attributes of
         # the metadata object of the container..
         info = '\n'.join('<b>%s:</b> %s' %
                 tuple(map(cgi.escape, map(str, (key, value))))
@@ -517,7 +517,7 @@ class gPodderPreferences(BuilderWidget):
             #rather than value of parameter
         else:
             self._config.device_sync.playlists.create=True
-            self.toggle_playlist_interface(True)            
+            self.toggle_playlist_interface(True)
 
     def toggle_playlist_interface(self,enabled):
         if (enabled==True and not(self._config.device_sync.device_type == 'none')):
@@ -532,7 +532,7 @@ class gPodderPreferences(BuilderWidget):
             self.btn_playlistfolder.set_sensitive(False)
             self.btn_playlistfolder.set_label('')
             self.checkbutton_delete_using_playlists.set_sensitive(False)
-        
+
 
     def on_combobox_device_type_changed(self, widget):
         index = self.combobox_device_type.get_active()
@@ -554,7 +554,7 @@ class gPodderPreferences(BuilderWidget):
             self.toggle_playlist_interface(self._config.device_sync.playlists.create)
         else:
             # TODO: Add support for iPod and MTP devices
-            pass              
+            pass
 
     def on_btn_device_mountpoint_clicked(self, widget):
         fs = gtk.FileChooserDialog(title=_('Select folder for mount point'),
