@@ -26,9 +26,7 @@ __only_for__ = 'gtk'
 SONOS_CAN_PLAY = lambda e: 'audio' in e.file_type()
 
 class gPodderExtension:
-
     def __init__(self, container):
-
         sd = soco.SonosDiscovery()
         speaker_ips = sd.get_speaker_ips()
 
@@ -51,13 +49,10 @@ class gPodderExtension:
             if name:
                 self.speakers[speaker_ip] = name
 
-
     def _stream_to_speaker(self, speaker_ip, episodes):
         """ Play or enqueue selected episodes """
 
-        episodes = filter(SONOS_CAN_PLAY, episodes)
-
-        urls = [episode.url for episode in episodes]
+        urls = [episode.url for episode in episodes if SONOS_CAN_PLAY(episode)]
         logger.info('Streaming to Sonos %s: %s'%(speaker_ip, ', '.join(urls)))
 
         controller = soco.SoCo(speaker_ip)
@@ -69,20 +64,17 @@ class gPodderExtension:
 
         controller.play()
 
-
     def on_episodes_context_menu(self, episodes):
         """ Adds a context menu for each Sonos speaker group """
 
-        # Hide context menu for non-audio files
-        episodes = filter(SONOS_CAN_PLAY, episodes)
+        # Only show context menu if we can play at least one file
+        if not any(SONOS_CAN_PLAY(e) for e in episodes):
+            return []
 
         menu_entries = []
-
-        if not episodes:
-            return menu_entries
-
         for speaker_ip, name in self.speakers.items():
             callback = partial(self._stream_to_speaker, speaker_ip)
-            menu_entries.append( ('Stream to Sonos/%s' % name, callback) )
+
+            menu_entries.append('/'.join((_('Stream to Sonos'), name)), callback)
 
         return menu_entries
