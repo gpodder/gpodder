@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # gPodder - A media aggregator and podcast client
-# Copyright (c) 2005-2012 Thomas Perl and the gPodder Team
+# Copyright (c) 2005-2013 Thomas Perl and the gPodder Team
 #
 # gPodder is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,10 +18,15 @@
 #
 
 # Windows 7 taskbar progress
-# Sean Munkel; 2013-1-5
+# Sean Munkel; 2013-01-05
 
-__title__ = 'Windows 7 Taskbar Progress'
-__description__ = 'Displays download progress in the taskbar.'
+import gpodder
+
+_ = gpodder.gettext
+
+
+__title__ = _('Show download progress on the taskbar')
+__description__ = _('Displays the progress on the Windows taskbar.')
 __authors__ = 'Sean Munkel <seanmunkel@gmail.com>'
 __category__ = 'desktop-integration'
 __only_for__ = 'win32'
@@ -150,11 +155,10 @@ class gPodderExtension:
                 '{56FDF344-FD6D-11d0-958A-006097C9A090}',
                 interface=ITaskbarList3)
         self.taskbar.HrInit()
-    
+
     def on_unload(self):
         if self.taskbar is not None:
             self.taskbar.SetProgressState(self.window_handle, TBPF_NOPROGRESS)
-            
 
     def on_ui_object_available(self, name, ui_object):
         def callback(self, window, *args):
@@ -177,3 +181,4 @@ class gPodderExtension:
                     int(progress * 100), 100)
         else:
             self.taskbar.SetProgressState(self.window_handle, TBPF_NOPROGRESS)
+
