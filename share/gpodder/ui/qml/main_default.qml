@@ -42,6 +42,12 @@ PageStackWindow {
                 visible: mainObject.canGoBack
             }
 
+            BusyIndicator {
+                id: updatingBusy
+                anchors.left: parent.left
+                visible: false
+            }
+
             ToolIcon {
                 id: toolFlattr
                 iconSource: 'artwork/flattr.png'
@@ -62,7 +68,13 @@ PageStackWindow {
                     controller.updateFlattrButtonText(mainObject.showNotesEpisode);
                 }
             }
-
+            Connections {
+               target: controller
+                onBusyChanged: {
+                    updatingBusy.visible = controller.busy
+                    updatingBusy.running = controller.busy
+                }
+            }
             Label {
                 id: labelFlattr
                 color: 'white'
