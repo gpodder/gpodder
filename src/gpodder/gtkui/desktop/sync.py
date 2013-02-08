@@ -150,16 +150,16 @@ class gPodderSyncUI(object):
             #Update device playlists
             #General approach is as follows:
 
-            #When a episode is downloaded and synched, it is added to the  
-            #standard playlist for that podcast which is then written to 
+            #When a episode is downloaded and synched, it is added to the
+            #standard playlist for that podcast which is then written to
             #the device.
 
             #After the user has played that episode on their device, they
             #can delete that episode from their device.
 
             #At the next sync, gPodder will then compare the standard
-            #podcast-specific playlists on the device (as written by 
-            #gPodder during the last sync), with the episodes on the 
+            #podcast-specific playlists on the device (as written by
+            #gPodder during the last sync), with the episodes on the
             #device.If there is an episode referenced in the playlist
             #that is no longer on the device, gPodder will assume that
             #the episode has already been synced and subsequently deleted
@@ -178,7 +178,7 @@ class gPodderSyncUI(object):
                 self.commit_changes_to_database()
                 for current_channel in self.channels:
                     #only sync those channels marked for syncing
-                    if current_channel.sync_to_mp3_player: 
+                    if current_channel.sync_to_mp3_player:
 
                         #get playlist object
                         playlist=gPodderDevicePlaylist(self._config,
@@ -189,7 +189,7 @@ class gPodderSyncUI(object):
                                                      key=lambda ep: ep.published)
                         playlist.write_m3u(episodes_for_playlist)
 
-                #enable updating of UI 
+                #enable updating of UI
                 self.enable_download_list_update()
 
                 title = _('Update successful')
@@ -209,7 +209,7 @@ class gPodderSyncUI(object):
                     if self._config.device_sync.playlists.two_way_sync:
                         for current_channel in self.channels:
                             #only include channels that are included in the sync
-                            if current_channel.sync_to_mp3_player: 
+                            if current_channel.sync_to_mp3_player:
                                 #get playlist object
                                 playlist=gPodderDevicePlaylist(self._config, current_channel.title)
                                 #get episodes to be written to playlist
