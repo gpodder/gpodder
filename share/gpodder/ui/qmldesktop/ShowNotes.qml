@@ -1,10 +1,15 @@
 import QtQuick 1.1
 import QtDesktop 0.1
 
+import 'config.js' as Config
+import 'util.js' as Util
+
 Window {
-  id: item1
-  width: 400
-  height: 300
+  id: showNotes
+  property variant myController: undefined
+
+  width: Config.windowWidth
+  height: Config.windowHeight
 
   TextArea {
     id: textarea1
@@ -29,7 +34,7 @@ Window {
 
     Button {
       id: flattr_button
-      text: _("Flattr this")
+      text: Util._("Flattr this")
     }
 
     Image {
@@ -41,22 +46,23 @@ Window {
 
     Button {
       id: btnPlay
-      text: _("Play")
+      text: Util._("Play")
     }
 
     Button {
       id: btnDownload
-      text: _("&Download")
+      text: Util._("&Download")
     }
 
     Button {
       id: btnCancel
-      text: _("C&ancel download")
+      text: Util._("C&ancel download")
     }
 
     Button {
       id: btnClose
-      text: _("Close")
+      text: Util._("Close")
+      onClicked: myController.close()
     }
   }
 }

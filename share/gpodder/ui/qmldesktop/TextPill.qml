@@ -11,6 +11,8 @@ Item {
   property alias rightText: labelRightText.text
   property int fontSize: height / 2
   property string textColor: "white"
+  property string lightColor: "#D0D0D0"
+  property string darkColor: "#7E7C79"
 
   Rectangle {
     id: rectLeft
@@ -20,8 +22,8 @@ Item {
     x: (borderWidth - 1) / 2
     y: (borderWidth - 1) / 2
 
-    color: "#D0D0D0"
-    border{
+    color: lightColor
+    border {
       color: rectRight.color
       width: borderWidth
     }
@@ -38,7 +40,7 @@ Item {
       topMargin: borderWidth
     }
 
-    color: "#7E7C79"
+    color: darkColor
 
     //Mask left radius of right rectangle
     Rectangle {

@@ -31,8 +31,8 @@ from dbus.mainloop.glib import DBusGMainLoop
 import gpodder
 from gpodder import core
 
-import qmlcommon
-from gpodder.qmldesktopui.controller import qtPodder 
+from gpodder.qmldesktopui.controller import qtPodder
+
 
 def main(args):
     try:
@@ -47,4 +47,3 @@ def main(args):
 
     gui = qtPodder(args, core.Core(), bus_name)
     return gui.run()
-

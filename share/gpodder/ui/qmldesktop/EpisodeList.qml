@@ -1,9 +1,11 @@
 import QtQuick 1.1
+import QtDesktop 0.1
+
 import 'config.js' as Config
+import 'util.js' as Util
 
 Item {
   id: episodeList
-  height: childrenRect.height
   width: 1
 
   property string currentFilterText
@@ -15,7 +17,7 @@ Item {
   }
 
   property alias model: listView.model
-  property alias moving: listView.moving
+  //  property alias moving: listView.moving
   property alias count: listView.count
   property alias currentIndex: listView.currentIndex
   property string description: ""
@@ -30,10 +32,9 @@ Item {
   }
 
   Text {
-    color: 'white'
     font.pixelSize: 30
     horizontalAlignment: Text.AlignHCenter
-    text: '<big>' + _('No episodes') + '</big>' + '<br><small>' + _('Touch to change filter') + '</small>'
+    text: '<big>' + Util._("No episodes") + '</big>'
     visible: !listView.visible
 
     MouseArea {
@@ -42,48 +43,59 @@ Item {
     }
   }
 
-  ListView {
+  TableView {
     id: listView
-    width: parent.width
-    height: contentHeight
-    interactive: false
-    currentIndex: -1
+    anchors.fill: parent
     visible: count > 0
-    property real lastContentY: 0
+    property int padding: Config.smallSpacing
 
-    highlightMoveDuration: Config.fadeTransition
-    highlightFollowsCurrentItem : true
-    highlight: Rectangle {
-      color: "lightsteelblue"
-      width: episodeList.width
-    }
-
-    delegate: EpisodeItem {
-      id: episodeItem
-
-      width: listView.width
-      height: Config.listItemHeight
-      onSelected: {
-        description = item.qdescription
-        episodeList.episodeItemChange(item)
+    onCurrentIndexChanged: {
+      var episode = model.get(currentIndex)
+      if (episode != null){
+        description = episode.qdescription
+        episodeItemChange(episode)
       }
-      onContextMenu: episodeList.episodeContextMenu(item)
     }
 
-    onContentYChanged: {
-      // Keep Y scroll position when deleting episodes (bug 1660)
-      if (contentY === 0) {
-        if (lastContentY > 0) {
-          contentY = lastContentY;
-        }
-      } else {
-        if (episodeList.mainState === 'episodes') {
-          // Only store scroll position when the episode list is
-          // shown (avoids overwriting it in onMainStateChanged)
-          lastContentY = contentY;
-        }
+    TableColumn {
+      role: "modelData"
+      title: "Title"
+      width: 120
+      delegate: EpisodeColumn {
+        padding: listView.padding
+        text: itemValue.qtitle
+        fontBold: true
+      }
+    }
+
+    TableColumn {
+      role: "modelData"
+      title: "Size"
+      width: 75
+      delegate: EpisodeColumn {
+        padding: listView.padding
+        text: itemValue.qfilesize
+      }
+    }
+
+    TableColumn {
+      role: "modelData"
+      title: "Duration"
+      width: 120
+      delegate: EpisodeColumn {
+        padding: listView.padding
+        text: itemValue.qduration ? Util.formatDuration(itemValue.qduration) : ''
+      }
+    }
+
+    TableColumn {
+      role: "modelData"
+      title: "Date"
+      width: 75
+      delegate: EpisodeColumn {
+        padding: listView.padding
+        text: itemValue.qpubdate
       }
     }
   }
 }
-

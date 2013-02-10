@@ -27,8 +27,8 @@ import subprocess
 import signal
 
 from PySide.QtGui import QApplication
-from PySide.QtCore import QObject, Signal, Slot, Property, QUrl
-from PySide.QtDeclarative import QDeclarativeComponent, QDeclarativeEngine
+from PySide.QtCore import QObject, Signal, Slot, Property
+from PySide.QtDeclarative import QDeclarativeContext, QDeclarativeEngine
 
 import gpodder
 from gpodder import common
@@ -37,14 +37,36 @@ from gpodder import util
 from gpodder import youtube
 from gpodder.model import Model
 
-from gpodder.qmldesktopui.qmlcommon import _, N_, EPISODE_LIST_FILTERS, QML
+from gpodder.qmlcommon import _, N_, EPISODE_LIST_FILTERS, \
+    createQmlComponent, QObjectProxy
+
 from gpodder.qmldesktopui import helper, model, images
-from gpodder.qmldesktopui.configproxy import ConfigProxy 
+from gpodder.qmldesktopui.configproxy import ConfigProxy
+from gpodder.qmldesktopui.model import SortFilterProxyModel
+from gpodder.qmldesktopui.commoncontroller import CommonController
 
 import logging
 logger = logging.getLogger(__name__)
 
+import importlib
+
+
+def classForName(module_name, class_name):
+    try:
+        # load the module, will raise ImportError if module cannot be loaded
+        m = importlib.import_module(module_name)
+        # get the class, will raise AttributeError if class cannot be found
+        c = getattr(m, class_name)
+        return c
+
+    except ImportError as ex:
+        print ex.args, ex.message
+        return None
+
+
 class Controller(QObject):
+    changed = Signal()
+
     def __init__(self, root):
         QObject.__init__(self)
         self.root = root
@@ -55,7 +77,61 @@ class Controller(QObject):
         self.root.config.add_observer(self.on_config_changed)
         self._flattr = self.root.core.flattr
         self.flattr_button_text = u''
-        
+
+        self._controllers = {
+            'PodcastDirectory': None
+        }
+
+        self._controllersCreationArgs = {
+            'PodcastDirectory': [self.addSubscriptions]
+        }
+
+    def getController(self, viewFileName):
+        viewFileName = viewFileName.split(".qml", 1)[0]
+
+        if viewFileName not in self._controllers:
+            self._controllers[viewFileName] = None
+
+        if self._controllers[viewFileName] is None:
+            args = []
+            if viewFileName in self._controllersCreationArgs:
+                args = self._controllersCreationArgs[viewFileName]
+
+            moduleName = "gpodder.qmldesktopui." + viewFileName.lower()
+            classObject = classForName(moduleName, viewFileName)
+
+            if classObject is None:
+                classObject = CommonController
+
+            self._controllers[viewFileName] = classObject(self, *args)
+
+        self._controllers[viewFileName].deleteMe.connect(self.deleteController)
+
+        return self._controllers[viewFileName]
+
+    @Slot(QObject, unicode)
+    def createWindow(self, owner, filename):
+        engine = self.root.qmlEngine
+
+        controller = self.getController(filename)
+        context = QDeclarativeContext(engine.rootContext(), controller)
+
+        context.setContextProperty("myController", controller)
+        controller.registerProperties(context)
+
+        controller.view = createQmlComponent(
+            filename, engine, context, controller
+        )
+        controller.view.show()
+
+    @Slot(QObject)
+    def deleteController(self, controller):
+        for key, value in self._controllers.iteritems():
+            if value == controller:
+                self._controllers[key] = None
+                del controller
+                break
+
     def on_config_changed(self, name, old_value, new_value):
         logger.info('Config changed: %s (%s -> %s)', name,
                 old_value, new_value)
@@ -119,7 +195,9 @@ class Controller(QObject):
 
         @util.run_in_background
         def get_flattr_info():
-            flattrs, flattred = self._flattr.get_thing_info(episode.payment_url)
+            flattrs, flattred = self._flattr.get_thing_info(
+                                    episode.payment_url
+                                )
 
             if flattred:
                 self.setFlattrButtonText(_('Flattred (%(count)d)') % {
@@ -193,7 +271,11 @@ class Controller(QObject):
             self.root.episode_model.sort()
 
         if action == 'delete':
-            msg = N_('Delete %(count)d episode?', 'Delete %(count)d episodes?', count) % {'count':count}
+            msg = N_(
+                'Delete %(count)d episode?',
+                'Delete %(count)d episodes?',
+                count) % {'count': count}
+
             self.confirm_action(msg, _('Delete'), delete)
         elif action == 'download':
             for episode in episodes:
@@ -229,7 +311,10 @@ class Controller(QObject):
 
     @Slot(result=unicode)
     def getCredits(self):
-        credits_file = os.path.join(gpodder.prefix, 'share', 'gpodder', 'credits.txt')
+        credits_file = os.path.join(
+            gpodder.prefix, 'share', 'gpodder', 'credits.txt'
+        )
+
         return util.convert_bytes(open(credits_file).read())
 
     @Slot(result=unicode)
@@ -299,7 +384,10 @@ class Controller(QObject):
                     self.root.mygpo_client.set_subscriptions([podcast.url
                         for podcast in self.root.podcast_model.get_podcasts()])
                 except Exception, e:
-                    self.root.show_message('\n'.join((_('Error on upload:'), unicode(e))))
+                    self.root.show_message(
+                        '\n'.join((_('Error on upload:'),
+                        unicode(e)))
+                    )
             finally:
                 self.root.end_progress()
 
@@ -368,8 +456,8 @@ class Controller(QObject):
             menu.append(helper.Action(_('Change section'), 'change-section', podcast))
             menu.append(helper.Action(_('Unsubscribe'), 'unsubscribe', podcast))
 
-        #menu.append(helper.Action('Force update all', 'force-update-all', podcast))
-        #menu.append(helper.Action('Force update', 'force-update', podcast))
+        # menu.append(helper.Action('Force update all', 'force-update-all', podcast))
+        # menu.append(helper.Action('Force update', 'force-update', podcast))
 
         self.show_context_menu(menu)
 
@@ -411,7 +499,9 @@ class Controller(QObject):
                 return self.find_episode(podcast_url, episode_url)
 
             try:
-                d = {'x': 0} # Used to "remember" the counter inside find_episode
+                # Used to "remember" the counter inside find_episode
+                d = {'x': 0}
+
                 self.root.mygpo_client.process_episode_actions(lambda x, y:
                         find_episode(x, y, d))
             finally:
@@ -455,7 +545,9 @@ class Controller(QObject):
             self.updateAllPodcasts()
         elif action.action == 'force-update-all':
             for podcast in self.root.podcast_model.get_objects():
-                podcast.qupdate(force=True, finished_callback=self.update_subset_stats)
+                podcast.qupdate(
+                    force=True, finished_callback=self.update_subset_stats
+                )
         if action.action == 'unsubscribe':
             def unsubscribe():
                 action.target.remove_downloaded()
@@ -600,12 +692,16 @@ class Controller(QObject):
         menu.append(helper.Action(toggle_new, 'episode-toggle-new', episode))
 
         toggle_archive = _('Allow deletion') if episode.archive else _('Archive')
-        menu.append(helper.Action(toggle_archive, 'episode-toggle-archive', episode))
+        menu.append(
+            helper.Action(toggle_archive, 'episode-toggle-archive', episode)
+        )
 
         if episode.state != gpodder.STATE_DELETED:
             menu.append(helper.Action(_('Delete'), 'episode-delete', episode))
 
-        menu.append(helper.Action(_('Add to play queue'), 'episode-enqueue', episode))
+        menu.append(
+            helper.Action(_('Add to play queue'), 'episode-enqueue', episode)
+        )
 
         self.show_context_menu(menu)
 
@@ -630,10 +726,14 @@ class Controller(QObject):
             try:
                 for idx, url in enumerate(urls):
                     print idx, url
-                    self.root.start_progress(_('Adding podcasts...') + ' (%d/%d)' % (idx, len(urls)))
+                    self.root.start_progress(
+                        _('Adding podcasts...') + ' (%d/%d)' % (idx, len(urls))
+                    )
                     try:
-                        podcast = self.root.model.load_podcast(url=url, create=True,
-                                max_episodes=self.root.config.max_episodes_per_feed)
+                        podcast = self.root.model.load_podcast(
+                            url=url, create=True,
+                            max_episodes=self.root.config.max_episodes_per_feed
+                        )
                         podcast.save()
                         self.root.insert_podcast(model.QPodcast(podcast))
                     except Exception, e:
@@ -655,11 +755,11 @@ class Controller(QObject):
     @Slot()
     def switcher(self):
         self.root.view.showMinimized()
-        
+
     @Slot(QObject)
     def playback_selected_episodes(self, episode):
         self.playback_episodes([episode])
-        
+
     def playback_episodes(self, episodes):
         # We need to create a list, because we run through it more than once
         episodes = list(Model.sort_episodes_by_pubdate(e for e in episodes if \
@@ -669,8 +769,10 @@ class Controller(QObject):
             self.playback_episodes_for_real(episodes)
         except Exception, e:
             logger.error('Error in playback!', exc_info=True)
-            self.root.show_message(_('Please check your media player settings in the preferences dialog.'), \
-                    _('Error opening player'), widget=self.root.toolPreferences)
+            self.root.show_message(
+                _('Please check your media player settings in the preferences dialog.'),
+                _('Error opening player'), widget=self.root.toolPreferences
+            )
 
         channel_urls = set()
         episode_urls = set()
@@ -679,7 +781,7 @@ class Controller(QObject):
             episode_urls.add(episode.url)
 #        self.update_episode_list_icons(episode_urls)
 #        self.update_podcast_list_model(channel_urls)
-        
+
     def playback_episodes_for_real(self, episodes):
         groups = collections.defaultdict(list)
         for episode in episodes:
@@ -714,7 +816,9 @@ class Controller(QObject):
                     PANUCCI_NAME = 'org.panucci.panucciInterface'
                     PANUCCI_PATH = '/panucciInterface'
                     PANUCCI_INTF = 'org.panucci.panucciInterface'
-                    o = gpodder.dbus_session_bus.get_object(PANUCCI_NAME, PANUCCI_PATH)
+                    o = gpodder.dbus_session_bus.get_object(
+                        PANUCCI_NAME, PANUCCI_PATH
+                    )
                     i = dbus.Interface(o, PANUCCI_INTF)
 
                     def on_reply(*args):
@@ -735,7 +839,7 @@ class Controller(QObject):
                     i.playback_from(filename, resume_position, \
                             reply_handler=on_reply, error_handler=on_error)
 
-                    continue # This file was handled by the D-Bus call
+                    continue  # This file was handled by the D-Bus call
                 except Exception, e:
                     logger.error('Calling Panucci using D-Bus', exc_info=True)
 
@@ -757,7 +861,9 @@ class Controller(QObject):
 
         # For each type now, go and create play commands
         for group in groups:
-            for command in util.format_desktop_command(group, groups[group], resume_position):
+            for command in util.format_desktop_command(
+                            group, groups[group], resume_position
+                            ):
                 logger.debug('Executing: %s', repr(command))
                 subprocess.Popen(command)
 
@@ -766,6 +872,10 @@ class Controller(QObject):
 
         # Flush updated episode status
         self.root.mygpo_client.flush()
+
+    @Slot(str)
+    def setEpisodeFilter(self, pattern):
+        self.root.episodeProxyModel.setFilterFixedString(pattern)
 
 
 class qtPodder(QObject):
@@ -794,7 +904,6 @@ class qtPodder(QObject):
                 self.extensions_podcast_update_cb,
                 self.extensions_episode_download_cb)
 
-
         self.controller = Controller(self)
         self.media_buttons_handler = helper.MediaButtonsHandler()
         self.tracker_miner_config = helper.TrackerMinerConfig()
@@ -809,15 +918,22 @@ class qtPodder(QObject):
         # Add the cover art image provider
         self.cover_provider = images.LocalCachedImageProvider()
 
-        self._create_qml_gui('MainWindow.qml')
+        # TODO: clear it, only for debug
+        try:
+            self._create_qml_gui('MainWindow.qml')
 
-        # Proxy to the "main" QML qmlObject for direct access to Qt Properties
-        self.main = helper.QObjectProxy(self.qmlObject.property('main'))
+            # Proxy to the "main" QML mainWindow for direct access to Qt Properties
+            self.main = QObjectProxy(self.mainWindow.object)
 
-        self.main.podcastModel = self.podcast_model
-        self.main.episodeModel = self.episode_model
+        except AttributeError as ex:
+            print "main: ", type(ex)
+            print ex.args
+            return
 
-        self.qmlObject.show()
+        self.main.podcastModel = self._create_model_filter(self.podcast_model)
+        self.main.episodeModel = self._create_model_filter(self.episode_model)
+
+        self.mainWindow.show()
 
         self.do_start_progress.connect(self.on_start_progress)
         self.do_end_progress.connect(self.on_end_progress)
@@ -832,23 +948,29 @@ class qtPodder(QObject):
     def _create_qml_gui(self, filename):
         self.qmlEngine = QDeclarativeEngine()
         self.qmlEngine.addImageProvider('cover', self.cover_provider)
-        
+
         context = self.qmlEngine.rootContext()
-        
+
         context.setContextProperty('controller', self.controller)
         context.setContextProperty('configProxy', self.config_proxy)
         context.setContextProperty('mediaButtonsHandler',
                 self.media_buttons_handler)
         context.setContextProperty('trackerMinerConfig',
                 self.tracker_miner_config)
-        
+
         # Load the QML UI (this could take a while...)
-        self.qmlComponent = QDeclarativeComponent(self.qmlEngine, QUrl.fromLocalFile(QML(filename)))
-        self.qmlObject = self.qmlComponent.create(context)
-        
-#        self.view.setResizeMode(QDeclarativeView.SizeRootObjectToView)
+        self.mainWindow = createQmlComponent(
+            filename, self.qmlEngine, context, self
+        )
 #        self.view.setWindowTitle('gPodder')
-        
+
+    def _create_model_filter(self, model):
+        sortFilterProxyModel = SortFilterProxyModel(self)
+
+        sortFilterProxyModel.setSourceModel(model)
+        sortFilterProxyModel.setDynamicSortFilter(True)
+
+        return sortFilterProxyModel
 
     def find_partial_downloads(self, podcasts):
         def start_progress_callback(count):
@@ -857,7 +979,7 @@ class qtPodder(QObject):
         def progress_callback(title, progress):
             self.start_progress('%s (%d%%)' % (
                 _('Loading incomplete downloads'),
-                progress*100))
+                progress * 100))
 
         def finish_progress_callback(resumable_episodes):
             self.end_progress()
@@ -882,10 +1004,14 @@ class qtPodder(QObject):
                 logger.debug('Deleting incomplete downloads.')
                 common.clean_up_downloads(delete_partial=True)
 
-            message = _('Incomplete downloads from a previous session were found.')
+            message = _(
+                'Incomplete downloads from a previous session were found.'
+            )
             title = _('Resume')
 
-            self.controller.confirm_action(message, title, download_episodes, delete_episodes)
+            self.controller.confirm_action(
+                message, title, download_episodes, delete_episodes
+            )
 
     def add_active_episode(self, episode):
         self.active_episode_wrappers[episode.id] = episode
@@ -911,7 +1037,7 @@ class qtPodder(QObject):
         if last_episode is not None:
             self.last_episode = self.wrap_episode(last_podcast, last_episode)
             # FIXME: Send last episode to player
-            #self.select_episode(self.last_episode)
+            # self.select_episode(self.last_episode)
 
     def on_episode_deleted(self, episode):
         # Remove episode from play queue (if it's in there)
@@ -934,7 +1060,7 @@ class qtPodder(QObject):
         # Make sure the audio playback is stopped immediately
 #        self.main.togglePlayback(None)
 #        self.save_pending_data()
-        self.qmlObject.hide()
+        self.mainWindow.destroy()
         self.core.shutdown()
         self.app.quit()
 
@@ -976,7 +1102,7 @@ class qtPodder(QObject):
         self.podcast_model.sort()
 
     def insert_podcast(self, podcast):
-        self.podcast_model.insert_object(podcast)
+        self.podcast_model.append(podcast)
         self.mygpo_client.on_subscribe([podcast.url])
         self.mygpo_client.flush()
 
@@ -989,7 +1115,7 @@ class qtPodder(QObject):
             # that is to be deleted, stop playback immediately.
             if self.main.currentEpisode.qpodcast == podcast:
                 self.main.togglePlayback(None)
-        self.podcast_model.remove_object(podcast)
+        self.podcast_model.remove(podcast)
         self.mygpo_client.on_unsubscribe([podcast.url])
         self.mygpo_client.flush()
 
@@ -1047,7 +1173,9 @@ class qtPodder(QObject):
                 qpodcast.qupdate(
                     finished_callback=self.controller.update_subset_stats)
         except Exception, e:
-            logger.exception('extensions_podcast_update_cb(%s): %s', podcast, e)
+            logger.exception(
+                'extensions_podcast_update_cb(%s): %s', podcast, e
+            )
 
     def extensions_episode_download_cb(self, episode):
         logger.debug('extensions_episode_download_cb(%s)', episode)
@@ -1056,4 +1184,6 @@ class qtPodder(QObject):
             qepisode = self.wrap_episode(qpodcast, episode)
             self.controller.downloadEpisode(qepisode)
         except Exception, e:
-            logger.exception('extensions_episode_download_cb(%s): %s', episode, e)
+            logger.exception(
+                'extensions_episode_download_cb(%s): %s', episode, e
+            )

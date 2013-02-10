@@ -1,223 +1,254 @@
 import QtQuick 1.1
 import QtDesktop 0.1
-import "util.js" as Util
-import "config.js" as Config
 
-MenuBar{
+import 'config.js' as Config
+import 'util.js' as Util
+
+MenuBar {
   id: menuBar
   property GpodderToolBar toolbarAlias: undefined
+  property variant currentEpisode: undefined
 
   Menu {
-    text: _("&Podcasts")
+    text: Util._("&Podcasts")
 
     MenuItem {
-      text: _("Check for new episodes")
+      text: Util._("Check for new episodes")
+      iconName: "view-refresh"
       onTriggered: controller.updateAllPodcasts()
     }
 
     MenuItem {
-      text: _("Download new episodes")
+      text: Util._("Download new episodes")
+      iconName: "download"
       onTriggered: itemDownloadAllNew
     }
 
     MenuItem {
-      text: _("Delete episodes")
+      text: Util._("Delete episodes")
+      iconName: "edit-delete"
       onTriggered: itemRemoveOldEpisodes
     }
 
     Separator {}
 
     MenuItem {
-      text: _("Preferences")
-      onTriggered: Util.createWindow(parent, "Preferences.qml")
+      text: Util._("Preferences")
+      onTriggered: controller.createWindow(parent, "Preferences.qml")
+      iconName: "preferences-system"
     }
 
     Separator {}
 
     MenuItem {
-      text: _("Quit")
+      text: Util._("Quit")
       onTriggered: controller.quit()
+      iconName: "application-exit"
     }
   }
 
-  Menu{
-    text: _("&Subscriptions")
+  Menu {
+    text: Util._("&Subscriptions")
 
     MenuItem {
-      text: _("Discover new podcasts")
-      onTriggered: Util.createWindow(parent, "PodcastDirectory.qml")
+      text: Util._("Discover new podcasts")
+      iconName: "edit-find"
+      onTriggered: controller.createWindow(parent, "PodcastDirectory.qml")
     }
 
     MenuItem {
-      text: _("Add podcast via URL")
-      onTriggered: Util.createWindow(parent, "AddPodcast.qml")
+      text: Util._("Add podcast via URL")
+      iconName: "list-add"
+      onTriggered: controller.createWindow(parent, "AddPodcast.qml")
     }
 
     MenuItem {
-      text: _("Remove podcasts")
+      text: Util._("Remove podcasts")
+      iconName: "list-remove"
       onTriggered: itemMassUnsubscribe
     }
 
     Separator {}
 
     MenuItem {
-      text: _("Update podcast")
+      text: Util._("Update podcast")
+      iconName: "view-refresh"
       onTriggered: itemUpdateChannel
     }
 
     MenuItem {
-      text: _("Podcast settings")
-      onTriggered: Util.createWindow(parent, "Channel.qml")
+      text: Util._("Podcast settings")
+      iconName: "document-edit"
+      onTriggered: controller.createWindow(parent, "PodcastSettings.qml")
     }
 
     Separator {}
 
     MenuItem {
-      text: _("Import from OPML file")
+      text: Util._("Import from OPML file")
+      iconName: "document-open"
       onTriggered: item_import_from_file
     }
 
     MenuItem {
-      text: _("Export to OPML file")
+      text: Util._("Export to OPML file")
+      iconName: "document-save-as"
       onTriggered: itemExportChannels
     }
   }
 
-  Menu{
-    text: _("&Episodes")
+  Menu {
+    text: Util._("&Episodes")
 
     MenuItem {
-      text: _("Play")
-      onTriggered: itemPlaySelected
+      text: Util._("Play")
+      iconName: "media-playback-start"
+
+      enabled: (currentEpisode!==undefined) ? (currentEpisode.qdownloaded) : false
+      onTriggered: controller.playback_selected_episodes(currentEpisode)
     }
 
     MenuItem {
-      text: _("Open")
+      text: Util._("Open")
       onTriggered: itemOpenSelected
     }
 
     MenuItem {
-      text: _("Download")
-      onTriggered: itemDownloadSelected
+      text: Util._("Download")
+      iconName: "download"
+
+      enabled: (currentEpisode!==undefined) ? (!currentEpisode.qdownloaded && !currentEpisode.qdownloading) : false
+      onTriggered: controller.downloadEpisode(currentEpisode)
     }
 
     MenuItem {
-      text: _("Cancel")
-      onTriggered: item_cancel_download
+      text: Util._("Cancel")
+      iconName: "dialog-cancel"
+
+      enabled: (currentEpisode!==undefined) ? (!currentEpisode.qdownloaded && currentEpisode.qdownloading) : false
+      onTriggered: controller.cancelDownload(currentEpisode)
     }
 
     MenuItem {
-      text: _("Delete")
+      text: Util._("Delete")
+      iconName: "edit-delete"
       onTriggered: itemDeleteSelected
     }
 
     Separator {}
 
     MenuItem {
-      text: _("Toggle new status")
+      text: Util._("Toggle new status")
       onTriggered: item_toggle_played
     }
 
     MenuItem {
-      text: _("Change delete lock")
+      text: Util._("Change delete lock")
+      iconName: "dialog-password"
       onTriggered: item_toggle_lock
     }
 
     Separator {}
 
     MenuItem {
-      text: _("Episode details")
+      text: Util._("Episode details")
+      iconName: "dialog-information"
       onTriggered: item_episode_details
     }
   }
 
-  Menu{
-    text: _("E&xtras")
+  Menu {
+    text: Util._("E&xtras")
 
     MenuItem {
-      text: _("Sync to device")
+      text: Util._("Sync to device")
+      iconName: "sync-synchronizing"
       onTriggered: item_sync
     }
   }
 
-  Menu{
-    text: _("&View")
+  Menu {
+    text: Util._("&View")
 
     MenuItem {
-      text: _("\"All episodes\" in podcast list")
+      text: Util._("\"All episodes\" in podcast list")
       onTriggered: itemShowAllEpisodes
     }
 
     MenuItem {
-      text: _("Use sections for podcast list")
+      text: Util._("Use sections for podcast list")
       onTriggered: item_podcast_sections
     }
 
     Separator {}
 
     MenuItem {
-      text: _("Toolbar")
+      text: Util._("Toolbar")
       onTriggered: toolbarAlias.toggleVisible()
     }
 
     MenuItem {
-      text: _("Episode descriptions")
+      text: Util._("Episode descriptions")
       onTriggered: itemShowDescription
     }
 
     Separator {}
 
     MenuItem {
-      text: _("All episodes")
+      text: Util._("All episodes")
       onTriggered: item_view_episodes_all
     }
 
     MenuItem {
-      text: _("Hide deleted episodes")
+      text: Util._("Hide deleted episodes")
       onTriggered: item_view_episodes_undeleted
     }
 
     MenuItem {
-      text: _("Downloaded episodes")
+      text: Util._("Downloaded episodes")
       onTriggered: item_view_episodes_downloaded
     }
 
     MenuItem {
-      text: _("Unplayed episodes")
+      text: Util._("Unplayed episodes")
       onTriggered: item_view_episodes_unplayed
     }
 
     Separator {}
 
     MenuItem {
-      text: _("Hide podcasts without episodes")
+      text: Util._("Hide podcasts without episodes")
       onTriggered: item_view_hide_boring_podcasts
     }
   }
 
-  Menu{
-    text: _("&Help")
+  Menu {
+    text: Util._("&Help")
 
     MenuItem {
-      text: _("User manual")
+      text: Util._("User manual")
+      iconName: "help-contents"
       onTriggered: Qt.openUrlExternally(Config.wikiPage)
     }
 
     MenuItem {
-      text: _("Go to gpodder.net")
+      text: Util._("Go to gpodder.net")
+      iconName: "go-home"
       onTriggered: Qt.openUrlExternally('http://gpodder.net')
     }
 
     MenuItem {
-      text: _("Software updates")
+      text: Util._("Software updates")
+      iconName: "system-software-update"
       onTriggered: item_check_for_updates
     }
 
     Separator {}
 
     MenuItem {
-      text: _("About")
-      onTriggered: Util.createWindow(parent, "About.qml")
+      text: Util._("About")
+      iconName: "help-about"
+      onTriggered: controller.createWindow(parent, "About.qml")
     }
   }
 }

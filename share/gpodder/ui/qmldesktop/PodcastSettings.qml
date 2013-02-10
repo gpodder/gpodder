@@ -1,14 +1,15 @@
 import QtQuick 1.1
 import QtDesktop 0.1
 
-Window {
-  id: item1
-  width: 400
-  height: 300
+import 'config.js' as Config
+import 'util.js' as Util
 
-  function _(x){
-    return x
-  }
+Window {
+  id: podcastSettings
+  property variant myController: undefined
+
+  width: Config.windowWidth
+  height: Config.windowHeight
 
   TabFrame {
     id: tabgroup1
@@ -20,7 +21,7 @@ Window {
     TabBar {
       id: tabbar1
       anchors.fill: parent
-      property string title: _("General")
+      property string title: Util._("General")
 
       Image {
         id: imgCover
@@ -39,7 +40,7 @@ Window {
 
       CheckBox {
         id: cbSkipFeedUpdate
-        text: _("Disable feed updates (pause subscription)")
+        text: Util._("Disable feed updates (pause subscription)")
         anchors.right: parent.right
         anchors.left: imgCover.right
         anchors.top: entryTitle.bottom
@@ -47,7 +48,7 @@ Window {
 
       Label {
         id: label_section
-        text: _("Section:")
+        text: Util._("Section:")
         anchors.left: imgCover.right
         anchors.verticalCenter: combo_section.verticalCenter
       }
@@ -59,16 +60,17 @@ Window {
         anchors.top: cbSkipFeedUpdate.bottom
       }
 
-      Button {
+      ToolButton {
         id: button_add_section
-        text: _("Add")
+        text: iconName ? "" : Util._("Add")
+        iconName: "list-add"
         anchors.right: parent.right
         anchors.verticalCenter: combo_section.verticalCenter
       }
 
       Label {
         id: label_strategy
-        text: _("Strategy:")
+        text: Util._("Strategy:")
         anchors.left: imgCover.right
         anchors.verticalCenter: combo_strategy.verticalCenter
       }
@@ -93,18 +95,18 @@ Window {
     TabBar {
       id: tabbar2
       anchors.fill: parent
-      property string title: _("Advanced")
+      property string title: Util._("Advanced")
 
       GroupBox {
         id: groupbox1
         anchors.right: parent.right
         anchors.left: parent.left
         anchors.top: parent.top
-        title: _("HTTP/FTP Authentication")
+        title: Util._("HTTP/FTP Authentication")
 
         Label {
           id: label2
-          text: _("Username:")
+          text: Util._("Username:")
           anchors.left: parent.left
           anchors.verticalCenter: feedUsername.verticalCenter
         }
@@ -117,7 +119,7 @@ Window {
 
         Label {
           id: label3
-          text: _("Password:")
+          text: Util._("Password:")
           anchors.left: parent.left
           anchors.verticalCenter: feedPassword.verticalCenter
         }
@@ -136,11 +138,11 @@ Window {
         anchors.right: parent.right
         anchors.left: parent.left
         anchors.top: groupbox1.bottom
-        title: _("Locations")
+        title: Util._("Locations")
 
         Label {
           id: label4
-          text: _("Download to:")
+          text: Util._("Download to:")
           anchors.left: parent.left
           anchors.verticalCenter: labelDownloadTo.verticalCenter
         }
@@ -155,7 +157,7 @@ Window {
 
         Label {
           id: label6
-          text: _("Website:")
+          text: Util._("Website:")
           anchors.left: parent.left
           anchors.verticalCenter: labelWebsite.verticalCenter
         }
@@ -168,9 +170,10 @@ Window {
           readOnly: true
         }
 
-        Button {
+        ToolButton {
           id: btn_website
-          text: _("Website")
+          text: iconName ? "" : Util._("Website")
+          iconName: "go-home"
           anchors.right:  parent.right
           anchors.verticalCenter: labelWebsite.verticalCenter
         }
@@ -178,10 +181,12 @@ Window {
     }
   }
 
-  Button {
+  ToolButton {
     id: btnOK
-    text: _("Close")
+    text: iconName ? "" : Util._("Close")
+    iconName: "window-close"
     anchors.right: parent.right
     anchors.bottom: parent.bottom
+    onClicked: myController.close()
   }
 }

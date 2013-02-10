@@ -1,14 +1,19 @@
 import QtQuick 1.1
 import QtDesktop 0.1
 
+import 'config.js' as Config
+import 'util.js' as Util
+
 Window {
   id: configEditor
-  width: 400
-  height: 300
+  property variant myController: undefined
+
+  width: Config.windowWidth
+  height: Config.windowHeight
 
   Label {
     id: label1
-    text: _("Search for:")
+    text: Util._("Search for:")
     anchors.left: parent.left
     anchors.verticalCenter: entryFilter.verticalCenter
   }
@@ -22,7 +27,7 @@ Window {
 
   Button {
     id: btnShowAll
-    text: _("Show All")
+    text: Util._("Show All")
     anchors.right: parent.right
     anchors.verticalCenter: entryFilter.verticalCenter
   }
@@ -82,9 +87,9 @@ Window {
 
   Button {
     id: btnClose
-    text: _("Close")
+    text: Util._("Close")
     anchors.right: parent.right
     anchors.bottom: parent.bottom
-    onClicked: configEditor.close()
+    onClicked: myController.close()
   }
 }

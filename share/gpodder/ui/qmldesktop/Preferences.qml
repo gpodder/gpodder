@@ -1,12 +1,15 @@
 import QtQuick 1.1
 import QtDesktop 0.1
-import "config.js" as Config
+
+import 'config.js' as Config
 import "util.js" as Util
 
 Window {
   id: preferences
-  width: 400
-  height: 300
+  property variant myController: undefined
+
+  width: Config.windowWidth
+  height: Config.windowHeight
 
   TabFrame {
     id: notebook
@@ -18,7 +21,7 @@ Window {
 
     TabBar {
       id: general
-      property string title: _("General")
+      property string title: Util._("General")
       anchors.fill: parent
 
       Item {
@@ -28,12 +31,11 @@ Window {
         anchors.right: parent.right
         height: combo_audio_player_app.height
 
-
         Label {
           id: label_audio_player
           anchors.left: parent.left
           anchors.verticalCenter: parent.verticalCenter
-          text: _("Audio player:")
+          text: Util._("Audio player:")
           verticalAlignment: Text.AlignVCenter
         }
 
@@ -44,9 +46,10 @@ Window {
           anchors.right: button_audio_player.left
         }
 
-        Button {
+        ToolButton {
           id: button_audio_player
-          text: _("Edit")
+          text: iconName ? "" : Util._("Edit")
+          iconName: "document-edit"
           anchors.verticalCenter: parent.verticalCenter
           anchors.right: parent.right
         }
@@ -63,7 +66,7 @@ Window {
           id: label_video_player
           anchors.verticalCenter: parent.verticalCenter
           anchors.left: parent.left
-          text: _("Video player:")
+          text: Util._("Video player:")
           verticalAlignment: Text.AlignVCenter
         }
 
@@ -74,9 +77,10 @@ Window {
           anchors.right: button_video_player.left
         }
 
-        Button {
+        ToolButton {
           id: button_video_player
-          text: _("Edit")
+          text: iconName ? "" : Util._("Edit")
+          iconName: "document-edit"
           anchors.verticalCenter: parent.verticalCenter
           anchors.right: parent.right
         }
@@ -86,7 +90,7 @@ Window {
 
     ScrollArea {
       id: extensions
-      property string title: _("Extensions")
+      property string title: Util._("Extensions")
       anchors.fill: parent
 
       ListView {
@@ -140,7 +144,7 @@ Window {
 
     TabBar {
       id: flattr_config
-      property string title: _("Flattr")
+      property string title: Util._("Flattr")
       anchors.fill: parent
 
       Label {
@@ -148,7 +152,7 @@ Window {
         anchors.top: parent.top
         anchors.right: parent.right
         anchors.left: parent.left
-        text: _("Please sign in with Flattr and Support Publishers")
+        text: Util._("Please sign in with Flattr and Support Publishers")
         verticalAlignment: Text.AlignVCenter
       }
 
@@ -157,7 +161,7 @@ Window {
         anchors.top: label_flattr.bottom
         anchors.right: parent.right
         anchors.left: parent.left
-        text: _("Sign in")
+        text: Util._("Sign in")
       }
 
       CheckBox {
@@ -165,19 +169,19 @@ Window {
         anchors.top: button_flattr_login.bottom
         anchors.right: parent.right
         anchors.left: parent.left
-        text: _("Automatically flattr episodes on playback")
+        text: Util._("Automatically flattr episodes on playback")
       }
     }
 
 
     TabBar {
       id: mygpo_config
-      property string title: _("Gpodder config")
+      property string title: Util._("Gpodder config")
       anchors.fill: parent
 
       CheckBox {
         id: checkbutton_enable
-        text: _("Synchronize subscriptions and episode actions")
+        text: Util._("Synchronize subscriptions and episode actions")
         anchors.top: parent.top
       }
 
@@ -191,7 +195,7 @@ Window {
 
         Label {
           id: label_username
-          text: _("Username:")
+          text: Util._("Username:")
           horizontalAlignment: Text.AlignRight
           verticalAlignment: Text.AlignVCenter
         }
@@ -202,7 +206,7 @@ Window {
 
         Label {
           id: label_password
-          text: _("Password:")
+          text: Util._("Password:")
           horizontalAlignment: Text.AlignRight
           verticalAlignment: Text.AlignVCenter
         }
@@ -213,7 +217,7 @@ Window {
 
         Label {
           id: label_caption
-          text: _("Device name:")
+          text: Util._("Device name:")
           horizontalAlignment: Text.AlignRight
           verticalAlignment: Text.AlignVCenter
         }
@@ -226,14 +230,14 @@ Window {
 
       Button {
         id: button_overwrite
-        text: _("Replace list on server with local subscriptions")
+        text: Util._("Replace list on server with local subscriptions")
         anchors.top: grid1.bottom
       }
     }
 
     TabBar {
       id: updating
-      property string title: _("Updating")
+      property string title: Util._("Updating")
       anchors.fill: parent
 
       Item {
@@ -241,7 +245,7 @@ Window {
 
         Label {
           id: label_update_interval
-          text: _("Update interval:")
+          text: Util._("Update interval:")
           anchors.top: parent.top
           anchors.left: parent.left
         }
@@ -260,7 +264,7 @@ Window {
 
         Label {
           id: label_episode_limit
-          text: _("Maximum number of episodes per podcast:")
+          text: Util._("Maximum number of episodes per podcast:")
         }
 
         SpinBox {
@@ -270,7 +274,7 @@ Window {
 
       Label {
         id: label_auto_download
-        text: _("When new episodes are found:")
+        text: Util._("When new episodes are found:")
       }
 
       ComboBox {
@@ -280,12 +284,12 @@ Window {
 
     TabBar {
       id: downloads
-      property string title: _("Downloads")
+      property string title: Util._("Downloads")
       anchors.fill: parent
 
       Label {
         id: label_expiration
-        text: _("Delete played episodes:")
+        text: Util._("Delete played episodes:")
         verticalAlignment: Text.AlignVCenter
         anchors.left: parent.left
         anchors.verticalCenter: hscale_expiration.verticalCenter
@@ -300,14 +304,14 @@ Window {
 
       CheckBox {
         id: checkbutton_expiration_unfinished
-        text: _("Remove played episodes even if unfinished")
+        text: Util._("Remove played episodes even if unfinished")
         anchors.top: hscale_expiration.bottom
         anchors.left: parent.left
       }
 
       CheckBox {
         id: checkbutton_expiration_unplayed
-        text: _("Also remove unplayed episodes")
+        text: Util._("Also remove unplayed episodes")
         anchors.top: checkbutton_expiration_unfinished.bottom
         anchors.left: parent.left
       }
@@ -315,14 +319,14 @@ Window {
 
     TabBar {
       id: devices
-      property string title: _("Devices")
+      property string title: Util._("Devices")
       anchors.fill: parent
 
       Label {
         id: label_device_type
         anchors.left: parent.left
         anchors.verticalCenter: combobox_device_type.verticalCenter
-        text: _("Device type:")
+        text: Util._("Device type:")
       }
 
       ComboBox {
@@ -336,7 +340,7 @@ Window {
         id: label_device_mount
         anchors.left: parent.left
         anchors.verticalCenter: btn_filesystemMountpoint.verticalCenter
-        text: _("Mountpoint:")
+        text: Util._("Mountpoint:")
       }
 
       ComboBox {
@@ -350,7 +354,7 @@ Window {
         id: label_on_sync
         anchors.left: parent.left
         anchors.verticalCenter: combobox_on_sync.verticalCenter
-        text: _("After syncing an episode:")
+        text: Util._("After syncing an episode:")
       }
 
       ComboBox {
@@ -363,7 +367,7 @@ Window {
         id: checkbutton_skip_played_episodes
         anchors.top: combobox_on_sync.bottom
         anchors.left: parent.left
-        text: _("Only sync unplayed episodes")
+        text: Util._("Only sync unplayed episodes")
       }
     }
   }
@@ -378,15 +382,15 @@ Window {
 
     Button {
       id: button_advanced
-      text: _("Edit config")
-      onClicked: Util.createWindow(preferences, "ConfigEditor.qml")
+      text: Util._("Edit config")
+      onClicked: controller.createWindow(preferences, "ConfigEditor.qml")
     }
 
-    Button {
+    ToolButton {
       id: button_close
-      text: _("Close")
-      iconSource: ""
-      onClicked: preferences.close()
+      text: iconName ? "" : Util._("Close")
+      iconName: "window-close"
+      onClicked: myController.close()
     }
   }
 }

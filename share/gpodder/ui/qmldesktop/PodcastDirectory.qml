@@ -1,146 +1,105 @@
 import QtQuick 1.1
 import QtDesktop 0.1
 
+import 'config.js' as Config
+import 'util.js' as Util
+
 Window {
-  width: 400
-  height: 300
+  id: podcastDirectory
+
+  width: Config.windowWidth
+  height: Config.windowHeight
+
+  property int checkboxWidth: 20
+  property int channelChooserId: 0
+  property int topPodcastsChooserId: 1
+  property int youTubeChooserId: 2
+
+  Component.onCompleted: {
+    myController.viewCreated(podcastDirectory)
+  }
+
+  function updateModel(tab, model){
+    tabGroup.tabs[tab].model = model
+  }
 
   TabFrame {
-    id: tabgroup1
-    anchors.bottom: buttonrow1.top
-    anchors.right: parent.right
-    anchors.left: parent.left
-    anchors.top: parent.top
+    id: tabGroup
+    anchors {
+      bottom: buttonrow1.top
+      right: parent.right
+      left: parent.left
+      top: parent.top
+    }
+
+    function getCurrentModel(){
+      return tabs[current].model
+    }
 
     TabBar {
       id: tabbar1
       anchors.fill: parent
-      property string title: _("&OPML/Search")
+      property string title: Util._("&OPML/Search")
+      property alias model: channelChooserList.model
+
+      Component.onCompleted: model = myController.getModel(channelChooserId)
 
       TextField {
         id: entryURL
-        anchors.right: btnDownloadOpml.left
-        anchors.left: parent.left
-        anchors.top: parent.top
+        anchors {
+          right: btnDownloadOpml.left
+          left: parent.left
+          top: parent.top
+        }
+        text: myController.getInitialOMPLUrl()
+
+        onTextChanged: {
+          btnDownloadOpml.text = myController.on_entryURL_changed(text)
+        }
       }
 
       Button {
         id: btnDownloadOpml
-        text: _("Download")
+        text: Util._("Download")
         anchors.right: parent.right
         anchors.verticalCenter: entryURL.verticalCenter
+        onClicked: {
+          myController.download_opml_file(entryURL.text)
+        }
       }
 
-      ScrollArea {
-        id: scrollarea2
-        anchors.top: entryURL.bottom
-        anchors.right: parent.right
-        anchors.bottom: parent.bottom
-        anchors.left: parent.left
+      PodcastDirecrotyList {
+        id: channelChooserList
+        anchors {
+          top: entryURL.bottom
+          right: parent.right
+          bottom: parent.bottom
+          left: parent.left
+        }
 
-        ListView {
-          id: treeviewChannelChooser
-          height: 160
-          delegate: Item {
-            x: 5
-            height: 40
-            Row {
-              id: row1
-              spacing: 10
-              Rectangle {
-                width: 40
-                height: 40
-                color: colorCode
-              }
-
-              Text {
-                text: name
-                anchors.verticalCenter: parent.verticalCenter
-                font.bold: true
-              }
-            }
-          }
-          model: ListModel {
-            ListElement {
-              name: "Grey"
-              colorCode: "grey"
-            }
-
-            ListElement {
-              name: "Red"
-              colorCode: "red"
-            }
-
-            ListElement {
-              name: "Blue"
-              colorCode: "blue"
-            }
-
-            ListElement {
-              name: "Green"
-              colorCode: "green"
-            }
-          }
+        onVisibleChanged: {
+          if (visible != false && model === undefined)
+            model = myController.getModel(channelChooserId)
         }
       }
     }
 
-
-    ScrollArea {
-      id: scrollarea1
+    PodcastDirecrotyList {
+      id:topPodcastsChooserList
       anchors.fill: parent
-      property string title: _("Top &podcasts")
+      property string title: Util._("Top &podcasts")
 
-      ListView {
-        id: treeviewTopPodcastsChooser
-        height: 160
-        delegate: Item {
-          x: 5
-          height: 40
-          Row {
-            id: row2
-            spacing: 10
-            Rectangle {
-              width: 40
-              height: 40
-              color: colorCode
-            }
-
-            Text {
-              text: name
-              anchors.verticalCenter: parent.verticalCenter
-              font.bold: true
-            }
-          }
-        }
-        model: ListModel {
-          ListElement {
-            name: "Grey"
-            colorCode: "grey"
-          }
-
-          ListElement {
-            name: "Red"
-            colorCode: "red"
-          }
-
-          ListElement {
-            name: "Blue"
-            colorCode: "blue"
-          }
-
-          ListElement {
-            name: "Green"
-            colorCode: "green"
-          }
-        }
+      onVisibleChanged: {
+        if (visible != false && model === undefined)
+          model = myController.getModel(topPodcastsChooserId)
       }
     }
 
     TabBar {
       id: tabbar2
       anchors.fill: parent
-      property string title: _("&YouTube")
+      property string title: Util._("&YouTube")
+      property alias model: youtubeList.model
 
       TextField {
         id: entryYoutubeSearch
@@ -151,61 +110,20 @@ Window {
 
       Button {
         id: btnSearchYouTube
-        text: _("Search")
+        text: Util._("Search")
         anchors.right: parent.right
         anchors.verticalCenter: entryYoutubeSearch.verticalCenter
+
+        onClicked: myController.on_searchYouTube(entryYoutubeSearch.text)
       }
 
-      ScrollArea {
-        id: scrollarea3
-        anchors.top: entryYoutubeSearch.bottom
-        anchors.right: parent.right
-        anchors.bottom: parent.bottom
-        anchors.left: parent.left
-
-        ListView {
-          id: treeviewYouTubeChooser
-          height: 160
-          delegate: Item {
-            x: 5
-            height: 40
-            Row {
-              id: row3
-              spacing: 10
-              Rectangle {
-                width: 40
-                height: 40
-                color: colorCode
-              }
-
-              Text {
-                text: name
-                anchors.verticalCenter: parent.verticalCenter
-                font.bold: true
-              }
-            }
-          }
-          model: ListModel {
-            ListElement {
-              name: "Grey"
-              colorCode: "grey"
-            }
-
-            ListElement {
-              name: "Red"
-              colorCode: "red"
-            }
-
-            ListElement {
-              name: "Blue"
-              colorCode: "blue"
-            }
-
-            ListElement {
-              name: "Green"
-              colorCode: "green"
-            }
-          }
+      PodcastDirecrotyList {
+        id: youtubeList
+        anchors {
+          top: entryYoutubeSearch.bottom
+          left: parent.left
+          right: parent.right
+          bottom: parent.bottom
         }
       }
     }
@@ -215,26 +133,31 @@ Window {
     id: buttonrow1
     anchors.right: parent.right
     anchors.bottom: parent.bottom
-    anchors.left: parent.left
 
     Button {
       id: btnSelectAll
-      text: _("Select All")
+      text: Util._("Select All")
+      onClicked: tabGroup.getCurrentModel().setCheckedAll(true)
     }
 
     Button {
       id: btnSelectNone
-      text: _("Select None")
+      text: Util._("Select None")
+      onClicked: tabGroup.getCurrentModel().setCheckedAll(false)
     }
 
-    Button {
+    ToolButton {
       id: btnCancel
-      text: _("Cancel")
+      text: iconName ? "" : Util._("Cancel")
+      iconName: "window-close"
+      onClicked: myController.close()
     }
 
-    Button {
+    ToolButton {
       id: btnOK
-      text: _("Add")
+      text: iconName ? "" : Util._("Add")
+      iconName: "list-add"
+      onClicked: myController.on_btnOK_clicked(tabGroup.getCurrentModel())
     }
   }
 }

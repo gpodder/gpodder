@@ -29,6 +29,7 @@ logger = logging.getLogger(__name__)
 
 import urllib
 
+
 class LocalCachedImageProvider(QDeclarativeImageProvider):
     IMAGE_TYPE = QDeclarativeImageProvider.ImageType.Image
 

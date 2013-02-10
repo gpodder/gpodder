@@ -1,34 +1,33 @@
 import QtQuick 1.1
 import QtDesktop 0.1
 
+import 'config.js' as Config
+import 'util.js' as Util
+
 ApplicationWindow {
   id: mainwindow
-  width: 640
-  height: 480
+  width: Config.windowWidth
+  height: Config.windowHeight
   visible: true
-
-  property variant main: mainwindow
+  SystemPalette {id: syspal}
 
   property alias podcastModel: channels.model
   property alias episodeModel: avaliableEpisodes.model
   //property alias showNotesEpisode: showNotes.episode
   property variant currentPodcast: undefined
+  property variant currentEpisode: undefined
   property bool hasPodcasts: channels.hasItems
   property alias currentFilterText: avaliableEpisodes.currentFilterText
 
   //property bool canGoBack: (main.state != 'podcasts' || contextMenu.state != 'closed' || mediaPlayer.visible) && !progressIndicator.opacity
   //property bool hasPlayButton: nowPlayingThrobber.shouldAppear && !progressIndicator.opacity
-  // property bool hasSearchButton: (contextMenu.state == 'closed' && main.state == 'podcasts') && !mediaPlayer.visible && !progressIndicator.opacity
+  //property bool hasSearchButton: (contextMenu.state == 'closed' && main.state == 'podcasts') && !mediaPlayer.visible && !progressIndicator.opacity
   //property bool hasFilterButton: state == 'episodes' && !mediaPlayer.visible
 
   property int splitterMinWidth: 200
   property int splitterMinHeight: 200
   property int strangeMargin: 20
   property int bottomMarginHack: 20
-
-  function _(x){
-    return controller.translate(x)
-  }
 
   function startProgress(message, progress){
     pbFeedUpdate.value = progress
@@ -42,10 +41,12 @@ ApplicationWindow {
   GpodderMenu {
     id: menu
     toolbarAlias: toolbar
+    currentEpisode: mainwindow.currentEpisode
   }
 
   GpodderToolBar {
     id: toolbar
+    currentEpisode: mainwindow.currentEpisode
   }
 
   TabFrame {
@@ -63,7 +64,7 @@ ApplicationWindow {
       anchors {
         fill: parent
       }
-      title: _("Podcasts")
+      title: Util._("Podcasts")
 
       SplitterRow {
         id: item2
@@ -102,21 +103,22 @@ ApplicationWindow {
           TextField {
             id: entry_search_podcasts
             anchors.right: button_search_podcasts_clear.left
-            anchors.bottom: btnUpdateFeeds.top
+            anchors.verticalCenter: button_search_podcasts_clear.verticalCenter
             anchors.left: parent.left
           }
 
-          Button {
+          ToolButton {
             id: button_search_podcasts_clear
-            iconSource: ""
-            text: _("Clear")
+            iconName: "edit-clear"
+            text: iconName ? "" : Util._("Clear")
             anchors.right: parent.right
-            anchors.verticalCenter: entry_search_podcasts.verticalCenter
+            anchors.bottom: btnUpdateFeeds.top
+            onClicked: entry_search_podcasts.text = ""
           }
 
           Button {
             id: btnUpdateFeeds
-            text: _("Check for new episodes")
+            text: Util._("Check for new episodes")
             anchors.bottom: progressRow.top
             anchors.left: parent.left
             anchors.right: parent.right
@@ -136,11 +138,13 @@ ApplicationWindow {
               anchors.verticalCenter: parent.verticalCenter
             }
 
-            Button {
+            ToolButton {
               id: btnCancelFeedUpdate
-              text: _("Cancel")
+              text: iconName ? "" : Util._("Cancel")
+              enabled: pbFeedUpdate.value
               anchors.right: parent.right
               anchors.verticalCenter: parent.verticalCenter
+              iconName: "dialog-cancel"
             }
           }
         }
@@ -160,22 +164,14 @@ ApplicationWindow {
             }
             width: parent.width
 
-            ScrollArea {
-              id: scrollarea1
-              anchors.top: parent.top
-              width: parent.width
+            EpisodeList {
               Splitter.minimumHeight: splitterMinHeight
+              id: avaliableEpisodes
+              width: episodesGroup.width - strangeMargin
 
-              EpisodeList {
-                id: avaliableEpisodes
-                anchors.top: parent.top
-                anchors.left: parent.left
-                width: episodesGroup.width - strangeMargin
-
-                onModelChanged: currentFilterText.text = ""
-                onEpisodeItemChange: toolbar.episode = episode
-                onActivateFilter: currentFilterText.focus = true
-              }
+              onModelChanged: episodeFilter.text = ""
+              onEpisodeItemChange: mainwindow.currentEpisode = episode
+              onActivateFilter: episodeFilter.focus = true
             }
 
             TextArea {
@@ -193,33 +189,34 @@ ApplicationWindow {
 
           Item {
             id: episodesFilterBox
-            height: childrenRect.height
+            height: Math.max(label_search_episodes.height, episodeFilter.height, episodeFilterClear.height)
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.bottom: parent.bottom
 
             Text {
               id: label_search_episodes
-              text: _("Filter:")
+              text: Util._("Filter:")
               anchors.left: parent.left
               verticalAlignment: Text.AlignVCenter
-              anchors.verticalCenter: button_search_episodes_clear.verticalCenter
+              anchors.verticalCenter: parent.verticalCenter
             }
 
             TextField {
-              id: currentFilterText
+              id: episodeFilter
               anchors.left: label_search_episodes.right
-              anchors.right: button_search_episodes_clear.left
-              anchors.bottom: parent.bottom
-
-              //              onTextChanged: controller.
+              anchors.right: episodeFilterClear.left
+              anchors.verticalCenter: parent.verticalCenter
+              onTextChanged: controller.setEpisodeFilter(text)
             }
 
-            Button {
-              id: button_search_episodes_clear
-              text: _("Clear")
+            ToolButton{
+              id: episodeFilterClear
+              text: iconName ? "" : Util._("Clear")
               anchors.right: parent.right
-              anchors.verticalCenter: currentFilterText.verticalCenter
+              anchors.verticalCenter: parent.verticalCenter
+              onClicked: episodeFilter.text = ""
+              iconName:  "edit-clear"
             }
           }
         }
@@ -229,7 +226,7 @@ ApplicationWindow {
     Tab {
       id: progress
       anchors.fill: parent
-      title: _("Progress")
+      title: Util._("Progress")
 
       ListView {
         id: progressList
@@ -248,7 +245,7 @@ ApplicationWindow {
 
         CheckBox {
           id: cbLimitDownloads
-          text: _("Limit rate to")
+          text: Util._("Limit rate to")
         }
 
         SpinBox {
@@ -257,12 +254,12 @@ ApplicationWindow {
 
           maximumValue: 1073741824
           value: 500
-          postfix: _("KiB/s")
+          postfix: Util._("KiB/s")
         }
 
         CheckBox {
           id: cbMaxDownloads
-          text: _("Limit downloads to")
+          text: Util._("Limit downloads to")
           checked: true
         }
 

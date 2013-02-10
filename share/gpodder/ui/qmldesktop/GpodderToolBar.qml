@@ -1,6 +1,7 @@
 import QtQuick 1.1
 import QtDesktop 0.1
-import "config.js" as Config
+
+import 'config.js' as Config
 import "util.js" as Util
 
 ToolBar {
@@ -9,7 +10,7 @@ ToolBar {
   anchors.left: parent.left
 
   property bool aboutToHide: false
-  property variant episode: undefined
+  property variant currentEpisode: undefined
 
   function toggleVisible(){
     aboutToHide = !aboutToHide
@@ -38,48 +39,52 @@ ToolBar {
 
   ToolButton {
     id: toolDownload
-    text: _("Download")
+    text: iconName ? "" : Util._("Download")
     anchors.left: parent.left
     anchors.verticalCenter: parent.verticalCenter
+    iconName: "download"
 
-    enabled: (episode!==undefined) ? (!episode.qdownloaded && !episode.qdownloading) : false
-    onClicked: controller.downloadEpisode(episode)
+    enabled: (currentEpisode!==undefined) ? (!currentEpisode.qdownloaded && !currentEpisode.qdownloading) : false
+    onClicked: controller.downloadEpisode(currentEpisode)
   }
 
   ToolButton {
     id: toolPlay
-    text: _("Play")
+    text: iconName ? "" : Util._("Play")
     anchors.left: toolDownload.right
     anchors.verticalCenter: parent.verticalCenter
+    iconName: "media-playback-start"
 
-    enabled: (episode!==undefined) ? (episode.qdownloaded) : false
-    onClicked: controller.playback_selected_episodes(episode)
+    enabled: (currentEpisode!==undefined) ? (currentEpisode.qdownloaded) : false
+    onClicked: controller.playback_selected_episodes(currentEpisode)
   }
 
   ToolButton {
     id: toolCancel
-    text: _("Cancel")
+    text: iconName ? "" : Util._("Cancel")
     anchors.left: toolPlay.right
     anchors.verticalCenter: parent.verticalCenter
 
-    enabled: (episode!==undefined) ? (!episode.qdownloaded && episode.qdownloading) : false
-
-    onClicked: controller.cancelDownload(episode)
+    enabled: (currentEpisode!==undefined) ? (!currentEpisode.qdownloaded && currentEpisode.qdownloading) : false
+    onClicked: controller.cancelDownload(currentEpisode)
+    iconName: "dialog-cancel"
   }
 
   ToolButton {
     id: toolPreferences
-    text: _("Preferences")
+    text: iconName ? "" : Util._("Preferences")
     anchors.left: toolCancel.right
     anchors.verticalCenter: parent.verticalCenter
-    onClicked: Util.createWindow(parent, "Preferences.qml")
+    onClicked: controller.createWindow(parent, "Preferences.qml")
+    iconName: "preferences-system"
   }
 
   ToolButton {
     id: toolQuit
-    text: _("Quit")
+    text: iconName ? "" : Util._("Quit")
     anchors.left: toolPreferences.right
     anchors.verticalCenter: parent.verticalCenter
     onClicked: controller.quit()
+    iconName: "application-exit"
   }
 }

@@ -28,6 +28,7 @@ from PySide import QtCore
 import logging
 logger = logging.getLogger(__name__)
 
+
 class Action(QtCore.QObject):
     def __init__(self, caption, action, target=None):
         QtCore.QObject.__init__(self)
@@ -42,38 +43,6 @@ class Action(QtCore.QObject):
         return self._caption
 
     caption = QtCore.Property(unicode, _get_caption, notify=changed)
-
-
-class QObjectProxy(object):
-    """Proxy for accessing properties and slots as attributes
-
-    This class acts as a proxy for the qmlObject for which it is
-    created, and makes property access more Pythonic while
-    still allowing access to slots (as member functions).
-
-    Attribute names starting with '_' are not proxied.
-    """
-
-    def __init__(self, root_object):
-        self._root_object = root_object
-        m = self._root_object.metaObject()
-        self._properties = [m.property(i).name() \
-                for i in range(m.propertyCount())]
-
-    def __getattr__(self, key):
-        value = self._root_object.property(key)
-
-        # No such property, so assume we call a slot
-        if value is None and key not in self._properties:
-            return getattr(self._root_object, key)
-
-        return value
-
-    def __setattr__(self, key, value):
-        if key.startswith('_'):
-            object.__setattr__(self, key, value)
-        else:
-            self._root_object.setProperty(key, value)
 
 
 class MediaButtonsHandler(QtCore.QObject):
@@ -109,6 +78,7 @@ class MediaButtonsHandler(QtCore.QObject):
     pausePressed = QtCore.Signal()
     previousPressed = QtCore.Signal()
     nextPressed = QtCore.Signal()
+
 
 class TrackerMinerConfig(QtCore.QObject):
     FILENAME = os.path.expanduser('~/.config/tracker/tracker-miner-fs.cfg')
@@ -174,4 +144,3 @@ class TrackerMinerConfig(QtCore.QObject):
         os.rename(tmp_filename, self._filename)
         self._index_podcasts = index_podcasts
         return True
-

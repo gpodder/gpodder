@@ -31,3 +31,5 @@ var offlineColor = '#4b4b4b'
 var listItemBigText = listItemHeight * .35
 var listItemSmallText = listItemHeight * .25
 
+var windowWidth = 640
+var windowHeight = 480

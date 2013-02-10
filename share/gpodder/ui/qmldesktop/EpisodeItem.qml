@@ -11,6 +11,7 @@ SelectableItem {
   // Show context menu when single-touching the icon
 //  singlePressContextMenuLeftBorder: title.x
   onSelected2: episodeList.currentIndex = index
+  width: parent.width
 
   Rectangle {
     id: downloadProgress

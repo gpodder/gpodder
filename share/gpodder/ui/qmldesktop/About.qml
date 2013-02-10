@@ -1,11 +1,15 @@
 import QtQuick 1.1
 import QtDesktop 0.1
-import "config.js" as Config
+
+import 'config.js' as Config
+import 'util.js' as Util
 
 Window {
   id: about
-  width: 400
-  height: 300
+  property variant myController: undefined
+
+  width: Config.windowWidth
+  height: Config.windowHeight
 
   Image {
     id: image1
@@ -65,14 +69,14 @@ Window {
 
     Button {
       id: btnSupport
-      text: _("Donate / Wishlist")
+      text: Util._("Donate / Wishlist")
       anchors.left: parent.left
       onClicked: Qt.openUrlExternally('http://gpodder.org/donate')
     }
 
     Button {
       id: btnBugTracker
-      text: _("Report a problem")
+      text: Util._("Report a problem")
       anchors.right: parent.right
       onClicked: Qt.openUrlExternally(Config.bugTrackerURL)
     }
@@ -96,11 +100,11 @@ Window {
 
   Button {
     id: btnClose
-    text: _("Close")
+    text: Util._("Close")
     anchors.right: parent.right
     anchors.bottom: parent.bottom
     anchors.margins: Config.smallSpacing
 
-    onClicked: about.close()
+    onClicked: myController.close()
   }
 }

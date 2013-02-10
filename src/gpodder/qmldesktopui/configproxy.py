@@ -21,6 +21,7 @@
 
 from PySide.QtCore import QObject, Signal, Property
 
+
 class ConfigProxy(QObject):
     def __init__(self, config):
         QObject.__init__(self)
@@ -29,7 +30,7 @@ class ConfigProxy(QObject):
         config.add_observer(self._on_config_changed)
 
     def _on_config_changed(self, name, old_value, new_value):
-        if name == 'ui.qml.autorotate':
+        if name == 'ui.qml_desktop.autorotate':
             self.autorotateChanged.emit()
         elif name == 'flattr.token':
             self.flattrTokenChanged.emit()
@@ -37,10 +38,10 @@ class ConfigProxy(QObject):
             self.flattrOnPlayChanged.emit()
 
     def get_autorotate(self):
-        return self._config.ui.qml.autorotate
+        return self._config.ui.qml_desktop.autorotate
 
     def set_autorotate(self, autorotate):
-        self._config.ui.qml.autorotate = autorotate
+        self._config.ui.qml_desktop.autorotate = autorotate
 
     autorotateChanged = Signal()
 

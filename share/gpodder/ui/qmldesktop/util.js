@@ -1,4 +1,8 @@
 
+function _(x){
+  return controller.translate(x)
+}
+
 function formatDuration(duration) {
   var h = parseInt(duration / 3600) % 24
   var m = parseInt(duration / 60) % 60
@@ -19,18 +23,4 @@ function formatCoverURL(podcast) {
   return ('image://cover/' + escape(cover_file) + '|' +
           escape(cover_url) + '|' + escape(podcast_url) + '|' +
           escape(podcast_title));
-}
-
-function createWindow(owner, filename){
-  var component = Qt.createComponent(filename);
-  var sprite = component.createObject(owner);
-
-  if (sprite == null) {
-    // Error Handling
-    console.log("Error creating object");
-    return false
-  }
-  sprite.visible = true
-
-  return true
 }

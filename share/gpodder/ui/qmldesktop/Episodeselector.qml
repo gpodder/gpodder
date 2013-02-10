@@ -1,13 +1,18 @@
 import QtQuick 1.1
 import QtDesktop 0.1
 
+import 'config.js' as Config
+import 'util.js' as Util
+
 Window {
-  width: 400
-  height: 300
+  property variant myController: undefined
+
+  width: Config.windowWidth
+  height: Config.windowHeight
 
   Label {
     id: labelInstructions
-    text: _("additional text")
+    text: Util._("additional text")
     anchors.right: parent.right
     anchors.left: parent.left
     anchors.top: parent.top
@@ -74,12 +79,12 @@ Window {
 
     Button {
       id: btnCheckAll
-      text: _("Select all")
+      text: Util._("Select all")
     }
 
     Button {
       id: btnCheckNone
-      text: _("Select none")
+      text: Util._("Select none")
     }
   }
 
@@ -91,17 +96,18 @@ Window {
 
     Button {
       id: btnRemoveAction
-      text: _("Remove")
+      text: Util._("Remove")
     }
 
     Button {
       id: btnCancel
-      text: _("Cancel")
+      text: Util._("Cancel")
+      onClicked: myController.close()
     }
 
     Button {
       id: btnOK
-      text: _("OK")
+      text: Util._("OK")
     }
   }
 }

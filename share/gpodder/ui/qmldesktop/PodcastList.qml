@@ -1,6 +1,8 @@
 import QtQuick 1.1
 import QtDesktop 0.1
+
 import 'config.js' as Config
+import 'util.js' as Util
 
 Item {
   id: podcastList
@@ -21,7 +23,7 @@ Item {
     id: addFirstPodcast
     color: '#aaa'
     horizontalAlignment: Text.AlignHCenter
-    text: _('No podcasts.') + '\n' + _('Add your first podcast now.')
+    text: Util._("No podcasts.") + '\n' + Util._("Add your first podcast now.")
     visible: !listView.visible
 
     MouseArea {
@@ -32,7 +34,7 @@ Item {
 
   Button {
     visible: !listView.visible
-    text: _('Add a new podcast')
+    text: Util._("Add a new podcast")
     onClicked: podcastList.subscribe()
     anchors {
       top: addFirstPodcast.bottom
@@ -46,14 +48,21 @@ Item {
 
   ListView {
     id: listView
-    height: contentHeight
     width: parent.width
     visible: count > 1
     interactive: false
+    clip: true
+    property int sectionHeight: Config.headerHeight
+
+    onCountChanged: {
+      height = contentHeight + model.sectionCount() * sectionHeight
+    }
+
+    anchors.top: parent.top
 
     highlightFollowsCurrentItem : true
     highlight: Rectangle {
-      color: "lightsteelblue"
+      color: syspal.highlight
       width: listView.width
     }
     highlightMoveDuration: Config.fadeTransition
@@ -61,7 +70,8 @@ Item {
 
     section.property: 'section'
     section.delegate: Label {
-      height: Config.headerHeight
+      id: sectionDelegate
+      height: listView.sectionHeight
       text: section
       font.bold: true
       verticalAlignment: Text.AlignBottom

@@ -2,10 +2,14 @@ import QtQuick 1.1
 import QtDesktop 0.1
 import QtWebKit 1.0
 
-Window {
-  width: 400
-  height: 300
+import 'config.js' as Config
+import 'util.js' as Util
 
+Window {
+  property variant myController: undefined
+
+  width: Config.windowWidth
+  height: Config.windowHeight
 
   ScrollArea {
     id: scrolledwindow_web
@@ -21,9 +25,10 @@ Window {
 
   Button {
     id: btn_close
-    text: _("Cancel")
+    text: Util._("Cancel")
     anchors.right: parent.right
     anchors.bottom: parent.bottom
     anchors.left: parent.left
+    onClicked: myController.close()
   }
 }
