@@ -1672,7 +1672,8 @@ def osx_get_active_interfaces():
     empty list if the device is offline. The loopback
     interface is not included.
     """
-    stdout = subprocess.check_output(['ifconfig'])
+    process = subprocess.Popen(['ifconfig'], stdout=subprocess.PIPE)
+    stdout, _ = process.communicate()
     for i in re.split('\n(?!\t)', stdout, re.MULTILINE):
         b = re.match('(\\w+):.*status: active$', i, re.MULTILINE | re.DOTALL)
         if b:
@@ -1685,7 +1686,8 @@ def unix_get_active_interfaces():
     empty list if the device is offline. The loopback
     interface is not included.
     """
-    stdout = subprocess.check_output(['ifconfig'])
+    process = subprocess.Popen(['ifconfig'], stdout=subprocess.PIPE)
+    stdout, _ = process.communicate()
     for i in re.split('\n(?!\t)', stdout, re.MULTILINE):
         b = re.match('(\\w+):.*status: active$', i, re.MULTILINE | re.DOTALL)
         if b:
@@ -1706,15 +1708,29 @@ def connection_available():
         elif gpodder.ui.osx:
             return len(list(osx_get_active_interfaces())) > 0
         else:
-            if len(list(unix_get_active_interfaces())) > 0:
-                return True
-            elif len(list(linux_get_active_interfaces())) > 0:
-                return True
+            # By default, we assume we're not offline (bug 1730)
+            offline = False
+
+            if find_command('ifconfig') is not None:
+                # If ifconfig is available, and it says we don't have
+                # any active interfaces, assume we're offline
+                if len(list(unix_get_active_interfaces())) == 0:
+                    offline = True
+
+            # If we assume we're offline, try the "ip" command as fallback
+            if offline and find_command('ip') is not None:
+                if len(list(linux_get_active_interfaces())) == 0:
+                    offline = True
+                else:
+                    offline = False
+
+            return not offline
 
         return False
     except Exception, e:
         logger.warn('Cannot get connection status: %s', e, exc_info=True)
-        return False
+        # When we can't determine the connection status, act as if we're online (bug 1730)
+        return True
 
 
 def website_reachable(url):

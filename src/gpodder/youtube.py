@@ -25,6 +25,8 @@ import gpodder
 
 from gpodder import util
 
+import os.path
+
 import logging
 logger = logging.getLogger(__name__)
 
@@ -220,7 +222,7 @@ def find_youtube_channels(string):
 
     seen_users = set()
     for entry in data['feed']['entry']:
-        user = entry['author'][0]['name']['$t']
+        user = os.path.basename(entry['author'][0]['uri']['$t'])
         title = entry['title']['$t']
         url = 'http://www.youtube.com/rss/user/%s/videos.rss' % user
         if user not in seen_users:
