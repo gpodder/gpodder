@@ -29,7 +29,8 @@ DefaultConfig = {
 }
 
 class gPodderExtension:
-    MIME_TYPES = ['audio/x-m4a', 'audio/mp4']
+    MIME_TYPES = ['audio/x-m4a', 'audio/mp4', 'audio/mp4a-latm']
+    EXT = '.m4a'
 
     def __init__(self, container):
         self.container = container
@@ -41,6 +42,16 @@ class gPodderExtension:
     def on_episode_downloaded(self, episode):
         self._convert_episode(episode)
 
+    def _check_mp4(self, episode):
+        if episode.mime_type in self.MIME_TYPES:
+            return True
+
+        # Also check file extension (bug 1770)
+        if episode.extension() == self.EXT:
+            return True
+
+        return False
+
     def on_episodes_context_menu(self, episodes):
         if not self.config.context_menu:
             return None
@@ -48,7 +59,7 @@ class gPodderExtension:
         if not all(e.was_downloaded(and_exists=True) for e in episodes):
             return None
 
-        if not any(e.mime_type in self.MIME_TYPES for e in episodes):
+        if not any(self._check_mp4(episode) for e in episodes):
             return None
 
         target_format = ('OGG' if self.config.use_ogg else 'MP3')
@@ -57,7 +68,9 @@ class gPodderExtension:
         return [(menu_item, self._convert_episodes)]
 
     def _convert_episode(self, episode):
-        if episode.mime_type not in self.MIME_TYPES:
+        old_filename = episode.local_filename(create=False)
+
+        if not self._check_mp4(episode):
             return
 
         if self.config.use_ogg:
@@ -65,7 +78,6 @@ class gPodderExtension:
         else:
             extension = '.mp3'
 
-        old_filename = episode.local_filename(create=False)
         filename, old_extension = os.path.splitext(old_filename)
         new_filename = filename + extension
 
