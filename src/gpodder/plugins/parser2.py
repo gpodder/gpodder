@@ -82,10 +82,10 @@ class PodcastParserFeed(object):
         return self.parsed.get('cover_url')
 
     def get_link(self):
-        return self.parsed['link']
+        return self.parsed.get('link', '')
 
     def get_description(self):
-        return self.parsed['description']
+        return self.parsed.get('description', '')
 
     def get_payment_url(self):
         return self.parsed.get('payment_url')
