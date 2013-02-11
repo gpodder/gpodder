@@ -121,6 +121,10 @@ def main():
 
     options, args = parser.parse_args(sys.argv)
 
+    if gpodder.ui.harmattan:
+        # gPodder bug 1464, see also http://wiki.meego.com/AddVolumeControlSupport
+        os.environ['PULSE_PROP_media.role'] = 'x-maemo'
+
     if options.qml or gpodder.ui.harmattan:
         gpodder.ui.qml = True
     else:
