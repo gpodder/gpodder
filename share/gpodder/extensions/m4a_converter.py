@@ -29,7 +29,8 @@ DefaultConfig = {
 }
 
 class gPodderExtension:
-    MIME_TYPES = ['audio/x-m4a', 'audio/mp4']
+    MIME_TYPES = ['audio/x-m4a', 'audio/mp4', 'audio/mp4a-latm']
+    EXT = '.m4a'
 
     def __init__(self, container):
         self.container = container
@@ -48,7 +49,10 @@ class gPodderExtension:
         if not all(e.was_downloaded(and_exists=True) for e in episodes):
             return None
 
-        if not any(e.mime_type in self.MIME_TYPES for e in episodes):
+        # add additional file-extension check (#bug1770)
+        mimecheck = [e.mime_type in self.MIME_TYPES for e in episodes]
+        extcheck = [e.local_filename(create=False).endswith(self.EXT) for e in episodes]
+        if not any(mimecheck + extcheck):
             return None
 
         target_format = ('OGG' if self.config.use_ogg else 'MP3')
@@ -57,7 +61,10 @@ class gPodderExtension:
         return [(menu_item, self._convert_episodes)]
 
     def _convert_episode(self, episode):
-        if episode.mime_type not in self.MIME_TYPES:
+        old_filename = episode.local_filename(create=False)
+
+        # add additional file-extension check (#bug1770)
+        if episode.mime_type not in self.MIME_TYPES and not old_filename.endswith(self.EXT):
             return
 
         if self.config.use_ogg:
@@ -65,11 +72,10 @@ class gPodderExtension:
         else:
             extension = '.mp3'
 
-        old_filename = episode.local_filename(create=False)
         filename, old_extension = os.path.splitext(old_filename)
         new_filename = filename + extension
 
-        cmd = ['ffmpeg', '-i', old_filename, '-sameq', new_filename]
+        cmd = ['ffmpeg', '-i', old_filename, '-qscale', '2', new_filename]
         ffmpeg = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE)
         stdout, stderr = ffmpeg.communicate()

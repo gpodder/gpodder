@@ -61,7 +61,7 @@ class gPodderExtension:
         filename, old_extension = os.path.splitext(old_filename)
         new_filename = filename + self.TARGET_EXT
 
-        cmd = ['ffmpeg', '-i', old_filename, '-sameq', new_filename]
+        cmd = ['ffmpeg', '-i', old_filename, '-qscale', '2', new_filename]
         ffmpeg = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE)
         stdout, stderr = ffmpeg.communicate()
