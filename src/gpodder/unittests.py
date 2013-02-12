@@ -67,8 +67,17 @@ for module in test_modules:
     suite.addTest(unittest.defaultTestLoader.loadTestsFromModule(test_mod))
     coverage_modules.append(coverage_mod)
 
-
-runner = unittest.TextTestRunner(verbosity=2)
+try:
+    # If you want a HTML-based test report, install HTMLTestRunner from:
+    # http://tungwaiyip.info/software/HTMLTestRunner.html
+    import HTMLTestRunner
+    REPORT_FILENAME = 'test_report.html'
+    runner = HTMLTestRunner.HTMLTestRunner(stream=open(REPORT_FILENAME, 'w'))
+    print """
+    HTML Test Report will be written to %s
+    """ % REPORT_FILENAME
+except ImportError:
+    runner = unittest.TextTestRunner(verbosity=2)
 
 try:
     import coverage
