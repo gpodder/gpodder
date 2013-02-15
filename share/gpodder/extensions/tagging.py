@@ -44,6 +44,7 @@ __category__ = 'post-download'
 DefaultConfig = {
     'strip_album_from_title': True,
     'genre_tag': 'Podcast',
+    'always_remove_tags': False,
 }
 
 
@@ -98,24 +99,28 @@ class gPodderExtension:
         if audio is None:
             return
 
-        # write title+album information into audio files
-        if audio.tags is None:
-            audio.add_tags()
-
-        # write album+title
-        if info['album'] is not None:
-            audio.tags['album'] = info['album']
-        if info['title'] is not None:
-            audio.tags['title'] = info['title']
-
-        # write genre tag
-        if self.container.config.genre_tag is not None:
-            audio.tags['genre'] = self.container.config.genre_tag
+        if self.container.config.always_remove_tags:
+            if audio.tags is not None:
+                audio.delete()
         else:
-            audio.tags['genre'] = ''
+            # write title+album information into audio files
+            if audio.tags is None:
+                audio.add_tags()
 
-        # write pubDate
-        if info['pubDate'] is not None:
-            audio.tags['date'] = info['pubDate']
+            # write album+title
+            if info['album'] is not None:
+                audio.tags['album'] = info['album']
+            if info['title'] is not None:
+                audio.tags['title'] = info['title']
+
+            # write genre tag
+            if self.container.config.genre_tag is not None:
+                audio.tags['genre'] = self.container.config.genre_tag
+            else:
+                audio.tags['genre'] = ''
+
+            # write pubDate
+            if info['pubDate'] is not None:
+                audio.tags['date'] = info['pubDate']
 
         audio.save()
