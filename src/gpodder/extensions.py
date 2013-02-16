@@ -200,11 +200,33 @@ class ExtensionContainer(object):
         self.metadata = ExtensionMetadata(self, self._load_metadata(filename))
 
     def require_command(self, command):
+        """Checks if the given command is installed on the system
+
+        Returns the complete path of the command
+
+        @param command: String with the command name
+        """
         result = util.find_command(command)
         if result is None:
             msg = _('Command not found: %(command)s') % {'command': command}
             raise MissingCommand(msg, command)
         return result
+
+    def require_any_command(self, command_list):
+        """Checks if any of the given commands is installed on the system
+
+        Returns the complete path of first found command in the list
+
+        @param command: List with the commands name
+        """
+        for command in command_list:
+            result = util.find_command(command)
+            if result is not None:
+                return result
+
+        msg = _('Need at least one of the following commands: %(list_of_commands)s') % \
+            {'list_of_commands': ', '.join(command_list)}
+        raise MissingCommand(msg, ', '.join(command_list))
 
     def _load_metadata(self, filename):
         if not filename or not os.path.exists(filename):
