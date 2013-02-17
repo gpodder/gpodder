@@ -1,135 +1,33 @@
-# -*- coding: utf-8 -*-
-#
-# gPodder - A media aggregator and podcast client
-# Copyright (c) 2005-2012 Thomas Perl and the gPodder Team
-#
-# gPodder is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 3 of the License, or
-# (at your option) any later version.
-#
-# gPodder is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
 
-# gpodder.qmlui - gPodder's QML interface
-# Thomas Perl <thp@gpodder.org>; 2011-02-06
-
-
-from PySide.QtGui import QApplication
-from PySide.QtCore import Qt, QObject, Signal, Slot, Property, QUrl
-from PySide.QtCore import QAbstractListModel, QModelIndex
-from PySide.QtDeclarative import QDeclarativeView
-
+import functools
 import os
 import signal
-import functools
-import itertools
 import subprocess
 
-import dbus
-import dbus.service
-
-from dbus.mainloop.glib import DBusGMainLoop
-
+from PySide.QtCore import Property
+from PySide.QtCore import QObject
+from PySide.QtCore import Signal
+from PySide.QtCore import Slot
+from PySide.QtGui import QApplication
 
 import gpodder
-
-_ = gpodder.gettext
-N_ = gpodder.ngettext
-
-from gpodder import core
-from gpodder import util
-from gpodder import my
-from gpodder import query
 from gpodder import common
+from gpodder import my
+from gpodder import util
 
-from gpodder.model import Model
-
-from gpodder.qmlui import model
-from gpodder.qmlui import helper
-from gpodder.qmlui import images
+from gpodder import qml
+from gpodder.qml import helper
+from gpodder.qml.common import _, N_, EPISODE_LIST_FILTERS
+from gpodder.qml.configproxy import ConfigProxy
 
 import logging
-logger = logging.getLogger("qmlui")
+logger = logging.getLogger(__name__)
 
 
-EPISODE_LIST_FILTERS = [
-    # (UI label, EQL expression)
-    (_('All'), None),
-    (_('Hide deleted'), 'not deleted'),
-    (_('New'), 'new or downloading'),
-    (_('Downloaded'), 'downloaded or downloading'),
-    (_('Deleted'), 'deleted'),
-    (_('Finished'), 'finished'),
-    (_('Archived'), 'downloaded and archive'),
-    (_('Videos'), 'video'),
-    (_('Partially played'), 'downloaded and played and not finished'),
-    (_('Unplayed downloads'), 'downloaded and not played'),
-]
-
-EPISODE_LIST_LIMIT = 200
-
-def grouped(iterable, n):
-    return itertools.izip(*[iter(iterable)]*n)
-
-class ConfigProxy(QObject):
-    def __init__(self, config):
-        QObject.__init__(self)
-        self._config = config
-
-        config.add_observer(self._on_config_changed)
-
-    def _on_config_changed(self, name, old_value, new_value):
-        if name == 'ui.qml.autorotate':
-            self.autorotateChanged.emit()
-        elif name == 'flattr.token':
-            self.flattrTokenChanged.emit()
-        elif name == 'flattr.flattr_on_play':
-            self.flattrOnPlayChanged.emit()
-
-    def get_autorotate(self):
-        return self._config.ui.qml.autorotate
-
-    def set_autorotate(self, autorotate):
-        self._config.ui.qml.autorotate = autorotate
-
-    autorotateChanged = Signal()
-
-    autorotate = Property(bool, get_autorotate, set_autorotate,
-            notify=autorotateChanged)
-
-    def get_flattr_token(self):
-        return self._config.flattr.token
-
-    def set_flattr_token(self, flattr_token):
-        self._config.flattr.token = flattr_token
-
-    flattrTokenChanged = Signal()
-
-    flattrToken = Property(unicode, get_flattr_token, set_flattr_token,
-            notify=flattrTokenChanged)
-
-    def get_flattr_on_play(self):
-        return self._config.flattr.flattr_on_play
-
-    def set_flattr_on_play(self, flattr_on_play):
-        self._config.flattr.flattr_on_play = flattr_on_play
-
-    flattrOnPlayChanged = Signal()
-
-    flattrOnPlay = Property(bool, get_flattr_on_play, set_flattr_on_play,
-            notify=flattrOnPlayChanged)
-
-
-class Controller(QObject):
+class CommonController(QObject):
     def __init__(self, root):
         QObject.__init__(self)
+
         self.root = root
         self.context_menu_actions = []
         self.episode_list_title = u''
@@ -215,7 +113,9 @@ class Controller(QObject):
 
         @util.run_in_background
         def get_flattr_info():
-            flattrs, flattred = self._flattr.get_thing_info(episode.payment_url)
+            flattrs, flattred = self._flattr.get_thing_info(
+                                    episode.payment_url
+                                )
 
             if flattred:
                 self.setFlattrButtonText(_('Flattred (%(count)d)') % {
@@ -289,7 +189,12 @@ class Controller(QObject):
             self.root.episode_model.sort()
 
         if action == 'delete':
-            msg = N_('Delete %(count)d episode?', 'Delete %(count)d episodes?', count) % {'count':count}
+            msg = N_(
+                'Delete %(count)d episode?',
+                'Delete %(count)d episodes?',
+                count
+                ) % {'count': count}
+
             self.confirm_action(msg, _('Delete'), delete)
         elif action == 'download':
             for episode in episodes:
@@ -325,7 +230,10 @@ class Controller(QObject):
 
     @Slot(result=unicode)
     def getCredits(self):
-        credits_file = os.path.join(gpodder.prefix, 'share', 'gpodder', 'credits.txt')
+        credits_file = os.path.join(
+            gpodder.prefix, 'share', 'gpodder', 'credits.txt'
+        )
+
         return util.convert_bytes(open(credits_file).read())
 
     @Slot(result=unicode)
@@ -396,7 +304,9 @@ class Controller(QObject):
                     self.root.mygpo_client.set_subscriptions([podcast.url
                         for podcast in self.root.podcast_model.get_podcasts()])
                 except Exception, e:
-                    self.root.show_message('\n'.join((_('Error on upload:'), unicode(e))))
+                    self.root.show_message(
+                        '\n'.join((_('Error on upload:'), unicode(e)))
+                    )
             finally:
                 self.root.end_progress()
 
@@ -422,7 +332,7 @@ class Controller(QObject):
     myGpoUsernameChanged = Signal()
 
     def getMyGpoUsername(self):
-        return model.convert(self.root.config.mygpo.username)
+        return qml.model.convert(self.root.config.mygpo.username)
 
     def setMyGpoUsername(self, username):
         self.root.config.mygpo.username = username
@@ -433,7 +343,7 @@ class Controller(QObject):
     myGpoPasswordChanged = Signal()
 
     def getMyGpoPassword(self):
-        return model.convert(self.root.config.mygpo.password)
+        return qml.model.convert(self.root.config.mygpo.password)
 
     def setMyGpoPassword(self, password):
         self.root.config.mygpo.password = password
@@ -444,7 +354,7 @@ class Controller(QObject):
     myGpoDeviceCaptionChanged = Signal()
 
     def getMyGpoDeviceCaption(self):
-        return model.convert(self.root.config.mygpo.device.caption)
+        return qml.model.convert(self.root.config.mygpo.device.caption)
 
     def setMyGpoDeviceCaption(self, caption):
         self.root.config.mygpo.device.caption = caption
@@ -456,17 +366,25 @@ class Controller(QObject):
     def podcastContextMenu(self, podcast):
         menu = []
 
-        if isinstance(podcast, model.EpisodeSubsetView):
+        if isinstance(podcast, qml.model.EpisodeSubsetView):
             menu.append(helper.Action(_('Update all'), 'update-all', podcast))
         else:
             menu.append(helper.Action(_('Update'), 'update', podcast))
-            menu.append(helper.Action(_('Mark episodes as old'), 'mark-as-read', podcast))
+            menu.append(helper.Action(
+                _('Mark episodes as old'), 'mark-as-read', podcast
+            ))
             menu.append(helper.Action(_('Rename'), 'rename-podcast', podcast))
-            menu.append(helper.Action(_('Change section'), 'change-section', podcast))
-            menu.append(helper.Action(_('Unsubscribe'), 'unsubscribe', podcast))
+            menu.append(helper.Action(
+                _('Change section'), 'change-section', podcast
+            ))
+            menu.append(helper.Action(
+                _('Unsubscribe'), 'unsubscribe', podcast
+            ))
 
-        #menu.append(helper.Action('Force update all', 'force-update-all', podcast))
-        #menu.append(helper.Action('Force update', 'force-update', podcast))
+        # menu.append(helper.Action(
+        #    'Force update all', 'force-update-all', podcast
+        # ))
+        # menu.append(helper.Action('Force update', 'force-update', podcast))
 
         self.show_context_menu(menu)
 
@@ -487,7 +405,7 @@ class Controller(QObject):
         # so that all subset views (e.g. "All episodes") can
         # update its status (i.e. download/new counts, etc..)
         for podcast in self.root.podcast_model.get_objects():
-            if isinstance(podcast, model.EpisodeSubsetView):
+            if isinstance(podcast, qml.model.EpisodeSubsetView):
                 podcast.qupdate()
 
     def find_episode(self, podcast_url, episode_url):
@@ -517,7 +435,9 @@ class Controller(QObject):
                 return self.find_episode(podcast_url, episode_url)
 
             try:
-                d = {'x': 0} # Used to "remember" the counter inside find_episode
+                # Used to "remember" the counter inside find_episode
+                d = {'x': 0}
+
                 self.root.mygpo_client.process_episode_actions(lambda x, y:
                         find_episode(x, y, d))
             finally:
@@ -565,7 +485,9 @@ class Controller(QObject):
             self.updateAllPodcasts()
         elif action.action == 'force-update-all':
             for podcast in self.root.podcast_model.get_objects():
-                podcast.qupdate(force=True, finished_callback=self.update_subset_stats)
+                podcast.qupdate(
+                    force=True, finished_callback=self.update_subset_stats
+                )
         if action.action == 'unsubscribe':
             def unsubscribe():
                 action.target.remove_downloaded()
@@ -672,7 +594,8 @@ class Controller(QObject):
     @Slot(QObject)
     def downloadEpisode(self, episode):
         episode.qdownload(self.root.config, self.update_subset_stats,
-                self.root.episodeUpdated.emit)
+                self.root.episodeUpdated.emit
+        )
         self.root.mygpo_client.on_download([episode])
         self.root.mygpo_client.flush()
 
@@ -714,13 +637,19 @@ class Controller(QObject):
         toggle_new = _('Mark as old') if episode.is_new else _('Mark as new')
         menu.append(helper.Action(toggle_new, 'episode-toggle-new', episode))
 
-        toggle_archive = _('Allow deletion') if episode.archive else _('Archive')
-        menu.append(helper.Action(toggle_archive, 'episode-toggle-archive', episode))
+        toggle_archive = \
+            _('Allow deletion') if episode.archive else _('Archive')
+
+        menu.append(helper.Action(
+            toggle_archive, 'episode-toggle-archive', episode
+        ))
 
         if episode.state != gpodder.STATE_DELETED:
             menu.append(helper.Action(_('Delete'), 'episode-delete', episode))
 
-        menu.append(helper.Action(_('Add to play queue'), 'episode-enqueue', episode))
+        menu.append(helper.Action(
+            _('Add to play queue'), 'episode-enqueue', episode
+        ))
 
         self.show_context_menu(menu)
 
@@ -728,7 +657,7 @@ class Controller(QObject):
     def addSubscriptions(self, urls):
         def not_yet_subscribed(url):
             for podcast in self.root.podcast_model.get_objects():
-                if isinstance(podcast, model.EpisodeSubsetView):
+                if isinstance(podcast, qml.model.EpisodeSubsetView):
                     continue
 
                 if podcast.url == url:
@@ -745,12 +674,17 @@ class Controller(QObject):
             try:
                 for idx, url in enumerate(urls):
                     print idx, url
-                    self.root.start_progress(_('Adding podcasts...') + ' (%d/%d)' % (idx, len(urls)))
+                    self.root.start_progress(
+                        _('Adding podcasts...') + ' (%d/%d)' % (idx, len(urls))
+                    )
                     try:
-                        podcast = self.root.model.load_podcast(url=url, create=True,
-                                max_episodes=self.root.config.max_episodes_per_feed)
+                        podcast = self.root.model.load_podcast(
+                            url=url,
+                            create=True,
+                            max_episodes=self.root.config.max_episodes_per_feed
+                        )
                         podcast.save()
-                        self.root.insert_podcast(model.QPodcast(podcast))
+                        self.root.insert_podcast(qml.model.QPodcast(podcast))
                     except Exception, e:
                         logger.warn('Cannot add pocast: %s', e)
                         # XXX: Visual feedback in the QML UI
@@ -772,181 +706,7 @@ class Controller(QObject):
         self.root.view.showMinimized()
 
 
-class gPodderListModel(QAbstractListModel):
-    def __init__(self, objects=None):
-        QAbstractListModel.__init__(self)
-        if objects is None:
-            objects = []
-        self._objects = objects
-        self.setRoleNames({0: 'modelData', 1: 'section'})
-
-    def sort(self):
-        # Unimplemented for the generic list model
-        self.reset()
-
-    def insert_object(self, o):
-        self._objects.append(o)
-        self.sort()
-
-    def remove_object(self, o):
-        self._objects.remove(o)
-        self.reset()
-
-    def set_objects(self, objects):
-        self._objects = objects
-        self.sort()
-
-    def get_objects(self):
-        return self._objects
-
-    def get_object(self, index):
-        return self._objects[index.row()]
-
-    def rowCount(self, parent=QModelIndex()):
-        return len(self.get_objects())
-
-    def data(self, index, role):
-        if index.isValid():
-            if role == 0:
-                return self.get_object(index)
-            elif role == 1:
-                return self.get_object(index).qsection
-        return None
-
-class gPodderPodcastListModel(gPodderListModel):
-    def set_podcasts(self, db, podcasts):
-        views = [
-            model.EpisodeSubsetView(db, self, _('All episodes'), ''),
-        ]
-        self.set_objects(views + podcasts)
-
-    def get_podcasts(self):
-        return filter(lambda podcast: isinstance(podcast, model.QPodcast),
-                self.get_objects())
-
-    def sort(self):
-        self._objects = sorted(self._objects, key=model.QPodcast.sort_key)
-        self.reset()
-
-class gPodderEpisodeListModel(gPodderListModel):
-    def __init__(self, config, root):
-        gPodderListModel.__init__(self)
-        self._filter = config.ui.qml.state.episode_list_filter
-        self._filtered = []
-        self._processed = []
-        self._is_subset_view = False
-
-        self._config = config
-        self._root = root
-        config.add_observer(self._on_config_changed)
-
-    is_subset_view_changed = Signal()
-
-    def get_is_subset_view(self):
-        return self._is_subset_view
-
-    def set_is_subset_view(self, is_subset_view):
-        if is_subset_view != self.is_subset_view:
-            self._is_subset_view = is_subset_view
-            self.is_subset_view_changed.emit()
-
-    is_subset_view = Property(bool, get_is_subset_view,
-            set_is_subset_view, notify=is_subset_view_changed)
-
-    def _on_config_changed(self, name, old_value, new_value):
-        if name == 'ui.qml.state.episode_list_filter':
-            self._filter = new_value
-            self.sort()
-
-    def sort(self):
-        self._root.main.clearEpisodeListModel()
-
-        @util.run_in_background
-        def filter_and_load_episodes():
-            caption, eql = EPISODE_LIST_FILTERS[self._filter]
-
-            if eql is None:
-                self._filtered = self._objects
-            else:
-                eql = query.EQL(eql)
-                match = lambda episode: eql.match(episode._episode)
-                self._filtered = filter(match, self._objects)
-
-            def to_dict(episode):
-                return {
-                    'episode_id': episode._episode.id,
-
-                    'episode': episode,
-
-                    'title': episode.qtitle,
-                    'podcast': episode.qpodcast,
-                    'cover_url': episode.qpodcast.qcoverart,
-                    'filetype': episode.qfiletype,
-
-                    'duration': episode.qduration,
-                    'downloading': episode.qdownloading,
-                    'position': episode.qposition,
-                    'progress': episode.qprogress,
-                    'downloaded': episode.qdownloaded,
-                    'isnew': episode.qnew,
-                    'archive': episode.qarchive,
-                }
-
-            processed = map(to_dict, self._filtered[:EPISODE_LIST_LIMIT])
-            self._root.setEpisodeListModel.emit(processed)
-
-            # Keep a reference here to avoid crashes
-            self._processed = processed
-
-    def get_objects(self):
-        return self._filtered
-
-    def get_object(self, index):
-        return self._filtered[index.row()]
-
-    @Slot(int, result=QObject)
-    def get_object_by_index(self, index):
-        return self._filtered[int(index)]
-
-    @Slot(result=int)
-    def getFilter(self):
-        return self._filter
-
-    @Slot(int)
-    def setFilter(self, filter_index):
-        self._config.ui.qml.state.episode_list_filter = filter_index
-
-
-def QML(filename):
-    for folder in gpodder.ui_folders:
-        filename = os.path.join(folder, filename)
-        if os.path.exists(filename):
-            return filename
-
-import time
-
-class DeclarativeView(QDeclarativeView):
-    def __init__(self):
-        QDeclarativeView.__init__(self)
-        self.setAttribute(Qt.WA_OpaquePaintEvent)
-        self.setAttribute(Qt.WA_NoSystemBackground)
-        self.viewport().setAttribute(Qt.WA_OpaquePaintEvent)
-        self.viewport().setAttribute(Qt.WA_NoSystemBackground)
-
-#    def paintEvent(self, event):
-#        old = time.time()
-#        QDeclarativeView.paintEvent(self, event)
-#        fps = 1. / (time.time() - old)
-#        if fps < 60:
-#            print 'FPS: %2.0f' % fps
-
-    closing = Signal()
-
-    def closeEvent(self, event):
-        self.closing.emit()
-        event.ignore()
-
-class qtPodder(QObject):
+class CommonQtPodder(QObject):
     def __init__(self, args, gpodder_core, dbus_bus_name):
         QObject.__init__(self)
 
@@ -957,8 +717,6 @@ class qtPodder(QObject):
         self.app = QApplication(args)
         signal.signal(signal.SIGINT, signal.SIG_DFL)
         self.quit.connect(self.on_quit)
-        self.episodeUpdated.connect(self.on_episode_updated)
-        self.setEpisodeListModel.connect(self.on_set_episode_list_model)
 
         self.core = gpodder_core
         self.config = self.core.config
@@ -972,70 +730,8 @@ class qtPodder(QObject):
 
         gpodder.user_extensions.on_ui_initialized(self.model,
                 self.extensions_podcast_update_cb,
-                self.extensions_episode_download_cb)
-
-        self.view = DeclarativeView()
-        self.view.closing.connect(self.on_quit)
-        self.view.setResizeMode(QDeclarativeView.SizeRootObjectToView)
-
-        self.controller = Controller(self)
-        self.media_buttons_handler = helper.MediaButtonsHandler()
-        self.tracker_miner_config = helper.TrackerMinerConfig()
-        self.podcast_model = gPodderPodcastListModel()
-        self.episode_model = gPodderEpisodeListModel(self.config, self)
-        self.last_episode = None
-
-        # A dictionary of episodes that are currently active
-        # in some way (i.e. playing back or downloading)
-        self.active_episode_wrappers = {}
-
-        engine = self.view.engine()
-
-        # Add the cover art image provider
-        self.cover_provider = images.LocalCachedImageProvider()
-        engine.addImageProvider('cover', self.cover_provider)
-
-        root_context = self.view.rootContext()
-        root_context.setContextProperty('controller', self.controller)
-        root_context.setContextProperty('configProxy', self.config_proxy)
-        root_context.setContextProperty('mediaButtonsHandler',
-                self.media_buttons_handler)
-        root_context.setContextProperty('trackerMinerConfig',
-                self.tracker_miner_config)
-
-        # Load the QML UI (this could take a while...)
-        self.view.setSource(QUrl.fromLocalFile(QML('main_default.qml')))
-
-        # Proxy to the "main" QML object for direct access to Qt Properties
-        self.main = helper.QObjectProxy(self.view.rootObject().property('main'))
-
-        self.main.podcastModel = self.podcast_model
-        self.main.episodeModel = self.episode_model
-
-        self.view.setWindowTitle('gPodder')
-
-        if gpodder.ui.harmattan:
-            self.view.showFullScreen()
-        else:
-            # On the Desktop, scale to fit my small laptop screen..
-            desktop = self.app.desktop()
-            if desktop.height() < 1000:
-                FACTOR = .8
-                self.view.scale(FACTOR, FACTOR)
-                size = self.view.size()
-                size *= FACTOR
-                self.view.resize(size)
-            self.view.show()
-
-        self.do_start_progress.connect(self.on_start_progress)
-        self.do_end_progress.connect(self.on_end_progress)
-        self.do_show_message.connect(self.on_show_message)
-
-        podcasts = self.load_podcasts()
-
-        self.resumable_episodes = None
-        self.do_offer_download_resume.connect(self.on_offer_download_resume)
-        util.run_in_background(self.find_partial_downloads(podcasts))
+                self.extensions_episode_download_cb
+        )
 
     def find_partial_downloads(self, podcasts):
         def start_progress_callback(count):
@@ -1044,7 +740,7 @@ class qtPodder(QObject):
         def progress_callback(title, progress):
             self.start_progress('%s (%d%%)' % (
                 _('Loading incomplete downloads'),
-                progress*100))
+                progress * 100))
 
         def finish_progress_callback(resumable_episodes):
             self.end_progress()
@@ -1069,10 +765,14 @@ class qtPodder(QObject):
                 logger.debug('Deleting incomplete downloads.')
                 common.clean_up_downloads(delete_partial=True)
 
-            message = _('Incomplete downloads from a previous session were found.')
+            message = _(
+                'Incomplete downloads from a previous session were found.'
+            )
             title = _('Resume')
 
-            self.controller.confirm_action(message, title, download_episodes, delete_episodes)
+            self.controller.confirm_action(
+                message, title, download_episodes, delete_episodes
+            )
 
     def add_active_episode(self, episode):
         self.active_episode_wrappers[episode.id] = episode
@@ -1098,7 +798,7 @@ class qtPodder(QObject):
         if last_episode is not None:
             self.last_episode = self.wrap_episode(last_podcast, last_episode)
             # FIXME: Send last episode to player
-            #self.select_episode(self.last_episode)
+            # self.select_episode(self.last_episode)
 
     def on_episode_deleted(self, episode):
         # Remove episode from play queue (if it's in there)
@@ -1114,26 +814,6 @@ class qtPodder(QObject):
 
     def run(self):
         return self.app.exec_()
-
-    quit = Signal()
-
-    def on_quit(self):
-        # Make sure the audio playback is stopped immediately
-        self.main.togglePlayback(None)
-        self.save_pending_data()
-        self.view.hide()
-        self.core.shutdown()
-        self.app.quit()
-
-    episodeUpdated = Signal(int)
-
-    def on_episode_updated(self, episode_id):
-        self.main.episodeUpdated(episode_id)
-
-    setEpisodeListModel = Signal(object)
-
-    def on_set_episode_list_model(self, prepared):
-        self.main.setEpisodeListModel(prepared)
 
     do_show_message = Signal(unicode)
 
@@ -1151,15 +831,6 @@ class qtPodder(QObject):
     def open_context_menu(self, items):
         self.main.openContextMenu(items)
 
-    do_start_progress = Signal(str)
-
-    @Slot(str)
-    def on_start_progress(self, text):
-        self.main.startProgress(text)
-
-    def start_progress(self, text=_('Please wait...')):
-        self.do_start_progress.emit(text)
-
     do_end_progress = Signal()
 
     @Slot()
@@ -1173,7 +844,7 @@ class qtPodder(QObject):
         self.podcast_model.sort()
 
     def insert_podcast(self, podcast):
-        self.podcast_model.insert_object(podcast)
+        self.podcast_model.append(podcast)
         self.mygpo_client.on_subscribe([podcast.url])
         self.mygpo_client.flush()
 
@@ -1186,12 +857,12 @@ class qtPodder(QObject):
             # that is to be deleted, stop playback immediately.
             if self.main.currentEpisode.qpodcast == podcast:
                 self.main.togglePlayback(None)
-        self.podcast_model.remove_object(podcast)
+        self.podcast_model.remove(podcast)
         self.mygpo_client.on_unsubscribe([podcast.url])
         self.mygpo_client.flush()
 
     def load_podcasts(self):
-        podcasts = map(model.QPodcast, self.model.get_podcasts())
+        podcasts = map(qml.model.QPodcast, self.model.get_podcasts())
         self.podcast_model.set_podcasts(self.db, podcasts)
         return podcasts
 
@@ -1199,7 +870,7 @@ class qtPodder(QObject):
         try:
             return self.active_episode_wrappers[episode.id]
         except KeyError:
-            return model.QEpisode(self, podcast, episode)
+            return qml.model.QEpisode(self, podcast, episode)
 
     def wrap_simple_episode(self, episode):
         for podcast in self.podcast_model.get_podcasts():
@@ -1209,7 +880,7 @@ class qtPodder(QObject):
         return None
 
     def select_podcast(self, podcast):
-        if isinstance(podcast, model.QPodcast):
+        if isinstance(podcast, qml.model.QPodcast):
             # Normal QPodcast instance
             wrap = functools.partial(self.wrap_episode, podcast)
             objects = podcast.get_all_episodes()
@@ -1225,7 +896,7 @@ class qtPodder(QObject):
 
     def save_pending_data(self):
         current_ep = self.main.currentEpisode
-        if isinstance(current_ep, model.QEpisode):
+        if isinstance(current_ep, qml.model.QEpisode):
             current_ep.save()
 
     def podcast_to_qpodcast(self, podcast):
@@ -1244,7 +915,9 @@ class qtPodder(QObject):
                 qpodcast.qupdate(
                     finished_callback=self.controller.update_subset_stats)
         except Exception, e:
-            logger.exception('extensions_podcast_update_cb(%s): %s', podcast, e)
+            logger.exception(
+                'extensions_podcast_update_cb(%s): %s', podcast, e
+            )
 
     def extensions_episode_download_cb(self, episode):
         logger.debug('extensions_episode_download_cb(%s)', episode)
@@ -1253,19 +926,6 @@ class qtPodder(QObject):
             qepisode = self.wrap_episode(qpodcast, episode)
             self.controller.downloadEpisode(qepisode)
         except Exception, e:
-            logger.exception('extensions_episode_download_cb(%s): %s', episode, e)
-
-def main(args):
-    try:
-        dbus_main_loop = DBusGMainLoop(set_as_default=True)
-        gpodder.dbus_session_bus = dbus.SessionBus(dbus_main_loop)
-
-        bus_name = dbus.service.BusName(gpodder.dbus_bus_name,
-                bus=gpodder.dbus_session_bus)
-    except dbus.exceptions.DBusException, dbe:
-        logger.warn('Cannot get "on the bus".', exc_info=True)
-        bus_name = None
-
-    gui = qtPodder(args, core.Core(), bus_name)
-    return gui.run()
-
+            logger.exception(
+                'extensions_episode_download_cb(%s): %s', episode, e
+            )

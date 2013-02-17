@@ -132,7 +132,9 @@ MenuBar {
     MenuItem {
       text: Util._("Delete")
       iconName: "edit-delete"
-      onTriggered: itemDeleteSelected
+
+      enabled: (currentEpisode!==undefined) ? (currentEpisode.qdownloaded) : false
+      onTriggered: controller.deleteEpisode(currentEpisode)
     }
 
     Separator {}

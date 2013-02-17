@@ -17,25 +17,20 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import cgi
-import urllib
-
 from PySide.QtCore import QObject, Property, Signal, Slot, Qt
 from PySide.QtCore import QAbstractListModel, QModelIndex
-from PySide.QtGui import QSortFilterProxyModel
-
 
 import logging
 logger = logging.getLogger(__name__)
 
+from gpodder import coverart
+from gpodder import download
 from gpodder import model
+from gpodder import query
 from gpodder import util
 from gpodder import youtube
-from gpodder import download
-from gpodder import query
-from gpodder import coverart
 
-from gpodder.qmlcommon import _
+from gpodder.qml.common import _
 
 convert = util.convert_bytes
 
@@ -158,7 +153,11 @@ class QEpisode(QObject):
 
     qprogress = Property(float, _progress, notify=changed)
 
-    def qdownload(self, config, finished_callback=None):
+    def qdownload(
+                  self, config,
+                  finished_callback=None,
+                  progress_callback=None
+                  ):
         # Avoid starting the same download twice
         if self.download_task is not None:
             return
@@ -170,6 +169,8 @@ class QEpisode(QObject):
         task = download.DownloadTask(self._episode, config)
         task.status = download.DownloadTask.QUEUED
         self.changed.emit()
+        if progress_callback is not None:
+            progress_callback(self.id)
 
         def t(self):
             def cb(progress):
@@ -178,13 +179,16 @@ class QEpisode(QObject):
 
                     self._qt_download_progress = progress
                     self.changed.emit()
-
+                    if progress_callback is not None:
+                        progress_callback(self.id)
             task.add_progress_callback(cb)
             task.run()
             task.recycle()
             task.removed_from_list()
-            self.changed.emit()
             self.source_url_changed.emit()
+
+            if progress_callback is not None:
+                progress_callback(self.id)
 
             # Make sure the single channel is updated (main view)
             self._podcast.changed.emit()
@@ -316,6 +320,17 @@ class QPodcast(QObject):
 
     qcoverurl = Property(unicode, _coverurl, notify=changed)
 
+    def _coverart(self):
+        quote = lambda x: convert(x) if x else u''
+        return convert(u'image://cover/%s|%s|%s|%s' % (
+            quote(self._podcast.cover_file),
+            quote(self._podcast.cover_url),
+            quote(self._podcast.url),
+            quote(self._podcast.title),
+        ))
+
+    qcoverart = Property(unicode, _coverart, notify=changed)
+
     def _downloaded(self):
         return self._podcast.get_statistics()[3]
 
@@ -429,6 +444,17 @@ class EpisodeSubsetView(QObject):
     qcoverurl = Property(unicode, _return_empty, notify=changed)
     qsection = Property(unicode, _return_empty, notify=changed)
 
+    def _coverart(self):
+        quote = lambda x: convert(x) if x else u''
+        return convert(u'image://cover/%s|%s|%s|%s' % (
+            quote(coverart.CoverDownloader.ALL_EPISODES_ID),
+            u'',
+            u'',
+            quote(self.title),
+        ))
+
+    qcoverart = Property(unicode, _coverart, notify=changed)
+
     def _title(self):
         return convert(self.title)
 
@@ -539,11 +565,12 @@ class gPodderPodcastListModel(gPodderListModel):
         self.reset()
 
 
-class gPodderEpisodeListModel(gPodderListModel):
+class CommonEpisodeListModel(gPodderListModel):
     def __init__(self, config):
         gPodderListModel.__init__(self)
-        self._filter = config.ui.qml_desktop.state.episode_list_filter
+        self._filter = None     # overwrite in subclass
         self._filtered = []
+        self._processed = []
         self._is_subset_view = False
 
         self._config = config
@@ -568,18 +595,7 @@ class gPodderEpisodeListModel(gPodderListModel):
             self.sort()
 
     def sort(self):
-#        caption, eql = EPISODE_LIST_FILTERS[self._filter]
-#
-#        if eql is None:
-#            self._filtered = self._objects
-#        else:
-#            eql = query.EQL(eql)
-#            match = lambda episode: eql.match(episode._episode)
-#            self._filtered = filter(match, self._objects)
-        self._filtered = sorted(self._objects)
-        self.reset()
-#        print("myModel:")
-#        print(self.columnCount(QModelIndex()))
+        pass
 
     def get_objects(self):
         return self._filtered
@@ -614,81 +630,3 @@ class gPodderEpisodeListModel(gPodderListModel):
 #            elif role == 5:
 #                return self.get_object(index).qpubdate
 #        return None
-
-
-class SortFilterProxyModel(QSortFilterProxyModel):
-    def __init__(self, parent=None):
-        QSortFilterProxyModel.__init__(self, parent)
-
-    @Slot(int, result=QObject)
-    def get(self, index):
-        return self.sourceModel().get(index)
-
-    @Slot(result=int)
-    def sectionCount(self):
-        return self.sourceModel().sectionCount()
-
-
-class OmplPodcast(QObject):
-    changed = Signal()
-
-    def __init__(self, omplItem):
-        QObject.__init__(self)
-        self.checked = False
-        self.title = omplItem['title']
-        self.description = omplItem['description']
-        self.url = omplItem['url']
-
-    @classmethod
-    def sort_key(cls, podcast):
-        return (podcast.title)
-
-    def _title(self):
-        return convert(self.title)
-
-    qtitle = Property(unicode, _title, notify=changed)
-
-    def _checked(self):
-        return self.checked
-
-    qchecked = Property(bool, _checked, notify=changed)
-
-    def _description(self):
-        return convert(self.description)
-
-    qdescription = Property(unicode, _description, notify=changed)
-
-    @Slot(bool)
-    def setChecked(self, checked):
-        self.checked = checked
-        self.changed.emit()
-
-
-class OpmlListModel(gPodderPodcastListModel):
-    def __init__(self, importer):
-        gPodderPodcastListModel.__init__(self)
-
-        for channel in importer.items:
-            self.append(OmplPodcast(channel))
-
-    def _format_channel(self, channel):
-        title = cgi.escape(urllib.unquote_plus(channel['title']))
-        description = cgi.escape(channel['description'])
-        return '<b>%s</b>\n%s' % (title, description)
-
-    def sort(self):
-        self._objects = sorted(self._objects, key=OmplPodcast.sort_key)
-        self.reset()
-
-    @Slot(bool)
-    def setCheckedAll(self, checked):
-        for channel in self.get_objects():
-            channel.setChecked(checked)
-
-    def getSelected(self):
-        selected = []
-        for channel in self.get_objects():
-            if channel.checked == True:
-                selected.append(channel)
-
-        return selected

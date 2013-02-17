@@ -2,7 +2,7 @@
 from PySide.QtCore import QObject, Slot, Signal
 
 
-class CommonController(QObject):
+class BasicController(QObject):
 
     deleteMe = Signal(QObject)
 

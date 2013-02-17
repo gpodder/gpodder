@@ -20,7 +20,7 @@
 import urllib
 import os.path
 
-from gpodder.qmlcommon import _
+from gpodder.qml.common import _
 
 from gpodder import util
 from gpodder import opml
@@ -28,20 +28,20 @@ from gpodder import youtube
 from gpodder import my
 from PySide.QtCore import QObject, Signal, Slot
 
-from gpodder.qmldesktopui.model import OpmlListModel
-from gpodder.qmldesktopui.commoncontroller import CommonController
+from gpodder.qml.desktop.model import OpmlListModel
+from gpodder.qml.desktop.basiccontroller import BasicController
 
 
 class TabType():
     ChannelChooser, TopPodcasts, Youtube = range(3)
 
 
-class PodcastDirectory(CommonController):
+class PodcastDirectory(BasicController):
     changed = Signal()
     updateModel = Signal(int, QObject)
 
     def __init__(self, parent, addPodcastsFunction):
-        CommonController.__init__(self, parent)
+        BasicController.__init__(self, parent)
 
         self.add_podcast_list = addPodcastsFunction
         self._models = {

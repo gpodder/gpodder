@@ -17,21 +17,20 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-# gpodder.qmldesktopui - gPodder's QML Desktop interface
+# gpodder.qml.desktopui - gPodder's QML Desktop interface
 # Thomas Perl <thp@gpodder.org>; 2011-02-06
 # Mikołaj Milej <mikolajmm@gmail.com>; 2012-12-24
 
 import logging
 logger = logging.getLogger("qmldesktopui")
 
-import dbus
 import dbus.service
 from dbus.mainloop.glib import DBusGMainLoop
 
 import gpodder
 from gpodder import core
 
-from gpodder.qmldesktopui.controller import qtPodder
+from gpodder.qml.desktop.controller import qtPodder
 
 
 def main(args):

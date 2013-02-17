@@ -44,6 +44,8 @@ EPISODE_LIST_FILTERS = [
     (_('Unplayed downloads'), 'downloaded and not played'),
 ]
 
+EPISODE_LIST_LIMIT = 200
+
 
 def QML(filename):
     for folder in gpodder.ui_folders:
@@ -89,8 +91,8 @@ class QmlGuiComponent():
         self.object = QObjectProxy(qobject)
         self.component = qcomponent
 
-    def show(self):
-        self.object.visible = True
+    def setVisible(self, visible):
+        self.object.visible = visible
 
 
 def createQmlComponent(filename, engine, context, parent=None):

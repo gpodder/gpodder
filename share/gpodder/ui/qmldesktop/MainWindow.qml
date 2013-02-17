@@ -38,6 +38,20 @@ ApplicationWindow {
     pbFeedUpdate.value = 0
   }
 
+  function showInputDialog(message, value, accept, reject, textInput) {
+      inputDialogText.text = message
+      inputDialogField.text = value
+      inputDialogAccept.text = accept
+      inputDialogReject.text = reject
+      inputDialogField.visible = textInput
+
+      if (textInput) {
+          inputSheet.open()
+      } else {
+          queryDialog.open()
+      }
+  }
+
   GpodderMenu {
     id: menu
     toolbarAlias: toolbar
