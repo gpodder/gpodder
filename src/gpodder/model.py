@@ -26,7 +26,6 @@
 
 import gpodder
 from gpodder import util
-from gpodder import feedcore
 from gpodder import youtube
 from gpodder import vimeo
 from gpodder import schema
@@ -49,50 +48,31 @@ import string
 _ = gpodder.gettext
 
 
-def get_payment_priority(url):
-    """
-    at the moment we only support flattr.com as an payment provider, so we
-    sort the payment providers and prefer flattr.com ("1" is higher priority than "2")
-    """
-    if 'flattr.com' in url:
-        return 1
-    return 2
+class NoHandlerForURL(Exception): pass
 
-class CustomFeed(feedcore.ExceptionWithData): pass
-
-class gPodderFetcher(feedcore.Fetcher):
-    """
-    This class extends the feedcore Fetcher with the gPodder User-Agent and the
-    Proxy handler based on the current settings in gPodder.
-    """
-    custom_handlers = []
-
+class gPodderFetcher:
     def __init__(self):
-        feedcore.Fetcher.__init__(self, gpodder.user_agent)
+        self.custom_handlers = []
 
     def fetch_channel(self, channel, max_episodes):
         for handler in self.custom_handlers:
-            custom_feed = handler(channel, max_episodes)
-            if custom_feed is not None:
-                return feedcore.Result(feedcore.CUSTOM_FEED, custom_feed)
+            feed = handler(channel, max_episodes)
+            if feed is not None:
+                return feed
 
-        # If we have a username or password, rebuild the url with them included
-        # Note: using a HTTPBasicAuthHandler would be pain because we need to
-        # know the realm. It can be done, but I think this method works, too
-        url = channel.authenticate_url(channel.url)
-        return self.fetch(url, channel.http_etag, channel.http_last_modified)
+        raise NoHandlerForURL(channel.url)
 
     def _resolve_url(self, url):
         url = youtube.get_real_channel_url(url)
         url = vimeo.get_real_channel_url(url)
         return url
 
-    @classmethod
-    def register(cls, handler):
-        cls.custom_handlers.append(handler)
+    def register(self, handler):
+        self.custom_handlers.append(handler)
 
 # The "register" method is exposed here for external usage
-register_custom_handler = gPodderFetcher.register
+fetcher = gPodderFetcher()
+register_custom_handler = fetcher.register
 
 # Our podcast model:
 #
@@ -143,149 +123,6 @@ class PodcastEpisode(PodcastModelObject):
     def has_website_link(self):
         return bool(self.link) and (self.link != self.url or \
                 youtube.is_video_link(self.link))
-
-    @classmethod
-    def from_feedparser_entry(cls, entry, channel):
-        episode = cls(channel)
-        episode.guid = entry.get('id', '')
-
-        # Replace multi-space and newlines with single space (Maemo bug 11173)
-        episode.title = re.sub('\s+', ' ', entry.get('title', ''))
-        episode.link = entry.get('link', '')
-        if 'content' in entry and len(entry['content']) and \
-                entry['content'][0].get('type', '') == 'text/html':
-            episode.description = entry['content'][0].value
-        else:
-            episode.description = entry.get('summary', '')
-
-        # Fallback to subtitle if summary is not available
-        if not episode.description:
-            episode.description = entry.get('subtitle', '')
-
-        try:
-            total_time = 0
-
-            # Parse iTunes-specific podcast duration metadata
-            itunes_duration = entry.get('itunes_duration', '')
-            if itunes_duration:
-                total_time = util.parse_time(itunes_duration)
-
-            # Parse time from YouTube descriptions if it's a YouTube feed
-            if youtube.is_youtube_guid(episode.guid):
-                result = re.search(r'Time:<[^>]*>\n<[^>]*>([:0-9]*)<',
-                        episode.description)
-                if result:
-                    youtube_duration = result.group(1)
-                    total_time = util.parse_time(youtube_duration)
-
-            episode.total_time = total_time
-        except:
-            pass
-
-        episode.published = feedcore.get_pubdate(entry)
-
-        enclosures = entry.get('enclosures', [])
-        media_rss_content = entry.get('media_content', [])
-        audio_available = any(e.get('type', '').startswith('audio/') \
-                for e in enclosures + media_rss_content)
-        video_available = any(e.get('type', '').startswith('video/') \
-                for e in enclosures + media_rss_content)
-
-        # XXX: Make it possible for hooks/extensions to override this by
-        # giving them a list of enclosures and the "self" object (podcast)
-        # and letting them sort and/or filter the list of enclosures to
-        # get the desired enclosure picked by the algorithm below.
-        filter_and_sort_enclosures = lambda x: x
-
-        # read the flattr auto-url, if exists
-        payment_info = [link['href'] for link in entry.get('links', [])
-            if link['rel'] == 'payment']
-        if payment_info:
-            episode.payment_url = sorted(payment_info, key=get_payment_priority)[0]
-
-        # Enclosures
-        for e in filter_and_sort_enclosures(enclosures):
-            episode.mime_type = e.get('type', 'application/octet-stream')
-            if episode.mime_type == '':
-                # See Maemo bug 10036
-                logger.warn('Fixing empty mimetype in ugly feed')
-                episode.mime_type = 'application/octet-stream'
-
-            if '/' not in episode.mime_type:
-                continue
-
-            # Skip images in feeds if audio or video is available (bug 979)
-            # This must (and does) also look in Media RSS enclosures (bug 1430)
-            if episode.mime_type.startswith('image/') and \
-                    (audio_available or video_available):
-                continue
-
-            # If we have audio or video available later on, skip
-            # 'application/octet-stream' data types (fixes Linux Outlaws)
-            if episode.mime_type == 'application/octet-stream' and \
-                    (audio_available or video_available):
-                continue
-
-            episode.url = util.normalize_feed_url(e.get('href', ''))
-            if not episode.url:
-                continue
-
-            try:
-                episode.file_size = int(e.length) or -1
-            except:
-                episode.file_size = -1
-
-            return episode
-
-        # Media RSS content
-        for m in filter_and_sort_enclosures(media_rss_content):
-            episode.mime_type = m.get('type', 'application/octet-stream')
-            if '/' not in episode.mime_type:
-                continue
-
-            # Skip images in Media RSS if we have audio/video (bug 1444)
-            if episode.mime_type.startswith('image/') and \
-                    (audio_available or video_available):
-                continue
-
-            episode.url = util.normalize_feed_url(m.get('url', ''))
-            if not episode.url:
-                continue
-
-            try:
-                episode.file_size = int(m.get('filesize', 0)) or -1
-            except:
-                episode.file_size = -1
-
-            try:
-                episode.total_time = int(m.get('duration', 0)) or 0
-            except:
-                episode.total_time = 0
-
-            return episode
-
-        # Brute-force detection of any links
-        for l in entry.get('links', ()):
-            episode.url = util.normalize_feed_url(l.get('href', ''))
-            if not episode.url:
-                continue
-
-            if (youtube.is_video_link(episode.url) or \
-                    vimeo.is_video_link(episode.url)):
-                return episode
-
-            # Check if we can resolve this link to a audio/video file
-            filename, extension = util.filename_from_url(episode.url)
-            file_type = util.file_type_by_extension(extension)
-            if file_type is None and hasattr(l, 'type'):
-                extension = util.extension_from_mimetype(l.type)
-                file_type = util.file_type_by_extension(extension)
-
-            # The link points to a audio or video file - use it!
-            if file_type is not None:
-                return episode
-
-        return None
 
     def __init__(self, channel):
         self.parent = channel
@@ -752,8 +589,6 @@ class PodcastChannel(PodcastModelObject):
     SECONDS_PER_WEEK = 7*24*60*60
     EpisodeClass = PodcastEpisode
 
-    feed_fetcher = gPodderFetcher()
-
     def __init__(self, model, id=None):
         self.parent = model
         self.children = []
@@ -992,83 +827,7 @@ class PodcastChannel(PodcastModelObject):
         self.http_last_modified = custom_feed.get_modified(self.http_last_modified)
 
         new_episodes, seen_guids = custom_feed.get_new_episodes(self)
-        self.finalize_feed_update(new_episodes, seen_guids)
 
-    def _consume_updated_feed(self, feed, max_episodes=0):
-        # Cover art URL
-        if hasattr(feed.feed, 'image'):
-            for attribute in ('href', 'url'):
-                new_value = getattr(feed.feed.image, attribute, None)
-                if new_value is not None:
-                    cover_url = new_value
-        elif hasattr(feed.feed, 'icon'):
-            cover_url = feed.feed.icon
-        else:
-            cover_url = None
-
-        # Payment URL (Flattr auto-payment) information
-        payment_info = [link['href'] for link in feed.feed.get('links', [])
-            if link['rel'] == 'payment']
-        if payment_info:
-            payment_url = sorted(payment_info, key=get_payment_priority)[0]
-        else:
-            payment_url = None
-
-        self._consume_metadata(feed.feed.get('title', self.url),
-                feed.feed.get('link', self.link),
-                feed.feed.get('subtitle', self.description),
-                cover_url,
-                payment_url)
-
-        # We have to sort the entries in descending chronological order,
-        # because if the feed lists items in ascending order and has >
-        # max_episodes old episodes, new episodes will not be shown.
-        # See also: gPodder Bug 1186
-        entries = sorted(feed.entries, key=feedcore.get_pubdate, reverse=True)
-
-        # We can limit the maximum number of entries that gPodder will parse
-        if max_episodes:
-            entries = entries[:max_episodes]
-
-        # GUID-based existing episode list
-        existing_guids = dict((e.guid, e) for e in self.children)
-
-        # Keep track of episode GUIDs currently seen in the feed
-        seen_guids = set()
-
-        new_episodes = []
-
-        # Search all entries for new episodes
-        for entry in entries:
-            episode = self.EpisodeClass.from_feedparser_entry(entry, self)
-            if episode is not None:
-                if not episode.title:
-                    logger.warn('Using filename as title for %s', episode.url)
-                    basename = os.path.basename(episode.url)
-                    episode.title, ext = os.path.splitext(basename)
-
-                # Maemo bug 12073
-                if not episode.guid:
-                    logger.warn('Using download URL as GUID for %s', episode.title)
-                    episode.guid = episode.url
-
-                seen_guids.add(episode.guid)
-            else:
-                continue
-
-            # Detect (and update) existing episode based on GUIDs
-            existing_episode = existing_guids.get(episode.guid, None)
-            if existing_episode:
-                existing_episode.update_from(episode)
-                existing_episode.save()
-                continue
-
-            episode.save()
-            new_episodes.append(episode)
-
-        self.finalize_feed_update(new_episodes, seen_guids)
-
-    def finalize_feed_update(self, new_episodes, seen_guids):
         # Remove "unreachable" episodes - episodes that have not been
         # downloaded and that the feed does not list as downloadable anymore
         # Keep episodes that are currently being downloaded, though (bug 1534)
@@ -1117,39 +876,11 @@ class PodcastChannel(PodcastModelObject):
 
     def update(self, max_episodes=0):
         try:
-            result = self.feed_fetcher.fetch_channel(self, max_episodes)
+            result = fetcher.fetch_channel(self, max_episodes)
+            self._consume_custom_feed(result, max_episodes)
 
-            if result.status == feedcore.CUSTOM_FEED:
-                self._consume_custom_feed(result.feed, max_episodes)
-            elif result.status == feedcore.UPDATED_FEED:
-                self._consume_updated_feed(result.feed, max_episodes)
-            elif result.status == feedcore.NEW_LOCATION:
-                url = result.feed.href
-                logger.info('New feed location: %s => %s', self.url, url)
-                if url in set(x.url for x in self.model.get_podcasts()):
-                    raise Exception('Already subscribed to ' + url)
-                self.url = url
-                self._consume_updated_feed(result.feed, max_episodes)
-            elif result.status == feedcore.NOT_MODIFIED:
-                pass
-
-            if hasattr(result.feed, 'headers'):
-                self.http_etag = result.feed.headers.get('etag', self.http_etag)
-                self.http_last_modified = result.feed.headers.get('last-modified', self.http_last_modified)
             self.save()
         except Exception, e:
-            # "Not really" errors
-            #feedcore.AuthenticationRequired
-            # Temporary errors
-            #feedcore.Offline
-            #feedcore.BadRequest
-            #feedcore.InternalServerError
-            #feedcore.WifiLogin
-            # Permanent errors
-            #feedcore.Unsubscribe
-            #feedcore.NotFound
-            #feedcore.InvalidFeed
-            #feedcore.UnknownStatusCode
             gpodder.user_extensions.on_podcast_update_failed(self, e)
             raise
 

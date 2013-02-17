@@ -44,7 +44,6 @@ import dbus.mainloop
 import dbus.glib
 
 from gpodder import core
-from gpodder import feedcore
 from gpodder import util
 from gpodder import opml
 from gpodder import download
@@ -2323,20 +2322,20 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     channel.save()
 
                     self._update_cover(channel)
-                except feedcore.AuthenticationRequired:
-                    if url in auth_tokens:
-                        # Fail for wrong authentication data
-                        error_messages[url] = _('Authentication failed')
-                        failed.append(url)
-                    else:
-                        # Queue for login dialog later
-                        authreq.append(url)
-                    continue
-                except feedcore.WifiLogin, error:
-                    redirections[url] = error.data
-                    failed.append(url)
-                    error_messages[url] = _('Redirection detected')
-                    continue
+                #except feedcore.AuthenticationRequired:
+                #    if url in auth_tokens:
+                #        # Fail for wrong authentication data
+                #        error_messages[url] = _('Authentication failed')
+                #        failed.append(url)
+                #    else:
+                #        # Queue for login dialog later
+                #        authreq.append(url)
+                #    continue
+                #except feedcore.WifiLogin, error:
+                #    redirections[url] = error.data
+                #    failed.append(url)
+                #    error_messages[url] = _('Redirection detected')
+                #    continue
                 except Exception, e:
                     logger.error('Subscription error: %s', e, exc_info=True)
                     error_messages[url] = str(e)

@@ -37,17 +37,6 @@ import locale
 
 # Check if real hard dependencies are available
 try:
-    import feedparser
-except ImportError:
-    print """
-  Error: Module "feedparser" (python-feedparser) not found.
-         The feedparser module can be downloaded from
-         http://code.google.com/p/feedparser/
-"""
-    sys.exit(1)
-del feedparser
-
-try:
     import mygpoclient
 except ImportError:
     print """

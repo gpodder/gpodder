@@ -1185,7 +1185,6 @@ def parse_date(value):
         return int(mktime_tz(parsed))
 
     logger.error('Cannot parse date: %s', repr(value))
-    #return int(mktime_tz(feedparser._parse_date(text) + (0,)))
     return 0
 
 def parse_time(value):

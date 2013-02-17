@@ -32,7 +32,6 @@
 
     - Python 2.6 or newer              http://python.org/
     - "sqlite3" Python module          (usually included with Python)
-    - Feedparser 5.1.2 or newer        http://code.google.com/p/feedparser/
     - mygpoclient 1.7 or newer         http://thp.io/2010/mygpoclient/
     - Python D-Bus bindings
 
@@ -43,9 +42,9 @@
     As an alternative to python-dbus on Mac OS X and Windows, you can use
     the dummy (no-op) D-Bus module provided in "tools/fake-dbus-module/".
 
-    For quick testing, you can use the script tools/localdepends.py to
-    install local copies of feedparser and mygpoclient into "src/" from
-    PyPI. With this, you get a self-contained gPodder CLI/WebUI codebase.
+    For quick testing, you can use the script tools/localdepends.py to install
+    local copies of mygpoclient into "src/" from PyPI. With this, you get a
+    self-contained gPodder CLI/WebUI codebase.
 
 
  [ GTK UI - ADDITIONAL DEPENDENCIES ]
@@ -170,9 +169,7 @@
 
       2to3 -w bin/* src share/gpodder/extensions
 
-    You will also need a copy of "mygpoclient" converted using 2to3 and
-    a copy of "feedparser" converted using 2to3 (see the feedparser README
-    for details on how to get it set up on Python 3, including sgmllib).
+    You will also need a copy of "mygpoclient" converted using 2to3.
 
     Please note that the Gtk UI is not compatible with Python 3 (it will
     be once we migrate the codebase to Gtk3/GObject Introspection).
