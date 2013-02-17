@@ -1179,16 +1179,23 @@ def parse_time(value):
     3668
     >>> parse_time('25:03:30')
     90210
+    >>> parse_time('25:3:30')
+    90210
+    >>> parse_time('61.08')
+    3668
     """
+    if value == '':
+        return 0
+
     if not value:
         raise ValueError('Invalid value: %s' % (str(value),))
 
-    m = re.match(r'(\d+):(\d{2}):(\d{2})', value)
+    m = re.match(r'(\d+)[:.](\d\d?)[:.](\d\d?)', value)
     if m:
         hours, minutes, seconds = m.groups()
         return (int(hours) * 60 + int(minutes)) * 60 + int(seconds)
 
-    m = re.match(r'(\d+):(\d{2})', value)
+    m = re.match(r'(\d+)[:.](\d\d?)', value)
     if m:
         minutes, seconds = m.groups()
         return int(minutes) * 60 + int(seconds)
