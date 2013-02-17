@@ -80,7 +80,7 @@ class NotifyIcon(object):
     def set_tooltip(self, tooltip):
         """ Sets the tray icon tooltip. """
         self._flags = self._flags | win32gui.NIF_TIP
-        self._tip = tooltip
+        self._tip = tooltip.encode("mbcs")
         win32gui.Shell_NotifyIcon(win32gui.NIM_MODIFY,
                 self.notify_config_data)
 
@@ -88,8 +88,8 @@ class NotifyIcon(object):
             icon=win32gui.NIIF_NONE):
         """ Shows a balloon tooltip from the tray icon. """
         self._flags = self._flags | win32gui.NIF_INFO
-        self._infotitle = title
-        self._info = text
+        self._infotitle = title.encode("mbcs")
+        self._info = text.encode("mbcs")
         self._timeout = timeout * 1000
         self._infoflags = icon
         win32gui.Shell_NotifyIcon(win32gui.NIM_MODIFY,
