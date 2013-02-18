@@ -43,7 +43,10 @@ class gPodderExtension:
 
         # Dependency checks
         self.command = self.container.require_any_command(['avconv', 'ffmpeg'])
-        self.command_param = self.CMD[os.path.basename(self.command)]
+
+        # extract command without extension (.exe on Windows) from command-string
+        command_without_ext = os.path.basename(os.path.splitext(self.command)[0])
+        self.command_param = self.CMD[command_without_ext]
 
     def on_episode_downloaded(self, episode):
         self._convert_episode(episode)
@@ -65,7 +68,7 @@ class gPodderExtension:
         if not all(e.was_downloaded(and_exists=True) for e in episodes):
             return None
 
-        if not any(self._check_mp4(episode) for e in episodes):
+        if not any(self._check_mp4(episode) for episode in episodes):
             return None
 
         target_format = ('OGG' if self.config.use_ogg else 'MP3')
@@ -107,4 +110,3 @@ class gPodderExtension:
     def _convert_episodes(self, episodes):
         for episode in episodes:
             self._convert_episode(episode)
-

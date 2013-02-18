@@ -42,7 +42,10 @@ class gPodderExtension:
 
         # Dependency checks
         self.command = self.container.require_any_command(['avconv', 'ffmpeg'])
-        self.command_param = self.CMD[os.path.basename(self.command)]
+
+        # extract command without extension (.exe on Windows) from command-string
+        command_without_ext = os.path.basename(os.path.splitext(self.command)[0])
+        self.command_param = self.CMD[command_without_ext]
 
     def on_episode_downloaded(self, episode):
         self.convert_episode(episode)
