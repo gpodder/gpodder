@@ -682,9 +682,24 @@ class PodcastEpisode(PodcastModelObject):
 
     pubdate_prop = property(fget=cute_pubdate)
 
+    def published_datetime(self):
+        return datetime.datetime.fromtimestamp(self.published)
+
     @property
     def sortdate(self):
-        return str(datetime.datetime.fromtimestamp(self.published).strftime('%F'))
+        return self.published_datetime().strftime('%F')
+
+    @property
+    def pubdate_day(self):
+        return self.published_datetime().strftime('%d')
+
+    @property
+    def pubdate_month(self):
+        return self.published_datetime().strftime('%m')
+
+    @property
+    def pubdate_year(self):
+        return self.published_datetime().strftime('%y')
 
     def is_finished(self):
         """Return True if this episode is considered "finished playing"

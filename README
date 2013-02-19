@@ -104,6 +104,28 @@
     To set a specific python binary set PYTHON:
         PYTHON=python2 make unittest
 
+    Tests in gPodder are written in two different ways:
+
+       - doctests (see http://docs.python.org/2/library/doctest.html)
+       - unittests (see http://docs.python.org/2/library/unittest.html)
+
+    If you want to add doctests, simply write the doctest and make sure that
+    the module appears in "doctest_modules" in src/gpodder/unittests.py. For
+    example, the doctests in src/gpodder/util.py are added as 'util' (the
+    "gpodder" prefix must not be specified there).
+
+    If you want to add unit tests for a specific module (ex: gpodder.model),
+    you should add the tests as gpodder.test.model, or in other words:
+
+        The file       src/gpodder/model.py
+        is tested by   src/gpodder/test/model.py
+
+    After you've added the test, make sure that the module appears in
+    "test_modules" in src/gpodder/unittests.py - for the example above, the
+    unittests in src/gpodder/test/model.py are added as 'model'. For unit
+    tests, coverage reporting happens for the tested module (that's why the
+    test module name should mirror the module to be tested).
+
 
  [ RUNNING AND INSTALLATION ]
 
@@ -251,5 +273,5 @@
     - IRC channel                      #gpodder on irc.freenode.net
 
   ............................................................................
-             Last updated: 2012-02-24 by Thomas Perl <thp.io/about>
+             Last updated: 2013-02-12 by Thomas Perl <thp.io/about>
 

@@ -37,19 +37,47 @@ except ImportError, e:
     """
     sys.exit(2)
 
-# Which package and which modules in the package should be tested?
+# Main package and test package (for modules in main package)
 package = 'gpodder'
-modules = ['util', 'jsonconfig']
-coverage_modules = []
+test_package = '.'.join((package, 'test'))
 
 suite = unittest.TestSuite()
+coverage_modules = []
 
-for module in modules:
-    m = __import__('.'.join((package, module)), fromlist=[module])
-    coverage_modules.append(m)
-    suite.addTest(doctest.DocTestSuite(m))
 
-runner = unittest.TextTestRunner(verbosity=2)
+# Modules (in gpodder) for which doctests exist
+# ex: Doctests embedded in "gpodder.util", coverage reported for "gpodder.util"
+doctest_modules = ['util', 'jsonconfig']
+
+for module in doctest_modules:
+    doctest_mod = __import__('.'.join((package, module)), fromlist=[module])
+
+    suite.addTest(doctest.DocTestSuite(doctest_mod))
+    coverage_modules.append(doctest_mod)
+
+
+# Modules (in gpodder) for which unit tests (in gpodder.test) exist
+# ex: Tests are in "gpodder.test.model", coverage reported for "gpodder.model"
+test_modules = ['model']
+
+for module in test_modules:
+    test_mod = __import__('.'.join((test_package, module)), fromlist=[module])
+    coverage_mod = __import__('.'.join((package, module)), fromlist=[module])
+
+    suite.addTest(unittest.defaultTestLoader.loadTestsFromModule(test_mod))
+    coverage_modules.append(coverage_mod)
+
+try:
+    # If you want a HTML-based test report, install HTMLTestRunner from:
+    # http://tungwaiyip.info/software/HTMLTestRunner.html
+    import HTMLTestRunner
+    REPORT_FILENAME = 'test_report.html'
+    runner = HTMLTestRunner.HTMLTestRunner(stream=open(REPORT_FILENAME, 'w'))
+    print """
+    HTML Test Report will be written to %s
+    """ % REPORT_FILENAME
+except ImportError:
+    runner = unittest.TextTestRunner(verbosity=2)
 
 try:
     import coverage
