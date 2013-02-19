@@ -178,7 +178,7 @@ class gPodderSyncUI(object):
                 self.commit_changes_to_database()
                 for current_channel in self.channels:
                     #only sync those channels marked for syncing
-                    if current_channel.sync_to_mp3_player:
+                    if (current_channel.sync_to_mp3_player and self._config.device_sync.playlists.create):
 
                         #get playlist object
                         playlist=gPodderDevicePlaylist(self._config,
@@ -191,10 +191,11 @@ class gPodderSyncUI(object):
 
                 #enable updating of UI
                 self.enable_download_list_update()
-
-                title = _('Update successful')
-                message = _('The playlist on your MP3 player has been updated.')
-                self.notification(message, title, widget=self.preferences_widget)
+                
+                if self._config.device_sync.playlists.create:                 
+                    title = _('Update successful')
+                    message = _('The playlist on your MP3 player has been updated.')
+                    self.notification(message, title, widget=self.preferences_widget)
 
                 # Finally start the synchronization process
                 @util.run_in_background
@@ -280,6 +281,10 @@ class gPodderSyncUI(object):
                     title =  _('Error writing playlist files')
                     message = _(str(ioe))
                     self.notification(message, title, widget=self.preferences_widget)
+            else:
+                logger.info ('Not creating playlists - starting sync')
+                resume_sync([],[],None)
+                
 
 
         # This function is used to remove files from the device
