@@ -12,7 +12,7 @@ __title__ = _('Gtk Status Icon')
 __description__ = _('Show a status icon for Gtk-based Desktops.')
 __category__ = 'desktop-integration'
 __only_for__ = 'gtk'
-__disable_in__ = 'unity'
+__disable_in__ = 'unity,win32'
 
 import gtk
 import os.path
