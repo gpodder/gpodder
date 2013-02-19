@@ -24,6 +24,7 @@ __title__ = 'Notification Bubbles for Windows'
 __description__ = 'Display notification bubbles for different events.'
 __authors__ = 'Sean Munkel <SeanMunkel@gmail.com>'
 __category__ = 'desktop-integration'
+__mandatory_in__ = 'win32'
 __only_for__ = 'win32'
 
 import functools
