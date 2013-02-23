@@ -29,6 +29,9 @@ here = os.path.dirname(__file__)
 
 sys.path.insert(0, os.path.join(here, '..', '..', 'src'))
 
+from gpodder import log
+log.setup(verbose=True)
+
 from gpodder import podcastparser
 
 RSS_FILES = os.path.join(here, 'data', '*.rss')
