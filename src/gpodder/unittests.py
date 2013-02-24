@@ -47,7 +47,7 @@ coverage_modules = []
 
 # Modules (in gpodder) for which doctests exist
 # ex: Doctests embedded in "gpodder.util", coverage reported for "gpodder.util"
-doctest_modules = ['util', 'jsonconfig']
+doctest_modules = ['util', 'jsonconfig', 'podcastparser']
 
 for module in doctest_modules:
     doctest_mod = __import__('.'.join((package, module)), fromlist=[module])

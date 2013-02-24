@@ -31,6 +31,9 @@ import os
 import time
 import urlparse
 
+import logging
+logger = logging.getLogger(__name__)
+
 class Target:
     WANT_TEXT = False
 
@@ -125,6 +128,110 @@ class Enclosure(Target):
 
         handler.add_enclosure(url, file_size, mime_type)
 
+class Namespace():
+    # Mapping of XML namespaces to prefixes as used in MAPPING below
+    NAMESPACES = {
+        # iTunes Podcasting, http://www.apple.com/itunes/podcasts/specs.html
+        'http://www.itunes.com/dtds/podcast-1.0.dtd': 'itunes',
+
+        # Atom Syndication Format, http://tools.ietf.org/html/rfc4287
+        'http://www.w3.org/2005/Atom': 'atom',
+
+        # Media RSS, http://www.rssboard.org/media-rss
+        'http://search.yahoo.com/mrss/': 'media',
+
+        # From http://www.rssboard.org/media-rss#namespace-declaration:
+        #   "Note: There is a trailing slash in the namespace, although
+        #    there has been confusion around this in earlier versions."
+        'http://search.yahoo.com/mrss': 'media',
+    }
+
+    def __init__(self, attrs, parent=None):
+        self.namespaces = self.parse_namespaces(attrs)
+        self.parent = parent
+
+    @staticmethod
+    def parse_namespaces(attrs):
+        """Parse namespace definitions from XML attributes
+
+        >>> expected = {'': 'example'}
+        >>> Namespace.parse_namespaces({'xmlns': 'example'}) == expected
+        True
+
+        >>> expected = {'foo': 'http://example.com/bar'}
+        >>> Namespace.parse_namespaces({'xmlns:foo':
+        ...     'http://example.com/bar'}) == expected
+        True
+
+        >>> expected = {'': 'foo', 'a': 'bar', 'b': 'bla'}
+        >>> Namespace.parse_namespaces({'xmlns': 'foo',
+        ...     'xmlns:a': 'bar', 'xmlns:b': 'bla'}) == expected
+        True
+        """
+        result = {}
+
+        for key in attrs.keys():
+            if key == 'xmlns':
+                result[''] = attrs[key]
+            elif key.startswith('xmlns:'):
+                result[key[6:]] = attrs[key]
+
+        return result
+
+    def lookup(self, prefix):
+        """Look up a namespace URI based on the prefix"""
+        current = self
+        while current is not None:
+            result = current.namespaces.get(prefix, None)
+            if result is not None:
+                return result
+            current = current.parent
+
+        return None
+
+    def map(self, name):
+        """Apply namespace prefixes for a given tag
+
+        >>> namespace = Namespace({'xmlns:it':
+        ...    'http://www.itunes.com/dtds/podcast-1.0.dtd'}, None)
+        >>> namespace.map('it:duration')
+        'itunes:duration'
+        >>> parent = Namespace({'xmlns:m': 'http://search.yahoo.com/mrss/',
+        ...                     'xmlns:x': 'http://example.com/'}, None)
+        >>> child = Namespace({}, parent)
+        >>> child.map('m:content')
+        'media:content'
+        >>> child.map('x:y') # Unknown namespace URI
+        '!x:y'
+        >>> child.map('atom:link') # Undefined prefix
+        'atom:link'
+        """
+        if ':' not in name:
+            # <duration xmlns="http://..."/>
+            namespace = ''
+            namespace_uri = self.lookup(namespace)
+        else:
+            # <itunes:duration/>
+            namespace, name = name.split(':', 1)
+            namespace_uri = self.lookup(namespace)
+            if namespace_uri is None:
+                # Use of "itunes:duration" without xmlns:itunes="..."
+                logger.warn('No namespace defined for "%s:%s"', namespace, name)
+                return '%s:%s' % (namespace, name)
+
+        if namespace_uri is not None:
+            prefix = self.NAMESPACES.get(namespace_uri)
+            if prefix is None and namespace:
+                # Proper use of namespaces, but unknown namespace
+                logger.warn('Unknown namespace: %s', namespace_uri)
+                # We prefix the tag name here to make sure that it does not
+                # match any other tag below if we can't recognize the namespace
+                name = '!%s:%s' % (namespace, name)
+            else:
+                name = '%s:%s' % (prefix, name)
+
+        return name
+
 def file_basename_no_extension(filename):
     base = os.path.basename(filename)
     name, extension = os.path.splitext(base)
@@ -195,6 +302,7 @@ class PodcastHandler(sax.handler.ContentHandler):
             'episodes': self.episodes
         }
         self.path_stack = []
+        self.namespace = None
 
     def set_base(self, base):
         self.base = base
@@ -255,7 +363,8 @@ class PodcastHandler(sax.handler.ContentHandler):
         })
 
     def startElement(self, name, attrs):
-        self.path_stack.append(name)
+        self.namespace = Namespace(attrs, self.namespace)
+        self.path_stack.append(self.namespace.map(name))
 
         target = MAPPING.get('/'.join(self.path_stack))
         if target is not None:
@@ -273,6 +382,8 @@ class PodcastHandler(sax.handler.ContentHandler):
             target.end(self, ''.join(self.text) if self.text is not None else '')
             self.text = None
 
+        if self.namespace is not None:
+            self.namespace = self.namespace.parent
         self.path_stack.pop()
 
 
