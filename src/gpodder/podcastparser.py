@@ -133,9 +133,11 @@ class Namespace():
     NAMESPACES = {
         # iTunes Podcasting, http://www.apple.com/itunes/podcasts/specs.html
         'http://www.itunes.com/dtds/podcast-1.0.dtd': 'itunes',
+        'http://www.itunes.com/DTDs/Podcast-1.0.dtd': 'itunes',
 
         # Atom Syndication Format, http://tools.ietf.org/html/rfc4287
         'http://www.w3.org/2005/Atom': 'atom',
+        'http://www.w3.org/2005/Atom/': 'atom',
 
         # Media RSS, http://www.rssboard.org/media-rss
         'http://search.yahoo.com/mrss/': 'media',
