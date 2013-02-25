@@ -31,7 +31,7 @@ MODULES = [
 def get_tarball_url(modulename):
     url = 'http://pypi.python.org/pypi/' + modulename
     html = urllib2.urlopen(url).read()
-    match = re.search(r'(http://[^>]*%s-([0-9.]*)\.tar\.gz)' % modulename, html)
+    match = re.search(r'(http[s]?://[^>]*%s-([0-9.]*)\.tar\.gz)' % modulename, html)
     return match.group(0) if match is not None else None
 
 for module, required_files in MODULES:
