@@ -28,7 +28,7 @@ Item {
 
     property bool playing: mediaPlayer.playing
     property bool hasPlayButton: ((mediaPlayer.episode !== undefined)) && !progressIndicator.opacity
-    property bool hasSearchButton: !mediaPlayer.visible && !progressIndicator.opacity
+    property bool hasSearchButton: !progressIndicator.opacity
 
     property bool loadingEpisodes: false
 
@@ -68,12 +68,8 @@ Item {
     }
 
     function goBack() {
-        if (mediaPlayer.visible) {
-            clickPlayButton()
-        } else {
-            mediaPlayer.stop()
-            controller.quit()
-        }
+        mediaPlayer.stop()
+        controller.quit()
     }
 
     function showFilterDialog() {
@@ -81,7 +77,16 @@ Item {
     }
 
     function clickPlayButton() {
-        mediaPlayer.visible = !mediaPlayer.visible;
+        if (!main.hasPlayButton) {
+            main.showMessage(_('Playlist empty'));
+            return;
+        }
+
+        if (pageStack.currentPage === mediaPlayerPage) {
+            pageStack.pop();
+        } else {
+            pageStack.push(mediaPlayerPage);
+        }
     }
 
     function showMultiEpisodesSheet(title, label, action) {
@@ -208,12 +213,7 @@ Item {
                     id: nowPlayingMenuItem
                     text: _('Now playing')
                     onClicked: {
-                        if (main.hasPlayButton) {
-                            hrmtnEpisodesMenu.close();
-                            main.clickPlayButton();
-                        } else {
-                            main.showMessage(_('Playlist empty'));
-                        }
+                        main.clickPlayButton();
                     }
                 }
                 MenuItem {
@@ -244,7 +244,7 @@ Item {
         anchors.fill: parent
         z: 2
 
-        opacity: (mediaPlayer.visible || messageDialog.opacity || inputDialog.opacity || progressIndicator.opacity)?1:0
+        opacity: (inputDialog.opacity || progressIndicator.opacity)?1:0
         Behavior on opacity { NumberAnimation { duration: Config.slowTransition } }
 
         MouseArea {
@@ -254,10 +254,6 @@ Item {
                     // do nothing
                 } else if (inputDialog.opacity) {
                     inputDialog.close()
-                } else if (messageDialog.opacity) {
-                    messageDialog.opacity = 0
-                } else {
-                    mediaPlayer.visible = false
                 }
             }
         }
@@ -274,18 +270,30 @@ Item {
         }
     }
 
-    MediaPlayer {
-        id: mediaPlayer
-        visible: false
+    Page {
+        id: mediaPlayerPage
 
-        z: 3
+        tools: ToolBarLayout {
+            ToolIcon {
+                anchors.left: parent.left
+                iconId: "icon-m-toolbar-back-white"
+                onClicked: {
+                    pageStack.pop();
+                    episodeList.resetSelection();
+                    main.currentPodcast = undefined;
+                }
+            }
+        }
 
-        anchors.top: parent.bottom
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.topMargin: visible?-(height+(parent.height-height)/2):0
+        MediaPlayer {
+            id: mediaPlayer
 
-        Behavior on anchors.topMargin { PropertyAnimation { duration: Config.quickTransition; easing.type: Easing.OutCirc } }
+            anchors {
+                left: parent.left
+                right: parent.right
+                verticalCenter: parent.verticalCenter
+            }
+        }
     }
 
     ContextMenu {
@@ -308,34 +316,8 @@ Item {
     }
 
     function showMessage(message) {
-        messageDialogText.text = message
-        messageDialog.opacity = 1
-    }
-
-    Item {
-        id: messageDialog
-        anchors.fill: parent
-        opacity: 0
-        z: 20
-
-        Behavior on opacity { PropertyAnimation { } }
-
-        Label {
-            id: messageDialogText
-            anchors {
-                left: parent.left
-                right: parent.right
-                verticalCenter: parent.verticalCenter
-                leftMargin: Config.largeSpacing
-                rightMargin: Config.largeSpacing
-            }
-            color: 'white'
-            font.pixelSize: 20
-            font.bold: true
-            width: parent.width
-            horizontalAlignment: Text.AlignHCenter
-            wrapMode: Text.WordWrap
-        }
+        infoBanner.text = message;
+        infoBanner.show();
     }
 
     function showInputDialog(message, value, accept, reject, textInput) {
