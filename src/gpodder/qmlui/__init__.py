@@ -151,6 +151,8 @@ class Controller(QObject):
     removeQueuedEpisode = Signal(QObject)
     removeQueuedEpisodesForPodcast = Signal(QObject)
     shutdown = Signal()
+    showInputDialog = Signal(unicode, unicode, unicode, unicode, bool)
+    openContextMenu = Signal('QVariant')
 
     def on_config_changed(self, name, old_value, new_value):
         logger.info('Config changed: %s (%s -> %s)', name,
@@ -488,7 +490,7 @@ class Controller(QObject):
         if gpodder.ui.harmattan:
             actions = filter(lambda a: a.caption != '', actions)
         self.context_menu_actions = actions
-        self.root.open_context_menu(self.context_menu_actions)
+        self.openContextMenu.emit(self.context_menu_actions)
 
     def finished_update(self):
         if self.updating_podcasts > 0:
@@ -615,7 +617,7 @@ class Controller(QObject):
         elif action.action == 'change-section':
             def section_changer(podcast):
                 section = yield (_('New section name:'), podcast.section,
-                        _('Rename'))
+                        _('Rename'), _('Cancel'), True)
                 if section and section != podcast.section:
                     podcast.set_section(section)
                     self.root.resort_podcast_list()
@@ -624,7 +626,7 @@ class Controller(QObject):
         elif action.action == 'rename-podcast':
             def title_changer(podcast):
                 title = yield (_('New name:'), podcast.title,
-                        _('Rename'))
+                        _('Rename'), _('Cancel'), True)
                 if title and title != podcast.title:
                     podcast.rename(title)
                     self.root.resort_podcast_list()
@@ -648,9 +650,7 @@ class Controller(QObject):
 
         This function takes a generator function as argument
         which should yield a tuple of arguments for the
-        "show_input_dialog" function (i.e. message, default
-        value, accept and reject message - only the message
-        is mandatory, the other arguments have default values).
+        showInputDialog signal.
 
         The generator will receive the user's response as a
         result of the yield expression. If the user accepted
@@ -671,7 +671,7 @@ class Controller(QObject):
         assert self.current_input_dialog is None
         self.current_input_dialog = generator
         args = generator.next()
-        self.root.show_input_dialog(*args)
+        self.showInputDialog.emit(*args)
 
     @Slot(bool, str, bool)
     def inputDialogResponse(self, accepted, value, is_text):
@@ -1035,9 +1035,6 @@ class qtPodder(QObject):
         # Load the QML UI (this could take a while...)
         self.view.setSource(QUrl.fromLocalFile(QML('main_default.qml')))
 
-        # Proxy to the "main" QML object for direct access to Qt Properties
-        self.main = helper.QObjectProxy(self.view.rootObject().property('main'))
-
         self.view.setWindowTitle('gPodder')
 
         if gpodder.ui.harmattan:
@@ -1132,13 +1129,6 @@ class qtPodder(QObject):
         self.view.hide()
         self.core.shutdown()
         self.app.quit()
-
-    def show_input_dialog(self, message, value='', accept=_('OK'),
-            reject=_('Cancel'), is_text=True):
-        self.main.showInputDialog(message, value, accept, reject, is_text)
-
-    def open_context_menu(self, items):
-        self.main.openContextMenu(items)
 
     def resort_podcast_list(self):
         self.podcast_model.sort()
