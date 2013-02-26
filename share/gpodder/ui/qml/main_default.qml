@@ -18,8 +18,6 @@ PageStackWindow {
     //  - platformWindow.visible - Visible somewhere
     //  - platformWindow.active - Active (input focus?)
 
-    showToolBar: !mainObject.multiEpisodesSheetOpened && ((mainObject.canGoBack || mainObject.hasPlayButton || mainObject.hasSearchButton) && (mainObject.hasPodcasts || mainObject.canGoBack) || pageStack.depth > 1)
-
     // Hide status bar in landscape mode
     showStatusBar: screen.currentOrientation == Screen.Portrait
 
@@ -35,63 +33,18 @@ PageStackWindow {
 
         tools: ToolBarLayout {
             ToolIcon {
-                id: toolBack
-                anchors.left: parent.left
-                iconId: "icon-m-toolbar-back-white"
-                onClicked: mainObject.goBack()
-                visible: mainObject.canGoBack
-            }
-
-            BusyIndicator {
-                id: updatingBusy
-                anchors.left: parent.left
-                visible: !toolBack.visible && controller.busy
-                running: visible
-            }
-
-            ToolIcon {
-                id: toolMenu
-                onClicked: {
-                    if (mainObject.state === 'episodes') {
-                        hrmtnEpisodesMenu.open();
-                    } else {
-                        hrmtnMainViewMenu.open();
-                    }
-                }
-                anchors.right: parent.right
-                iconId: "toolbar-view-menu"
-                visible: (!toolBack.visible && mainObject.state == 'podcasts') || (mainObject.currentPodcast !== undefined && mainObject.state == 'episodes')
-            }
-
-            ToolIcon {
                 id: toolAdd
                 iconId: "icon-m-toolbar-add-white"
                 onClicked: mainObject.clickSearchButton()
                 visible: mainObject.hasSearchButton
                 anchors.centerIn: parent
-                //anchors.right: toolPlay.visible?toolPlay.left:toolPlay.right
-            }
-
-            ToolButton {
-                id: toolFilter
-                visible: mainObject.hasFilterButton
-                width: 300
-                onClicked: mainObject.showFilterDialog()
-                anchors.centerIn: parent
-
-                Label {
-                    color: 'white'
-                    text: mainObject.currentFilterText
-                    anchors.centerIn: parent
-                }
             }
 
             ToolIcon {
-                id: toolPlay
-                iconId: "icon-m-toolbar-content-audio-white"
-                onClicked: mainObject.clickPlayButton()
-                visible: mainObject.hasPlayButton && !toolMenu.visible
+                id: toolMenu
+                onClicked: hrmtnMainViewMenu.open()
                 anchors.right: parent.right
+                iconId: "toolbar-view-menu"
             }
         }
 
@@ -116,46 +69,6 @@ PageStackWindow {
                     onClicked: {
                         hrmtnMainViewMenu.close()
                         pageStack.push(aboutBox)
-                    }
-                }
-            }
-        }
-
-        ContextMenu {
-            id: hrmtnEpisodesMenu
-
-            MenuLayout {
-                MenuItem {
-                    id: nowPlayingMenuItem
-                    text: _('Now playing')
-                    onClicked: {
-                        if (mainObject.hasPlayButton) {
-                            hrmtnMainViewMenu.close();
-                            mainObject.clickPlayButton();
-                        } else {
-                            mainObject.showMessage(_('Playlist empty'));
-                        }
-                    }
-                }
-                MenuItem {
-                    text: _('Download episodes')
-                    onClicked: {
-                        mainObject.showMultiEpisodesSheet(text, _('Download'), 'download');
-                        hrmtnMainViewMenu.close()
-                    }
-                }
-                MenuItem {
-                    text: _('Playback episodes')
-                    onClicked: {
-                        mainObject.showMultiEpisodesSheet(text, _('Play'), 'play');
-                        hrmtnMainViewMenu.close()
-                    }
-                }
-                MenuItem {
-                    text: _('Delete episodes')
-                    onClicked: {
-                        mainObject.showMultiEpisodesSheet(text, _('Delete'), 'delete');
-                        hrmtnMainViewMenu.close()
                     }
                 }
             }

@@ -27,10 +27,8 @@ Item {
     property alias currentFilterText: episodeList.currentFilterText
 
     property bool playing: mediaPlayer.playing
-    property bool canGoBack: (main.state != 'podcasts' || mediaPlayer.visible) && !progressIndicator.opacity
     property bool hasPlayButton: ((mediaPlayer.episode !== undefined)) && !progressIndicator.opacity
-    property bool hasSearchButton: main.state == 'podcasts' && !mediaPlayer.visible && !progressIndicator.opacity
-    property bool hasFilterButton: state == 'episodes' && !mediaPlayer.visible
+    property bool hasSearchButton: !mediaPlayer.visible && !progressIndicator.opacity
 
     property bool loadingEpisodes: false
 
@@ -72,12 +70,9 @@ Item {
     function goBack() {
         if (mediaPlayer.visible) {
             clickPlayButton()
-        } else if (main.state == 'podcasts') {
+        } else {
             mediaPlayer.stop()
             controller.quit()
-        } else if (main.state == 'episodes') {
-            main.state = 'podcasts'
-            main.currentPodcast = undefined
         }
     }
 
@@ -100,8 +95,6 @@ Item {
 
     width: 800
     height: 480
-
-    state: 'podcasts'
 
     function enqueueEpisode(episode) {
         if (currentEpisode === undefined) {
@@ -149,75 +142,101 @@ Item {
         progressIndicator.opacity = 0
     }
 
-    states: [
-        State {
-            name: 'podcasts'
-            PropertyChanges {
-                target: podcastList
-                opacity: 1
-            }
-            PropertyChanges {
-                target: episodeList
-                anchors.leftMargin: 100
-                opacity: 0
-            }
-            StateChangeScript {
-                script: episodeList.resetSelection()
-            }
-        },
-        State {
-            name: 'episodes'
-            PropertyChanges {
-                target: episodeList
-                opacity: !main.loadingEpisodes
-            }
-            PropertyChanges {
-                target: podcastList
-                opacity: 0
-                anchors.leftMargin: -100
-            }
-        }
-    ]
+    PodcastList {
+        id: podcastList
 
-    Item {
-        id: listContainer
         anchors.fill: parent
 
-        PodcastList {
-            id: podcastList
-            opacity: 0
-
-            anchors.fill: parent
-
-            onPodcastSelected: {
-                controller.podcastSelected(podcast)
-                main.currentPodcast = podcast
-            }
-            onPodcastContextMenu: controller.podcastContextMenu(podcast)
-            onSubscribe: pageStack.push(subscribePage);
-
-            Behavior on opacity { NumberAnimation { duration: Config.slowTransition } }
-            Behavior on anchors.leftMargin { NumberAnimation { duration: Config.slowTransition } }
+        onPodcastSelected: {
+            controller.podcastSelected(podcast);
+            main.currentPodcast = podcast;
+            pageStack.push(episodesPage);
         }
+        onPodcastContextMenu: controller.podcastContextMenu(podcast)
+        onSubscribe: pageStack.push(subscribePage);
+    }
+
+    Page {
+        id: episodesPage
 
         EpisodeList {
             id: episodeList
-            mainState: main.state
-
-            model: ListModel { id: episodeListModel }
-
-            opacity: 0
 
             anchors.fill: parent
 
+            model: ListModel { id: episodeListModel }
             onEpisodeContextMenu: controller.episodeContextMenu(episode)
-
-            Behavior on opacity { NumberAnimation { duration: Config.slowTransition } }
-            Behavior on anchors.leftMargin { NumberAnimation { duration: Config.slowTransition } }
         }
 
-        Behavior on opacity { NumberAnimation { duration: Config.slowTransition } }
-        Behavior on scale { NumberAnimation { duration: Config.fadeTransition } }
+        tools: ToolBarLayout {
+            ToolIcon {
+                anchors.left: parent.left
+                iconId: "icon-m-toolbar-back-white"
+                onClicked: {
+                    pageStack.pop();
+                    episodeList.resetSelection();
+                    main.currentPodcast = undefined;
+                }
+            }
+
+            ToolButton {
+                id: toolFilter
+                width: 300
+                onClicked: mainObject.showFilterDialog()
+                anchors.centerIn: parent
+
+                Label {
+                    color: 'white'
+                    text: mainObject.currentFilterText
+                    anchors.centerIn: parent
+                }
+            }
+
+            ToolIcon {
+                id: toolMenu
+                onClicked: hrmtnEpisodesMenu.open()
+                anchors.right: parent.right
+                iconId: "toolbar-view-menu"
+            }
+        }
+
+        ContextMenu {
+            id: hrmtnEpisodesMenu
+
+            MenuLayout {
+                MenuItem {
+                    id: nowPlayingMenuItem
+                    text: _('Now playing')
+                    onClicked: {
+                        if (main.hasPlayButton) {
+                            hrmtnEpisodesMenu.close();
+                            main.clickPlayButton();
+                        } else {
+                            main.showMessage(_('Playlist empty'));
+                        }
+                    }
+                }
+                MenuItem {
+                    text: _('Download episodes')
+                    onClicked: {
+                        main.showMultiEpisodesSheet(text, _('Download'), 'download');
+                    }
+                }
+                MenuItem {
+                    text: _('Playback episodes')
+                    onClicked: {
+                        main.showMultiEpisodesSheet(text, _('Play'), 'play');
+                    }
+                }
+                MenuItem {
+                    text: _('Delete episodes')
+                    onClicked: {
+                        main.showMultiEpisodesSheet(text, _('Delete'), 'delete');
+                    }
+                }
+            }
+        }
+
     }
 
     Item {
