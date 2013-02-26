@@ -51,6 +51,9 @@ SelectableItem {
             height: Config.iconSize
         }
 
+        width: Config.iconSize
+        height: Config.iconSize
+
         anchors {
             verticalCenter: parent.verticalCenter
             left: parent.left
@@ -58,6 +61,7 @@ SelectableItem {
         }
 
         cache: true
+        asynchronous: true
     }
 
     Column {
