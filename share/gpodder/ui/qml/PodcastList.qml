@@ -60,25 +60,22 @@ Item {
 
         section.property: 'section'
         section.delegate: Column {
-            spacing: Config.smallSpacing
-            anchors.topMargin: Config.largeSpacing
-
             Text {
                 font.pixelSize: Config.headerHeight * .5
                 wrapMode: Text.NoWrap
                 text: section
-                style: Text.Raised
-                color: "#bbb"
+                color: "#999"
                 anchors {
                     left: parent.left
                     leftMargin: Config.smallSpacing
                 }
             }
+
             Rectangle {
               height: 1
               border.width: 0
-              color: "#bbb"
-              width: listView.width
+              color: "#333"
+              width: listView.width - Config.largeSpacing
             }
         }
 
