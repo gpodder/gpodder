@@ -168,6 +168,29 @@ PageStackWindow {
     }
 
     Page {
+        id: subscribePage
+        tools: ToolBarLayout {
+            ToolIcon {
+                anchors.left: parent.left
+                iconId: "icon-m-toolbar-back-white"
+                onClicked: {
+                    pageStack.pop()
+                }
+            }
+        }
+
+
+        Subscribe {
+            anchors.fill: parent
+
+            onSubscribe: {
+                controller.addSubscriptions(urls);
+                pageStack.pop();
+            }
+        }
+    }
+
+    Page {
         id: showNotesPage
 
         ShowNotes {
