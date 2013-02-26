@@ -12,14 +12,14 @@ Item {
 
     property string pullDownText: ''
     property string releaseText: ''
-    property variant target: listView
+    property variant target
     property int threshold: 100
     property int lastMinY: 0
     property bool startedAtZero: false
     property bool wouldRefresh: (lastMinY < -threshold)
 
     Connections {
-        target: listView
+        target: pullDown.target
 
         onMovementStarted: {
             pullDown.lastMinY = 0;
