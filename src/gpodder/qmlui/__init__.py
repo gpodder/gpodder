@@ -1221,7 +1221,6 @@ class qtPodder(QObject):
             self.episode_model.set_is_subset_view(True)
 
         self.episode_model.set_objects(map(wrap, objects))
-        self.main.state = 'episodes'
 
     def save_pending_data(self):
         current_ep = self.main.currentEpisode
