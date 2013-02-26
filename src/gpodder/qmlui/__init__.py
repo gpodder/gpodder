@@ -296,7 +296,7 @@ class Controller(QObject):
                 if episode.qdownloaded:
                     print '    XXX     already downloaded'
                     continue
-                episode.qdownload(self.root.config, self.update_subset_stats)
+                self.downloadEpisode(episode)
             self.root.mygpo_client.on_download(episodes)
             self.root.mygpo_client.flush()
         elif action == 'play':
