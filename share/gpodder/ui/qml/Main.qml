@@ -198,7 +198,6 @@ Item {
             }
 
             ToolIcon {
-                id: toolMenu
                 onClicked: hrmtnEpisodesMenu.open()
                 anchors.right: parent.right
                 iconId: "toolbar-view-menu"
@@ -283,6 +282,12 @@ Item {
                     main.currentPodcast = undefined;
                 }
             }
+
+            ToolIcon {
+                onClicked: mediaPlayerMenu.open()
+                anchors.right: parent.right
+                iconId: "toolbar-view-menu"
+            }
         }
 
         MediaPlayer {
@@ -292,6 +297,28 @@ Item {
                 left: parent.left
                 right: parent.right
                 verticalCenter: parent.verticalCenter
+            }
+        }
+
+        ContextMenu {
+            id: mediaPlayerMenu
+
+            MenuLayout {
+                MenuItem {
+                    text: _('Shownotes')
+                    onClicked: main.openShowNotes(mediaPlayer.episode)
+                }
+
+                MenuItem {
+                    text: _('Play queue')
+                    onClicked: {
+                        if (mediaPlayer.hasQueue) {
+                            mediaPlayer.showQueue();
+                        } else {
+                            main.showMessage(_('Playlist empty'));
+                        }
+                    }
+                }
             }
         }
     }
@@ -352,7 +379,6 @@ Item {
         property bool opened: false
         property string title: ''
         acceptButtonText: _('Delete')
-        visualParent: episodeList
         anchors.fill: parent
         anchors.topMargin: -36
 

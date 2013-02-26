@@ -17,6 +17,12 @@ Item {
     property variant playQueue: []
     property int startedFrom: 0
 
+    property bool hasQueue: playQueue.length > 0
+
+    function showQueue() {
+        playQueueDialog.showQueue();
+    }
+
     onStartedFromChanged: {
         console.log('started from: ' + startedFrom)
     }
@@ -177,92 +183,53 @@ Item {
         audioPlayer.source = ''
     }
 
-    Rectangle {
-        id: mediaPlayerButtons
-        color: 'black'
-        anchors {
-            top: mediaPlayerMain.bottom
-            left: parent.left
-            right: parent.right
+    MultiSelectionDialog {
+        id: playQueueDialog
+
+        function showQueue() {
+            selectedIndexes = [];
+            model.clear();
+            for (var index in playQueue) {
+                var episode = playQueue[index];
+                model.append({'name': episode.qtitle, 'position': index});
+            }
+            open();
         }
 
-        Grid {
-            columns: Util.isScreenPortrait() ? 1 : 2
+        onAccepted: {
+            /**
+             * FIXME: If things have been removed from the play queue while
+             * the dialog was open, we have to subtract the values in
+             * selectedIndexes by the amount of played episodes to get the
+             * right episodes to delete. This is not yet done here.
+             * We can know from the nextInQueue() function (hint, hint)
+             **/
+            var newQueue = [];
+            for (var queueIndex in playQueue) {
+                var episode = playQueue[queueIndex];
+                var shouldRemove = false;
 
-            spacing: 2
-
-            anchors.horizontalCenter: parent.horizontalCenter
-
-            Button {
-                id: showNotesButton
-                width: parent.width * .9
-
-                text: _('Shownotes')
-                onClicked: {
-                    mediaPlayer.visible = false
-                    main.openShowNotes(episode)
-                }
-            }
-
-            Button {
-                id: playQueueButton
-                width: parent.width * .9
-
-                visible: playQueue.length > 0
-
-                text: _('Play queue') + ' (' + playQueue.length + ')'
-                onClicked: playQueueDialog.showQueue();
-            }
-        }
-
-        MultiSelectionDialog {
-            id: playQueueDialog
-
-            function showQueue() {
-                selectedIndexes = [];
-                model.clear();
-                for (var index in playQueue) {
-                    var episode = playQueue[index];
-                    model.append({'name': episode.qtitle, 'position': index});
-                }
-                open();
-            }
-
-            onAccepted: {
-                /**
-                 * FIXME: If things have been removed from the play queue while
-                 * the dialog was open, we have to subtract the values in
-                 * selectedIndexes by the amount of played episodes to get the
-                 * right episodes to delete. This is not yet done here.
-                 * We can know from the nextInQueue() function (hint, hint)
-                 **/
-                var newQueue = [];
-                for (var queueIndex in playQueue) {
-                    var episode = playQueue[queueIndex];
-                    var shouldRemove = false;
-
-                    for (var index in selectedIndexes) {
-                        var pos = model.get(selectedIndexes[index]).position;
-                        if (queueIndex === pos) {
-                            shouldRemove = true;
-                            break;
-                        }
-                    }
-
-                    if (shouldRemove) {
-                        controller.releaseEpisode(episode);
-                        /* Implicit removal by absence of newQueue.push() */
-                    } else {
-                        newQueue.push(episode);
+                for (var index in selectedIndexes) {
+                    var pos = model.get(selectedIndexes[index]).position;
+                    if (queueIndex === pos) {
+                        shouldRemove = true;
+                        break;
                     }
                 }
-                playQueue = newQueue;
-            }
 
-            titleText: _('Play queue')
-            acceptButtonText: _('Remove')
-            model: ListModel { }
+                if (shouldRemove) {
+                    controller.releaseEpisode(episode);
+                    /* Implicit removal by absence of newQueue.push() */
+                } else {
+                    newQueue.push(episode);
+                }
+            }
+            playQueue = newQueue;
         }
+
+        titleText: _('Play queue')
+        acceptButtonText: _('Remove')
+        model: ListModel { }
     }
 
     Rectangle {
