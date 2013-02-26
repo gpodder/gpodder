@@ -44,17 +44,22 @@ Item {
     Component.onCompleted: {
         /* Signal connections for upcalls from the backend */
         controller.episodeUpdated.connect(episodeUpdated);
+
         controller.showMessage.connect(showMessage);
+        controller.showInputDialog.connect(showInputDialog);
+        controller.openContextMenu.connect(openContextMenu);
+
         controller.startProgress.connect(startProgress);
         controller.endProgress.connect(endProgress);
+
         controller.clearEpisodeListModel.connect(clearEpisodeListModel);
         controller.setEpisodeListModel.connect(setEpisodeListModel);
+
         controller.enqueueEpisode.connect(enqueueEpisode);
         controller.removeQueuedEpisode.connect(removeQueuedEpisode);
         controller.removeQueuedEpisodesForPodcast.connect(removeQueuedEpisodesForPodcast);
+
         controller.shutdown.connect(shutdown);
-        controller.showInputDialog.connect(showInputDialog);
-        controller.openContextMenu.connect(openContextMenu);
     }
 
     function episodeUpdated(id) {
