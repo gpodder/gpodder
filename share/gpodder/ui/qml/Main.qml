@@ -22,7 +22,6 @@ Item {
     property alias multiEpisodesSheetOpened: multiEpisodesSheet.opened
     onEpisodeModelChanged: episodeList.resetFilterDialog()
     property alias currentEpisode: mediaPlayer.episode
-    property alias showNotesEpisode: showNotes.episode
     property variant currentPodcast: undefined
     property bool hasPodcasts: podcastList.hasItems
     property alias currentFilterText: episodeList.currentFilterText
@@ -81,8 +80,6 @@ Item {
         } else if (main.state == 'episodes') {
             main.state = 'podcasts'
             main.currentPodcast = undefined
-        } else if (main.state == 'shownotes') {
-            main.state = 'episodes'
         }
     }
 
@@ -136,8 +133,8 @@ Item {
     }
 
     function openShowNotes(episode) {
-        showNotes.episode = episode
-        main.state = 'shownotes'
+        showNotes.episode = episode;
+        pageStack.push(showNotesPage);
     }
 
     function openContextMenu(items) {
@@ -166,10 +163,6 @@ Item {
                 anchors.leftMargin: 100
                 opacity: 0
             }
-            PropertyChanges {
-                target: showNotes
-                opacity: 0
-            }
             StateChangeScript {
                 script: episodeList.resetSelection()
             }
@@ -184,23 +177,6 @@ Item {
                 target: podcastList
                 opacity: 0
                 anchors.leftMargin: -100
-            }
-            PropertyChanges {
-                target: showNotes
-                opacity: 0
-                anchors.leftMargin: main.width
-            }
-        },
-        State {
-            name: 'shownotes'
-            PropertyChanges {
-                target: listContainer
-                opacity: 0
-            }
-            PropertyChanges {
-                target: showNotes
-                opacity: 1
-                anchors.leftMargin: 0
             }
         }
     ]
@@ -244,20 +220,6 @@ Item {
 
         Behavior on opacity { NumberAnimation { duration: Config.slowTransition } }
         Behavior on scale { NumberAnimation { duration: Config.fadeTransition } }
-    }
-
-    ShowNotes {
-        id: showNotes
-
-        anchors {
-            left: parent.left
-            top: parent.top
-            bottom: parent.bottom
-        }
-        width: parent.width
-
-        Behavior on opacity { NumberAnimation { duration: Config.slowTransition } }
-        Behavior on anchors.leftMargin { NumberAnimation { duration: Config.slowTransition } }
     }
 
     Item {
