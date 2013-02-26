@@ -50,37 +50,6 @@ PageStackWindow {
             }
 
             ToolIcon {
-                id: toolFlattr
-                iconSource: 'artwork/flattr.png'
-                visible: mainObject.state == 'shownotes'
-
-                opacity: (mainObject.state == 'shownotes') && (labelFlattr.text !== '')
-                Behavior on opacity { PropertyAnimation { } }
-
-                anchors.right: toolPlay.visible?toolPlay.left:parent.right
-                onClicked: {
-                    controller.flattrEpisode(mainObject.showNotesEpisode);
-                }
-            }
-
-            Connections {
-                target: mainObject
-                onShowNotesEpisodeChanged: {
-                    controller.updateFlattrButtonText(mainObject.showNotesEpisode);
-                }
-            }
-            Label {
-                id: labelFlattr
-                color: 'white'
-                anchors.right: toolFlattr.left
-                anchors.verticalCenter: toolFlattr.verticalCenter
-                opacity: toolFlattr.opacity
-                visible: toolFlattr.visible
-
-                text: controller.flattrButtonText
-            }
-
-            ToolIcon {
                 id: toolMenu
                 onClicked: {
                     if (mainObject.state === 'episodes') {
@@ -195,6 +164,57 @@ PageStackWindow {
         Main {
             id: mainObject
             anchors.fill: parent
+        }
+    }
+
+    Page {
+        id: showNotesPage
+
+        ShowNotes {
+            id: showNotes
+
+            anchors.fill: parent
+
+            Behavior on opacity { NumberAnimation { duration: Config.slowTransition } }
+            Behavior on anchors.leftMargin { NumberAnimation { duration: Config.slowTransition } }
+        }
+
+        tools: ToolBarLayout {
+            ToolIcon {
+                anchors.left: parent.left
+                iconId: "icon-m-toolbar-back-white"
+                onClicked: pageStack.pop()
+            }
+
+            ToolIcon {
+                id: toolFlattr
+                iconSource: 'artwork/flattr.png'
+
+                opacity: labelFlattr.text !== ''
+                Behavior on opacity { PropertyAnimation { } }
+
+                anchors.right: parent.right
+                onClicked: {
+                    controller.flattrEpisode(showNotes.episode);
+                }
+            }
+
+            Connections {
+                target: mainObject
+                onShowNotesEpisodeChanged: {
+                    controller.updateFlattrButtonText(showNotes.episode);
+                }
+            }
+
+            Label {
+                id: labelFlattr
+                color: 'white'
+                anchors.right: toolFlattr.left
+                anchors.verticalCenter: toolFlattr.verticalCenter
+                opacity: toolFlattr.opacity
+
+                text: controller.flattrButtonText
+            }
         }
     }
 
