@@ -199,7 +199,7 @@ Item {
 
                 text: _('Shownotes')
                 onClicked: {
-                    nowPlayingThrobber.opened = false
+                    mediaPlayer.visible = false
                     main.openShowNotes(episode)
                 }
             }

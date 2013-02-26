@@ -28,7 +28,7 @@ Item {
 
     property bool playing: mediaPlayer.playing
     property bool canGoBack: (main.state != 'podcasts' || contextMenu.state != 'closed' || mediaPlayer.visible) && !progressIndicator.opacity
-    property bool hasPlayButton: nowPlayingThrobber.shouldAppear && !progressIndicator.opacity
+    property bool hasPlayButton: ((contextMenu.state != 'opened') && (mediaPlayer.episode !== undefined)) && !progressIndicator.opacity
     property bool hasSearchButton: (contextMenu.state == 'closed' && main.state == 'podcasts') && !mediaPlayer.visible && !progressIndicator.opacity
     property bool hasFilterButton: state == 'episodes' && !mediaPlayer.visible
 
@@ -70,7 +70,7 @@ Item {
     }
 
     function goBack() {
-        if (nowPlayingThrobber.opened) {
+        if (mediaPlayer.visible) {
             clickPlayButton()
         } else if (contextMenu.state == 'opened') {
             contextMenu.state = 'closed'
@@ -88,7 +88,7 @@ Item {
     }
 
     function clickPlayButton() {
-        nowPlayingThrobber.opened = !nowPlayingThrobber.opened
+        mediaPlayer.visible = !mediaPlayer.visible;
     }
 
     function showMultiEpisodesSheet(title, label, action) {
@@ -227,7 +227,7 @@ Item {
         anchors.fill: parent
         z: (contextMenu.state != 'opened')?2:0
 
-        opacity: (nowPlayingThrobber.opened || contextMenu.state == 'opened' || messageDialog.opacity || inputDialog.opacity || progressIndicator.opacity)?1:0
+        opacity: (mediaPlayer.visible || contextMenu.state == 'opened' || messageDialog.opacity || inputDialog.opacity || progressIndicator.opacity)?1:0
         Behavior on opacity { NumberAnimation { duration: Config.slowTransition } }
 
         MouseArea {
@@ -242,7 +242,7 @@ Item {
                 } else if (messageDialog.opacity) {
                     messageDialog.opacity = 0
                 } else {
-                    nowPlayingThrobber.opened = false
+                    mediaPlayer.visible = false
                 }
             }
         }
@@ -259,23 +259,16 @@ Item {
         }
     }
 
-    Item {
-        // XXX: Remove me
-        id: nowPlayingThrobber
-        property bool shouldAppear: ((contextMenu.state != 'opened') && (mediaPlayer.episode !== undefined))
-        property bool opened: false
-    }
-
     MediaPlayer {
         id: mediaPlayer
-        visible: nowPlayingThrobber.opened
+        visible: false
 
         z: 3
 
         anchors.top: parent.bottom
         anchors.left: parent.left
         anchors.right: parent.right
-        anchors.topMargin: nowPlayingThrobber.opened?-(height+(parent.height-height)/2):0
+        anchors.topMargin: visible?-(height+(parent.height-height)/2):0
 
         Behavior on anchors.topMargin { PropertyAnimation { duration: Config.quickTransition; easing.type: Easing.OutCirc } }
     }
