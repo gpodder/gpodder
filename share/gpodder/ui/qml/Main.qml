@@ -34,11 +34,22 @@ Item {
         episodeListModel.clear();
     }
 
-    function setEpisodeListModel(model) {
-        for (var i=0; i<model.length; i++) {
-            episodeListModel.append(model[i]);
+    function setEpisodeListModel() {
+        var count = episodeModel.getCount();
+        for (var i=0; i<count; i++) {
+            episodeListModel.append(episodeModel.get_object_by_index(i));
         }
         loadingEpisodes = false;
+    }
+
+    Component.onCompleted: {
+        /* Signal connections */
+        controller.episodeUpdated.connect(episodeUpdated);
+        controller.showMessage.connect(showMessage);
+        controller.startProgress.connect(startProgress);
+        controller.endProgress.connect(endProgress);
+        controller.clearEpisodeListModel.connect(clearEpisodeListModel);
+        controller.setEpisodeListModel.connect(setEpisodeListModel);
     }
 
     function episodeUpdated(id) {
