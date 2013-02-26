@@ -1,6 +1,7 @@
 
 import QtQuick 1.1
 import com.nokia.meego 1.0
+import com.nokia.extras 1.1
 import QtWebKit 1.0
 
 import 'config.js' as Config
@@ -20,6 +21,11 @@ PageStackWindow {
 
     // Hide status bar in landscape mode
     showStatusBar: screen.currentOrientation == Screen.Portrait
+
+    InfoBanner {
+        id: infoBanner
+        topMargin: 8 + rootWindow.__statusBarHeight
+    }
 
     initialPage: Page {
         id: mainPage
@@ -54,7 +60,7 @@ PageStackWindow {
             MenuLayout {
                 MenuItem {
                     text: _('Now playing')
-                    onClicked: nowPlayingMenuItem.clicked()
+                    onClicked: mainObject.clickPlayButton();
                 }
                 MenuItem {
                     text: _('Settings')
