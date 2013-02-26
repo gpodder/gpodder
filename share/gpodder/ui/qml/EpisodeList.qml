@@ -18,6 +18,7 @@ Item {
     property alias model: listView.model
     property alias moving: listView.moving
     property alias count: listView.count
+    property alias listViewContentY: listView.contentY
 
     signal episodeContextMenu(variant episode)
 

@@ -94,6 +94,7 @@ Item {
         multiEpisodesSheet.acceptButtonText = label;
         multiEpisodesSheet.action = action;
         multiEpisodesList.selected = [];
+        multiEpisodesList.contentY = episodeList.listViewContentY;
         multiEpisodesSheet.open();
         multiEpisodesSheet.opened = true;
     }
