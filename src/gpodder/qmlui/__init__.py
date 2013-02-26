@@ -309,7 +309,8 @@ class Controller(QObject):
             self.root.mygpo_client.flush()
             for episode in episodes:
                 self.removeQueuedEpisode.emit(episode)
-            self.root.episode_model.sort()
+
+            util.run_in_background(self.root.episode_model.sort)
 
         if action == 'delete':
             msg = N_('Delete %(count)d episode?', 'Delete %(count)d episodes?', count) % {'count':count}
@@ -397,7 +398,7 @@ class Controller(QObject):
     @Slot(QObject)
     def podcastSelected(self, podcast):
         self.setEpisodeListTitle(podcast.qtitle)
-        self.root.select_podcast(podcast)
+        util.run_in_background(lambda: self.root.select_podcast(podcast))
 
     windowTitleChanged = Signal()
 
@@ -719,7 +720,7 @@ class Controller(QObject):
             self.root.mygpo_client.on_delete([episode])
             self.root.mygpo_client.flush()
             self.removeQueuedEpisode.emit(episode)
-            self.root.episode_model.sort()
+            util.run_in_background(self.root.episode_model.sort)
 
         self.confirm_action(_('Delete this episode?'), _('Delete'), delete)
 
@@ -886,46 +887,44 @@ class gPodderEpisodeListModel(gPodderListModel):
     def _on_config_changed(self, name, old_value, new_value):
         if name == 'ui.qml.state.episode_list_filter':
             self._filter = new_value
-            self.sort()
+            util.run_in_background(self.sort)
 
     def sort(self):
         self._root.controller.clearEpisodeListModel.emit()
 
-        @util.run_in_background
-        def filter_and_load_episodes():
-            caption, eql = EPISODE_LIST_FILTERS[self._filter]
+        caption, eql = EPISODE_LIST_FILTERS[self._filter]
 
-            if eql is None:
-                self._filtered = self._objects
-            else:
-                eql = query.EQL(eql)
-                match = lambda episode: eql.match(episode._episode)
-                self._filtered = filter(match, self._objects)
+        if eql is None:
+            self._filtered = self._objects
+        else:
+            eql = query.EQL(eql)
+            match = lambda episode: eql.match(episode._episode)
+            self._filtered = filter(match, self._objects)
 
-            def to_dict(episode):
-                return {
-                    'episode_id': episode._episode.id,
+        def to_dict(episode):
+            return {
+                'episode_id': episode._episode.id,
 
-                    'episode': episode,
+                'episode': episode,
 
-                    'title': episode.qtitle,
-                    'podcast': episode.qpodcast,
-                    'cover_url': episode.qpodcast.qcoverart,
-                    'filetype': episode.qfiletype,
+                'title': episode.qtitle,
+                'podcast': episode.qpodcast,
+                'cover_url': episode.qpodcast.qcoverart,
+                'filetype': episode.qfiletype,
 
-                    'duration': episode.qduration,
-                    'downloading': episode.qdownloading,
-                    'position': episode.qposition,
-                    'progress': episode.qprogress,
-                    'downloaded': episode.qdownloaded,
-                    'isnew': episode.qnew,
-                    'archive': episode.qarchive,
-                }
+                'duration': episode.qduration,
+                'downloading': episode.qdownloading,
+                'position': episode.qposition,
+                'progress': episode.qprogress,
+                'downloaded': episode.qdownloaded,
+                'isnew': episode.qnew,
+                'archive': episode.qarchive,
+            }
 
-            self._processed = map(to_dict, self._filtered[:EPISODE_LIST_LIMIT])
-            self.reset()
+        self._processed = map(to_dict, self._filtered[:EPISODE_LIST_LIMIT])
+        self.reset()
 
-            self._root.controller.setEpisodeListModel.emit()
+        self._root.controller.setEpisodeListModel.emit()
 
     def get_objects(self):
         return self._processed

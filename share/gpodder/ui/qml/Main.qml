@@ -29,16 +29,56 @@ Item {
     property bool loadingEpisodes: false
 
     function clearEpisodeListModel() {
+        /* Abort loading when clearing list model */
+        episodeListModelLoader.running = false;
         loadingEpisodes = true;
         episodeListModel.clear();
     }
 
-    function setEpisodeListModel() {
-        var count = episodeModel.getCount();
-        for (var i=0; i<count; i++) {
-            episodeListModel.append(episodeModel.get_object_by_index(i));
+    Timer {
+        id: episodeListModelLoader
+
+        /**
+         * These values determined by non-scientific experimentation,
+         * feel free to tweak depending on the power of your device.
+         *
+         * Loads <stepSize> items every <interval> ms, and to populate
+         * the first screen, loads <initialStepSize> items on start.
+         **/
+        property int initialStepSize: 13
+        property int stepSize: 4
+        interval: 50
+
+        property int count: 0
+        property int position: 0
+
+        repeat: true
+        triggeredOnStart: true
+
+        onTriggered: {
+            var step = (position === 0) ? initialStepSize : stepSize;
+            var end = Math.min(count, position+step);
+
+            for (var i=position; i<end; i++) {
+                episodeListModel.append(episodeModel.get_object_by_index(i));
+            }
+
+            position = end;
+            if (position === count) {
+                running = false;
+                main.loadingEpisodes = false;
+            } else if (pageStack.depth === 1) {
+                /* Abort loading when switching to main view */
+                running = false;
+                main.loadingEpisodes = false;
+            }
         }
-        loadingEpisodes = false;
+    }
+
+    function setEpisodeListModel() {
+        episodeListModelLoader.count = episodeModel.getCount();
+        episodeListModelLoader.position = 0;
+        episodeListModelLoader.restart();
     }
 
     Component.onCompleted: {
