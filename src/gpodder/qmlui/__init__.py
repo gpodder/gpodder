@@ -1002,15 +1002,14 @@ class qtPodder(QObject):
                 self.media_buttons_handler)
         root_context.setContextProperty('trackerMinerConfig',
                 self.tracker_miner_config)
+        root_context.setContextProperty('podcastModel', self.podcast_model)
+        root_context.setContextProperty('episodeModel', self.episode_model)
 
         # Load the QML UI (this could take a while...)
         self.view.setSource(QUrl.fromLocalFile(QML('main_default.qml')))
 
         # Proxy to the "main" QML object for direct access to Qt Properties
         self.main = helper.QObjectProxy(self.view.rootObject().property('main'))
-
-        self.main.podcastModel = self.podcast_model
-        self.main.episodeModel = self.episode_model
 
         self.view.setWindowTitle('gPodder')
 

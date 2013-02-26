@@ -17,10 +17,7 @@ Item {
         return controller.ntranslate(x, y, z)
     }
 
-    property alias podcastModel: podcastList.model
-    property variant episodeModel
     property alias multiEpisodesSheetOpened: multiEpisodesSheet.opened
-    onEpisodeModelChanged: episodeList.resetFilterDialog()
     property alias currentEpisode: mediaPlayer.episode
     property variant currentPodcast: undefined
     property bool hasPodcasts: podcastList.hasItems
@@ -148,6 +145,7 @@ Item {
 
     PodcastList {
         id: podcastList
+        model: podcastModel
 
         anchors.fill: parent
 
@@ -454,7 +452,7 @@ Item {
                         onClicked: {
                             var newSelection = [];
                             for (var i=0; i<multiEpisodesList.count; i++) {
-                                if (main.episodeModel.get_object_by_index(i).downloaded) {
+                                if (episodeModel.get_object_by_index(i).downloaded) {
                                     newSelection.push(i);
                                 }
                             }

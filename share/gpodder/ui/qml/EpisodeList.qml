@@ -9,6 +9,7 @@ Item {
     id: episodeList
     property string currentFilterText
     property string mainState
+    property alias model: listView.model
 
     clip: true
 
@@ -17,7 +18,6 @@ Item {
         listView.lastContentY = 0;
     }*/
 
-    property alias model: listView.model
     property alias moving: listView.moving
     property alias count: listView.count
     property alias listViewContentY: listView.contentY
@@ -30,10 +30,6 @@ Item {
 
     function resetSelection() {
         listView.openedIndex = -1
-    }
-
-    function resetFilterDialog() {
-        filterDialog.resetSelection();
     }
 
     Text {
@@ -170,17 +166,13 @@ Item {
         titleText: _('Show episodes')
 
         function resetSelection() {
-            if (main.episodeModel !== undefined) {
-                selectedIndex = main.episodeModel.getFilter();
-                accepted();
-            }
+            selectedIndex = episodeModel.getFilter();
+            accepted();
         }
 
         onAccepted: {
-            if (main.episodeModel !== undefined) {
-                episodeList.currentFilterText = model.get(selectedIndex).name;
-                episodeModel.setFilter(selectedIndex);
-            }
+            episodeList.currentFilterText = model.get(selectedIndex).name;
+            episodeModel.setFilter(selectedIndex);
         }
 
         model: ListModel {}
@@ -191,6 +183,8 @@ Item {
             for (var index in filters) {
                 model.append({name: filters[index]});
             }
+
+            resetSelection();
         }
     }
 }
