@@ -113,6 +113,11 @@ Item {
     }
 
     function removeQueuedEpisodesForPodcast(podcast) {
+        if (mediaPlayer.episode !== undefined && podcast.equals(mediaPlayer.episode.qpodcast)) {
+            // Stop playback if currently playing an episode in the podcast
+            togglePlayback(undefined);
+        }
+
         var newQueue = [];
 
         for (var i in playQueue) {
@@ -127,6 +132,11 @@ Item {
     }
 
     function removeQueuedEpisode(episode) {
+        if (mediaPlayer.episode !== undefined && episode.equals(mediaPlayer.episode)) {
+            // Stop playback if the deleted epiosde is currently played
+            togglePlayback(undefined);
+        }
+
         var newQueue = [];
 
         for (var i in playQueue) {

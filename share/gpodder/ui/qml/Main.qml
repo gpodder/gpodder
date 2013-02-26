@@ -50,6 +50,9 @@ Item {
         controller.endProgress.connect(endProgress);
         controller.clearEpisodeListModel.connect(clearEpisodeListModel);
         controller.setEpisodeListModel.connect(setEpisodeListModel);
+        controller.enqueueEpisode.connect(enqueueEpisode);
+        controller.removeQueuedEpisode.connect(removeQueuedEpisode);
+        controller.removeQueuedEpisodesForPodcast.connect(removeQueuedEpisodesForPodcast);
     }
 
     function episodeUpdated(id) {

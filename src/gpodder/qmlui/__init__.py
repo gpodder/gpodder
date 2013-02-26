@@ -146,6 +146,9 @@ class Controller(QObject):
     endProgress = Signal()
     clearEpisodeListModel = Signal()
     setEpisodeListModel = Signal()
+    enqueueEpisode = Signal(QObject)
+    removeQueuedEpisode = Signal(QObject)
+    removeQueuedEpisodesForPodcast = Signal(QObject)
 
     def on_config_changed(self, name, old_value, new_value):
         logger.info('Config changed: %s (%s -> %s)', name,
@@ -293,7 +296,7 @@ class Controller(QObject):
             self.root.mygpo_client.on_delete(episodes)
             self.root.mygpo_client.flush()
             for episode in episodes:
-                self.root.on_episode_deleted(episode)
+                self.removeQueuedEpisode.emit(episode)
             self.root.episode_model.sort()
 
         if action == 'delete':
@@ -309,7 +312,7 @@ class Controller(QObject):
             self.root.mygpo_client.flush()
         elif action == 'play':
             for episode in episodes:
-                self.root.enqueue_episode(episode)
+                self.enqueueEpisode.emit(episode)
                 self.episodeUpdated.emit(episode.id)
 
     @Slot(str, result=str)
@@ -579,7 +582,13 @@ class Controller(QObject):
             def unsubscribe():
                 action.target.remove_downloaded()
                 action.target.delete()
-                self.root.remove_podcast(action.target)
+
+                # Remove queued episodes for this specific podcast
+                self.removeQueuedEpisodesForPodcast.emit(action.target)
+
+                self.root.podcast_model.remove_object(action.target)
+                self.root.mygpo_client.on_unsubscribe([action.target.url])
+                self.root.mygpo_client.flush()
 
             self.confirm_action(_('Remove this podcast and episodes?'),
                     _('Unsubscribe'), unsubscribe)
@@ -594,7 +603,7 @@ class Controller(QObject):
         elif action.action == 'episode-delete':
             self.deleteEpisode(action.target)
         elif action.action == 'episode-enqueue':
-            self.root.enqueue_episode(action.target)
+            self.enqueueEpisode.emit(action.target)
         elif action.action == 'mark-as-read':
             for episode in action.target.get_all_episodes():
                 if not episode.was_downloaded(and_exists=True):
@@ -699,7 +708,7 @@ class Controller(QObject):
             self.update_subset_stats()
             self.root.mygpo_client.on_delete([episode])
             self.root.mygpo_client.flush()
-            self.root.on_episode_deleted(episode)
+            self.removeQueuedEpisode.emit(episode)
             self.root.episode_model.sort()
 
         self.confirm_action(_('Delete this episode?'), _('Delete'), delete)
@@ -1109,13 +1118,6 @@ class qtPodder(QObject):
             # FIXME: Send last episode to player
             #self.select_episode(self.last_episode)
 
-    def on_episode_deleted(self, episode):
-        # Remove episode from play queue (if it's in there)
-        self.main.removeQueuedEpisode(episode)
-
-    def enqueue_episode(self, episode):
-        self.main.enqueueEpisode(episode)
-
     def run(self):
         return self.app.exec_()
 
@@ -1142,14 +1144,6 @@ class qtPodder(QObject):
     def insert_podcast(self, podcast):
         self.podcast_model.insert_object(podcast)
         self.mygpo_client.on_subscribe([podcast.url])
-        self.mygpo_client.flush()
-
-    def remove_podcast(self, podcast):
-        # Remove queued episodes for this specific podcast
-        self.main.removeQueuedEpisodesForPodcast(podcast)
-
-        self.podcast_model.remove_object(podcast)
-        self.mygpo_client.on_unsubscribe([podcast.url])
         self.mygpo_client.flush()
 
     def load_podcasts(self):
