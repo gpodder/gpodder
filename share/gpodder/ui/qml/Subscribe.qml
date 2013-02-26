@@ -138,6 +138,9 @@ Item {
     Sheet {
         id: resultsSheet
 
+        anchors.fill: parent
+        anchors.topMargin: -50
+
         acceptButtonText: _('Subscribe')
         rejectButtonText: _('Cancel')
 
