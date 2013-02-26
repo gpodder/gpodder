@@ -27,9 +27,9 @@ Item {
     property alias currentFilterText: episodeList.currentFilterText
 
     property bool playing: mediaPlayer.playing
-    property bool canGoBack: (main.state != 'podcasts' || contextMenu.state != 'closed' || mediaPlayer.visible) && !progressIndicator.opacity
-    property bool hasPlayButton: ((contextMenu.state != 'opened') && (mediaPlayer.episode !== undefined)) && !progressIndicator.opacity
-    property bool hasSearchButton: (contextMenu.state == 'closed' && main.state == 'podcasts') && !mediaPlayer.visible && !progressIndicator.opacity
+    property bool canGoBack: (main.state != 'podcasts' || mediaPlayer.visible) && !progressIndicator.opacity
+    property bool hasPlayButton: ((mediaPlayer.episode !== undefined)) && !progressIndicator.opacity
+    property bool hasSearchButton: main.state == 'podcasts' && !mediaPlayer.visible && !progressIndicator.opacity
     property bool hasFilterButton: state == 'episodes' && !mediaPlayer.visible
 
     property bool loadingEpisodes: false
@@ -66,14 +66,12 @@ Item {
     }
 
     function clickSearchButton() {
-        contextMenu.showSubscribe()
+        pageStack.push(subscribePage);
     }
 
     function goBack() {
         if (mediaPlayer.visible) {
             clickPlayButton()
-        } else if (contextMenu.state == 'opened') {
-            contextMenu.state = 'closed'
         } else if (main.state == 'podcasts') {
             mediaPlayer.stop()
             controller.quit()
@@ -196,7 +194,7 @@ Item {
                 main.currentPodcast = podcast
             }
             onPodcastContextMenu: controller.podcastContextMenu(podcast)
-            onSubscribe: contextMenu.showSubscribe()
+            onSubscribe: pageStack.push(subscribePage);
 
             Behavior on opacity { NumberAnimation { duration: Config.slowTransition } }
             Behavior on anchors.leftMargin { NumberAnimation { duration: Config.slowTransition } }
@@ -225,17 +223,15 @@ Item {
     Item {
         id: overlayInteractionBlockWall
         anchors.fill: parent
-        z: (contextMenu.state != 'opened')?2:0
+        z: 2
 
-        opacity: (mediaPlayer.visible || contextMenu.state == 'opened' || messageDialog.opacity || inputDialog.opacity || progressIndicator.opacity)?1:0
+        opacity: (mediaPlayer.visible || messageDialog.opacity || inputDialog.opacity || progressIndicator.opacity)?1:0
         Behavior on opacity { NumberAnimation { duration: Config.slowTransition } }
 
         MouseArea {
             anchors.fill: parent
             onClicked: {
-                if (contextMenu.state == 'opened') {
-                    // do nothing
-                } else if (progressIndicator.opacity) {
+                if (progressIndicator.opacity) {
                     // do nothing
                 } else if (inputDialog.opacity) {
                     inputDialog.close()
@@ -289,57 +285,6 @@ Item {
                     }
                 }
             }
-        }
-    }
-
-    ContextMenuArea {
-        id: contextMenu
-
-        width: parent.width
-        opacity: 0
-
-        anchors {
-            top: parent.top
-            bottom: parent.bottom
-        }
-
-        onClose: contextMenu.state = 'closed'
-        onResponse: controller.contextMenuResponse(index)
-
-        state: 'closed'
-
-        Behavior on opacity { NumberAnimation { duration: Config.fadeTransition } }
-
-        states: [
-            State {
-                name: 'opened'
-                PropertyChanges {
-                    target: contextMenu
-                    opacity: 1
-                }
-                AnchorChanges {
-                    target: contextMenu
-                    anchors.right: main.right
-                }
-            },
-            State {
-                name: 'closed'
-                PropertyChanges {
-                    target: contextMenu
-                    opacity: 0
-                }
-                AnchorChanges {
-                    target: contextMenu
-                    anchors.right: main.left
-                }
-                StateChangeScript {
-                    script: controller.contextMenuClosed()
-                }
-            }
-        ]
-
-        transitions: Transition {
-            AnchorAnimation { duration: Config.slowTransition }
         }
     }
 
