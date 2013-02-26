@@ -33,17 +33,15 @@ Item {
     property bool loadingEpisodes: false
 
     function clearEpisodeListModel() {
-        loadingEpisodes = true
-        startProgress(_('Loading episodes'))
+        loadingEpisodes = true;
+        episodeListModel.clear();
     }
 
     function setEpisodeListModel(model) {
-        episodeListModel.clear();
         for (var i=0; i<model.length; i++) {
             episodeListModel.append(model[i]);
         }
-        loadingEpisodes = false
-        endProgress()
+        loadingEpisodes = false;
     }
 
     function episodeUpdated(id) {

@@ -10,6 +10,8 @@ Item {
     property string currentFilterText
     property string mainState
 
+    clip: true
+
     /*onMainStateChanged: {
         // Don't remember contentY when leaving episode list
         listView.lastContentY = 0;
@@ -39,12 +41,22 @@ Item {
         color: 'white'
         font.pixelSize: 30
         horizontalAlignment: Text.AlignHCenter
-        text: '<big>' + _('No episodes') + '</big>' + '<br><small>' + _('Touch to change filter') + '</small>'
+        text: {
+            if (main.loadingEpisodes) {
+                '<big>' + _('Loading episodes') + '</big>'
+            } else {
+                '<big>' + _('No episodes') + '</big>' + '<br><small>' + _('Touch to change filter') + '</small>'
+            }
+        }
         visible: !listView.visible
 
         MouseArea {
             anchors.fill: parent
-            onClicked: episodeList.showFilterDialog()
+            onClicked: {
+                if (!main.loadingEpisodes) {
+                    episodeList.showFilterDialog()
+                }
+            }
         }
     }
 
