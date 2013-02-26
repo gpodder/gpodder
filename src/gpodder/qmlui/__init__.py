@@ -150,6 +150,7 @@ class Controller(QObject):
     enqueueEpisode = Signal(QObject)
     removeQueuedEpisode = Signal(QObject)
     removeQueuedEpisodesForPodcast = Signal(QObject)
+    shutdown = Signal()
 
     def on_config_changed(self, name, old_value, new_value):
         logger.info('Config changed: %s (%s -> %s)', name,
@@ -784,13 +785,13 @@ class Controller(QObject):
             self.current_episode.save()
         self.current_episode = episode
 
-    @Slot()
-    def quit(self):
-        self.root.quit.emit()
+    def on_quit(self):
+        # Make sure the audio playback is stopped immediately
+        self.shutdown.emit()
 
-    @Slot()
-    def switcher(self):
-        self.root.view.showMinimized()
+        # Save current episode
+        if self.current_episode is not None:
+            self.current_episode.save()
 
 
 class gPodderListModel(QAbstractListModel):
@@ -1127,13 +1128,7 @@ class qtPodder(QObject):
     quit = Signal()
 
     def on_quit(self):
-        # Make sure the audio playback is stopped immediately
-        self.main.togglePlayback(None)
-
-        # Save current episode
-        if self.controller.current_episode is not None:
-            self.controller.current_episode.save()
-
+        self.controller.on_quit()
         self.view.hide()
         self.core.shutdown()
         self.app.quit()

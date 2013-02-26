@@ -52,6 +52,7 @@ Item {
         controller.enqueueEpisode.connect(enqueueEpisode);
         controller.removeQueuedEpisode.connect(removeQueuedEpisode);
         controller.removeQueuedEpisodesForPodcast.connect(removeQueuedEpisodesForPodcast);
+        controller.shutdown.connect(shutdown);
     }
 
     function episodeUpdated(id) {
@@ -75,9 +76,8 @@ Item {
         pageStack.push(subscribePage);
     }
 
-    function goBack() {
-        mediaPlayer.stop()
-        controller.quit()
+    function shutdown() {
+        mediaPlayer.stop();
     }
 
     function showFilterDialog() {
