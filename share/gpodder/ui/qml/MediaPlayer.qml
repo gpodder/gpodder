@@ -151,7 +151,7 @@ Item {
     }
 
     function togglePlayback(episode) {
-        controller.currentEpisodeChanging();
+        controller.currentEpisodeChanging(episode);
 
         if (mediaPlayer.episode == episode && audioPlayer.status !== 7) {
             if (audioPlayer.paused) {

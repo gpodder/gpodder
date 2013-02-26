@@ -139,6 +139,7 @@ class Controller(QObject):
         self.flattr_button_text = u''
         self._busy = False
         self.updating_podcasts = 0
+        self.current_episode = None
 
     episodeUpdated = Signal(int)
     showMessage = Signal(unicode)
@@ -777,9 +778,11 @@ class Controller(QObject):
 
         util.run_in_background(lambda: subscribe_proc(self, urls))
 
-    @Slot()
-    def currentEpisodeChanging(self):
-        self.root.save_pending_data()
+    @Slot(QObject)
+    def currentEpisodeChanging(self, episode):
+        if self.current_episode is not None:
+            self.current_episode.save()
+        self.current_episode = episode
 
     @Slot()
     def quit(self):
@@ -1126,7 +1129,11 @@ class qtPodder(QObject):
     def on_quit(self):
         # Make sure the audio playback is stopped immediately
         self.main.togglePlayback(None)
-        self.save_pending_data()
+
+        # Save current episode
+        if self.controller.current_episode is not None:
+            self.controller.current_episode.save()
+
         self.view.hide()
         self.core.shutdown()
         self.app.quit()
@@ -1177,11 +1184,6 @@ class qtPodder(QObject):
             self.episode_model.set_is_subset_view(True)
 
         self.episode_model.set_objects(map(wrap, objects))
-
-    def save_pending_data(self):
-        current_ep = self.main.currentEpisode
-        if isinstance(current_ep, model.QEpisode):
-            current_ep.save()
 
     def podcast_to_qpodcast(self, podcast):
         podcasts = filter(lambda p: p._podcast == podcast,

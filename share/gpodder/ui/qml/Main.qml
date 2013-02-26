@@ -18,7 +18,6 @@ Item {
     }
 
     property alias multiEpisodesSheetOpened: multiEpisodesSheet.opened
-    property alias currentEpisode: mediaPlayer.episode
     property variant currentPodcast: undefined
     property bool hasPodcasts: podcastList.hasItems
     property alias currentFilterText: episodeList.currentFilterText
@@ -112,7 +111,7 @@ Item {
     height: 480
 
     function enqueueEpisode(episode) {
-        if (currentEpisode === undefined) {
+        if (mediaPlayer.episode === undefined) {
             togglePlayback(episode);
         } else {
             mediaPlayer.enqueueEpisode(episode);
