@@ -141,18 +141,26 @@ class Controller(QObject):
         self.updating_podcasts = 0
         self.current_episode = None
 
+
+    # Upcalls to the GUI
     episodeUpdated = Signal(int)
+
     showMessage = Signal(unicode)
+    showInputDialog = Signal(unicode, unicode, unicode, unicode, bool)
+    openContextMenu = Signal('QVariant')
+
     startProgress = Signal(unicode)
     endProgress = Signal()
+
     clearEpisodeListModel = Signal()
     setEpisodeListModel = Signal()
+
     enqueueEpisode = Signal(QObject)
     removeQueuedEpisode = Signal(QObject)
     removeQueuedEpisodesForPodcast = Signal(QObject)
+
     shutdown = Signal()
-    showInputDialog = Signal(unicode, unicode, unicode, unicode, bool)
-    openContextMenu = Signal('QVariant')
+
 
     def on_config_changed(self, name, old_value, new_value):
         logger.info('Config changed: %s (%s -> %s)', name,
