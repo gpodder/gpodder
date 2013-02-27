@@ -1715,10 +1715,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 menu.append(gtk.SeparatorMenuItem())
                 submenus = {}
                 for label, callback in result:
-                    key, sep, titel = label.rpartition('/')
-                    item = gtk.ImageMenuItem(titel)
-                    item.connect('button-press-event',
-                        lambda w, ee, callback: callback(episodes), callback)
+                    key, sep, title = label.rpartition('/')
+                    item = gtk.MenuItem(title)
+                    item.connect('activate', lambda item, callback:
+                            callback(episodes), callback)
                     if key:
                         if key not in submenus:
                             sub_menu = self._add_sub_menu(menu, key)
