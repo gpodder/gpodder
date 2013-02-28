@@ -261,34 +261,31 @@ Item {
             }
         }
 
-        ContextMenu {
+        ActionMenu {
             id: hrmtnEpisodesMenu
 
-            MenuLayout {
-                MenuItem {
-                    id: nowPlayingMenuItem
-                    text: _('Now playing')
-                    onClicked: {
-                        main.clickPlayButton();
-                    }
+            Action {
+                text: _('Now playing')
+                onClicked: {
+                    main.clickPlayButton();
                 }
-                MenuItem {
-                    text: _('Download episodes')
-                    onClicked: {
-                        main.showMultiEpisodesSheet(text, _('Download'), 'download');
-                    }
+            }
+            Action {
+                text: _('Download episodes')
+                onClicked: {
+                    main.showMultiEpisodesSheet(text, _('Download'), 'download');
                 }
-                MenuItem {
-                    text: _('Playback episodes')
-                    onClicked: {
-                        main.showMultiEpisodesSheet(text, _('Play'), 'play');
-                    }
+            }
+            Action {
+                text: _('Playback episodes')
+                onClicked: {
+                    main.showMultiEpisodesSheet(text, _('Play'), 'play');
                 }
-                MenuItem {
-                    text: _('Delete episodes')
-                    onClicked: {
-                        main.showMultiEpisodesSheet(text, _('Delete'), 'delete');
-                    }
+            }
+            Action {
+                text: _('Delete episodes')
+                onClicked: {
+                    main.showMultiEpisodesSheet(text, _('Delete'), 'delete');
                 }
             }
         }
@@ -357,23 +354,21 @@ Item {
             }
         }
 
-        ContextMenu {
+        ActionMenu {
             id: mediaPlayerMenu
 
-            MenuLayout {
-                MenuItem {
-                    text: _('Shownotes')
-                    onClicked: main.openShowNotes(mediaPlayer.episode)
-                }
+            Action {
+                text: _('Shownotes')
+                onClicked: main.openShowNotes(mediaPlayer.episode)
+            }
 
-                MenuItem {
-                    text: _('Play queue')
-                    onClicked: {
-                        if (mediaPlayer.hasQueue) {
-                            mediaPlayer.showQueue();
-                        } else {
-                            main.showMessage(_('Playlist empty'));
-                        }
+            Action {
+                text: _('Play queue')
+                onClicked: {
+                    if (mediaPlayer.hasQueue) {
+                        mediaPlayer.showQueue();
+                    } else {
+                        main.showMessage(_('Playlist empty'));
                     }
                 }
             }

@@ -54,29 +54,23 @@ PageStackWindow {
             }
         }
 
-        ContextMenu {
+        ActionMenu {
             id: hrmtnMainViewMenu
 
-            MenuLayout {
-                MenuItem {
-                    text: _('Now playing')
-                    onClicked: mainObject.clickPlayButton();
+            Action {
+                text: _('Now playing')
+                onClicked: mainObject.clickPlayButton();
+            }
+            Action {
+                text: _('Settings')
+                onClicked: {
+                    settingsPage.loadSettings();
+                    pageStack.push(settingsPage);
                 }
-                MenuItem {
-                    text: _('Settings')
-                    onClicked: {
-                        hrmtnMainViewMenu.close()
-                        settingsPage.loadSettings()
-                        pageStack.push(settingsPage)
-                    }
-                }
-                MenuItem {
-                    text: _('About gPodder')
-                    onClicked: {
-                        hrmtnMainViewMenu.close()
-                        pageStack.push(aboutBox)
-                    }
-                }
+            }
+            Action {
+                text: _('About gPodder')
+                onClicked: pageStack.push(aboutBox);
             }
         }
 
