@@ -218,8 +218,12 @@ Item {
         onSubscribe: pageStack.push(subscribePage);
     }
 
-    Page {
+    PagePage {
         id: episodesPage
+        onClosed: {
+            episodeList.resetSelection();
+            main.currentPodcast = undefined;
+        }
 
         EpisodeList {
             id: episodeList
@@ -230,65 +234,38 @@ Item {
             onEpisodeContextMenu: controller.episodeContextMenu(episode)
         }
 
-        tools: ToolBarLayout {
-            ToolIcon {
-                anchors.left: parent.left
-                iconId: "icon-m-toolbar-back-white"
-                onClicked: {
-                    pageStack.pop();
-                    episodeList.resetSelection();
-                    main.currentPodcast = undefined;
-                }
-            }
-
-            ToolButton {
-                id: toolFilter
-                width: 300
-                onClicked: mainObject.showFilterDialog()
-                anchors.centerIn: parent
-
-                Label {
-                    color: 'white'
-                    text: mainObject.currentFilterText
-                    anchors.centerIn: parent
-                }
-            }
-
-            ToolIcon {
-                onClicked: hrmtnEpisodesMenu.open()
-                anchors.right: parent.right
-                iconId: "toolbar-view-menu"
-            }
-        }
-
-        ActionMenu {
-            id: hrmtnEpisodesMenu
-
+        actions: [
             Action {
                 text: _('Now playing')
                 onClicked: {
                     main.clickPlayButton();
                 }
-            }
+            },
+            Action {
+                text: _('Filter:') + ' ' + mainObject.currentFilterText
+                onClicked: {
+                    mainObject.showFilterDialog();
+                }
+            },
             Action {
                 text: _('Download episodes')
                 onClicked: {
                     main.showMultiEpisodesSheet(text, _('Download'), 'download');
                 }
-            }
+            },
             Action {
                 text: _('Playback episodes')
                 onClicked: {
                     main.showMultiEpisodesSheet(text, _('Play'), 'play');
                 }
-            }
+            },
             Action {
                 text: _('Delete episodes')
                 onClicked: {
                     main.showMultiEpisodesSheet(text, _('Delete'), 'delete');
                 }
             }
-        }
+        ]
 
     }
 
@@ -323,26 +300,8 @@ Item {
         }
     }
 
-    Page {
+    PagePage {
         id: mediaPlayerPage
-
-        tools: ToolBarLayout {
-            ToolIcon {
-                anchors.left: parent.left
-                iconId: "icon-m-toolbar-back-white"
-                onClicked: {
-                    pageStack.pop();
-                    episodeList.resetSelection();
-                    main.currentPodcast = undefined;
-                }
-            }
-
-            ToolIcon {
-                onClicked: mediaPlayerMenu.open()
-                anchors.right: parent.right
-                iconId: "toolbar-view-menu"
-            }
-        }
 
         MediaPlayer {
             id: mediaPlayer
@@ -354,13 +313,11 @@ Item {
             }
         }
 
-        ActionMenu {
-            id: mediaPlayerMenu
-
+        actions: [
             Action {
                 text: _('Shownotes')
                 onClicked: main.openShowNotes(mediaPlayer.episode)
-            }
+            },
 
             Action {
                 text: _('Play queue')
@@ -372,7 +329,7 @@ Item {
                     }
                 }
             }
-        }
+        ]
     }
 
     ContextMenu {

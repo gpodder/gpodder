@@ -27,7 +27,7 @@ PageStackWindow {
         topMargin: 8 + rootWindow.__statusBarHeight
     }
 
-    initialPage: Page {
+    initialPage: PagePage {
         id: mainPage
         orientationLock: {
             if (configProxy.autorotate) {
@@ -37,42 +37,31 @@ PageStackWindow {
             }
         }
 
-        tools: ToolBarLayout {
-            ToolIcon {
-                id: toolAdd
-                iconId: "icon-m-toolbar-add-white"
-                onClicked: mainObject.clickSearchButton()
-                visible: mainObject.hasSearchButton
-                anchors.centerIn: parent
-            }
-
-            ToolIcon {
-                id: toolMenu
-                onClicked: hrmtnMainViewMenu.open()
-                anchors.right: parent.right
-                iconId: "toolbar-view-menu"
-            }
-        }
-
-        ActionMenu {
-            id: hrmtnMainViewMenu
-
+        actions: [
             Action {
                 text: _('Now playing')
                 onClicked: mainObject.clickPlayButton();
-            }
+            },
+            Action {
+                text: _('Check for new episodes')
+                onClicked: controller.updateAllPodcasts();
+            },
+            Action {
+                text: _('Add podcast')
+                onClicked: mainObject.clickSearchButton();
+            },
             Action {
                 text: _('Settings')
                 onClicked: {
                     settingsPage.loadSettings();
                     pageStack.push(settingsPage);
                 }
-            }
+            },
             Action {
                 text: _('About gPodder')
                 onClicked: pageStack.push(aboutBox);
             }
-        }
+        ]
 
         Main {
             id: mainObject
@@ -80,18 +69,8 @@ PageStackWindow {
         }
     }
 
-    Page {
+    PagePage {
         id: subscribePage
-        tools: ToolBarLayout {
-            ToolIcon {
-                anchors.left: parent.left
-                iconId: "icon-m-toolbar-back-white"
-                onClicked: {
-                    pageStack.pop()
-                }
-            }
-        }
-
 
         Subscribe {
             anchors.fill: parent
@@ -103,7 +82,7 @@ PageStackWindow {
         }
     }
 
-    Page {
+    PagePage {
         id: showNotesPage
 
         ShowNotes {
@@ -115,59 +94,25 @@ PageStackWindow {
             Behavior on anchors.leftMargin { NumberAnimation { duration: Config.slowTransition } }
         }
 
-        tools: ToolBarLayout {
-            ToolIcon {
-                anchors.left: parent.left
-                iconId: "icon-m-toolbar-back-white"
-                onClicked: pageStack.pop()
-            }
-
-            ToolIcon {
-                id: toolFlattr
-                iconSource: 'artwork/flattr.png'
-
-                opacity: labelFlattr.text !== ''
-                Behavior on opacity { PropertyAnimation { } }
-
-                anchors.right: parent.right
-                onClicked: {
-                    controller.flattrEpisode(showNotes.episode);
-                }
-            }
-
-            Connections {
-                target: mainObject
-                onShowNotesEpisodeChanged: {
-                    controller.updateFlattrButtonText(showNotes.episode);
-                }
-            }
-
-            Label {
-                id: labelFlattr
-                color: 'white'
-                anchors.right: toolFlattr.left
-                anchors.verticalCenter: toolFlattr.verticalCenter
-                opacity: toolFlattr.opacity
-
+        /*actions: [
+            Action {
                 text: controller.flattrButtonText
+                onClicked: controller.flattrEpisode(showNotes.episode);
             }
-        }
+        ]
+
+        Connections {
+            target: mainObject
+            onShowNotesEpisodeChanged: {
+                controller.updateFlattrButtonText(showNotes.episode);
+            }
+        }*/
     }
 
-    Page {
+    PagePage {
         id: aboutBox
         property color textColor: 'white'
         orientationLock: PageOrientation.LockPortrait
-
-        tools: ToolBarLayout {
-            ToolIcon {
-                anchors.left: parent.left
-                iconId: "icon-m-toolbar-back-white"
-                onClicked: {
-                    pageStack.pop()
-                }
-            }
-        }
 
         Flickable {
             id: aboutFlickable
@@ -257,20 +202,9 @@ PageStackWindow {
         }
     }
 
-    Page {
+    PagePage {
         id: flattrLoginPage
         orientationLock: mainPage.orientationLock
-
-        tools: ToolBarLayout {
-            ToolIcon {
-                id: flattrLoginPageClose
-                anchors.left: parent.left
-                iconId: "icon-m-toolbar-back-white"
-                onClicked: {
-                    pageStack.pop()
-                }
-            }
-        }
 
         WebView {
             id: flattrLoginWebView
@@ -288,9 +222,17 @@ PageStackWindow {
     }
 
 
-    Page {
+    PagePage {
         id: settingsPage
         orientationLock: mainPage.orientationLock
+
+        onClosed: {
+            controller.myGpoUsername = myGpoUsernameField.text
+            controller.myGpoPassword = myGpoPasswordField.text
+            controller.myGpoDeviceCaption = myGpoDeviceCaptionField.text
+            controller.myGpoEnabled = myGpoEnableSwitch.checked && (controller.myGpoUsername != '' && controller.myGpoPassword != '')
+            controller.saveMyGpoSettings()
+        }
 
         function loadSettings() {
             settingsAutorotate.checked = configProxy.autorotate
@@ -303,24 +245,6 @@ PageStackWindow {
             myGpoPasswordField.text = controller.myGpoPassword
             myGpoDeviceCaptionField.text = controller.myGpoDeviceCaption
         }
-
-        tools: ToolBarLayout {
-            ToolIcon {
-                id: settingsPageClose
-                anchors.left: parent.left
-                iconId: "icon-m-toolbar-back-white"
-                onClicked: {
-                    controller.myGpoUsername = myGpoUsernameField.text
-                    controller.myGpoPassword = myGpoPasswordField.text
-                    controller.myGpoDeviceCaption = myGpoDeviceCaptionField.text
-                    controller.myGpoEnabled = myGpoEnableSwitch.checked && (controller.myGpoUsername != '' && controller.myGpoPassword != '')
-                    controller.saveMyGpoSettings()
-
-                    pageStack.pop()
-                }
-            }
-        }
-
 
         Item {
             id: myGpoSheetContent
@@ -423,8 +347,8 @@ PageStackWindow {
                         anchors.horizontalCenter: parent.horizontalCenter
                         width: parent.width * .8
                         onClicked: {
-                            settingsPageClose.clicked()
-                            controller.myGpoUploadList()
+                            settingsPage.close();
+                            controller.myGpoUploadList();
                         }
                     }
 
