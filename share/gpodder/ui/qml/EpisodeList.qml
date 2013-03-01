@@ -10,6 +10,7 @@ Item {
     property string currentFilterText
     property string mainState
     property alias model: listView.model
+    property variant listview: listView
 
     clip: true
 

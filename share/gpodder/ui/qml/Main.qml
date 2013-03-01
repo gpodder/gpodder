@@ -22,6 +22,7 @@ Item {
     property variant currentPodcast: undefined
     property bool hasPodcasts: podcastList.hasItems
     property alias currentFilterText: episodeList.currentFilterText
+    property variant podcastListView: podcastList.listview
 
     property bool playing: mediaPlayer.playing
     property bool hasPlayButton: ((mediaPlayer.episode !== undefined)) && !progressIndicator.opacity
@@ -221,6 +222,8 @@ Item {
 
     PagePage {
         id: episodesPage
+        listview: episodeList.listview
+
         onClosed: {
             episodeList.resetSelection();
             main.currentPodcast = undefined;

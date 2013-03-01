@@ -8,6 +8,7 @@ import 'config.js' as Config
 Item {
     id: podcastList
 
+    property variant listview: listView
     property alias model: listView.model
     property alias moving: listView.moving
     property bool hasItems: listView.visible
