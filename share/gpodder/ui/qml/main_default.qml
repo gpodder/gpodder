@@ -30,6 +30,8 @@ PageStackWindow {
 
     initialPage: PagePage {
         id: mainPage
+        listview: mainObject.podcastListView
+
         orientationLock: {
             if (configProxy.autorotate) {
                 PageOrientation.Automatic
