@@ -121,7 +121,7 @@ def main():
 
     options, args = parser.parse_args(sys.argv)
 
-    if options.qml or gpodder.ui.harmattan:
+    if options.qml or (gpodder.ui.harmattan or gpodder.ui.sailfish):
         gpodder.ui.qml = True
     else:
         gpodder.ui.gtk = True

@@ -135,7 +135,7 @@ def get_real_download_url(url, preferred_fmt_ids=None):
 
         # This provides good quality video, seems to be always available
         # and is playable fluently in Media Player
-        if gpodder.ui.harmattan:
+        if gpodder.ui.harmattan or gpodder.ui.sailfish:
             preferred_fmt_ids = [18]
 
         for id in preferred_fmt_ids:

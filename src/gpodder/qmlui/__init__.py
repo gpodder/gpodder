@@ -496,8 +496,7 @@ class Controller(QObject):
         self.show_context_menu(menu)
 
     def show_context_menu(self, actions):
-        if gpodder.ui.harmattan:
-            actions = filter(lambda a: a.caption != '', actions)
+        actions = filter(lambda a: a.caption != '', actions)
         self.context_menu_actions = actions
         self.openContextMenu.emit(self.context_menu_actions)
 
@@ -1039,12 +1038,22 @@ class qtPodder(QObject):
         root_context.setContextProperty('podcastModel', self.podcast_model)
         root_context.setContextProperty('episodeModel', self.episode_model)
 
+        for folder in gpodder.ui_folders:
+            if gpodder.ui.sailfish:
+                path = os.path.join(folder, 'sailfish')
+            else:
+                path = os.path.join(folder, 'harmattan')
+
+            if os.path.exists(path):
+                logger.info('Adding QML Import Path: %s', path)
+                engine.addImportPath(path)
+
         # Load the QML UI (this could take a while...)
         self.view.setSource(QUrl.fromLocalFile(QML('main_default.qml')))
 
         self.view.setWindowTitle('gPodder')
 
-        if gpodder.ui.harmattan:
+        if gpodder.ui.harmattan or gpodder.ui.sailfish:
             self.view.showFullScreen()
         else:
             # On the Desktop, scale to fit my small laptop screen..
