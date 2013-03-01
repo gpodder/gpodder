@@ -113,6 +113,15 @@ Item {
     MouseArea {
         id: mouseArea
 
+        /**
+         * Fix to prevent page switch gesture on Sailfish Silica, see
+         * https://lists.sailfishos.org/pipermail/devel/2013-March/000022.html
+         **/
+        drag {
+            axis: Drag.XAxis
+            target: Item {}
+        }
+
         anchors.fill: parent
         onClicked: {
             root.setProgress(mouse.x / root.width)
