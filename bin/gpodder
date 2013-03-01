@@ -128,7 +128,7 @@ def main():
 
     options, args = parser.parse_args(sys.argv)
 
-    if options.qml or gpodder.ui.harmattan:
+    if options.qml or (gpodder.ui.harmattan or gpodder.ui.sailfish):
         gpodder.ui.qml = True
     elif options.qml_desktop:
         gpodder.ui.qml_desktop = True

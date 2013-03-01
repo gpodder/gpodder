@@ -7,6 +7,7 @@ Page {
     signal closed
     property bool hasMenu: actions.length > 0
     property alias actions: actionMenu.content
+    property variant listview // Unused here, see Sailfish UI
 
     function close() {
         pageStack.pop();

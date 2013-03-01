@@ -77,6 +77,7 @@ user_agent = 'gPodder/%s (+%s)' % (__version__, __url__)
 class UI(object):
     def __init__(self):
         self.harmattan = False
+        self.sailfish = False
         self.gtk = False
         self.qml = False
         self.qml_desktop = False
@@ -212,6 +213,7 @@ def detect_platform():
         etc_issue = ''
 
     ui.harmattan = ('MeeGo 1.2 Harmattan' in etc_issue)
+    ui.sailfish = ('Mer release' in etc_issue)
 
     if ui.harmattan and ENV_HOME not in os.environ:
         new_home = os.path.expanduser(os.path.join('~', 'MyDocs', 'gPodder'))
