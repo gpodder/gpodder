@@ -17,6 +17,7 @@ Item {
     property int lastMinY: 0
     property bool startedAtZero: false
     property bool wouldRefresh: (lastMinY < -threshold)
+    property bool enabled: false
 
     Connections {
         target: pullDown.target
@@ -41,7 +42,7 @@ Item {
         }
 
         onMovementEnded: {
-            if (pullDown.startedAtZero && pullDown.target.contentY == 0 && pullDown.wouldRefresh) {
+            if (enabled && pullDown.startedAtZero && pullDown.target.contentY == 0 && pullDown.wouldRefresh) {
                 pullDown.refresh();
             }
             pullDown.startedAtZero = false;
@@ -49,7 +50,7 @@ Item {
         }
     }
 
-    visible: startedAtZero && pullDown.target.contentY < 0 && !pullDown.target.flicking
+    visible: enabled && startedAtZero && pullDown.target.contentY < 0 && !pullDown.target.flicking
     height: -pullDown.target.contentY
 
     anchors {

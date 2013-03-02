@@ -59,7 +59,9 @@ Item {
         }
     }
 
-    ListView {
+    ListList {
+        headerText: main.currentPodcast.qtitle
+
         id: listView
         cacheBuffer: 10000
 
@@ -133,7 +135,7 @@ Item {
                 if (listView.count === listView.openedIndex + 1 && listView.height < listView.contentHeight) {
                     overlayIndex = listView.openedIndex - 1
                 }
-                overlayIndex * Config.listItemHeight - listView.contentY
+                overlayIndex * Config.listItemHeight - listView.contentY + listView.headerHeight
             }
             left: parent.left
             right: parent.right

@@ -49,14 +49,11 @@ Item {
         }
     }
 
-    PullDownHandle {
-        target: listView
-        pullDownText: _('Pull down to refresh')
-        releaseText: _('Release to refresh')
+    ListList {
+        headerText: 'gPodder'
+        hasRefresh: true
         onRefresh: controller.updateAllPodcasts()
-    }
 
-    ListView {
         id: listView
         anchors.fill: parent
         visible: count > 1
