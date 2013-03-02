@@ -2,6 +2,7 @@
 import com.nokia.meego 1.0
 
 ScrollDecorator {
-    property alias flickable: flickableItem
+    property variant flickable
+    flickableItem: flickable
 }
 
