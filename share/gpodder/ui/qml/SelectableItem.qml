@@ -20,6 +20,7 @@ Item {
         anchors.fill: parent
         visible: selectableItem.inSelection
         color: Config.selectColorBg
+        opacity: .5
     }
 
     MouseArea {

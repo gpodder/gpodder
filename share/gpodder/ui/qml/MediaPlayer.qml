@@ -245,7 +245,7 @@ Item {
     Rectangle {
         id: mediaPlayerMain
         anchors.fill: mediaPlayer
-        color: 'black'
+        color: Config.mediaPlayerColorBg
 
         Column {
             spacing: Config.smallSpacing

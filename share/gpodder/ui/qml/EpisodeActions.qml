@@ -5,7 +5,7 @@ import 'config.js' as Config
 
 Rectangle {
     id: episodeActions
-    color: '#e0000000'
+    color: Config.episodeActionsColorBg
 
     property variant episode: undefined
     property bool playing: false
