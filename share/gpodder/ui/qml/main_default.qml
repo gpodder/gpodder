@@ -1,8 +1,7 @@
 
 import QtQuick 1.1
-import com.nokia.extras 1.1
-import Sailfish.Silica 1.0
 import QtWebKit 1.0
+
 import org.gpodder.qmlui 1.0
 
 import 'config.js' as Config
@@ -17,7 +16,6 @@ WindowWindow {
 
     InfoBanner {
         id: infoBanner
-        topMargin: 8 + rootWindow.__statusBarHeight
     }
 
     initialPage: PagePage {
