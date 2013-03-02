@@ -6,8 +6,11 @@ Page {
     id: pagePage
     signal closed
     property bool hasMenu: actions.length > 0
+    property bool lockToPortrait: false
     property alias actions: actionMenu.content
     property variant listview // Unused here, see Sailfish UI
+
+    orientationLock: lockToPortrait?PageOrientation.LockPortrait:PageOrientation.Automatic
 
     function close() {
         pageStack.pop();
