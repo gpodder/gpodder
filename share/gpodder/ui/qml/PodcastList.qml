@@ -67,7 +67,7 @@ Item {
                 font.pixelSize: Config.headerHeight * .5
                 wrapMode: Text.NoWrap
                 text: section
-                color: "#999"
+                color: Config.sectionHeaderColorText
                 anchors {
                     left: parent.left
                     leftMargin: Config.smallSpacing
@@ -77,7 +77,7 @@ Item {
             Rectangle {
               height: 1
               border.width: 0
-              color: "#333"
+              color: Config.sectionHeaderColorLine
               width: listView.width - Config.largeSpacing
             }
         }
