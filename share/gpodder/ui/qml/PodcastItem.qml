@@ -59,11 +59,25 @@ SelectableItem {
         height: width
         sourceSize.width: width
         sourceSize.height: height
+        clip: true
 
         anchors {
             verticalCenter: parent.verticalCenter
             left: counterBox.right
             leftMargin: Config.smallSpacing
+        }
+
+        Rectangle {
+            anchors {
+                horizontalCenter: parent.right
+                verticalCenter: parent.bottom
+            }
+            opacity: .5
+            color: Config.newColor
+            visible: counters.newEpisodes > 0
+            width: parent.width * .6
+            height: width
+            rotation: 45
         }
     }
 
@@ -71,7 +85,7 @@ SelectableItem {
         id: titleBox
 
         text: modelData.qtitle
-        color: (counters.newEpisodes > 0)?Config.newColor:"white"
+        color: 'white'
 
         anchors {
             verticalCenter: parent.verticalCenter
