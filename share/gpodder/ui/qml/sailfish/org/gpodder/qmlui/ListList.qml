@@ -6,14 +6,14 @@ SilicaListView {
     id: listView
 
     property string headerText: ''
-    property int headerHeight: listViewHeader.height
+    property int headerHeight: 90
 
     property bool hasRefresh: false // Unused here, see Harmattan UI
     signal refresh
 
     header: Item {
         id: listViewHeader
-        height: 90
+        height: listView.headerHeight
         width: parent.width
 
         Text {
