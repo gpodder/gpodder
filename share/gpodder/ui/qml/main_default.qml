@@ -1,27 +1,19 @@
 
 import QtQuick 1.1
-import com.nokia.meego 1.0
 import com.nokia.extras 1.1
+import Sailfish.Silica 1.0
 import QtWebKit 1.0
 import org.gpodder.qmlui 1.0
 
 import 'config.js' as Config
 
-PageStackWindow {
+WindowWindow {
     id: rootWindow
     property variant main: mainObject
-    property bool fullsize: (platformWindow.viewMode == WindowState.Fullsize)
 
     function _(x) {
         return controller.translate(x)
     }
-
-    // Unused boolean activity variables:
-    //  - platformWindow.visible - Visible somewhere
-    //  - platformWindow.active - Active (input focus?)
-
-    // Hide status bar in landscape mode
-    showStatusBar: screen.currentOrientation == Screen.Portrait
 
     InfoBanner {
         id: infoBanner
@@ -32,13 +24,7 @@ PageStackWindow {
         id: mainPage
         listview: mainObject.podcastListView
 
-        orientationLock: {
-            if (configProxy.autorotate) {
-                PageOrientation.Automatic
-            } else {
-                PageOrientation.LockPortrait
-            }
-        }
+        lockToPortrait: !configProxy.autorotate
 
         actions: [
             Action {
@@ -115,7 +101,7 @@ PageStackWindow {
     PagePage {
         id: aboutBox
         property color textColor: 'white'
-        orientationLock: PageOrientation.LockPortrait
+        lockToPortrait: true
 
         Flickable {
             id: aboutFlickable
@@ -201,13 +187,13 @@ PageStackWindow {
         }
 
         ScrollDecorator {
-            flickableItem: aboutFlickable
+            flickable: aboutFlickable
         }
     }
 
     PagePage {
         id: flattrLoginPage
-        orientationLock: mainPage.orientationLock
+        lockToPortrait: mainPage.lockToPortrait
 
         WebView {
             id: flattrLoginWebView
@@ -227,7 +213,7 @@ PageStackWindow {
 
     PagePage {
         id: settingsPage
-        orientationLock: mainPage.orientationLock
+        lockToPortrait: mainPage.lockToPortrait
 
         onClosed: {
             controller.myGpoUsername = myGpoUsernameField.text
@@ -266,7 +252,8 @@ PageStackWindow {
 
                     Label {
                         text: _('gPodder settings')
-                        font.pixelSize: 30
+                        font.pixelSize: 40
+                        anchors.right: parent.right
                     }
 
                     SettingsHeader { text: _('Screen orientation') }
