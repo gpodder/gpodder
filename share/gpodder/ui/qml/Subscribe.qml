@@ -245,8 +245,8 @@ Item {
                 }
             }
 
-            ScrollDecorator {
-                flickableItem: listView
+            ScrollScroll {
+                flickable: listView
             }
 
             BusyIndicator {
