@@ -1,8 +1,8 @@
 
 import QtQuick 1.1
 
-import com.nokia.meego 1.0
 import org.gpodder.qmlui 1.0
+import com.nokia.meego 1.0
 
 import 'config.js' as Config
 
@@ -252,7 +252,6 @@ Item {
             BusyIndicator {
                 anchors.centerIn: parent
                 running: opacity > 0
-                platformStyle: BusyIndicatorStyle { size: "large" }
 
                 opacity: (searchResultsListModel.status == XmlListModel.Loading)?1:0
                 Behavior on opacity { PropertyAnimation { } }
