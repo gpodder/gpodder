@@ -186,7 +186,7 @@ WindowWindow {
             }
         }
 
-        ScrollDecorator {
+        ScrollScroll {
             flickable: aboutFlickable
         }
     }

@@ -446,7 +446,7 @@ Item {
                 }
             }
 
-            ScrollDecorator { flickableItem: multiEpisodesList }
+            ScrollScroll { flickable: multiEpisodesList }
 
             ContextMenu {
                 id: multiEpisodesSheetContextMenu
