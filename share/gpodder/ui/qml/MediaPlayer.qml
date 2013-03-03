@@ -262,7 +262,6 @@ Item {
                 text: (episode!=undefined)?episode.qtitle:''
                 color: 'white'
                 font.pixelSize: 30 * Config.scale
-                elide: Text.ElideRight
                 width: parent.width
             }
 
@@ -271,7 +270,6 @@ Item {
                 text: (episode!=undefined)?episode.qpodcast.qtitle:''
                 color: '#aaa'
                 font.pixelSize: 20 * Config.scale
-                elide: Text.ElideRight
                 width: parent.width
             }
 

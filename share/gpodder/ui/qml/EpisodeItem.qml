@@ -69,12 +69,18 @@ SelectableItem {
     Column {
         anchors {
             left: icon.right
+            right: parent.right
             leftMargin: Config.largeSpacing
+            rightMargin: Config.smallSpacing
             verticalCenter: parent.verticalCenter
         }
 
         Label {
             id: labelTitle
+            anchors {
+                left: parent.left
+                right: parent.right
+            }
 
             text: title
             wrapMode: Text.NoWrap

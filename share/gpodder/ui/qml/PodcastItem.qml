@@ -96,7 +96,6 @@ SelectableItem {
         }
 
         font.pixelSize: podcastItem.height * .35
-        elide: Text.ElideRight
         wrapMode: Text.NoWrap
     }
 }
