@@ -14,7 +14,6 @@ Item {
         id: theLabel
         anchors.left: parent.left
         anchors.right: theSwitch.left
-        elide: Text.ElideRight
         anchors.verticalCenter: parent.verticalCenter
     }
 
