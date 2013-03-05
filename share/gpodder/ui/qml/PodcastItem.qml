@@ -50,6 +50,32 @@ SelectableItem {
         running: visible
     }
 
+    Item {
+        visible: counters.newEpisodes > 0
+        clip: true
+
+        anchors {
+            left: cover.right
+            leftMargin: 2
+            verticalCenter: cover.verticalCenter
+        }
+
+        height: cover.height
+        width: cover.width * .25
+
+        Rectangle {
+            anchors {
+                verticalCenter: parent.verticalCenter
+                horizontalCenter: parent.left
+            }
+
+            color: Config.newColor
+            width: parent.width
+            height: width
+            rotation: 45
+        }
+    }
+
     Image {
     	id: cover
 
@@ -59,25 +85,11 @@ SelectableItem {
         height: width
         sourceSize.width: width
         sourceSize.height: height
-        clip: true
 
         anchors {
             verticalCenter: parent.verticalCenter
             left: counterBox.right
             leftMargin: Config.smallSpacing
-        }
-
-        Rectangle {
-            anchors {
-                horizontalCenter: parent.right
-                verticalCenter: parent.bottom
-            }
-            opacity: .5
-            color: Config.newColor
-            visible: counters.newEpisodes > 0
-            width: parent.width * .6
-            height: width
-            rotation: 45
         }
     }
 
@@ -90,7 +102,7 @@ SelectableItem {
         anchors {
             verticalCenter: parent.verticalCenter
             left: cover.visible?cover.right:cover.left
-            leftMargin: Config.smallSpacing
+            leftMargin: Config.smallSpacing * 2
             right: parent.right
             rightMargin: Config.smallSpacing
         }
