@@ -685,7 +685,7 @@ def mimetype_from_extension(extension):
     'audio/mpeg'
     >>> mimetype_from_extension('.mkv')
     'video/x-matroska'
-    >>> mimetype_from_extension('.abc')
+    >>> mimetype_from_extension('._invalid_file_extension_')
     ''
     """
     if extension in _MIME_TYPES_EXT:
