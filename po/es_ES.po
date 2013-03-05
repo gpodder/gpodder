@@ -3,7 +3,7 @@
 # This file is distributed under the same license as the PACKAGE package.
 #
 # Translators:
-# Adolfo Jayme Barrientos <fitoschido@gmail.com>, 2011, 2012.
+# Adolfo Jayme Barrientos <fitoschido@gmail.com>, 2011-2013.
 # Marco Antonio Frias Butrón <marcoantoniofrias@gmail.com>, 2012.
 # Simó Albert i Beltran <sim6@probeta.net>, 2012.
 msgid ""
@@ -11,7 +11,7 @@ msgstr ""
 "Project-Id-Version: gPodder\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-03-05 16:00+0100\n"
-"PO-Revision-Date: 2013-01-19 12:30+0000\n"
+"PO-Revision-Date: 2013-03-05 15:01+0000\n"
 "Last-Translator: Thomas Perl <m@thp.io>\n"
 "Language-Team: Spanish (Spain) (http://www.transifex.com/projects/p/gpodder/"
 "language/es_ES/)\n"
@@ -200,7 +200,7 @@ msgstr ""
 
 #: src/gpodder/flattr.py:213
 msgid "Item does not exist on Flattr"
-msgstr ""
+msgstr "El elemento no existe en Flattr"
 
 #: src/gpodder/flattr.py:215
 msgid "Already flattred or own item"
@@ -212,7 +212,7 @@ msgstr "Solicitud no válida"
 
 #: src/gpodder/flattr.py:223
 msgid "No internet connection"
-msgstr ""
+msgstr "No hay conexión a Internet"
 
 #: src/gpodder/flattr.py:228
 msgid "No description"
@@ -228,11 +228,11 @@ msgstr "desconocido"
 
 #: src/gpodder/model.py:744
 msgid "Default"
-msgstr ""
+msgstr "Predeterminado"
 
 #: src/gpodder/model.py:745
 msgid "Only keep latest"
-msgstr ""
+msgstr "Solo mantener los últimos"
 
 #: src/gpodder/model.py:777 src/gpodder/model.py:1209
 #: src/gpodder/extensions.py:59
@@ -270,19 +270,16 @@ msgid "HTTP Error %(code)s: %(message)s"
 msgstr "Error HTTP %(code)s: %(message)s"
 
 #: src/gpodder/extensions.py:55
-#, fuzzy
 msgid "Desktop Integration"
-msgstr "Integración con Ubuntu Unity"
+msgstr "Integración con el escritorio"
 
 #: src/gpodder/extensions.py:56
-#, fuzzy
 msgid "Interface"
-msgstr "Entero"
+msgstr "Interfaz"
 
 #: src/gpodder/extensions.py:57
-#, fuzzy
 msgid "Post download"
-msgstr "Seleccionar reproducidos"
+msgstr "Después de la descarga"
 
 #: src/gpodder/extensions.py:100
 msgid "No description for this extension."
@@ -453,15 +450,15 @@ msgstr[1] "descargando %(count)d archivos"
 #, python-format
 msgid "synchronizing %(count)d file"
 msgid_plural "synchronizing %(count)d files"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "sincronizando %(count)d archivo"
+msgstr[1] "sincronizando %(count)d archivos"
 
 #: src/gpodder/gtkui/main.py:1152
 #, python-format
 msgid "%(queued)d task queued"
 msgid_plural "%(queued)d tasks queued"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(queued)d tarea en la cola"
+msgstr[1] "%(queued)d tareas en la cola"
 
 #: src/gpodder/gtkui/main.py:1176
 msgid "Please report this problem and restart gPodder:"
@@ -477,9 +474,8 @@ msgid "Feedparser error: %s"
 msgstr "Error del analizador de fuentes: %s"
 
 #: src/gpodder/gtkui/main.py:1379
-#, fuzzy
 msgid "Could not download some episodes:"
-msgstr "No se pudieron añadir algunos podcasts"
+msgstr "No se pudieron descargar algunos episodios:"
 
 #: src/gpodder/gtkui/main.py:1381 src/gpodder/gtkui/main.py:1384
 msgid "Downloads finished"
@@ -490,19 +486,16 @@ msgid "Downloads failed"
 msgstr "Descargas fallidas"
 
 #: src/gpodder/gtkui/main.py:1391
-#, fuzzy
 msgid "Could not sync some episodes:"
-msgstr "No se pudieron añadir algunos podcasts"
+msgstr "No se pudieron sincronizar algunos episodios:"
 
 #: src/gpodder/gtkui/main.py:1393 src/gpodder/gtkui/main.py:1396
-#, fuzzy
 msgid "Device synchronization finished"
-msgstr "Activar notificaciones"
+msgstr "Finalizó la sincronización del dispositivo"
 
 #: src/gpodder/gtkui/main.py:1399
-#, fuzzy
 msgid "Device synchronization failed"
-msgstr "Activar notificaciones"
+msgstr "Falló la sincronización del dispositivo"
 
 #: src/gpodder/gtkui/main.py:1439
 #, python-format
@@ -609,7 +602,7 @@ msgstr ""
 
 #: src/gpodder/gtkui/main.py:1912 src/gpodder/gtkui/main.py:2683
 msgid "Flattr status"
-msgstr ""
+msgstr "Estado de Flattr"
 
 #: src/gpodder/gtkui/main.py:1945
 msgid "Please check your media player settings in the preferences dialog."
@@ -693,12 +686,11 @@ msgstr "Cancelando..."
 
 #: src/gpodder/gtkui/main.py:2386 src/gpodder/qmlui/__init__.py:570
 msgid "Please connect to a network, then try again."
-msgstr ""
+msgstr "Conéctese a una red, e inténtelo de nuevo."
 
 #: src/gpodder/gtkui/main.py:2387 src/gpodder/qmlui/__init__.py:569
-#, fuzzy
 msgid "No network connection"
-msgstr "Nombre de la sección nueva:"
+msgstr "No hay conexión de red."
 
 #: src/gpodder/gtkui/main.py:2408
 #, python-format
@@ -1066,7 +1058,7 @@ msgstr "Cadena"
 #: src/gpodder/gtkui/flattr.py:43 src/gpodder/qmlui/__init__.py:235
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:8
 msgid "Sign in"
-msgstr ""
+msgstr "Iniciar sesión"
 
 #: src/gpodder/gtkui/flattr.py:51
 msgid "Flattred"
@@ -1235,7 +1227,7 @@ msgstr "Ninguno"
 
 #: src/gpodder/gtkui/desktop/preferences.py:71
 msgid "Filesystem-based"
-msgstr ""
+msgstr "Basado en sistema de archivos"
 
 #: src/gpodder/gtkui/desktop/preferences.py:91
 msgid "Mark as played"
@@ -1250,9 +1242,9 @@ msgid "Error"
 msgstr "Error"
 
 #: src/gpodder/gtkui/desktop/preferences.py:148
-#, fuzzy, python-format
+#, python-format
 msgid "Custom (%(format_ids)s)"
-msgstr "Convertir a %(format)s"
+msgstr "Personalizado (%(format_ids)s)"
 
 #: src/gpodder/gtkui/desktop/preferences.py:300
 msgid "Name"
@@ -1261,18 +1253,18 @@ msgstr "Nombre"
 #: src/gpodder/gtkui/desktop/preferences.py:333
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:7
 msgid "Please sign in with Flattr and Support Publishers"
-msgstr ""
+msgstr "Inicie sesión en Flattr y apoye a los editores"
 
 #: src/gpodder/gtkui/desktop/preferences.py:334
 #: share/gpodder/ui/gtk/gpodderflattrsignin.ui.h:1
 #: share/gpodder/ui/qml/main_default.qml:284
 msgid "Sign in to Flattr"
-msgstr ""
+msgstr "Iniciar sesión en Flattr"
 
 #: src/gpodder/gtkui/desktop/preferences.py:337
 #, python-format
 msgid "Logged in as <b>%(username)s</b>"
-msgstr ""
+msgstr "Sesión iniciada como <b>%(username)s</b>"
 
 #: src/gpodder/gtkui/desktop/preferences.py:338
 #: share/gpodder/ui/qml/main_default.qml:282
@@ -1281,11 +1273,11 @@ msgstr "Cerrar sesión"
 
 #: src/gpodder/gtkui/desktop/preferences.py:347
 msgid "Flattr integration requires WebKit/Gtk."
-msgstr ""
+msgstr "La integración con Flattr requiere WebKit/Gtk."
 
 #: src/gpodder/gtkui/desktop/preferences.py:348
 msgid "WebKit/Gtk not found"
-msgstr ""
+msgstr "No se encontró WebKit/Gtk"
 
 #: src/gpodder/gtkui/desktop/preferences.py:383
 msgid "Extension cannot be activated"
@@ -1334,7 +1326,7 @@ msgstr ""
 
 #: src/gpodder/gtkui/desktop/preferences.py:569
 msgid "Select folder for mount point"
-msgstr ""
+msgstr "Seleccione la carpeta para el punto de montaje"
 
 #: src/gpodder/gtkui/desktop/preferences.py:584
 msgid "Select folder for playlists"
@@ -1403,14 +1395,12 @@ msgid "Error writing playlist"
 msgstr "Error al abrir el reproductor"
 
 #: src/gpodder/gtkui/desktop/channel.py:98
-#, fuzzy
 msgid "Add section"
-msgstr "Acción"
+msgstr "Añadir sección"
 
 #: src/gpodder/gtkui/desktop/channel.py:98
-#, fuzzy
 msgid "New section:"
-msgstr "Nombre de la sección nueva:"
+msgstr "Sección nueva:"
 
 #: src/gpodder/gtkui/desktop/channel.py:131
 msgid "Select new podcast cover artwork"
@@ -1431,29 +1421,23 @@ msgstr "Solo puede soltar archivos locales y URL http:// aquí."
 
 #: src/gpodder/gtkui/desktop/sync.py:86
 msgid "No device configured"
-msgstr ""
+msgstr "No hay dispositivos configurados."
 
 #: src/gpodder/gtkui/desktop/sync.py:87
-#, fuzzy
 msgid "Please set up your device in the preferences dialog."
-msgstr ""
-"Compruebe las opciones del reproductor de medios en el diálogo de "
-"preferencias."
+msgstr "Configure su dispositivo en el diálogo de preferencias."
 
 #: src/gpodder/gtkui/desktop/sync.py:91
 msgid "Cannot open device"
-msgstr ""
+msgstr "No se puede abrir el dispositivo"
 
 #: src/gpodder/gtkui/desktop/sync.py:92
-#, fuzzy
 msgid "Please check the settings in the preferences dialog."
-msgstr ""
-"Compruebe las opciones del reproductor de medios en el diálogo de "
-"preferencias."
+msgstr "Compruebe la configuración en el diálogo de preferencias."
 
 #: src/gpodder/gtkui/desktop/sync.py:139
 msgid "Not enough space left on device"
-msgstr ""
+msgstr "No queda espacio suficiente en el dispositivo"
 
 #: src/gpodder/gtkui/desktop/sync.py:140
 #, python-format
@@ -1501,14 +1485,12 @@ msgid "Videos"
 msgstr "Vídeos"
 
 #: src/gpodder/qmlui/__init__.py:72
-#, fuzzy
 msgid "Partially played"
-msgstr "Marcar como antiguo"
+msgstr "Reproducido parcialmente"
 
 #: src/gpodder/qmlui/__init__.py:73
-#, fuzzy
 msgid "Unplayed downloads"
-msgstr "Episodios sin reproducir"
+msgstr "Descargas sin reproducir"
 
 #: src/gpodder/qmlui/__init__.py:243
 #, python-format
@@ -1522,7 +1504,7 @@ msgstr ""
 
 #: src/gpodder/qmlui/__init__.py:261
 msgid "Sign in to Flattr in the settings."
-msgstr ""
+msgstr "Inicie sesión en Flattr en la configuración."
 
 #: src/gpodder/qmlui/__init__.py:264
 #, fuzzy
@@ -1531,7 +1513,7 @@ msgstr "Eliminando episodios"
 
 #: src/gpodder/qmlui/__init__.py:288
 msgid "Could not log in to Flattr."
-msgstr ""
+msgstr "No se pudo iniciar sesión en Flattr."
 
 #: src/gpodder/qmlui/__init__.py:317 src/gpodder/qmlui/__init__.py:724
 #: src/gpodder/qmlui/__init__.py:749 share/gpodder/ui/gtk/gpodder.ui.h:22
@@ -1612,9 +1594,8 @@ msgid "Adding podcasts..."
 msgstr "Añadiendo podcasts..."
 
 #: src/gpodder/qmlui/__init__.py:1108
-#, fuzzy
 msgid "Resume"
-msgstr "Continuar todo"
+msgstr "Reanudar"
 
 #: src/gpodder/plugins/soundcloud.py:153
 msgid "Unknown track"
@@ -1646,7 +1627,7 @@ msgstr ""
 
 #: share/gpodder/extensions/ted_subtitles.py:17
 msgid "Downloads .srt subtitles for TED Talks Videos"
-msgstr ""
+msgstr "Descarga subtítulos .srt para los vídeos de TED Talks"
 
 #: share/gpodder/extensions/rockbox_convert2mp4.py:26
 msgid "Convert video files to MP4 for Rockbox"
@@ -1740,7 +1721,7 @@ msgstr "Remover el arte de la tapa"
 
 #: share/gpodder/extensions/enqueue_in_mediaplayer.py:16
 msgid "Enqueue in media players"
-msgstr ""
+msgstr "Encolar en reproductores de medios"
 
 #: share/gpodder/extensions/enqueue_in_mediaplayer.py:17
 msgid ""
@@ -1750,12 +1731,11 @@ msgstr ""
 #: share/gpodder/extensions/enqueue_in_mediaplayer.py:23
 #: share/gpodder/extensions/enqueue_in_mediaplayer.py:25
 msgid "Enqueue in"
-msgstr ""
+msgstr "Encolar en"
 
 #: share/gpodder/extensions/ogg2mp3_converter.py:20
-#, fuzzy
 msgid "Convert OGG audio to MP3"
-msgstr "Convertir audio M4A a MP3 o OGG"
+msgstr "Convertir sonido OGG a MP3"
 
 #: share/gpodder/extensions/ogg2mp3_converter.py:21
 #, fuzzy
@@ -1763,24 +1743,20 @@ msgid "Transcode .ogg files to .mp3 using ffmpeg"
 msgstr "Convertir archivos .m4a a .mp3 o .ogg usando ffmpeg"
 
 #: share/gpodder/extensions/ogg2mp3_converter.py:85
-#, fuzzy
 msgid "File converted from ogg to mp3"
-msgstr "Archivo convertido"
+msgstr "Se convirtió el archivo de ogg a mp3"
 
 #: share/gpodder/extensions/ogg2mp3_converter.py:88
-#, fuzzy
 msgid "Conversion failed from ogg to mp3"
-msgstr "Conversión fallida"
+msgstr "Falló la conversión de ogg a mp3"
 
 #: share/gpodder/extensions/update_feeds_on_startup.py:14
-#, fuzzy
 msgid "Search for new episodes on startup"
-msgstr "Busque nuevos episodios después."
+msgstr "Buscar episodios nuevos al inicio"
 
 #: share/gpodder/extensions/update_feeds_on_startup.py:15
-#, fuzzy
 msgid "Starts the search for new episodes on startup"
-msgstr "Busque nuevos episodios después."
+msgstr "Inicia la búsqueda de episodios nuevos al inicio"
 
 #: share/gpodder/extensions/normalize_audio.py:21
 msgid "Normalize audio with re-encoding"
@@ -1796,12 +1772,11 @@ msgstr "Archivo normalizado"
 
 #: share/gpodder/extensions/gtk_statusicon.py:11
 msgid "Gtk Status Icon"
-msgstr ""
+msgstr "Icono de estado de Gtk"
 
 #: share/gpodder/extensions/gtk_statusicon.py:12
-#, fuzzy
 msgid "Show a status icon for Gtk-based Desktops."
-msgstr "Muestra un indicador de estado en la barra superior."
+msgstr "Muestra un icono de estado para escritorios basados en Gtk."
 
 #: share/gpodder/extensions/sonos.py:19 share/gpodder/extensions/sonos.py:78
 msgid "Stream to Sonos"
@@ -1813,11 +1788,11 @@ msgstr ""
 
 #: share/gpodder/extensions/minimize_on_start.py:10
 msgid "Minimize on start"
-msgstr ""
+msgstr "Minimizar al inicio"
 
 #: share/gpodder/extensions/minimize_on_start.py:11
 msgid "Minimizes the gPodder window on startup."
-msgstr ""
+msgstr "Minimiza la ventana de gPodder al inicio."
 
 #: share/gpodder/extensions/tagging.py:38
 msgid "Tag downloaded files using Mutagen"
@@ -1858,11 +1833,11 @@ msgstr "Desactivar actualizaciones de fuente (pausar suscripción)"
 
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:4
 msgid "Synchronize to MP3 player devices"
-msgstr ""
+msgstr "Sincronizar con dispositivos de reproducción de MP3"
 
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:5
 msgid "Strategy:"
-msgstr ""
+msgstr "Estrategia:"
 
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:6
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:5
@@ -1980,12 +1955,11 @@ msgstr "Cambiar bloqueo de eliminación"
 
 #: share/gpodder/ui/gtk/gpodder.ui.h:26
 msgid "E_xtras"
-msgstr ""
+msgstr "E_xtras"
 
 #: share/gpodder/ui/gtk/gpodder.ui.h:27
-#, fuzzy
 msgid "Sync to device"
-msgstr "Dispositivo Bluetooth"
+msgstr "Sincronizar al dispositivo"
 
 #: share/gpodder/ui/gtk/gpodder.ui.h:28
 msgid "_View"
@@ -2093,7 +2067,7 @@ msgstr "Reproductor de vídeo:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:4
 msgid "Preferred video format:"
-msgstr ""
+msgstr "Formato de vídeo preferido:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:6
 msgid "Extensions"
@@ -2153,17 +2127,16 @@ msgid "Clean-up"
 msgstr "Limpieza"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:24
-#, fuzzy
 msgid "Device type:"
-msgstr "Nombre de dispositivo:"
+msgstr "Tipo de dispositivo:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:25
 msgid "Mountpoint:"
-msgstr ""
+msgstr "Punto de montaje:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:26
 msgid "After syncing an episode:"
-msgstr ""
+msgstr "Después de sincronizar un episodio:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:27
 #, fuzzy
@@ -2180,14 +2153,12 @@ msgid "Remove episodes deleted on device from gPodder"
 msgstr ""
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:30
-#, fuzzy
 msgid "Only sync unplayed episodes"
-msgstr "Episodios sin reproducir"
+msgstr "Solo sincronizar episodios sin reproducir"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:31
-#, fuzzy
 msgid "Devices"
-msgstr "Nombre de dispositivo:"
+msgstr "Dispositivos"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:32
 msgid "Edit config"
@@ -2256,12 +2227,11 @@ msgstr "Giro automático"
 
 #: share/gpodder/ui/qml/main_default.qml:267
 msgid "Media indexing"
-msgstr ""
+msgstr "Indización de medios"
 
 #: share/gpodder/ui/qml/main_default.qml:271
-#, fuzzy
 msgid "Show podcasts in Music app"
-msgstr "No hay podcast en esta vista"
+msgstr "Mostrar podcasts en la aplicación Música"
 
 #: share/gpodder/ui/qml/main_default.qml:303
 msgid "Auto-Flattr on playback"
@@ -2353,9 +2323,8 @@ msgid "powered by gpodder.net"
 msgstr "impulsado por gpodder.net"
 
 #: share/gpodder/ui/qml/Subscribe.qml:145
-#, fuzzy
 msgid "Subscribe"
-msgstr "Cancelar suscripción"
+msgstr "Suscribirse"
 
 #: share/gpodder/ui/qml/PlaybackBar.qml:12
 #: share/gpodder/ui/qml/PlaybackBar.qml:14
@@ -2382,7 +2351,7 @@ msgid "Episode download requested by extensions."
 msgstr "Descarga del episodio solicitada por las extensiones."
 
 #: bin/gpo:305
-#, fuzzy, python-format
+#, python-format
 msgid "Invalid url: %s"
 msgstr "URL no válida: %s"
 
@@ -2431,9 +2400,8 @@ msgstr[0] "%(count)d episodio nuevo"
 msgstr[1] "%(count)d episodios nuevos"
 
 #: bin/gpo:482
-#, fuzzy
 msgid "Checking for new episodes"
-msgstr "Comprobar episodios nuevos"
+msgstr "Comprobando episodios nuevos"
 
 #: bin/gpo:491
 #, python-format
@@ -2519,16 +2487,3 @@ msgstr "Cliente de podcasts"
 #: share/applications/gpodder.desktop.in.h:4
 msgid "Subscribe to audio and video content from the web"
 msgstr "Suscribirse a contenido multimedia en la web"
-
-#~ msgid "OK"
-#~ msgstr "Aceptar"
-
-#~ msgid "Please wait..."
-#~ msgstr "Espere un momento..."
-
-#, fuzzy
-#~ msgid "Release to refresh"
-#~ msgstr "publicado el %s"
-
-#~ msgid "Start the QML interface of gPodder"
-#~ msgstr "Abrir la interfaz QML de gPodder"
