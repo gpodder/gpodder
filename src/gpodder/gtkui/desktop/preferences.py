@@ -335,7 +335,6 @@ class gPodderPreferences(BuilderWidget):
             except ImportError, ie:
                 self.show_message(_('Flattr integration requires WebKit/Gtk.'),
                         _('WebKit/Gtk not found'), important=True)
-                self.main_window.destroy()
                 return
 
             gPodderFlattrSignIn(self.parent_window,
