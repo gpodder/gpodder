@@ -188,10 +188,10 @@
                         <property name="visible">True</property>
                         <property name="headers_visible">False</property>
                         <property name="can_focus">True</property>
-                        <property name="reorderable">True</property>
-                        <property name="enable_search">False</property>
-                        <property name="search_column">0</property>
-                        <signal name="button-press-event" handler="on_treeview_button_press_event" swapped="no"/>
+                        <property name="reorderable">False</property>
+                        <property name="enable_search">True</property>
+                        <property name="search_column">1</property>
+                        <signal name="row-activated" handler="on_treeview_extensions_row_activated" swapped="no"/>
                       </object>
                     </child>
                   </object>
