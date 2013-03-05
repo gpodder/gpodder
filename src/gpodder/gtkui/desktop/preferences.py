@@ -519,8 +519,8 @@ class gPodderPreferences(BuilderWidget):
             self._config.device_sync.playlists.create=True
             self.toggle_playlist_interface(True)
 
-    def toggle_playlist_interface(self,enabled):
-        if (enabled==True and not(self._config.device_sync.device_type == 'none')):
+    def toggle_playlist_interface(self, enabled):
+        if enabled and self._config.device_sync.device_type != 'none':
             self.btn_playlistfolder.set_sensitive(True)
             self.btn_playlistfolder.set_label(self._config.device_sync.playlists.folder)
             self.checkbutton_delete_using_playlists.set_sensitive(True)
@@ -543,6 +543,9 @@ class gPodderPreferences(BuilderWidget):
             self.btn_filesystemMountpoint.set_sensitive(False)
             self.checkbutton_create_playlists.set_sensitive(False)
             self.toggle_playlist_interface(False)
+            self.checkbutton_delete_using_playlists.set_sensitive(False)
+            self.combobox_on_sync.set_sensitive(False)
+            self.checkbutton_skip_played_episodes.set_sensitive(False)
         elif device_type == 'filesystem':
             self.btn_filesystemMountpoint.set_label(self._config.device_sync.device_folder)
             self.btn_filesystemMountpoint.set_sensitive(True)
@@ -552,6 +555,8 @@ class gPodderPreferences(BuilderWidget):
                 label = children.pop()
                 label.set_alignment(0., .5)
             self.toggle_playlist_interface(self._config.device_sync.playlists.create)
+            self.combobox_on_sync.set_sensitive(True)
+            self.checkbutton_skip_played_episodes.set_sensitive(True)
         else:
             # TODO: Add support for iPod and MTP devices
             pass
