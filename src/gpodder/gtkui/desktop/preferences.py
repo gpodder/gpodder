@@ -275,20 +275,31 @@ class gPodderPreferences(BuilderWidget):
         self.set_extension_preferences()
 
     def set_extension_preferences(self):
+        def search_equal_func(model, column, key, it):
+            label = model.get_value(it, self.C_LABEL)
+            if key.lower() in label.lower():
+                # from http://www.pygtk.org/docs/pygtk/class-gtktreeview.html:
+                # "func should return False to indicate that the row matches
+                # the search criteria."
+                return False
+
+            return True
+        self.treeviewExtensions.set_search_equal_func(search_equal_func)
+
         toggle_cell = gtk.CellRendererToggle()
         toggle_cell.connect('toggled', self.on_extensions_cell_toggled)
+        toggle_column = gtk.TreeViewColumn('')
+        toggle_column.pack_start(toggle_cell, True)
+        toggle_column.add_attribute(toggle_cell, 'active', self.C_TOGGLE)
+        toggle_column.add_attribute(toggle_cell, 'visible', self.C_SHOW_TOGGLE)
+        toggle_column.set_property('min-width', 32)
+        self.treeviewExtensions.append_column(toggle_column)
 
         name_cell = gtk.CellRendererText()
         name_cell.set_property('ellipsize', pango.ELLIPSIZE_END)
-
         extension_column = gtk.TreeViewColumn(_('Name'))
-        extension_column.pack_start(toggle_cell, False)
-        extension_column.add_attribute(toggle_cell, 'active', self.C_TOGGLE)
-        extension_column.add_attribute(toggle_cell, 'visible', self.C_SHOW_TOGGLE)
         extension_column.pack_start(name_cell, True)
         extension_column.add_attribute(name_cell, 'markup', self.C_LABEL)
-        extension_column.set_clickable(False)
-        extension_column.set_resizable(True)
         extension_column.set_expand(True)
         self.treeviewExtensions.append_column(extension_column)
 
@@ -372,13 +383,7 @@ class gPodderPreferences(BuilderWidget):
                     _('Extension cannot be activated'), important=True)
             model.set_value(it, self.C_TOGGLE, False)
 
-    def on_treeview_button_press_event(self, treeview, event):
-        if event.button != 3:
-            return
-
-        x = int(event.x)
-        y = int(event.y)
-        path, _, _, _ = treeview.get_path_at_pos(x, y)
+    def on_treeview_extensions_row_activated(self, treeview, path, column):
         model = treeview.get_model()
         container = model.get_value(model.get_iter(path), self.C_EXTENSION)
         self.show_extension_info(model, container)
