@@ -85,12 +85,12 @@ class gPodderSyncUI(object):
     def _show_message_unconfigured(self):
         title = _('No device configured')
         message = _('Please set up your device in the preferences dialog.')
-        self.notification(message, title, widget=self.preferences_widget)
+        self.notification(message, title, widget=self.preferences_widget, important=True)
 
     def _show_message_cannot_open(self):
         title = _('Cannot open device')
         message = _('Please check the settings in the preferences dialog.')
-        self.notification(message, title, widget=self.preferences_widget)
+        self.notification(message, title, widget=self.preferences_widget, important=True)
 
     def on_synchronize_episodes(self, channels, episodes=None, force_played=True):
         device = sync.open_device(self)
