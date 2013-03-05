@@ -69,6 +69,7 @@ class gPodderShownotesText(gPodderShownotes):
         self.text_view = gtk.TextView()
         self.text_view.set_wrap_mode(gtk.WRAP_WORD_CHAR)
         self.text_view.set_border_width(10)
+        self.text_view.set_editable(False)
         self.text_buffer = gtk.TextBuffer()
         self.text_buffer.create_tag('heading', scale=pango.SCALE_LARGE, weight=pango.WEIGHT_BOLD)
         self.text_buffer.create_tag('subheading', scale=pango.SCALE_SMALL)
