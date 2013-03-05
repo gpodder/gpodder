@@ -117,6 +117,7 @@ defaults = {
                     'x': -1, 'y': -1, 'maximized': False,
 
                     'paned_position': 200,
+                    'episode_list_size': 200,
                 },
                 'episode_selector': {
                     'width': 600,
@@ -211,7 +212,6 @@ gPodderSettings_LegacySupport = {
     'auto_remove_unplayed_episodes': 'auto.cleanup.unplayed',
     'max_episodes_per_feed': 'limit.episodes',
     'show_toolbar': 'ui.gtk.toolbar',
-    'paned_position': 'ui.gtk.state.main_window.paned_position',
     'episode_list_descriptions': 'ui.gtk.episode_list.descriptions',
     'podcast_list_view_all': 'ui.gtk.podcast_list.all_episodes',
     'podcast_list_sections': 'ui.gtk.podcast_list.sections',
