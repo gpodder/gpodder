@@ -128,7 +128,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.config.connect_gtk_window(self.main_window, 'main_window')
 
-        self.config.connect_gtk_paned('paned_position', self.channelPaned)
+        self.config.connect_gtk_paned('ui.gtk.state.main_window.paned_position', self.channelPaned)
 
         self.main_window.show()
 
@@ -142,7 +142,23 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.sw_shownotes = gtk.ScrolledWindow()
         self.sw_shownotes.set_shadow_type(gtk.SHADOW_IN)
         self.sw_shownotes.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-        self.vbox_episode_list.add(self.sw_shownotes)
+
+        # Vertical paned for the episode list and shownotes
+        self.vpaned = gtk.VPaned()
+        paned = self.vbox_episode_list.get_parent()
+        self.vbox_episode_list.reparent(self.vpaned)
+        self.vpaned.child_set_property(self.vbox_episode_list, 'resize', True)
+        self.vpaned.child_set_property(self.vbox_episode_list, 'shrink', False)
+        self.vpaned.pack2(self.sw_shownotes, resize=False, shrink=False)
+        self.vpaned.show()
+
+        # Minimum height for both episode list and shownotes
+        self.vbox_episode_list.set_size_request(-1, 100)
+        self.sw_shownotes.set_size_request(-1, 100)
+
+        self.config.connect_gtk_paned('ui.gtk.state.main_window.episode_list_size',
+                self.vpaned)
+        paned.add2(self.vpaned)
 
         if self.config.enable_html_shownotes and shownotes.have_webkit:
             self.shownotes_object = shownotes.gPodderShownotesHTML(self.sw_shownotes)
