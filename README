@@ -59,6 +59,7 @@
     - PySide 1.0.8 or newer            http://www.pyside.org/
     - Qt Mobility 1.2 or newer         http://qt.gitorious.org/qt-mobility
     - Qt Quick Components              http://qt.gitorious.org/qt-components
+    - Sailfish Silica Components       https://sailfishos.org/sailfish-silica/
 
     The QML UI depends on the QtMultimediaKit QML bindings for playing
     back audio (libdeclarative-multimedia in Debian) and on the WebKit QML
@@ -73,6 +74,11 @@
     MeeGo 1.2 Harmattan device to your development machine in order for all UI
     elements to be displayed correctly. Alternatively, you can use the free
     "darko" theme from: https://github.com/jpavelek/meego-handset-theme-darko
+
+    For running gPodder on Sailfish OS using Sailfish Silica Components, you
+    need to have Sailfish Silica installed. Right now, gPodder still depends on
+    qt-components even on Sailfish, but this is going to change soon once a
+    more mature version of Sailfish Silica is out.
 
 
  [ OPTIONAL DEPENDENCIES ]
