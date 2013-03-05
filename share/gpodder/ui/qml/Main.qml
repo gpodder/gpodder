@@ -504,6 +504,9 @@ Item {
     Sheet {
         id: inputSheet
 
+        anchors.fill: parent
+        anchors.topMargin: -50
+
         acceptButtonText: inputDialogAccept.text
         rejectButtonText: inputDialogReject.text
 
