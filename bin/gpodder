@@ -3,7 +3,7 @@
 
 #
 # gPodder - A media aggregator and podcast client
-# Copyright (c) 2005-2012 Thomas Perl and the gPodder Team
+# Copyright (c) 2005-2013 Thomas Perl and the gPodder Team
 #
 # gPodder is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -125,7 +125,7 @@ def main():
         # gPodder bug 1464, see also http://wiki.meego.com/AddVolumeControlSupport
         os.environ['PULSE_PROP_media.role'] = 'x-maemo'
 
-    if options.qml or gpodder.ui.harmattan:
+    if options.qml or (gpodder.ui.harmattan or gpodder.ui.sailfish):
         gpodder.ui.qml = True
     else:
         gpodder.ui.gtk = True

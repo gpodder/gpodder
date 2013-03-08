@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # gPodder - A media aggregator and podcast client
-# Copyright (c) 2005-2012 Thomas Perl and the gPodder Team
+# Copyright (c) 2005-2013 Thomas Perl and the gPodder Team
 #
 # gPodder is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -46,6 +46,9 @@ class CoverDownloader(object):
     EXTENSIONS = SUPPORTED_EXTENSIONS.keys()
     ALL_EPISODES_ID = ':gpodder:all-episodes:'
 
+    # Low timeout to avoid unnecessary hangs of GUIs
+    TIMEOUT = 5
+
     def __init__(self):
         pass
 
@@ -81,7 +84,7 @@ class CoverDownloader(object):
 
             try:
                 logger.info('Downloading cover art: %s', cover_url)
-                data = util.urlopen(cover_url).read()
+                data = util.urlopen(cover_url, timeout=self.TIMEOUT).read()
             except Exception, e:
                 logger.warn('Cover art download failed: %s', e)
                 return self._fallback_filename(title)

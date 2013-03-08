@@ -1,6 +1,7 @@
 
 import QtQuick 1.1
 
+import org.gpodder.qmlui 1.0
 import com.nokia.meego 1.0
 
 import 'config.js' as Config
@@ -9,15 +10,19 @@ Item {
     id: episodeList
     property string currentFilterText
     property string mainState
+    property alias model: listView.model
+    property variant listview: listView
+
+    clip: true
 
     /*onMainStateChanged: {
         // Don't remember contentY when leaving episode list
         listView.lastContentY = 0;
     }*/
 
-    property alias model: listView.model
     property alias moving: listView.moving
     property alias count: listView.count
+    property alias listViewContentY: listView.contentY
 
     signal episodeContextMenu(variant episode)
 
@@ -29,25 +34,33 @@ Item {
         listView.openedIndex = -1
     }
 
-    function resetFilterDialog() {
-        filterDialog.resetSelection();
-    }
-
     Text {
         anchors.centerIn: parent
         color: 'white'
         font.pixelSize: 30
         horizontalAlignment: Text.AlignHCenter
-        text: '<big>' + _('No episodes') + '</big>' + '<br><small>' + _('Touch to change filter') + '</small>'
+        text: {
+            if (main.loadingEpisodes) {
+                '<big>' + _('Loading episodes') + '</big>'
+            } else {
+                '<big>' + _('No episodes') + '</big>' + '<br><small>' + _('Touch to change filter') + '</small>'
+            }
+        }
         visible: !listView.visible
 
         MouseArea {
             anchors.fill: parent
-            onClicked: episodeList.showFilterDialog()
+            onClicked: {
+                if (!main.loadingEpisodes) {
+                    episodeList.showFilterDialog()
+                }
+            }
         }
     }
 
-    ListView {
+    ListList {
+        headerText: main.currentPodcast.qtitle
+
         id: listView
         cacheBuffer: 10000
 
@@ -121,7 +134,7 @@ Item {
                 if (listView.count === listView.openedIndex + 1 && listView.height < listView.contentHeight) {
                     overlayIndex = listView.openedIndex - 1
                 }
-                overlayIndex * Config.listItemHeight - listView.contentY
+                overlayIndex * Config.listItemHeight - listView.contentY + listView.headerHeight
             }
             left: parent.left
             right: parent.right
@@ -148,8 +161,8 @@ Item {
         }
     }
 
-    ScrollDecorator {
-        flickableItem: listView
+    ScrollScroll {
+        flickable: listView
     }
 
     SelectionDialog {
@@ -157,17 +170,13 @@ Item {
         titleText: _('Show episodes')
 
         function resetSelection() {
-            if (main.episodeModel !== undefined) {
-                selectedIndex = main.episodeModel.getFilter();
-                accepted();
-            }
+            selectedIndex = episodeModel.getFilter();
+            accepted();
         }
 
         onAccepted: {
-            if (main.episodeModel !== undefined) {
-                episodeList.currentFilterText = model.get(selectedIndex).name;
-                episodeModel.setFilter(selectedIndex);
-            }
+            episodeList.currentFilterText = model.get(selectedIndex).name;
+            episodeModel.setFilter(selectedIndex);
         }
 
         model: ListModel {}
@@ -178,6 +187,8 @@ Item {
             for (var index in filters) {
                 model.append({name: filters[index]});
             }
+
+            resetSelection();
         }
     }
 }

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # gPodder - A media aggregator and podcast client
-# Copyright (c) 2005-2012 Thomas Perl and the gPodder Team
+# Copyright (c) 2005-2013 Thomas Perl and the gPodder Team
 #
 # gPodder is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -93,11 +93,11 @@ from gpodder import extensions
 macapp = None
 if gpodder.ui.osx and getattr(gtk.gdk, 'WINDOWING', 'x11') == 'quartz':
     try:
-        from gtk_osxapplication import *
-        macapp = OSXApplication()
+        from gtkosx_application import *
+        macapp = Application()
     except ImportError:
         print >> sys.stderr, """
-        Warning: gtk-mac-integration not found, disabling native menus 
+        Warning: gtk-mac-integration not found, disabling native menus
         """
 
 
@@ -119,7 +119,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.model = self.core.model
         self.flattr = self.core.flattr
         BuilderWidget.__init__(self, None)
-    
+
     def new(self):
         gpodder.user_extensions.on_ui_object_available('gpodder-gtk', self)
         self.toolbar.set_property('visible', self.config.show_toolbar)
@@ -128,7 +128,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.config.connect_gtk_window(self.main_window, 'main_window')
 
-        self.config.connect_gtk_paned('paned_position', self.channelPaned)
+        self.config.connect_gtk_paned('ui.gtk.state.main_window.paned_position', self.channelPaned)
 
         self.main_window.show()
 
@@ -141,8 +141,24 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.sw_shownotes = gtk.ScrolledWindow()
         self.sw_shownotes.set_shadow_type(gtk.SHADOW_IN)
-        self.sw_shownotes.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
-        self.vbox_episode_list.add(self.sw_shownotes)
+        self.sw_shownotes.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+
+        # Vertical paned for the episode list and shownotes
+        self.vpaned = gtk.VPaned()
+        paned = self.vbox_episode_list.get_parent()
+        self.vbox_episode_list.reparent(self.vpaned)
+        self.vpaned.child_set_property(self.vbox_episode_list, 'resize', True)
+        self.vpaned.child_set_property(self.vbox_episode_list, 'shrink', False)
+        self.vpaned.pack2(self.sw_shownotes, resize=False, shrink=False)
+        self.vpaned.show()
+
+        # Minimum height for both episode list and shownotes
+        self.vbox_episode_list.set_size_request(-1, 100)
+        self.sw_shownotes.set_size_request(-1, 100)
+
+        self.config.connect_gtk_paned('ui.gtk.state.main_window.episode_list_size',
+                self.vpaned)
+        paned.add2(self.vpaned)
 
         if self.config.enable_html_shownotes and shownotes.have_webkit:
             self.shownotes_object = shownotes.gPodderShownotesHTML(self.sw_shownotes)
@@ -220,7 +236,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # Subscribed channels
         self.active_channel = None
         self.channels = self.model.get_podcasts()
-        
+
         # Set up the first instance of MygPoClient
         self.mygpo_client = my.MygPoClient(self.config)
 
@@ -1592,7 +1608,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             menu.append(item)
 
             menu.show_all()
-            # Disable tooltips while we are showing the menu, so 
+            # Disable tooltips while we are showing the menu, so
             # the tooltip will not appear over the menu
             self.treeview_allow_tooltips(self.treeChannels, False)
             menu.connect('deactivate', lambda menushell: self.treeview_allow_tooltips(self.treeChannels, True))
@@ -1655,7 +1671,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def _add_sub_menu(self, menu, label):
         root_item = gtk.MenuItem(label)
         menu.append(root_item)
-        sub_menu = gtk.Menu()        
+        sub_menu = gtk.Menu()
         root_item.set_submenu(sub_menu)
         return sub_menu
 
@@ -1715,10 +1731,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 menu.append(gtk.SeparatorMenuItem())
                 submenus = {}
                 for label, callback in result:
-                    key, sep, titel = label.rpartition('/')
-                    item = gtk.ImageMenuItem(titel)
-                    item.connect('button-press-event',
-                        lambda w, ee, callback: callback(episodes), callback)
+                    key, sep, title = label.rpartition('/')
+                    item = gtk.MenuItem(title)
+                    item.connect('activate', lambda item, callback:
+                            callback(episodes), callback)
                     if key:
                         if key not in submenus:
                             sub_menu = self._add_sub_menu(menu, key)
@@ -1759,7 +1775,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 item.set_active(any_locked)
                 item.connect('activate', lambda w: self.on_item_toggle_lock_activate( w, False, not any_locked))
                 menu.append(item)
-                
+
             if any_flattrable and self.config.flattr.token:
                 menu.append(gtk.SeparatorMenuItem())
                 item = gtk.MenuItem(_('Flattr this'))
@@ -1953,7 +1969,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         selection = self.treeAvailable.get_selection()
         if selection.count_selected_rows() > 0:
             (model, paths) = selection.get_selected_rows()
-         
+
             for path in paths:
                 try:
                     episode = model.get_value(model.get_iter(path), EpisodeListModel.C_EPISODE)
@@ -2536,7 +2552,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if macapp is None:
             sys.exit(0)
 
-    def delete_episode_list(self, episodes, confirm=True, skip_locked=True):
+    def delete_episode_list(self, episodes, confirm=True, skip_locked=True,
+            callback=None):
         if not episodes:
             return False
 
@@ -2589,7 +2606,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.mygpo_client.on_delete(episodes_status_update)
             self.mygpo_client.flush()
 
-            util.idle_add(finish_deletion, episode_urls, channel_urls)
+            if callback is None:
+                util.idle_add(finish_deletion, episode_urls, channel_urls)
+            else:
+                util.idle_add(callback, episode_urls, channel_urls, progress)
 
         return True
 
@@ -2622,7 +2642,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         episodes = []
         for channel in channels:
-            for episode in channel.get_downloaded_episodes():
+            for episode in channel.get_episodes(gpodder.STATE_DOWNLOADED):
                 # Disallow deletion of locked episodes that still exist
                 if not episode.archive or not episode.file_exists():
                     episodes.append(episode)
@@ -2653,7 +2673,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         for episode in self.get_selected_episodes():
             episode.mark_old()
         self.on_selected_episodes_status_changed()
-        
+
     def flattr_selected_episodes(self, w=None):
         if not self.config.flattr.token:
             return
@@ -3329,7 +3349,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.enable_download_list_update()
             elif task.status == task.DONE:
                 model.remove(model.get_iter(tree_row_reference.get_path()))
-                
+
         self.play_or_download()
 
         # Update the tab title and downloads list
@@ -3388,10 +3408,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.gPodder.hide()
             self.gPodder.show()
             self.gPodder.present()
- 
+
     def iconify_main_window(self):
         if not self.is_iconified():
-            self.gPodder.iconify()          
+            self.gPodder.iconify()
 
     @dbus.service.method(gpodder.dbus_interface)
     def show_gui_window(self):
@@ -3437,11 +3457,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.update_episode_list_icons,
                 self.update_podcast_list_model,
                 self.toolPreferences,
-                gPodderEpisodeSelector,
+                self.channels,
                 self.download_status_model,
                 self.download_queue_manager,
                 self.enable_download_list_update,
-                self.commit_changes_to_database)
+                self.commit_changes_to_database,
+                self.delete_episode_list)
 
         self.sync_ui.on_synchronize_episodes(self.channels, episodes, force_played)
 

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 #
 # gPodder - A media aggregator and podcast client
-# Copyright (c) 2005-2012 Thomas Perl and the gPodder Team
+# Copyright (c) 2005-2013 Thomas Perl and the gPodder Team
 #
 # gPodder is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -44,6 +44,7 @@ from gpodder import minidb
 import mygpoclient
 mygpoclient.user_agent += ' ' + gpodder.user_agent
 
+# 2013-02-08: We should update this to 1.7 once we use the new features
 MYGPOCLIENT_REQUIRED = '1.4'
 
 if not hasattr(mygpoclient, 'require_version') or \
@@ -73,6 +74,7 @@ from mygpoclient import util as mygpoutil
 
 EXAMPLES_OPML = 'http://gpodder.org/directory.opml'
 TOPLIST_OPML = 'http://gpodder.org/toplist.opml'
+EPISODE_ACTIONS_BATCH_SIZE=100
 
 # Database model classes
 class SinceValue(object):
@@ -508,14 +510,20 @@ class MygPoClient(object):
 
             # Step 2: Upload Episode actions
 
-            # Convert actions to the mygpoclient format for uploading
-            episode_actions = [convert_to_api(a) for a in actions]
+            # Uploads are done in batches; uploading can resume if only parts
+            # be uploaded; avoids empty uploads as well
+            for lower in range(0, len(actions), EPISODE_ACTIONS_BATCH_SIZE):
+                batch = actions[lower:lower+EPISODE_ACTIONS_BATCH_SIZE]
 
-            # Upload the episode actions
-            self._client.upload_episode_actions(episode_actions)
+                # Convert actions to the mygpoclient format for uploading
+                episode_actions = [convert_to_api(a) for a in batch]
 
-            # Actions have been uploaded to the server - remove them
-            self._store.remove(actions)
+                # Upload the episode actions
+                self._client.upload_episode_actions(episode_actions)
+
+                # Actions have been uploaded to the server - remove them
+                self._store.remove(batch)
+
             logger.debug('Episode actions have been uploaded to the server.')
             return True
 

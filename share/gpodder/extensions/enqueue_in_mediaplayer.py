@@ -28,10 +28,15 @@ VLC = (['vlc', '--started-from-file', '--playlist-enqueue'],
 class gPodderExtension:
     def __init__(self, container):
         self.container = container
+        self.gpodder = None
 
         # Check media players
         self.amarok_available = self.check_mediaplayer(AMAROK[0][0])
         self.vlc_available = self.check_mediaplayer(VLC[0][0])
+
+    def on_ui_object_available(self, name, ui_object):
+        if name == 'gpodder-gtk':
+            self.gpodder = ui_object
 
     def check_mediaplayer(self, cmd):
         return not (util.find_command(cmd) == None)
@@ -40,8 +45,11 @@ class gPodderExtension:
         filenames = [episode.get_playback_url() for episode in episodes]
 
         vlc = subprocess.Popen(cmd + filenames,
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE
-        )
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+        for episode in episodes:
+            episode.playback_mark()
+            self.gpodder.update_episode_list_icons(selected=True)
 
     def enqueue_episodes_amarok(self, episodes):
         self._enqueue_episodes_cmd(episodes, AMAROK[0])

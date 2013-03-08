@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # gPodder - A media aggregator and podcast client
-# Copyright (c) 2005-2012 Thomas Perl and the gPodder Team
+# Copyright (c) 2005-2013 Thomas Perl and the gPodder Team
 #
 # gPodder is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -69,7 +69,8 @@ def get_header_param(headers, param, header_name):
         msg = email.message_from_string('\n'.join(headers_string))
         if header_name in msg:
             raw_value = msg.get_param(param, header=header_name)
-            value = email.utils.collapse_rfc2231_value(raw_value)
+            if raw_value is not None:
+                value = email.utils.collapse_rfc2231_value(raw_value)
     except Exception, e:
         logger.error('Cannot get %s from %s', param, header_name, exc_info=True)
 
@@ -830,7 +831,7 @@ class DownloadTask(object):
                 if new_mimetype is not None:
                     logger.info('Using content-disposition mimetype: %s',
                             new_mimetype)
-                    self.__episode.set_mimetype(new_mimetype, commit=True)
+                    self.__episode.mime_type = new_mimetype
 
             # Re-evaluate filename and tempname to take care of podcast renames
             # while downloads are running (which will change both file names)

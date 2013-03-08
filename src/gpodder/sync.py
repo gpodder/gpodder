@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # gPodder - A media aggregator and podcast client
-# Copyright (c) 2005-2012 Thomas Perl and the gPodder Team
+# Copyright (c) 2005-2013 Thomas Perl and the gPodder Team
 #
 # gPodder is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -213,18 +213,21 @@ class Device(services.ObservableService):
             if does_not_exist or exclude_played or wrong_type:
                 logger.info('Excluding %s from sync', track.title)
                 tracklist.remove(track)
-
-        for track in sorted(tracklist, key=lambda e: e.pubdate_prop):
-            if self.cancelled:
-                return False
-
-            # XXX: need to check if track is added properly?
-            sync_task=SyncTask(track)
-
-            sync_task.status=sync_task.QUEUED
-            sync_task.device=self
-            self.download_status_model.register_task(sync_task)
-            self.download_queue_manager.add_task(sync_task)
+        
+        if tracklist:
+            for track in sorted(tracklist, key=lambda e: e.pubdate_prop):
+                if self.cancelled:
+                    return False
+    
+                # XXX: need to check if track is added properly?
+                sync_task=SyncTask(track)
+    
+                sync_task.status=sync_task.QUEUED
+                sync_task.device=self
+                self.download_status_model.register_task(sync_task)
+                self.download_queue_manager.add_task(sync_task)
+        else:
+            logger.warning("No episodes to sync")
 
         return True
 

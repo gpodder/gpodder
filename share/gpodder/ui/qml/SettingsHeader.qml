@@ -1,13 +1,12 @@
 
 import QtQuick 1.0
-import com.nokia.meego 1.0
 
 import 'config.js' as Config
 
 Item {
     id: settingsHeader
     property alias text: headerCaption.text
-    property color color: headerCaption.visible?'#666':'#fff'
+    property color color: Config.settingsHeaderColor
 
     width: parent.width
     height: headerCaption.visible?Config.listItemHeight*.7:10

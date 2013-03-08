@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # gPodder - A media aggregator and podcast client
-# Copyright (c) 2005-2012 Thomas Perl and the gPodder Team
+# Copyright (c) 2005-2013 Thomas Perl and the gPodder Team
 #
 # gPodder is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -298,15 +298,6 @@ def get_pubdate(entry):
 
     if pubdate is None:
         pubdate = entry.get('updated_parsed', None)
-
-    if pubdate is None:
-        # See http://code.google.com/p/feedparser/issues/detail?id=327
-        updated = entry.get('published', entry.get('updated', None))
-        if updated is not None:
-            # FIXME: This is kludgy. We should write our own date handler
-            # and register it with feedparser.registerDateHandler() and/or
-            # wait for feedparser to add support for this bogus date format.
-            pubdate = feedparser._parse_date(updated.replace(',', ''))
 
     if pubdate is None:
         # Cannot determine pubdate - party like it's 1970!

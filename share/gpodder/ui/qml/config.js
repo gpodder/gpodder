@@ -23,6 +23,11 @@ var playbackColor = '#729fcf' /* playback blue */
 var selectColorBg = Qt.darker(selectColor, 5)
 var downloadColorBg = Qt.darker(downloadColor, 4)
 var playbackColorBg = Qt.darker(playbackColor, 4)
+var episodeActionsColorBg = '#70000000'
+var mediaPlayerColorBg = '#50000000'
+var sectionHeaderColorText = '#90ffffff'
+var sectionHeaderColorLine = '#60ffffff'
+var settingsHeaderColor = 'white'
 
 var baseColor = '#2b2b2b'
 var offlineColor = '#4b4b4b'

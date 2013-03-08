@@ -1,5 +1,7 @@
 
 import QtQuick 1.1
+
+import org.gpodder.qmlui 1.0
 import com.nokia.meego 1.0
 
 import 'config.js' as Config
@@ -17,36 +19,90 @@ Item {
         return controller.ntranslate(x, y, z)
     }
 
-    property alias podcastModel: podcastList.model
-    property variant episodeModel
     property alias multiEpisodesSheetOpened: multiEpisodesSheet.opened
-    onEpisodeModelChanged: episodeList.resetFilterDialog()
-    property alias currentEpisode: mediaPlayer.episode
-    property alias showNotesEpisode: showNotes.episode
     property variant currentPodcast: undefined
     property bool hasPodcasts: podcastList.hasItems
     property alias currentFilterText: episodeList.currentFilterText
+    property variant podcastListView: podcastList.listview
 
     property bool playing: mediaPlayer.playing
-    property bool canGoBack: (main.state != 'podcasts' || contextMenu.state != 'closed' || mediaPlayer.visible) && !progressIndicator.opacity
-    property bool hasPlayButton: nowPlayingThrobber.shouldAppear && !progressIndicator.opacity
-    property bool hasSearchButton: (contextMenu.state == 'closed' && main.state == 'podcasts') && !mediaPlayer.visible && !progressIndicator.opacity
-    property bool hasFilterButton: state == 'episodes' && !mediaPlayer.visible
+    property bool hasPlayButton: ((mediaPlayer.episode !== undefined)) && !progressIndicator.opacity
+    property bool hasSearchButton: !progressIndicator.opacity
 
     property bool loadingEpisodes: false
 
     function clearEpisodeListModel() {
-        loadingEpisodes = true
-        startProgress(_('Loading episodes'))
+        /* Abort loading when clearing list model */
+        episodeListModelLoader.running = false;
+        loadingEpisodes = true;
+        episodeListModel.clear();
     }
 
-    function setEpisodeListModel(model) {
-        episodeListModel.clear();
-        for (var i=0; i<model.length; i++) {
-            episodeListModel.append(model[i]);
+    Timer {
+        id: episodeListModelLoader
+
+        /**
+         * These values determined by non-scientific experimentation,
+         * feel free to tweak depending on the power of your device.
+         *
+         * Loads <stepSize> items every <interval> ms, and to populate
+         * the first screen, loads <initialStepSize> items on start.
+         **/
+        property int initialStepSize: 13
+        property int stepSize: 4
+        interval: 50
+
+        property int count: 0
+        property int position: 0
+
+        repeat: true
+        triggeredOnStart: true
+
+        onTriggered: {
+            var step = (position === 0) ? initialStepSize : stepSize;
+            var end = Math.min(count, position+step);
+
+            for (var i=position; i<end; i++) {
+                episodeListModel.append(episodeModel.get_object_by_index(i));
+            }
+
+            position = end;
+            if (position === count) {
+                running = false;
+                main.loadingEpisodes = false;
+            } else if (pageStack.depth === 1) {
+                /* Abort loading when switching to main view */
+                running = false;
+                main.loadingEpisodes = false;
+            }
         }
-        loadingEpisodes = false
-        endProgress()
+    }
+
+    function setEpisodeListModel() {
+        episodeListModelLoader.count = episodeModel.getCount();
+        episodeListModelLoader.position = 0;
+        episodeListModelLoader.restart();
+    }
+
+    Component.onCompleted: {
+        /* Signal connections for upcalls from the backend */
+        controller.episodeUpdated.connect(episodeUpdated);
+
+        controller.showMessage.connect(showMessage);
+        controller.showInputDialog.connect(showInputDialog);
+        controller.openContextMenu.connect(openContextMenu);
+
+        controller.startProgress.connect(startProgress);
+        controller.endProgress.connect(endProgress);
+
+        controller.clearEpisodeListModel.connect(clearEpisodeListModel);
+        controller.setEpisodeListModel.connect(setEpisodeListModel);
+
+        controller.enqueueEpisode.connect(enqueueEpisode);
+        controller.removeQueuedEpisode.connect(removeQueuedEpisode);
+        controller.removeQueuedEpisodesForPodcast.connect(removeQueuedEpisodesForPodcast);
+
+        controller.shutdown.connect(shutdown);
     }
 
     function episodeUpdated(id) {
@@ -67,23 +123,11 @@ Item {
     }
 
     function clickSearchButton() {
-        contextMenu.showSubscribe()
+        pageStack.push(subscribePage);
     }
 
-    function goBack() {
-        if (nowPlayingThrobber.opened) {
-            clickPlayButton()
-        } else if (contextMenu.state == 'opened') {
-            contextMenu.state = 'closed'
-        } else if (main.state == 'podcasts') {
-            mediaPlayer.stop()
-            controller.quit()
-        } else if (main.state == 'episodes') {
-            main.state = 'podcasts'
-            main.currentPodcast = undefined
-        } else if (main.state == 'shownotes') {
-            main.state = 'episodes'
-        }
+    function shutdown() {
+        mediaPlayer.stop();
     }
 
     function showFilterDialog() {
@@ -91,7 +135,16 @@ Item {
     }
 
     function clickPlayButton() {
-        nowPlayingThrobber.opened = !nowPlayingThrobber.opened
+        if (!main.hasPlayButton) {
+            main.showMessage(_('Playlist empty'));
+            return;
+        }
+
+        if (pageStack.currentPage === mediaPlayerPage) {
+            pageStack.pop();
+        } else {
+            pageStack.push(mediaPlayerPage);
+        }
     }
 
     function showMultiEpisodesSheet(title, label, action) {
@@ -99,6 +152,7 @@ Item {
         multiEpisodesSheet.acceptButtonText = label;
         multiEpisodesSheet.action = action;
         multiEpisodesList.selected = [];
+        multiEpisodesList.contentY = episodeList.listViewContentY;
         multiEpisodesSheet.open();
         multiEpisodesSheet.opened = true;
     }
@@ -106,10 +160,8 @@ Item {
     width: 800
     height: 480
 
-    state: 'podcasts'
-
     function enqueueEpisode(episode) {
-        if (currentEpisode === undefined) {
+        if (mediaPlayer.episode === undefined) {
             togglePlayback(episode);
         } else {
             mediaPlayer.enqueueEpisode(episode);
@@ -136,8 +188,8 @@ Item {
     }
 
     function openShowNotes(episode) {
-        showNotes.episode = episode
-        main.state = 'shownotes'
+        showNotes.episode = episode;
+        pageStack.push(showNotesPage);
     }
 
     function openContextMenu(items) {
@@ -154,133 +206,89 @@ Item {
         progressIndicator.opacity = 0
     }
 
-    states: [
-        State {
-            name: 'podcasts'
-            PropertyChanges {
-                target: podcastList
-                opacity: 1
-            }
-            PropertyChanges {
-                target: episodeList
-                anchors.leftMargin: 100
-                opacity: 0
-            }
-            PropertyChanges {
-                target: showNotes
-                opacity: 0
-            }
-            StateChangeScript {
-                script: episodeList.resetSelection()
-            }
-        },
-        State {
-            name: 'episodes'
-            PropertyChanges {
-                target: episodeList
-                opacity: !main.loadingEpisodes
-            }
-            PropertyChanges {
-                target: podcastList
-                opacity: 0
-                anchors.leftMargin: -100
-            }
-            PropertyChanges {
-                target: showNotes
-                opacity: 0
-                anchors.leftMargin: main.width
-            }
-        },
-        State {
-            name: 'shownotes'
-            PropertyChanges {
-                target: listContainer
-                opacity: 0
-            }
-            PropertyChanges {
-                target: showNotes
-                opacity: 1
-                anchors.leftMargin: 0
-            }
-        }
-    ]
+    PodcastList {
+        id: podcastList
+        model: podcastModel
 
-    Item {
-        id: listContainer
         anchors.fill: parent
 
-        PodcastList {
-            id: podcastList
-            opacity: 0
+        onPodcastSelected: {
+            controller.podcastSelected(podcast);
+            main.currentPodcast = podcast;
+            pageStack.push(episodesPage);
+        }
+        onPodcastContextMenu: controller.podcastContextMenu(podcast)
+        onSubscribe: pageStack.push(subscribePage);
+    }
 
-            anchors.fill: parent
+    PagePage {
+        id: episodesPage
+        listview: episodeList.listview
 
-            onPodcastSelected: {
-                controller.podcastSelected(podcast)
-                main.currentPodcast = podcast
-            }
-            onPodcastContextMenu: controller.podcastContextMenu(podcast)
-            onSubscribe: contextMenu.showSubscribe()
-
-            Behavior on opacity { NumberAnimation { duration: Config.slowTransition } }
-            Behavior on anchors.leftMargin { NumberAnimation { duration: Config.slowTransition } }
+        onClosed: {
+            episodeList.resetSelection();
+            main.currentPodcast = undefined;
         }
 
         EpisodeList {
             id: episodeList
-            mainState: main.state
-
-            model: ListModel { id: episodeListModel }
-
-            opacity: 0
 
             anchors.fill: parent
 
+            model: ListModel { id: episodeListModel }
             onEpisodeContextMenu: controller.episodeContextMenu(episode)
-
-            Behavior on opacity { NumberAnimation { duration: Config.slowTransition } }
-            Behavior on anchors.leftMargin { NumberAnimation { duration: Config.slowTransition } }
         }
 
-        Behavior on opacity { NumberAnimation { duration: Config.slowTransition } }
-        Behavior on scale { NumberAnimation { duration: Config.fadeTransition } }
-    }
+        actions: [
+            Action {
+                text: _('Now playing')
+                onClicked: {
+                    main.clickPlayButton();
+                }
+            },
+            Action {
+                text: _('Filter:') + ' ' + mainObject.currentFilterText
+                onClicked: {
+                    mainObject.showFilterDialog();
+                }
+            },
+            Action {
+                text: _('Download episodes')
+                onClicked: {
+                    main.showMultiEpisodesSheet(text, _('Download'), 'download');
+                }
+            },
+            Action {
+                text: _('Playback episodes')
+                onClicked: {
+                    main.showMultiEpisodesSheet(text, _('Play'), 'play');
+                }
+            },
+            Action {
+                text: _('Delete episodes')
+                onClicked: {
+                    main.showMultiEpisodesSheet(text, _('Delete'), 'delete');
+                }
+            }
+        ]
 
-    ShowNotes {
-        id: showNotes
-
-        anchors {
-            left: parent.left
-            top: parent.top
-            bottom: parent.bottom
-        }
-        width: parent.width
-
-        Behavior on opacity { NumberAnimation { duration: Config.slowTransition } }
-        Behavior on anchors.leftMargin { NumberAnimation { duration: Config.slowTransition } }
     }
 
     Item {
         id: overlayInteractionBlockWall
         anchors.fill: parent
-        z: (contextMenu.state != 'opened')?2:0
+        z: 2
 
-        opacity: (nowPlayingThrobber.opened || contextMenu.state == 'opened' || messageDialog.opacity || inputDialog.opacity || progressIndicator.opacity)?1:0
+        opacity: (inputDialog.opacity || progressIndicator.opacity)?1:0
         Behavior on opacity { NumberAnimation { duration: Config.slowTransition } }
 
         MouseArea {
             anchors.fill: parent
             onClicked: {
-                if (contextMenu.state == 'opened') {
-                    // do nothing
-                } else if (progressIndicator.opacity) {
+                if (progressIndicator.opacity) {
                     // do nothing
                 } else if (inputDialog.opacity) {
                     inputDialog.close()
-                } else if (messageDialog.opacity) {
-                    messageDialog.opacity = 0
-                } else {
-                    nowPlayingThrobber.opened = false
                 }
             }
         }
@@ -297,25 +305,36 @@ Item {
         }
     }
 
-    Item {
-        // XXX: Remove me
-        id: nowPlayingThrobber
-        property bool shouldAppear: ((contextMenu.state != 'opened') && (mediaPlayer.episode !== undefined))
-        property bool opened: false
-    }
+    PagePage {
+        id: mediaPlayerPage
 
-    MediaPlayer {
-        id: mediaPlayer
-        visible: nowPlayingThrobber.opened
+        MediaPlayer {
+            id: mediaPlayer
 
-        z: 3
+            anchors {
+                left: parent.left
+                right: parent.right
+                verticalCenter: parent.verticalCenter
+            }
+        }
 
-        anchors.top: parent.bottom
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.topMargin: nowPlayingThrobber.opened?-(height+(parent.height-height)/2):0
+        actions: [
+            Action {
+                text: _('Shownotes')
+                onClicked: main.openShowNotes(mediaPlayer.episode)
+            },
 
-        Behavior on anchors.topMargin { PropertyAnimation { duration: Config.quickTransition; easing.type: Easing.OutCirc } }
+            Action {
+                text: _('Play queue')
+                onClicked: {
+                    if (mediaPlayer.hasQueue) {
+                        mediaPlayer.showQueue();
+                    } else {
+                        main.showMessage(_('Playlist empty'));
+                    }
+                }
+            }
+        ]
     }
 
     ContextMenu {
@@ -337,86 +356,9 @@ Item {
         }
     }
 
-    ContextMenuArea {
-        id: contextMenu
-
-        width: parent.width
-        opacity: 0
-
-        anchors {
-            top: parent.top
-            bottom: parent.bottom
-        }
-
-        onClose: contextMenu.state = 'closed'
-        onResponse: controller.contextMenuResponse(index)
-
-        state: 'closed'
-
-        Behavior on opacity { NumberAnimation { duration: Config.fadeTransition } }
-
-        states: [
-            State {
-                name: 'opened'
-                PropertyChanges {
-                    target: contextMenu
-                    opacity: 1
-                }
-                AnchorChanges {
-                    target: contextMenu
-                    anchors.right: main.right
-                }
-            },
-            State {
-                name: 'closed'
-                PropertyChanges {
-                    target: contextMenu
-                    opacity: 0
-                }
-                AnchorChanges {
-                    target: contextMenu
-                    anchors.right: main.left
-                }
-                StateChangeScript {
-                    script: controller.contextMenuClosed()
-                }
-            }
-        ]
-
-        transitions: Transition {
-            AnchorAnimation { duration: Config.slowTransition }
-        }
-    }
-
     function showMessage(message) {
-        messageDialogText.text = message
-        messageDialog.opacity = 1
-    }
-
-    Item {
-        id: messageDialog
-        anchors.fill: parent
-        opacity: 0
-        z: 20
-
-        Behavior on opacity { PropertyAnimation { } }
-
-        Label {
-            id: messageDialogText
-            anchors {
-                left: parent.left
-                right: parent.right
-                verticalCenter: parent.verticalCenter
-                leftMargin: Config.largeSpacing
-                rightMargin: Config.largeSpacing
-            }
-            color: 'white'
-            font.pixelSize: 20
-            font.bold: true
-            width: parent.width
-            horizontalAlignment: Text.AlignHCenter
-            wrapMode: Text.WordWrap
-        }
+        infoBanner.text = message;
+        infoBanner.show();
     }
 
     function showInputDialog(message, value, accept, reject, textInput) {
@@ -451,7 +393,6 @@ Item {
         property bool opened: false
         property string title: ''
         acceptButtonText: _('Delete')
-        visualParent: episodeList
         anchors.fill: parent
         anchors.topMargin: -36
 
@@ -506,7 +447,7 @@ Item {
                 }
             }
 
-            ScrollDecorator { flickableItem: multiEpisodesList }
+            ScrollScroll { flickable: multiEpisodesList }
 
             ContextMenu {
                 id: multiEpisodesSheetContextMenu
@@ -528,7 +469,7 @@ Item {
                         onClicked: {
                             var newSelection = [];
                             for (var i=0; i<multiEpisodesList.count; i++) {
-                                if (main.episodeModel.get_object_by_index(i).downloaded) {
+                                if (episodeModel.get_object_by_index(i).downloaded) {
                                     newSelection.push(i);
                                 }
                             }
@@ -562,6 +503,9 @@ Item {
 
     Sheet {
         id: inputSheet
+
+        anchors.fill: parent
+        anchors.topMargin: -50
 
         acceptButtonText: inputDialogAccept.text
         rejectButtonText: inputDialogReject.text

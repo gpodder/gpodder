@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # gPodder - A media aggregator and podcast client
-# Copyright (c) 2005-2012 Thomas Perl and the gPodder Team
+# Copyright (c) 2005-2013 Thomas Perl and the gPodder Team
 #
 # gPodder is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -229,14 +229,17 @@ class gPodderPreferences(BuilderWidget):
         else:
             self.hscale_expiration.set_value(0)
 
-        self._config.connect_gtk_togglebutton('auto_remove_unplayed_episodes', self.checkbutton_expiration_unplayed)
-        self._config.connect_gtk_togglebutton('auto_remove_unfinished_episodes', self.checkbutton_expiration_unfinished)
+        self._config.connect_gtk_togglebutton('auto_remove_unplayed_episodes',
+                                              self.checkbutton_expiration_unplayed)
+        self._config.connect_gtk_togglebutton('auto_remove_unfinished_episodes',
+                                              self.checkbutton_expiration_unfinished)
 
         self.device_type_model = DeviceTypeActionList(self._config)
         self.combobox_device_type.set_model(self.device_type_model)
         cellrenderer = gtk.CellRendererText()
         self.combobox_device_type.pack_start(cellrenderer, True)
-        self.combobox_device_type.add_attribute(cellrenderer, 'text', DeviceTypeActionList.C_CAPTION)
+        self.combobox_device_type.add_attribute(cellrenderer, 'text',
+                                                DeviceTypeActionList.C_CAPTION)
         self.combobox_device_type.set_active(self.device_type_model.get_index())
 
         self.on_sync_model = OnSyncActionList(self._config)
@@ -246,7 +249,12 @@ class gPodderPreferences(BuilderWidget):
         self.combobox_on_sync.add_attribute(cellrenderer, 'text', OnSyncActionList.C_CAPTION)
         self.combobox_on_sync.set_active(self.on_sync_model.get_index())
 
-        self._config.connect_gtk_togglebutton('device_sync.skip_played_episodes', self.checkbutton_skip_played_episodes)
+        self._config.connect_gtk_togglebutton('device_sync.skip_played_episodes',
+                                              self.checkbutton_skip_played_episodes)
+        self._config.connect_gtk_togglebutton('device_sync.playlists.create',
+                                              self.checkbutton_create_playlists)
+        self._config.connect_gtk_togglebutton('device_sync.playlists.two_way_sync',
+                                              self.checkbutton_delete_using_playlists)
 
         # Have to do this before calling set_active on checkbutton_enable
         self._enable_mygpo = self._config.mygpo.enabled
@@ -265,27 +273,38 @@ class gPodderPreferences(BuilderWidget):
 
         # Configure the extensions manager GUI
         self.set_extension_preferences()
-        
-    def set_extension_preferences(self):        
+
+    def set_extension_preferences(self):
+        def search_equal_func(model, column, key, it):
+            label = model.get_value(it, self.C_LABEL)
+            if key.lower() in label.lower():
+                # from http://www.pygtk.org/docs/pygtk/class-gtktreeview.html:
+                # "func should return False to indicate that the row matches
+                # the search criteria."
+                return False
+
+            return True
+        self.treeviewExtensions.set_search_equal_func(search_equal_func)
+
         toggle_cell = gtk.CellRendererToggle()
-        toggle_cell.connect('toggled', self.on_extensions_cell_toggled)        
+        toggle_cell.connect('toggled', self.on_extensions_cell_toggled)
+        toggle_column = gtk.TreeViewColumn('')
+        toggle_column.pack_start(toggle_cell, True)
+        toggle_column.add_attribute(toggle_cell, 'active', self.C_TOGGLE)
+        toggle_column.add_attribute(toggle_cell, 'visible', self.C_SHOW_TOGGLE)
+        toggle_column.set_property('min-width', 32)
+        self.treeviewExtensions.append_column(toggle_column)
 
         name_cell = gtk.CellRendererText()
         name_cell.set_property('ellipsize', pango.ELLIPSIZE_END)
-        
         extension_column = gtk.TreeViewColumn(_('Name'))
-        extension_column.pack_start(toggle_cell, False)
-        extension_column.add_attribute(toggle_cell, 'active', self.C_TOGGLE)
-        extension_column.add_attribute(toggle_cell, 'visible', self.C_SHOW_TOGGLE)
         extension_column.pack_start(name_cell, True)
         extension_column.add_attribute(name_cell, 'markup', self.C_LABEL)
-        extension_column.set_clickable(False)
-        extension_column.set_resizable(True)
         extension_column.set_expand(True)
         self.treeviewExtensions.append_column(extension_column)
 
         self.extensions_model = gtk.ListStore(bool, str, object, bool)
-        
+
         def key_func(pair):
             category, container = pair
             return (category, container.metadata.title)
@@ -293,14 +312,14 @@ class gPodderPreferences(BuilderWidget):
         def convert(extensions):
             for container in extensions:
                 yield (container.metadata.category, container)
-                
+
         old_category = None
         for category, container in sorted(convert(gpodder.user_extensions.get_extensions()), key=key_func):
             if old_category != category:
                 label = '<span weight="bold">%s</span>' % cgi.escape(category)
                 self.extensions_model.append((None, label, None, False))
                 old_category = category
-                
+
             label = '%s\n<small>%s</small>' % (
                     cgi.escape(container.metadata.title),
                     cgi.escape(container.metadata.description))
@@ -327,7 +346,6 @@ class gPodderPreferences(BuilderWidget):
             except ImportError, ie:
                 self.show_message(_('Flattr integration requires WebKit/Gtk.'),
                         _('WebKit/Gtk not found'), important=True)
-                self.main_window.destroy()
                 return
 
             gPodderFlattrSignIn(self.parent_window,
@@ -364,14 +382,8 @@ class gPodderPreferences(BuilderWidget):
             self.show_message(container.error.message,
                     _('Extension cannot be activated'), important=True)
             model.set_value(it, self.C_TOGGLE, False)
-            
-    def on_treeview_button_press_event(self, treeview, event):
-        if event.button != 3:
-            return
 
-        x = int(event.x)
-        y = int(event.y)
-        path, _, _, _ = treeview.get_path_at_pos(x, y)
+    def on_treeview_extensions_row_activated(self, treeview, path, column):
         model = treeview.get_model()
         container = model.get_value(model.get_iter(path), self.C_EXTENSION)
         self.show_extension_info(model, container)
@@ -380,7 +392,7 @@ class gPodderPreferences(BuilderWidget):
         if not container or not model:
             return
 
-        # This is one ugly hack, but it displays the attributes of 
+        # This is one ugly hack, but it displays the attributes of
         # the metadata object of the container..
         info = '\n'.join('<b>%s:</b> %s' %
                 tuple(map(cgi.escape, map(str, (key, value))))
@@ -501,6 +513,31 @@ class gPodderPreferences(BuilderWidget):
         index = self.combobox_on_sync.get_active()
         self.on_sync_model.set_index(index)
 
+    def on_checkbutton_create_playlists_toggled(self, widget,device_type_changed=False):
+        if not widget.get_active():
+            self._config.device_sync.playlists.create=False
+            self.toggle_playlist_interface(False)
+            #need to read value of checkbutton from interface,
+            #rather than value of parameter
+        else:
+            self._config.device_sync.playlists.create=True
+            self.toggle_playlist_interface(True)
+
+    def toggle_playlist_interface(self, enabled):
+        if enabled and self._config.device_sync.device_type != 'none':
+            self.btn_playlistfolder.set_sensitive(True)
+            self.btn_playlistfolder.set_label(self._config.device_sync.playlists.folder)
+            self.checkbutton_delete_using_playlists.set_sensitive(True)
+            children = self.btn_playlistfolder.get_children()
+            if children:
+                label = children.pop()
+                label.set_alignment(0., .5)
+        else:
+            self.btn_playlistfolder.set_sensitive(False)
+            self.btn_playlistfolder.set_label('')
+            self.checkbutton_delete_using_playlists.set_sensitive(False)
+
+
     def on_combobox_device_type_changed(self, widget):
         index = self.combobox_device_type.get_active()
         self.device_type_model.set_index(index)
@@ -508,17 +545,25 @@ class gPodderPreferences(BuilderWidget):
         if device_type == 'none':
             self.btn_filesystemMountpoint.set_label('')
             self.btn_filesystemMountpoint.set_sensitive(False)
+            self.checkbutton_create_playlists.set_sensitive(False)
+            self.toggle_playlist_interface(False)
+            self.checkbutton_delete_using_playlists.set_sensitive(False)
+            self.combobox_on_sync.set_sensitive(False)
+            self.checkbutton_skip_played_episodes.set_sensitive(False)
         elif device_type == 'filesystem':
             self.btn_filesystemMountpoint.set_label(self._config.device_sync.device_folder)
             self.btn_filesystemMountpoint.set_sensitive(True)
+            self.checkbutton_create_playlists.set_sensitive(True)
+            children = self.btn_filesystemMountpoint.get_children()
+            if children:
+                label = children.pop()
+                label.set_alignment(0., .5)
+            self.toggle_playlist_interface(self._config.device_sync.playlists.create)
+            self.combobox_on_sync.set_sensitive(True)
+            self.checkbutton_skip_played_episodes.set_sensitive(True)
         else:
             # TODO: Add support for iPod and MTP devices
             pass
-
-        children = self.btn_filesystemMountpoint.get_children()
-        if children:
-            label = children.pop()
-            label.set_alignment(0., .5)
 
     def on_btn_device_mountpoint_clicked(self, widget):
         fs = gtk.FileChooserDialog(title=_('Select folder for mount point'),
@@ -530,9 +575,26 @@ class gPodderPreferences(BuilderWidget):
             filename = fs.get_filename()
             if self._config.device_sync.device_type == 'filesystem':
                 self._config.device_sync.device_folder = filename
-
             # Request an update of the mountpoint button
             self.on_combobox_device_type_changed(None)
 
         fs.destroy()
 
+    def on_btn_playlist_folder_clicked(self, widget):
+        fs = gtk.FileChooserDialog(title=_('Select folder for playlists'),
+                action=gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER)
+        fs.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
+        fs.add_button(gtk.STOCK_OPEN, gtk.RESPONSE_OK)
+        fs.set_current_folder(self.btn_playlistfolder.get_label())
+        if fs.run() == gtk.RESPONSE_OK:
+            filename = util.relpath(self._config.device_sync.device_folder,
+                                    fs.get_filename())
+            if self._config.device_sync.device_type == 'filesystem':
+                self._config.device_sync.playlists.folder = filename
+                self.btn_playlistfolder.set_label(filename)
+                children = self.btn_playlistfolder.get_children()
+                if children:
+                    label = children.pop()
+                    label.set_alignment(0., .5)
+
+        fs.destroy()

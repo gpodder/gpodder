@@ -1,7 +1,7 @@
 
 import QtQuick 1.1
 
-import com.nokia.meego 1.0
+import org.gpodder.qmlui 1.0
 
 import 'config.js' as Config
 
@@ -38,6 +38,11 @@ Rectangle {
                 var pubdate = episode.qpubdate;
                 var filesize = episode.qfilesize;
                 if (filesize !== '') {
+                    if (episode.qdownloaded) {
+                        var filename = episode.qsourceurl.split('/').pop();
+                        return pubdate + ' | ' + filesize + ' | ' + filename;
+                    }
+
                     return pubdate + ' | ' + filesize;
                 } else {
                     return pubdate;
@@ -46,8 +51,8 @@ Rectangle {
         }
     }
 
-    ScrollDecorator {
-        flickableItem: showNotesFlickable
+    ScrollScroll {
+        flickable: showNotesFlickable
     }
 }
 

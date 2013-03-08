@@ -1,6 +1,7 @@
 
 import QtQuick 1.1
 
+import org.gpodder.qmlui 1.0
 import com.nokia.meego 1.0
 
 import 'config.js' as Config
@@ -139,8 +140,7 @@ Item {
         id: resultsSheet
 
         anchors.fill: parent
-        anchors.topMargin: -36
-        visualParent: subscribe
+        anchors.topMargin: -50
 
         acceptButtonText: _('Subscribe')
         rejectButtonText: _('Cancel')
@@ -245,14 +245,13 @@ Item {
                 }
             }
 
-            ScrollDecorator {
-                flickableItem: listView
+            ScrollScroll {
+                flickable: listView
             }
 
             BusyIndicator {
                 anchors.centerIn: parent
                 running: opacity > 0
-                platformStyle: BusyIndicatorStyle { size: "large" }
 
                 opacity: (searchResultsListModel.status == XmlListModel.Loading)?1:0
                 Behavior on opacity { PropertyAnimation { } }

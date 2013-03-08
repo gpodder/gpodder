@@ -1,6 +1,8 @@
 
 import QtQuick 1.1
 import QtMultimediaKit 1.1
+
+import org.gpodder.qmlui 1.0
 import com.nokia.meego 1.0
 
 import 'config.js' as Config
@@ -16,6 +18,12 @@ Item {
     property real duration: audioPlayer.duration/1000
     property variant playQueue: []
     property int startedFrom: 0
+
+    property bool hasQueue: playQueue.length > 0
+
+    function showQueue() {
+        playQueueDialog.showQueue();
+    }
 
     onStartedFromChanged: {
         console.log('started from: ' + startedFrom)
@@ -107,6 +115,11 @@ Item {
     }
 
     function removeQueuedEpisodesForPodcast(podcast) {
+        if (mediaPlayer.episode !== undefined && podcast.equals(mediaPlayer.episode.qpodcast)) {
+            // Stop playback if currently playing an episode in the podcast
+            togglePlayback(undefined);
+        }
+
         var newQueue = [];
 
         for (var i in playQueue) {
@@ -121,6 +134,11 @@ Item {
     }
 
     function removeQueuedEpisode(episode) {
+        if (mediaPlayer.episode !== undefined && episode.equals(mediaPlayer.episode)) {
+            // Stop playback if the deleted epiosde is currently played
+            togglePlayback(undefined);
+        }
+
         var newQueue = [];
 
         for (var i in playQueue) {
@@ -135,7 +153,7 @@ Item {
     }
 
     function togglePlayback(episode) {
-        controller.currentEpisodeChanging();
+        controller.currentEpisodeChanging(episode);
 
         if (mediaPlayer.episode == episode && audioPlayer.status !== 7) {
             if (audioPlayer.paused) {
@@ -177,77 +195,59 @@ Item {
         audioPlayer.source = ''
     }
 
-    Rectangle {
-        visible: playQueue.length > 0
-        color: 'black'
-        anchors {
-            top: mediaPlayerMain.bottom
-            left: parent.left
-            right: parent.right
-        }
-        height: playQueueButton.height + Config.smallSpacing
+    MultiSelectionDialog {
+        id: playQueueDialog
 
-        Button {
-            id: playQueueButton
-            anchors.horizontalCenter: parent.horizontalCenter
-            text: _('Play queue') + ' (' + playQueue.length + ')'
-            onClicked: playQueueDialog.showQueue();
-        }
-
-        MultiSelectionDialog {
-            id: playQueueDialog
-
-            function showQueue() {
-                selectedIndexes = [];
-                model.clear();
-                for (var index in playQueue) {
-                    var episode = playQueue[index];
-                    model.append({'name': episode.qtitle, 'position': index});
-                }
-                open();
+        function showQueue() {
+            selectedIndexes = [];
+            model.clear();
+            for (var index in playQueue) {
+                var episode = playQueue[index];
+                model.append({'name': episode.qtitle, 'position': index});
             }
+            open();
+        }
 
-            onAccepted: {
-                /**
-                 * FIXME: If things have been removed from the play queue while
-                 * the dialog was open, we have to subtract the values in
-                 * selectedIndexes by the amount of played episodes to get the
-                 * right episodes to delete. This is not yet done here.
-                 * We can know from the nextInQueue() function (hint, hint)
-                 **/
-                var newQueue = [];
-                for (var queueIndex in playQueue) {
-                    var episode = playQueue[queueIndex];
-                    var shouldRemove = false;
+        onAccepted: {
+            /**
+             * FIXME: If things have been removed from the play queue while
+             * the dialog was open, we have to subtract the values in
+             * selectedIndexes by the amount of played episodes to get the
+             * right episodes to delete. This is not yet done here.
+             * We can know from the nextInQueue() function (hint, hint)
+             **/
+            var newQueue = [];
+            for (var queueIndex in playQueue) {
+                var episode = playQueue[queueIndex];
+                var shouldRemove = false;
 
-                    for (var index in selectedIndexes) {
-                        var pos = model.get(selectedIndexes[index]).position;
-                        if (queueIndex === pos) {
-                            shouldRemove = true;
-                            break;
-                        }
-                    }
-
-                    if (shouldRemove) {
-                        controller.releaseEpisode(episode);
-                        /* Implicit removal by absence of newQueue.push() */
-                    } else {
-                        newQueue.push(episode);
+                for (var index in selectedIndexes) {
+                    var pos = model.get(selectedIndexes[index]).position;
+                    if (queueIndex === pos) {
+                        shouldRemove = true;
+                        break;
                     }
                 }
-                playQueue = newQueue;
-            }
 
-            titleText: _('Play queue')
-            acceptButtonText: _('Remove')
-            model: ListModel { }
+                if (shouldRemove) {
+                    controller.releaseEpisode(episode);
+                    /* Implicit removal by absence of newQueue.push() */
+                } else {
+                    newQueue.push(episode);
+                }
+            }
+            playQueue = newQueue;
         }
+
+        titleText: _('Play queue')
+        acceptButtonText: _('Remove')
+        model: ListModel { }
     }
 
     Rectangle {
         id: mediaPlayerMain
         anchors.fill: mediaPlayer
-        color: 'black'
+        color: Config.mediaPlayerColorBg
 
         Column {
             spacing: Config.smallSpacing
@@ -262,7 +262,6 @@ Item {
                 text: (episode!=undefined)?episode.qtitle:''
                 color: 'white'
                 font.pixelSize: 30 * Config.scale
-                elide: Text.ElideRight
                 width: parent.width
             }
 
@@ -271,7 +270,6 @@ Item {
                 text: (episode!=undefined)?episode.qpodcast.qtitle:''
                 color: '#aaa'
                 font.pixelSize: 20 * Config.scale
-                elide: Text.ElideRight
                 width: parent.width
             }
 
