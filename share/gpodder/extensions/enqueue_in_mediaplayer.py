@@ -29,7 +29,6 @@ class Player:
         return util.find_command(self.command[0]) is not None
 
     def enqueue_episodes(self, episodes):
-        print 'enqueue_episodes called'
         filenames = [episode.get_playback_url() for episode in episodes]
 
         subprocess.Popen(self.command + filenames,
