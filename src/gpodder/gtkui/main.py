@@ -1378,13 +1378,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
             message = self.format_episode_list(finished_downloads, 5)
             message += '\n\n<i>%s</i>\n' % _('Could not download some episodes:')
             message += self.format_episode_list(failed_downloads, 5)
-            self.show_message(message, _('Downloads finished'), True, widget=self.labelDownloads)
+            self.show_message(message, _('Downloads finished'), widget=self.labelDownloads)
         elif finished_downloads:
             message = self.format_episode_list(finished_downloads)
             self.show_message(message, _('Downloads finished'), widget=self.labelDownloads)
         elif failed_downloads:
             message = self.format_episode_list(failed_downloads)
-            self.show_message(message, _('Downloads failed'), True, widget=self.labelDownloads)
+            self.show_message(message, _('Downloads failed'), widget=self.labelDownloads)
 
         if finished_syncs and failed_syncs:
             message = self.format_episode_list(map((lambda task: str(task)),finished_syncs), 5)
