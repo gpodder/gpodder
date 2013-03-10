@@ -181,15 +181,17 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="shadow_type">in</property>
+		    <property name="hscrollbar-policy">GTK_POLICY_AUTOMATIC</property>
+		    <property name="vscrollbar-policy">GTK_POLICY_AUTOMATIC</property>
                     <child>
                       <object class="GtkTreeView" id="treeviewExtensions">
                         <property name="visible">True</property>
                         <property name="headers_visible">False</property>
                         <property name="can_focus">True</property>
-                        <property name="reorderable">True</property>
-                        <property name="enable_search">False</property>
-                        <property name="search_column">0</property>
-                        <signal name="button-press-event" handler="on_treeview_button_press_event" swapped="no"/>
+                        <property name="reorderable">False</property>
+                        <property name="enable_search">True</property>
+                        <property name="search_column">1</property>
+                        <signal name="row-activated" handler="on_treeview_extensions_row_activated" swapped="no"/>
                       </object>
                     </child>
                   </object>
@@ -220,6 +222,7 @@
                     <property name="bottom_attach">2</property>
                     <property name="top_attach">1</property>
                     <property name="x_options">fill</property>
+		    <property name="y_options"></property>
                   </packing>
                 </child>
                 <child>
@@ -232,6 +235,7 @@
                     <property name="bottom_attach">3</property>
                     <property name="x_options">fill</property>
                     <property name="top_attach">2</property>
+		    <property name="y_options"></property>
                   </packing>
                 </child>
                 <child>
@@ -243,6 +247,7 @@
                   <packing>
                     <property name="bottom_attach">4</property>
                     <property name="top_attach">3</property>
+		    <property name="y_options"></property>
                   </packing>
                 </child>
               </object>
@@ -269,6 +274,7 @@
                     <property name="bottom_attach">2</property>
                     <property name="right_attach">3</property>
                     <property name="top_attach">1</property>
+		    <property name="y_options"></property>
                   </packing>
                 </child>
                 <child>
@@ -281,6 +287,7 @@
                     <property name="bottom_attach">3</property>
                     <property name="top_attach">2</property>
                     <property name="x_options">fill</property>
+		    <property name="y_options"></property>
                   </packing>
                 </child>
                 <child>
@@ -293,6 +300,7 @@
                     <property name="bottom_attach">4</property>
                     <property name="top_attach">3</property>
                     <property name="x_options">fill</property>
+		    <property name="y_options"></property>
                   </packing>
                 </child>
                 <child>
@@ -305,6 +313,7 @@
                     <property name="bottom_attach">6</property>
                     <property name="right_attach">3</property>
                     <property name="top_attach">5</property>
+		    <property name="y_options"></property>
                   </packing>
                 </child>
                 <child>
@@ -317,6 +326,7 @@
                     <property name="bottom_attach">5</property>
                     <property name="top_attach">4</property>
                     <property name="x_options">fill</property>
+		    <property name="y_options"></property>
                   </packing>
                 </child>
                 <child>
@@ -329,6 +339,7 @@
                     <property name="left_attach">1</property>
                     <property name="right_attach">3</property>
                     <property name="top_attach">2</property>
+		    <property name="y_options"></property>
                   </packing>
                 </child>
                 <child>
@@ -343,6 +354,7 @@
                     <property name="left_attach">1</property>
                     <property name="right_attach">3</property>
                     <property name="top_attach">3</property>
+		    <property name="y_options"></property>
                   </packing>
                 </child>
                 <child>
@@ -355,6 +367,7 @@
                     <property name="left_attach">1</property>
                     <property name="right_attach">3</property>
                     <property name="top_attach">4</property>
+		    <property name="y_options"></property>
                   </packing>
                 </child>
               </object>
@@ -554,13 +567,13 @@
             </child>
             <child>
               <object class="GtkVBox" id="vbox_devices">
-                <property name="border_width">12</property>
                 <property name="visible">True</property>
+                <property name="border_width">12</property>
                 <property name="spacing">6</property>
                 <child>
                   <object class="GtkTable" id="table_devices">
                     <property name="visible">True</property>
-                    <property name="n_rows">3</property>
+                    <property name="n_rows">6</property>
                     <property name="n_columns">2</property>
                     <property name="column_spacing">6</property>
                     <property name="row_spacing">6</property>
@@ -605,7 +618,6 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
-                        <property name="label" translatable="no"></property>
                         <signal name="clicked" handler="on_btn_device_mountpoint_clicked"/>
                       </object>
                       <packing>
@@ -624,10 +636,10 @@
                         <property name="justify">right</property>
                       </object>
                       <packing>
+                        <property name="top_attach">5</property>
+                        <property name="bottom_attach">6</property>
                         <property name="x_options">GTK_FILL</property>
                         <property name="y_options"></property>
-                        <property name="top_attach">2</property>
-                        <property name="bottom_attach">3</property>
                       </packing>
                     </child>
                     <child>
@@ -638,18 +650,78 @@
                       <packing>
                         <property name="left_attach">1</property>
                         <property name="right_attach">2</property>
+                        <property name="top_attach">5</property>
+                        <property name="bottom_attach">6</property>
                         <property name="y_options"></property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkCheckButton" id="checkbutton_create_playlists">
+                        <property name="label" translatable="yes">Create playlists on device</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">False</property>
+                        <property name="draw_indicator">True</property>
+                        <signal name="toggled" handler="on_checkbutton_create_playlists_toggled"/>
+                      </object>
+                      <packing>
+                        <property name="right_attach">2</property>
                         <property name="top_attach">2</property>
                         <property name="bottom_attach">3</property>
                       </packing>
                     </child>
+                    <child>
+                      <object class="GtkLabel" id="label_device_playlists">
+                        <property name="visible">True</property>
+                        <property name="xalign">1</property>
+                        <property name="label" translatable="yes">Playlists Folder:</property>
+                      </object>
+                      <packing>
+                        <property name="top_attach">3</property>
+                        <property name="bottom_attach">4</property>
+                        <property name="x_options">GTK_FILL</property>
+                        <property name="y_options"></property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="btn_playlistfolder">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">False</property>
+                        <signal name="clicked" handler="on_btn_playlist_folder_clicked"/>
+                      </object>
+                      <packing>
+                        <property name="left_attach">1</property>
+                        <property name="right_attach">2</property>
+                        <property name="top_attach">3</property>
+                        <property name="bottom_attach">4</property>
+                        <property name="y_options"></property>
+                      </packing>
+                    </child>
+	                <child>
+	                  <object class="GtkCheckButton" id="checkbutton_delete_using_playlists">
+	                    <property name="label" translatable="yes">Remove episodes deleted on device from gPodder</property>
+	                    <property name="visible">True</property>
+	                    <property name="can_focus">True</property>
+	                    <property name="receives_default">False</property>
+	                    <property name="draw_indicator">True</property>
+	                  </object>
+	                  <packing>
+                        <property name="left_attach">0</property>
+                        <property name="right_attach">2</property>
+                        <property name="top_attach">4</property>
+                        <property name="bottom_attach">5</property>
+                        <property name="y_options"></property>
+	                  </packing>
+	                </child>
+
                   </object>
                   <packing>
                     <property name="expand">False</property>
                     <property name="position">0</property>
                   </packing>
                 </child>
-                <child>
+              <child>
                   <object class="GtkCheckButton" id="checkbutton_skip_played_episodes">
                     <property name="label" translatable="yes">Only sync unplayed episodes</property>
                     <property name="visible">True</property>
@@ -659,7 +731,7 @@
                   </object>
                   <packing>
                     <property name="expand">False</property>
-                    <property name="position">3</property>
+                    <property name="position">1</property>
                   </packing>
                 </child>
               </object>

@@ -1,13 +1,14 @@
 
 import QtQuick 1.1
 
-import com.nokia.meego 1.0
+import org.gpodder.qmlui 1.0
 
 import 'config.js' as Config
 
 Item {
     id: podcastList
 
+    property variant listview: listView
     property alias model: listView.model
     property alias moving: listView.moving
     property bool hasItems: listView.visible
@@ -46,32 +47,33 @@ Item {
         }
     }
 
-    PullDownHandle {
-        target: listView
-        pullDownText: _('Pull down to refresh')
-        releaseText: _('Release to refresh')
+    ListList {
+        headerText: 'gPodder'
+        hasRefresh: true
         onRefresh: controller.updateAllPodcasts()
-    }
 
-    ListView {
         id: listView
         anchors.fill: parent
         visible: count > 1
 
         section.property: 'section'
-        section.delegate: Item {
-            height: Config.headerHeight
-            Label {
-                font.pixelSize: parent.height * .5
+        section.delegate: Column {
+            Text {
+                font.pixelSize: Config.headerHeight * .5
                 wrapMode: Text.NoWrap
                 text: section
-                color: "#aaa"
+                color: Config.sectionHeaderColorText
                 anchors {
-                    leftMargin: Config.iconSize * 1.3 + Config.smallSpacing
-                    bottom: parent.bottom
                     left: parent.left
-                    right: parent.right
+                    leftMargin: Config.smallSpacing
                 }
+            }
+
+            Rectangle {
+              height: 1
+              border.width: 0
+              color: Config.sectionHeaderColorLine
+              width: listView.width - Config.largeSpacing
             }
         }
 
@@ -83,8 +85,8 @@ Item {
         cacheBuffer: height
     }
 
-    ScrollDecorator {
-        flickableItem: listView
+    ScrollScroll {
+        flickable: listView
     }
 
 }

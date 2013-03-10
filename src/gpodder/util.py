@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # gPodder - A media aggregator and podcast client
-# Copyright (c) 2005-2012 Thomas Perl and the gPodder Team
+# Copyright (c) 2005-2013 Thomas Perl and the gPodder Team
 # Copyright (c) 2011 Neal H. Walfield
 #
 # gPodder is free software; you can redistribute it and/or modify
@@ -92,7 +92,7 @@ if encoding is None:
         lang = os.environ['LANG']
         (language, encoding) = lang.rsplit('.', 1)
         logger.info('Detected encoding: %s', encoding)
-    elif gpodder.ui.harmattan:
+    elif gpodder.ui.harmattan or gpodder.ui.sailfish:
         encoding = 'utf-8'
     elif gpodder.ui.win32:
         # To quote http://docs.python.org/howto/unicode.html:
@@ -685,7 +685,7 @@ def mimetype_from_extension(extension):
     'audio/mpeg'
     >>> mimetype_from_extension('.mkv')
     'video/x-matroska'
-    >>> mimetype_from_extension('.abc')
+    >>> mimetype_from_extension('._invalid_file_extension_')
     ''
     """
     if extension in _MIME_TYPES_EXT:
@@ -986,7 +986,7 @@ def url_add_authentication(url, username, password):
     return urlparse.urlunsplit(url_parts)
 
 
-def urlopen(url, headers=None, data=None):
+def urlopen(url, headers=None, data=None, timeout=None):
     """
     An URL opener with the User-agent set to gPodder (with version)
     """
@@ -1007,7 +1007,10 @@ def urlopen(url, headers=None, data=None):
 
     headers.update({'User-agent': gpodder.user_agent})
     request = urllib2.Request(url, data=data, headers=headers)
-    return opener.open(request)
+    if timeout is None:
+        return opener.open(request)
+    else:
+        return opener.open(request, timeout=timeout)
 
 def get_real_url(url):
     """
@@ -1179,16 +1182,23 @@ def parse_time(value):
     3668
     >>> parse_time('25:03:30')
     90210
+    >>> parse_time('25:3:30')
+    90210
+    >>> parse_time('61.08')
+    3668
     """
+    if value == '':
+        return 0
+
     if not value:
         raise ValueError('Invalid value: %s' % (str(value),))
 
-    m = re.match(r'(\d+):(\d{2}):(\d{2})', value)
+    m = re.match(r'(\d+)[:.](\d\d?)[:.](\d\d?)', value)
     if m:
         hours, minutes, seconds = m.groups()
         return (int(hours) * 60 + int(minutes)) * 60 + int(seconds)
 
-    m = re.match(r'(\d+):(\d{2})', value)
+    m = re.match(r'(\d+)[:.](\d\d?)', value)
     if m:
         minutes, seconds = m.groups()
         return int(minutes) * 60 + int(seconds)
@@ -1502,7 +1512,7 @@ def detect_device_type():
     Possible return values:
     desktop, laptop, mobile, server, other
     """
-    if gpodder.ui.harmattan:
+    if gpodder.ui.harmattan or gpodder.ui.sailfish:
         return 'mobile'
     elif glob.glob('/proc/acpi/battery/*'):
         # Linux: If we have a battery, assume Laptop
@@ -1672,7 +1682,8 @@ def osx_get_active_interfaces():
     empty list if the device is offline. The loopback
     interface is not included.
     """
-    stdout = subprocess.check_output(['ifconfig'])
+    process = subprocess.Popen(['ifconfig'], stdout=subprocess.PIPE)
+    stdout, _ = process.communicate()
     for i in re.split('\n(?!\t)', stdout, re.MULTILINE):
         b = re.match('(\\w+):.*status: active$', i, re.MULTILINE | re.DOTALL)
         if b:
@@ -1685,7 +1696,8 @@ def unix_get_active_interfaces():
     empty list if the device is offline. The loopback
     interface is not included.
     """
-    stdout = subprocess.check_output(['ifconfig'])
+    process = subprocess.Popen(['ifconfig'], stdout=subprocess.PIPE)
+    stdout, _ = process.communicate()
     for i in re.split('\n(?!\t)', stdout, re.MULTILINE):
         b = re.match('(\\w+):.*status: active$', i, re.MULTILINE | re.DOTALL)
         if b:
@@ -1706,15 +1718,29 @@ def connection_available():
         elif gpodder.ui.osx:
             return len(list(osx_get_active_interfaces())) > 0
         else:
-            if len(list(unix_get_active_interfaces())) > 0:
-                return True
-            elif len(list(linux_get_active_interfaces())) > 0:
-                return True
+            # By default, we assume we're not offline (bug 1730)
+            offline = False
+
+            if find_command('ifconfig') is not None:
+                # If ifconfig is available, and it says we don't have
+                # any active interfaces, assume we're offline
+                if len(list(unix_get_active_interfaces())) == 0:
+                    offline = True
+
+            # If we assume we're offline, try the "ip" command as fallback
+            if offline and find_command('ip') is not None:
+                if len(list(linux_get_active_interfaces())) == 0:
+                    offline = True
+                else:
+                    offline = False
+
+            return not offline
 
         return False
     except Exception, e:
         logger.warn('Cannot get connection status: %s', e, exc_info=True)
-        return False
+        # When we can't determine the connection status, act as if we're online (bug 1730)
+        return True
 
 
 def website_reachable(url):

@@ -30,13 +30,22 @@ DefaultConfig = {
 class gPodderExtension:
     MIME_TYPES = ('audio/ogg',)
     TARGET_EXT = '.mp3'
+    CMD = {'avconv': ['-i', '%(old_file)s', '-q:a', '2', '-id3v2_version',
+                '3', '-write_id3v1', '1', '%(new_file)s'],
+           'ffmpeg': ['-i', '%(old_file)s', '-q:a', '2', '-id3v2_version',
+                '3', '-write_id3v1', '1', '%(new_file)s']
+          }
 
     def __init__(self, container):
         self.container = container
         self.config = self.container.config
 
         # Dependency checks
-        self.container.require_command('ffmpeg')
+        self.command = self.container.require_any_command(['avconv', 'ffmpeg'])
+
+        # extract command without extension (.exe on Windows) from command-string
+        command_without_ext = os.path.basename(os.path.splitext(self.command)[0])
+        self.command_param = self.CMD[command_without_ext]
 
     def on_episode_downloaded(self, episode):
         self.convert_episode(episode)
@@ -61,7 +70,9 @@ class gPodderExtension:
         filename, old_extension = os.path.splitext(old_filename)
         new_filename = filename + self.TARGET_EXT
 
-        cmd = ['ffmpeg', '-i', old_filename, '-sameq', new_filename]
+        cmd = [self.command] + \
+            [param % {'old_file': old_filename, 'new_file': new_filename}
+                for param in self.command_param]
         ffmpeg = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE)
         stdout, stderr = ffmpeg.communicate()

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # gPodder - A media aggregator and podcast client
-# Copyright (c) 2005-2012 Thomas Perl and the gPodder Team
+# Copyright (c) 2005-2013 Thomas Perl and the gPodder Team
 #
 # gPodder is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -135,7 +135,7 @@ def get_real_download_url(url, preferred_fmt_ids=None):
 
         # This provides good quality video, seems to be always available
         # and is playable fluently in Media Player
-        if gpodder.ui.harmattan:
+        if gpodder.ui.harmattan or gpodder.ui.sailfish:
             preferred_fmt_ids = [18]
 
         for id in preferred_fmt_ids:

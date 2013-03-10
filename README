@@ -8,7 +8,7 @@
 
   ............................................................................
 
-             Copyright  2005-2012 Thomas Perl and the gPodder Team
+             Copyright  2005-2013 Thomas Perl and the gPodder Team
 
 
  [ LICENSE ]
@@ -33,7 +33,7 @@
     - Python 2.6 or newer              http://python.org/
     - "sqlite3" Python module          (usually included with Python)
     - Feedparser 5.1.2 or newer        http://code.google.com/p/feedparser/
-    - mygpoclient 1.4 or newer         http://thp.io/2010/mygpoclient/
+    - mygpoclient 1.7 or newer         http://thp.io/2010/mygpoclient/
     - Python D-Bus bindings
 
     gPodder might still work with Python 2.5, but you may need to
@@ -50,7 +50,7 @@
 
  [ GTK UI - ADDITIONAL DEPENDENCIES ]
 
-    - PyGTK 2.12 or newer              http://pygtk.org/
+    - PyGTK 2.16 or newer              http://pygtk.org/
 
 
  [ QML UI - ADDITIONAL DEPENDENCIES ]
@@ -59,6 +59,7 @@
     - PySide 1.0.8 or newer            http://www.pyside.org/
     - Qt Mobility 1.2 or newer         http://qt.gitorious.org/qt-mobility
     - Qt Quick Components              http://qt.gitorious.org/qt-components
+    - Sailfish Silica Components       https://sailfishos.org/sailfish-silica/
 
     The QML UI depends on the QtMultimediaKit QML bindings for playing
     back audio (libdeclarative-multimedia in Debian) and on the WebKit QML
@@ -73,6 +74,11 @@
     MeeGo 1.2 Harmattan device to your development machine in order for all UI
     elements to be displayed correctly. Alternatively, you can use the free
     "darko" theme from: https://github.com/jpavelek/meego-handset-theme-darko
+
+    For running gPodder on Sailfish OS using Sailfish Silica Components, you
+    need to have Sailfish Silica installed. Right now, gPodder still depends on
+    qt-components even on Sailfish, but this is going to change soon once a
+    more mature version of Sailfish Silica is out.
 
 
  [ OPTIONAL DEPENDENCIES ]
@@ -103,6 +109,28 @@
 
     To set a specific python binary set PYTHON:
         PYTHON=python2 make unittest
+
+    Tests in gPodder are written in two different ways:
+
+       - doctests (see http://docs.python.org/2/library/doctest.html)
+       - unittests (see http://docs.python.org/2/library/unittest.html)
+
+    If you want to add doctests, simply write the doctest and make sure that
+    the module appears in "doctest_modules" in src/gpodder/unittests.py. For
+    example, the doctests in src/gpodder/util.py are added as 'util' (the
+    "gpodder" prefix must not be specified there).
+
+    If you want to add unit tests for a specific module (ex: gpodder.model),
+    you should add the tests as gpodder.test.model, or in other words:
+
+        The file       src/gpodder/model.py
+        is tested by   src/gpodder/test/model.py
+
+    After you've added the test, make sure that the module appears in
+    "test_modules" in src/gpodder/unittests.py - for the example above, the
+    unittests in src/gpodder/test/model.py are added as 'model'. For unit
+    tests, coverage reporting happens for the tested module (that's why the
+    test module name should mirror the module to be tested).
 
 
  [ RUNNING AND INSTALLATION ]
@@ -251,5 +279,5 @@
     - IRC channel                      #gpodder on irc.freenode.net
 
   ............................................................................
-             Last updated: 2012-02-24 by Thomas Perl <thp.io/about>
+             Last updated: 2013-02-12 by Thomas Perl <thp.io/about>
 

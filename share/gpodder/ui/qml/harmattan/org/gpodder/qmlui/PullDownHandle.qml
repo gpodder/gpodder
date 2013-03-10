@@ -2,7 +2,7 @@
 import QtQuick 1.1
 import com.nokia.meego 1.0
 
-import 'config.js' as Config
+import '../../../../config.js' as Config
 
 Item {
     id: pullDown
@@ -12,14 +12,15 @@ Item {
 
     property string pullDownText: ''
     property string releaseText: ''
-    property variant target: listView
+    property variant target
     property int threshold: 100
     property int lastMinY: 0
     property bool startedAtZero: false
     property bool wouldRefresh: (lastMinY < -threshold)
+    property bool enabled: false
 
     Connections {
-        target: listView
+        target: pullDown.target
 
         onMovementStarted: {
             pullDown.lastMinY = 0;
@@ -41,7 +42,7 @@ Item {
         }
 
         onMovementEnded: {
-            if (pullDown.startedAtZero && pullDown.target.contentY == 0 && pullDown.wouldRefresh) {
+            if (enabled && pullDown.startedAtZero && pullDown.target.contentY == 0 && pullDown.wouldRefresh) {
                 pullDown.refresh();
             }
             pullDown.startedAtZero = false;
@@ -49,7 +50,7 @@ Item {
         }
     }
 
-    visible: startedAtZero && pullDown.target.contentY < 0 && !pullDown.target.flicking
+    visible: enabled && startedAtZero && pullDown.target.contentY < 0 && !pullDown.target.flicking
     height: -pullDown.target.contentY
 
     anchors {

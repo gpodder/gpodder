@@ -1,5 +1,7 @@
+
 import QtQuick 1.1
-import com.nokia.meego 1.0
+
+import org.gpodder.qmlui 1.0
 
 import 'config.js' as Config
 import 'util.js' as Util
@@ -51,6 +53,9 @@ SelectableItem {
             height: Config.iconSize
         }
 
+        width: Config.iconSize
+        height: Config.iconSize
+
         anchors {
             verticalCenter: parent.verticalCenter
             left: parent.left
@@ -58,17 +63,24 @@ SelectableItem {
         }
 
         cache: true
+        asynchronous: true
     }
 
     Column {
         anchors {
             left: icon.right
+            right: parent.right
             leftMargin: Config.largeSpacing
+            rightMargin: Config.smallSpacing
             verticalCenter: parent.verticalCenter
         }
 
         Label {
             id: labelTitle
+            anchors {
+                left: parent.left
+                right: parent.right
+            }
 
             text: title
             wrapMode: Text.NoWrap

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # gPodder - A media aggregator and podcast client
-# Copyright (c) 2005-2012 Thomas Perl and the gPodder Team
+# Copyright (c) 2005-2013 Thomas Perl and the gPodder Team
 #
 # gPodder is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -117,6 +117,7 @@ defaults = {
                     'x': -1, 'y': -1, 'maximized': False,
 
                     'paned_position': 200,
+                    'episode_list_size': 200,
                 },
                 'episode_selector': {
                     'width': 600,
@@ -173,6 +174,13 @@ defaults = {
             'delete_episodes': False,
             'sync_disks': False,
         },
+        'playlists': {
+            'create': True,
+            'two_way_sync': False,
+            'use_absolute_path': True,
+            'folder': 'Playlists',
+        }
+
     },
 
     'youtube': {
@@ -204,7 +212,6 @@ gPodderSettings_LegacySupport = {
     'auto_remove_unplayed_episodes': 'auto.cleanup.unplayed',
     'max_episodes_per_feed': 'limit.episodes',
     'show_toolbar': 'ui.gtk.toolbar',
-    'paned_position': 'ui.gtk.state.main_window.paned_position',
     'episode_list_descriptions': 'ui.gtk.episode_list.descriptions',
     'podcast_list_view_all': 'ui.gtk.podcast_list.all_episodes',
     'podcast_list_sections': 'ui.gtk.podcast_list.sections',

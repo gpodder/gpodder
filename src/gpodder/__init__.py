@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # gPodder - A media aggregator and podcast client
-# Copyright (c) 2005-2012 Thomas Perl and the gPodder Team
+# Copyright (c) 2005-2013 Thomas Perl and the gPodder Team
 #
 # gPodder is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,10 +20,10 @@
 # This metadata block gets parsed by setup.py - use single quotes only
 __tagline__   = 'Media aggregator and podcast client'
 __author__    = 'Thomas Perl <thp@gpodder.org>'
-__version__   = '3.4.0'
-__date__      = '2012-12-23'
-__relname__   = 'Quiet Earth'
-__copyright__ = '© 2005-2012 Thomas Perl and the gPodder Team'
+__version__   = '3.5.0'
+__date__      = '2013-03-05'
+__relname__   = 'The After Hours'
+__copyright__ = '© 2005-2013 Thomas Perl and the gPodder Team'
 __license__   = 'GNU General Public License, version 3 or later'
 __url__       = 'http://gpodder.org/'
 
@@ -77,6 +77,7 @@ user_agent = 'gPodder/%s (+%s)' % (__version__, __url__)
 class UI(object):
     def __init__(self):
         self.harmattan = False
+        self.sailfish = False
         self.gtk = False
         self.qml = False
         self.cli = False
@@ -211,6 +212,7 @@ def detect_platform():
         etc_issue = ''
 
     ui.harmattan = ('MeeGo 1.2 Harmattan' in etc_issue)
+    ui.sailfish = ('Mer release' in etc_issue)
 
     if ui.harmattan and ENV_HOME not in os.environ:
         new_home = os.path.expanduser(os.path.join('~', 'MyDocs', 'gPodder'))

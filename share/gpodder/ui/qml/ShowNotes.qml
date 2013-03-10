@@ -1,7 +1,7 @@
 
 import QtQuick 1.1
 
-import com.nokia.meego 1.0
+import org.gpodder.qmlui 1.0
 
 import 'config.js' as Config
 
@@ -51,8 +51,8 @@ Rectangle {
         }
     }
 
-    ScrollDecorator {
-        flickableItem: showNotesFlickable
+    ScrollScroll {
+        flickable: showNotesFlickable
     }
 }
 

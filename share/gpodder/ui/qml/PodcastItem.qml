@@ -1,7 +1,7 @@
 
 import QtQuick 1.1
 
-import com.nokia.meego 1.0
+import org.gpodder.qmlui 1.0
 
 import 'config.js' as Config
 import 'util.js' as Util
@@ -50,6 +50,32 @@ SelectableItem {
         running: visible
     }
 
+    Item {
+        visible: counters.newEpisodes > 0
+        clip: true
+
+        anchors {
+            left: cover.right
+            leftMargin: 2
+            verticalCenter: cover.verticalCenter
+        }
+
+        height: cover.height
+        width: cover.width * .25
+
+        Rectangle {
+            anchors {
+                verticalCenter: parent.verticalCenter
+                horizontalCenter: parent.left
+            }
+
+            color: Config.newColor
+            width: parent.width
+            height: width
+            rotation: 45
+        }
+    }
+
     Image {
     	id: cover
 
@@ -71,18 +97,17 @@ SelectableItem {
         id: titleBox
 
         text: modelData.qtitle
-        color: (counters.newEpisodes > 0)?Config.newColor:"white"
+        color: 'white'
 
         anchors {
             verticalCenter: parent.verticalCenter
             left: cover.visible?cover.right:cover.left
-            leftMargin: Config.smallSpacing
+            leftMargin: Config.smallSpacing * 2
             right: parent.right
             rightMargin: Config.smallSpacing
         }
 
         font.pixelSize: podcastItem.height * .35
-        elide: Text.ElideRight
         wrapMode: Text.NoWrap
     }
 }

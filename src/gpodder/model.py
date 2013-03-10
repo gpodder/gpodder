@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # gPodder - A media aggregator and podcast client
-# Copyright (c) 2005-2012 Thomas Perl and the gPodder Team
+# Copyright (c) 2005-2013 Thomas Perl and the gPodder Team
 # Copyright (c) 2011 Neal H. Walfield
 #
 # gPodder is free software; you can redistribute it and/or modify
@@ -682,9 +682,24 @@ class PodcastEpisode(PodcastModelObject):
 
     pubdate_prop = property(fget=cute_pubdate)
 
+    def published_datetime(self):
+        return datetime.datetime.fromtimestamp(self.published)
+
     @property
     def sortdate(self):
-        return str(datetime.datetime.fromtimestamp(self.published).strftime('%F'))
+        return self.published_datetime().strftime('%F')
+
+    @property
+    def pubdate_day(self):
+        return self.published_datetime().strftime('%d')
+
+    @property
+    def pubdate_month(self):
+        return self.published_datetime().strftime('%m')
+
+    @property
+    def pubdate_year(self):
+        return self.published_datetime().strftime('%y')
 
     def is_finished(self):
         """Return True if this episode is considered "finished playing"
