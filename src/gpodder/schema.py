@@ -25,6 +25,9 @@ from sqlite3 import dbapi2 as sqlite
 import time
 import shutil
 
+import logging
+logger = logging.getLogger(__name__)
+
 EpisodeColumns = (
     'podcast_id',
     'title',
@@ -280,4 +283,11 @@ def convert_gpodder2_db(old_db, new_db):
     old_db.close()
     new_db.commit()
     new_db.close()
+
+def check_data(db):
+    # All episodes must be assigned to a podcast
+    orphan_episodes = db.get('SELECT COUNT(id) FROM episode '
+            'WHERE podcast_id NOT IN (SELECT id FROM podcast)')
+    if orphan_episodes > 0:
+        logger.error('Orphaned episodes found in database')
 
