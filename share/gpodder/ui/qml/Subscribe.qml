@@ -18,8 +18,16 @@ Item {
     }
 
     function search() {
-        searchResultsListModel.searchFor(searchInput.text);
-        resultsSheet.open();
+        var q = searchInput.text;
+
+        if (q.indexOf('http://') === 0 || q.indexOf('https://') === 0) {
+            /* Directly subscribe to a URL */
+            subscribe.subscribe([q]);
+        } else {
+            /* Search the web directory */
+            searchResultsListModel.searchFor(q);
+            resultsSheet.open();
+        }
     }
 
     onVisibleChanged: {
