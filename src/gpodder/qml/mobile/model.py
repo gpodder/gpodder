@@ -24,6 +24,7 @@ from gpodder import util
 from gpodder import query
 
 from gpodder import qml
+from gpodder.qml.model import convert
 from gpodder.qml.common import EPISODE_LIST_FILTERS, EPISODE_LIST_LIMIT
 
 import logging

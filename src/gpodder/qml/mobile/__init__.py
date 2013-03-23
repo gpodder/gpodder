@@ -53,7 +53,7 @@ from gpodder.qml.common import _, N_
 from gpodder.qml.configproxy import ConfigProxy
 from gpodder.qml.controller import CommonController as QmlCommonController
 from gpodder.qml.controller import CommonQtPodder as QmlCommonQtPodder
-from gpodder.qml.mobile import model
+from gpodder.qml.mobile import model as mobileModel
 
 import logging
 logger = logging.getLogger("qmlui")
@@ -105,7 +105,7 @@ class qtPodder(QmlCommonQtPodder):
         self.media_buttons_handler = helper.MediaButtonsHandler()
         self.tracker_miner_config = helper.TrackerMinerConfig()
         self.podcast_model = qml.model.gPodderPodcastListModel()
-        self.episode_model = model.gPodderEpisodeListModel(self.config, self)
+        self.episode_model = mobileModel.gPodderEpisodeListModel(self.config, self)
         self.last_episode = None
 
         # A dictionary of episodes that are currently active
