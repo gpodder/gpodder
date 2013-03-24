@@ -20,6 +20,8 @@ _ = gpodder.gettext
 __title__ = _('Convert audio files')
 __description__ = _('Transcode audio files to mp3/ogg')
 __authors__ = 'Bernd Schlapsi <brot@gmx.info>, Thomas Perl <thp@gpodder.org>'
+__doc__ = 'http://wiki.gpodder.org/wiki/Extensions/AudioConverter'
+__payment__ = 'https://flattr.com/submit/auto?user_id=BerndSch&url=http://wiki.gpodder.org/wiki/Extensions/AudioConverter'
 __category__ = 'post-download'
 
 

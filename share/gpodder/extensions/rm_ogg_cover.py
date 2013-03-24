@@ -37,6 +37,8 @@ _ = gpodder.gettext
 __title__ = _('Remove cover art from OGG files')
 __description__ = _('removes coverart from all downloaded ogg files')
 __authors__ = 'Bernd Schlapsi <brot@gmx.info>'
+__doc__ = 'http://wiki.gpodder.org/wiki/Extensions/RemoveOGGCover'
+__payment__ = 'https://flattr.com/submit/auto?user_id=BerndSch&url=http://wiki.gpodder.org/wiki/Extensions/RemoveOGGCover'
 __category__ = 'post-download'
 
 
