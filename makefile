@@ -84,7 +84,7 @@ $(GPODDER_DESKTOP_FILE_IN).h: $(GPODDER_DESKTOP_FILE_IN)
 	intltool-extract --quiet --type=gettext/ini $<
 
 install: messages $(GPODDER_SERVICE_FILE) $(GPODDER_DESKTOP_FILE)
-	$(PYTHON) setup.py install --root=$(DESTDIR) --prefix=$(PREFIX)
+	$(PYTHON) setup.py install --root=$(DESTDIR) --prefix=$(PREFIX) --optimize=1
 
 ##########################################################################
 
