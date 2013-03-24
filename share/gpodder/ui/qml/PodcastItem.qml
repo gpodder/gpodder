@@ -9,12 +9,31 @@ import 'util.js' as Util
 SelectableItem {
     id: podcastItem
 
+    // true if the counter and busy indicator should be on the right
+    property bool rightCounter: main.rightCounter
+
+    Item {
+        id: leftAnchor
+        width: rightCounter ? 0 : Config.iconSize * 1.3
+        anchors {
+            left: parent.left
+            leftMargin:  Config.smallSpacing
+        }
+    }
+    Item {
+        id: rightAnchor
+        anchors {
+            right: parent.right
+            rightMargin: Config.smallSpacing
+        }
+    }
+
     Item {
         id: counterBox
         width: Config.iconSize * 1.3
 
         anchors {
-            left: parent.left
+            right : rightCounter ? rightAnchor.left : cover.left
             top: parent.top
             bottom: parent.bottom
         }
@@ -27,12 +46,14 @@ SelectableItem {
 
             anchors {
                 verticalCenter: parent.verticalCenter
+                left: parent.left
                 right: parent.right
                 rightMargin: 3
             }
 
             visible: !spinner.visible && (downloadedEpisodes > 0)
             text: counters.downloadedEpisodes
+            horizontalAlignment: Text.AlignRight
             color: "white"
 
             font.pixelSize: podcastItem.height * .4
@@ -43,7 +64,7 @@ SelectableItem {
         id: spinner
         anchors {
             verticalCenter: parent.verticalCenter
-            right: cover.left
+            right: rightCounter ? rightAnchor.left : cover.left
             rightMargin: Config.smallSpacing
         }
         visible: modelData.qupdating
@@ -88,7 +109,7 @@ SelectableItem {
 
         anchors {
             verticalCenter: parent.verticalCenter
-            left: counterBox.right
+            left: leftAnchor.right
             leftMargin: Config.smallSpacing
         }
     }
@@ -101,9 +122,8 @@ SelectableItem {
 
         anchors {
             verticalCenter: parent.verticalCenter
-            left: cover.visible?cover.right:cover.left
+            left: cover.visible ?cover.right:cover.left
             leftMargin: Config.smallSpacing * 2
-            right: parent.right
             rightMargin: Config.smallSpacing
         }
 
