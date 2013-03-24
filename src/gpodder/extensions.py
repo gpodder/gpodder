@@ -98,12 +98,14 @@ class ExtensionMetadata(object):
     # Default fallback metadata in case metadata fields are missing
     DEFAULTS = {
         'description': _('No description for this extension.'),
+        'doc': None,
+        'payment': None,
     }
     SORTKEYS = {
         'title': 1,
         'description': 2,
         'category': 3,
-        'author': 4,
+        'authors': 4,
         'only_for': 5,
         'mandatory_in': 6,
         'disable_in': 7,

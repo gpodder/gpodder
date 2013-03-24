@@ -34,6 +34,7 @@ from gpodder import util
 from gpodder import youtube
 
 from gpodder.gtkui.interface.common import BuilderWidget
+from gpodder.gtkui.interface.common import TreeViewHelper
 from gpodder.gtkui.interface.configeditor import gPodderConfigEditor
 
 from gpodder.gtkui.desktopfile import PlayerListModel
@@ -328,6 +329,55 @@ class gPodderPreferences(BuilderWidget):
         self.treeviewExtensions.set_model(self.extensions_model)
         self.treeviewExtensions.columns_autosize()
 
+    def on_treeview_extension_button_released(self, treeview, event):
+        if event.window != treeview.get_bin_window():
+            return False
+
+        if event.type == gtk.gdk.BUTTON_RELEASE and event.button == 3:
+            return self.on_treeview_extension_show_context_menu(treeview, event)
+
+        return False
+
+    def on_treeview_extension_show_context_menu(self, treeview, event=None):
+        selection = treeview.get_selection()
+        model, paths = selection.get_selected_rows()
+        container = model.get_value(model.get_iter(paths[0]), self.C_EXTENSION)
+
+        if not container:
+            return
+
+        menu = gtk.Menu()
+
+        if container.metadata.doc:
+            menu_item = gtk.MenuItem(_('Documentation'))
+            menu_item.connect('activate', self.open_weblink,
+                container.metadata.doc)
+            menu.append(menu_item)
+
+        menu_item = gtk.MenuItem(_('Extension info'))
+        menu_item.connect('activate', self.show_extension_info, model, container)
+        menu.append(menu_item)
+
+        if container.metadata.payment:
+            if self.flattr.is_flattrable(container.metadata.payment):
+                menu_item = gtk.MenuItem(_('Flattr this'))
+                menu_item.connect('activate', self.flattr_extension,
+                    container.metadata.payment)
+            else:
+                menu_item = gtk.MenuItem(_('Support the author'))
+                menu_item.connect('activate', self.open_weblink,
+                    container.metadata.payment)
+            menu.append(menu_item)
+
+        menu.show_all()
+        if event is None:
+            func = TreeViewHelper.make_popup_position_func(treeview)
+            menu.popup(None, None, func, 3, 0)
+        else:
+            menu.popup(None, None, None, 3, 0)
+
+        return True
+
     def set_flattr_preferences(self, widget=None):
         if not self._config.flattr.token:
             self.label_flattr.set_text(_('Please sign in with Flattr and Support Publishers'))
@@ -383,12 +433,7 @@ class gPodderPreferences(BuilderWidget):
                     _('Extension cannot be activated'), important=True)
             model.set_value(it, self.C_TOGGLE, False)
 
-    def on_treeview_extensions_row_activated(self, treeview, path, column):
-        model = treeview.get_model()
-        container = model.get_value(model.get_iter(path), self.C_EXTENSION)
-        self.show_extension_info(model, container)
-
-    def show_extension_info(self, model, container):
+    def show_extension_info(self, w, model, container):
         if not container or not model:
             return
 
@@ -399,6 +444,14 @@ class gPodderPreferences(BuilderWidget):
                 for key, value in container.metadata.get_sorted())
 
         self.show_message(info, _('Extension module info'), important=True)
+
+    def open_weblink(self, w, url):
+        util.open_website(url)
+
+    def flattr_extension(self, w, flattr_url):
+        success, message = self.flattr.flattr_url(flattr_url)
+        self.show_message(message, title=_('Flattr status'),
+            important=not success)
 
     def on_dialog_destroy(self, widget):
         # Re-enable mygpo sync if the user has selected it

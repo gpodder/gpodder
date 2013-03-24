@@ -191,7 +191,8 @@
                         <property name="reorderable">False</property>
                         <property name="enable_search">True</property>
                         <property name="search_column">1</property>
-                        <signal name="row-activated" handler="on_treeview_extensions_row_activated" swapped="no"/>
+                        <signal name="popup-menu" handler="on_treeview_extension_show_context_menu" swapped="no"/>
+                        <signal name="button-release-event" handler="on_treeview_extension_button_released" swapped="no"/>
                       </object>
                     </child>
                   </object>

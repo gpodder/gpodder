@@ -18,7 +18,7 @@ import requests
 
 __title__ = _('Stream to Sonos')
 __description__ = _('Stream podcasts to Sonos speakers')
-__author__ = 'Stefan Kögl <stefan@skoegl.net>'
+__authors__ = 'Stefan Kögl <stefan@skoegl.net>'
 __category__ = 'interface'
 __only_for__ = 'gtk'
 
