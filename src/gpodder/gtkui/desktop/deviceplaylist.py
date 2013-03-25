@@ -33,7 +33,7 @@ class gPodderDevicePlaylist(object):
         self.linebreak = '\r\n'
         self.playlist_file=playlist_name + '.m3u'
         self.playlist_folder = os.path.join(self._config.device_sync.device_folder, self._config.device_sync.playlists.folder)
-        self.mountpoint = util.find_mount_point(self.playlist_folder)
+        self.mountpoint = util.find_mount_point(util.sanitize_encoding(self.playlist_folder))
         if self.mountpoint == '/':
             self.mountpoint = self.playlist_folder
             logger.warning('MP3 player resides on / - using %s as MP3 player root', self.mountpoint)
