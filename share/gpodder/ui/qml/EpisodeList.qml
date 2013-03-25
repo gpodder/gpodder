@@ -59,7 +59,7 @@ Item {
     }
 
     ListList {
-        headerText: main.currentPodcast.qtitle
+        headerText: main.currentPodcast === undefined ? "" : main.currentPodcast.qtitle
 
         id: listView
         cacheBuffer: 10000
