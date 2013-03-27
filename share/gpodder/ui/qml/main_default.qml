@@ -58,6 +58,7 @@ WindowWindow {
 
     PagePage {
         id: subscribePage
+        lockToPortrait: mainPage.lockToPortrait
 
         Subscribe {
             anchors.fill: parent
@@ -71,6 +72,7 @@ WindowWindow {
 
     PagePage {
         id: showNotesPage
+        lockToPortrait: mainPage.lockToPortrait
 
         ShowNotes {
             id: showNotes
