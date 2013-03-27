@@ -1062,6 +1062,7 @@ class qtPodder(QObject):
                 self.tracker_miner_config)
         root_context.setContextProperty('podcastModel', self.podcast_model)
         root_context.setContextProperty('episodeModel', self.episode_model)
+        root_context.setContextProperty('isSailfish', gpodder.ui.sailfish)
 
         for folder in gpodder.ui_folders:
             if gpodder.ui.sailfish:
