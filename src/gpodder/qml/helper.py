@@ -17,16 +17,16 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import gpodder
-
 import os
-
-from gpodder import util
 
 from PySide import QtCore
 
+import gpodder
+from gpodder import util
+
 import logging
 logger = logging.getLogger(__name__)
+
 
 class Action(QtCore.QObject):
     def __init__(self, caption, action, target=None):
@@ -49,8 +49,10 @@ class MediaButtonsHandler(QtCore.QObject):
         QtCore.QObject.__init__(self)
 
         if gpodder.ui.harmattan:
-            headset_path = '/org/freedesktop/Hal/devices/computer_logicaldev_input_0'
-            headset_path2 = '/org/freedesktop/Hal/devices/computer_logicaldev_input'
+            headset_path = \
+                '/org/freedesktop/Hal/devices/computer_logicaldev_input_0'
+            headset_path2 = \
+                '/org/freedesktop/Hal/devices/computer_logicaldev_input'
         else:
             return
 
@@ -77,6 +79,7 @@ class MediaButtonsHandler(QtCore.QObject):
     pausePressed = QtCore.Signal()
     previousPressed = QtCore.Signal()
     nextPressed = QtCore.Signal()
+
 
 class TrackerMinerConfig(QtCore.QObject):
     FILENAME = os.path.expanduser('~/.config/tracker/tracker-miner-fs.cfg')
@@ -142,4 +145,3 @@ class TrackerMinerConfig(QtCore.QObject):
         os.rename(tmp_filename, self._filename)
         self._index_podcasts = index_podcasts
         return True
-

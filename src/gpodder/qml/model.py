@@ -17,28 +17,23 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-
-from PySide.QtCore import QObject, Property, Signal, Slot
-
-import gpodder
-
-_ = gpodder.gettext
+from PySide.QtCore import QObject, Property, Signal, Slot, Qt
+from PySide.QtCore import QAbstractListModel, QModelIndex
 
 import logging
 logger = logging.getLogger(__name__)
 
+from gpodder import coverart
+from gpodder import download
 from gpodder import model
+from gpodder import query
 from gpodder import util
 from gpodder import youtube
-from gpodder import download
-from gpodder import query
-from gpodder import model
-from gpodder import coverart
 
-import os
-import urllib
+from gpodder.qml.common import _
 
 convert = util.convert_bytes
+
 
 class QEpisode(QObject):
     def __init__(self, wrapper_manager, podcast, episode):
@@ -65,7 +60,9 @@ class QEpisode(QObject):
         return self == other
 
     def __getattr__(self, name):
-        logger.warn('Attribute access in %s: %s', self.__class__.__name__, name)
+        logger.warn(
+            'Attribute access in %s: %s', self.__class__.__name__, name
+        )
         return getattr(self._episode, name)
 
     def toggle_new(self):
@@ -156,7 +153,11 @@ class QEpisode(QObject):
 
     qprogress = Property(float, _progress, notify=changed)
 
-    def qdownload(self, config, finished_callback=None, progress_callback=None):
+    def qdownload(
+                  self, config,
+                  finished_callback=None,
+                  progress_callback=None
+                  ):
         # Avoid starting the same download twice
         if self.download_task is not None:
             return
@@ -173,7 +174,9 @@ class QEpisode(QObject):
 
         def t(self):
             def cb(progress):
-                if progress > self._qt_download_progress + .01 or progress == 1:
+                if (progress > self._qt_download_progress + .01
+                    or progress == 1):
+
                     self._qt_download_progress = progress
                     self.changed.emit()
                     if progress_callback is not None:
@@ -218,7 +221,9 @@ class QEpisode(QObject):
 
     def _set_position(self, position):
         current_position = int(position)
-        if current_position == 0: return
+        if current_position == 0:
+            return
+
         if current_position != self._episode.current_position:
             self._episode.current_position = current_position
             self.changed.emit()
@@ -258,7 +263,9 @@ class QPodcast(QObject):
         return (qpodcast.qsection, sortkey)
 
     def __getattr__(self, name):
-        logger.warn('Attribute access in %s: %s', self.__class__.__name__, name)
+        logger.warn(
+            'Attribute access in %s: %s', self.__class__.__name__, name
+        )
         return getattr(self._podcast, name)
 
     def qupdate(self, force=False, finished_callback=None):
@@ -473,3 +480,153 @@ class EpisodeSubsetView(QObject):
     qnew = Property(int, _new, notify=changed)
 
 
+class gPodderListModel(QAbstractListModel):
+
+    changed = Signal()
+
+    def __init__(self, objects=None):
+        QAbstractListModel.__init__(self)
+        if objects is None:
+            objects = []
+        self._objects = objects
+        self.setRoleNames({
+            Qt.DisplayRole: 'modelData',
+            Qt.DecorationRole: 'section'
+        })
+
+    def sort(self):
+        # Unimplemented for the generic list model
+        self.reset()
+
+    def append(self, o):
+        self._objects.append(o)
+        self.sort()
+        self.changed.emit()
+
+    def remove(self, o):
+        self._objects.remove(o)
+        self.reset()
+        self.changed.emit()
+
+    def set_objects(self, objects):
+        self._objects = objects
+        self.sort()
+        self.changed.emit()
+
+    def get_objects(self):
+        return self._objects
+
+    def get_object(self, index):
+        return self.get(index.row())
+
+    def rowCount(self, parent=QModelIndex()):
+        return len(self.get_objects())
+
+    def data(self, index, role):
+        if index.isValid():
+            if role == Qt.DisplayRole:
+                return self.get_object(index)
+            elif role == Qt.DecorationRole:
+                return self.get_object(index).qsection
+        return None
+
+    @Slot(int, result=QObject)
+    def get(self, index):
+        try:
+            return self._objects[index]
+        except IndexError:
+            return None
+
+    @Slot(result=int)
+    def sectionCount(self):
+        sections = set()
+        for obj in self.get_objects():
+            sections.add(obj.qsection)
+
+        return sections.__len__()
+
+
+class gPodderPodcastListModel(gPodderListModel):
+    def __init__(self):
+        gPodderListModel.__init__(self)
+
+    def set_podcasts(self, db, podcasts):
+        views = [
+            EpisodeSubsetView(db, self, _('All episodes'), ''),
+        ]
+        self.set_objects(views + podcasts)
+
+    def get_podcasts(self):
+        return filter(lambda podcast: isinstance(podcast, QPodcast),
+                self.get_objects())
+
+    def sort(self):
+        self._objects = sorted(self._objects, key=QPodcast.sort_key)
+        self.reset()
+
+
+class CommonEpisodeListModel(gPodderListModel):
+    def __init__(self, config):
+        gPodderListModel.__init__(self)
+        self._filter = None     # overwrite in subclass
+        self._filtered = []
+        self._processed = []
+        self._is_subset_view = False
+
+        self._config = config
+        config.add_observer(self._on_config_changed)
+
+    is_subset_view_changed = Signal()
+
+    def get_is_subset_view(self):
+        return self._is_subset_view
+
+    def set_is_subset_view(self, is_subset_view):
+        if is_subset_view != self.is_subset_view:
+            self._is_subset_view = is_subset_view
+            self.is_subset_view_changed.emit()
+
+    is_subset_view = Property(bool, get_is_subset_view,
+            set_is_subset_view, notify=is_subset_view_changed)
+
+    def _on_config_changed(self, name, old_value, new_value):
+        if name == 'ui.qml_desktop.state.episode_list_filter':
+            self._filter = new_value
+            self.sort()
+
+    def sort(self):
+        pass
+
+    def get_objects(self):
+        return self._filtered
+
+    def get_object(self, index):
+        return self._filtered[index.row()]
+
+    @Slot(int, result=QObject)
+    def get_object_by_index(self, index):
+        return self._filtered[int(index)]
+
+#    @Slot(result=int)
+#    def getFilter(self):
+#        return self._filter
+#
+#    @Slot(int)
+#    def setFilter(self, filter_index):
+#        self._config.ui.qml_desktop.state.episode_list_filter = filter_index
+
+#    def data(self, index, role):
+#        if index.isValid():
+#            if role == Qt.DisplayRole:
+#                return self.get_object(index)
+#            elif role == Qt.DecorationRole:
+#                return self.get_object(index).qsection
+#            elif role == 2:
+#                return self.get_object(index).qtitle
+#            elif role == 3:
+#                return self.get_object(index).qfilesize
+#            elif role == 4:
+#                return self.get_object(index).qduration
+#            elif role == 5:
+#                return self.get_object(index).qpubdate
+#        return None

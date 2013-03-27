@@ -43,12 +43,13 @@ try:
     import dbus.glib
     have_dbus = True
 except ImportError:
-    print >>sys.stderr, """
+    print >> sys.stderr, """
     Warning: python-dbus not found. Disabling D-Bus support.
     """
     have_dbus = False
 
 from optparse import OptionParser
+
 
 def main():
     # Paths to important files
@@ -63,7 +64,9 @@ def main():
     ui_folder = os.path.join(prefix, 'share', 'gpodder', 'ui')
     credits_file = os.path.join(prefix, 'share', 'gpodder', 'credits.txt')
     images_folder = os.path.join(prefix, 'share', 'gpodder', 'images')
-    icon_file = os.path.join(prefix, 'share', 'icons', 'hicolor', 'scalable', 'apps', 'gpodder.svg')
+    icon_file = os.path.join(
+        prefix, 'share', 'icons', 'hicolor', 'scalable', 'apps', 'gpodder.svg'
+    )
 
     if os.path.exists(os.path.join(src_dir, 'gpodder', '__init__.py')):
         # Run gPodder from local source folder (not installed)
@@ -77,7 +80,7 @@ def main():
         # the output is a string like 'fr_FR', and we need 'fr_FR.utf-8'
         user_locale = output.strip() + '.UTF-8'
         os.environ['LANG'] = user_locale
-        print >>sys.stderr, 'Setting locale to', user_locale
+        print >> sys.stderr, 'Setting locale to', user_locale
 
     # Set up the path to translation files
     gettext.bindtextdomain('gpodder', locale_dir)
@@ -98,10 +101,10 @@ def main():
     gpodder.images_folder = images_folder
     gpodder.icon_file = icon_file
 
-    s_usage = 'usage: %%prog [options]\n\n%s' % ( __doc__.strip() )
-    s_version = '%%prog %s' % ( gpodder.__version__ )
+    s_usage = 'usage: %%prog [options]\n\n%s' % (__doc__.strip())
+    s_version = '%%prog %s' % (gpodder.__version__)
 
-    parser = OptionParser( usage = s_usage, version = s_version)
+    parser = OptionParser(usage=s_usage, version=s_version)
 
     parser.add_option("-v", "--verbose",
                       action="store_true", dest="verbose", default=False,
@@ -110,6 +113,10 @@ def main():
     parser.add_option("-q", "--qml",
                       action="store_true", dest="qml", default=False,
                       help=_("use the QML-based MeeGo 1.2 Harmattan UI"))
+
+    parser.add_option("-d", "--qml_desktop",
+                      action="store_true", dest="qml_desktop", default=False,
+                      help=_("use the QML-based UI for Desktop"))
 
     parser.add_option('-s', '--subscribe', dest='subscribe', metavar='URL',
                       help=_('subscribe to the feed at URL'))
@@ -123,10 +130,15 @@ def main():
 
     if options.qml or (gpodder.ui.harmattan or gpodder.ui.sailfish):
         gpodder.ui.qml = True
+    elif options.qml_desktop:
+        gpodder.ui.qml_desktop = True
     else:
         gpodder.ui.gtk = True
     
     gpodder.ui.unity = (os.environ.get('DESKTOP_SESSION', 'unknown').lower() in 
+        ('ubuntu', 'ubuntu-2d'))
+
+    gpodder.ui.unity = (os.environ.get('DESKTOP_SESSION', 'unknown').lower() in
         ('ubuntu', 'ubuntu-2d'))
 
     from gpodder import log
@@ -160,9 +172,13 @@ def main():
         sys.exit(1)
 
     if gpodder.ui.qml:
-        from gpodder import qmlui
+        from gpodder.qml import mobile
         gpodder.ui_folders.insert(0, os.path.join(ui_folder, 'qml'))
-        sys.exit(qmlui.main(args))
+        sys.exit(mobile.main(args))
+    elif gpodder.ui.qml_desktop:
+        from gpodder.qml import desktop
+        gpodder.ui_folders.insert(0, os.path.join(ui_folder, 'qmldesktop'))
+        sys.exit(desktop.main(args))
     elif gpodder.ui.gtk:
         from gpodder.gtkui import main
         gpodder.ui_folders.insert(0, os.path.join(ui_folder, 'gtk'))
@@ -172,4 +188,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-

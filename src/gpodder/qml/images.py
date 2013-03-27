@@ -17,11 +17,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+import urllib
+
 from PySide.QtCore import Qt
 from PySide.QtGui import QImage
 from PySide.QtDeclarative import QDeclarativeImageProvider
-
-import gpodder
 
 from gpodder import util
 from gpodder import coverart
@@ -29,8 +29,6 @@ from gpodder import coverart
 import logging
 logger = logging.getLogger(__name__)
 
-import os
-import urllib
 
 class LocalCachedImageProvider(QDeclarativeImageProvider):
     IMAGE_TYPE = QDeclarativeImageProvider.ImageType.Image
@@ -40,12 +38,13 @@ class LocalCachedImageProvider(QDeclarativeImageProvider):
         self.downloader = coverart.CoverDownloader()
         self._cache = {}
 
-    def requestImage(self, id, size, requestedSize):
-        key = (id, requestedSize)
+    def requestImage(self, imageId, size, requestedSize):
+        key = (imageId, requestedSize)
         if key in self._cache:
             return self._cache[key]
 
-        cover_file, cover_url, podcast_url, podcast_title = id.split('|')
+        cover_file, cover_url, podcast_url, podcast_title = (urllib.unquote(x)
+                for x in imageId.split('|'))
 
         def get_filename():
             return self.downloader.get_cover(cover_file, cover_url,
@@ -66,4 +65,3 @@ class LocalCachedImageProvider(QDeclarativeImageProvider):
                     Qt.SmoothTransformation)
 
         return self._cache[key]
-

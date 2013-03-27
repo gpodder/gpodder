@@ -80,6 +80,7 @@ class UI(object):
         self.sailfish = False
         self.gtk = False
         self.qml = False
+        self.qml_desktop = False
         self.cli = False
 
 
