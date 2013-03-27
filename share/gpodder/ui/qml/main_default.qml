@@ -226,7 +226,7 @@ WindowWindow {
         function loadSettings() {
             settingsAutorotate.checked = configProxy.autorotate
             settingsIndexing.checked = trackerMinerConfig.get_index_podcasts()
-
+            settingsCountRight.checked = configProxy.episodeCountOnRight
             flattrOnPlaySwitch.checked = configProxy.flattrOnPlay
 
             myGpoEnableSwitch.checked = controller.myGpoEnabled
@@ -263,6 +263,16 @@ WindowWindow {
                         text: _('Automatic rotation')
                         onCheckedChanged: {
                             configProxy.autorotate = checked
+                        }
+                    }
+
+                    SettingsHeader { text: _('Display settings') }
+ 
+                    SettingsSwitch {
+                        id: settingsCountRight
+                        text: _('Episode count on the right')
+                        onCheckedChanged: {
+                            configProxy.episodeCountOnRight = checked
                         }
                     }
 
