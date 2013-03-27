@@ -1349,7 +1349,7 @@ class Model(object):
 
     def load_podcast(self, url, create=True, authentication_tokens=None,
                      max_episodes=0):
-        assert all(url != podcast.url for podcast in self.children)
+        assert all(url != podcast.url for podcast in self.get_podcasts())
         return self.PodcastClass.load(self, url, create,
                                       authentication_tokens,
                                       max_episodes)
