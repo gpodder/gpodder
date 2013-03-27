@@ -82,6 +82,9 @@ Item {
         anchors.fill: parent
         property int openedIndex: -1
         visible: count > 0
+        onCountChanged: {
+            openedIndex = -1;
+        }
 
         Connections {
             target: main
