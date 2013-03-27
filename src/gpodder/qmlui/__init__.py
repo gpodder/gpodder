@@ -298,6 +298,9 @@ class Controller(QObject):
             return
 
         count = len(selected)
+        # JS/QML/PySide might convert the array of indices to an array of floats,
+        # so we need to convert these floats back to integers (bug 1802)
+        selected = map(int, selected)
         episodes = map(lambda idx: self.root.episode_model._filtered[idx], selected)
 
         def delete():
@@ -1059,6 +1062,7 @@ class qtPodder(QObject):
                 self.tracker_miner_config)
         root_context.setContextProperty('podcastModel', self.podcast_model)
         root_context.setContextProperty('episodeModel', self.episode_model)
+        root_context.setContextProperty('isSailfish', gpodder.ui.sailfish)
 
         for folder in gpodder.ui_folders:
             if gpodder.ui.sailfish:
