@@ -298,6 +298,9 @@ class Controller(QObject):
             return
 
         count = len(selected)
+        # JS/QML/PySide might convert the array of indices to an array of floats,
+        # so we need to convert these floats back to integers (bug 1802)
+        selected = map(int, selected)
         episodes = map(lambda idx: self.root.episode_model._filtered[idx], selected)
 
         def delete():
