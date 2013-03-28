@@ -29,6 +29,8 @@ Item {
     property bool hasPlayButton: ((mediaPlayer.episode !== undefined)) && !progressIndicator.opacity
     property bool hasSearchButton: !progressIndicator.opacity
 
+    property bool rightCounter: configProxy.episodeCountOnRight
+
     property bool loadingEpisodes: false
 
     function clearEpisodeListModel() {

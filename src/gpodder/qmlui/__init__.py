@@ -88,6 +88,8 @@ class ConfigProxy(QObject):
     def _on_config_changed(self, name, old_value, new_value):
         if name == 'ui.qml.autorotate':
             self.autorotateChanged.emit()
+        if name == 'ui.qml.episodecountonright':
+            self.episodeCountOnRightChanged.emit()
         elif name == 'flattr.token':
             self.flattrTokenChanged.emit()
         elif name == 'flattr.flattr_on_play':
@@ -126,6 +128,17 @@ class ConfigProxy(QObject):
     flattrOnPlay = Property(bool, get_flattr_on_play, set_flattr_on_play,
             notify=flattrOnPlayChanged)
 
+    def get_episode_count_on_right(self):
+        return self._config.ui.qml.episodecountonright
+
+    def set_episode_count_on_right(self, episode_count_on_right):
+        self._config.ui.qml.episodecountonright = episode_count_on_right
+
+    episodeCountOnRightChanged = Signal()
+
+    episodeCountOnRight = Property(bool, get_episode_count_on_right,
+                                   set_episode_count_on_right,
+                                   notify=episodeCountOnRightChanged)
 
 class Controller(QObject):
     def __init__(self, root):
