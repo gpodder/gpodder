@@ -687,7 +687,7 @@ class PodcastEpisode(PodcastModelObject):
 
     @property
     def sortdate(self):
-        return self.published_datetime().strftime('%F')
+        return self.published_datetime().strftime('%Y-%m-%d')
 
     @property
     def pubdate_day(self):
