@@ -223,6 +223,7 @@ Item {
 
     PagePage {
         id: episodesPage
+        lockToPortrait: mainPage.lockToPortrait
         listview: episodeList.listview
 
         onClosed: {
@@ -307,6 +308,7 @@ Item {
 
     PagePage {
         id: mediaPlayerPage
+        lockToPortrait: mainPage.lockToPortrait
 
         MediaPlayer {
             id: mediaPlayer

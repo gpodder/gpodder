@@ -687,7 +687,7 @@ class PodcastEpisode(PodcastModelObject):
 
     @property
     def sortdate(self):
-        return self.published_datetime().strftime('%F')
+        return self.published_datetime().strftime('%Y-%m-%d')
 
     @property
     def pubdate_day(self):
@@ -1349,6 +1349,7 @@ class Model(object):
 
     def load_podcast(self, url, create=True, authentication_tokens=None,
                      max_episodes=0):
+        assert all(url != podcast.url for podcast in self.get_podcasts())
         return self.PodcastClass.load(self, url, create,
                                       authentication_tokens,
                                       max_episodes)

@@ -29,6 +29,7 @@ import shutil
 import subprocess
 import glob
 import time
+import threading
 import tempfile
 import collections
 import urllib
@@ -1378,13 +1379,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
             message = self.format_episode_list(finished_downloads, 5)
             message += '\n\n<i>%s</i>\n' % _('Could not download some episodes:')
             message += self.format_episode_list(failed_downloads, 5)
-            self.show_message(message, _('Downloads finished'), True, widget=self.labelDownloads)
+            self.show_message(message, _('Downloads finished'), widget=self.labelDownloads)
         elif finished_downloads:
             message = self.format_episode_list(finished_downloads)
             self.show_message(message, _('Downloads finished'), widget=self.labelDownloads)
         elif failed_downloads:
             message = self.format_episode_list(failed_downloads)
-            self.show_message(message, _('Downloads failed'), True, widget=self.labelDownloads)
+            self.show_message(message, _('Downloads failed'), widget=self.labelDownloads)
 
         if finished_syncs and failed_syncs:
             message = self.format_episode_list(map((lambda task: str(task)),finished_syncs), 5)
@@ -1675,6 +1676,27 @@ class gPodder(BuilderWidget, dbus.service.Object):
         root_item.set_submenu(sub_menu)
         return sub_menu
 
+    def _submenu_item_activate_hack(self, item, callback, *args):
+        # See http://stackoverflow.com/questions/5221326/submenu-item-does-not-call-function-with-working-solution
+        # Note that we can't just call the callback on button-press-event, as
+        # it might be blocking (see http://gpodder.org/bug/1778), so we run
+        # this in the GUI thread at a later point in time (util.idle_add).
+        # Also, we also have to connect to the activate signal, as this is the
+        # only signal that is fired when keyboard navigation is used.
+
+        # It can happen that both (button-release-event and activate) signals
+        # are fired, and we must avoid calling the callback twice. We do this
+        # using a semaphore and only acquiring (but never releasing) it, making
+        # sure that the util.idle_add() call below is only ever called once.
+        only_once = threading.Semaphore(1)
+
+        def handle_event(item, event=None):
+            if only_once.acquire(False):
+                util.idle_add(callback, *args)
+
+        item.connect('button-press-event', handle_event)
+        item.connect('activate', handle_event)
+
     def treeview_available_show_context_menu(self, treeview, event=None):
         model, paths = self.treeview_handle_context_menu_click(treeview, event)
         if not paths:
@@ -1732,9 +1754,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 submenus = {}
                 for label, callback in result:
                     key, sep, title = label.rpartition('/')
-                    item = gtk.MenuItem(title)
-                    item.connect('activate', lambda item, callback:
-                            callback(episodes), callback)
+                    item = gtk.ImageMenuItem(title)
+                    self._submenu_item_activate_hack(item, callback, episodes)
                     if key:
                         if key not in submenus:
                             sub_menu = self._add_sub_menu(menu, key)
@@ -1752,12 +1773,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
                 item = gtk.ImageMenuItem(_('Local folder'))
                 item.set_image(gtk.image_new_from_stock(gtk.STOCK_DIRECTORY, gtk.ICON_SIZE_MENU))
-                item.connect('button-press-event', lambda w, ee: self.save_episodes_as_file(episodes))
+                self._submenu_item_activate_hack(item, self.save_episodes_as_file, episodes)
                 share_menu.append(item)
                 if self.bluetooth_available:
                     item = gtk.ImageMenuItem(_('Bluetooth device'))
                     item.set_image(gtk.image_new_from_icon_name('bluetooth', gtk.ICON_SIZE_MENU))
-                    item.connect('button-press-event', lambda w, ee: self.copy_episodes_bluetooth(episodes))
+                    self._submenu_item_activate_hack(item, self.copy_episodes_bluetooth, episodes)
                     share_menu.append(item)
 
             menu.append(gtk.SeparatorMenuItem())

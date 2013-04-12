@@ -609,20 +609,11 @@
                             <child>
                               <object class="GtkEntry" id="entry_search_podcasts">
                                 <property name="visible">True</property>
+                                <property name="secondary-icon-stock">gtk-close</property>
+                                <signal name="icon-press" handler="hide_podcast_search"/>
                                 <signal name="changed" handler="on_entry_search_podcasts_changed"/>
                                 <signal name="key-press-event" handler="on_entry_search_podcasts_key_press"/>
                               </object>
-                            </child>
-                            <child>
-                              <object class="GtkToolButton" id="button_search_podcasts_clear">
-                                <property name="visible">True</property>
-                                <property name="stock-id">gtk-clear</property>
-                                <signal name="clicked" handler="hide_podcast_search"/>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">True</property>
-                              </packing>
                             </child>
                           </object>
                           <packing>
@@ -755,20 +746,11 @@
                             <child>
                               <object class="GtkEntry" id="entry_search_episodes">
                                 <property name="visible">True</property>
+                                <property name="secondary-icon-stock">gtk-close</property>
+                                <signal name="icon-press" handler="hide_episode_search"/>
                                 <signal name="changed" handler="on_entry_search_episodes_changed"/>
                                 <signal name="key-press-event" handler="on_entry_search_episodes_key_press"/>
                               </object>
-                            </child>
-                            <child>
-                              <object class="GtkToolButton" id="button_search_episodes_clear">
-                                <property name="visible">True</property>
-                                <property name="stock-id">gtk-clear</property>
-                                <signal name="clicked" handler="hide_episode_search"/>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">True</property>
-                              </packing>
                             </child>
                           </object>
                           <packing>

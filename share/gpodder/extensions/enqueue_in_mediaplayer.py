@@ -19,54 +19,52 @@ __author__ = 'Thomas Perl <thp@gpodder.org>, Bernd Schlapsi <brot@gmx.info>'
 __category__ = 'interface'
 __only_for__ = 'gtk'
 
-AMAROK = (['amarok', '--play', '--append'],
-    '%s/%s' % (_('Enqueue in'), 'Amarok'))
-VLC = (['vlc', '--started-from-file', '--playlist-enqueue'],
-    '%s/%s' % (_('Enqueue in'), 'VLC'))
-
-
-class gPodderExtension:
-    def __init__(self, container):
-        self.container = container
+class Player:
+    def __init__(self, application, command):
+        self.title = '/'.join((_('Enqueue in'), application))
+        self.command = command
         self.gpodder = None
 
-        # Check media players
-        self.amarok_available = self.check_mediaplayer(AMAROK[0][0])
-        self.vlc_available = self.check_mediaplayer(VLC[0][0])
+    def is_installed(self):
+        return util.find_command(self.command[0]) is not None
 
-    def on_ui_object_available(self, name, ui_object):
-        if name == 'gpodder-gtk':
-            self.gpodder = ui_object
-
-    def check_mediaplayer(self, cmd):
-        return not (util.find_command(cmd) == None)
-
-    def _enqueue_episodes_cmd(self, episodes, cmd):
+    def enqueue_episodes(self, episodes):
         filenames = [episode.get_playback_url() for episode in episodes]
 
-        vlc = subprocess.Popen(cmd + filenames,
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        subprocess.Popen(self.command + filenames,
+                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
         for episode in episodes:
             episode.playback_mark()
             self.gpodder.update_episode_list_icons(selected=True)
 
-    def enqueue_episodes_amarok(self, episodes):
-        self._enqueue_episodes_cmd(episodes, AMAROK[0])
 
-    def enqueue_episodes_vlc(self, episodes):
-        self._enqueue_episodes_cmd(episodes, VLC[0])
+PLAYERS = [
+    # Amarok, http://amarok.kde.org/
+    Player('Amarok', ['amarok', '--play', '--append']),
+
+    # VLC, http://videolan.org/
+    Player('VLC', ['vlc', '--started-from-file', '--playlist-enqueue']),
+
+    # Totem, https://live.gnome.org/Totem
+    Player('Totem', ['totem', '--enqueue']),
+]
+
+class gPodderExtension:
+    def __init__(self, container):
+        self.container = container
+
+        # Only display media players that can be found at extension load time
+        self.players = filter(lambda player: player.is_installed(), PLAYERS)
+
+    def on_ui_object_available(self, name, ui_object):
+        if name == 'gpodder-gtk':
+            for p in self.players:
+                p.gpodder = ui_object
 
     def on_episodes_context_menu(self, episodes):
-        if not [e for e in episodes if e.file_exists()]:
+        if not any(e.file_exists() for e in episodes):
             return None
 
-        menu_entries = []
+        return [(p.title, p.enqueue_episodes) for p in self.players]
 
-        if self.amarok_available:
-            menu_entries.append((AMAROK[1], self.enqueue_episodes_amarok))
-
-        if self.vlc_available:
-            menu_entries.append((VLC[1], self.enqueue_episodes_vlc))
-
-        return menu_entries

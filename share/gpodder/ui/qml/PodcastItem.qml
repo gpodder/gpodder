@@ -97,7 +97,7 @@ SelectableItem {
         id: titleBox
 
         text: modelData.qtitle
-        color: 'white'
+        color: (!isSailfish && counters.newEpisodes)?Config.newColor:'white'
 
         anchors {
             verticalCenter: parent.verticalCenter

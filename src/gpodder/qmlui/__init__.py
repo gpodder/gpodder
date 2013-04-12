@@ -140,6 +140,7 @@ class Controller(QObject):
         self._busy = False
         self.updating_podcasts = 0
         self.current_episode = None
+        self._subscribe_in_progress = False
 
 
     # Upcalls to the GUI
@@ -297,6 +298,9 @@ class Controller(QObject):
             return
 
         count = len(selected)
+        # JS/QML/PySide might convert the array of indices to an array of floats,
+        # so we need to convert these floats back to integers (bug 1802)
+        selected = map(int, selected)
         episodes = map(lambda idx: self.root.episode_model._filtered[idx], selected)
 
         def delete():
@@ -598,6 +602,9 @@ class Controller(QObject):
                 # Remove queued episodes for this specific podcast
                 self.removeQueuedEpisodesForPodcast.emit(action.target)
 
+                # Update statistics in "All episodes"
+                self.update_subset_stats()
+
                 self.root.podcast_model.remove_object(action.target)
                 self.root.mygpo_client.on_unsubscribe([action.target.url])
                 self.root.mygpo_client.flush()
@@ -754,7 +761,16 @@ class Controller(QObject):
 
     @Slot('QVariant')
     def addSubscriptions(self, urls):
+        if self._subscribe_in_progress:
+            logger.warn('addSubscriptions call ignored (already subscribing)')
+            return
+
+        self._subscribe_in_progress = True
+
         def not_yet_subscribed(url):
+            if not url:
+                return False
+
             for podcast in self.root.podcast_model.get_objects():
                 if isinstance(podcast, model.EpisodeSubsetView):
                     continue
@@ -765,14 +781,14 @@ class Controller(QObject):
 
             return True
 
-        urls = map(util.normalize_feed_url, urls)
-        urls = filter(not_yet_subscribed, urls)
+        urls = filter(not_yet_subscribed, map(util.normalize_feed_url, urls))
 
-        def subscribe_proc(self, urls):
+        @util.run_in_background
+        def subscribe_proc():
             self.startProgress.emit(_('Adding podcasts...'))
+            failed = []
             try:
                 for idx, url in enumerate(urls):
-                    print idx, url
                     self.startProgress.emit(_('Adding podcasts...') + ' (%d/%d)' % (idx, len(urls)))
                     try:
                         podcast = self.root.model.load_podcast(url=url, create=True,
@@ -780,12 +796,21 @@ class Controller(QObject):
                         podcast.save()
                         self.root.insert_podcast(model.QPodcast(podcast))
                     except Exception, e:
-                        logger.warn('Cannot add pocast: %s', e)
-                        # XXX: Visual feedback in the QML UI
+                        logger.warn('Cannot add podcast: %s', url, exc_info=True)
+                        failed.append((url, str(e)))
             finally:
                 self.endProgress.emit()
+                self._subscribe_in_progress = False
+                self.update_subset_stats()
 
-        util.run_in_background(lambda: subscribe_proc(self, urls))
+            def format_error(failed):
+                yield _('Could not add some podcasts:')
+                yield ''
+                for url, error in failed:
+                    yield ': '.join((url, error)) if error else url
+
+            if failed:
+                self.showMessage.emit('\n'.join(format_error(failed)))
 
     @Slot(QObject)
     def currentEpisodeChanging(self, episode):
@@ -1037,6 +1062,7 @@ class qtPodder(QObject):
                 self.tracker_miner_config)
         root_context.setContextProperty('podcastModel', self.podcast_model)
         root_context.setContextProperty('episodeModel', self.episode_model)
+        root_context.setContextProperty('isSailfish', gpodder.ui.sailfish)
 
         for folder in gpodder.ui_folders:
             if gpodder.ui.sailfish:

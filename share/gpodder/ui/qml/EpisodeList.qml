@@ -59,7 +59,7 @@ Item {
     }
 
     ListList {
-        headerText: main.currentPodcast.qtitle
+        headerText: main.currentPodcast === undefined ? "" : main.currentPodcast.qtitle
 
         id: listView
         cacheBuffer: 10000
@@ -82,6 +82,15 @@ Item {
         anchors.fill: parent
         property int openedIndex: -1
         visible: count > 0
+
+        Connections {
+            target: main
+            onLoadingEpisodesChanged: {
+                if (main.loadingEpisodes) {
+                    listView.openedIndex = -1;
+                }
+            }
+        }
 
         delegate: EpisodeItem {
             id: episodeItem

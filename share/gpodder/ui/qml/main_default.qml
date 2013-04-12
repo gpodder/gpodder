@@ -58,6 +58,7 @@ WindowWindow {
 
     PagePage {
         id: subscribePage
+        lockToPortrait: mainPage.lockToPortrait
 
         Subscribe {
             anchors.fill: parent
@@ -71,6 +72,7 @@ WindowWindow {
 
     PagePage {
         id: showNotesPage
+        lockToPortrait: mainPage.lockToPortrait
 
         ShowNotes {
             id: showNotes
@@ -210,16 +212,60 @@ WindowWindow {
 
 
     PagePage {
-        id: settingsPage
+        id: myGpoLoginPage
         lockToPortrait: mainPage.lockToPortrait
 
         onClosed: {
             controller.myGpoUsername = myGpoUsernameField.text
             controller.myGpoPassword = myGpoPasswordField.text
             controller.myGpoDeviceCaption = myGpoDeviceCaptionField.text
-            controller.myGpoEnabled = myGpoEnableSwitch.checked && (controller.myGpoUsername != '' && controller.myGpoPassword != '')
-            controller.saveMyGpoSettings()
         }
+
+        Item {
+            id: myGpoLoginContent
+            anchors.fill: parent
+
+            Flickable {
+                anchors.fill: parent
+                anchors.margins: Config.largeSpacing
+                contentHeight: myGpoLoginColumn.height
+
+                Column {
+                    id: myGpoLoginColumn
+                    anchors.fill: parent
+                    spacing: 4
+
+                    Label {
+                        text: _('gPodder.net Login')
+                        font.pixelSize: 40
+                        anchors.right: parent.right
+                    }
+
+                    SettingsHeader { text: _('Credentials') }
+
+                    SettingsLabel { text: _('Username') }
+                    InputField { id: myGpoUsernameField; anchors.left: parent.left; anchors.right: parent.right }
+
+                    Item { height: 1; width: 1 }
+
+                    SettingsLabel { text: _('Password') }
+                    InputField { id: myGpoPasswordField; anchors.left: parent.left; anchors.right: parent.right; echoMode: TextInput.Password }
+
+                    Item { height: 1; width: 1 }
+
+                    SettingsLabel { text: _('Device name') }
+                    InputField { id: myGpoDeviceCaptionField; anchors.left: parent.left; anchors.right: parent.right }
+
+                }
+            }
+        }
+}
+
+    PagePage {
+        id: settingsPage
+        lockToPortrait: mainPage.lockToPortrait
+
+        property bool myGpoUserPassFilled: controller.myGpoUsername != '' && controller.myGpoPassword != ''
 
         function loadSettings() {
             settingsAutorotate.checked = configProxy.autorotate
@@ -231,6 +277,11 @@ WindowWindow {
             myGpoUsernameField.text = controller.myGpoUsername
             myGpoPasswordField.text = controller.myGpoPassword
             myGpoDeviceCaptionField.text = controller.myGpoDeviceCaption
+        }
+
+        onClosed: {
+            controller.myGpoEnabled = myGpoEnableSwitch.checked && myGpoUserPassFilled;
+            controller.saveMyGpoSettings();
         }
 
         Item {
@@ -315,35 +366,43 @@ WindowWindow {
 
                     Item { height: Config.largeSpacing; width: 1 }
 
-                    SettingsLabel { text: _('Username') }
-                    InputField { id: myGpoUsernameField; anchors.left: parent.left; anchors.right: parent.right }
-
-                    Item { height: 1; width: 1 }
-
-                    SettingsLabel { text: _('Password') }
-                    InputField { id: myGpoPasswordField; anchors.left: parent.left; anchors.right: parent.right; echoMode: TextInput.Password }
-
-                    Item { height: 1; width: 1 }
-
-                    SettingsLabel { text: _('Device name') }
-                    InputField { id: myGpoDeviceCaptionField; anchors.left: parent.left; anchors.right: parent.right }
-
+                    Button {
+                        text: {
+                            if (settingsPage.myGpoUserPassFilled) {
+                                _('Sign out')
+                            } else {
+                                _('Sign in to gPodder.net')
+                            }
+                        }
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        width: parent.width * .8
+                        onClicked: {
+                            if (settingsPage.myGpoUserPassFilled) {
+                                /* Logout */
+                                controller.myGpoPassword = '';
+                                myGpoPasswordField.text = '';
+                            } else {
+                                /* Login */
+                                pageStack.push(myGpoLoginPage);
+                            }
+                        }
+                    }
                     Item { height: Config.largeSpacing; width: 1 }
 
                     Button {
                         text: _('Replace list on server')
                         anchors.horizontalCenter: parent.horizontalCenter
                         width: parent.width * .8
+                        visible: settingsPage.myGpoUserPassFilled
                         onClicked: {
-                            settingsPage.close();
+                            pageStack.pop();
                             controller.myGpoUploadList();
                         }
                     }
 
-                    Item { height: Config.largeSpacing; width: 1 }
-
                     Button {
                         text: _('No account? Register here')
+                        visible: ! settingsPage.myGpoUserPassFilled
                         anchors.horizontalCenter: parent.horizontalCenter
                         width: parent.width * .8
                         onClicked: Qt.openUrlExternally('http://gpodder.net/register/')

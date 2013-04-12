@@ -13,13 +13,15 @@ Page {
     orientationLock: lockToPortrait?PageOrientation.LockPortrait:PageOrientation.Automatic
 
     function close() {
-        pageStack.pop();
+        if (pageStack !== null) {
+            pageStack.pop();
+        }
         closed();
     }
 
     tools: ToolBarLayout {
         ToolIcon {
-            visible: pageStack.depth > 1
+            visible: pageStack !== null && pageStack.depth > 1
             anchors.left: parent.left
             iconId: "icon-m-toolbar-back-white"
             onClicked: pagePage.close();

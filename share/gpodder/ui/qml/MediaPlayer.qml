@@ -361,10 +361,9 @@ Item {
         }
 
         Label {
+            y: progressBar.y - height - Config.smallSpacing
             anchors {
-                bottom: parent.bottom
                 right: parent.right
-                bottomMargin: progressBar.height
                 rightMargin: Config.largeSpacing
             }
             color: '#aaa'
