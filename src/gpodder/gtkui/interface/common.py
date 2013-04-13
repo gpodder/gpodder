@@ -299,7 +299,18 @@ class TreeViewHelper(object):
     @staticmethod
     def make_popup_position_func(widget):
         def position_func(menu):
-            x, y = widget.window.get_origin()
+            x, y = widget.get_bin_window().get_origin()
+
+            # If there's a selection, place the popup menu on top of
+            # the first-selected row (otherwise in the top left corner)
+            selection = widget.get_selection()
+            model, paths = selection.get_selected_rows()
+            if paths:
+                path = paths[0]
+                area = widget.get_cell_area(path, widget.get_column(0))
+                x += area.x
+                y += area.y
+
             return (x, y, True)
         return position_func
 
