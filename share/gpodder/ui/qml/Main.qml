@@ -165,6 +165,8 @@ Item {
             togglePlayback(episode);
         } else {
             mediaPlayer.enqueueEpisode(episode);
+            /* Let the user know that the episode was correctly added to the playlist */
+            main.showMessage(_('Episode added to playlist'));
         }
     }
 
