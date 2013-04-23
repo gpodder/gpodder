@@ -187,6 +187,9 @@ class gPodderSyncUI(object):
                         #deleted episodes aren't included in playlists
                         episodes_for_playlist=sorted(current_channel.get_episodes(gpodder.STATE_DOWNLOADED),
                                                      key=lambda ep: ep.published)
+                        #don't add played episodes to playlist if skip_played_episodes is True
+                        if self._config.device_sync.skip_played_episodes:
+                            episodes_for_playlist=filter(lambda ep: ep.is_new, episodes_for_playlist)
                         playlist.write_m3u(episodes_for_playlist)
 
                 #enable updating of UI
