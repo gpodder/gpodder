@@ -76,6 +76,7 @@ import xml.dom.minidom
 _ = gpodder.gettext
 N_ = gpodder.ngettext
 
+win32 = (platform.system() == 'Windows')
 
 import locale
 try:
@@ -91,7 +92,7 @@ if encoding is None:
         lang = os.environ['LANG']
         (language, encoding) = lang.rsplit('.', 1)
         logger.info('Detected encoding: %s', encoding)
-    elif (platform.system() == 'Windows'):
+    elif win32:
         # To quote http://docs.python.org/howto/unicode.html:
         # ,,on Windows, Python uses the name "mbcs" to refer
         #   to whatever the currently configured encoding is``
@@ -419,7 +420,7 @@ def is_system_file(filename):
     """
     Checks to see if the given file is a system file.
     """
-    if gpodder.ui.win32 and win32file is not None:
+    if win32 and win32file is not None:
         result = win32file.GetFileAttributes(filename)
         #-1 is returned by GetFileAttributes when an error occurs
         #0x4 is the FILE_ATTRIBUTE_SYSTEM constant
@@ -456,7 +457,7 @@ def get_free_disk_space(path):
     if not os.path.exists(path):
         return 0
 
-    if gpodder.ui.win32:
+    if win32:
         return get_free_disk_space_win32(path)
 
     s = os.statvfs(path)
@@ -1035,7 +1036,7 @@ def find_command(command):
 
     for path in os.environ['PATH'].split(os.pathsep):
         command_file = os.path.join(path, command)
-        if gpodder.ui.win32 and not os.path.exists(command_file):
+        if win32 and not os.path.exists(command_file):
             for extension in ('.bat', '.exe'):
                 cmd = command_file + extension
                 if os.path.isfile(cmd):
@@ -1281,7 +1282,7 @@ def gui_open(filename):
        on Win32, os.startfile() is used
     """
     try:
-        if gpodder.ui.win32:
+        if win32:
             os.startfile(filename)
         elif gpodder.ui.osx:
             subprocess.Popen(['open', filename])
@@ -1612,7 +1613,7 @@ def atomic_rename(old_name, new_name):
     the new contents into a temporary file and then moving the
     temporary file over the original file to replace it.
     """
-    if gpodder.ui.win32:
+    if win32:
         # Win32 does not support atomic rename with os.rename
         shutil.move(old_name, new_name)
     else:
@@ -1731,7 +1732,7 @@ def connection_available():
     if no network interfaces are up (i.e. no connectivity).
     """
     try:
-        if gpodder.ui.win32:
+        if win32:
             # FIXME: Implement for Windows
             return True
         elif gpodder.ui.osx:

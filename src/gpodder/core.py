@@ -27,6 +27,7 @@ from gpodder import util
 from gpodder import config
 from gpodder import dbsqlite
 from gpodder import extensions
+from gpodder import coverart
 from gpodder import model
 from gpodder import log
 
@@ -98,6 +99,8 @@ class Core(object):
 
         # Load installed/configured plugins
         self.load_plugins()
+
+        self.cover_downloader = coverart.CoverDownloader()
 
         # Update the current device in the configuration
         self.config.mygpo.device.type = util.detect_device_type()

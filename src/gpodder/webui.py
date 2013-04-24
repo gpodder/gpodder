@@ -59,7 +59,6 @@ def json_response(path_parts):
     return None
 
 class WebUI(BaseHTTPServer.BaseHTTPRequestHandler):
-    STATIC_PATH = os.path.join(gpodder.prefix, 'share', 'gpodder', 'ui', 'web')
     DEFAULT_PORT = 8086
 
     core = None
@@ -89,7 +88,7 @@ class WebUI(BaseHTTPServer.BaseHTTPRequestHandler):
         path_parts = filter(None, self.path.split('/'))[1:]
         if '..' not in path_parts:
             if self.path.startswith('/static/'):
-                filename = os.path.join(self.STATIC_PATH, *path_parts)
+                filename = os.path.join(WebUI.core.prefix, 'share', 'gpodder', 'ui', 'web', *path_parts)
                 _, extension = os.path.splitext(filename)
                 mimetype = util.mimetype_from_extension(extension)
 
