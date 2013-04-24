@@ -120,10 +120,6 @@ class PodcastEpisode(PodcastModelObject):
     is_played = property(fget=_deprecated, fset=_deprecated)
     is_locked = property(fget=_deprecated, fset=_deprecated)
 
-    def has_website_link(self):
-        return bool(self.link) and (self.link != self.url or \
-                youtube.is_video_link(self.link))
-
     def __init__(self, channel):
         self.parent = channel
         self.podcast_id = self.parent.id
@@ -219,10 +215,6 @@ class PodcastEpisode(PodcastModelObject):
 
         return task.status in (task.DOWNLOADING, task.QUEUED, task.PAUSED)
 
-    def check_is_new(self):
-        return (self.state == gpodder.STATE_NORMAL and self.is_new and
-                not self.downloading)
-
     def save(self):
         gpodder.user_extensions.on_episode_save(self)
         self.db.save_episode(self)
@@ -233,71 +225,24 @@ class PodcastEpisode(PodcastModelObject):
         self.file_size = os.path.getsize(filename)
         self.save()
 
-    def set_state(self, state):
-        self.state = state
-        self.save()
-
     def playback_mark(self):
         self.is_new = False
         self.last_playback = int(time.time())
         gpodder.user_extensions.on_episode_playback(self)
         self.save()
 
-    def mark(self, state=None, is_played=None, is_locked=None):
-        if state is not None:
-            self.state = state
-        if is_played is not None:
-            self.is_new = not is_played
-
-            # "Mark as new" must "undelete" the episode
-            if self.is_new and self.state == gpodder.STATE_DELETED:
-                self.state = gpodder.STATE_NORMAL
-        if is_locked is not None:
-            self.archive = is_locked
-        self.save()
-
     def age_in_days(self):
-        return util.file_age_in_days(self.local_filename(create=False, \
+        return util.file_age_in_days(self.local_filename(create=False,
                 check_only=True))
 
-    age_int_prop = property(fget=age_in_days)
-
-    def get_age_string(self):
-        return util.file_age_to_string(self.age_in_days())
-
-    age_prop = property(fget=get_age_string)
-
-    @property
-    def description_html(self):
-        # XXX: That's not a very well-informed heuristic to check
-        # if the description already contains HTML. Better ideas?
-        if '<' in self.description:
-            return self.description
-
-        return self.description.replace('\n', '<br>')
-
-    def one_line_description(self):
-        MAX_LINE_LENGTH = 120
-        desc = util.remove_html_tags(self.description or '')
-        desc = re.sub('\s+', ' ', desc).strip()
-        if not desc:
-            return _('No description available')
-        else:
-            # Decode the description to avoid gPodder bug 1277
-            desc = util.convert_bytes(desc).strip()
-
-            if len(desc) > MAX_LINE_LENGTH:
-                return desc[:MAX_LINE_LENGTH] + '...'
-            else:
-                return desc
-
-    def delete_from_disk(self):
+    def delete(self):
         filename = self.local_filename(create=False, check_only=True)
         if filename is not None:
             gpodder.user_extensions.on_episode_delete(self, filename)
             util.delete_file(filename)
 
-        self.set_state(gpodder.STATE_DELETED)
+        self.state = gpodder.STATE_DELETED
+        self.save()
 
     def get_playback_url(self, fmt_ids=None, allow_partial=False):
         """Local (or remote) playback/streaming filename/URL
@@ -446,14 +391,6 @@ class PodcastEpisode(PodcastModelObject):
             ext = util.extension_from_mimetype(self.mime_type)
         return ext
 
-    def mark_new(self):
-        self.is_new = True
-        self.save()
-
-    def mark_old(self):
-        self.is_new = False
-        self.save()
-
     def file_exists(self):
         filename = self.local_filename(create=False, check_only=True)
         if filename is None:
@@ -468,13 +405,6 @@ class PodcastEpisode(PodcastModelObject):
             return False
         return True
 
-    def sync_filename(self, use_custom=False, custom_format=None):
-        if use_custom:
-            return util.object_string_formatter(custom_format,
-                    episode=self, podcast=self.channel)
-        else:
-            return self.title
-
     def file_type(self):
         # Assume all YouTube/Vimeo links are video files
         if youtube.is_video_link(self.url) or vimeo.is_video_link(self.url):
@@ -483,59 +413,9 @@ class PodcastEpisode(PodcastModelObject):
         return util.file_type_by_extension(self.extension())
 
     @property
-    def basename( self):
-        return os.path.splitext( os.path.basename( self.url))[0]
-
-    @property
-    def pubtime(self):
-        """
-        Returns published time as HHMM (or 0000 if not available)
-        """
-        try:
-            return datetime.datetime.fromtimestamp(self.published).strftime('%H%M')
-        except:
-            logger.warn('Cannot format pubtime: %s', self.title, exc_info=True)
-            return '0000'
-
-    def playlist_title(self):
-        """Return a title for this episode in a playlist
-
-        The title will be composed of the podcast name, the
-        episode name and the publication date. The return
-        value is the canonical representation of this episode
-        in playlists (for example, M3U playlists).
-        """
-        return '%s - %s (%s)' % (self.channel.title, \
-                self.title, \
-                self.cute_pubdate())
-
-    def cute_pubdate(self):
-        result = util.format_date(self.published)
-        if result is None:
-            return '(%s)' % _('unknown')
-        else:
-            return result
-
-    pubdate_prop = property(fget=cute_pubdate)
-
-    def published_datetime(self):
-        return datetime.datetime.fromtimestamp(self.published)
-
-    @property
     def sortdate(self):
-        return self.published_datetime().strftime('%Y-%m-%d')
-
-    @property
-    def pubdate_day(self):
-        return self.published_datetime().strftime('%d')
-
-    @property
-    def pubdate_month(self):
-        return self.published_datetime().strftime('%m')
-
-    @property
-    def pubdate_year(self):
-        return self.published_datetime().strftime('%y')
+        dt = datetime.datetime.fromtimestamp(self.published)
+        return dt.strftime('%Y-%m-%d')
 
     def is_finished(self):
         """Return True if this episode is considered "finished playing"
@@ -548,19 +428,6 @@ class PodcastEpisode(PodcastModelObject):
         return self.current_position > 0 and self.total_time > 0 and \
                 (self.current_position + 10 >= self.total_time or \
                  self.current_position >= self.total_time*.99)
-
-    def get_play_info_string(self, duration_only=False):
-        duration = util.format_time(self.total_time)
-        if duration_only and self.total_time > 0:
-            return duration
-        elif self.current_position > 0 and \
-                self.current_position != self.total_time:
-            position = util.format_time(self.current_position)
-            return '%s / %s' % (position, duration)
-        elif self.total_time > 0:
-            return duration
-        else:
-            return '-'
 
     def update_from(self, episode):
         for k in self.UPDATE_KEYS:
@@ -628,6 +495,10 @@ class PodcastChannel(PodcastModelObject):
     def db(self):
         return self.parent.db
 
+    @property
+    def episodes(self):
+        return self.children
+
     def get_download_strategies(self):
         for value, caption in PodcastChannel.STRATEGIES:
             yield self.download_strategy == value, value, caption
@@ -660,7 +531,7 @@ class PodcastChannel(PodcastModelObject):
                     # File has been deleted by the user - simulate a
                     # delete event (also marks the episode as deleted)
                     logger.debug('Episode deleted: %s', filename)
-                    episode.delete_from_disk()
+                    episode.delete()
                     continue
 
                 known_files.add(filename)
@@ -678,7 +549,7 @@ class PodcastChannel(PodcastModelObject):
         if not external_files:
             return
 
-        all_episodes = self.get_all_episodes()
+        all_episodes = self.episodes
 
         for filename in external_files:
             found = False
@@ -983,11 +854,8 @@ class PodcastChannel(PodcastModelObject):
 
         self._common_prefix = prefix
 
-    def get_all_episodes(self):
-        return self.children
-
     def get_episodes(self, state):
-        return filter(lambda e: e.state == state, self.get_all_episodes())
+        return filter(lambda e: e.state == state, self.children)
 
     def find_unique_folder_name(self, download_folder):
         # Remove trailing dots to avoid errors on Windows (bug 600)

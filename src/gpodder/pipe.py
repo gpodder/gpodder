@@ -103,7 +103,7 @@ class Pipe:
 
     def find_episode(self, id):
         for podcast in self.model.get_podcasts():
-            for episode in podcast.get_all_episodes():
+            for episode in podcast.episodes:
                 if episode.id == int(id):
                     return episode
         raise PipeError('episode not found')
@@ -138,7 +138,7 @@ class Pipe:
     @cmd(int)
     def episodes(self, id):
         podcast = self.find_podcast(id)
-        return 'episodes ' + id + ' ' + self.serialize(self.summarize_episodes(podcast.get_all_episodes()))
+        return 'episodes ' + id + ' ' + self.serialize(self.summarize_episodes(podcast.episodes))
 
     @cmd(int)
     def episode(self, id):

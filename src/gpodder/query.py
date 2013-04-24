@@ -93,7 +93,7 @@ class EQL(object):
     using EQL. Example usage:
 
     >>> q = EQL('downloaded and megabytes > 10')
-    >>> q.filter(channel.get_all_episodes())
+    >>> q.filter(channel.episodes)
 
     >>> EQL('new and video').match(episode)
 

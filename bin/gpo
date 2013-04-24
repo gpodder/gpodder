@@ -405,7 +405,7 @@ class gPodderCli(object):
             return u'   '
 
         episodes = (u'%3d. %s %s' % (i+1, status_str(e), e.title)
-                for i, e in enumerate(podcast.get_all_episodes()))
+                for i, e in enumerate(podcast.episodes))
         return episodes
 
     @FirstArgumentIsPodcastURL
@@ -485,7 +485,7 @@ class gPodderCli(object):
 
             if not podcast.pause_subscription:
                 self._update_podcast(podcast)
-                count += sum(1 for e in podcast.get_all_episodes() if self.is_episode_new(e))
+                count += sum(1 for e in podcast.episodes if self.is_episode_new(e))
             else:
                 self._start_action(_('Skipping %(podcast)s') % {
                     'podcast': podcast.title})
@@ -500,7 +500,7 @@ class gPodderCli(object):
         for podcast in self._model.get_podcasts():
             podcast_printed = False
             if url is None or podcast.url == url:
-                for episode in podcast.get_all_episodes():
+                for episode in podcast.episodes:
                     if self.is_episode_new(episode):
                         if not podcast_printed:
                             safe_print('#', ingreen(podcast.title))
@@ -527,7 +527,7 @@ class gPodderCli(object):
         for podcast in self._model.get_podcasts():
             podcast_printed = False
             if url is None or podcast.url == url:
-                for episode in podcast.get_all_episodes():
+                for episode in podcast.episodes:
                     if self.is_episode_new(episode):
                         if not podcast_printed:
                             safe_print(inblue(podcast.title))

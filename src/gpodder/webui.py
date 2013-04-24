@@ -54,7 +54,7 @@ def json_response(path_parts):
         podcast_id = int(path_parts[1])
         for podcast in core.model.get_podcasts():
             if podcast.id == podcast_id:
-                return map(to_json, podcast.get_all_episodes())
+                return map(to_json, podcast.episodes)
 
     return None
 

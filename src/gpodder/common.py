@@ -65,7 +65,7 @@ def find_partial_downloads(directory, channels, start_progress_callback, progres
         found = 0
 
         for channel in channels:
-            for episode in channel.get_all_episodes():
+            for episode in channel.episodes:
                 filename = episode.local_filename(create=False, check_only=True)
                 if filename in candidates:
                     found += 1
