@@ -38,25 +38,6 @@ import logging
 _ = gpodder.gettext
 
 defaults = {
-    # External applications used for playback
-    'player': {
-        'audio': 'default',
-        'video': 'default',
-    },
-
-    # gpodder.net settings
-    'mygpo': {
-        'enabled': False,
-        'server': 'gpodder.net',
-        'username': '',
-        'password': '',
-        'device': {
-            'uid': util.get_hostname(),
-            'type': 'desktop',
-            'caption': _('gPodder on %s') % util.get_hostname(),
-        },
-    },
-
     # Various limits (downloading, updating, etc..)
     'limit': {
         'bandwidth': {
@@ -87,103 +68,14 @@ defaults = {
         'retries': 3, # number of retries when downloads time out
     },
 
-    # Software updates from gpodder.org (primary audience: Windows users)
-    'software_update': {
-        'check_on_startup': gpodder.ui.win32, # check for updates on start
-        'last_check': 0, # unix timestamp of last update check
-        'interval': 5, # interval (in days) to check for updates
-    },
-
     'ui': {
         # Settings for the Command-Line Interface
         'cli': {
             'colors': True,
         },
-
-        # Settings for the QML UI (MeeGo Harmattan / N9)
-        'qml': {
-            'state': {
-                'episode_list_filter': 0,
-            },
-
-            'autorotate': False,
-        },
-
-        # Settings for the Gtk UI
-        'gtk': {
-            'state': {
-                'main_window': {
-                    'width': 700,
-                    'height': 500,
-                    'x': -1, 'y': -1, 'maximized': False,
-
-                    'paned_position': 200,
-                    'episode_list_size': 200,
-                },
-                'episode_selector': {
-                    'width': 600,
-                    'height': 400,
-                    'x': -1, 'y': -1, 'maximized': False,
-                },
-                'episode_window': {
-                    'width': 500,
-                    'height': 400,
-                    'x': -1, 'y': -1, 'maximized': False,
-                },
-            },
-
-            'toolbar': False,
-            'html_shownotes': True,
-            'new_episodes': 'show', # ignore, show, queue, download
-            'live_search_delay': 200,
-
-            'podcast_list': {
-                'all_episodes': True,
-                'sections': True,
-                'view_mode': 1,
-                'hide_empty': False,
-            },
-
-            'episode_list': {
-                'descriptions': True,
-                'view_mode': 1,
-                'columns': int('101', 2), # bitfield of visible columns
-            },
-
-            'download_list': {
-                'remove_finished': True,
-            },
-        },
     },
 
-    # Synchronization with portable devices (MP3 players, etc..)
-    'device_sync': {
-        'device_type': 'none', # Possible values: 'none', 'filesystem'
-        'device_folder': '/media',
-
-        'one_folder_per_podcast': True,
-        'skip_played_episodes': True,
-        'delete_played_episodes': False,
-
-        'max_filename_length': 999,
-
-        'custom_sync_name': '{episode.sortdate}_{episode.title}',
-        'custom_sync_name_enabled': False,
-
-        'after_sync': {
-            'mark_episodes_played': False,
-            'delete_episodes': False,
-            'sync_disks': False,
-        },
-        'playlists': {
-            'create': True,
-            'two_way_sync': False,
-            'use_absolute_path': True,
-            'folder': 'Playlists',
-        }
-
-    },
-
+    # XXX: Move this to a "plugins" subtree or into "extensions"
     'youtube': {
         'preferred_fmt_id': 18, # default fmt_id (see fallbacks in youtube.py)
         'preferred_fmt_ids': [], # for advanced uses (custom fallback sequence)
@@ -192,39 +84,6 @@ defaults = {
     'extensions': {
         'enabled': [],
     },
-
-    'flattr': {
-        'token': '',
-        'flattr_on_play': False,
-    },
-}
-
-# The sooner this goes away, the better
-gPodderSettings_LegacySupport = {
-    'player': 'player.audio',
-    'videoplayer': 'player.video',
-    'limit_rate': 'limit.bandwidth.enabled',
-    'limit_rate_value': 'limit.bandwidth.kbps',
-    'max_downloads_enabled': 'limit.downloads.enabled',
-    'max_downloads': 'limit.downloads.concurrent',
-    'episode_old_age': 'auto.cleanup.days',
-    'auto_remove_played_episodes': 'auto.cleanup.played',
-    'auto_remove_unfinished_episodes': 'auto.cleanup.unfinished',
-    'auto_remove_unplayed_episodes': 'auto.cleanup.unplayed',
-    'max_episodes_per_feed': 'limit.episodes',
-    'show_toolbar': 'ui.gtk.toolbar',
-    'episode_list_descriptions': 'ui.gtk.episode_list.descriptions',
-    'podcast_list_view_all': 'ui.gtk.podcast_list.all_episodes',
-    'podcast_list_sections': 'ui.gtk.podcast_list.sections',
-    'enable_html_shownotes': 'ui.gtk.html_shownotes',
-    'episode_list_view_mode': 'ui.gtk.episode_list.view_mode',
-    'podcast_list_view_mode': 'ui.gtk.podcast_list.view_mode',
-    'podcast_list_hide_boring': 'ui.gtk.podcast_list.hide_empty',
-    'episode_list_columns': 'ui.gtk.episode_list.columns',
-    'auto_cleanup_downloads': 'ui.gtk.download_list.remove_finished',
-    'auto_update_feeds': 'auto.update.enabled',
-    'auto_update_frequency': 'auto.update.frequency',
-    'auto_download': 'ui.gtk.new_episodes',
 }
 
 logger = logging.getLogger(__name__)
@@ -367,9 +226,7 @@ class Config(object):
         return True
 
     def _on_key_changed(self, name, old_value, value):
-        if 'ui.gtk.state' not in name:
-            # Only log non-UI state changes
-            logger.debug('%s: %s -> %s', name, old_value, value)
+        logger.debug('%s: %s -> %s', name, old_value, value)
         for observer in self.__observers:
             try:
                 observer(name, old_value, value)
@@ -380,18 +237,12 @@ class Config(object):
         self.schedule_save()
 
     def __getattr__(self, name):
-        if name in gPodderSettings_LegacySupport:
-            name = gPodderSettings_LegacySupport[name]
-
         return getattr(self.__json_config, name)
 
     def __setattr__(self, name, value):
         if name.startswith('_'):
             object.__setattr__(self, name, value)
             return
-
-        if name in gPodderSettings_LegacySupport:
-            name = gPodderSettings_LegacySupport[name]
 
         setattr(self.__json_config, name, value)
 
