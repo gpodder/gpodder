@@ -73,13 +73,6 @@ except ImportError:
 import StringIO
 import xml.dom.minidom
 
-if gpodder.ui.win32:
-    try:
-        import win32file
-    except ImportError:
-        logger.warn('Running on Win32 but win32api/win32file not installed.')
-        win32file = None
-
 _ = gpodder.gettext
 N_ = gpodder.ngettext
 
@@ -98,16 +91,13 @@ if encoding is None:
         lang = os.environ['LANG']
         (language, encoding) = lang.rsplit('.', 1)
         logger.info('Detected encoding: %s', encoding)
-    elif gpodder.ui.harmattan or gpodder.ui.sailfish:
-        encoding = 'utf-8'
-    elif gpodder.ui.win32:
+    elif (platform.system() == 'Windows'):
         # To quote http://docs.python.org/howto/unicode.html:
         # ,,on Windows, Python uses the name "mbcs" to refer
         #   to whatever the currently configured encoding is``
         encoding = 'mbcs'
     else:
-        encoding = 'iso-8859-15'
-        logger.info('Assuming encoding: ISO-8859-15 ($LANG not set).')
+        encoding = 'utf-8'
 
 
 # Filename / folder name sanitization
@@ -1540,9 +1530,10 @@ def detect_device_type():
     Possible return values:
     desktop, laptop, mobile, server, other
     """
-    if gpodder.ui.harmattan or gpodder.ui.sailfish:
-        return 'mobile'
-    elif glob.glob('/proc/acpi/battery/*'):
+    #if gpodder.ui.harmattan or gpodder.ui.sailfish:
+    #    return 'mobile'
+
+    if glob.glob('/proc/acpi/battery/*'):
         # Linux: If we have a battery, assume Laptop
         return 'laptop'
 

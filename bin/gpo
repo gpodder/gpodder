@@ -114,20 +114,10 @@ _ = gpodder.gettext
 N_ = gpodder.ngettext
 
 gpodder.images_folder = os.path.join(prefix, 'share', 'gpodder', 'images')
-gpodder.prefix = prefix
 
-# This is the command-line UI variant
-gpodder.ui.cli = True
-
-# Platform detection (i.e. MeeGo 1.2 Harmattan, etc..)
-gpodder.detect_platform()
-
-have_ansi = sys.stdout.isatty() and not gpodder.ui.win32
+have_ansi = sys.stdout.isatty()
 interactive_console = sys.stdin.isatty() and sys.stdout.isatty()
 is_single_command = False
-
-from gpodder import log
-log.setup(verbose)
 
 from gpodder import core
 from gpodder import download
@@ -196,8 +186,8 @@ class gPodderCli(object):
     COLUMNS = 80
     EXIT_COMMANDS = ('quit', 'exit', 'bye')
 
-    def __init__(self):
-        self.core = core.Core()
+    def __init__(self, prefix, verbose):
+        self.core = core.Core(prefix=prefix, verbose=verbose)
         self._db = self.core.db
         self._config = self.core.config
         self._model = self.core.model
@@ -827,7 +817,7 @@ def stylize(s):
 
 if __name__ == '__main__':
     logger = logging.getLogger(__name__)
-    cli = gPodderCli()
+    cli = gPodderCli(prefix, verbose)
     args = sys.argv[1:]
     if args:
         is_single_command = True

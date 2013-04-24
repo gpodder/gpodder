@@ -28,29 +28,105 @@ from gpodder import config
 from gpodder import dbsqlite
 from gpodder import extensions
 from gpodder import model
+from gpodder import log
+
+import sys
+import os
+import gettext
+
+def set_socket_timeout():
+    # Set up socket timeouts to fix bug 174
+    SOCKET_TIMEOUT = 60
+    import socket
+    socket.setdefaulttimeout(SOCKET_TIMEOUT)
+
+def init_i18n():
+    # i18n setup (will result in "gettext" to be available)
+    # Use   _ = gpodder.gettext   in modules to enable string translations
+    textdomain = 'gpodder'
+    locale_dir = gettext.bindtextdomain(textdomain)
+    t = gettext.translation(textdomain, locale_dir, fallback=True)
+
+    try:
+        # Python 2
+        gpodder.gettext = t.ugettext
+        gpodder.ngettext = t.ungettext
+    except AttributeError:
+        # Python 3
+        gpodder.gettext = t.gettext
+        gpodder.ngettext = t.ngettext
 
 
 class Core(object):
     def __init__(self,
                  config_class=config.Config,
                  database_class=dbsqlite.Database,
-                 model_class=model.Model):
+                 model_class=model.Model,
+                 prefix=None,
+                 verbose=True):
+        init_i18n()
+        set_socket_timeout()
+
+        self.prefix = prefix
+        if not self.prefix:
+            # XXX
+            self.prefix = os.path.abspath('.')
+
+        # Home folder: ~/gPodder or $GPODDER_HOME (if set)
+        self.home = os.path.abspath(os.environ.get('GPODDER_HOME',
+                os.path.expanduser(os.path.join('~', 'gPodder'))))
+
+        # Setup logging
+        log.setup(self.home, verbose)
+
+        config_file = os.path.join(self.home, 'Settings.json')
+        database_file = os.path.join(self.home, 'Database')
+        # Downloads folder: <home>/Downloads or $GPODDER_DOWNLOAD_DIR (if set)
+        self.downloads = os.environ.get('GPODDER_DOWNLOAD_DIR',
+                os.path.join(self.home, 'Downloads'))
+
         # Initialize the gPodder home directory
-        util.make_directory(gpodder.home)
+        util.make_directory(self.home)
 
         # Open the database and configuration file
-        self.db = database_class(gpodder.database_file)
-        self.model = model_class(self.db)
-        self.config = config_class(gpodder.config_file)
+        self.db = database_class(database_file)
+        self.model = model_class(self)
+        self.config = config_class(config_file)
 
         # Load extension modules and install the extension manager
         gpodder.user_extensions = extensions.ExtensionManager(self)
 
         # Load installed/configured plugins
-        gpodder.load_plugins()
+        self.load_plugins()
 
         # Update the current device in the configuration
         self.config.mygpo.device.type = util.detect_device_type()
+
+    def load_plugins(self):
+        """Load (non-essential) plugin modules
+
+        This loads a default set of plugins, but you can use
+        the environment variable "GPODDER_PLUGINS" to modify
+        the list of plugins.
+        """
+
+        # Plugins to load by default
+        DEFAULT_PLUGINS = [
+            'gpodder.plugins.soundcloud',
+            'gpodder.plugins.xspf',
+            'gpodder.plugins.parser2',
+        ]
+
+        PLUGINS = os.environ.get('GPODDER_PLUGINS', None)
+        if PLUGINS is None:
+            PLUGINS = DEFAULT_PLUGINS
+        else:
+            PLUGINS = PLUGINS.split()
+        for plugin in PLUGINS:
+            try:
+                __import__(plugin)
+            except Exception, e:
+                print >>sys.stderr, 'Cannot load plugin: %s (%s)' % (plugin, e)
 
     def shutdown(self):
         # Notify all extensions that we are being shut down

@@ -32,30 +32,31 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def clean_up_downloads(delete_partial=False):
+def clean_up_downloads(directory, delete_partial=False):
     """Clean up temporary files left behind by old gPodder versions
 
     delete_partial - If True, also delete in-progress downloads
     """
-    temporary_files = glob.glob('%s/*/.tmp-*' % gpodder.downloads)
+    temporary_files = glob.glob('%s/*/.tmp-*' % directory)
 
     if delete_partial:
-        temporary_files += glob.glob('%s/*/*.partial' % gpodder.downloads)
+        temporary_files += glob.glob('%s/*/*.partial' % directory)
 
     for tempfile in temporary_files:
         util.delete_file(tempfile)
 
 
-def find_partial_downloads(channels, start_progress_callback, progress_callback, finish_progress_callback):
+def find_partial_downloads(directory, channels, start_progress_callback, progress_callback, finish_progress_callback):
     """Find partial downloads and match them with episodes
 
+    directory - Download directory
     channels - A list of all model.PodcastChannel objects
     start_progress_callback - A callback(count) when partial files are searched
     progress_callback - A callback(title, progress) when an episode was found
     finish_progress_callback - A callback(resumable_episodes) when finished
     """
     # Look for partial file downloads
-    partial_files = glob.glob(os.path.join(gpodder.downloads, '*', '*.partial'))
+    partial_files = glob.glob(os.path.join(directory, '*', '*.partial'))
     count = len(partial_files)
     resumable_episodes = []
     if count:
@@ -91,7 +92,7 @@ def find_partial_downloads(channels, start_progress_callback, progress_callback,
 
         finish_progress_callback(resumable_episodes)
     else:
-        clean_up_downloads(True)
+        clean_up_downloads(directory, True)
 
 def get_expired_episodes(channels, config):
     for channel in channels:

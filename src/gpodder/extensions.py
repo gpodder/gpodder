@@ -161,7 +161,8 @@ class ExtensionMetadata(object):
             return default
 
         uis = filter(None, [x.strip() for x in getattr(self, target).split(',')])
-        return any(getattr(gpodder.ui, ui.lower(), False) for ui in uis)
+        # FIXME return any(getattr(gpodder.ui, ui.lower(), False) for ui in uis)
+        return False
 
     @property   
     def available_for_current_ui(self):
@@ -366,9 +367,9 @@ class ExtensionManager(object):
         extensions = {}
 
         if not self.filenames:
-            builtins = os.path.join(gpodder.prefix, 'share', 'gpodder',
+            builtins = os.path.join(self.core.prefix, 'share', 'gpodder',
                 'extensions', '*.py')
-            user_extensions = os.path.join(gpodder.home, 'Extensions', '*.py')
+            user_extensions = os.path.join(self.core.home, 'Extensions', '*.py')
             self.filenames = glob.glob(builtins) + glob.glob(user_extensions)
 
         # Let user extensions override built-in extensions of the same name

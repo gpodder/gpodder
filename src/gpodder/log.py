@@ -33,7 +33,7 @@ import traceback
 
 logger = logging.getLogger(__name__)
 
-def setup(verbose=True):
+def setup(home, verbose=True):
     # Configure basic stdout logging
     STDOUT_FMT = '%(created)f [%(name)s] %(levelname)s: %(message)s'
     logging.basicConfig(format=STDOUT_FMT,
@@ -50,7 +50,7 @@ def setup(verbose=True):
     if os.environ.get('GPODDER_WRITE_LOGS', 'yes') != 'no':
         # Configure file based logging
         logging_basename = time.strftime('%Y-%m-%d.log')
-        logging_directory = os.path.join(gpodder.home, 'Logs')
+        logging_directory = os.path.join(home, 'Logs')
         if not os.path.isdir(logging_directory):
             try:
                 os.makedirs(logging_directory)
@@ -80,8 +80,7 @@ def setup(verbose=True):
         file_handler.setFormatter(logging.Formatter(FILE_FMT))
         root.addHandler(file_handler)
 
-    logger.debug('==== gPodder starts up (ui=%s) ===', ', '.join(name
-        for name in ('cli', 'gtk', 'qml') if getattr(gpodder.ui, name, False)))
+    logger.debug('==== gPodder starts up ====')
 
     return True
 

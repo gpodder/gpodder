@@ -949,8 +949,8 @@ class PodcastChannel(PodcastModelObject):
 
         new_folder_name = self.find_unique_folder_name(new_title)
         if new_folder_name and new_folder_name != self.download_folder:
-            new_folder = os.path.join(gpodder.downloads, new_folder_name)
-            old_folder = os.path.join(gpodder.downloads, self.download_folder)
+            new_folder = os.path.join(self.model.core.downloads, new_folder_name)
+            old_folder = os.path.join(self.model.core.downloads, self.download_folder)
             if os.path.exists(old_folder):
                 if not os.path.exists(new_folder):
                     # Old folder exists, new folder does not -> simply rename
@@ -1012,7 +1012,7 @@ class PodcastChannel(PodcastModelObject):
 
             # Try removing the download folder if it has been created previously
             if self.download_folder is not None:
-                folder = os.path.join(gpodder.downloads, self.download_folder)
+                folder = os.path.join(self.model.core.downloads, self.download_folder)
                 try:
                     os.rmdir(folder)
                 except OSError:
@@ -1023,7 +1023,7 @@ class PodcastChannel(PodcastModelObject):
             self.download_folder = download_folder
             self.save()
 
-        save_dir = os.path.join(gpodder.downloads, self.download_folder)
+        save_dir = os.path.join(self.model.core.downloads, self.download_folder)
 
         # Avoid encoding errors for OS-specific functions (bug 1570)
         save_dir = util.sanitize_encoding(save_dir)
@@ -1053,8 +1053,9 @@ class PodcastChannel(PodcastModelObject):
 class Model(object):
     PodcastClass = PodcastChannel
 
-    def __init__(self, db):
-        self.db = db
+    def __init__(self, core):
+        self.core = core
+        self.db = self.core.db
         self.children = None
 
     def _append_podcast(self, podcast):
