@@ -256,8 +256,8 @@ Item {
             Action {
                 text: _('Update')
                 onClicked: {
-                    controller.updatePodcast(main.currentPodcast)
-		    main.showMessage(_('Updating podcast'))
+                    controller.updatePodcast(main.currentPodcast);
+                    main.showMessage(_('Updating podcast'));
                 }
             },
             Action {
