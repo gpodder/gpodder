@@ -17,14 +17,14 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-# gpodder.podcastparser - Simplified, fast RSS parser
+# podcastparser - Simplified, fast RSS parser
 # Thomas Perl <thp@gpodder.org>; 2012-12-29
 
 from xml import sax
 
 from gpodder import util
-from gpodder import youtube
-from gpodder import vimeo
+
+from gpodder.plugins import youtube, vimeo
 
 import re
 import os
@@ -225,7 +225,7 @@ class Namespace():
             prefix = self.NAMESPACES.get(namespace_uri)
             if prefix is None and namespace:
                 # Proper use of namespaces, but unknown namespace
-                logger.warn('Unknown namespace: %s', namespace_uri)
+                #logger.warn('Unknown namespace: %s', namespace_uri)
                 # We prefix the tag name here to make sure that it does not
                 # match any other tag below if we can't recognize the namespace
                 name = '!%s:%s' % (namespace, name)

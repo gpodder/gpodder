@@ -26,10 +26,10 @@
 
 import gpodder
 from gpodder import util
-from gpodder import youtube
-from gpodder import vimeo
 from gpodder import schema
 from gpodder import coverart
+
+from gpodder.plugins import youtube, vimeo
 
 import logging
 logger = logging.getLogger(__name__)

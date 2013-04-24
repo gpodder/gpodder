@@ -37,17 +37,6 @@ import locale
 
 # Check if real hard dependencies are available
 try:
-    import mygpoclient
-except ImportError:
-    print """
-  Error: Module "mygpoclient" (python-mygpoclient) not found.
-         The mygpoclient module can be downloaded from
-         http://thp.io/2010/mygpoclient/
-"""
-    sys.exit(1)
-del mygpoclient
-
-try:
     import sqlite3
 except ImportError:
     print """

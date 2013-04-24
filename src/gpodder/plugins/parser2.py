@@ -27,7 +27,8 @@ _ = gpodder.gettext
 
 from gpodder import model
 from gpodder import util
-from gpodder import podcastparser
+
+import podcastparser
 
 import urllib2
 

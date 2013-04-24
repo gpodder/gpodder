@@ -57,7 +57,6 @@
 
   - Other commands -
 
-    youtube URL                Resolve the YouTube URL to a download URL
     rewrite OLDURL NEWURL      Change the feed URL of [OLDURL] to [NEWURL]
     webui [public]             Start gPodder's Web UI server
                                (public = listen on all network interfaces)
@@ -132,10 +131,8 @@ log.setup(verbose)
 
 from gpodder import core
 from gpodder import download
-from gpodder import my
 from gpodder import opml
 from gpodder import util
-from gpodder import youtube
 from gpodder.config import config_value_to_string
 
 def incolor(color_id, s):
@@ -578,13 +575,6 @@ class gPodderCli(object):
                 podcast.save()
             self._db.commit()
             self._error(_('Enabling feed update from %s.') % url)
-
-        return True
-
-    def youtube(self, url):
-        fmt_ids = youtube.get_fmt_ids(self._config.youtube)
-        yurl = youtube.get_real_download_url(url, fmt_ids)
-        safe_print(yurl)
 
         return True
 

@@ -30,7 +30,8 @@ import logging
 logger = logging.getLogger(__name__)
 
 from gpodder import util
-from gpodder import youtube
+
+from gpodder.plugins import youtube
 
 import os
 
