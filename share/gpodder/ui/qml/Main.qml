@@ -1,3 +1,4 @@
+
 import QtQuick 1.1
 
 import org.gpodder.qmlui 1.0
@@ -165,7 +166,7 @@ Item {
         } else {
             mediaPlayer.enqueueEpisode(episode);
             /* Let the user know that the episode was correctly added to the playlist */
-            main.showMessage(_('The episode has been added to the playlist'));
+            main.showMessage(_('Episode added to playlist'));
         }
     }
 
