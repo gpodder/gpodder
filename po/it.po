@@ -11,8 +11,8 @@ msgstr ""
 "Project-Id-Version: gPodder\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2013-04-10 17:49+0200\n"
-"PO-Revision-Date: 2013-01-19 12:30+0000\n"
-"Last-Translator: Thomas Perl <m@thp.io>\n"
+"PO-Revision-Date: 2013-04-23 17:31+0100\n"
+"Last-Translator: Maurizio Ballo <xmaurizio.13@hotmail.com>\n"
 "Language-Team: Italian (http://www.transifex.com/projects/p/gpodder/language/"
 "it/)\n"
 "Language: it\n"
@@ -20,6 +20,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 1.5.4\n"
 
 #: src/gpodder/config.py:55
 #, python-format
@@ -295,7 +296,7 @@ msgstr "Comando non trovato: %(command)s"
 #: src/gpodder/extensions.py:227
 #, python-format
 msgid "Need at least one of the following commands: %(list_of_commands)s"
-msgstr ""
+msgstr "Necessita almeno uno dei seguenti commandi: %(list_of_commands)s"
 
 #: src/gpodder/extensions.py:264
 #, python-format
@@ -1007,7 +1008,7 @@ msgstr "Segnala un problema"
 #: src/gpodder/gtkui/main.py:3232
 msgid "translator-credits"
 msgstr ""
-"traduttore ultima versione 3.2.0 \n"
+"traduttore ultima versione 3.5.1 \n"
 "Maurizio Ballo \n"
 "email: xmaurizio.13@hotmail.com\n"
 "\n"
@@ -1339,9 +1340,8 @@ msgid "Select folder for mount point"
 msgstr "Seleziona una cartella per il montaggio"
 
 #: src/gpodder/gtkui/desktop/preferences.py:584
-#, fuzzy
 msgid "Select folder for playlists"
-msgstr "Seleziona una cartella per il montaggio"
+msgstr "Seleziona cartella per le playlist"
 
 #: src/gpodder/gtkui/desktop/podcastdirectory.py:62
 #: share/gpodder/ui/qml/Subscribe.qml:63
@@ -1395,14 +1395,13 @@ msgid "size: %s"
 msgstr "dimensione: %s"
 
 #: src/gpodder/gtkui/desktop/deviceplaylist.py:98
-#, fuzzy, python-format
+#, python-format
 msgid "Folder %s could not be created."
-msgstr "Impossibile aggiornare il feed su %(url)s."
+msgstr "La cartella %s non può essere creata."
 
 #: src/gpodder/gtkui/desktop/deviceplaylist.py:98
-#, fuzzy
 msgid "Error writing playlist"
-msgstr "Errore nell'accesso al lettore"
+msgstr "Errore scrittura playlist"
 
 #: src/gpodder/gtkui/desktop/channel.py:98
 msgid "Add section"
@@ -1459,22 +1458,20 @@ msgstr ""
 "Vuoi continuare?"
 
 #: src/gpodder/gtkui/desktop/sync.py:196
-#, fuzzy
 msgid "Update successful"
-msgstr "Elenco caricato con successo."
+msgstr "Aggiornamento riuscito"
 
 #: src/gpodder/gtkui/desktop/sync.py:197
 msgid "The playlist on your MP3 player has been updated."
-msgstr ""
+msgstr "La playlist sul lettore MP3 è stata aggiornata."
 
 #: src/gpodder/gtkui/desktop/sync.py:270
 msgid "Episodes have been deleted on device"
-msgstr ""
+msgstr "Gli episodi sono stati cancellati dal dispositivo"
 
 #: src/gpodder/gtkui/desktop/sync.py:281
-#, fuzzy
 msgid "Error writing playlist files"
-msgstr "Errore nella conversione del file."
+msgstr "Errore di scrittura playlist"
 
 #: src/gpodder/qmlui/__init__.py:64
 msgid "All"
@@ -1605,9 +1602,8 @@ msgid "Adding podcasts..."
 msgstr "Aggiunta podcast..."
 
 #: src/gpodder/qmlui/__init__.py:807
-#, fuzzy
 msgid "Could not add some podcasts:"
-msgstr "Impossibile aggiungere alcuni podcast"
+msgstr "Impossibile aggiungere alcuni podcast: "
 
 #: src/gpodder/qmlui/__init__.py:1134
 msgid "Resume"
@@ -1639,11 +1635,11 @@ msgstr "Tracce preferite di %s su Soundcloud."
 
 #: share/gpodder/extensions/ted_subtitles.py:16
 msgid "Subtitle Downloader for TED Talks"
-msgstr "Scaricare sottotitoli per TED Talks"
+msgstr "Scarica sottotitoli per TED Talks"
 
 #: share/gpodder/extensions/ted_subtitles.py:17
 msgid "Downloads .srt subtitles for TED Talks Videos"
-msgstr "Scarica sottotitoli .str per video TED Talks"
+msgstr "Scarica sottotitoli con estensione .str per video TED Talks"
 
 #: share/gpodder/extensions/rockbox_convert2mp4.py:26
 msgid "Convert video files to MP4 for Rockbox"
@@ -1677,13 +1673,12 @@ msgid "Quit"
 msgstr "Esci"
 
 #: share/gpodder/extensions/taskbar_progress.py:28
-#, fuzzy
 msgid "Show download progress on the taskbar"
-msgstr "Mostra progresso dei download nell'icona."
+msgstr "Mostra progresso dei download nella barra"
 
 #: share/gpodder/extensions/taskbar_progress.py:29
 msgid "Displays the progress on the Windows taskbar."
-msgstr ""
+msgstr "Visualizza avanzamento nella barra di Windows."
 
 #: share/gpodder/extensions/rename_download.py:16
 msgid "Rename episodes after download"
@@ -1691,17 +1686,16 @@ msgstr "Rinomina episodi dopo il download"
 
 #: share/gpodder/extensions/rename_download.py:17
 msgid "Rename episodes to \"<Episode Title>.<ext>\" on download"
-msgstr "Rinomina episodi in \"<Episode Title>.<ext>\" dopo il download"
+msgstr ""
+"Rinomina episodi in \"<Titolo Episodio>.<estensione>\" dopo il download"
 
 #: share/gpodder/extensions/video_converter.py:22
-#, fuzzy
 msgid "Convert video files"
-msgstr "Conversione non riuscita"
+msgstr "Converti file video"
 
 #: share/gpodder/extensions/video_converter.py:23
-#, fuzzy
 msgid "Transcode video files to avi/mp4/m4v"
-msgstr "Transcodifica file .mp4 in .mp3 o .ogg utilizzanzo ffmpeg"
+msgstr "Codifica in file video avi/mp4m4v "
 
 #: share/gpodder/extensions/video_converter.py:84
 #: share/gpodder/extensions/audio_converter.py:82
@@ -1720,7 +1714,7 @@ msgstr "Rimuovi copertina dai file OGG"
 
 #: share/gpodder/extensions/rm_ogg_cover.py:38
 msgid "removes coverart from all downloaded ogg files"
-msgstr "rimuovi copertina da tutti i download dei file ogg"
+msgstr "Rimuovi la copertina da tutti i download dei file ogg"
 
 #: share/gpodder/extensions/rm_ogg_cover.py:64
 msgid "Remove cover art"
@@ -1734,8 +1728,7 @@ msgstr "Metti in coda nel lettore multimediale"
 msgid ""
 "Add a context menu item for enqueueing episodes in installed media players"
 msgstr ""
-"Aggiungi una voce nel menù contestuale dei lettori installati per gli "
-"episodi in coda"
+"Aggiungi al menù contestuale del lettore riferimento agli episodi in coda"
 
 #: share/gpodder/extensions/enqueue_in_mediaplayer.py:24
 msgid "Enqueue in"
@@ -1755,7 +1748,7 @@ msgstr "Normalizza audio tramite ricodifica"
 
 #: share/gpodder/extensions/normalize_audio.py:22
 msgid "Normalize the volume of audio files with normalize-audio"
-msgstr "Normalizza il volume dei file audio con il normalizzatore audio"
+msgstr "Livella il volume dei file audio con normalizzatore-audio"
 
 #: share/gpodder/extensions/normalize_audio.py:84
 msgid "File normalized"
@@ -1771,11 +1764,11 @@ msgstr "Mostra un'icona di stato per i desktop basati su Gtk."
 
 #: share/gpodder/extensions/sonos.py:19 share/gpodder/extensions/sonos.py:78
 msgid "Stream to Sonos"
-msgstr ""
+msgstr "Invia a Sonos"
 
 #: share/gpodder/extensions/sonos.py:20
 msgid "Stream podcasts to Sonos speakers"
-msgstr ""
+msgstr "Invia streaming podcast ad altoparlanti Sonos"
 
 #: share/gpodder/extensions/minimize_on_start.py:10
 msgid "Minimize on start"
@@ -1786,22 +1779,20 @@ msgid "Minimizes the gPodder window on startup."
 msgstr "Minimizzza la finestra di gPodder all'avvio."
 
 #: share/gpodder/extensions/audio_converter.py:20
-#, fuzzy
 msgid "Convert audio files"
-msgstr "Conversione non riuscita"
+msgstr "Converti file audio"
 
 #: share/gpodder/extensions/audio_converter.py:21
-#, fuzzy
 msgid "Transcode audio files to mp3/ogg"
-msgstr "Transcodifica file .mp4 in .mp3 o .ogg utilizzanzo ffmpeg"
+msgstr "Codifica in file audio mp3/ogg "
 
 #: share/gpodder/extensions/tagging.py:38
 msgid "Tag downloaded files using Mutagen"
-msgstr "Tagga i file scaricati usando Mutagen"
+msgstr "Tagga i file scaricati utilizzando Mutagen"
 
 #: share/gpodder/extensions/tagging.py:39
 msgid "Add episode and podcast titles to MP3/OGG tags"
-msgstr "Aggiungi titoli di episodi e podcast ai tag MP3/OGG"
+msgstr "Aggiungi i titoli degli episodi e podcast ai tag MP3/OGG"
 
 #: share/gpodder/extensions/ubuntu_unity.py:10
 msgid "Ubuntu Unity Integration"
@@ -1968,7 +1959,7 @@ msgstr "_Visualizza"
 
 #: share/gpodder/ui/gtk/gpodder.ui.h:29
 msgid "\"All episodes\" in podcast list"
-msgstr " \"Tutti gli episodi\" nella lista degli episodi"
+msgstr "\"Tutti gli episodi\" nella lista degli episodi"
 
 #: share/gpodder/ui/gtk/gpodder.ui.h:30
 msgid "Use sections for podcast list"
@@ -2072,7 +2063,7 @@ msgstr "Formato video preferito: "
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:6
 msgid "Extensions"
-msgstr "Estensione"
+msgstr "Estensioni"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:9
 msgid "Automatically flattr episodes on playback"
@@ -2109,7 +2100,7 @@ msgstr "Quando vengono trovati nuovi episodi:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:19
 msgid "Updating"
-msgstr "Aggiornamento in corso"
+msgstr "Aggiornamento"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:20
 msgid "Delete played episodes:"
@@ -2140,18 +2131,16 @@ msgid "After syncing an episode:"
 msgstr "Dopo la sincronizzazione di un episodio:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:27
-#, fuzzy
 msgid "Create playlists on device"
-msgstr "Sostituisci la lista sul server"
+msgstr "Crea playlist sull'unità "
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:28
-#, fuzzy
 msgid "Playlists Folder:"
-msgstr "Playlist vuota"
+msgstr "Cartella Playlist: "
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:29
 msgid "Remove episodes deleted on device from gPodder"
-msgstr ""
+msgstr "Elimina da gPodder gli episodi cancellati sul dispositivo"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:30
 msgid "Only sync unplayed episodes"
@@ -2194,9 +2183,8 @@ msgid "Now playing"
 msgstr "In esecuzione"
 
 #: share/gpodder/ui/qml/main_default.qml:37
-#, fuzzy
 msgid "Add podcast"
-msgstr "Aggiunta dei podcast"
+msgstr "Aggiungi podcast"
 
 #: share/gpodder/ui/qml/main_default.qml:41
 msgid "Settings"
@@ -2215,14 +2203,12 @@ msgid "Credits"
 msgstr "Crediti"
 
 #: share/gpodder/ui/qml/main_default.qml:239
-#, fuzzy
 msgid "gPodder.net Login"
-msgstr "gpodder.net"
+msgstr "login a gpodder.net"
 
 #: share/gpodder/ui/qml/main_default.qml:244
-#, fuzzy
 msgid "Credentials"
-msgstr "Crediti"
+msgstr "Credenziali"
 
 #: share/gpodder/ui/qml/main_default.qml:256
 msgid "Device name"
@@ -2257,9 +2243,8 @@ msgid "Enable synchronization"
 msgstr "Abilita sincronizzazione"
 
 #: share/gpodder/ui/qml/main_default.qml:374
-#, fuzzy
 msgid "Sign in to gPodder.net"
-msgstr "Login su gpodder.net"
+msgstr "Accesso a gpodder.net"
 
 #: share/gpodder/ui/qml/main_default.qml:393
 msgid "Replace list on server"
@@ -2377,9 +2362,9 @@ msgid "You are not subscribed to %s."
 msgstr "Non hai sottoscritto %s."
 
 #: bin/gpo:325
-#, fuzzy, python-format
+#, python-format
 msgid "Already subscribed to %s."
-msgstr "Impossibile sottoscrivere %s."
+msgstr "Già sottoscritto a %s."
 
 #: bin/gpo:331
 #, python-format
@@ -2471,27 +2456,24 @@ msgid "Syntax error: %(error)s"
 msgstr "Errore di Sintassi: %(error)s"
 
 #: bin/gpo:824
-#, fuzzy
 msgid "Ambiguous command. Did you mean.."
-msgstr "Comando ambiguo. Intendevi..."
+msgstr "Comando ambiguo. Si ntendeva..."
 
 #: bin/gpo:828
 msgid "The requested function is not available."
 msgstr "La funzione richiesta non è disponibile."
 
 #: bin/gpodder:108
-#, fuzzy
 msgid "print logging output on the console"
-msgstr "Mostra l'output di debug sullo standard output"
+msgstr "Stampa dati di login sulla console"
 
 #: bin/gpodder:112
 msgid "use the QML-based MeeGo 1.2 Harmattan UI"
-msgstr ""
+msgstr "usa MeeGo 1.2 Harmattan UI basato su QML"
 
 #: bin/gpodder:115
-#, fuzzy
 msgid "subscribe to the feed at URL"
-msgstr "Iscriviti al URL dato"
+msgstr "Sottoscrivi feedi all' URL"
 
 #: bin/gpodder:120
 msgid "Mac OS X application process number"
