@@ -39,7 +39,7 @@ import os
 import re
 import sys
 import threading
-import Queue
+import queue
 import time
 import fcntl
 
@@ -65,8 +65,8 @@ class Pipe:
 
         self.reader = reader
         self.writer = writer
-        self.events_in = Queue.Queue()
-        self.events_out = Queue.Queue()
+        self.events_in = queue.Queue()
+        self.events_out = queue.Queue()
 
     def event_writer_proc(self):
         while True:
@@ -85,10 +85,10 @@ class Pipe:
                         result = func(*args)
                         if result:
                             self.event_out(result)
-                    except PipeError, e:
+                    except PipeError as e:
                         self.event_out('! %s' % e)
-                    except Exception, e:
-                        print >>sys.stderr, 'FAIL:', e
+                    except Exception as e:
+                        print('FAIL:', e, file=sys.stderr)
                         self.event_out('! %s' % e)
                         raise
                     continue

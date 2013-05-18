@@ -48,16 +48,16 @@ import string
 
 import re
 import subprocess
-from htmlentitydefs import entitydefs
+from html.entities import entitydefs
 import time
 import gzip
 import datetime
 import threading
 
-import urlparse
-import urllib
-import urllib2
-import httplib
+import urllib.parse
+import urllib.request, urllib.parse, urllib.error
+import urllib.request, urllib.error, urllib.parse
+import http.client
 import webbrowser
 import mimetypes
 import itertools
@@ -70,7 +70,7 @@ except ImportError:
     from email.utils import mktime_tz, parsedate_tz
 
 
-import StringIO
+import io
 import xml.dom.minidom
 
 _ = gpodder.gettext
@@ -81,7 +81,7 @@ win32 = (platform.system() == 'Windows')
 import locale
 try:
     locale.setlocale(locale.LC_ALL, '')
-except Exception, e:
+except Exception as e:
     logger.warn('Cannot set locale (%s)', e, exc_info=True)
 
 # Native filesystem encoding detection
@@ -112,7 +112,7 @@ def _sanitize_char(c):
 
     return c
 
-SANITIZATION_TABLE = ''.join(map(_sanitize_char, map(chr, range(256))))
+SANITIZATION_TABLE = ''.join(map(_sanitize_char, list(map(chr, list(range(256))))))
 del _sanitize_char
 
 _MIME_TYPE_LIST = [
@@ -212,7 +212,7 @@ def normalize_feed_url(url):
             'ytpl:': 'http://gdata.youtube.com/feeds/api/playlists/%s',
     }
 
-    for prefix, expansion in PREFIXES.iteritems():
+    for prefix, expansion in PREFIXES.items():
         if url.startswith(prefix):
             url = expansion % (url[len(prefix):],)
             break
@@ -221,7 +221,7 @@ def normalize_feed_url(url):
     if not '://' in url:
         url = 'http://' + url
 
-    scheme, netloc, path, query, fragment = urlparse.urlsplit(url)
+    scheme, netloc, path, query, fragment = urllib.parse.urlsplit(url)
 
     # Schemes and domain names are case insensitive
     scheme, netloc = scheme.lower(), netloc.lower()
@@ -238,7 +238,7 @@ def normalize_feed_url(url):
         return None
 
     # urlunsplit might return "a slighty different, but equivalent URL"
-    return urlparse.urlunsplit((scheme, netloc, path, query, fragment))
+    return urllib.parse.urlunsplit((scheme, netloc, path, query, fragment))
 
 
 def username_password_from_url(url):
@@ -278,12 +278,12 @@ def username_password_from_url(url):
     >>> username_password_from_url('http://example.com/x@y:z@test.com/')
     (None, None)
     """
-    if type(url) not in (str, unicode):
+    if type(url) not in (str, str):
         raise ValueError('URL has to be a string or unicode object.')
 
     (username, password) = (None, None)
 
-    (scheme, netloc, path, params, query, fragment) = urlparse.urlparse(url)
+    (scheme, netloc, path, params, query, fragment) = urllib.parse.urlparse(url)
 
     if '@' in netloc:
         (authentication, netloc) = netloc.rsplit('@', 1)
@@ -303,10 +303,10 @@ def username_password_from_url(url):
             #    is handled by the authentication.split(':', 1) above, and
             #    will cause any extraneous ':'s to be part of the password.
 
-            username = urllib.unquote(username)
-            password = urllib.unquote(password)
+            username = urllib.parse.unquote(username)
+            password = urllib.parse.unquote(password)
         else:
-            username = urllib.unquote(authentication)
+            username = urllib.parse.unquote(authentication)
 
     return (username, password)
 
@@ -326,10 +326,10 @@ def calculate_size( path):
     to list all subdirectories of the given path.
     """
     if path is None:
-        return 0L
+        return 0
 
     if os.path.dirname( path) == '/':
-        return 0L
+        return 0
 
     if os.path.isfile( path):
         return os.path.getsize( path)
@@ -348,7 +348,7 @@ def calculate_size( path):
 
         return sum
 
-    return 0L
+    return 0
 
 
 def file_modification_datetime(filename):
@@ -484,7 +484,7 @@ def format_date(timestamp):
     yesterday = time.localtime(time.time() - seconds_in_a_day)[:3]
     try:
         timestamp_date = time.localtime(timestamp)[:3]
-    except ValueError, ve:
+    except ValueError as ve:
         logger.warn('Cannot convert timestamp', exc_info=True)
         return None
     
@@ -593,10 +593,10 @@ def remove_html_tags(html):
     result = re_strip_tags.sub('', result)
 
     # Convert numeric XML entities to their unicode character
-    result = re_unicode_entities.sub(lambda x: unichr(int(x.group(1))), result)
+    result = re_unicode_entities.sub(lambda x: chr(int(x.group(1))), result)
 
     # Convert named HTML entities to their unicode character
-    result = re_html_entities.sub(lambda x: unicode(entitydefs.get(x.group(1),''), 'iso-8859-1'), result)
+    result = re_html_entities.sub(lambda x: str(entitydefs.get(x.group(1),''), 'iso-8859-1'), result)
     
     # Convert more than two newlines to two newlines
     result = re.sub('([\r\n]{2})([\r\n])+', '\\1', result)
@@ -748,8 +748,8 @@ def filename_from_url(url):
     http://server/get.jsp?file=/episode0815.MOV => ("episode0815", ".mov")
     http://s/redirect.mp4?http://serv2/test.mp4 => ("test", ".mp4")
     """
-    (scheme, netloc, path, para, query, fragid) = urlparse.urlparse(url)
-    (filename, extension) = os.path.splitext(os.path.basename( urllib.unquote(path)))
+    (scheme, netloc, path, para, query, fragid) = urllib.parse.urlparse(url)
+    (filename, extension) = os.path.splitext(os.path.basename( urllib.parse.unquote(path)))
 
     if file_type_by_extension(extension) is not None and not \
         query.startswith(scheme+'://'):
@@ -759,7 +759,7 @@ def filename_from_url(url):
 
     # If the query string looks like a possible URL, try that first
     if len(query.strip()) > 0 and query.find('/') != -1:
-        query_url = '://'.join((scheme, urllib.unquote(query)))
+        query_url = '://'.join((scheme, urllib.parse.unquote(query)))
         (query_filename, query_extension) = filename_from_url(query_url)
 
         if file_type_by_extension(query_extension) is not None:
@@ -841,7 +841,7 @@ def object_string_formatter(s, **kwargs):
     'Hi 123 456'
     """
     result = s
-    for key, o in kwargs.iteritems():
+    for key, o in kwargs.items():
         matches = re.findall(r'\{%s\.([^\}]+)\}' % key, s)
         for attr in matches:
             if hasattr(o, attr):
@@ -924,14 +924,14 @@ def url_strip_authentication(url):
     >>> url_strip_authentication('http://x@x.com:s3cret@example.com/')
     'http://example.com/'
     """
-    url_parts = list(urlparse.urlsplit(url))
+    url_parts = list(urllib.parse.urlsplit(url))
     # url_parts[1] is the HOST part of the URL
 
     # Remove existing authentication data
     if '@' in url_parts[1]:
         url_parts[1] = url_parts[1].rsplit('@', 1)[1]
 
-    return urlparse.urlunsplit(url_parts)
+    return urllib.parse.urlunsplit(url_parts)
 
 
 def url_add_authentication(url, username, password):
@@ -966,21 +966,21 @@ def url_add_authentication(url, username, password):
     # Relaxations of the strict quoting rules (bug 1521):
     # 1. Accept '@' in username and password
     # 2. Acecpt ':' in password only
-    username = urllib.quote(username, safe='@')
+    username = urllib.parse.quote(username, safe='@')
 
     if password is not None:
-        password = urllib.quote(password, safe='@:')
+        password = urllib.parse.quote(password, safe='@:')
         auth_string = ':'.join((username, password))
     else:
         auth_string = username
 
     url = url_strip_authentication(url)
 
-    url_parts = list(urlparse.urlsplit(url))
+    url_parts = list(urllib.parse.urlsplit(url))
     # url_parts[1] is the HOST part of the URL
     url_parts[1] = '@'.join((auth_string, url_parts[1]))
 
-    return urlparse.urlunsplit(url_parts)
+    return urllib.parse.urlunsplit(url_parts)
 
 
 def urlopen(url, headers=None, data=None, timeout=None):
@@ -990,12 +990,12 @@ def urlopen(url, headers=None, data=None, timeout=None):
     username, password = username_password_from_url(url)
     if username is not None or password is not None:
         url = url_strip_authentication(url)
-        password_mgr = urllib2.HTTPPasswordMgrWithDefaultRealm()
+        password_mgr = urllib.request.HTTPPasswordMgrWithDefaultRealm()
         password_mgr.add_password(None, url, username, password)
-        handler = urllib2.HTTPBasicAuthHandler(password_mgr)
-        opener = urllib2.build_opener(handler)
+        handler = urllib.request.HTTPBasicAuthHandler(password_mgr)
+        opener = urllib.request.build_opener(handler)
     else:
-        opener = urllib2.build_opener()
+        opener = urllib.request.build_opener()
 
     if headers is None:
         headers = {}
@@ -1003,7 +1003,7 @@ def urlopen(url, headers=None, data=None, timeout=None):
         headers = dict(headers)
 
     headers.update({'User-agent': gpodder.user_agent})
-    request = urllib2.Request(url, data=data, headers=headers)
+    request = urllib.request.Request(url, data=data, headers=headers)
     if timeout is None:
         return opener.open(request)
     else:
@@ -1085,7 +1085,7 @@ def idle_add(func, *args):
                 def doit():
                     try:
                         func(*args)
-                    except Exception, e:
+                    except Exception as e:
                         logger.exception("Running %s%s: %s",
                                          func, str(tuple(args)), str(e))
 
@@ -1266,8 +1266,8 @@ def format_seconds_to_hour_min_sec(seconds):
         return result[0]
 
 def http_request(url, method='HEAD'):
-    (scheme, netloc, path, parms, qry, fragid) = urlparse.urlparse(url)
-    conn = httplib.HTTPConnection(netloc)
+    (scheme, netloc, path, parms, qry, fragid) = urllib.parse.urlparse(url)
+    conn = http.client.HTTPConnection(netloc)
     start = len(scheme) + len('://') + len(netloc)
     conn.request(method, url[start:])
     return conn.getresponse()
@@ -1325,9 +1325,9 @@ def convert_bytes(d):
     """
     if d is None:
         return d
-    if any(isinstance(d, t) for t in (int, long, bool, float)):
+    if any(isinstance(d, t) for t in (int, int, bool, float)):
         return d
-    elif not isinstance(d, unicode):
+    elif not isinstance(d, str):
         return d.decode('utf-8', 'ignore')
     return d
 
@@ -1347,7 +1347,7 @@ def sanitize_encoding(filename):
         return filename
 
     global encoding
-    if not isinstance(filename, unicode):
+    if not isinstance(filename, str):
         filename = filename.decode(encoding, 'ignore')
     return filename.encode(encoding, 'ignore')
 
@@ -1362,7 +1362,7 @@ def sanitize_filename(filename, max_length=0, use_ascii=False):
     If use_ascii is True, don't encode in the native language,
     but use only characters from the ASCII character set.
     """
-    if not isinstance(filename, unicode):
+    if not isinstance(filename, str):
         filename = filename.decode(encoding, 'ignore')
 
     if max_length > 0 and len(filename) > max_length:
@@ -1442,7 +1442,7 @@ def find_mount_point(directory):
     '/media/usbdisk'
     >>> restore()
     """
-    if isinstance(directory, unicode):
+    if isinstance(directory, str):
         # XXX: This is only valid for Python 2 - misleading error in Python 3?
         # We do not accept unicode strings, because they could fail when
         # trying to be converted to some native encoding, so fail loudly
@@ -1721,7 +1721,7 @@ def connection_available():
             return not offline
 
         return False
-    except Exception, e:
+    except Exception as e:
         logger.warn('Cannot get connection status: %s', e, exc_info=True)
         # When we can't determine the connection status, act as if we're online (bug 1730)
         return True
@@ -1736,9 +1736,9 @@ def website_reachable(url):
         return (False, None)
 
     try:
-        response = urllib2.urlopen(url, timeout=1)
+        response = urllib.request.urlopen(url, timeout=1)
         return (True, response)
-    except urllib2.URLError as err:
+    except urllib.error.URLError as err:
         pass
 
     return (False, None)

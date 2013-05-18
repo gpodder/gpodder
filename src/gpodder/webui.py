@@ -28,7 +28,7 @@ from gpodder import model
 from gpodder import util
 
 
-import BaseHTTPServer
+import http.server
 
 try:
     # For Python < 2.6, we use the "simplejson" add-on module
@@ -48,33 +48,33 @@ def json_response(path_parts):
     core = WebUI.core
 
     if path_parts == ['podcasts.json']:
-        return map(to_json, core.model.get_podcasts())
+        return list(map(to_json, core.model.get_podcasts()))
     elif (len(path_parts) == 3 and path_parts[0] == 'podcast' and
             path_parts[2] == 'episodes.json'):
         podcast_id = int(path_parts[1])
         for podcast in core.model.get_podcasts():
             if podcast.id == podcast_id:
-                return map(to_json, podcast.episodes)
+                return list(map(to_json, podcast.episodes))
 
     return None
 
-class WebUI(BaseHTTPServer.BaseHTTPRequestHandler):
+class WebUI(http.server.BaseHTTPRequestHandler):
     DEFAULT_PORT = 8086
 
     core = None
 
     @classmethod
-    def run(cls, only_localhost=True, server_class=BaseHTTPServer.HTTPServer):
+    def run(cls, only_localhost=True, server_class=http.server.HTTPServer):
         if only_localhost:
             server_address = ('localhost', cls.DEFAULT_PORT)
         else:
             server_address = ('', cls.DEFAULT_PORT)
-        print >>sys.stderr, """
+        print("""
     Server running. Point your web browser to:
     http://localhost:%s/
 
     Press Ctrl+C to stop the web server.
-        """ % (cls.DEFAULT_PORT,)
+        """ % (cls.DEFAULT_PORT,), file=sys.stderr)
         httpd = server_class(server_address, cls)
         try:
             httpd.serve_forever()

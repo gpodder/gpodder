@@ -44,7 +44,7 @@ class CoverDownloader(object):
         '.gif': lambda d: d.startswith('GIF89a') or d.startswith('GIF87a'),
     }
 
-    EXTENSIONS = SUPPORTED_EXTENSIONS.keys()
+    EXTENSIONS = list(SUPPORTED_EXTENSIONS.keys())
     ALL_EPISODES_ID = ':gpodder:all-episodes:'
 
     # Low timeout to avoid unnecessary hangs of GUIs
@@ -86,14 +86,14 @@ class CoverDownloader(object):
             try:
                 logger.info('Downloading cover art: %s', cover_url)
                 data = util.urlopen(cover_url, timeout=self.TIMEOUT).read()
-            except Exception, e:
+            except Exception as e:
                 logger.warn('Cover art download failed: %s', e)
                 return self._fallback_filename(title)
 
             try:
                 extension = None
 
-                for filetype, check in self.SUPPORTED_EXTENSIONS.items():
+                for filetype, check in list(self.SUPPORTED_EXTENSIONS.items()):
                     if check(data):
                         extension = filetype
                         break
@@ -108,7 +108,7 @@ class CoverDownloader(object):
                 fp.close()
 
                 return filename + extension
-            except Exception, e:
+            except Exception as e:
                 logger.warn('Cannot save cover art', exc_info=True)
 
         # Fallback to cover art based on the podcast title

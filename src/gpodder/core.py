@@ -128,8 +128,8 @@ class Core(object):
         for plugin in PLUGINS:
             try:
                 __import__(plugin)
-            except Exception, e:
-                print >>sys.stderr, 'Cannot load plugin: %s (%s)' % (plugin, e)
+            except Exception as e:
+                print('Cannot load plugin: %s (%s)' % (plugin, e), file=sys.stderr)
 
     def shutdown(self):
         # Notify all extensions that we are being shut down

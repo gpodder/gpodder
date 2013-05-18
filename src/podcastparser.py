@@ -29,7 +29,7 @@ from gpodder.plugins import youtube, vimeo
 import re
 import os
 import time
-import urlparse
+import urllib.parse
 
 import logging
 logger = logging.getLogger(__name__)
@@ -95,7 +95,7 @@ class EpisodeGuid(EpisodeAttr):
         def filter_func(guid):
             guid = guid.strip()
             if handler.base is not None:
-                return urlparse.urljoin(handler.base, guid)
+                return urllib.parse.urljoin(handler.base, guid)
             return guid
 
         self.filter_func = filter_func
@@ -122,7 +122,7 @@ class Enclosure(Target):
         if url is None:
             return
 
-        url = parse_url(urlparse.urljoin(handler.url, url))
+        url = parse_url(urllib.parse.urljoin(handler.url, url))
         file_size = parse_length(attrs.get(self.file_size_attribute))
         mime_type = parse_type(attrs.get('type'))
 
@@ -172,7 +172,7 @@ class Namespace():
         """
         result = {}
 
-        for key in attrs.keys():
+        for key in list(attrs.keys()):
             if key == 'xmlns':
                 result[''] = attrs[key]
             elif key.startswith('xmlns:'):
@@ -253,7 +253,7 @@ def parse_length(text):
         return -1
 
     try:
-        return long(text.strip()) or -1
+        return int(text.strip()) or -1
     except ValueError:
         return -1
 

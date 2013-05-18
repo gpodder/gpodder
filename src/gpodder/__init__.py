@@ -33,7 +33,7 @@ __version_info__ = tuple(int(x) for x in __version__.split('.'))
 user_agent = 'gPodder/%s (+%s)' % (__version__, __url__)
 
 # Episode states used in the database
-STATE_NORMAL, STATE_DOWNLOADED, STATE_DELETED = range(3)
+STATE_NORMAL, STATE_DOWNLOADED, STATE_DELETED = list(range(3))
 
 # Fallback implementation when gettext is not used
 gettext = lambda x: x

@@ -24,7 +24,7 @@
 # 2010-04-24 Thomas Perl <thp@gpodder.org>
 #
 
-from __future__ import with_statement
+
 
 import gpodder
 _ = gpodder.gettext
@@ -84,7 +84,7 @@ class Database(object):
             try:
                 logger.debug('Commit.')
                 self.db.commit()
-            except Exception, e:
+            except Exception as e:
                 logger.error('Cannot commit: %s', e, exc_info=True)
 
     def get_content_types(self, id):
@@ -137,7 +137,7 @@ class Database(object):
             cur.execute(sql)
 
             keys = [desc[0] for desc in cur.description]
-            result = map(lambda row: factory(dict(zip(keys, row)), self), cur)
+            result = [factory(dict(list(zip(keys, row))), self) for row in cur]
             cur.close()
 
         return result
@@ -155,7 +155,7 @@ class Database(object):
             cur.execute(sql, args)
 
             keys = [desc[0] for desc in cur.description]
-            result = map(lambda row: factory(dict(zip(keys, row))), cur)
+            result = [factory(dict(list(zip(keys, row)))) for row in cur]
             cur.close()
 
         return result
@@ -196,7 +196,7 @@ class Database(object):
                     values.append(o.id)
                     sql = 'UPDATE %s SET %s WHERE id = ?' % (table, qmarks)
                     cur.execute(sql, values)
-            except Exception, e:
+            except Exception as e:
                 logger.error('Cannot save %s: %s', o, e, exc_info=True)
 
             cur.close()

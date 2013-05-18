@@ -24,6 +24,7 @@
 #
 
 import copy
+from functools import reduce
 
 try:
     # For Python < 2.6, we use the "simplejson" add-on module
@@ -156,7 +157,7 @@ class JsonConfig(object):
         work_queue = [(self._data, merge_source)]
         while work_queue:
             data, default = work_queue.pop()
-            for key, value in default.iteritems():
+            for key, value in default.items():
                 if key not in data:
                     # Copy defaults for missing key
                     data[key] = copy.deepcopy(value)

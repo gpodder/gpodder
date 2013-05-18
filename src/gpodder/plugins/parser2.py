@@ -30,7 +30,7 @@ from gpodder import util
 
 import podcastparser
 
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 
 import logging
 
@@ -55,7 +55,7 @@ class PodcastParserFeed(object):
             self.etag = info.get('etag')
             self.modified = info.get('last-modified')
             self.parsed = podcastparser.parse(url, stream, max_episodes)
-        except urllib2.HTTPError, error:
+        except urllib.error.HTTPError as error:
             self.status = error.code
             if error.code == 304:
                 logger.info('Not modified')

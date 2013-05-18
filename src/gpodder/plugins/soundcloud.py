@@ -71,8 +71,8 @@ def get_param(s, param='filename', header='content-disposition'):
             if encoding:
                 value.append(part.decode(encoding))
             else:
-                value.append(unicode(part))
-        return u''.join(value)
+                value.append(str(part))
+        return ''.join(value)
 
     return None
 
@@ -87,7 +87,7 @@ def get_metadata(url):
     headers = track_fp.info()
     filesize = headers['content-length'] or '0'
     filetype = headers['content-type'] or 'application/octet-stream'
-    headers_s = '\n'.join('%s:%s'%(k,v) for k, v in headers.items())
+    headers_s = '\n'.join('%s:%s'%(k,v) for k, v in list(headers.items()))
     filename = get_param(headers_s) or os.path.basename(os.path.dirname(url))
     track_fp.close()
     return filesize, filetype, filename

@@ -92,11 +92,11 @@ class FM4OnDemandPlaylist(object):
     @classmethod
     def get_text_contents(cls, node):
         if hasattr(node, '__iter__'):
-            return u''.join(cls.get_text_contents(x) for x in node)
+            return ''.join(cls.get_text_contents(x) for x in node)
         elif node.nodeType == node.TEXT_NODE:
             return node.data
         else:
-            return u''.join(cls.get_text_contents(c) for c in node.childNodes)
+            return ''.join(cls.get_text_contents(c) for c in node.childNodes)
 
     def __init__(self, url, category):
         self.url = url

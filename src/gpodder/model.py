@@ -101,7 +101,7 @@ class PodcastModelObject(object):
         """
         o = cls(*args)
 
-        for k, v in d.iteritems():
+        for k, v in d.items():
             setattr(o, k, v)
 
         return o
@@ -441,10 +441,10 @@ class PodcastEpisode(PodcastModelObject):
 class PodcastChannel(PodcastModelObject):
     __slots__ = schema.PodcastColumns + ('_common_prefix',)
 
-    UNICODE_TRANSLATE = {ord(u'ö'): u'o', ord(u'ä'): u'a', ord(u'ü'): u'u'}
+    UNICODE_TRANSLATE = {ord('ö'): 'o', ord('ä'): 'a', ord('ü'): 'u'}
 
     # Enumerations for download strategy
-    STRATEGY_DEFAULT, STRATEGY_LATEST = range(2)
+    STRATEGY_DEFAULT, STRATEGY_LATEST = list(range(2))
 
     # Description and ordering of strategies
     STRATEGIES = [
@@ -601,10 +601,10 @@ class PodcastChannel(PodcastModelObject):
     @classmethod
     def load(cls, model, url, create=True, authentication_tokens=None,\
             max_episodes=0):
-        if isinstance(url, unicode):
+        if isinstance(url, str):
             url = url.encode('utf-8')
 
-        existing = filter(lambda p: p.url == url, model.get_podcasts())
+        existing = [p for p in model.get_podcasts() if p.url == url]
 
         if existing:
             return existing[0]
@@ -622,7 +622,7 @@ class PodcastChannel(PodcastModelObject):
 
             try:
                 tmp.update(max_episodes)
-            except Exception, e:
+            except Exception as e:
                 logger.debug('Fetch failed. Removing buggy feed.')
                 tmp.remove_downloaded()
                 tmp.delete()
@@ -751,7 +751,7 @@ class PodcastChannel(PodcastModelObject):
             self._consume_custom_feed(result, max_episodes)
 
             self.save()
-        except Exception, e:
+        except Exception as e:
             gpodder.user_extensions.on_podcast_update_failed(self, e)
             raise
 
@@ -855,7 +855,7 @@ class PodcastChannel(PodcastModelObject):
         self._common_prefix = prefix
 
     def get_episodes(self, state):
-        return filter(lambda e: e.state == state, self.children)
+        return [e for e in self.children if e.state == state]
 
     def find_unique_folder_name(self, download_folder):
         # Remove trailing dots to avoid errors on Windows (bug 600)
