@@ -610,8 +610,8 @@ class DownloadTask(object):
         # Variables for speed limit and speed calculation
         self.__start_time = 0
         self.__start_blocks = 0
-        self.__limit_rate_value = self._config.limit_rate_value
-        self.__limit_rate = self._config.limit_rate
+        self.__limit_rate_value = self._config.limit.bandwidth.kbps
+        self.__limit_rate = self._config.limit.bandwidth.enabled
 
         # Progress update functions
         self._progress_updated = None
@@ -688,18 +688,18 @@ class DownloadTask(object):
             now = time.time()
             if self.__start_time > 0:
                 # Has rate limiting been enabled or disabled?                
-                if self.__limit_rate != self._config.limit_rate: 
+                if self.__limit_rate != self._config.limit.bandwidth.enabled:
                     # If it has been enabled then reset base time and block count                    
-                    if self._config.limit_rate:
+                    if self._config.limit.bandwidth.enabled:
                         self.__start_time = now
                         self.__start_blocks = count
-                    self.__limit_rate = self._config.limit_rate
-                    
+                    self.__limit_rate = self._config.limit.bandwidth.enabled
+
                 # Has the rate been changed and are we currently limiting?            
-                if self.__limit_rate_value != self._config.limit_rate_value and self.__limit_rate: 
+                if self.__limit_rate_value != self._config.limit.bandwith.kbps and self.__limit_rate:
                     self.__start_time = now
                     self.__start_blocks = count
-                    self.__limit_rate_value = self._config.limit_rate_value
+                    self.__limit_rate_value = self._config.limit.bandwidth.kbps
 
                 passed = now - self.__start_time
                 if passed > 0:
@@ -714,10 +714,10 @@ class DownloadTask(object):
 
             self.speed = float(speed)
 
-            if self._config.limit_rate and speed > self._config.limit_rate_value:
+            if self._config.limit.bandwidth.enabled and speed > self._config.limit.bandwidth.kbps:
                 # calculate the time that should have passed to reach
                 # the desired download rate and wait if necessary
-                should_have_passed = float((count-self.__start_blocks)*blockSize)/(self._config.limit_rate_value*1024.0)
+                should_have_passed = float((count-self.__start_blocks)*blockSize)/(self._config.limit.bandwidth.kbps*1024.0)
                 if should_have_passed > passed:
                     # sleep a maximum of 10 seconds to not cause time-outs
                     delay = min(10.0, float(should_have_passed-passed))
