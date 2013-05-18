@@ -264,12 +264,8 @@ class DownloadURLOpener(urllib.request.FancyURLopener):
         if tfp is None:
             tfp = open(filename, 'wb')
 
-        # Fix a problem with bad URLs that are not encoded correctly (bug 549)
-        url = url.decode('ascii', 'ignore')
-        url = url.translate(self.ESCAPE_CHARS)
-        url = url.encode('ascii')
+        # XXX Fix a problem with bad URLs that are not encoded correctly (bug 549)
 
-        url = urllib.unwrap(urllib.toBytes(url))
         fp = self.open(url, data)
         headers = fp.info()
 
@@ -292,8 +288,8 @@ class DownloadURLOpener(urllib.request.FancyURLopener):
         read = current_size
         blocknum = int(current_size/bs)
         if reporthook:
-            if "content-length" in headers:
-                size = int(headers.getrawheader("Content-Length"))  + current_size
+            if 'content-length' in headers:
+                size = int(headers['content-length'])  + current_size
             reporthook(blocknum, bs, size)
         while read < size or size == -1:
             if size == -1:

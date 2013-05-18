@@ -311,7 +311,7 @@ class PodcastEpisode(PodcastModelObject):
         if self.download_filename is None and (check_only or not create):
             return None
 
-        ext = self.extension(may_call_local_filename=False).encode('utf-8', 'ignore')
+        ext = self.extension(may_call_local_filename=False)
 
         if not check_only and (force_update or not self.download_filename):
             # Avoid and catch gPodder bug 1440 and similar situations
@@ -377,8 +377,7 @@ class PodcastEpisode(PodcastModelObject):
             self.download_filename = wanted_filename
             self.save()
 
-        return os.path.join(util.sanitize_encoding(self.channel.save_dir),
-                util.sanitize_encoding(self.download_filename))
+        return os.path.join(self.channel.save_dir, self.download_filename)
 
     def extension(self, may_call_local_filename=True):
         filename, ext = util.filename_from_url(self.url)
@@ -601,9 +600,6 @@ class PodcastChannel(PodcastModelObject):
     @classmethod
     def load(cls, model, url, create=True, authentication_tokens=None,\
             max_episodes=0):
-        if isinstance(url, str):
-            url = url.encode('utf-8')
-
         existing = [p for p in model.get_podcasts() if p.url == url]
 
         if existing:
@@ -892,9 +888,6 @@ class PodcastChannel(PodcastModelObject):
             self.save()
 
         save_dir = os.path.join(self.model.core.downloads, self.download_folder)
-
-        # Avoid encoding errors for OS-specific functions (bug 1570)
-        save_dir = util.sanitize_encoding(save_dir)
 
         # Create save_dir if it does not yet exist
         if not util.make_directory(save_dir):

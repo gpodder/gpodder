@@ -1362,15 +1362,16 @@ def sanitize_filename(filename, max_length=0, use_ascii=False):
     If use_ascii is True, don't encode in the native language,
     but use only characters from the ASCII character set.
     """
-    if not isinstance(filename, str):
-        filename = filename.decode(encoding, 'ignore')
+    assert isinstance(filename, str)
 
     if max_length > 0 and len(filename) > max_length:
         logger.info('Limiting file/folder name "%s" to %d characters.',
                 filename, max_length)
         filename = filename[:max_length]
 
-    filename = filename.encode('ascii' if use_ascii else encoding, 'ignore')
+    if use_ascii:
+        filename = filename.encode('ascii', 'ignore').decode('ascii')
+
     filename = filename.translate(SANITIZATION_TABLE)
     filename = filename.strip('.' + string.whitespace)
 
