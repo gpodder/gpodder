@@ -30,71 +30,12 @@
 
  [ DEPENDENCIES ]
 
-    - Python 2.6 or newer              http://python.org/
-    - "sqlite3" Python module          (usually included with Python)
-    - mygpoclient 1.7 or newer         http://thp.io/2010/mygpoclient/
-    - Python D-Bus bindings
-
-    gPodder might still work with Python 2.5, but you may need to
-    install the json module ("simplejson") manually. We reserve the
-    right to drop support for Python 2.5 in future point releases.
-
-    As an alternative to python-dbus on Mac OS X and Windows, you can use
-    the dummy (no-op) D-Bus module provided in "tools/fake-dbus-module/".
-
-    For quick testing, you can use the script tools/localdepends.py to install
-    local copies of mygpoclient into "src/" from PyPI. With this, you get a
-    self-contained gPodder CLI/WebUI codebase.
-
-
- [ GTK UI - ADDITIONAL DEPENDENCIES ]
-
-    - PyGTK 2.16 or newer              http://pygtk.org/
-
-
- [ QML UI - ADDITIONAL DEPENDENCIES ]
-
-    - Qt 4.7.1 or newer                http://qt.nokia.com/
-    - PySide 1.0.8 or newer            http://www.pyside.org/
-    - Qt Mobility 1.2 or newer         http://qt.gitorious.org/qt-mobility
-    - Qt Quick Components              http://qt.gitorious.org/qt-components
-    - Sailfish Silica Components       https://sailfishos.org/sailfish-silica/
-
-    The QML UI depends on the QtMultimediaKit QML bindings for playing
-    back audio (libdeclarative-multimedia in Debian) and on the WebKit QML
-    bindings for Flattr integration (libqtwebkit-qmlwebkitplugin in Debian).
-
-    The QML UI now also depends on Qt Quick Components. On MeeGo 1.2 Harmattan,
-    these components are pre-installed. You can install them on your Desktop by
-    checking out the code from the qt-components Git repository and running the
-    "./configure" script with the "-meego" parameter (+ the usual make install).
-
-    You might also need to copy the theme from /usr/share/themes/blanco/ on a
-    MeeGo 1.2 Harmattan device to your development machine in order for all UI
-    elements to be displayed correctly. Alternatively, you can use the free
-    "darko" theme from: https://github.com/jpavelek/meego-handset-theme-darko
-
-    For running gPodder on Sailfish OS using Sailfish Silica Components, you
-    need to have Sailfish Silica installed. Right now, gPodder still depends on
-    qt-components even on Sailfish, but this is going to change soon once a
-    more mature version of Sailfish Silica is out.
-
-
- [ OPTIONAL DEPENDENCIES ]
-
-    - Bluetooth file sending: gnome-obex-send or bluetooth-sendto
-    - HTML shownotes: python-webkit
-    - Flattr integration: python-webkit
-    - Size detection on Windows: PyWin32
-    - Native OS X support: ige-mac-integration
-    - MP3 Player Sync Support: python-eyed3 (< 0.7)
-
+    - Python 3.2 or newer              http://python.org/
 
  [ BUILD DEPENDENCIES ]
 
     - help2man
     - intltool
-
 
  [ TEST DEPENDENCIES ]
 
@@ -105,9 +46,6 @@
 
     To run tests, use...
         make unittest
-
-    To set a specific python binary set PYTHON:
-        PYTHON=python2 make unittest
 
     Tests in gPodder are written in two different ways:
 
@@ -136,51 +74,26 @@
 
     To run gPodder from source, use..
 
-        bin/gpodder              for the Gtk+ UI
-        bin/gpodder --qml        for the QML UI
         bin/gpo                  for the command-line interface
 
     To install gPodder system-wide, use "make install". By default, this
-    will install *all* UIs and all translations. The following environment
-    variables are processed by setup.py:
+    will install all translations. The following environment variables
+    are processed by setup.py:
 
         LINGUAS                  space-separated list of languages to install
-        GPODDER_INSTALL_UIS      space-separated list of UIs to install
         GPODDER_MANPATH_NO_SHARE if set, install manpages to $PREFIX/man/man1
 
     See setup.py for a list of recognized UIs.
 
-    Example: Install the CLI and Gtk UI with German and Dutch translations:
+    Example: Install with German and Dutch translations:
 
         export LINGUAS="de nl"
-        export GPODDER_INSTALL_UIS="cli gtk"
         make install
 
     The "make install" target also supports DESTDIR and PREFIX for installing
     into an alternative root (default /) and prefix (default /usr):
 
         make install DESTDIR=tmp/ PREFIX=/usr/local/
-
-
- [ PYTHON 3 SUPPORT ]
-
-    The CLI version of gPodder (bin/gpo) and the QML UI are compatible with
-    Python 3 after converting the codebase with the 2to3 utility:
-
-      2to3 -w bin/* src share/gpodder/extensions
-
-    You will also need a copy of "mygpoclient" converted using 2to3.
-
-    Please note that the Gtk UI is not compatible with Python 3 (it will
-    be once we migrate the codebase to Gtk3/GObject Introspection).
-
-    The QML UI has been tested with PySide (Git revision a90f3bc) and
-    Python 3.2.2 - you can use the PySide buildscripts to build PySide:
-
-        http://github.com/PySide/BuildScripts
-
-    As of February 2012, Python 3 support is still experimental. Please
-    report any bugs that you find to the gPodder bug tracker (see below).
 
 
  [ PORTABLE MODE / ROAMING PROFILES ]
@@ -276,5 +189,5 @@
     - IRC channel                      #gpodder on irc.freenode.net
 
   ............................................................................
-             Last updated: 2013-02-12 by Thomas Perl <thp.io/about>
+             Last updated: 2013-05-20 by Thomas Perl <thp.io/about>
 

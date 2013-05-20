@@ -62,12 +62,7 @@ import webbrowser
 import mimetypes
 import itertools
 
-try:
-    # Python 2
-    from rfc822 import mktime_tz, parsedate_tz
-except ImportError:
-    # Python 3
-    from email.utils import mktime_tz, parsedate_tz
+from email.utils import mktime_tz, parsedate_tz
 
 
 import io
@@ -1424,9 +1419,6 @@ def find_mount_point(directory):
     >>> restore()
     """
     if not isinstance(directory, str):
-        # In Python 2, we assume it's a byte str; in Python 3, we assume
-        # that it's a unicode str. The abspath/ismount/split functions of
-        # os.path work with unicode str in Python 3, but not in Python 2.
         raise ValueError('Directory names should be of type str.')
 
     directory = os.path.abspath(directory)
@@ -1560,8 +1552,6 @@ def atomic_rename(old_name, new_name):
 
 def check_command(self, cmd):
     """Check if a command line command/program exists"""
-    # Prior to Python 2.7.3, this module (shlex) did not support Unicode input.
-    cmd = sanitize_encoding(cmd)
     program = shlex.split(cmd)[0]
     return (find_command(program) is not None)
 

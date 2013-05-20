@@ -30,12 +30,7 @@ from gpodder import util
 
 import http.server
 
-try:
-    # For Python < 2.6, we use the "simplejson" add-on module
-    import simplejson as json
-except ImportError:
-    # Python 2.6 already ships with a nice "json" module
-    import json
+import json
 
 import os
 import re

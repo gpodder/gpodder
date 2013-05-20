@@ -47,15 +47,8 @@ def init_i18n():
     textdomain = 'gpodder'
     locale_dir = gettext.bindtextdomain(textdomain)
     t = gettext.translation(textdomain, locale_dir, fallback=True)
-
-    try:
-        # Python 2
-        gpodder.gettext = t.ugettext
-        gpodder.ngettext = t.ungettext
-    except AttributeError:
-        # Python 3
-        gpodder.gettext = t.gettext
-        gpodder.ngettext = t.ngettext
+    gpodder.gettext = t.gettext
+    gpodder.ngettext = t.ngettext
 
 
 class Core(object):

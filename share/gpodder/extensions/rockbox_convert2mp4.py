@@ -134,9 +134,6 @@ class gPodderExtension:
             'options': self.container.config.ffmpeg_options
         }
 
-        # Prior to Python 2.7.3, this module (shlex) did not support Unicode input.
-        convert_command = util.sanitize_encoding(convert_command)
-
         process = subprocess.Popen(shlex.split(convert_command),
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = process.communicate()

@@ -28,12 +28,7 @@ from gpodder import model
 from gpodder import util
 from gpodder import coverart
 
-try:
-    # For Python < 2.6, we use the "simplejson" add-on module
-    import simplejson as json
-except ImportError:
-    # Python 2.6 already ships with a nice "json" module
-    import json
+import json
 
 import os
 import re
