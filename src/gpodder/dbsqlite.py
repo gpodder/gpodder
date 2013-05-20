@@ -232,12 +232,6 @@ class Database(object):
         return self.get("SELECT id FROM %s WHERE podcast_id = ? AND download_filename = ?" %
                 self.TABLE_EPISODE, (podcast_id, filename,)) is not None
 
-    def get_last_published(self, podcast):
-        """
-        Look up the most recent publish date of a podcast.
-        """
-        return self.get('SELECT MAX(published) FROM %s WHERE podcast_id = ?' % self.TABLE_EPISODE, (podcast.id,))
-
     def delete_episode_by_guid(self, guid, podcast_id):
         """
         Deletes episodes that have a specific GUID for

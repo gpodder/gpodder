@@ -712,7 +712,10 @@ class PodcastChannel(PodcastModelObject):
                 self.children.remove(episode)
 
         # Get most recent published of all episodes
-        last_published = self.db.get_last_published(self) or 0
+        last_published = 0
+        for episode in self.episodes:
+            if episode.published > last_published:
+                last_published = episode.published
 
         # Mark newly-found episodes as old in certain cases
         new_episodes.sort(key=lambda e: e.published, reverse=True)
