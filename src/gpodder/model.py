@@ -270,9 +270,13 @@ class PodcastEpisode(PodcastModelObject):
         # Remove leading and trailing whitespace + dots (to avoid hidden files)
         filename = filename.strip('.' + string.whitespace) + extension
 
+        # Existing download folder names must not be used
+        existing_names = [episode.download_filename
+                for episode in self.episodes
+                if episode is not self]
+
         for name in util.generate_names(filename):
-            if (not self.db.episode_filename_exists(self.podcast_id, name) or
-                    self.download_filename == name):
+            if name not in existing_names:
                 return name
 
     def local_filename(self, create, force_update=False, check_only=False,
@@ -861,9 +865,13 @@ class PodcastChannel(PodcastModelObject):
         # Also remove leading dots to avoid hidden folders on Linux
         download_folder = download_folder.strip('.' + string.whitespace)
 
+        # Existing download folder names must not be used
+        existing_names = [podcast.download_folder
+                for podcast in self.model.get_podcasts()
+                if podcast is not self]
+
         for folder_name in util.generate_names(download_folder):
-            if (not self.db.podcast_download_folder_exists(folder_name) or
-                    self.download_folder == folder_name):
+            if folder_name not in existing_names:
                 return folder_name
 
     def get_save_dir(self, force_new=False):

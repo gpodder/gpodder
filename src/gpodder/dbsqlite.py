@@ -192,46 +192,6 @@ class Database(object):
 
             cur.close()
 
-    def get(self, sql, params=None):
-        """
-        Returns the first cell of a query result, useful for COUNT()s.
-        """
-        with self.lock:
-            cur = self.cursor()
-
-            if params is None:
-                cur.execute(sql)
-            else:
-                cur.execute(sql, params)
-
-            row = cur.fetchone()
-            cur.close()
-
-        if row is None:
-            return None
-        else:
-            return row[0]
-
-    def podcast_download_folder_exists(self, foldername):
-        """
-        Returns True if a foldername for a channel exists.
-        False otherwise.
-        """
-        foldername = util.convert_bytes(foldername)
-
-        return self.get("SELECT id FROM %s WHERE download_folder = ?" %
-                self.TABLE_PODCAST, (foldername,)) is not None
-
-    def episode_filename_exists(self, podcast_id, filename):
-        """
-        Returns True if a filename for an episode exists.
-        False otherwise.
-        """
-        filename = util.convert_bytes(filename)
-
-        return self.get("SELECT id FROM %s WHERE podcast_id = ? AND download_filename = ?" %
-                self.TABLE_EPISODE, (podcast_id, filename,)) is not None
-
     def delete_episode_by_guid(self, guid, podcast_id):
         """
         Deletes episodes that have a specific GUID for
