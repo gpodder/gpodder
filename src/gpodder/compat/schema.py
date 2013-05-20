@@ -249,12 +249,3 @@ def convert_gpodder2_db(old_db, new_db):
     new_db.commit()
     new_db.close()
 
-def check_data(db):
-    # All episodes must be assigned to a podcast
-    # XXX: Removed while we clean up dbsqlite, re-enable later
-    #orphan_episodes = db.get('SELECT COUNT(id) FROM episode '
-    #        'WHERE podcast_id NOT IN (SELECT id FROM podcast)')
-    #if orphan_episodes > 0:
-    #    logger.error('Orphaned episodes found in database')
-    pass
-

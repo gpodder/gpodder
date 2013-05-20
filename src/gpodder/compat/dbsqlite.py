@@ -36,7 +36,7 @@ from sqlite3 import dbapi2 as sqlite
 import logging
 logger = logging.getLogger(__name__)
 
-from gpodder import schema
+from gpodder.compat import schema
 from gpodder import util
 
 import threading
@@ -69,9 +69,6 @@ class Database(object):
 
             # Check schema version, upgrade if necessary
             schema.upgrade(self._db, self.database_file)
-
-            # Sanity checks for the data in the database
-            schema.check_data(self)
 
             logger.debug('Database opened.')
         return self._db

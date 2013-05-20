@@ -25,7 +25,7 @@ import gpodder
 
 from gpodder import util
 from gpodder import config
-from gpodder import dbsqlite
+from gpodder import storage
 from gpodder import extensions
 from gpodder import coverart
 from gpodder import model
@@ -61,7 +61,7 @@ def init_i18n():
 class Core(object):
     def __init__(self,
                  config_class=config.Config,
-                 database_class=dbsqlite.Database,
+                 database_class=storage.Database,
                  model_class=model.Model,
                  prefix=None,
                  verbose=True):
