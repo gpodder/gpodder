@@ -790,8 +790,8 @@ class PodcastChannel(PodcastModelObject):
             return _('Video')
 
         audio, video, other = 0, 0, 0
-        for content_type in self.db.get_content_types(self.id):
-            content_type = content_type.lower()
+        for episode in self.episodes:
+            content_type = episode.mime_type.lower()
             if content_type.startswith('audio'):
                 audio += 1
             elif content_type.startswith('video'):

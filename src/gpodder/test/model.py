@@ -39,3 +39,24 @@ class TestEpisodePublishedProperties(unittest.TestCase):
     def test_sortdate(self):
         self.assertEqual(self.episode.sortdate, self.PUBLISHED_SORT)
 
+class TestSectionFromContentType(unittest.TestCase):
+    def setUp(self):
+        self.podcast = model.PodcastChannel(None)
+        self.podcast.url = 'http://example.com/feed.rss'
+        self.audio_episode = model.PodcastEpisode(self.podcast)
+        self.audio_episode.mime_type = 'audio/mpeg'
+        self.video_episode = model.PodcastEpisode(self.podcast)
+        self.video_episode.mime_type = 'video/mp4'
+
+    def test_audio(self):
+        self.podcast.children = [self.audio_episode]
+        self.assertEqual(self.podcast._get_content_type(), gpodder.gettext('Audio'))
+
+    def test_video(self):
+        self.podcast.children = [self.video_episode]
+        self.assertEqual(self.podcast._get_content_type(), gpodder.gettext('Video'))
+
+    def test_more_video_than_audio(self):
+        self.podcast.children = [self.audio_episode, self.video_episode, self.video_episode]
+        self.assertEqual(self.podcast._get_content_type(), gpodder.gettext('Video'))
+

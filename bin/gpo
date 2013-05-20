@@ -826,4 +826,6 @@ if __name__ == '__main__':
         cli._shell()
     else:
         safe_print(__doc__, end='')
+    #for loader, key in sorted((repr(value), key) for key, value in sys.modules.items()):
+    #    print('%20s  -> %20r' % (key, loader))
 

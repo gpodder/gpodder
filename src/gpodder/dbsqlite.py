@@ -87,15 +87,6 @@ class Database(object):
             except Exception as e:
                 logger.error('Cannot commit: %s', e, exc_info=True)
 
-    def get_content_types(self, id):
-        """Given a podcast ID, returns the content types"""
-        with self.lock:
-            cur = self.cursor()
-            cur.execute('SELECT mime_type FROM %s WHERE podcast_id = ?' % self.TABLE_EPISODE, (id,))
-            for (mime_type,) in cur:
-                yield mime_type
-            cur.close()
-
     def get_podcast_statistics(self, podcast_id=None):
         """Given a podcast ID, returns the statistics for it
 
