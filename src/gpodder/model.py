@@ -511,7 +511,10 @@ class PodcastChannel(PodcastModelObject):
 
     def finalize_built_object(self):
         if self.id:
-            self.children = self.db.load_episodes(self, self.episode_factory)
+            self.children = list(sorted(self.db.load_episodes(self,
+                self.episode_factory),
+                key=lambda e: (e.published, e.id),
+                reverse=True))
             self._determine_common_prefix()
 
     def __init__(self, model):

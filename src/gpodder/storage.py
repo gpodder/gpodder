@@ -64,12 +64,12 @@ class Database:
         self._data[table][str(o.id)] = {k: getattr(o, k) for k in o.__schema__}
 
     def load_podcasts(self, podcast_factory):
-        """Load all podcasts (no particular order)"""
+        """Load all podcasts"""
         return [podcast_factory(self._read_object(k, 'podcast'))
                 for k in self._data['podcast']]
 
     def load_episodes(self, podcast, episode_factory):
-        """Load episodes for podcast in decreasing "published" order"""
+        """Load episodes for podcast"""
         return [episode_factory(self._read_object(k, 'episode'))
                 for k in self._data['episode']
                 if self._data['episode'][k]['podcast_id'] == podcast.id]
