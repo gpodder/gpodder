@@ -37,7 +37,7 @@ author, email = re.match(r'^(.*) <(.*)>$', metadata['author']).groups()
 class MissingFile(BaseException): pass
 
 def info(message, item=None):
-    print '=>', message, item if item is not None else ''
+    print('=>', message, item if item is not None else '')
 
 
 def find_data_files(uis, scripts):
@@ -94,7 +94,7 @@ def find_data_files(uis, scripts):
                 if not result:
                     info('Skipping manpage without script:', filename)
                 return result
-            filenames = filter(have_script, filenames)
+            filenames = list(filter(have_script, filenames))
 
         def convert_filename(filename):
             filename = os.path.join(dirpath, filename)
@@ -112,7 +112,7 @@ def find_data_files(uis, scripts):
 
             return filename
 
-        filenames = filter(None, map(convert_filename, filenames))
+        filenames = [_f for _f in map(convert_filename, filenames) if _f]
         if filenames:
             # Some distros/ports install manpages into $PREFIX/man instead
             # of $PREFIX/share/man (e.g. FreeBSD). To allow this, we strip
@@ -137,10 +137,10 @@ def find_packages(uis):
         package = '.'.join(dirparts)
 
         # Extract all parts of the package name ending in "ui"
-        ui_parts = filter(lambda p: p.endswith('ui'), dirparts)
+        ui_parts = [p for p in dirparts if p.endswith('ui')]
         if uis is not None and ui_parts:
             # Strip the trailing "ui", e.g. "gtkui" -> "gtk"
-            folder_uis = map(lambda p: p[:-2], ui_parts)
+            folder_uis = [p[:-2] for p in ui_parts]
             for folder_ui in folder_uis:
                 if folder_ui not in uis:
                     info('Skipping package:', package)
@@ -186,13 +186,13 @@ try:
     packages = list(sorted(find_packages(uis)))
     scripts = list(sorted(find_scripts(uis)))
     data_files = list(sorted(find_data_files(uis, scripts)))
-except MissingFile, mf:
-    print >>sys.stderr, """
+except MissingFile as mf:
+    print("""
     Missing file: %s
 
     If you want to install, use "make install" instead of using
     setup.py directly. See the README file for more information.
-    """ % mf.message
+    """ % mf.message, file=sys.stderr)
     sys.exit(1)
 
 
