@@ -272,7 +272,7 @@ def username_password_from_url(url):
     >>> username_password_from_url('http://i%2Fo:P%40ss%3A@host.com/')
     ('i/o', 'P@ss:')
     >>> username_password_from_url('ftp://%C3%B6sterreich@host.com/')
-    ('\xc3\xb6sterreich', None)
+    ('\xf6sterreich', None)
     >>> username_password_from_url('http://w%20x:y%20z@example.org/')
     ('w x', 'y z')
     >>> username_password_from_url('http://example.com/x@y:z@test.com/')
@@ -406,9 +406,9 @@ def file_age_to_string(days):
     >>> file_age_to_string(0)
     ''
     >>> file_age_to_string(1)
-    u'1 day ago'
+    '1 day ago'
     >>> file_age_to_string(2)
-    u'2 days ago'
+    '2 days ago'
     """
     if days < 1:
         return ''
@@ -1165,6 +1165,7 @@ def parse_date(value):
 
     >>> parse_date('Sat Dec 29 18:23:19 CET 2012')
     1356801799
+
     >>> parse_date('')
     0
     """
@@ -1231,11 +1232,11 @@ def format_seconds_to_hour_min_sec(seconds):
     human-readable string (duration).
 
     >>> format_seconds_to_hour_min_sec(3834)
-    u'1 hour, 3 minutes and 54 seconds'
+    '1 hour, 3 minutes and 54 seconds'
     >>> format_seconds_to_hour_min_sec(3600)
-    u'1 hour'
+    '1 hour'
     >>> format_seconds_to_hour_min_sec(62)
-    u'1 minute and 2 seconds'
+    '1 minute and 2 seconds'
     """
 
     if seconds < 1:
@@ -1245,10 +1246,10 @@ def format_seconds_to_hour_min_sec(seconds):
 
     seconds = int(seconds)
 
-    hours = seconds/3600
+    hours = int(seconds/3600)
     seconds = seconds%3600
 
-    minutes = seconds/60
+    minutes = int(seconds/60)
     seconds = seconds%60
 
     if hours:
@@ -1312,16 +1313,16 @@ def convert_bytes(d):
     >>> convert_bytes(None)
     >>> convert_bytes(1)
     1
-    >>> convert_bytes(4711L)
-    4711L
+    >>> convert_bytes(4711)
+    4711
     >>> convert_bytes(True)
     True
     >>> convert_bytes(3.1415)
     3.1415
-    >>> convert_bytes('Hello')
-    u'Hello'
-    >>> convert_bytes(u'Hey')
-    u'Hey'
+    >>> convert_bytes(b'Hello')
+    'Hello'
+    >>> convert_bytes('Hey')
+    'Hey'
     """
     if d is None:
         return d
@@ -1332,24 +1333,8 @@ def convert_bytes(d):
     return d
 
 def sanitize_encoding(filename):
-    r"""
-    Generate a sanitized version of a string (i.e.
-    remove invalid characters and encode in the
-    detected native language encoding).
-
-    >>> sanitize_encoding('\x80')
-    ''
-    >>> sanitize_encoding(u'unicode')
-    'unicode'
-    """
     # The encoding problem goes away in Python 3.. hopefully!
-    if sys.version_info >= (3, 0):
-        return filename
-
-    global encoding
-    if not isinstance(filename, str):
-        filename = filename.decode(encoding, 'ignore')
-    return filename.encode(encoding, 'ignore')
+    return filename
 
 
 def sanitize_filename(filename, max_length=0, use_ascii=False):
@@ -1388,11 +1373,6 @@ def find_mount_point(directory):
 
     >>> find_mount_point('/')
     '/'
-
-    >>> find_mount_point(u'/something')
-    Traceback (most recent call last):
-      ...
-    ValueError: Convert unicode objects to str first.
 
     >>> find_mount_point(None)
     Traceback (most recent call last):
@@ -1443,13 +1423,6 @@ def find_mount_point(directory):
     '/media/usbdisk'
     >>> restore()
     """
-    if isinstance(directory, str):
-        # XXX: This is only valid for Python 2 - misleading error in Python 3?
-        # We do not accept unicode strings, because they could fail when
-        # trying to be converted to some native encoding, so fail loudly
-        # and leave it up to the callee to encode into the proper encoding.
-        raise ValueError('Convert unicode objects to str first.')
-
     if not isinstance(directory, str):
         # In Python 2, we assume it's a byte str; in Python 3, we assume
         # that it's a unicode str. The abspath/ismount/split functions of
