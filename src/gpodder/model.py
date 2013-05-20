@@ -779,10 +779,23 @@ class PodcastChannel(PodcastModelObject):
         self.model._append_podcast(self)
 
     def get_statistics(self):
-        if self.id is None:
-            return (0, 0, 0, 0, 0)
-        else:
-            return self.db.get_podcast_statistics(self.id)
+        assert self.id
+
+        total = len(self.episodes)
+
+        deleted, new, downloaded, unplayed = 0, 0, 0, 0
+        for episode in self.episodes:
+            if episode.state == gpodder.STATE_DELETED:
+                deleted += 1
+            elif episode.state == gpodder.STATE_NORMAL:
+                if episode.is_new:
+                    new += 1
+            elif episode.state == gpodder.STATE_DOWNLOADED:
+                downloaded += 1
+                if episode.is_new:
+                    unplayed += 1
+
+        return (total, deleted, new, downloaded, unplayed)
 
     @property
     def group_by(self):

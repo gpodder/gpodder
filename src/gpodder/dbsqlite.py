@@ -87,37 +87,6 @@ class Database(object):
             except Exception as e:
                 logger.error('Cannot commit: %s', e, exc_info=True)
 
-    def get_podcast_statistics(self, podcast_id=None):
-        """Given a podcast ID, returns the statistics for it
-
-        If the podcast_id is omitted (using the default value), the
-        statistics will be calculated over all podcasts.
-
-        Returns a tuple (total, deleted, new, downloaded, unplayed)
-        """
-        total, deleted, new, downloaded, unplayed = 0, 0, 0, 0, 0
-
-        with self.lock:
-            cur = self.cursor()
-            if podcast_id is not None:
-                cur.execute('SELECT COUNT(*), state, is_new FROM %s WHERE podcast_id = ? GROUP BY state, is_new' % self.TABLE_EPISODE, (podcast_id,))
-            else:
-                cur.execute('SELECT COUNT(*), state, is_new FROM %s GROUP BY state, is_new' % self.TABLE_EPISODE)
-            for count, state, is_new in cur:
-                total += count
-                if state == gpodder.STATE_DELETED:
-                    deleted += count
-                elif state == gpodder.STATE_NORMAL and is_new:
-                    new += count
-                elif state == gpodder.STATE_DOWNLOADED:
-                    downloaded += count
-                    if is_new:
-                        unplayed += count
-
-            cur.close()
-
-        return (total, deleted, new, downloaded, unplayed)
-
     def load_podcasts(self, factory):
         logger.info('Loading podcasts')
 
