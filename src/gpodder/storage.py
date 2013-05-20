@@ -27,6 +27,8 @@ import os
 import gzip
 import threading
 
+from gpodder import util
+
 class Database:
     def __init__(self, filename):
         self.filename = filename + '.jsondb'
@@ -90,5 +92,7 @@ class Database:
 
     def close(self):
         """Close and store outstanding changes"""
-        json.dump(self._data, gzip.open(self.filename, 'wt'), separators=(',', ':'))
+        with util.update_file_safely(self.filename) as filename:
+            with gzip.open(filename, 'wt') as fp:
+                json.dump(self._data, fp, separators=(',', ':'))
 

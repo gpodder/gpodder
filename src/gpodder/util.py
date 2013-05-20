@@ -53,14 +53,16 @@ import time
 import gzip
 import datetime
 import threading
+import tempfile
 
+import urllib.error
 import urllib.parse
-import urllib.request, urllib.parse, urllib.error
-import urllib.request, urllib.error, urllib.parse
+import urllib.request
 import http.client
 import webbrowser
 import mimetypes
 import itertools
+import contextlib
 
 from email.utils import mktime_tz, parsedate_tz
 
@@ -1536,20 +1538,6 @@ def is_known_redirecter(url):
     return False
 
 
-def atomic_rename(old_name, new_name):
-    """Atomically rename/move a (temporary) file
-
-    This is usually used when updating a file safely by writing
-    the new contents into a temporary file and then moving the
-    temporary file over the original file to replace it.
-    """
-    if win32:
-        # Win32 does not support atomic rename with os.rename
-        shutil.move(old_name, new_name)
-    else:
-        os.rename(old_name, new_name)
-
-
 def check_command(self, cmd):
     """Check if a command line command/program exists"""
     program = shlex.split(cmd)[0]
@@ -1705,4 +1693,53 @@ def website_reachable(url):
         pass
 
     return (False, None)
+
+@contextlib.contextmanager
+def update_file_safely(target_filename):
+    """Update file in a safe way using atomic renames
+
+    Example usage:
+
+    >>> filename = tempfile.NamedTemporaryFile(delete=False).name
+    >>> with update_file_safely(filename) as temp_filename:
+    ...    with open(temp_filename, 'w') as fp:
+    ...        fp.write('Try to write this safely')
+    24
+    >>> open(filename).read()
+    'Try to write this safely'
+    >>> with update_file_safely(filename) as temp_filename:
+    ...     with open(temp_filename, 'w') as fp:
+    ...         fp.write('Updated!')
+    ...         raise ValueError('something bad happened')
+    Traceback (most recent call last):
+      ...
+    ValueError: something bad happened
+    >>> open(filename).read()
+    'Try to write this safely'
+    >>> os.remove(filename)
+
+    Note that the temporary file will be deleted and the atomic
+    rename will not take place if something in the "with"-block
+    raises an exception.
+
+    Does not take care of race conditions, as the name of the
+    temporary file is predictable and not unique between different
+    (possibly simultaneous) invocations of this function.
+    """
+    dirname = os.path.dirname(target_filename)
+    basename = os.path.basename(target_filename)
+
+    tmp_filename = os.path.join(dirname, '.tmp-' + basename)
+    try:
+        yield tmp_filename
+    except Exception as e:
+        logger.warn('Exception while atomic-saving file: %s', e, exc_info=True)
+        delete_file(tmp_filename)
+        raise
+
+    if win32:
+        # Win32 does not support atomic rename with os.rename
+        shutil.move(tmp_filename, target_filename)
+    else:
+        os.rename(tmp_filename, target_filename)
 

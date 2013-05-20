@@ -187,13 +187,11 @@ class Config(object):
         logger.info('Flushing settings to disk')
 
         try:
-            fp = open(filename+'.tmp', 'wt')
-            fp.write(repr(self.__json_config))
-            fp.close()
-            util.atomic_rename(filename+'.tmp', filename)
-        except:
-            logger.error('Cannot write settings to %s', filename)
-            util.delete_file(filename+'.tmp')
+            with util.update_file_safely(filename) as temp_filename:
+                with open(temp_filename, 'wt') as fp:
+                    fp.write(repr(self.__json_config))
+        except Exception as e:
+            logger.error('Cannot write settings to %s: %s', filename, e)
             raise
 
         self.__save_thread = None
