@@ -110,7 +110,7 @@ class Core(object):
         DEFAULT_PLUGINS = [
             'gpodder.plugins.soundcloud',
             'gpodder.plugins.xspf',
-            'gpodder.plugins.parser2',
+            'gpodder.plugins.podcast',
         ]
 
         PLUGINS = os.environ.get('GPODDER_PLUGINS', None)
