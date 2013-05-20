@@ -563,7 +563,7 @@ class gPodderCli(object):
         return True
 
     def webui(self, public=None):
-        from gpodder import webui
+        from gpodder.compat import webui
         if public == 'public':
             # Warn the user that the web UI is listening on all network
             # interfaces, which could lead to problems.
@@ -574,7 +574,7 @@ class gPodderCli(object):
             webui.main(core=self.core)
 
     def pipe(self):
-        from gpodder import pipe
+        from gpodder.compat import pipe
         pipe.main(core=self.core)
 
     def search(self, *terms):

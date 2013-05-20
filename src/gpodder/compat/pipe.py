@@ -66,7 +66,7 @@ class Pipe:
     def event_writer_proc(self):
         while True:
             item = self.events_out.get(True)
-            self.writer.write(item.encode('utf-8') + '\n')
+            self.writer.write(item + '\n')
             self.writer.flush()
 
     def event_reader_proc(self):

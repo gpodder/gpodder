@@ -80,7 +80,7 @@ class WebUI(http.server.BaseHTTPRequestHandler):
         if self.path == '/':
             self.path = '/static/index.html'
 
-        path_parts = filter(None, self.path.split('/'))[1:]
+        path_parts = list(filter(None, self.path.split('/')))[1:]
         if '..' not in path_parts:
             if self.path.startswith('/static/'):
                 filename = os.path.join(WebUI.core.prefix, 'share', 'gpodder', 'ui', 'web', *path_parts)
@@ -90,7 +90,7 @@ class WebUI(http.server.BaseHTTPRequestHandler):
                 self.send_response(200)
                 self.send_header('Content-type', mimetype)
                 self.end_headers()
-                self.wfile.write(open(filename).read())
+                self.wfile.write(open(filename, 'rb').read())
                 self.wfile.close()
                 return
             elif self.path.startswith('/json/'):
@@ -99,7 +99,7 @@ class WebUI(http.server.BaseHTTPRequestHandler):
                     self.send_response(200)
                     self.send_header('Content-type', 'application/json')
                     self.end_headers()
-                    self.wfile.write(json.dumps(data))
+                    self.wfile.write(json.dumps(data).encode('utf-8'))
                     self.wfile.close()
                     return
 
