@@ -329,8 +329,6 @@ class gPodderCli(object):
                 self._error(str(e))
             return True
 
-        self._db.commit()
-
         self._info(_('Successfully added %s.' % url))
         return True
 
@@ -366,7 +364,6 @@ class gPodderCli(object):
         if podcast is not None:
             old_title = podcast.title
             podcast.rename(title)
-            self._db.commit()
             self._info(_('Renamed %(old_title)s to %(new_title)s.') % {
                 'old_title': util.convert_bytes(old_title),
                 'new_title': util.convert_bytes(title),
@@ -382,7 +379,6 @@ class gPodderCli(object):
             self._error(_('You are not subscribed to %s.') % url)
         else:
             podcast.delete()
-            self._db.commit()
             self._error(_('Unsubscribed from %s.') % url)
 
         return True
@@ -548,7 +544,6 @@ class gPodderCli(object):
             if not podcast.pause_subscription:
                 podcast.pause_subscription = True
                 podcast.save()
-            self._db.commit()
             self._error(_('Disabling feed update from %s.') % url)
 
         return True
@@ -563,7 +558,6 @@ class gPodderCli(object):
             if podcast.pause_subscription:
                 podcast.pause_subscription = False
                 podcast.save()
-            self._db.commit()
             self._error(_('Enabling feed update from %s.') % url)
 
         return True

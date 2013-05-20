@@ -97,7 +97,7 @@ class Database(object):
             cur.execute(sql)
 
             keys = [desc[0] for desc in cur.description]
-            result = [factory(dict(list(zip(keys, row))), self) for row in cur]
+            result = [factory(zip(keys, row)) for row in cur]
             cur.close()
 
         return result
@@ -115,7 +115,7 @@ class Database(object):
             cur.execute(sql, args)
 
             keys = [desc[0] for desc in cur.description]
-            result = [factory(dict(list(zip(keys, row)))) for row in cur]
+            result = [factory(zip(keys, row)) for row in cur]
             cur.close()
 
         return result
@@ -142,10 +142,10 @@ class Database(object):
             cur.close()
 
     def save_podcast(self, podcast):
-        self._save_object(podcast, self.TABLE_PODCAST, schema.PodcastColumns)
+        self._save_object(podcast, self.TABLE_PODCAST, podcast.__schema__)
 
     def save_episode(self, episode):
-        self._save_object(episode, self.TABLE_EPISODE, schema.EpisodeColumns)
+        self._save_object(episode, self.TABLE_EPISODE, episode.__schema__)
 
     def _save_object(self, o, table, columns):
         with self.lock:

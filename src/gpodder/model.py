@@ -26,7 +26,6 @@
 
 import gpodder
 from gpodder import util
-from gpodder import schema
 from gpodder import coverart
 
 from gpodder.plugins import youtube, vimeo
@@ -85,6 +84,46 @@ register_custom_handler = fetcher.register
 # - downloading: episode.children = (DownloadTask(), None)
 # - playback: episode.children = (None, PlaybackTask())
 
+EpisodeColumns = (
+    'podcast_id',
+    'title',
+    'description',
+    'url',
+    'published',
+    'guid',
+    'link',
+    'file_size',
+    'mime_type',
+    'state',
+    'is_new',
+    'archive',
+    'download_filename',
+    'total_time',
+    'current_position',
+    'current_position_updated',
+    'last_playback',
+    'payment_url',
+)
+
+PodcastColumns = (
+    'title',
+    'url',
+    'link',
+    'description',
+    'cover_url',
+    'auth_username',
+    'auth_password',
+    'http_last_modified',
+    'http_etag',
+    'auto_archive_episodes',
+    'download_folder',
+    'pause_subscription',
+    'section',
+    'payment_url',
+    'download_strategy',
+    'sync_to_mp3_player',
+)
+
 
 class PodcastModelObject(object):
     """
@@ -94,17 +133,26 @@ class PodcastModelObject(object):
     __slots__ = ('id', 'parent', 'children')
 
     @classmethod
-    def create_from_dict(cls, d, *args):
+    def build_from_iterable(cls, iterable, *args):
         """
         Create a new object, passing "args" to the constructor
-        and then updating the object with the values from "d".
+        and then updating the object with the values from the
+        given iterable (should give (key, value) pairs).
         """
         o = cls(*args)
 
-        for k, v in d.items():
+        for k, v in iterable:
             setattr(o, k, v)
 
+        o.finalize_built_object()
         return o
+
+    def finalize_built_object(self):
+        """
+        Carry out any post-build initialization of objects that
+        have been built with build_from_iterable()
+        """
+        pass
 
 class PodcastEpisode(PodcastModelObject):
     """holds data for one object in a channel"""
@@ -112,7 +160,8 @@ class PodcastEpisode(PodcastModelObject):
 
     UPDATE_KEYS = ('title', 'url', 'description', 'link', 'published', 'guid', 'file_size', 'payment_url')
 
-    __slots__ = schema.EpisodeColumns
+    __schema__ = EpisodeColumns
+    __slots__ = __schema__
 
     def _deprecated(self):
         raise Exception('Property is deprecated!')
@@ -272,7 +321,7 @@ class PodcastEpisode(PodcastModelObject):
 
         # Existing download folder names must not be used
         existing_names = [episode.download_filename
-                for episode in self.episodes
+                for episode in self.parent.episodes
                 if episode is not self]
 
         for name in util.generate_names(filename):
@@ -442,7 +491,8 @@ class PodcastEpisode(PodcastModelObject):
 
 
 class PodcastChannel(PodcastModelObject):
-    __slots__ = schema.PodcastColumns + ('_common_prefix',)
+    __schema__ = PodcastColumns
+    __slots__ = __schema__ + ('_common_prefix',)
 
     UNICODE_TRANSLATE = {ord('ö'): 'o', ord('ä'): 'a', ord('ü'): 'u'}
 
@@ -459,11 +509,16 @@ class PodcastChannel(PodcastModelObject):
     SECONDS_PER_WEEK = 7*24*60*60
     EpisodeClass = PodcastEpisode
 
-    def __init__(self, model, id=None):
+    def finalize_built_object(self):
+        if self.id:
+            self.children = self.db.load_episodes(self, self.episode_factory)
+            self._determine_common_prefix()
+
+    def __init__(self, model):
         self.parent = model
         self.children = []
 
-        self.id = id
+        self.id = None
         self.url = None
         self.title = ''
         self.link = ''
@@ -485,10 +540,6 @@ class PodcastChannel(PodcastModelObject):
         self.section = _('Other')
         self._common_prefix = None
         self.download_strategy = PodcastChannel.STRATEGY_DEFAULT
-
-        if self.id:
-            self.children = self.db.load_episodes(self, self.episode_factory)
-            self._determine_common_prefix()
 
     @property
     def model(self):
@@ -646,15 +697,15 @@ class PodcastChannel(PodcastModelObject):
 
             return tmp
 
-    def episode_factory(self, d):
+    def episode_factory(self, iterable):
         """
-        This function takes a dictionary containing key-value pairs for
+        This function takes an iterable containing (key, value) pairs for
         episodes and returns a new PodcastEpisode object that is connected
         to this object.
 
         Returns: A new PodcastEpisode object
         """
-        return self.EpisodeClass.create_from_dict(d, self)
+        return self.EpisodeClass.build_from_iterable(iterable, self)
 
     def _consume_updated_title(self, new_title):
         # Replace multi-space and newlines with single space (Maemo bug 11173)
@@ -762,8 +813,6 @@ class PodcastChannel(PodcastModelObject):
 
         # Re-determine the common prefix for all episodes
         self._determine_common_prefix()
-
-        #self.db.commit()
 
     def delete(self):
         self.db.delete_podcast(self)
@@ -951,12 +1000,12 @@ class Model(object):
         self.children.remove(podcast)
         gpodder.user_extensions.on_podcast_delete(self)
 
-    def get_podcasts(self):
-        def podcast_factory(dct, db):
-            return self.PodcastClass.create_from_dict(dct, self, dct['id'])
+    def podcast_factory(self, iterable):
+        return self.PodcastClass.build_from_iterable(iterable, self)
 
+    def get_podcasts(self):
         if self.children is None:
-            self.children = self.db.load_podcasts(podcast_factory)
+            self.children = self.db.load_podcasts(self.podcast_factory)
 
             # Check download folders for changes (bug 902)
             for podcast in self.children:

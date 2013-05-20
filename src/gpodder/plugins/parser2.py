@@ -114,7 +114,7 @@ class PodcastParserFeed(object):
 
             episode = existing_guids.get(episode_dict['guid'])
             if episode is None:
-                episode = channel.episode_factory(episode_dict)
+                episode = channel.episode_factory(episode_dict.items())
                 new_episodes.append(episode)
                 logger.info('Found new episode: %s', episode.guid)
             else:

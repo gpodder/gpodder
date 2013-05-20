@@ -1580,7 +1580,6 @@ def rename_episode_file(episode, filename):
     episode.file_size = os.path.getsize(filename)
     episode.mime_type = mimetype_from_extension(extension)
     episode.save()
-    episode.db.commit()
 
 
 def get_update_info(url='http://gpodder.org/downloads'):

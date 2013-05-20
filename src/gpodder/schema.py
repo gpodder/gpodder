@@ -28,45 +28,10 @@ import shutil
 import logging
 logger = logging.getLogger(__name__)
 
-EpisodeColumns = (
-    'podcast_id',
-    'title',
-    'description',
-    'url',
-    'published',
-    'guid',
-    'link',
-    'file_size',
-    'mime_type',
-    'state',
-    'is_new',
-    'archive',
-    'download_filename',
-    'total_time',
-    'current_position',
-    'current_position_updated',
-    'last_playback',
-    'payment_url',
-)
+from gpodder import model
 
-PodcastColumns = (
-    'title',
-    'url',
-    'link',
-    'description',
-    'cover_url',
-    'auth_username',
-    'auth_password',
-    'http_last_modified',
-    'http_etag',
-    'auto_archive_episodes',
-    'download_folder',
-    'pause_subscription',
-    'section',
-    'payment_url',
-    'download_strategy',
-    'sync_to_mp3_player',
-)
+PodcastColumns = model.PodcastChannel.__schema__
+EpisodeColumns = model.PodcastEpisode.__schema__
 
 CURRENT_VERSION = 5
 
