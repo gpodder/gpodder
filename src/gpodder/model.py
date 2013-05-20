@@ -712,7 +712,7 @@ class PodcastChannel(PodcastModelObject):
                 logger.debug('Episode removed from feed: %s (%s)',
                         episode.title, episode.guid)
                 gpodder.user_extensions.on_episode_removed_from_podcast(episode)
-                self.db.delete_episode_by_guid(episode.guid, self.id)
+                self.db.delete_episode(episode)
                 self.children.remove(episode)
 
         # Get most recent published of all episodes

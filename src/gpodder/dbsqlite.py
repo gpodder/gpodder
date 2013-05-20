@@ -164,6 +164,14 @@ class Database(object):
             cur.close()
             self.db.commit()
 
+    def delete_episode(self, episode):
+        assert episode.id
+
+        with self.lock:
+            cur = self.cursor()
+            cur.execute('DELETE FROM %s WHERE id = ?' % self.TABLE_EPISODE, (episode.id,))
+            cur.close()
+
     def save_podcast(self, podcast):
         self._save_object(podcast, self.TABLE_PODCAST, schema.PodcastColumns)
 
@@ -191,17 +199,4 @@ class Database(object):
                 logger.error('Cannot save %s: %s', o, e, exc_info=True)
 
             cur.close()
-
-    def delete_episode_by_guid(self, guid, podcast_id):
-        """
-        Deletes episodes that have a specific GUID for
-        a given channel. Used after feed updates for
-        episodes that have disappeared from the feed.
-        """
-        guid = util.convert_bytes(guid)
-
-        with self.lock:
-            cur = self.cursor()
-            cur.execute('DELETE FROM %s WHERE podcast_id = ? AND guid = ?' %
-                    self.TABLE_EPISODE, (podcast_id, guid))
 
