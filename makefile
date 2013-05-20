@@ -56,7 +56,7 @@ GETTEXT_SOURCE += $(GPODDER_DESKTOP_FILE_H)
 DESTDIR ?= /
 PREFIX ?= /usr
 
-PYTHON ?= python
+PYTHON ?= python3
 HELP2MAN ?= help2man
 
 ##########################################################################
