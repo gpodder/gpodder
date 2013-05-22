@@ -202,7 +202,7 @@ def get_real_cover(url):
     if m is not None:
         username = m.group(1)
         api_url = 'http://gdata.youtube.com/feeds/api/users/%s?v=2' % username
-        data = util.urlopen(api_url).read()
+        data = util.urlopen(api_url).read().decode('utf-8', 'ignore')
         match = re.search('<media:thumbnail url=[\'"]([^\'"]+)[\'"]/>', data)
         if match is not None:
             logger.debug('YouTube userpic for %s is: %s', url, match.group(1))

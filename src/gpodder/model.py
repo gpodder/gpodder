@@ -814,6 +814,9 @@ class PodcastChannel(PodcastModelObject):
                 result = fetcher.fetch_channel(self, max_episodes)
                 self._consume_custom_feed(result)
 
+                # Download the cover art if it's not yet available
+                self.model.core.cover_downloader.get_cover(self, download=True)
+
                 self.save()
             except Exception as e:
                 gpodder.user_extensions.on_podcast_update_failed(self, e)
