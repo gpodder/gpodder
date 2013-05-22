@@ -50,14 +50,16 @@ class CoverDownloader(object):
     # Low timeout to avoid unnecessary hangs of GUIs
     TIMEOUT = 5
 
-    def __init__(self):
-        pass
+    def __init__(self, core):
+        self.core = core
 
     def get_cover_all_episodes(self):
         return self._default_filename('podcast-all.png')
 
-    def get_cover(self, filename, cover_url, feed_url, title,
-            username=None, password=None, download=False):
+    def get_cover(self, podcast, download=False):
+        filename = podcast.cover_file
+        cover_url = podcast.cover_url
+
         # Detection of "all episodes" podcast
         if filename == self.ALL_EPISODES_ID:
             return self.get_cover_all_episodes()
@@ -70,25 +72,24 @@ class CoverDownloader(object):
         # If allowed to download files, do so here
         if download:
             # YouTube-specific cover art image resolver
-            youtube_cover_url = youtube.get_real_cover(feed_url)
+            youtube_cover_url = youtube.get_real_cover(podcast.url)
             if youtube_cover_url is not None:
                 cover_url = youtube_cover_url
 
             if not cover_url:
-                return self._fallback_filename(title)
+                return self._fallback_filename(podcast.title)
 
             # We have to add username/password, because password-protected
             # feeds might keep their cover art also protected (bug 1521)
-            if username is not None and password is not None:
-                cover_url = util.url_add_authentication(cover_url,
-                        username, password)
+            cover_url = util.url_add_authentication(cover_url,
+                    podcast.auth_username, podcast.auth_password)
 
             try:
                 logger.info('Downloading cover art: %s', cover_url)
                 data = util.urlopen(cover_url, timeout=self.TIMEOUT).read()
             except Exception as e:
                 logger.warn('Cover art download failed: %s', e)
-                return self._fallback_filename(title)
+                return self._fallback_filename(podcast.title)
 
             try:
                 extension = None
@@ -112,10 +113,10 @@ class CoverDownloader(object):
                 logger.warn('Cannot save cover art', exc_info=True)
 
         # Fallback to cover art based on the podcast title
-        return self._fallback_filename(title)
+        return self._fallback_filename(podcast.title)
 
     def _default_filename(self, basename):
-        return os.path.join(gpodder.images_folder, basename)
+        return os.path.join(self.core.images_folder, basename)
 
     def _fallback_filename(self, title):
         return self._default_filename('podcast-%d.png' % (hash(title)%5))

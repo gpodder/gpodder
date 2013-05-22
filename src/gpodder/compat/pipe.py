@@ -113,9 +113,7 @@ class Pipe:
         yield ('id', 'title', 'downloads', 'cover')
         for podcast in podcasts:
             total, deleted, new, downloaded, unplayed = podcast.get_statistics()
-            cover_filename = self.core.cover_downloader.get_cover(podcast.cover_file,
-                    podcast.cover_url, podcast.url, podcast.title,
-                    podcast.auth_username, podcast.auth_password, False)
+            cover_filename = self.core.cover_downloader.get_cover(podcast)
             yield (podcast.id, podcast.title, downloaded, cover_filename)
 
     def summarize_episodes(self, episodes):

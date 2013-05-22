@@ -113,8 +113,6 @@ import gpodder
 _ = gpodder.gettext
 N_ = gpodder.ngettext
 
-gpodder.images_folder = os.path.join(prefix, 'share', 'gpodder', 'images')
-
 have_ansi = sys.stdout.isatty()
 interactive_console = sys.stdin.isatty() and sys.stdout.isatty()
 is_single_command = False

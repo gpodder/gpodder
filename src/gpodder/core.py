@@ -70,6 +70,8 @@ class Core(object):
         # Home folder: ~/gPodder or $GPODDER_HOME (if set)
         self.home = os.path.abspath(os.environ.get('GPODDER_HOME',
                 os.path.expanduser(os.path.join('~', 'gPodder'))))
+        self.images_folder = os.path.join(self.prefix,
+                'share', 'gpodder', 'images')
 
         # Setup logging
         log.setup(self.home, verbose)
@@ -95,7 +97,7 @@ class Core(object):
         # Load installed/configured plugins
         self.load_plugins()
 
-        self.cover_downloader = coverart.CoverDownloader()
+        self.cover_downloader = coverart.CoverDownloader(self)
 
         # Update the current device in the configuration
         self.config.mygpo.device.type = util.detect_device_type()
