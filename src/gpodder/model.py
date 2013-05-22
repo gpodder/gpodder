@@ -656,8 +656,7 @@ class PodcastChannel(PodcastModelObject):
         return re.sub('^the ', '', key).translate(cls.UNICODE_TRANSLATE)
 
     @classmethod
-    def load(cls, model, url, create=True, authentication_tokens=None,\
-            max_episodes=0):
+    def load(cls, model, url, create=True, authentication_tokens=None):
         existing = [p for p in model.get_podcasts() if p.url == url]
 
         if existing:
@@ -675,7 +674,7 @@ class PodcastChannel(PodcastModelObject):
             tmp.save()
 
             try:
-                tmp.update(max_episodes)
+                tmp.update()
             except Exception as e:
                 logger.debug('Fetch failed. Removing buggy feed.')
                 tmp.remove_downloaded()
@@ -738,7 +737,7 @@ class PodcastChannel(PodcastModelObject):
         self.payment_url = payment_url
         self.save()
 
-    def _consume_custom_feed(self, custom_feed, max_episodes=0):
+    def _consume_custom_feed(self, custom_feed):
         if not custom_feed.was_updated():
             return
 
@@ -802,10 +801,11 @@ class PodcastChannel(PodcastModelObject):
         # Sort episodes by pubdate, descending
         self.children.sort(key=lambda e: e.published, reverse=True)
 
-    def update(self, max_episodes=0):
+    def update(self):
+        max_episodes = self.model.core.config.limit.episodes
         try:
             result = fetcher.fetch_channel(self, max_episodes)
-            self._consume_custom_feed(result, max_episodes)
+            self._consume_custom_feed(result)
 
             self.save()
         except Exception as e:
@@ -1016,12 +1016,9 @@ class Model(object):
 
         return self.children
 
-    def load_podcast(self, url, create=True, authentication_tokens=None,
-                     max_episodes=0):
+    def load_podcast(self, url, create=True, authentication_tokens=None):
         assert all(url != podcast.url for podcast in self.get_podcasts())
-        return self.PodcastClass.load(self, url, create,
-                                      authentication_tokens,
-                                      max_episodes)
+        return self.PodcastClass.load(self, url, create, authentication_tokens)
 
     @classmethod
     def podcast_sort_key(cls, podcast):

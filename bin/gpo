@@ -294,8 +294,7 @@ class gPodderCli(object):
 
         # Subscribe to new podcast
         if create:
-            return self._model.load_podcast(url, create=True,
-                    max_episodes=self._config.limit.episodes)
+            return self._model.load_podcast(url, create=True)
 
         # Load existing podcast
         for podcast in self._model.get_podcasts():
