@@ -280,6 +280,9 @@ class PodcastEpisode(PodcastModelObject):
         gpodder.user_extensions.on_episode_playback(self)
         self.save()
 
+    def is_fresh(self):
+        return self.is_new and self.state == gpodder.STATE_NORMAL
+
     def age_in_days(self):
         return util.file_age_in_days(self.local_filename(create=False,
                 check_only=True))
