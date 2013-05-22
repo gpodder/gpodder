@@ -34,6 +34,7 @@ from gpodder import log
 import sys
 import os
 import gettext
+import logging
 
 def set_socket_timeout():
     # Set up socket timeouts to fix bug 174
@@ -72,6 +73,7 @@ class Core(object):
 
         # Setup logging
         log.setup(self.home, verbose)
+        self.logger = logging.getLogger(__name__)
 
         config_file = os.path.join(self.home, 'Settings.json')
         database_file = os.path.join(self.home, 'Database')
@@ -122,9 +124,12 @@ class Core(object):
             try:
                 __import__(plugin)
             except Exception as e:
-                print('Cannot load plugin: %s (%s)' % (plugin, e), file=sys.stderr)
+                self.logger.warn('Cannot load plugin "%s": %s', plugin, e,
+                        exc_info=True)
 
     def shutdown(self):
+        self.logger.info('Shutting down core')
+
         # Notify all extensions that we are being shut down
         gpodder.user_extensions.shutdown()
 
