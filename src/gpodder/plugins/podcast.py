@@ -28,6 +28,10 @@ _ = gpodder.gettext
 from gpodder import model
 from gpodder import util
 
+# XXX: Avoid "cross-importing" of plugins
+from gpodder.plugins import youtube
+from gpodder.plugins import vimeo
+
 import podcastparser
 
 import urllib.request, urllib.error, urllib.parse
@@ -93,9 +97,15 @@ class PodcastParserFeed(object):
 
     def _pick_enclosure(self, episode_dict):
         if not episode_dict['enclosures']:
-            return False
+            del episode_dict['enclosures']
 
-        # FIXME: YouTube and Vimeo handling
+            # XXX: Move special cases to {youtube,vimeo}.py as subclass
+            if (youtube.is_video_link(episode_dict['link']) or
+                    vimeo.is_video_link(episode_dict['link'])):
+                episode_dict['url'] = episode_dict['link']
+                return True
+
+            return False
 
         # FIXME: Pick the right enclosure from multiple ones
         episode_dict.update(episode_dict['enclosures'][0])
