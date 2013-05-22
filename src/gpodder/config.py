@@ -29,7 +29,6 @@ from gpodder import util
 
 import jsonconfig
 
-import atexit
 import os
 import shutil
 import time
@@ -127,8 +126,6 @@ class Config(object):
         if not os.path.exists(self.__filename):
             self.save()
 
-        atexit.register(self.__atexit)
-
     def register_defaults(self, defaults):
         """
         Register default configuration options (e.g. for extensions)
@@ -176,7 +173,8 @@ class Config(object):
         if self.__save_thread is not None:
             self.save()
 
-    def __atexit(self):
+    def close(self):
+        # If we have outstanding changes to the config, save them
         if self.__save_thread is not None:
             self.save()
 

@@ -128,6 +128,9 @@ class Core(object):
         # Notify all extensions that we are being shut down
         gpodder.user_extensions.shutdown()
 
+        # Close the configuration and store outstanding changes
+        self.config.close()
+
         # Close the database and store outstanding changes
         self.db.close()
 
