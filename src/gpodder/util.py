@@ -593,7 +593,7 @@ def remove_html_tags(html):
     result = re_unicode_entities.sub(lambda x: chr(int(x.group(1))), result)
 
     # Convert named HTML entities to their unicode character
-    result = re_html_entities.sub(lambda x: str(entitydefs.get(x.group(1),''), 'iso-8859-1'), result)
+    result = re_html_entities.sub(lambda x: entitydefs.get(x.group(1),''), result)
     
     # Convert more than two newlines to two newlines
     result = re.sub('([\r\n]{2})([\r\n])+', '\\1', result)
