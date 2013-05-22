@@ -329,7 +329,7 @@ class gPodderCli(object):
         return True
 
     def _print_config(self, search_for):
-        for key in self._config.all_keys():
+        for key in sorted(self._config.all_keys()):
             if search_for is None or search_for.lower() in key.lower():
                 value = config_value_to_string(self._config._lookup(key))
                 safe_print(key, '=', value)
