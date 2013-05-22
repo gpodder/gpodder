@@ -492,7 +492,7 @@ class PodcastEpisode(PodcastModelObject):
 
 class PodcastChannel(PodcastModelObject):
     __schema__ = PodcastColumns
-    __slots__ = __schema__ + ('_common_prefix',)
+    __slots__ = __schema__ + ('_common_prefix', '_updating')
 
     UNICODE_TRANSLATE = {ord('ö'): 'o', ord('ä'): 'a', ord('ü'): 'u'}
 
@@ -542,6 +542,7 @@ class PodcastChannel(PodcastModelObject):
 
         self.section = _('Other')
         self._common_prefix = None
+        self._updating = False
         self.download_strategy = PodcastChannel.STRATEGY_DEFAULT
 
     @property
@@ -802,20 +803,28 @@ class PodcastChannel(PodcastModelObject):
         self.children.sort(key=lambda e: e.published, reverse=True)
 
     def update(self):
-        max_episodes = self.model.core.config.limit.episodes
+        if self._updating:
+            logger.warn('Ignoring call to update() while already in progress')
+            return
+
+        self._updating = True
         try:
-            result = fetcher.fetch_channel(self, max_episodes)
-            self._consume_custom_feed(result)
+            max_episodes = self.model.core.config.limit.episodes
+            try:
+                result = fetcher.fetch_channel(self, max_episodes)
+                self._consume_custom_feed(result)
 
-            self.save()
-        except Exception as e:
-            gpodder.user_extensions.on_podcast_update_failed(self, e)
-            raise
+                self.save()
+            except Exception as e:
+                gpodder.user_extensions.on_podcast_update_failed(self, e)
+                raise
 
-        gpodder.user_extensions.on_podcast_updated(self)
+            gpodder.user_extensions.on_podcast_updated(self)
 
-        # Re-determine the common prefix for all episodes
-        self._determine_common_prefix()
+            # Re-determine the common prefix for all episodes
+            self._determine_common_prefix()
+        finally:
+            self._updating = False
 
     def delete(self):
         self.db.delete_podcast(self)
