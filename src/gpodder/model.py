@@ -259,6 +259,8 @@ class PodcastEpisode(PodcastModelObject):
         task = self.download_task
         if task is None:
             return 0.0
+        elif not self.downloading:
+            return 0.0
 
         return task.progress
 
