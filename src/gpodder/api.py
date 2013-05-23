@@ -36,4 +36,5 @@ class util:
     run_in_background = gpodder.util.run_in_background
     normalize_feed_url = gpodder.util.normalize_feed_url
     remove_html_tags = gpodder.util.remove_html_tags
+    format_date = gpodder.util.format_date
 

@@ -48,7 +48,7 @@ def get_real_download_url(url):
         return url
 
     web_url = 'http://vimeo.com/%s' % video_id
-    web_data = util.urlopen(web_url).read()
+    web_data = util.urlopen(web_url).read().decode('utf-8')
     sig_pair = SIGNATURE_RE.search(web_data)
 
     if sig_pair is None:

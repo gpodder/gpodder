@@ -468,12 +468,7 @@ class gPodderCli(object):
 
     def _download_episode(self, episode):
         self._start_action('Downloading %s', episode.title)
-        
-        task = download.DownloadTask(episode, self._config)
-        task.add_progress_callback(self._update_action)
-        task.status = download.DownloadTask.QUEUED
-        task.run()
-        
+        episode.download(self._update_action)
         self._finish_action()
 
     @FirstArgumentIsPodcastURL

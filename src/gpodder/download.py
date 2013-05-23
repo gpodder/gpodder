@@ -583,13 +583,13 @@ class DownloadTask(object):
         if self.status != self.DONE:
             util.delete_file(self.tempname)
 
-    def __init__(self, episode, config):
+    def __init__(self, episode):
         assert episode.download_task is None
         self.__status = DownloadTask.INIT
         self.__activity = DownloadTask.ACTIVITY_DOWNLOAD
         self.__status_changed = True
         self.__episode = episode
-        self._config = config
+        self._config = episode.channel.model.core.config
 
         # Create the target filename and save it in the database
         self.filename = self.__episode.local_filename(create=True)

@@ -27,6 +27,7 @@
 import gpodder
 from gpodder import util
 from gpodder import coverart
+from gpodder import download
 
 from gpodder.plugins import youtube, vimeo
 
@@ -248,6 +249,12 @@ class PodcastEpisode(PodcastModelObject):
 
         return self.title
 
+    def download(self, progress_callback):
+        task = download.DownloadTask(self)
+        task.add_progress_callback(progress_callback)
+        task.status = download.DownloadTask.QUEUED
+        task.run()
+
     def _set_download_task(self, download_task):
         self.children = (download_task, self.children[1])
 
@@ -262,7 +269,9 @@ class PodcastEpisode(PodcastModelObject):
         if task is None:
             return False
 
-        return task.status in (task.DOWNLOADING, task.QUEUED, task.PAUSED)
+        return task.status in (download.DownloadTask.DOWNLOADING,
+                download.DownloadTask.QUEUED,
+                download.DownloadTask.PAUSED)
 
     def save(self):
         gpodder.user_extensions.on_episode_save(self)

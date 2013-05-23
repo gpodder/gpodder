@@ -401,7 +401,7 @@ def get_free_disk_space(path): # XXX Unused
     return s.f_bavail * s.f_bsize
 
 
-def format_date(timestamp): # XXX Unused
+def format_date(timestamp):
     """
     Converts a UNIX timestamp to a date representation. This
     function returns "Today", "Yesterday", a weekday name or
@@ -442,10 +442,10 @@ def format_date(timestamp): # XXX Unused
 
     if diff < 7:
         # Weekday name
-        return str(timestamp.strftime('%A').decode(encoding))
+        return timestamp.strftime('%A')
     else:
         # Locale's appropriate date representation
-        return str(timestamp.strftime('%x'))
+        return timestamp.strftime('%x')
 
 
 def format_filesize(bytesize, use_si_units=False, digits=2): # XXX Unused
