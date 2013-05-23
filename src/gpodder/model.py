@@ -490,7 +490,8 @@ class PodcastEpisode(PodcastModelObject):
 
     def update_from_dict(self, episode_dict):
         for k in self.UPDATE_KEYS:
-            setattr(self, k, episode_dict[k])
+            if k in episode_dict:
+                setattr(self, k, episode_dict[k])
 
 
 class PodcastChannel(PodcastModelObject):
