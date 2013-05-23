@@ -54,8 +54,6 @@ class Core(object):
         # Home folder: ~/gPodder or $GPODDER_HOME (if set)
         self.home = os.path.abspath(os.environ.get('GPODDER_HOME',
                 os.path.expanduser(os.path.join('~', 'gPodder'))))
-        self.images_folder = os.path.join(self.prefix,
-                'share', 'gpodder', 'images')
 
         # Setup logging
         log.setup(self.home, verbose)

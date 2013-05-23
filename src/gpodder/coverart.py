@@ -45,7 +45,6 @@ class CoverDownloader(object):
     }
 
     EXTENSIONS = list(SUPPORTED_EXTENSIONS.keys())
-    ALL_EPISODES_ID = ':gpodder:all-episodes:'
 
     # Low timeout to avoid unnecessary hangs of GUIs
     TIMEOUT = 5
@@ -53,16 +52,9 @@ class CoverDownloader(object):
     def __init__(self, core):
         self.core = core
 
-    def get_cover_all_episodes(self):
-        return self._default_filename('podcast-all.png')
-
     def get_cover(self, podcast, download=False):
         filename = podcast.cover_file
         cover_url = podcast.cover_url
-
-        # Detection of "all episodes" podcast
-        if filename == self.ALL_EPISODES_ID:
-            return self.get_cover_all_episodes()
 
         # Return already existing files
         for extension in self.EXTENSIONS:
@@ -77,7 +69,7 @@ class CoverDownloader(object):
                 cover_url = youtube_cover_url
 
             if not cover_url:
-                return self._fallback_filename(podcast.title)
+                return None
 
             # We have to add username/password, because password-protected
             # feeds might keep their cover art also protected (bug 1521)
@@ -89,7 +81,7 @@ class CoverDownloader(object):
                 data = util.urlopen(cover_url, timeout=self.TIMEOUT).read()
             except Exception as e:
                 logger.warn('Cover art download failed: %s', e)
-                return self._fallback_filename(podcast.title)
+                return None
 
             try:
                 extension = None
@@ -112,12 +104,5 @@ class CoverDownloader(object):
             except Exception as e:
                 logger.warn('Cannot save cover art', exc_info=True)
 
-        # Fallback to cover art based on the podcast title
-        return self._fallback_filename(podcast.title)
-
-    def _default_filename(self, basename):
-        return os.path.join(self.core.images_folder, basename)
-
-    def _fallback_filename(self, title):
-        return self._default_filename('podcast-%d.png' % (hash(title)%5))
+        return None
 
