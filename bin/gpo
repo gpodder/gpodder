@@ -59,9 +59,6 @@
 
     versioncheck               Check if a new gPodder version is available
     rewrite OLDURL NEWURL      Change the feed URL of [OLDURL] to [NEWURL]
-    webui [public]             Start gPodder's Web UI server
-                               (public = listen on all network interfaces)
-    pipe                       Start gPodder in pipe-based IPC server mode
 
 """
 
@@ -554,21 +551,6 @@ class gPodderCli(object):
             self._error(_('Enabling feed update from %s.') % url)
 
         return True
-
-    def webui(self, public=None):
-        from gpodder.compat import webui
-        if public == 'public':
-            # Warn the user that the web UI is listening on all network
-            # interfaces, which could lead to problems.
-            # Only use this on a trusted, private network!
-            self._warn(_('Listening on ALL network interfaces.'))
-            webui.main(only_localhost=False, core=self.core)
-        else:
-            webui.main(core=self.core)
-
-    def pipe(self):
-        from gpodder.compat import pipe
-        pipe.main(core=self.core)
 
     def versioncheck(self):
         up_to_date, latest_version, __, __ = util.get_update_info()
