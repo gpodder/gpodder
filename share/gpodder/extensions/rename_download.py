@@ -40,7 +40,7 @@ class gPodderExtension:
         filename = os.path.basename(current_filename)
         basename, ext = os.path.splitext(filename)
 
-        new_basename = util.sanitize_encoding(title) + ext
+        new_basename = title + ext
         # On Windows, force ASCII encoding for filenames (bug 1724)
         new_basename = util.sanitize_filename(new_basename,
                 use_ascii=gpodder.ui.win32)

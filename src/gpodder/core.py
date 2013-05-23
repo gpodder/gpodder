@@ -99,9 +99,6 @@ class Core(object):
 
         self.cover_downloader = coverart.CoverDownloader(self)
 
-        # Update the current device in the configuration
-        self.config.mygpo.device.type = util.detect_device_type()
-
     def load_plugins(self):
         """Load (non-essential) plugin modules
 

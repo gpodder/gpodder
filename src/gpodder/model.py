@@ -387,10 +387,17 @@ class PodcastEpisode(PodcastModelObject):
             if 'redirect' in fn_template and template is None:
                 # This looks like a redirection URL - force URL resolving!
                 logger.warn('Looks like a redirection to me: %s', self.url)
-                url = util.get_real_url(self.channel.authenticate_url(self.url))
-                logger.info('Redirection resolved to: %s', url)
-                episode_filename, _ = util.filename_from_url(url)
-                fn_template = util.sanitize_filename(episode_filename, self.MAX_FILENAME_LENGTH)
+
+                try:
+                    auth_url = self.channel.authenticate_url(self.url)
+                    resolved_url = util.urlopen(auth_url).geturl()
+
+                    logger.info('Redirection resolved to: %s', resolved_url)
+                    episode_filename, _ = util.filename_from_url(url)
+                    fn_template = util.sanitize_filename(episode_filename, self.MAX_FILENAME_LENGTH)
+                except Exception as e:
+                    logger.warn('Cannot resolve redirection for %s', self.url,
+                            exc_info=True)
 
             # Use title for YouTube, Vimeo and Soundcloud downloads
             if (youtube.is_video_link(self.url) or

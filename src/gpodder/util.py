@@ -300,14 +300,6 @@ def username_password_from_url(url):
 
     return (username, password)
 
-def directory_is_writable(path):
-    """
-    Returns True if the specified directory exists and is writable
-    by the current user.
-    """
-    return os.path.isdir(path) and os.access(path, os.W_OK)
-
-
 def calculate_size( path):
     """
     Tries to calculate the size of a directory, including any 
@@ -373,22 +365,8 @@ def file_age_in_days(filename):
     else:
         return (datetime.datetime.now()-dt).days
 
-def file_modification_timestamp(filename):
-    """
-    Returns the modification date of the specified file as a number
-    or -1 if the modification date cannot be determined.
-    """
-    if filename is None:
-        return -1
-    try:
-        s = os.stat(filename)
-        return s[stat.ST_MTIME]
-    except:
-        logger.warn('Cannot get modification timestamp for %s', filename)
-        return -1
 
-
-def file_age_to_string(days):
+def file_age_to_string(days): # XXX Unused
     """
     Converts a "number of days" value to a string that
     can be used in the UI to display the file age.
@@ -406,7 +384,7 @@ def file_age_to_string(days):
         return N_('%(count)d day ago', '%(count)d days ago', days) % {'count':days}
 
 
-def get_free_disk_space(path):
+def get_free_disk_space(path): # XXX Unused
     """
     Calculates the free disk space available to the current user
     on the file system that contains the given path.
@@ -423,7 +401,7 @@ def get_free_disk_space(path):
     return s.f_bavail * s.f_bsize
 
 
-def format_date(timestamp):
+def format_date(timestamp): # XXX Unused
     """
     Converts a UNIX timestamp to a date representation. This
     function returns "Today", "Yesterday", a weekday name or
@@ -470,7 +448,7 @@ def format_date(timestamp):
         return str(timestamp.strftime('%x'))
 
 
-def format_filesize(bytesize, use_si_units=False, digits=2):
+def format_filesize(bytesize, use_si_units=False, digits=2): # XXX Unused
     """
     Formats the given size in bytes to be human-readable, 
 
@@ -520,8 +498,8 @@ def delete_file(filename):
     """
     try:
         os.remove(filename)
-    except:
-        pass
+    except Exception as e:
+        logger.warn('Cannot delete file: %s', filename, exc_info=True)
 
 
 def remove_html_tags(html):
@@ -628,7 +606,7 @@ def extension_from_mimetype(mimetype):
     return mimetypes.guess_extension(mimetype) or ''
 
 
-def mimetype_from_extension(extension):
+def mimetype_from_extension(extension): # XXX Only used in WebUI
     """
     Simply guesses what the mimetype should be from the file extension
 
@@ -650,44 +628,6 @@ def mimetype_from_extension(extension):
     type, encoding = mimetypes.guess_type('file'+extension)
 
     return type or ''
-
-
-def extension_correct_for_mimetype(extension, mimetype):
-    """
-    Check if the given filename extension (e.g. ".ogg") is a possible
-    extension for a given mimetype (e.g. "application/ogg") and return
-    a boolean value (True if it's possible, False if not). Also do
-
-    >>> extension_correct_for_mimetype('.ogg', 'application/ogg')
-    True
-    >>> extension_correct_for_mimetype('.ogv', 'video/ogg')
-    True
-    >>> extension_correct_for_mimetype('.ogg', 'audio/mpeg')
-    False
-    >>> extension_correct_for_mimetype('.m4a', 'audio/mp4')
-    True
-    >>> extension_correct_for_mimetype('mp3', 'audio/mpeg')
-    Traceback (most recent call last):
-      ...
-    ValueError: "mp3" is not an extension (missing .)
-    >>> extension_correct_for_mimetype('.mp3', 'audio mpeg')
-    Traceback (most recent call last):
-      ...
-    ValueError: "audio mpeg" is not a mimetype (missing /)
-    """
-    if not '/' in mimetype:
-        raise ValueError('"%s" is not a mimetype (missing /)' % mimetype)
-    if not extension.startswith('.'):
-        raise ValueError('"%s" is not an extension (missing .)' % extension)
-
-    if (extension, mimetype) in _MIME_TYPE_LIST:
-        return True
-
-    # Create a "default" extension from the mimetype, e.g. "application/ogg"
-    # becomes ".ogg", "audio/mpeg" becomes ".mpeg", etc...
-    default = ['.'+mimetype.split('/')[-1]]
-
-    return extension in default+mimetypes.guess_all_extensions(mimetype)
 
 
 def filename_from_url(url):
@@ -769,90 +709,6 @@ def file_type_by_extension(extension):
     
     return None
 
-
-def get_first_line( s):
-    """
-    Returns only the first line of a string, stripped so
-    that it doesn't have whitespace before or after.
-    """
-    return s.strip().split('\n')[0].strip()
-
-
-def object_string_formatter(s, **kwargs):
-    """
-    Makes attributes of object passed in as keyword
-    arguments available as {OBJECTNAME.ATTRNAME} in
-    the passed-in string and returns a string with
-    the above arguments replaced with the attribute
-    values of the corresponding object.
-
-    >>> class x: pass
-    >>> a = x()
-    >>> a.title = 'Hello world'
-    >>> object_string_formatter('{episode.title}', episode=a)
-    'Hello world'
-
-    >>> class x: pass
-    >>> a = x()
-    >>> a.published = 123
-    >>> object_string_formatter('Hi {episode.published} 456', episode=a)
-    'Hi 123 456'
-    """
-    result = s
-    for key, o in kwargs.items():
-        matches = re.findall(r'\{%s\.([^\}]+)\}' % key, s)
-        for attr in matches:
-            if hasattr(o, attr):
-                try:
-                    from_s = '{%s.%s}' % (key, attr)
-                    to_s = str(getattr(o, attr))
-                    result = result.replace(from_s, to_s)
-                except:
-                    logger.warn('Replace of "%s" failed for "%s".', attr, s)
-
-    return result
-
-
-def format_desktop_command(command, filenames, start_position=None):
-    """
-    Formats a command template from the "Exec=" line of a .desktop
-    file to a string that can be invoked in a shell.
-
-    Handled format strings: %U, %u, %F, %f and a fallback that
-    appends the filename as first parameter of the command.
-
-    Also handles non-standard %p which is replaced with the start_position
-    (probably only makes sense if starting a single file). (see bug 1140)
-
-    See http://standards.freedesktop.org/desktop-entry-spec/1.0/ar01s06.html
-
-    Returns a list of commands to execute, either one for
-    each filename if the application does not support multiple
-    file names or one for all filenames (%U, %F or unknown).
-    """
-    if start_position is not None:
-        command = command.replace('%p', str(start_position))
-
-    command = shlex.split(command)
-
-    command_before = command
-    command_after = []
-    multiple_arguments = True
-    for fieldcode in ('%U', '%F', '%u', '%f'):
-        if fieldcode in command:
-            command_before = command[:command.index(fieldcode)]
-            command_after = command[command.index(fieldcode)+1:]
-            multiple_arguments = fieldcode in ('%U', '%F')
-            break
-
-    if multiple_arguments:
-        return [command_before + filenames + command_after]
-
-    commands = []
-    for filename in filenames:
-        commands.append(command_before+[filename]+command_after)
-
-    return commands
 
 def url_strip_authentication(url):
     """
@@ -963,16 +819,6 @@ def urlopen(url, headers=None, data=None, timeout=None):
     else:
         return opener.open(request, timeout=timeout)
 
-def get_real_url(url):
-    """
-    Gets the real URL of a file and resolves all redirects.
-    """
-    try:
-        return urlopen(url).geturl()
-    except:
-        logger.error('Getting real url for %s', url, exc_info=True)
-        return url
-
 
 def find_command(command):
     """
@@ -980,9 +826,6 @@ def find_command(command):
     executable by the user. Returns the first occurence of an
     executable binary in the PATH, or None if the command is
     not available.
-
-    On Windows, this also looks for "<command>.bat" and
-    "<command>.exe" files if "<command>" itself doesn't exist.
     """
 
     if 'PATH' not in os.environ:
@@ -995,102 +838,8 @@ def find_command(command):
 
     return None
 
-idle_add_handler = None
 
-def idle_add(func, *args):
-    """Run a function in the main GUI thread
-
-    This is a wrapper function that does the Right Thing depending on if we are
-    running on Gtk+, Qt or CLI.
-
-    You should use this function if you are calling from a Python thread and
-    modify UI data, so that you make sure that the function is called as soon
-    as possible from the main UI thread.
-    """
-    if gpodder.ui.gtk:
-        import gobject
-        gobject.idle_add(func, *args)
-    elif gpodder.ui.qml:
-        from PySide.QtCore import Signal, QTimer, QThread, Qt, QObject
-
-        class IdleAddHandler(QObject):
-            signal = Signal(object)
-            def __init__(self):
-                QObject.__init__(self)
-
-                self.main_thread_id = QThread.currentThreadId()
-
-                self.signal.connect(self.run_func)
-
-            def run_func(self, func):
-                assert QThread.currentThreadId() == self.main_thread_id, \
-                    ("Running in %s, not %s"
-                     % (str(QThread.currentThreadId()),
-                        str(self.main_thread_id)))
-                func()
-
-            def idle_add(self, func, *args):
-                def doit():
-                    try:
-                        func(*args)
-                    except Exception as e:
-                        logger.exception("Running %s%s: %s",
-                                         func, str(tuple(args)), str(e))
-
-                if QThread.currentThreadId() == self.main_thread_id:
-                    # If we emit the signal in the main thread,
-                    # then the function will be run immediately.
-                    # Instead, use a single shot timer with a 0
-                    # timeout: this will run the function when the
-                    # event loop next iterates.
-                    QTimer.singleShot(0, doit)
-                else:
-                    self.signal.emit(doit)
-
-        global idle_add_handler
-        if idle_add_handler is None:
-            idle_add_handler = IdleAddHandler()
-
-        idle_add_handler.idle_add(func, *args)
-    else:
-        func(*args)
-
-
-def bluetooth_available():
-    """
-    Returns True or False depending on the availability
-    of bluetooth functionality on the system.
-    """
-    if find_command('bluetooth-sendto') or \
-            find_command('gnome-obex-send'):
-        return True
-    else:
-        return False
-
-
-def bluetooth_send_file(filename):
-    """
-    Sends a file via bluetooth.
-
-    This function tries to use "bluetooth-sendto", and if
-    it is not available, it also tries "gnome-obex-send".
-    """
-    command_line = None
-
-    if find_command('bluetooth-sendto'):
-        command_line = ['bluetooth-sendto']
-    elif find_command('gnome-obex-send'):
-        command_line = ['gnome-obex-send']
-
-    if command_line is not None:
-        command_line.append(filename)
-        return (subprocess.Popen(command_line).wait() == 0)
-    else:
-        logger.error('Cannot send file. Please install "bluetooth-sendto" or "gnome-obex-send".')
-        return False
-
-
-def format_time(value):
+def format_time(value): # XXX Unused
     """Format a seconds value to a string
 
     >>> format_time(0)
@@ -1107,6 +856,7 @@ def format_time(value):
         return dt.strftime('%M:%S')
     else:
         return dt.strftime('%H:%M:%S')
+
 
 def parse_date(value):
     """Parse a date string into a Unix timestamp
@@ -1127,7 +877,8 @@ def parse_date(value):
     logger.error('Cannot parse date: %s', repr(value))
     return 0
 
-def parse_time(value):
+
+def parse_time(value): # XXX: Only used in podcastparser
     """Parse a time string into seconds
 
     >>> parse_time('0')
@@ -1174,46 +925,6 @@ def parse_time(value):
     return int(value)
 
 
-def format_seconds_to_hour_min_sec(seconds):
-    """
-    Take the number of seconds and format it into a
-    human-readable string (duration).
-
-    >>> format_seconds_to_hour_min_sec(3834)
-    '1 hour, 3 minutes and 54 seconds'
-    >>> format_seconds_to_hour_min_sec(3600)
-    '1 hour'
-    >>> format_seconds_to_hour_min_sec(62)
-    '1 minute and 2 seconds'
-    """
-
-    if seconds < 1:
-        return N_('%(count)d second', '%(count)d seconds', seconds) % {'count':seconds}
-
-    result = []
-
-    seconds = int(seconds)
-
-    hours = int(seconds/3600)
-    seconds = seconds%3600
-
-    minutes = int(seconds/60)
-    seconds = seconds%60
-
-    if hours:
-        result.append(N_('%(count)d hour', '%(count)d hours', hours) % {'count':hours})
-
-    if minutes:
-        result.append(N_('%(count)d minute', '%(count)d minutes', minutes) % {'count':minutes})
-
-    if seconds:
-        result.append(N_('%(count)d second', '%(count)d seconds', seconds) % {'count':seconds})
-
-    if len(result) > 1:
-        return (' '+_('and')+' ').join((', '.join(result[:-1]), result[-1]))
-    else:
-        return result[0]
-
 def http_request(url, method='HEAD'):
     (scheme, netloc, path, parms, qry, fragid) = urllib.parse.urlparse(url)
     conn = http.client.HTTPConnection(netloc)
@@ -1221,31 +932,6 @@ def http_request(url, method='HEAD'):
     conn.request(method, url[start:])
     return conn.getresponse()
 
-
-def gui_open(filename):
-    """
-    Open a file or folder with the default application set
-    by the Desktop environment. This uses "xdg-open" on all
-    systems with a few exceptions:
-    """
-    try:
-        if gpodder.ui.osx:
-            subprocess.Popen(['open', filename])
-        else:
-            subprocess.Popen(['xdg-open', filename])
-        return True
-    except:
-        logger.error('Cannot open file/folder: "%s"', filename, exc_info=True)
-        return False
-
-
-def open_website(url):
-    """
-    Opens the specified URL using the default system web
-    browser. This uses Python's "webbrowser" module, so
-    make sure your system is set up correctly.
-    """
-    run_in_background(lambda: webbrowser.open(url))
 
 def convert_bytes(d):
     """
@@ -1276,10 +962,6 @@ def convert_bytes(d):
         return d.decode('utf-8', 'ignore')
     return d
 
-def sanitize_encoding(filename):
-    # The encoding problem goes away in Python 3.. hopefully!
-    return filename
-
 
 def sanitize_filename(filename, max_length=0, use_ascii=False):
     """
@@ -1307,155 +989,6 @@ def sanitize_filename(filename, max_length=0, use_ascii=False):
     return filename
 
 
-def find_mount_point(directory):
-    """
-    Try to find the mount point for a given directory.
-    If the directory is itself a mount point, return
-    it. If not, remove the last part of the path and
-    re-check if it's a mount point. If the directory
-    resides on your root filesystem, "/" is returned.
-
-    >>> find_mount_point('/')
-    '/'
-
-    >>> find_mount_point(None)
-    Traceback (most recent call last):
-      ...
-    ValueError: Directory names should be of type str.
-
-    >>> find_mount_point(42)
-    Traceback (most recent call last):
-      ...
-    ValueError: Directory names should be of type str.
-
-    >>> from minimock import mock, restore
-    >>> mocked_mntpoints = ('/', '/home', '/media/usbdisk', '/media/cdrom')
-    >>> mock('os.path.ismount', returns_func=lambda x: x in mocked_mntpoints)
-    >>>
-    >>> # For mocking os.getcwd(), we simply use a lambda to avoid the
-    >>> # massive output of "Called os.getcwd()" lines in this doctest
-    >>> os.getcwd = lambda: '/home/thp'
-    >>>
-    >>> find_mount_point('.')
-    Called os.path.ismount('/home/thp')
-    Called os.path.ismount('/home')
-    '/home'
-    >>> find_mount_point('relativity')
-    Called os.path.ismount('/home/thp/relativity')
-    Called os.path.ismount('/home/thp')
-    Called os.path.ismount('/home')
-    '/home'
-    >>> find_mount_point('/media/usbdisk/')
-    Called os.path.ismount('/media/usbdisk')
-    '/media/usbdisk'
-    >>> find_mount_point('/home/thp/Desktop')
-    Called os.path.ismount('/home/thp/Desktop')
-    Called os.path.ismount('/home/thp')
-    Called os.path.ismount('/home')
-    '/home'
-    >>> find_mount_point('/media/usbdisk/Podcasts/With Spaces')
-    Called os.path.ismount('/media/usbdisk/Podcasts/With Spaces')
-    Called os.path.ismount('/media/usbdisk/Podcasts')
-    Called os.path.ismount('/media/usbdisk')
-    '/media/usbdisk'
-    >>> find_mount_point('/home/')
-    Called os.path.ismount('/home')
-    '/home'
-    >>> find_mount_point('/media/cdrom/../usbdisk/blubb//')
-    Called os.path.ismount('/media/usbdisk/blubb')
-    Called os.path.ismount('/media/usbdisk')
-    '/media/usbdisk'
-    >>> restore()
-    """
-    if not isinstance(directory, str):
-        raise ValueError('Directory names should be of type str.')
-
-    directory = os.path.abspath(directory)
-
-    while directory != '/':
-        if os.path.ismount(directory):
-            return directory
-        else:
-            (directory, tail_data) = os.path.split(directory)
-
-    return '/'
-
-
-# matches http:// and ftp:// and mailto://
-protocolPattern = re.compile(r'^\w+://')
-
-def isabs(string):
-    """
-    @return true if string is an absolute path or protocoladdress
-    for addresses beginning in http:// or ftp:// or ldap:// -
-    they are considered "absolute" paths.
-    Source: http://code.activestate.com/recipes/208993/
-    """
-    if protocolPattern.match(string): return 1
-    return os.path.isabs(string)
-
-
-def commonpath(l1, l2, common=[]):
-    """
-    helper functions for relpath
-    Source: http://code.activestate.com/recipes/208993/
-    """
-    if len(l1) < 1: return (common, l1, l2)
-    if len(l2) < 1: return (common, l1, l2)
-    if l1[0] != l2[0]: return (common, l1, l2)
-    return commonpath(l1[1:], l2[1:], common+[l1[0]])
-
-def relpath(p1, p2):
-    """
-    Finds relative path from p1 to p2
-    Source: http://code.activestate.com/recipes/208993/
-    """
-    pathsplit = lambda s: s.split(os.path.sep)
-
-    (common,l1,l2) = commonpath(pathsplit(p1), pathsplit(p2))
-    p = []
-    if len(l1) > 0:
-        p = [ ('..'+os.sep) * len(l1) ]
-    p = p + l2
-    if len(p) is 0:
-        return "."
-
-    return os.path.join(*p)
-
-
-def get_hostname():
-    """Return the hostname of this computer
-
-    This can be implemented in a different way on each
-    platform and should yield a unique-per-user device ID.
-    """
-    nodename = platform.node()
-
-    if nodename:
-        return nodename
-
-    # Fallback - but can this give us "localhost"?
-    return socket.gethostname()
-
-def detect_device_type():
-    """Device type detection for gpodder.net
-
-    This function tries to detect on which
-    kind of device gPodder is running on.
-
-    Possible return values:
-    desktop, laptop, mobile, server, other
-    """
-    #if gpodder.ui.harmattan or gpodder.ui.sailfish:
-    #    return 'mobile'
-
-    if glob.glob('/proc/acpi/battery/*'):
-        # Linux: If we have a battery, assume Laptop
-        return 'laptop'
-
-    return 'desktop'
-
-
 def generate_names(filename):
     basename, ext = os.path.splitext(filename)
     for i in itertools.count():
@@ -1465,33 +998,7 @@ def generate_names(filename):
             yield filename
 
 
-def is_known_redirecter(url):
-    """Check if a URL redirect is expected, and no filenames should be updated
-
-    We usually honor URL redirects, and update filenames accordingly.
-    In some cases (e.g. Soundcloud) this results in a worse filename,
-    so we hardcode and detect these cases here to avoid renaming files
-    for which we know that a "known good default" exists.
-
-    The problem here is that by comparing the currently-assigned filename
-    with the new filename determined by the URL, we cannot really determine
-    which one is the "better" URL (e.g. "n5rMSpXrqmR9.128.mp3" for Soundcloud).
-    """
-
-    # Soundcloud-hosted media downloads (we take the track name as filename)
-    if url.startswith('http://ak-media.soundcloud.com/'):
-        return True
-
-    return False
-
-
-def check_command(self, cmd):
-    """Check if a command line command/program exists"""
-    program = shlex.split(cmd)[0]
-    return (find_command(program) is not None)
-
-
-def rename_episode_file(episode, filename):
+def rename_episode_file(episode, filename): # XXX Only used by some extensions
     """Helper method to update a PodcastEpisode object
 
     Useful after renaming/converting its download file.
@@ -1519,7 +1026,7 @@ def get_update_info(url='http://gpodder.org/downloads'):
     Example result (outdated version, 10 days after release):
         (False, '3.0.5', '2012-02-29', 10)
     """
-    data = urlopen(url).read()
+    data = urlopen(url).read().decode('utf-8')
     id_field_re = re.compile(r'<([a-z]*)[^>]*id="([^"]*)"[^>]*>([^<]*)</\1>')
     info = dict((m.group(2), m.group(3)) for m in id_field_re.finditer(data))
 
@@ -1586,7 +1093,7 @@ def unix_get_active_interfaces():
             yield b.group(1)
 
 
-def connection_available():
+def connection_available(): # XXX Unused
     """Check if an Internet connection is available
 
     Returns True if a connection is available (or if there
@@ -1621,22 +1128,6 @@ def connection_available():
         # When we can't determine the connection status, act as if we're online (bug 1730)
         return True
 
-
-def website_reachable(url):
-    """
-    Check if a specific website is available.
-    """
-    if not connection_available():
-        # No network interfaces up - assume website not reachable
-        return (False, None)
-
-    try:
-        response = urllib.request.urlopen(url, timeout=1)
-        return (True, response)
-    except urllib.error.URLError as err:
-        pass
-
-    return (False, None)
 
 @contextlib.contextmanager
 def update_file_safely(target_filename):

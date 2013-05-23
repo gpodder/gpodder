@@ -57,6 +57,7 @@
 
   - Other commands -
 
+    versioncheck               Check if a new gPodder version is available
     rewrite OLDURL NEWURL      Change the feed URL of [OLDURL] to [NEWURL]
     webui [public]             Start gPodder's Web UI server
                                (public = listen on all network interfaces)
@@ -135,8 +136,6 @@ def safe_print(*args, **kwargs):
     ofile = kwargs.get('file', sys.stdout)
     output = ' '.join(map(convert, args))
     if ofile.encoding is None:
-        output = util.sanitize_encoding(output)
-    else:
         output = output.encode(ofile.encoding, 'replace')
 
     try:
@@ -571,6 +570,16 @@ class gPodderCli(object):
         from gpodder.compat import pipe
         pipe.main(core=self.core)
 
+    def versioncheck(self):
+        up_to_date, latest_version, __, __ = util.get_update_info()
+
+        if up_to_date:
+            self._info(_('gPodder is up to date. The latest version is %(version)s.')
+                    % {'version': latest_version})
+        else:
+            self._info(_('New version %(version)s available at %(url)s.')
+                    % {'version': latest_version, 'url': gpodder.__url__})
+
     def search(self, *terms):
         query = ' '.join(terms)
         if not query:
@@ -660,7 +669,7 @@ class gPodderCli(object):
             if rows_needed < rows:
                 safe_print(output)
             else:
-                pydoc.pager(util.sanitize_encoding(output))
+                pydoc.pager(output)
         else:
             safe_print(output)
 

@@ -800,7 +800,7 @@ class DownloadTask(object):
 
             # In some cases, the redirect of a URL causes the real filename to
             # be revealed in the final URL (e.g. http://gpodder.org/bug/1423)
-            if real_url != url and not util.is_known_redirecter(real_url):
+            if real_url != url:
                 realname, realext = util.filename_from_url(real_url)
 
                 # Only update from redirect if the redirected-to filename has
