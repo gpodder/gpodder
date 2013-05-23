@@ -33,7 +33,7 @@ import traceback
 
 logger = logging.getLogger(__name__)
 
-def setup(home, verbose=True):
+def setup(home=None, verbose=True):
     # Configure basic stdout logging
     STDOUT_FMT = '%(created)f [%(name)s] %(levelname)s: %(message)s'
     logging.basicConfig(format=STDOUT_FMT,
@@ -47,7 +47,7 @@ def setup(home, verbose=True):
         original_excepthook(exctype, value, tb)
     sys.excepthook = on_uncaught_exception
 
-    if os.environ.get('GPODDER_WRITE_LOGS', 'yes') != 'no':
+    if home and os.environ.get('GPODDER_WRITE_LOGS', 'yes') != 'no':
         # Configure file based logging
         logging_basename = time.strftime('%Y-%m-%d.log')
         logging_directory = os.path.join(home, 'Logs')

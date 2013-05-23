@@ -32,7 +32,7 @@ sys.path.insert(0, os.path.join(here, '..', '..', 'src'))
 from gpodder import log
 log.setup(verbose=True)
 
-from gpodder import podcastparser
+import podcastparser
 
 RSS_FILES = os.path.join(here, 'data', '*.rss')
 
@@ -44,13 +44,13 @@ for rss_filename in glob.glob(RSS_FILES):
     parsed = podcastparser.parse('file://' + rss_filename, open(rss_filename))
 
     if expected != parsed:
-        print 'FAIL:    ', basename
-        print '='*40
-        print 'EXPECTED:', json.dumps(expected, indent=2)
-        print '='*40
-        print 'PARSED:  ', json.dumps(parsed, indent=2)
-        print '='*40
+        print('FAIL:    ', basename)
+        print('='*40)
+        print('EXPECTED:', json.dumps(expected, indent=2))
+        print('='*40)
+        print('PARSED:  ', json.dumps(parsed, indent=2))
+        print('='*40)
         sys.exit(1)
     else:
-        print 'OK:      ', basename
+        print('OK:      ', basename)
 

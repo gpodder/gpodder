@@ -46,6 +46,9 @@ help:
 unittest:
 	LC_ALL=C PYTHONPATH=src/ $(PYTHON) -m gpodder.test.__init__
 
+parsertest:
+	$(PYTHON) tools/test-parser/test_parser.py
+
 release: distclean
 	$(PYTHON) setup.py sdist
 
@@ -96,7 +99,7 @@ distclean: clean
 
 ##########################################################################
 
-.PHONY: help unittest release releasetest install clean distclean messages headlink
+.PHONY: help unittest parsertest release releasetest install clean distclean messages headlink
 
 ##########################################################################
 
