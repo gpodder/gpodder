@@ -73,8 +73,6 @@ import xml.dom.minidom
 _ = gpodder.gettext
 N_ = gpodder.ngettext
 
-win32 = (platform.system() == 'Windows')
-
 import locale
 try:
     locale.setlocale(locale.LC_ALL, '')
@@ -89,11 +87,6 @@ if encoding is None:
         lang = os.environ['LANG']
         (language, encoding) = lang.rsplit('.', 1)
         logger.info('Detected encoding: %s', encoding)
-    elif win32:
-        # To quote http://docs.python.org/howto/unicode.html:
-        # ,,on Windows, Python uses the name "mbcs" to refer
-        #   to whatever the currently configured encoding is``
-        encoding = 'mbcs'
     else:
         encoding = 'utf-8'
 
@@ -413,35 +406,6 @@ def file_age_to_string(days):
         return N_('%(count)d day ago', '%(count)d days ago', days) % {'count':days}
 
 
-def is_system_file(filename):
-    """
-    Checks to see if the given file is a system file.
-    """
-    if win32 and win32file is not None:
-        result = win32file.GetFileAttributes(filename)
-        #-1 is returned by GetFileAttributes when an error occurs
-        #0x4 is the FILE_ATTRIBUTE_SYSTEM constant
-        return result != -1 and result & 0x4 != 0
-    else:
-        return False
-
-
-def get_free_disk_space_win32(path):
-    """
-    Win32-specific code to determine the free disk space remaining
-    for a given path. Uses code from:
-
-    http://mail.python.org/pipermail/python-list/2003-May/203223.html
-    """
-    if win32file is None:
-        # Cannot determine free disk space
-        return 0
-
-    drive, tail = os.path.splitdrive(path)
-    userFree, userTotal, freeOnDisk = win32file.GetDiskFreeSpaceEx(drive)
-    return userFree
-
-
 def get_free_disk_space(path):
     """
     Calculates the free disk space available to the current user
@@ -453,9 +417,6 @@ def get_free_disk_space(path):
 
     if not os.path.exists(path):
         return 0
-
-    if win32:
-        return get_free_disk_space_win32(path)
 
     s = os.statvfs(path)
 
@@ -869,10 +830,6 @@ def format_desktop_command(command, filenames, start_position=None):
     each filename if the application does not support multiple
     file names or one for all filenames (%U, %F or unknown).
     """
-    # Replace backslashes with slashes to fix win32 issues
-    # (even on win32, "/" works, but "\" does not)
-    command = command.replace('\\', '/')
-
     if start_position is not None:
         command = command.replace('%p', str(start_position))
 
@@ -1033,12 +990,6 @@ def find_command(command):
 
     for path in os.environ['PATH'].split(os.pathsep):
         command_file = os.path.join(path, command)
-        if win32 and not os.path.exists(command_file):
-            for extension in ('.bat', '.exe'):
-                cmd = command_file + extension
-                if os.path.isfile(cmd):
-                    command_file = cmd
-                    break
         if os.path.isfile(command_file) and os.access(command_file, os.X_OK):
             return command_file
 
@@ -1276,13 +1227,9 @@ def gui_open(filename):
     Open a file or folder with the default application set
     by the Desktop environment. This uses "xdg-open" on all
     systems with a few exceptions:
-
-       on Win32, os.startfile() is used
     """
     try:
-        if win32:
-            os.startfile(filename)
-        elif gpodder.ui.osx:
+        if gpodder.ui.osx:
             subprocess.Popen(['open', filename])
         else:
             subprocess.Popen(['xdg-open', filename])
@@ -1647,10 +1594,7 @@ def connection_available():
     if no network interfaces are up (i.e. no connectivity).
     """
     try:
-        if win32:
-            # FIXME: Implement for Windows
-            return True
-        elif gpodder.ui.osx:
+        if gpodder.ui.osx:
             return len(list(osx_get_active_interfaces())) > 0
         else:
             # By default, we assume we're not offline (bug 1730)
@@ -1737,9 +1681,5 @@ def update_file_safely(target_filename):
         delete_file(tmp_filename)
         raise
 
-    if win32:
-        # Win32 does not support atomic rename with os.rename
-        shutil.move(tmp_filename, target_filename)
-    else:
-        os.rename(tmp_filename, target_filename)
+    os.rename(tmp_filename, target_filename)
 

@@ -153,7 +153,6 @@ class ExtensionMetadata(object):
             gpodder.ui.unity
             gpodder.ui.cli
             gpodder.ui.osx
-            gpodder.ui.win32
 
         New, unknown UIs are silently ignored and will evaluate to False.
         """

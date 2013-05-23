@@ -652,7 +652,7 @@ class PodcastChannel(PodcastModelObject):
                         found = True
                         break
 
-            if not found and not util.is_system_file(filename):
+            if not found:
                 logger.warn('Unknown external file: %s', filename)
 
     @classmethod
