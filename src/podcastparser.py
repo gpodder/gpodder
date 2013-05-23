@@ -22,14 +22,11 @@
 
 from xml import sax
 
-from gpodder import util
-
-from gpodder.plugins import youtube, vimeo
-
 import re
 import os
 import time
 import urllib.parse
+from email.utils import mktime_tz, parsedate_tz
 
 import logging
 logger = logging.getLogger(__name__)
@@ -234,6 +231,71 @@ class Namespace():
 
         return name
 
+def parse_time(value):
+    """Parse a time string into seconds
+
+    >>> parse_time('0')
+    0
+    >>> parse_time('128')
+    128
+    >>> parse_time('00:00')
+    0
+    >>> parse_time('00:00:00')
+    0
+    >>> parse_time('00:20')
+    20
+    >>> parse_time('00:00:20')
+    20
+    >>> parse_time('01:00:00')
+    3600
+    >>> parse_time('03:02:01')
+    10921
+    >>> parse_time('61:08')
+    3668
+    >>> parse_time('25:03:30')
+    90210
+    >>> parse_time('25:3:30')
+    90210
+    >>> parse_time('61.08')
+    3668
+    """
+    if value == '':
+        return 0
+
+    if not value:
+        raise ValueError('Invalid value: %s' % (str(value),))
+
+    m = re.match(r'(\d+)[:.](\d\d?)[:.](\d\d?)', value)
+    if m:
+        hours, minutes, seconds = m.groups()
+        return (int(hours) * 60 + int(minutes)) * 60 + int(seconds)
+
+    m = re.match(r'(\d+)[:.](\d\d?)', value)
+    if m:
+        minutes, seconds = m.groups()
+        return int(minutes) * 60 + int(seconds)
+
+    return int(value)
+
+def parse_date(value):
+    """Parse a date string into a Unix timestamp
+
+    >>> parse_date('Sat Dec 29 18:23:19 CET 2012')
+    1356801799
+
+    >>> parse_date('')
+    0
+    """
+    if not value:
+        return 0
+
+    parsed = parsedate_tz(value)
+    if parsed is not None:
+        return int(mktime_tz(parsed))
+
+    logger.error('Cannot parse date: %s', repr(value))
+    return 0
+
 def file_basename_no_extension(filename):
     base = os.path.basename(filename)
     name, extension = os.path.splitext(base)
@@ -243,10 +305,10 @@ def squash_whitespace(text):
     return re.sub('\s+', ' ', text.strip())
 
 def parse_duration(text):
-    return util.parse_time(text.strip())
+    return parse_time(text.strip())
 
 def parse_url(text):
-    return util.normalize_feed_url(text.strip())
+    return text.strip() # XXX util.normalize_feed_url
 
 def parse_length(text):
     if text is None:
@@ -265,7 +327,7 @@ def parse_type(text):
     return text
 
 def parse_pubdate(text):
-    return util.parse_date(text)
+    return parse_date(text)
 
 
 MAPPING = {

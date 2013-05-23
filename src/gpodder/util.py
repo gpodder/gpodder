@@ -878,53 +878,6 @@ def parse_date(value):
     return 0
 
 
-def parse_time(value): # XXX: Only used in podcastparser
-    """Parse a time string into seconds
-
-    >>> parse_time('0')
-    0
-    >>> parse_time('128')
-    128
-    >>> parse_time('00:00')
-    0
-    >>> parse_time('00:00:00')
-    0
-    >>> parse_time('00:20')
-    20
-    >>> parse_time('00:00:20')
-    20
-    >>> parse_time('01:00:00')
-    3600
-    >>> parse_time('03:02:01')
-    10921
-    >>> parse_time('61:08')
-    3668
-    >>> parse_time('25:03:30')
-    90210
-    >>> parse_time('25:3:30')
-    90210
-    >>> parse_time('61.08')
-    3668
-    """
-    if value == '':
-        return 0
-
-    if not value:
-        raise ValueError('Invalid value: %s' % (str(value),))
-
-    m = re.match(r'(\d+)[:.](\d\d?)[:.](\d\d?)', value)
-    if m:
-        hours, minutes, seconds = m.groups()
-        return (int(hours) * 60 + int(minutes)) * 60 + int(seconds)
-
-    m = re.match(r'(\d+)[:.](\d\d?)', value)
-    if m:
-        minutes, seconds = m.groups()
-        return int(minutes) * 60 + int(seconds)
-
-    return int(value)
-
-
 def http_request(url, method='HEAD'):
     (scheme, netloc, path, parms, qry, fragid) = urllib.parse.urlparse(url)
     conn = http.client.HTTPConnection(netloc)
