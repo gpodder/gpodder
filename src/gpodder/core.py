@@ -31,26 +31,10 @@ from gpodder import coverart
 from gpodder import model
 from gpodder import log
 
-import sys
 import os
 import gettext
 import logging
-
-def set_socket_timeout():
-    # Set up socket timeouts to fix bug 174
-    SOCKET_TIMEOUT = 60
-    import socket
-    socket.setdefaulttimeout(SOCKET_TIMEOUT)
-
-def init_i18n():
-    # i18n setup (will result in "gettext" to be available)
-    # Use   _ = gpodder.gettext   in modules to enable string translations
-    textdomain = 'gpodder'
-    locale_dir = gettext.bindtextdomain(textdomain)
-    t = gettext.translation(textdomain, locale_dir, fallback=True)
-    gpodder.gettext = t.gettext
-    gpodder.ngettext = t.ngettext
-
+import socket
 
 class Core(object):
     def __init__(self,
@@ -59,8 +43,8 @@ class Core(object):
                  model_class=model.Model,
                  prefix=None,
                  verbose=True):
-        init_i18n()
-        set_socket_timeout()
+        self._init_i18n()
+        self._set_socket_timeout()
 
         self.prefix = prefix
         if not self.prefix:
@@ -95,18 +79,25 @@ class Core(object):
         gpodder.user_extensions = extensions.ExtensionManager(self)
 
         # Load installed/configured plugins
-        self.load_plugins()
+        self._load_plugins()
 
         self.cover_downloader = coverart.CoverDownloader(self)
 
-    def load_plugins(self):
-        """Load (non-essential) plugin modules
+    def _init_i18n(self):
+        # i18n setup (will result in "gettext" to be available)
+        # Use   _ = gpodder.gettext   in modules to enable string translations
+        textdomain = 'gpodder'
+        locale_dir = gettext.bindtextdomain(textdomain)
+        t = gettext.translation(textdomain, locale_dir, fallback=True)
+        gpodder.gettext = t.gettext
+        gpodder.ngettext = t.ngettext
 
-        This loads a default set of plugins, but you can use
-        the environment variable "GPODDER_PLUGINS" to modify
-        the list of plugins.
-        """
+    def _set_socket_timeout(self):
+        # Set up socket timeouts to fix bug 174
+        SOCKET_TIMEOUT = 60
+        socket.setdefaulttimeout(SOCKET_TIMEOUT)
 
+    def _load_plugins(self):
         # Plugins to load by default
         DEFAULT_PLUGINS = [
             'gpodder.plugins.soundcloud',
