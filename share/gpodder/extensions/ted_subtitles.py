@@ -17,7 +17,6 @@ __title__ = _('Subtitle Downloader for TED Talks')
 __description__ = _('Downloads .srt subtitles for TED Talks Videos')
 __authors__ = 'Danilo Shiga <daniloshiga@gmail.com>'
 __category__ = 'post-download'
-__only_for__ = 'gtk, cli, qml'
 
 
 class gPodderExtension(object):
