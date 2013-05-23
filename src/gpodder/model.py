@@ -705,8 +705,7 @@ class PodcastChannel(PodcastModelObject):
                 tmp.update()
             except Exception as e:
                 logger.debug('Fetch failed. Removing buggy feed.')
-                tmp.remove_downloaded()
-                tmp.delete()
+                tmp.unsubscribe()
                 raise
 
             # Determine the section in which this podcast should appear
@@ -856,7 +855,8 @@ class PodcastChannel(PodcastModelObject):
         finally:
             self._updating = False
 
-    def delete(self):
+    def unsubscribe(self):
+        self.remove_downloaded()
         self.db.delete_podcast(self)
         self.model._remove_podcast(self)
 
@@ -989,13 +989,15 @@ class PodcastChannel(PodcastModelObject):
             # Find a unique folder name for this podcast
             download_folder = self.find_unique_folder_name(fn_template)
 
-            # Try removing the download folder if it has been created previously
+            # Try renaming the download folder if it has been created previously
             if self.download_folder is not None:
-                folder = os.path.join(self.model.core.downloads, self.download_folder)
+                old_folder = os.path.join(self.model.core.downloads, self.download_folder)
+                new_folder = os.path.join(self.model.core.downloads, download_folder)
                 try:
-                    os.rmdir(folder)
-                except OSError:
-                    logger.info('Old download folder is kept for %s', self.url)
+                    os.rename(old_folder, new_folder)
+                except Exception as ex:
+                    logger.info('Cannot rename old download folder: %s',
+                            old_folder, exc_info=True)
 
             logger.info('Updating download_folder of %s to %s', self.url,
                     download_folder)

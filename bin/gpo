@@ -337,7 +337,7 @@ class gPodderCli(object):
         if podcast is None:
             self._error(_('You are not subscribed to %s.') % url)
         else:
-            podcast.delete()
+            podcast.unsubscribe()
             self._error(_('Unsubscribed from %s.') % url)
 
         return True
