@@ -858,26 +858,6 @@ def format_time(value): # XXX Unused
         return dt.strftime('%H:%M:%S')
 
 
-def parse_date(value):
-    """Parse a date string into a Unix timestamp
-
-    >>> parse_date('Sat Dec 29 18:23:19 CET 2012')
-    1356801799
-
-    >>> parse_date('')
-    0
-    """
-    if not value:
-        return 0
-
-    parsed = parsedate_tz(value)
-    if parsed is not None:
-        return int(mktime_tz(parsed))
-
-    logger.error('Cannot parse date: %s', repr(value))
-    return 0
-
-
 def http_request(url, method='HEAD'):
     (scheme, netloc, path, parms, qry, fragid) = urllib.parse.urlparse(url)
     conn = http.client.HTTPConnection(netloc)

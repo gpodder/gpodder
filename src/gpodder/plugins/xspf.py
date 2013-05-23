@@ -37,6 +37,8 @@ _ = gpodder.gettext
 from gpodder import model
 from gpodder import util
 
+import podcastparser
+
 import os
 import time
 
@@ -58,7 +60,7 @@ def get_metadata(url):
     filetype = headers['content-type'] or 'application/octet-stream'
 
     if 'last-modified' in headers:
-        filedate = util.parse_date(headers['last-modified'])
+        filedate = podcastparser.parse_date(headers['last-modified'])
     else:
         filedate = None
 
