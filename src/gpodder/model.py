@@ -253,7 +253,14 @@ class PodcastEpisode(PodcastModelObject):
         task = download.DownloadTask(self)
         task.add_progress_callback(progress_callback)
         task.status = download.DownloadTask.QUEUED
-        task.run()
+        return task.run()
+
+    def download_progress(self):
+        task = self.download_task
+        if task is None:
+            return 0.0
+
+        return task.progress
 
     def _set_download_task(self, download_task):
         self.children = (download_task, self.children[1])

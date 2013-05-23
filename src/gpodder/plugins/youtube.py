@@ -106,7 +106,7 @@ def get_real_download_url(url, preferred_fmt_ids=None):
             if 'location' in req.msg:
                 url = req.msg['location']
             else:
-                page = req.read()
+                page = req.read().decode('utf-8')
 
         # Try to find the best video format available for this video
         # (http://forum.videohelp.com/topic336882-1800.html#1912972)
@@ -132,11 +132,6 @@ def get_real_download_url(url, preferred_fmt_ids=None):
 
         formats_available = set(fmt_id for fmt_id, url in fmt_id_url_map)
         fmt_id_url_map = dict(fmt_id_url_map)
-
-        # This provides good quality video, seems to be always available
-        # and is playable fluently in Media Player
-        if gpodder.ui.harmattan or gpodder.ui.sailfish:
-            preferred_fmt_ids = [18]
 
         for id in preferred_fmt_ids:
             id = int(id)
