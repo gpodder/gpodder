@@ -226,8 +226,13 @@ def normalize_feed_url(url):
 
     scheme, netloc, path, query, fragment = urlparse.urlsplit(url)
 
+    # Leave auth untouched
+    parts = netloc.rsplit('@', 1)
+
     # Schemes and domain names are case insensitive
-    scheme, netloc = scheme.lower(), netloc.lower()
+    scheme, parts[-1] = scheme.lower(), parts[-1].lower()
+
+    netloc = '@'.join(parts)
 
     # Normalize empty paths to "/"
     if path == '':
