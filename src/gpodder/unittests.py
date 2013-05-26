@@ -58,7 +58,7 @@ for module in doctest_modules:
 
 # Modules (in gpodder) for which unit tests (in gpodder.test) exist
 # ex: Tests are in "gpodder.test.model", coverage reported for "gpodder.model"
-test_modules = ['model']
+test_modules = ['model', 'util']
 
 for module in test_modules:
     test_mod = __import__('.'.join((test_package, module)), fromlist=[module])
