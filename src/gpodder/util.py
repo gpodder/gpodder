@@ -973,11 +973,11 @@ def url_add_authentication(url, username, password):
 
     # Relaxations of the strict quoting rules (bug 1521):
     # 1. Accept '@' in username and password
-    # 2. Acecpt ':' in password only
+    # 2. Accept ':' and '!' in password only
     username = urllib.quote(username, safe='@')
 
     if password is not None:
-        password = urllib.quote(password, safe='@:')
+        password = urllib.quote(password, safe='@:!')
         auth_string = ':'.join((username, password))
     else:
         auth_string = username

@@ -46,3 +46,38 @@ class TestNormalizeFeedUrl(unittest.TestCase):
 
     def test_shortcut(self):
         self.assertEqual(util.normalize_feed_url('fb:43FPodcast'), 'http://feeds.feedburner.com/43FPodcast')
+
+class TestUrlAddAuthentication(unittest.TestCase):
+
+    def test_exclamation_in_password_not_escaped(self):
+        self.assertEqual(util.url_add_authentication('https://host.com/', 'foo', 'b!r'), 'https://foo:b!r@host.com/')
+
+    def test_blank_user_none_password(self):
+        self.assertEqual(util.url_add_authentication('https://host.com/', '', None), 'https://host.com/')
+
+    def test_none_user_none_password(self):
+        self.assertEqual(util.url_add_authentication('http://example.org/', None, None), 'http://example.org/')
+
+    def test_telnet_user_password(self):
+        self.assertEqual(util.url_add_authentication('telnet://host.com/', 'foo', 'bar'), 'telnet://foo:bar@host.com/')
+
+    def test_ftp_user_none_password(self):
+        self.assertEqual(util.url_add_authentication('ftp://example.org', 'billy', None), 'ftp://billy@example.org')
+
+    def test_ftp_user_blank_password(self):
+        self.assertEqual(util.url_add_authentication('ftp://example.org', 'billy', ''), 'ftp://billy:@example.org')
+
+    def test_localhost(self):
+        self.assertEqual(util.url_add_authentication('http://localhost/x', 'aa', 'bc'), 'http://aa:bc@localhost/x')
+
+    def test_forward_slash_in_user_and_at_in_pass_allowed(self):
+        self.assertEqual(util.url_add_authentication('http://blubb.lan/u.html', 'i/o', 'P@ss:'), 'http://i%2Fo:P@ss:@blubb.lan/u.html')
+
+    def test_at_in_user_and_slash_in_pass_allowed(self):
+        self.assertEqual(util.url_add_authentication('http://i%2F:P%40%3A@cx.lan', 'P@x', 'i/'), 'http://P@x:i%2F@cx.lan')
+
+    def test_existing_auth_replaced(self):
+        self.assertEqual(util.url_add_authentication('http://a:b@x.org/', 'c', 'd'), 'http://c:d@x.org/')
+
+    def test_spaces_in_user_and_password_are_escaped(self):
+        self.assertEqual(util.url_add_authentication('http://x.org/', 'a b', 'c d'), 'http://a%20b:c%20d@x.org/')
