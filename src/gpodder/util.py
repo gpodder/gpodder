@@ -363,23 +363,6 @@ def file_age_in_days(filename):
         return (datetime.datetime.now()-dt).days
 
 
-def get_free_disk_space(path): # XXX Unused
-    """
-    Calculates the free disk space available to the current user
-    on the file system that contains the given path.
-
-    If the path (or its parent folder) does not yet exist, this
-    function returns zero.
-    """
-
-    if not os.path.exists(path):
-        return 0
-
-    s = os.statvfs(path)
-
-    return s.f_bavail * s.f_bsize
-
-
 def format_date(timestamp):
     """
     Converts a UNIX timestamp to a date representation.
@@ -415,45 +398,6 @@ def format_date(timestamp):
     else:
         # Locale's appropriate date representation
         return timestamp.strftime('%x')
-
-
-def format_filesize(bytesize, use_si_units=False, digits=2): # XXX Unused
-    """
-    Formats the given size in bytes to be human-readable,
-    """
-    si_units = (
-            ( 'kB', 10**3 ),
-            ( 'MB', 10**6 ),
-            ( 'GB', 10**9 ),
-    )
-
-    binary_units = (
-            ( 'KiB', 2**10 ),
-            ( 'MiB', 2**20 ),
-            ( 'GiB', 2**30 ),
-    )
-
-    try:
-        bytesize = float( bytesize)
-    except:
-        return '-'
-
-    if bytesize < 0:
-        return '-'
-
-    if use_si_units:
-        units = si_units
-    else:
-        units = binary_units
-
-    ( used_unit, used_value ) = ( 'B', bytesize )
-
-    for ( unit, value ) in units:
-        if bytesize >= value:
-            used_value = bytesize / float(value)
-            used_unit = unit
-
-    return ('%.'+str(digits)+'f %s') % (used_value, used_unit)
 
 
 def delete_file(filename):
@@ -805,25 +749,6 @@ def find_command(command):
     return None
 
 
-def format_time(value): # XXX Unused
-    """Format a seconds value to a string
-
-    >>> format_time(0)
-    '00:00'
-    >>> format_time(20)
-    '00:20'
-    >>> format_time(3600)
-    '01:00:00'
-    >>> format_time(10921)
-    '03:02:01'
-    """
-    dt = datetime.datetime.utcfromtimestamp(value)
-    if dt.hour == 0:
-        return dt.strftime('%M:%S')
-    else:
-        return dt.strftime('%H:%M:%S')
-
-
 def http_request(url, method='HEAD'):
     (scheme, netloc, path, parms, qry, fragid) = urllib.parse.urlparse(url)
     conn = http.client.HTTPConnection(netloc)
@@ -947,85 +872,6 @@ def run_in_background(function, daemon=False):
     thread.setDaemon(daemon)
     thread.start()
     return thread
-
-
-def linux_get_active_interfaces():
-    """Get active network interfaces using 'ip link'
-
-    Returns a list of active network interfaces or an
-    empty list if the device is offline. The loopback
-    interface is not included.
-    """
-    process = subprocess.Popen(['ip', 'link'], stdout=subprocess.PIPE)
-    data, _ = process.communicate()
-    for interface, _ in re.findall(r'\d+: ([^:]+):.*state (UP|UNKNOWN)', data):
-        if interface != 'lo':
-            yield interface
-
-
-def osx_get_active_interfaces():
-    """Get active network interfaces using 'ifconfig'
-
-    Returns a list of active network interfaces or an
-    empty list if the device is offline. The loopback
-    interface is not included.
-    """
-    process = subprocess.Popen(['ifconfig'], stdout=subprocess.PIPE)
-    stdout, _ = process.communicate()
-    for i in re.split('\n(?!\t)', stdout, re.MULTILINE):
-        b = re.match('(\\w+):.*status: active$', i, re.MULTILINE | re.DOTALL)
-        if b:
-            yield b.group(1)
-
-def unix_get_active_interfaces():
-    """Get active network interfaces using 'ifconfig'
-
-    Returns a list of active network interfaces or an
-    empty list if the device is offline. The loopback
-    interface is not included.
-    """
-    process = subprocess.Popen(['ifconfig'], stdout=subprocess.PIPE)
-    stdout, _ = process.communicate()
-    for i in re.split('\n(?!\t)', stdout, re.MULTILINE):
-        b = re.match('(\\w+):.*status: active$', i, re.MULTILINE | re.DOTALL)
-        if b:
-            yield b.group(1)
-
-
-def connection_available(): # XXX Unused
-    """Check if an Internet connection is available
-
-    Returns True if a connection is available (or if there
-    is no way to determine the connection). Returns False
-    if no network interfaces are up (i.e. no connectivity).
-    """
-    try:
-        if gpodder.ui.osx:
-            return len(list(osx_get_active_interfaces())) > 0
-        else:
-            # By default, we assume we're not offline (bug 1730)
-            offline = False
-
-            if find_command('ifconfig') is not None:
-                # If ifconfig is available, and it says we don't have
-                # any active interfaces, assume we're offline
-                if len(list(unix_get_active_interfaces())) == 0:
-                    offline = True
-
-            # If we assume we're offline, try the "ip" command as fallback
-            if offline and find_command('ip') is not None:
-                if len(list(linux_get_active_interfaces())) == 0:
-                    offline = True
-                else:
-                    offline = False
-
-            return not offline
-
-        return False
-    except Exception as e:
-        logger.warn('Cannot get connection status: %s', e, exc_info=True)
-        # When we can't determine the connection status, act as if we're online (bug 1730)
-        return True
 
 
 @contextlib.contextmanager
