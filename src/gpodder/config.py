@@ -159,6 +159,7 @@ defaults = {
     'device_sync': {
         'device_type': 'none', # Possible values: 'none', 'filesystem'
         'device_folder': '/media',
+        'ipod_mount': '/media/ipod',        
 
         'one_folder_per_podcast': True,
         'skip_played_episodes': True,
