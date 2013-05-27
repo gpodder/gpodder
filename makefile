@@ -27,8 +27,7 @@ MOFILES = $(patsubst po/%.po,$(LOCALEDIR)/%/LC_MESSAGES/gpodder.mo, $(POFILES))
 GETTEXT_SOURCE=$(wildcard bin/* \
 	                  src/gpodder/*.py \
 		          src/gpodder/compat/*.py \
-			  src/gpodder/plugins/*.py \
-			  share/gpodder/extensions/*.py)
+			  src/gpodder/plugins/*.py)
 
 DESTDIR ?= /
 PREFIX ?= /usr

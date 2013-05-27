@@ -822,22 +822,6 @@ def generate_names(filename):
             yield filename
 
 
-def rename_episode_file(episode, filename): # XXX Only used by some extensions
-    """Helper method to update a PodcastEpisode object
-
-    Useful after renaming/converting its download file.
-    """
-    if not os.path.exists(filename):
-        raise ValueError('Target filename does not exist.')
-
-    basename, extension = os.path.splitext(filename)
-
-    episode.download_filename = os.path.basename(filename)
-    episode.file_size = os.path.getsize(filename)
-    episode.mime_type = mimetype_from_extension(extension)
-    episode.save()
-
-
 def get_update_info(url='http://gpodder.org/downloads'):
     """
     Get up to date release information from gpodder.org.
