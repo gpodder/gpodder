@@ -43,20 +43,10 @@ from datetime import datetime
 
 import gpodder
 
-_ = gpodder.gettext
-
 from gpodder import util
 
 import logging
 logger = logging.getLogger(__name__)
-
-
-CATEGORY_DICT = {
-    'desktop-integration': _('Desktop Integration'),
-    'interface': _('Interface'),
-    'post-download': _('Post download'),
-}
-DEFAULT_CATEGORY = _('Other')
 
 
 def call_extensions(func):
@@ -97,7 +87,7 @@ def call_extensions(func):
 class ExtensionMetadata(object):
     # Default fallback metadata in case metadata fields are missing
     DEFAULTS = {
-        'description': _('No description for this extension.'),
+        'description': '-',
         'doc': None,
         'payment': None,
     }
@@ -115,11 +105,8 @@ class ExtensionMetadata(object):
         if 'title' not in metadata:
             metadata['title'] = container.name
 
-        category = metadata.get('category', 'other')
-        metadata['category'] = CATEGORY_DICT.get(category, DEFAULT_CATEGORY)
-        
         self.__dict__.update(metadata)
-        
+
     def __getattr__(self, name):
         try:
             return self.DEFAULTS[name]
@@ -210,7 +197,7 @@ class ExtensionContainer(object):
         """
         result = util.find_command(command)
         if result is None:
-            msg = _('Command not found: %(command)s') % {'command': command}
+            msg = 'Command not found: %(command)s' % {'command': command}
             raise MissingCommand(msg, command)
         return result
 
@@ -226,7 +213,7 @@ class ExtensionContainer(object):
             if result is not None:
                 return result
 
-        msg = _('Need at least one of the following commands: %(list_of_commands)s') % \
+        msg = 'Need at least one of the following commands: %(list_of_commands)s' % \
             {'list_of_commands': ', '.join(command_list)}
         raise MissingCommand(msg, ', '.join(command_list))
 
@@ -263,7 +250,7 @@ class ExtensionContainer(object):
                     match = re.match('No module named (.*)', exception.message)
                     if match:
                         module = match.group(1)
-                        msg = _('Python module not found: %(module)s') % {
+                        msg = 'Python module not found: %(module)s' % {
                             'module': module
                         }
                         exception = MissingCommand(msg, module, exception)

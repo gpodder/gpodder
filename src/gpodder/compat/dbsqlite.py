@@ -27,7 +27,6 @@
 
 
 import gpodder
-_ = gpodder.gettext
 
 import sys
 

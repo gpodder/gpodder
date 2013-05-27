@@ -24,7 +24,6 @@
 
 
 import gpodder
-_ = gpodder.gettext
 
 import logging
 logger = logging.getLogger(__name__)

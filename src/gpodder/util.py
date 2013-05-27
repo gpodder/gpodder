@@ -70,9 +70,6 @@ from email.utils import mktime_tz, parsedate_tz
 import io
 import xml.dom.minidom
 
-_ = gpodder.gettext
-N_ = gpodder.ngettext
-
 import locale
 try:
     locale.setlocale(locale.LC_ALL, '')
@@ -366,24 +363,6 @@ def file_age_in_days(filename):
         return (datetime.datetime.now()-dt).days
 
 
-def file_age_to_string(days): # XXX Unused
-    """
-    Converts a "number of days" value to a string that
-    can be used in the UI to display the file age.
-
-    >>> file_age_to_string(0)
-    ''
-    >>> file_age_to_string(1)
-    '1 day ago'
-    >>> file_age_to_string(2)
-    '2 days ago'
-    """
-    if days < 1:
-        return ''
-    else:
-        return N_('%(count)d day ago', '%(count)d days ago', days) % {'count':days}
-
-
 def get_free_disk_space(path): # XXX Unused
     """
     Calculates the free disk space available to the current user
@@ -403,10 +382,7 @@ def get_free_disk_space(path): # XXX Unused
 
 def format_date(timestamp):
     """
-    Converts a UNIX timestamp to a date representation. This
-    function returns "Today", "Yesterday", a weekday name or
-    the date in %x format, which (according to the Python docs)
-    is the "Locale's appropriate date representation".
+    Converts a UNIX timestamp to a date representation.
 
     Returns None if there has been an error converting the
     timestamp to a string representation.
@@ -416,19 +392,12 @@ def format_date(timestamp):
 
     seconds_in_a_day = 60*60*24
 
-    today = time.localtime()[:3]
-    yesterday = time.localtime(time.time() - seconds_in_a_day)[:3]
     try:
         timestamp_date = time.localtime(timestamp)[:3]
     except ValueError as ve:
         logger.warn('Cannot convert timestamp', exc_info=True)
         return None
-    
-    if timestamp_date == today:
-       return _('Today')
-    elif timestamp_date == yesterday:
-       return _('Yesterday')
-   
+
     try:
         diff = int( (time.time() - timestamp)/seconds_in_a_day )
     except:
@@ -450,10 +419,7 @@ def format_date(timestamp):
 
 def format_filesize(bytesize, use_si_units=False, digits=2): # XXX Unused
     """
-    Formats the given size in bytes to be human-readable, 
-
-    Returns a localized "(unknown)" string when the bytesize
-    has a negative value.
+    Formats the given size in bytes to be human-readable,
     """
     si_units = (
             ( 'kB', 10**3 ),
@@ -470,10 +436,10 @@ def format_filesize(bytesize, use_si_units=False, digits=2): # XXX Unused
     try:
         bytesize = float( bytesize)
     except:
-        return _('(unknown)')
+        return '-'
 
     if bytesize < 0:
-        return _('(unknown)')
+        return '-'
 
     if use_si_units:
         units = si_units

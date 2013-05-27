@@ -23,8 +23,6 @@
 
 import gpodder
 
-_ = gpodder.gettext
-
 from gpodder import model
 from gpodder import util
 
@@ -122,9 +120,9 @@ class SoundcloudUser(object):
             filesize, filetype, filename = get_metadata(url)
 
             yield {
-                'title': track.get('title', track.get('permalink')) or _('Unknown track'),
+                'title': track.get('title', track.get('permalink')) or 'Unknown track',
                 'link': track.get('permalink_url') or 'http://soundcloud.com/'+self.username,
-                'description': track.get('description') or _('No description available'),
+                'description': track.get('description') or 'No description available',
                 'url': url,
                 'file_size': int(filesize),
                 'mime_type': filetype,
@@ -147,7 +145,7 @@ class SoundcloudFeed(object):
         return default
 
     def get_title(self):
-        return _('%s on Soundcloud') % self.username
+        return '%s on Soundcloud' % self.username
 
     def get_image(self):
         return self.sc_user.get_coverart()
@@ -156,7 +154,7 @@ class SoundcloudFeed(object):
         return 'http://soundcloud.com/%s' % self.username
 
     def get_description(self):
-        return _('Tracks published by %s on Soundcloud.') % self.username
+        return 'Tracks published by %s on Soundcloud.' % self.username
 
     def get_payment_url(self):
         return None
@@ -184,13 +182,13 @@ class SoundcloudFavFeed(SoundcloudFeed):
         super(SoundcloudFavFeed, self).__init__(username)
 
     def get_title(self):
-        return _('%s\'s favorites on Soundcloud') % self.username
+        return '%s\'s favorites on Soundcloud' % self.username
 
     def get_link(self):
         return 'http://soundcloud.com/%s/favorites' % self.username
 
     def get_description(self):
-        return _('Tracks favorited by %s on Soundcloud.') % self.username
+        return 'Tracks favorited by %s on Soundcloud.' % self.username
 
     def get_new_episodes(self, channel):
         return self._get_new_episodes(channel, 'favorites')

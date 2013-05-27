@@ -51,8 +51,6 @@ import email
 from email.header import decode_header
 
 
-_ = gpodder.gettext
-
 def get_header_param(headers, param, header_name):
     """Extract a HTTP header parameter from a dict
 
@@ -321,7 +319,7 @@ class DownloadURLOpener(urllib.request.FancyURLopener):
         # Keep track of authentication attempts, fail after the third one
         self._auth_retry_counter += 1
         if self._auth_retry_counter > 3:
-            raise AuthenticationError(_('Wrong username/password'))
+            raise AuthenticationError('Wrong username/password')
 
         if self.channel.auth_username or self.channel.auth_password:
             logger.debug('Authenticating as "%s" to "%s" for realm "%s".',
@@ -518,9 +516,6 @@ class DownloadTask(object):
 
     The same thing works for failed downloads ("notify_as_failed()").
     """
-    # Possible states this download task can be in
-    STATUS_MESSAGE = (_('Added'), _('Queued'), _('Downloading'),
-            _('Finished'), _('Failed'), _('Cancelled'), _('Paused'))
     (INIT, QUEUED, DOWNLOADING, DONE, FAILED, CANCELLED, PAUSED) = list(range(7))
 
     # Wheter this task represents a file download or a device sync operation
@@ -846,24 +841,24 @@ class DownloadTask(object):
                 self.speed = 0.0
         except urllib.error.ContentTooShortError as ctse:
             self.status = DownloadTask.FAILED
-            self.error_message = _('Missing content from server')
+            self.error_message = 'Missing content from server'
         except IOError as ioe:
             logger.error('%s while downloading "%s": %s', ioe.strerror,
                     self.__episode.title, ioe.filename, exc_info=True)
             self.status = DownloadTask.FAILED
             d = {'error': ioe.strerror, 'filename': ioe.filename}
-            self.error_message = _('I/O Error: %(error)s: %(filename)s') % d
+            self.error_message = 'I/O Error: %(error)s: %(filename)s' % d
         except gPodderDownloadHTTPError as gdhe:
             logger.error('HTTP %s while downloading "%s": %s',
                     gdhe.error_code, self.__episode.title, gdhe.error_message,
                     exc_info=True)
             self.status = DownloadTask.FAILED
             d = {'code': gdhe.error_code, 'message': gdhe.error_message}
-            self.error_message = _('HTTP Error %(code)s: %(message)s') % d
+            self.error_message = 'HTTP Error %(code)s: %(message)s' % d
         except Exception as e:
             self.status = DownloadTask.FAILED
             logger.error('Download failed: %s', str(e), exc_info=True)
-            self.error_message = _('Error: %s') % (str(e),)
+            self.error_message = 'Error: %s' % (str(e),)
 
         if self.status == DownloadTask.DOWNLOADING:
             # Everything went well - we're done

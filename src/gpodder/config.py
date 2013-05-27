@@ -34,8 +34,6 @@ import shutil
 import time
 import logging
 
-_ = gpodder.gettext
-
 defaults = {
     # Various limits (downloading, updating, etc..)
     'limit': {

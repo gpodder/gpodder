@@ -45,8 +45,6 @@ import hashlib
 import collections
 import string
 
-_ = gpodder.gettext
-
 
 class NoHandlerForURL(Exception): pass
 
@@ -528,12 +526,6 @@ class PodcastChannel(PodcastModelObject):
     # Enumerations for download strategy
     STRATEGY_DEFAULT, STRATEGY_LATEST = list(range(2))
 
-    # Description and ordering of strategies
-    STRATEGIES = [
-        (STRATEGY_DEFAULT, _('Default')),
-        (STRATEGY_LATEST, _('Only keep latest')),
-    ]
-
     MAX_FOLDERNAME_LENGTH = 60
     SECONDS_PER_WEEK = 7*24*60*60
     EpisodeClass = PodcastEpisode
@@ -569,7 +561,7 @@ class PodcastChannel(PodcastModelObject):
         self.pause_subscription = False
         self.sync_to_mp3_player = True
 
-        self.section = _('Other')
+        self.section = 'other'
         self._common_prefix = None
         self._updating = False
         self.download_strategy = PodcastChannel.STRATEGY_DEFAULT
@@ -585,21 +577,6 @@ class PodcastChannel(PodcastModelObject):
     @property
     def episodes(self):
         return self.children
-
-    def get_download_strategies(self):
-        for value, caption in PodcastChannel.STRATEGIES:
-            yield self.download_strategy == value, value, caption
-
-    def set_download_strategy(self, download_strategy):
-        if download_strategy == self.download_strategy:
-            return
-
-        caption = dict(self.STRATEGIES).get(download_strategy)
-        if caption is not None:
-            logger.debug('Strategy for %s changed to %s', self.title, caption)
-            self.download_strategy = download_strategy
-        else:
-            logger.warn('Cannot set strategy to %d', download_strategy)
 
     def check_download_folder(self):
         """Check the download folder for externally-downloaded files
@@ -900,7 +877,7 @@ class PodcastChannel(PodcastModelObject):
 
     def _get_content_type(self):
         if 'youtube.com' in self.url or 'vimeo.com' in self.url:
-            return _('Video')
+            return 'video'
 
         audio, video, other = 0, 0, 0
         for episode in self.episodes:
@@ -913,11 +890,11 @@ class PodcastChannel(PodcastModelObject):
                 other += 1
 
         if audio >= video:
-            return _('Audio')
+            return 'audio'
         elif video > other:
-            return _('Video')
+            return 'video'
 
-        return _('Other')
+        return 'other'
 
     def authenticate_url(self, url):
         return util.url_add_authentication(url, self.auth_username, self.auth_password)

@@ -23,8 +23,6 @@
 
 import gpodder
 
-_ = gpodder.gettext
-
 from gpodder import model
 from gpodder import util
 
