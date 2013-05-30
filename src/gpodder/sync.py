@@ -58,7 +58,7 @@ gpod_available = False
 #    logger.warning('Could not load gpopymtp (libmtp not installed?).')
 
 try:
-    import eyeD3
+    import eyed3
 except:
     logger.warning('Could not find eyeD3')
 
@@ -133,7 +133,7 @@ def get_track_length(filename):
         logger.info('Please install MPlayer for track length detection.')
 
     try:
-        eyed3_info = eyeD3.Mp3AudioFile(filename)
+        eyed3_info = eyed3.Mp3AudioFile(filename)
         return int(eyed3_info.getPlayTime()*1000)
     except:
         pass
