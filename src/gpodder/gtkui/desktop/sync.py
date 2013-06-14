@@ -203,7 +203,8 @@ class gPodderSyncUI(object):
                 # Finally start the synchronization process
                 @util.run_in_background
                 def sync_thread_func():
-                    device.add_sync_tasks(episodes, force_played=force_played)
+                    device.add_sync_tasks(episodes, force_played=force_played,
+                            done_callback=self.enable_download_list_update)
 
                 return
 
