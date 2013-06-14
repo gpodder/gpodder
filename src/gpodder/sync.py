@@ -202,7 +202,7 @@ class Device(services.ObservableService):
             logger.warning('Not syncing disks. Unmount your device before unplugging.')
         return True
 
-    def add_sync_tasks(self,tracklist, force_played=False):
+    def add_sync_tasks(self,tracklist, force_played=False, done_callback=None):
         for track in list(tracklist):
             # Filter tracks that are not meant to be synchronized
             does_not_exist = not track.was_downloaded(and_exists=True)
@@ -228,6 +228,9 @@ class Device(services.ObservableService):
                 self.download_queue_manager.add_task(sync_task)
         else:
             logger.warning("No episodes to sync")
+
+        if done_callback:
+            done_callback()
 
         return True
 
