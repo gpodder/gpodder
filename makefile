@@ -90,6 +90,7 @@ clean:
 	$(PYTHON) setup.py clean
 	find src/ '(' -name '*.pyc' -o -name '*.pyo' ')' -exec rm '{}' +
 	find src/ -type d -name '__pycache__' -exec rm -r '{}' +
+	find . -type f -name .DS_Store -exec rm -f '{}' +
 	rm -f MANIFEST PKG-INFO .coverage messages.mo po/*.mo
 	rm -rf build $(LOCALEDIR)
 
