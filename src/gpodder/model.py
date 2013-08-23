@@ -162,12 +162,6 @@ class PodcastEpisode(PodcastModelObject):
     __schema__ = EpisodeColumns
     __slots__ = __schema__
 
-    def _deprecated(self):
-        raise Exception('Property is deprecated!')
-
-    is_played = property(fget=_deprecated, fset=_deprecated)
-    is_locked = property(fget=_deprecated, fset=_deprecated)
-
     def __init__(self, channel):
         self.parent = channel
         self.podcast_id = self.parent.id
