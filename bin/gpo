@@ -208,11 +208,15 @@ class gPodderCli(object):
             line = line + (' '*(self.COLUMNS-7-len(line)))
         self._current_action = line
         print(self._current_action, end='')
+        self._update_action()
 
-    def _update_action(self, progress):
+    def _update_action(self, progress=None):
         if have_ansi:
-            progress = '%3.0f%%' % (progress*100.,)
-            result = '['+inblue(progress)+']'
+            if progress is None:
+                result = '[....]'
+            else:
+                progress = '%3.0f%%' % (progress*100.,)
+                result = '['+inblue(progress)+']'
             print('\r' + self._current_action + result, end='')
 
     def _finish_action(self, success=True, skip=False):
@@ -267,8 +271,11 @@ class gPodderCli(object):
         return None
 
     def subscribe(self, url, title=None):
+        self._start_action(_('Adding %s') % url)
+
         existing = self.get_podcast(url, check_only=True)
         if existing is not None:
+            self._finish_action(skip=True)
             self._error(_('Already subscribed to %s.') % existing.url)
             return True
 
@@ -277,17 +284,17 @@ class gPodderCli(object):
             if podcast is None:
                 self._error(_('Cannot subscribe to %s.') % url)
                 return True
-                
+
             if title is not None:
                 podcast.rename(title)
             podcast.save()
+            self._finish_action()
+            return True
         except Exception as e:
+            self._finish_action(success=False)
             logger.warn('Cannot subscribe: %s', e, exc_info=True)
             self._error(getattr(e, 'strerror', str(e)))
             return True
-
-        self._info(_('Successfully added %s.' % url))
-        return True
 
     def _print_config(self, search_for):
         for key in sorted(self._config.all_keys()):
