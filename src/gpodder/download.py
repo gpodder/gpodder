@@ -415,10 +415,6 @@ class DownloadQueueManager(object):
                 self.worker_threads.append(worker)
                 util.run_in_background(worker.run)
 
-    def are_queued_or_active_tasks(self):
-        with self.worker_threads_access:
-            return len(self.worker_threads) > 0
-
     def add_task(self, task, force_start=False):
         """Add a new task to the download queue
 
@@ -462,7 +458,6 @@ class DownloadTask(object):
         task.status_changed   # True if the status has been changed (see below)
         task.url              # URL of the episode being downloaded
         task.podcast_url      # URL of the podcast this download belongs to
-        task.episode          # Episode object of this task
 
     You can cancel a running download task by setting its status:
 
@@ -518,9 +513,6 @@ class DownloadTask(object):
     """
     (INIT, QUEUED, DOWNLOADING, DONE, FAILED, CANCELLED, PAUSED) = list(range(7))
 
-    # Wheter this task represents a file download or a device sync operation
-    ACTIVITY_DOWNLOAD, ACTIVITY_SYNCHRONIZE = list(range(2))
-
     # Minimum time between progress updates (in seconds)
     MIN_TIME_BETWEEN_UPDATES = 1.
 
@@ -546,15 +538,6 @@ class DownloadTask(object):
 
     status_changed = property(fget=__get_status_changed)
 
-    def __get_activity(self):
-        return self.__activity
-
-    def __set_activity(self, activity):
-        self.__activity = activity
-
-    activity = property(fget=__get_activity, fset=__set_activity)
-
-
     def __get_url(self):
         return self.__episode.url
 
@@ -564,11 +547,6 @@ class DownloadTask(object):
         return self.__episode.channel.url
 
     podcast_url = property(fget=__get_podcast_url)
-
-    def __get_episode(self):
-        return self.__episode
-
-    episode = property(fget=__get_episode)
 
     def cancel(self):
         if self.status in (self.DOWNLOADING, self.QUEUED):
@@ -581,7 +559,6 @@ class DownloadTask(object):
     def __init__(self, episode):
         assert episode.download_task is None
         self.__status = DownloadTask.INIT
-        self.__activity = DownloadTask.ACTIVITY_DOWNLOAD
         self.__status_changed = True
         self.__episode = episode
         self._config = episode.channel.model.core.config
@@ -715,7 +692,7 @@ class DownloadTask(object):
                     time.sleep(delay)
 
     def recycle(self):
-        self.episode.download_task = None
+        self.__episode.download_task = None
 
     def run(self):
         # Speed calculation (re-)starts here
