@@ -30,18 +30,16 @@
   - Subscription management -
 
     subscribe URL [TITLE]      Subscribe to a new feed at URL (as TITLE)
-    search QUERY               Search the gpodder.net directory for QUERY
-    toplist                    Show the gpodder.net top-subscribe podcasts
+    rename URL TITLE           Rename feed at URL to TITLE
+    unsubscribe URL            Unsubscribe from feed at URL
 
     import FILENAME|URL        Subscribe to all podcasts in an OPML file
     export FILENAME            Export all subscriptions to an OPML file
 
-    rename URL TITLE           Rename feed at URL to TITLE
-    unsubscribe URL            Unsubscribe from feed at URL
+    info URL                   Show information about feed at URL
     enable URL                 Enable feed updates for the feed at URL
     disable URL                Disable feed updates for the feed at URL
 
-    info URL                   Show information about feed at URL
     list                       List all subscribed podcasts
     update [URL]               Check for new episodes (all or only at URL)
 
@@ -525,20 +523,6 @@ class gPodderCli(object):
         else:
             self._info(_('New version %(version)s available at %(url)s.')
                     % {'version': latest_version, 'url': gpodder.__url__})
-
-    def search(self, *terms):
-        query = ' '.join(terms)
-        if not query:
-            return
-
-        directory = my.Directory()
-        results = directory.search(query)
-        self._show_directory_results(results)
-
-    def toplist(self):
-        directory = my.Directory()
-        results = directory.toplist()
-        self._show_directory_results(results, True)
 
     def _show_directory_results(self, results, multiple=False):
         if not results:
