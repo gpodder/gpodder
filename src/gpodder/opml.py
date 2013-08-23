@@ -173,8 +173,7 @@ class Exporter(object):
         try:
             with util.update_file_safely(self.filename) as temp_filename:
                 with open(temp_filename, 'w') as fp:
-                    fp.write(doc.toprettyxml(encoding='utf-8',
-                        indent='    ', newl=os.linesep))
+                    fp.write(doc.toprettyxml(indent='  ', newl=os.linesep))
         except:
             logger.error('Could not open file for writing: %s',
                     self.filename, exc_info=True)
