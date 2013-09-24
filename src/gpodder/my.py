@@ -326,7 +326,9 @@ class MygPoClient(object):
         return self._config.mygpo.device.uid
 
     def can_access_webservice(self):
-        return self._config.mygpo.enabled and self._config.mygpo.device.uid
+        return self._config.mygpo.enabled and \
+               self._config.mygpo.username and \
+               self._config.mygpo.device.uid
 
     def set_subscriptions(self, urls):
         if self.can_access_webservice():
@@ -426,8 +428,9 @@ class MygPoClient(object):
                 else:
                     must_retry = True
 
-                if not must_retry:
-                    # No more pending actions. Ready to quit.
+                if not must_retry or not self.can_access_webservice():
+                    # No more pending actions, or no longer enabled.
+                    # Ready to quit.
                     break
 
             logger.debug('Worker thread finished.')
@@ -501,7 +504,7 @@ class MygPoClient(object):
                 # Save the "since" value for later use
                 self._store.update(since_o, since=changes.since)
 
-            except MissingCredentials:
+            except (MissingCredentials, mygpoclient.http.Unauthorized):
                 # handle outside
                 raise
 
@@ -527,8 +530,8 @@ class MygPoClient(object):
             logger.debug('Episode actions have been uploaded to the server.')
             return True
 
-        except MissingCredentials:
-            logger.warn('No credentials configured. Disabling gpodder.net.')
+        except (MissingCredentials, mygpoclient.http.Unauthorized):
+            logger.warn('Invalid credentials. Disabling gpodder.net.')
             self._config.mygpo.enabled = False
             return False
 
@@ -592,8 +595,8 @@ class MygPoClient(object):
             logger.debug('All actions have been uploaded to the server.')
             return True
 
-        except MissingCredentials:
-            logger.warn('No credentials configured. Disabling gpodder.net.')
+        except (MissingCredentials, mygpoclient.http.Unauthorized):
+            logger.warn('Invalid credentials. Disabling gpodder.net.')
             self._config.mygpo.enabled = False
             return False
 
@@ -609,8 +612,8 @@ class MygPoClient(object):
             logger.debug('Device settings uploaded.')
             return True
 
-        except MissingCredentials:
-            logger.warn('No credentials configured. Disabling gpodder.net.')
+        except (MissingCredentials, mygpoclient.http.Unauthorized):
+            logger.warn('Invalid credentials. Disabling gpodder.net.')
             self._config.mygpo.enabled = False
             return False
 
@@ -625,8 +628,8 @@ class MygPoClient(object):
         try:
             devices = self._client.get_devices()
 
-        except MissingCredentials:
-            logger.warn('No credentials configured. Disabling gpodder.net.')
+        except (MissingCredentials, mygpoclient.http.Unauthorized):
+            logger.warn('Invalid credentials. Disabling gpodder.net.')
             self._config.mygpo.enabled = False
             raise
 

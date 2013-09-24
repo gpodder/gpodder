@@ -15,7 +15,9 @@ _ = gpodder.gettext
 
 __title__ = _('Enqueue in media players')
 __description__ = _('Add a context menu item for enqueueing episodes in installed media players')
-__author__ = 'Thomas Perl <thp@gpodder.org>, Bernd Schlapsi <brot@gmx.info>'
+__authors__ = 'Thomas Perl <thp@gpodder.org>, Bernd Schlapsi <brot@gmx.info>'
+__doc__ = 'http://wiki.gpodder.org/wiki/Extensions/EnqueueInMediaplayer'
+__payment__ = 'https://flattr.com/submit/auto?user_id=BerndSch&url=http://wiki.gpodder.org/wiki/Extensions/EnqueueInMediaplayer'
 __category__ = 'interface'
 __only_for__ = 'gtk'
 

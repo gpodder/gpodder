@@ -22,6 +22,8 @@ _ = gpodder.gettext
 __title__ = _('Convert video files')
 __description__ = _('Transcode video files to avi/mp4/m4v')
 __authors__ = 'Thomas Perl <thp@gpodder.org>, Bernd Schlapsi <brot@gmx.info>'
+__doc__ = 'http://wiki.gpodder.org/wiki/Extensions/VideoConverter'
+__payment__ = 'https://flattr.com/submit/auto?user_id=BerndSch&url=http://wiki.gpodder.org/wiki/Extensions/VideoConverter'
 __category__ = 'post-download'
 
 DefaultConfig = {

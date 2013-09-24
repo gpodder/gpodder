@@ -165,6 +165,8 @@ Item {
             togglePlayback(episode);
         } else {
             mediaPlayer.enqueueEpisode(episode);
+            /* Let the user know that the episode was correctly added to the playlist */
+            main.showMessage(_('Episode added to playlist'));
         }
     }
 
@@ -224,21 +226,96 @@ Item {
     PagePage {
         id: episodesPage
         lockToPortrait: mainPage.lockToPortrait
+
+        Column {    
+            id: episodesHeader
+
+            anchors.top: parent.top
+            width: parent.width          
+            spacing: 0
+
+            Item {
+                id: episodesHeaderRow
+                width: parent.width
+                height: Config.listItemHeight
+ 
+                Text {
+                    id: headerCaption
+
+                    text: main.currentPodcast.qtitle
+                    color: Config.settingsHeaderColor
+
+                    anchors {
+                        left: parent.left  
+                        leftMargin: Config.smallSpacing
+                        verticalCenter: parent.verticalCenter                        
+                    }
+
+                    font.pixelSize: Config.headerHeight * .5
+                    wrapMode: Text.NoWrap
+                }
+
+                Label {
+                    id: counters
+
+                    property int newEpisodes: main.currentPodcast.qnew
+                    property int downloadedEpisodes: main.currentPodcast.qdownloaded
+
+                    anchors {
+                        right: parent.right
+                        rightMargin: Config.smallSpacing                        
+                        verticalCenter: parent.verticalCenter                        
+                    }
+
+                    visible: !spinner.visible && (downloadedEpisodes > 0)
+                    text: counters.downloadedEpisodes
+                    color: "white"
+
+                    font.pixelSize: Config.headerHeight * .5
+                }
+
+                BusyIndicator {
+                    id: spinner
+
+                    anchors {                       
+                        right: parent.right 
+                        rightMargin: Config.smallSpacing
+                        verticalCenter: parent.verticalCenter
+                    }
+
+                    visible: main.currentPodcast.qupdating
+                    running: visible
+                }                
+            }
+
+            Rectangle {
+                id: horizontalLine
+
+                height: 1
+                border.width: 0
+                color: Config.sectionHeaderColorLine
+                width: parent.width - Config.largeSpacing
+            }
+        }  
+
+        EpisodeList {
+            id: episodeList
+             
+            width: parent.width
+            anchors {
+                top: episodesHeader.bottom
+                bottom: parent.bottom
+            }
+            model: ListModel { id: episodeListModel }
+            onEpisodeContextMenu: controller.episodeContextMenu(episode)
+        }
+
         listview: episodeList.listview
 
         onClosed: {
             episodeList.resetSelection();
             main.currentPodcast = undefined;
-        }
-
-        EpisodeList {
-            id: episodeList
-
-            anchors.fill: parent
-
-            model: ListModel { id: episodeListModel }
-            onEpisodeContextMenu: controller.episodeContextMenu(episode)
-        }
+        }       
 
         actions: [
             Action {
@@ -251,6 +328,12 @@ Item {
                 text: _('Filter:') + ' ' + mainObject.currentFilterText
                 onClicked: {
                     mainObject.showFilterDialog();
+                }
+            },
+            Action {
+                text: _('Update')
+                onClicked: {
+                    controller.updatePodcast(main.currentPodcast)
                 }
             },
             Action {

@@ -86,9 +86,15 @@ class gPodderExtension(object):
         if not episode_data:
             return
 
-        intro = episode_data.split('introDuration%22%3A')[1] \
-                            .split('%2C')[0] or 15
-        intro = int(intro)*1000
+        INTRO_DEFAULT = 15
+        try:
+            # intro in the data could be 15 or 15.33
+            intro = episode_data.split('introDuration%22%3A')[1] \
+                                .split('%2C')[0] or INTRO_DEFAULT
+            intro = int(float(intro)*1000)
+        except ValueError, e:
+            logger.info("Couldn't parse introDuration string: %s", intro)
+            intro = INTRO_DEFAULT * 1000
         current_filename = episode.local_filename(create=False)
         srt_filename = self.get_srt_filename(current_filename)
         sub = self.ted_to_srt(sub_data, int(intro))

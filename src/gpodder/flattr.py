@@ -226,3 +226,13 @@ class Flattr(object):
             self._worker_thread = util.run_in_background(lambda: self._worker_proc(), True)
 
         return (True, content.get('description', _('No description')))
+
+    def is_flattr_url(self, url):
+        if 'flattr.com' in url:
+            return True
+        return False
+
+    def is_flattrable(self, url):
+        if self._config.token and self.is_flattr_url(url):
+            return True
+        return False

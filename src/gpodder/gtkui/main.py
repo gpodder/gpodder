@@ -1428,6 +1428,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         result = []
         for title in episode_list[:min(len(episode_list), max_episodes)]:
+            # Bug 1834: make sure title is a unicode string,
+            # so it may be cut correctly on UTF-8 char boundaries
+            title = util.convert_bytes(title)
             if len(title) > MAX_TITLE_LENGTH:
                 middle = (MAX_TITLE_LENGTH/2)-2
                 title = '%s...%s' % (title[0:middle], title[-middle:])

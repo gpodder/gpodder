@@ -29,6 +29,7 @@ N_ = gpodder.ngettext
 from gpodder import util
 
 from gpodder.gtkui.interface.common import BuilderWidget
+from gpodder.gtkui.interface.common import TreeViewHelper
 
 class gPodderEpisodeSelector(BuilderWidget):
     """Episode selection dialog
@@ -222,6 +223,7 @@ class gPodderEpisodeSelector(BuilderWidget):
         self.episode_list_can_tooltip = True
 
         self.treeviewEpisodes.connect('button-press-event', self.treeview_episodes_button_pressed)
+        self.treeviewEpisodes.connect('popup-menu', self.treeview_episodes_button_pressed)
         self.treeviewEpisodes.set_rules_hint( True)
         self.treeviewEpisodes.set_model( self.model)
         self.treeviewEpisodes.columns_autosize()
@@ -258,6 +260,9 @@ class gPodderEpisodeSelector(BuilderWidget):
             self.last_tooltip_episode = index
 
             description = util.remove_html_tags(description)
+            # Bug 1825: make sure description is a unicode string,
+            # so it may be cut correctly on UTF-8 char boundaries
+            description = util.convert_bytes(description)
             if description is not None:
                 if len(description) > 400:
                     description = description[:398]+'[...]'
@@ -269,8 +274,8 @@ class gPodderEpisodeSelector(BuilderWidget):
         self.last_tooltip_episode = None
         return False
 
-    def treeview_episodes_button_pressed(self, treeview, event):
-        if event.button == 3:
+    def treeview_episodes_button_pressed(self, treeview, event=None):
+        if event is None or event.button == 3:
             menu = gtk.Menu()
 
             if len(self.selection_buttons):
@@ -293,7 +298,11 @@ class gPodderEpisodeSelector(BuilderWidget):
             # the tooltip will not appear over the menu
             self.episode_list_can_tooltip = False
             menu.connect('deactivate', lambda menushell: self.episode_list_allow_tooltips())
-            menu.popup(None, None, None, event.button, event.time)
+            if event is None:
+                func = TreeViewHelper.make_popup_position_func(treeview)
+                menu.popup(None, None, func, 3, 0)
+            else:
+                menu.popup(None, None, None, event.button, event.time)
 
             return True
 

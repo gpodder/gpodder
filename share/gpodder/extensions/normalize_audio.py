@@ -21,6 +21,8 @@ _ = gpodder.gettext
 __title__ = _('Normalize audio with re-encoding')
 __description__ = _('Normalize the volume of audio files with normalize-audio')
 __authors__ = 'Bernd Schlapsi <brot@gmx.info>'
+__doc__ = 'http://wiki.gpodder.org/wiki/Extensions/NormalizeAudio'
+__payment__ = 'https://flattr.com/submit/auto?user_id=BerndSch&url=http://wiki.gpodder.org/wiki/Extensions/NormalizeAudio'
 __category__ = 'post-download'
 
 
@@ -35,6 +37,9 @@ CONVERT_COMMANDS = {
 }
 
 class gPodderExtension:
+    MIME_TYPES = ('audio/mpeg', 'audio/ogg', )
+    EXT = ('.mp3', '.ogg', )
+
     def __init__(self, container):
         self.container = container
 
@@ -56,12 +61,22 @@ class gPodderExtension:
         if not self.container.config.context_menu:
             return None
 
-        mimetypes = [e.mime_type for e in episodes
-            if e.mime_type is not None and e.file_exists()]
-        if 'audio/ogg' not in mimetypes and 'audio/mpeg' not in mimetypes:
+        if not any(self._check_source(episode) for episode in episodes):
             return None
 
         return [(self.container.metadata.title, self.convert_episodes)]
+
+    def _check_source(self, episode):
+        if not episode.file_exists():
+            return False
+
+        if episode.mime_type in self.MIME_TYPES:
+            return True
+
+        if episode.extension() in self.EXT:
+            return True
+
+        return False
 
     def _convert_episode(self, episode):
         if episode.file_type() != 'audio':
