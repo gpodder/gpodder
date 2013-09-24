@@ -69,6 +69,7 @@ class DeviceTypeActionList(gtk.ListStore):
         gtk.ListStore.__init__(self, str, str)
         self._config = config
         self.append((_('None'), 'none'))
+        self.append((_('iPod'), 'ipod'))        
         self.append((_('Filesystem-based'), 'filesystem'))
 
     def get_index(self):
@@ -577,7 +578,7 @@ class gPodderPreferences(BuilderWidget):
             self.toggle_playlist_interface(True)
 
     def toggle_playlist_interface(self, enabled):
-        if enabled and self._config.device_sync.device_type != 'none':
+        if enabled and self._config.device_sync.device_type == 'filesystem':
             self.btn_playlistfolder.set_sensitive(True)
             self.btn_playlistfolder.set_label(self._config.device_sync.playlists.folder)
             self.checkbutton_delete_using_playlists.set_sensitive(True)
@@ -614,6 +615,20 @@ class gPodderPreferences(BuilderWidget):
             self.toggle_playlist_interface(self._config.device_sync.playlists.create)
             self.combobox_on_sync.set_sensitive(True)
             self.checkbutton_skip_played_episodes.set_sensitive(True)
+        elif device_type == 'ipod':
+            self.btn_filesystemMountpoint.set_label(self._config.device_sync.ipod_mount)
+            self.btn_filesystemMountpoint.set_sensitive(True)
+            self.checkbutton_create_playlists.set_sensitive(False)
+            self.toggle_playlist_interface(False)
+            self.checkbutton_delete_using_playlists.set_sensitive(False)
+            self.combobox_on_sync.set_sensitive(False)
+            self.checkbutton_skip_played_episodes.set_sensitive(False)
+
+            children = self.btn_filesystemMountpoint.get_children()
+            if children:
+                label = children.pop()
+                label.set_alignment(0., .5)
+
         else:
             # TODO: Add support for iPod and MTP devices
             pass
@@ -628,6 +643,8 @@ class gPodderPreferences(BuilderWidget):
             filename = fs.get_filename()
             if self._config.device_sync.device_type == 'filesystem':
                 self._config.device_sync.device_folder = filename
+            elif self._config.device_sync.device_type == 'ipod':
+                self._config.device_sync.ipod_mount = filename                
             # Request an update of the mountpoint button
             self.on_combobox_device_type_changed(None)
 
