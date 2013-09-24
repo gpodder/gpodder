@@ -22,9 +22,31 @@ import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 from gpodder import model
-
-from gpodder.compat import dbsqlite
 from gpodder import storage
+
+import sqlite3.dbapi2 as sqlite3
+
+
+class Database(object):
+    def __init__(self, filename):
+        self.db = sqlite3.connect(filename)
+        # Make sure you install the latest gPodder 3 version first before upgrading
+        assert self.db.execute('SELECT version FROM version').fetchone()[0] == 5
+
+    def load_podcasts(self):
+        cur = self.db.cursor()
+        cur.execute('SELECT * FROM podcast')
+        keys = [desc[0] for desc in cur.description]
+        for row in cur:
+            yield dict(zip(keys, row))
+
+    def load_episodes(self, podcast):
+        cur = self.db.cursor()
+        cur.execute('SELECT * FROM episode WHERE podcast_id = ?', (podcast.id,))
+        keys = [desc[0] for desc in cur.description]
+        for row in cur:
+            yield dict(zip(keys, row))
+
 
 if len(sys.argv) != 2:
     print("""
@@ -32,21 +54,19 @@ if len(sys.argv) != 2:
     """.format(progname=sys.argv[0]), file=sys.stderr)
     sys.exit(1)
 
-db_in = dbsqlite.Database(sys.argv[1])
+db_in = Database(sys.argv[1])
 db_out = storage.Database(sys.argv[1])
 
-for podcast_dict in db_in.load_podcasts(dict):
+for podcast_dict in db_in.load_podcasts():
     podcast = model.PodcastChannel(None)
     for key, value in podcast_dict.items():
         setattr(podcast, key, value)
     db_out.save_podcast(podcast)
 
-    for episode_dict in db_in.load_episodes(podcast, dict):
+    for episode_dict in db_in.load_episodes(podcast):
         episode = model.PodcastEpisode(podcast)
         for key, value in episode_dict.items():
             setattr(episode, key, value)
         db_out.save_episode(episode)
 
 db_out.close()
-db_in.close()
-
