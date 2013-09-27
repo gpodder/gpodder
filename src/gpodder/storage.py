@@ -39,7 +39,8 @@ class Database:
         }
 
         if os.path.exists(self.filename):
-            self._data = json.load(gzip.open(self.filename, 'rt'))
+            data = str(gzip.open(self.filename, 'rb').read(), 'utf-8')
+            self._data = json.loads(data)
 
     def _read_object(self, id, table):
         yield ('id', int(id))
@@ -88,6 +89,7 @@ class Database:
     def close(self):
         """Close and store outstanding changes"""
         with util.update_file_safely(self.filename) as filename:
-            with gzip.open(filename, 'wt') as fp:
-                json.dump(self._data, fp, separators=(',', ':'))
+            with gzip.open(filename, 'wb') as fp:
+                data = bytes(json.dumps(self._data, separators=(',', ':')), 'utf-8')
+                fp.write(data)
 

@@ -113,6 +113,11 @@ class Core(object):
                 self.logger.warn('Cannot load plugin "%s": %s', plugin, e,
                         exc_info=True)
 
+    def save(self):
+        # XXX: Although the function is called close(), this actually doesn't
+        # close the DB, just saves the current state to disk
+        self.db.close()
+
     def shutdown(self):
         self.logger.info('Shutting down core')
 
