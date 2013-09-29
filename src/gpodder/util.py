@@ -37,38 +37,24 @@ logger = logging.getLogger(__name__)
 
 import os
 import os.path
-import platform
-import glob
 import stat
-import shlex
-import shutil
-import socket
 import sys
 import string
 
 import re
-import subprocess
 from html.entities import entitydefs
 import time
-import gzip
 import datetime
 import threading
 import tempfile
 
-import urllib.error
 import urllib.parse
 import urllib.request
 import http.client
-import webbrowser
 import mimetypes
 import itertools
 import contextlib
 
-from email.utils import mktime_tz, parsedate_tz
-
-
-import io
-import xml.dom.minidom
 
 import locale
 try:
@@ -516,30 +502,6 @@ def extension_from_mimetype(mimetype):
     return mimetypes.guess_extension(mimetype) or ''
 
 
-def mimetype_from_extension(extension): # XXX Only used in WebUI
-    """
-    Simply guesses what the mimetype should be from the file extension
-
-    >>> mimetype_from_extension('.m4a')
-    'audio/mp4'
-    >>> mimetype_from_extension('.ogg')
-    'audio/ogg'
-    >>> mimetype_from_extension('.mp3')
-    'audio/mpeg'
-    >>> mimetype_from_extension('.mkv')
-    'video/x-matroska'
-    >>> mimetype_from_extension('._invalid_file_extension_')
-    ''
-    """
-    if extension in _MIME_TYPES_EXT:
-        return _MIME_TYPES_EXT[extension]
-
-    # Need to prepend something to the extension, so guess_type works
-    type, encoding = mimetypes.guess_type('file'+extension)
-
-    return type or ''
-
-
 def filename_from_url(url):
     """
     Extracts the filename and (lowercase) extension (with dot)
@@ -728,25 +690,6 @@ def urlopen(url, headers=None, data=None, timeout=None):
         return opener.open(request)
     else:
         return opener.open(request, timeout=timeout)
-
-
-def find_command(command):
-    """
-    Searches the system's PATH for a specific command that is
-    executable by the user. Returns the first occurence of an
-    executable binary in the PATH, or None if the command is
-    not available.
-    """
-
-    if 'PATH' not in os.environ:
-        return None
-
-    for path in os.environ['PATH'].split(os.pathsep):
-        command_file = os.path.join(path, command)
-        if os.path.isfile(command_file) and os.access(command_file, os.X_OK):
-            return command_file
-
-    return None
 
 
 def http_request(url, method='HEAD'):
