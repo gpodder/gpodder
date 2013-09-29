@@ -74,8 +74,8 @@ register_custom_handler = fetcher.register
 
 # Our podcast model:
 #
-# database -> podcast -> episode -> download/playback
-#  podcast.parent == db
+# model -> podcast -> episode -> download/playback
+#  podcast.parent == model
 #  podcast.children == [episode, ...]
 #  episode.parent == podcast
 #
@@ -120,7 +120,6 @@ PodcastColumns = (
     'section',
     'payment_url',
     'download_strategy',
-    'sync_to_mp3_player',
 )
 
 
@@ -141,6 +140,9 @@ class PodcastModelObject(object):
         o = cls(*args)
 
         for k, v in iterable:
+            if not hasattr(o, k):
+                logger.warn('Unknown attribute: %s', k)
+                continue
             setattr(o, k, v)
 
         o.finalize_built_object()
@@ -165,7 +167,7 @@ class PodcastEpisode(PodcastModelObject):
     def __init__(self, channel):
         self.parent = channel
         self.podcast_id = self.parent.id
-        self.children = (None, None)
+        self.children = None
 
         self.id = None
         self.url = ''
@@ -257,10 +259,10 @@ class PodcastEpisode(PodcastModelObject):
         return task.progress
 
     def _set_download_task(self, download_task):
-        self.children = (download_task, self.children[1])
+        self.children = download_task
 
     def _get_download_task(self):
-        return self.children[0]
+        return self.children
 
     download_task = property(_get_download_task, _set_download_task)
 
@@ -536,7 +538,6 @@ class PodcastChannel(PodcastModelObject):
         self.auto_archive_episodes = False
         self.download_folder = None
         self.pause_subscription = False
-        self.sync_to_mp3_player = True
 
         self.section = 'other'
         self._common_prefix = None
@@ -640,10 +641,9 @@ class PodcastChannel(PodcastModelObject):
 
     @classmethod
     def load(cls, model, url, create=True, authentication_tokens=None):
-        existing = [p for p in model.get_podcasts() if p.url == url]
-
-        if existing:
-            return existing[0]
+        for podcast in model.get_podcasts():
+            if podcast.url == url:
+                return podcast
 
         if create:
             tmp = cls(model)
