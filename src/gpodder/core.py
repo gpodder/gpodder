@@ -29,7 +29,6 @@ from gpodder import model
 from gpodder import log
 
 import os
-import gettext
 import logging
 import socket
 
@@ -40,7 +39,6 @@ class Core(object):
                  model_class=model.Model,
                  prefix=None,
                  verbose=True):
-        self._init_i18n()
         self._set_socket_timeout()
 
         self.prefix = prefix
@@ -74,15 +72,6 @@ class Core(object):
         self._load_plugins()
 
         self.cover_downloader = coverart.CoverDownloader(self)
-
-    def _init_i18n(self):
-        # i18n setup (will result in "gettext" to be available)
-        # Use   _ = gpodder.gettext   in modules to enable string translations
-        textdomain = 'gpodder'
-        locale_dir = gettext.bindtextdomain(textdomain)
-        t = gettext.translation(textdomain, locale_dir, fallback=True)
-        gpodder.gettext = t.gettext
-        gpodder.ngettext = t.ngettext
 
     def _set_socket_timeout(self):
         # Set up socket timeouts to fix bug 174

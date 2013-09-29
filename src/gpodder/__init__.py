@@ -34,7 +34,3 @@ user_agent = 'gPodder/%s (+%s)' % (__version__, __url__)
 # Episode states used in the database
 STATE_NORMAL, STATE_DOWNLOADED, STATE_DELETED = list(range(3))
 
-# Fallback implementation when gettext is not used
-gettext = lambda x: x
-ngettext = lambda x, y, n: x if n == 1 else y
-

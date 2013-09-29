@@ -19,21 +19,10 @@
 
 ##########################################################################
 
-MESSAGES = po/messages.pot
-POFILES = $(wildcard po/*.po)
-LOCALEDIR = share/locale
-MOFILES = $(patsubst po/%.po,$(LOCALEDIR)/%/LC_MESSAGES/gpodder.mo, $(POFILES))
-
-GETTEXT_SOURCE=$(wildcard bin/* \
-	                  src/gpodder/*.py \
-		          src/gpodder/compat/*.py \
-			  src/gpodder/plugins/*.py)
-
 DESTDIR ?= /
 PREFIX ?= /usr
 
 PYTHON ?= python3
-XGETTEXT ?= xgettext
 
 ##########################################################################
 
@@ -52,27 +41,33 @@ release: distclean
 	$(PYTHON) setup.py sdist
 
 releasetest: unittest $(POFILES)
-	sh tools/i18n/validate.sh
+	for lang in $(POFILES); do $(MSGFMT) --check $$lang; done
 
 install: messages
 	$(PYTHON) setup.py install --root=$(DESTDIR) --prefix=$(PREFIX) --optimize=1
 
 ##########################################################################
 
-messages: $(MOFILES)
+XGETTEXT ?= xgettext
+MSGMERGE ?= msgmerge
+MSGFMT ?= msgfmt
+
+MESSAGES = po/messages.pot
+POFILES = $(wildcard po/*.po)
+LOCALEDIR = share/locale
+MOFILES = $(patsubst po/%.po,$(LOCALEDIR)/%/LC_MESSAGES/gpodder.mo,$(POFILES))
+
+messages: $(MESSAGES) $(MOFILES)
 
 %.po: $(MESSAGES)
-	msgmerge --silent $@ $< --output-file=$@
+	$(MSGMERGE) --silent $@ $< --output-file=$@
 
 $(LOCALEDIR)/%/LC_MESSAGES/gpodder.mo: po/%.po
 	@mkdir -p $(@D)
-	msgfmt $< -o $@
+	$(MSGFMT) $< -o $@
 
-%.ui.h: %.ui
-	intltool-extract --quiet --type=gettext/glade $<
-
-$(MESSAGES): $(GETTEXT_SOURCE)
-	$(XGETTEXT) -LPython -k_:1 -kN_:1 -kN_:1,2 -kn_:1,2 -o $(MESSAGES) $^
+$(MESSAGES): bin/gpo
+	$(XGETTEXT) --language=Python -k_:1 -kN_:1 -kN_:1,2 -o $(MESSAGES) $^
 
 ##########################################################################
 

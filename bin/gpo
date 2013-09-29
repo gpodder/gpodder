@@ -74,6 +74,7 @@ except ImportError:
     readline = None
 import shlex
 import pydoc
+import gettext
 import logging
 
 try:
@@ -105,14 +106,16 @@ if os.path.exists(os.path.join(src_dir, 'gpodder', '__init__.py')):
     # Run gPodder from local source folder (not installed)
     sys.path.insert(0, src_dir)
 
-import gpodder
-_ = gpodder.gettext
-N_ = gpodder.ngettext
+# i18n setup
+translation = gettext.translation('gpodder')
+_ = translation.gettext
+N_ = translation.ngettext
 
 have_ansi = sys.stdout.isatty()
 interactive_console = sys.stdin.isatty() and sys.stdout.isatty()
 is_single_command = False
 
+import gpodder
 from gpodder import core
 from gpodder import download
 from gpodder import opml
@@ -243,7 +246,7 @@ class gPodderCli(object):
         """
         url = util.normalize_feed_url(url)
         if url is None:
-            self._error(_('Invalid url: %s') % url)
+            self._error(_('Invalid URL: %(url)s') % {'url': url})
             return None
 
         # Subscribe to new podcast
@@ -256,22 +259,22 @@ class gPodderCli(object):
                 return podcast
 
         if not check_only:
-            self._error(_('You are not subscribed to %s.') % url)
+            self._error(_('Not subscribed to %(url)s') % {'url': url})
         return None
 
     def subscribe(self, url, title=None):
-        self._start_action(_('Adding %s') % url)
+        self._start_action(_('Subscribing to %(url)s') % {'url': url})
 
         existing = self.get_podcast(url, check_only=True)
         if existing is not None:
             self._finish_action(skip=True)
-            self._error(_('Already subscribed to %s.') % existing.url)
+            self._error(_('Already subscribed to %(url)s') % {'url': existing.url})
             return True
 
         try:
             podcast = self.get_podcast(url, create=True)
             if podcast is None:
-                self._error(_('Cannot subscribe to %s.') % url)
+                self._error(_('Subscription to %(url)s failed') % {'url': url})
                 return True
 
             if title is not None:
@@ -300,11 +303,11 @@ class gPodderCli(object):
             current_value = self._config._lookup(key)
             current_type = type(current_value)
         except KeyError:
-            self._error(_('This configuration option does not exist.'))
+            self._error(_('Configuration option %(key)s not found') % {'key': key})
             return
 
         if current_type == dict:
-            self._error(_('Can only set leaf configuration nodes.'))
+            self._error(_('Invalid configuration option: %(key)s') % {'key': key})
             return
 
         self._config.update_field(key, value)
@@ -317,10 +320,7 @@ class gPodderCli(object):
         if podcast is not None:
             old_title = podcast.title
             podcast.rename(title)
-            self._info(_('Renamed %(old_title)s to %(new_title)s.') % {
-                'old_title': util.convert_bytes(old_title),
-                'new_title': util.convert_bytes(title),
-            })
+            self._info(old_title, '=>', title)
 
         return True
 
@@ -328,14 +328,12 @@ class gPodderCli(object):
     def unsubscribe(self, url):
         podcast = self.get_podcast(url)
 
-        if podcast is None:
-            self._error(_('You are not subscribed to %s.') % url)
-        else:
+        if podcast is not None:
             podcast.unsubscribe()
-            self._error(_('Unsubscribed from %s.') % url)
+            self._error(_('Removed %(url)s') % {'url': url})
 
         return True
-        
+
     def is_episode_new(self, episode):
         return (episode.state == gpodder.STATE_NORMAL and episode.is_new)
 
@@ -361,14 +359,10 @@ class gPodderCli(object):
     def info(self, url):
         podcast = self.get_podcast(url)
 
-        if podcast is None:
-            self._error(_('You are not subscribed to %s.') % url)
-        else:
+        if podcast is not None:
             def feed_update_status_msg(podcast):
-                if podcast.pause_subscription:
-                    return "disabled"
-                return "enabled"
-            
+                return ('disabled' if podcast.pause_subscription else 'enabled')
+
             title, url, status = podcast.title, podcast.url, \
                 feed_update_status_msg(podcast)
             episodes = self._episodesList(podcast)
@@ -405,8 +399,7 @@ class gPodderCli(object):
             if not podcast.pause_subscription:
                 print('#', ingreen(podcast.title))
             else:
-                print('#', inred(podcast.title),
-                        '-', _('Updates disabled'))
+                print('#', inred(podcast.title), '-', _('Subscription suspended'))
 
             print(podcast.url)
 
@@ -461,7 +454,7 @@ class gPodderCli(object):
         return True
 
     def _download_episode(self, episode):
-        self._start_action('Downloading %s', episode.title)
+        self._start_action(_('Downloading %(episode)s'), {'episode': episode.title})
         episode.download(self._update_action)
         self._finish_action()
 
@@ -479,20 +472,20 @@ class gPodderCli(object):
                         self._download_episode(episode)
                         count += 1
 
-        print(count, 'episodes downloaded.')
+        self._info(N_('%(count)d episode downloaded',
+            '%(count)d episodes downloaded',
+            count) % {'count': count})
         return True
 
     @FirstArgumentIsPodcastURL
     def disable(self, url):
         podcast = self.get_podcast(url)
 
-        if podcast is None:
-            self._error(_('You are not subscribed to %s.') % url)
-        else:
+        if podcast is not None:
             if not podcast.pause_subscription:
                 podcast.pause_subscription = True
                 podcast.save()
-            self._error(_('Disabling feed update from %s.') % url)
+            self._error(_('Subscription suspended: %(url)s') % {'url': url})
 
         return True
 
@@ -500,13 +493,11 @@ class gPodderCli(object):
     def enable(self, url):
         podcast = self.get_podcast(url)
 
-        if podcast is None:
-            self._error(_('You are not subscribed to %s.') % url)
-        else:
+        if podcast is not None:
             if podcast.pause_subscription:
                 podcast.pause_subscription = False
                 podcast.save()
-            self._error(_('Enabling feed update from %s.') % url)
+            self._error(_('Subscription resumed: %(url)s') % {'url': url})
 
         return True
 
@@ -514,71 +505,21 @@ class gPodderCli(object):
         up_to_date, latest_version, __, __ = util.get_update_info()
 
         if up_to_date:
-            self._info(_('gPodder is up to date. The latest version is %(version)s.')
-                    % {'version': latest_version})
+            self._info(_('No software updates available'))
         else:
-            self._info(_('New version %(version)s available at %(url)s.')
+            self._info(_('New version %(version)s available: %(url)s')
                     % {'version': latest_version, 'url': gpodder.__url__})
-
-    def _show_directory_results(self, results, multiple=False):
-        if not results:
-            self._error(_('No podcasts found.'))
-            return
-
-        if not interactive_console or is_single_command:
-            print('\n'.join(url for title, url in results))
-            return
-
-        def show_list():
-            self._pager('\n'.join('%3d: %s\n     %s' %
-                (index+1, title, url if title != url else '')
-                for index, (title, url) in enumerate(results)))
-
-        show_list()
-
-        msg = _('Enter index to subscribe, ? for list')
-        while True:
-            index = input(msg + ': ')
-
-            if not index:
-                return
-
-            if index == '?':
-                show_list()
-                continue
-
-            try:
-                index = int(index)
-            except ValueError:
-                self._error(_('Invalid value.'))
-                continue
-
-            if not (1 <= index <= len(results)):
-                self._error(_('Invalid value.'))
-                continue
-
-            title, url = results[index-1]
-            self._info(_('Adding %s...') % title)
-            self.subscribe(url)
-            if not multiple:
-                break
 
     @FirstArgumentIsPodcastURL
     def rewrite(self, old_url, new_url):
         podcast = self.get_podcast(old_url)
-        if podcast is None:
-            self._error(_('You are not subscribed to %s.') % old_url)
-        else:
+        if podcast is not None:
             result = podcast.rewrite_url(new_url)
             if result is None:
-                self._error(_('Invalid URL: %s') % new_url)
+                self._error(_('Invalid URL: %(url)s') % {'url': new_url})
             else:
                 new_url = result
-                self._error(_('Changed URL from %(old_url)s to %(new_url)s.') %
-                {
-                    'old_url': old_url,
-                    'new_url': new_url,
-                })
+                self._error(old_url, '=>', new_url)
         return True
 
     def help(self):
@@ -724,11 +665,11 @@ class gPodderCli(object):
                 return self._checkargs(func, command_line)
 
         if command in self._expansions:
-            print(_('Ambiguous command. Did you mean..'))
+            print(_('Incomplete command; matching commands:'))
             for cmd in self._expansions[command]:
                 print('   ', inblue(cmd))
         else:
-            self._error(_('The requested function is not available.'))
+            self._error(_('Command not found'))
 
         return False
 

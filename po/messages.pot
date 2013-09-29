@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-05-27 02:47+0200\n"
+"POT-Creation-Date: 2013-09-29 23:10+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,222 +18,106 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: bin/gpo:198
-msgid "Podcast update requested by extensions."
-msgstr ""
-
-#: bin/gpo:202
-msgid "Episode download requested by extensions."
-msgstr ""
-
-#: bin/gpo:255
+#: bin/gpo:249 bin/gpo:519
 #, python-format
-msgid "Invalid url: %s"
+msgid "Invalid URL: %(url)s"
 msgstr ""
 
-#: bin/gpo:268 bin/gpo:338 bin/gpo:371 bin/gpo:496 bin/gpo:510 bin/gpo:590
+#: bin/gpo:262
 #, python-format
-msgid "You are not subscribed to %s."
+msgid "Not subscribed to %(url)s"
 msgstr ""
 
-#: bin/gpo:274
+#: bin/gpo:266
 #, python-format
-msgid "Already subscribed to %s."
+msgid "Subscribing to %(url)s"
 msgstr ""
 
-#: bin/gpo:280
+#: bin/gpo:271
 #, python-format
-msgid "Cannot subscribe to %s."
+msgid "Already subscribed to %(url)s"
 msgstr ""
 
-#: bin/gpo:291
+#: bin/gpo:277
 #, python-format
-msgid "Successfully added %s."
+msgid "Subscription to %(url)s failed"
 msgstr ""
 
-#: bin/gpo:309
-msgid "This configuration option does not exist."
-msgstr ""
-
-#: bin/gpo:313
-msgid "Can only set leaf configuration nodes."
-msgstr ""
-
-#: bin/gpo:326
+#: bin/gpo:306
 #, python-format
-msgid "Renamed %(old_title)s to %(new_title)s."
+msgid "Configuration option %(key)s not found"
 msgstr ""
 
-#: bin/gpo:341
+#: bin/gpo:310
 #, python-format
-msgid "Unsubscribed from %s."
+msgid "Invalid configuration option: %(key)s"
 msgstr ""
 
-#: bin/gpo:415
-msgid "Updates disabled"
+#: bin/gpo:333
+#, python-format
+msgid "Removed %(url)s"
 msgstr ""
 
-#: bin/gpo:430
+#: bin/gpo:402
+msgid "Subscription suspended"
+msgstr ""
+
+#: bin/gpo:417
 #, python-format
 msgid "%(count)d new episode"
 msgid_plural "%(count)d new episodes"
 msgstr[0] ""
 msgstr[1] ""
 
-#: bin/gpo:436
+#: bin/gpo:423
 msgid "Checking for new episodes"
 msgstr ""
 
-#: bin/gpo:445
+#: bin/gpo:432
 #, python-format
 msgid "Skipping %(podcast)s"
 msgstr ""
 
-#: bin/gpo:501
+#: bin/gpo:457
 #, python-format
-msgid "Disabling feed update from %s."
+msgid "Downloading %(episode)s"
 msgstr ""
 
-#: bin/gpo:515
+#: bin/gpo:475
 #, python-format
-msgid "Enabling feed update from %s."
-msgstr ""
+msgid "%(count)d episode downloaded"
+msgid_plural "%(count)d episodes downloaded"
+msgstr[0] ""
+msgstr[1] ""
 
-#: bin/gpo:523
+#: bin/gpo:488
 #, python-format
-msgid "gPodder is up to date. The latest version is %(version)s."
+msgid "Subscription suspended: %(url)s"
 msgstr ""
 
-#: bin/gpo:526
+#: bin/gpo:500
 #, python-format
-msgid "New version %(version)s available at %(url)s."
+msgid "Subscription resumed: %(url)s"
 msgstr ""
 
-#: bin/gpo:545
-msgid "No podcasts found."
+#: bin/gpo:508
+msgid "No software updates available"
 msgstr ""
 
-#: bin/gpo:559
-msgid "Enter index to subscribe, ? for list"
-msgstr ""
-
-#: bin/gpo:573 bin/gpo:577
-msgid "Invalid value."
-msgstr ""
-
-#: bin/gpo:581
+#: bin/gpo:510
 #, python-format
-msgid "Adding %s..."
+msgid "New version %(version)s available: %(url)s"
 msgstr ""
 
-#: bin/gpo:594
-#, python-format
-msgid "Invalid URL: %s"
-msgstr ""
-
-#: bin/gpo:597
-#, python-format
-msgid "Changed URL from %(old_url)s to %(new_url)s."
-msgstr ""
-
-#: bin/gpo:653
+#: bin/gpo:574
 #, python-format
 msgid "Syntax error: %(error)s"
 msgstr ""
 
-#: bin/gpo:747
-msgid "Ambiguous command. Did you mean.."
+#: bin/gpo:668
+msgid "Incomplete command; matching commands:"
 msgstr ""
 
-#: bin/gpo:751
-msgid "The requested function is not available."
-msgstr ""
-
-#: share/gpodder/extensions/audio_converter.py:20
-msgid "Convert audio files"
-msgstr ""
-
-#: share/gpodder/extensions/audio_converter.py:21
-msgid "Transcode audio files to mp3/ogg"
-msgstr ""
-
-#: share/gpodder/extensions/audio_converter.py:84
-#: share/gpodder/extensions/video_converter.py:86
-#, python-format
-msgid "Convert to %(format)s"
-msgstr ""
-
-#: share/gpodder/extensions/audio_converter.py:111
-#: share/gpodder/extensions/rockbox_convert2mp4.py:65
-#: share/gpodder/extensions/video_converter.py:111
-msgid "File converted"
-msgstr ""
-
-#: share/gpodder/extensions/audio_converter.py:114
-#: share/gpodder/extensions/video_converter.py:114
-msgid "Conversion failed"
-msgstr ""
-
-#: share/gpodder/extensions/normalize_audio.py:21
-msgid "Normalize audio with re-encoding"
-msgstr ""
-
-#: share/gpodder/extensions/normalize_audio.py:22
-msgid "Normalize the volume of audio files with normalize-audio"
-msgstr ""
-
-#: share/gpodder/extensions/normalize_audio.py:99
-msgid "File normalized"
-msgstr ""
-
-#: share/gpodder/extensions/rename_download.py:16
-msgid "Rename episodes after download"
-msgstr ""
-
-#: share/gpodder/extensions/rename_download.py:17
-msgid "Rename episodes to \"<Episode Title>.<ext>\" on download"
-msgstr ""
-
-#: share/gpodder/extensions/rm_ogg_cover.py:37
-msgid "Remove cover art from OGG files"
-msgstr ""
-
-#: share/gpodder/extensions/rm_ogg_cover.py:38
-msgid "removes coverart from all downloaded ogg files"
-msgstr ""
-
-#: share/gpodder/extensions/rm_ogg_cover.py:66
-msgid "Remove cover art"
-msgstr ""
-
-#: share/gpodder/extensions/rockbox_convert2mp4.py:26
-msgid "Convert video files to MP4 for Rockbox"
-msgstr ""
-
-#: share/gpodder/extensions/rockbox_convert2mp4.py:27
-msgid "Converts all videos to a Rockbox-compatible format"
-msgstr ""
-
-#: share/gpodder/extensions/tagging.py:45
-msgid "Tag downloaded files using Mutagen"
-msgstr ""
-
-#: share/gpodder/extensions/tagging.py:46
-msgid "Add episode and podcast titles to MP3/OGG tags"
-msgstr ""
-
-#: share/gpodder/extensions/ted_subtitles.py:16
-msgid "Subtitle Downloader for TED Talks"
-msgstr ""
-
-#: share/gpodder/extensions/ted_subtitles.py:17
-msgid "Downloads .srt subtitles for TED Talks Videos"
-msgstr ""
-
-#: share/gpodder/extensions/video_converter.py:22
-msgid "Convert video files"
-msgstr ""
-
-#: share/gpodder/extensions/video_converter.py:23
-msgid "Transcode video files to avi/mp4/m4v"
+#: bin/gpo:672
+msgid "Command not found"
 msgstr ""
