@@ -454,7 +454,7 @@ class gPodderCli(object):
         return True
 
     def _download_episode(self, episode):
-        self._start_action(_('Downloading %(episode)s'), {'episode': episode.title})
+        self._start_action(_('Downloading %(episode)s') % {'episode': episode.title})
         episode.download(self._update_action)
         self._finish_action()
 
