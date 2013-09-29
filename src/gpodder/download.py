@@ -844,9 +844,8 @@ class DownloadTask(object):
                 self.total_size = util.calculate_size(self.filename)
                 logger.info('Total size updated to %d', self.total_size)
             self.progress = 1.0
-            gpodder.user_extensions.on_episode_downloaded(self.__episode)
             return True
-        
+
         self.speed = 0.0
 
         # We finished, but not successfully (at least not really)

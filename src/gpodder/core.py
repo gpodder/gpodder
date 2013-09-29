@@ -24,7 +24,6 @@ import gpodder
 from gpodder import util
 from gpodder import config
 from gpodder import storage
-from gpodder import extensions
 from gpodder import coverart
 from gpodder import model
 from gpodder import log
@@ -70,9 +69,6 @@ class Core(object):
         self.db = database_class(database_file)
         self.model = model_class(self)
         self.config = config_class(config_file)
-
-        # Load extension modules and install the extension manager
-        gpodder.user_extensions = extensions.ExtensionManager(self)
 
         # Load installed/configured plugins
         self._load_plugins()
@@ -120,9 +116,6 @@ class Core(object):
 
     def shutdown(self):
         self.logger.info('Shutting down core')
-
-        # Notify all extensions that we are being shut down
-        gpodder.user_extensions.shutdown()
 
         # Close the configuration and store outstanding changes
         self.config.close()

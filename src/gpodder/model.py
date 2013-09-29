@@ -275,7 +275,6 @@ class PodcastEpisode(PodcastModelObject):
                 download.DownloadTask.PAUSED)
 
     def save(self):
-        gpodder.user_extensions.on_episode_save(self)
         self.db.save_episode(self)
 
     def on_downloaded(self, filename):
@@ -287,7 +286,6 @@ class PodcastEpisode(PodcastModelObject):
     def playback_mark(self):
         self.is_new = False
         self.last_playback = int(time.time())
-        gpodder.user_extensions.on_episode_playback(self)
         self.save()
 
     def is_fresh(self):
@@ -300,7 +298,6 @@ class PodcastEpisode(PodcastModelObject):
     def delete(self):
         filename = self.local_filename(create=False, check_only=True)
         if filename is not None:
-            gpodder.user_extensions.on_episode_delete(self, filename)
             util.delete_file(filename)
 
         self.state = gpodder.STATE_DELETED
@@ -695,8 +692,6 @@ class PodcastChannel(PodcastModelObject):
 
             tmp.save()
 
-            gpodder.user_extensions.on_podcast_subscribe(tmp)
-
             return tmp
 
     def episode_factory(self, iterable):
@@ -764,7 +759,6 @@ class PodcastChannel(PodcastModelObject):
             for episode in episodes_to_purge:
                 logger.debug('Episode removed from feed: %s (%s)',
                         episode.title, episode.guid)
-                gpodder.user_extensions.on_episode_removed_from_podcast(episode)
                 self.db.delete_episode(episode)
                 self.children.remove(episode)
 
@@ -818,10 +812,7 @@ class PodcastChannel(PodcastModelObject):
 
                 self.save()
             except Exception as e:
-                gpodder.user_extensions.on_podcast_update_failed(self, e)
                 raise
-
-            gpodder.user_extensions.on_podcast_updated(self)
 
             # Re-determine the common prefix for all episodes
             self._determine_common_prefix()
@@ -836,8 +827,6 @@ class PodcastChannel(PodcastModelObject):
     def save(self):
         if self.download_folder is None:
             self.get_save_dir()
-
-        gpodder.user_extensions.on_podcast_save(self)
 
         self.db.save_podcast(self)
         self.model._append_podcast(self)
@@ -988,12 +977,6 @@ class PodcastChannel(PodcastModelObject):
     save_dir = property(fget=get_save_dir)
 
     def remove_downloaded(self):
-        # Remove the download directory
-        for episode in self.get_episodes(gpodder.STATE_DOWNLOADED):
-            filename = episode.local_filename(create=False, check_only=True)
-            if filename is not None:
-                gpodder.user_extensions.on_episode_delete(episode, filename)
-
         shutil.rmtree(self.save_dir, True)
 
     @property
@@ -1015,7 +998,6 @@ class Model(object):
 
     def _remove_podcast(self, podcast):
         self.children.remove(podcast)
-        gpodder.user_extensions.on_podcast_delete(self)
 
     def podcast_factory(self, iterable):
         return self.PodcastClass.build_from_iterable(iterable, self)

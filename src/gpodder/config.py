@@ -120,16 +120,6 @@ class Config(object):
         if not os.path.exists(self.__filename):
             self.save()
 
-    def register_defaults(self, defaults):
-        """
-        Register default configuration options (e.g. for extensions)
-
-        This function takes a dictionary that will be merged into the
-        current configuration if the keys don't yet exist. This can
-        be used to add a default configuration for extension modules.
-        """
-        self.__json_config._merge_keys(defaults)
-
     def add_observer(self, callback):
         """
         Add a callback function as observer. This callback
