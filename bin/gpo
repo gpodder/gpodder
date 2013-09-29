@@ -107,7 +107,7 @@ if os.path.exists(os.path.join(src_dir, 'gpodder', '__init__.py')):
     sys.path.insert(0, src_dir)
 
 # i18n setup
-translation = gettext.translation('gpodder')
+translation = gettext.translation('gpodder', fallback=True)
 _ = translation.gettext
 N_ = translation.ngettext
 
