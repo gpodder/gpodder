@@ -636,8 +636,7 @@ class PodcastChannel(PodcastModelObject):
 
     @classmethod
     def sort_key(cls, podcast):
-        key = util.convert_bytes(podcast.title.lower())
-        return re.sub('^the ', '', key).translate(cls.UNICODE_TRANSLATE)
+        return re.sub('^the ', '', podcast.title.lower()).translate(cls.UNICODE_TRANSLATE)
 
     @classmethod
     def load(cls, model, url, create=True, authentication_tokens=None):

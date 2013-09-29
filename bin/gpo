@@ -193,7 +193,7 @@ class gPodderCli(object):
         return prefixes, expansions
 
     def _start_action(self, msg, *args):
-        line = util.convert_bytes(msg % args)
+        line = msg % args
         if len(line) > self.COLUMNS-7:
             line = line[:self.COLUMNS-7-3] + '...'
         else:
