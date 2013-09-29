@@ -460,20 +460,6 @@ class PodcastEpisode(PodcastModelObject):
             ext = util.extension_from_mimetype(self.mime_type)
         return ext
 
-    def file_exists(self):
-        filename = self.local_filename(create=False, check_only=True)
-        if filename is None:
-            return False
-        else:
-            return os.path.exists(filename)
-
-    def was_downloaded(self, and_exists=False):
-        if self.state != gpodder.STATE_DOWNLOADED:
-            return False
-        if and_exists and not self.file_exists():
-            return False
-        return True
-
     def file_type(self):
         # Assume all YouTube/Vimeo links are video files
         if youtube.is_video_link(self.url) or vimeo.is_video_link(self.url):
@@ -580,7 +566,7 @@ class PodcastChannel(PodcastModelObject):
         known_files = set()
 
         for episode in self.get_episodes(gpodder.STATE_DOWNLOADED):
-            if episode.was_downloaded():
+            if episode.state == gpodder.STATE_DOWNLOADED:
                 filename = episode.local_filename(create=False)
                 if not os.path.exists(filename):
                     # File has been deleted by the user - simulate a

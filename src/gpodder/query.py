@@ -46,7 +46,7 @@ class Matcher(object):
         if k == 'new':
             return (episode.state == gpodder.STATE_NORMAL and episode.is_new)
         elif k in ('downloaded', 'dl'):
-            return episode.was_downloaded(and_exists=True)
+            return episode.state == gpodder.STATE_DOWNLOADED
         elif k in ('deleted', 'rm'):
             return episode.state == gpodder.STATE_DELETED
         elif k == 'played':
