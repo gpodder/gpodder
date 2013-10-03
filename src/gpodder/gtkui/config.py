@@ -144,7 +144,9 @@ class UIConfig(config.Config):
         def _receive_configure_event(widget, event):
             x_pos, y_pos = event.x, event.y
             width_size, height_size = event.width, event.height
-            if not self.__ignore_window_events and not cfg.maximized:
+            maximized = bool(event.window.get_state() & 
+                    gtk.gdk.WINDOW_STATE_MAXIMIZED)
+            if not self.__ignore_window_events and not maximized:
                 cfg.x = x_pos
                 cfg.y = y_pos
                 cfg.width = width_size
