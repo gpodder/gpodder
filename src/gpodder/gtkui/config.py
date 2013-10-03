@@ -132,6 +132,9 @@ class UIConfig(config.Config):
     def connect_gtk_window(self, window, config_prefix, show_window=False):
         cfg = getattr(self.ui.gtk.state, config_prefix)
 
+        if gpodder.ui.win32:
+            window.set_gravity(gtk.gdk.GRAVITY_STATIC)
+
         window.resize(cfg.width, cfg.height)
         if cfg.x == -1 or cfg.y == -1:
             window.set_position(gtk.WIN_POS_CENTER_ON_PARENT)
