@@ -2791,11 +2791,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if not episode.was_downloaded(and_exists=True):
                 task_exists = False
                 for task in self.download_tasks_seen:
-                    if episode.url == task.url and task.status not in (task.DOWNLOADING, task.QUEUED):
-                        self.download_queue_manager.add_task(task, force_start)
-                        enable_update = True
+                    if episode.url == task.url:
                         task_exists = True
-                        continue
+                        if task.status not in (task.DOWNLOADING, task.QUEUED):
+                            self.download_queue_manager.add_task(task, force_start)
+                            enable_update = True
+                            continue
 
                 if task_exists:
                     continue
