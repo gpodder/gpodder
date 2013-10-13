@@ -226,8 +226,13 @@ def normalize_feed_url(url):
 
     scheme, netloc, path, query, fragment = urlparse.urlsplit(url)
 
+    # Leave auth untouched
+    parts = netloc.rsplit('@', 1)
+
     # Schemes and domain names are case insensitive
-    scheme, netloc = scheme.lower(), netloc.lower()
+    scheme, parts[-1] = scheme.lower(), parts[-1].lower()
+
+    netloc = '@'.join(parts)
 
     # Normalize empty paths to "/"
     if path == '':
@@ -968,11 +973,11 @@ def url_add_authentication(url, username, password):
 
     # Relaxations of the strict quoting rules (bug 1521):
     # 1. Accept '@' in username and password
-    # 2. Acecpt ':' in password only
+    # 2. Accept ':' and '!' in password only
     username = urllib.quote(username, safe='@')
 
     if password is not None:
-        password = urllib.quote(password, safe='@:')
+        password = urllib.quote(password, safe='@:!')
         auth_string = ':'.join((username, password))
     else:
         auth_string = username
