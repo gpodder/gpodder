@@ -272,7 +272,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.update_podcast_list_model(updated_urls)
 
         # Do the initial sync with the web service
-        util.idle_add(self.mygpo_client.flush, True)
+        if self.mygpo_client.can_access_webservice():
+            util.idle_add(self.mygpo_client.flush, True)
 
         # First-time users should be asked if they want to see the OPML
         if not self.channels:
@@ -1955,7 +1956,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.db.commit()
 
         # Flush updated episode status
-        self.mygpo_client.flush()
+        if self.mygpo_client.can_access_webservice():
+            self.mygpo_client.flush()
 
     def playback_episodes(self, episodes):
         # We need to create a list, because we run through it more than once
@@ -2627,8 +2629,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     episodes_status_update.append(episode)
 
             # Notify the web service about the status update + upload
-            self.mygpo_client.on_delete(episodes_status_update)
-            self.mygpo_client.flush()
+            if self.mygpo_client.can_access_webservice():
+                self.mygpo_client.on_delete(episodes_status_update)
+                self.mygpo_client.flush()
 
             if callback is None:
                 util.idle_add(finish_deletion, episode_urls, channel_urls)
@@ -2822,7 +2825,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.enable_download_list_update()
 
         # Flush updated episode status
-        self.mygpo_client.flush()
+        if self.mygpo_client.can_access_webservice():
+            self.mygpo_client.flush()
 
     def cancel_task_list(self, tasks):
         if not tasks:
@@ -3355,7 +3359,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.update_feed_cache()
 
         # Ask web service for sub changes (if enabled)
-        self.mygpo_client.flush()
+        if self.mygpo_client.can_access_webservice():
+            self.mygpo_client.flush()
 
         return True
 
