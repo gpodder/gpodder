@@ -157,8 +157,8 @@ defaults = {
 
     # Synchronization with portable devices (MP3 players, etc..)
     'device_sync': {
-        'device_type': 'none', # Possible values: 'none', 'filesystem'
-        'device_folder': '/media',
+        'device_type': 'none', # Possible values: 'none', 'filesystem', 'ipod'
+        'device_folder': '/media',        
 
         'one_folder_per_podcast': True,
         'skip_played_episodes': True,
