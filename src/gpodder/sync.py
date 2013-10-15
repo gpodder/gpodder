@@ -41,15 +41,13 @@ _ = gpodder.gettext
 #
 
 pymtp_available = False
-gpod_available = False
+gpod_available = True
+try:
+    import gpod
+except:
+    gpod_available = False
+    logger.warning('Could not find gpod')
 
-#gpod_available = True
-#try:
-#    import gpod
-#except:
-#    gpod_available = False
-#    logger.warning('Could not find gpod')
-#
 #pymtp_available = True
 #try:
 #    import gpodder.gpopymtp as pymtp
@@ -114,8 +112,11 @@ if pymtp_available:
 def open_device(gui):
     config = gui._config
     device_type = gui._config.device_sync.device_type
-
-    if device_type == 'filesystem':
+    if device_type == 'ipod':
+        return iPodDevice(config,
+                gui.download_status_model,
+                gui.download_queue_manager)
+    elif device_type == 'filesystem':
         return MP3PlayerDevice(config,
                 gui.download_status_model,
                 gui.download_queue_manager)
@@ -266,11 +267,14 @@ class Device(services.ObservableService):
         return None
 
 class iPodDevice(Device):
-    def __init__(self, config):
+    def __init__(self, config,
+            download_status_model,
+            download_queue_manager):
         Device.__init__(self, config)
 
-        self.mountpoint = str(self._config.ipod_mount)
-
+        self.mountpoint = self._config.device_sync.device_folder
+        self.download_status_model = download_status_model
+        self.download_queue_manager = download_queue_manager
         self.itdb = None
         self.podcast_playlist = None
 
@@ -400,13 +404,15 @@ class iPodDevice(Device):
         gpod.itdb_track_unlink(track)
         util.delete_file(filename)
 
-    def add_track(self, episode):
+    def add_track(self, episode,reporthook=None):
         self.notify('status', _('Adding %s') % episode.title)
-        for track in gpod.sw_get_playlist_tracks(self.podcasts_playlist):
-            if episode.url == track.podcasturl:
-                # Mark as played on iPod if played locally (and set podcast flags)
-                self.set_podcast_flags(track, episode)
-                return True
+        tracklist = gpod.sw_get_playlist_tracks(self.podcasts_playlist)
+        podcasturls=[track.podcasturl for track in tracklist]
+
+        if episode.url in podcasturls:
+            # Mark as played on iPod if played locally (and set podcast flags)
+            self.set_podcast_flags(tracklist[podcasturls.index(episode.url)], episode)
+            return True
 
         original_filename = episode.local_filename(create=False)
         # The file has to exist, if we ought to transfer it, and therefore,
@@ -422,7 +428,7 @@ class iPodDevice(Device):
             self.cancelled = True
             return False
 
-        local_filename = self.convert_track(episode)
+        local_filename = episode.local_filename(create=False)
 
         (fn, extension) = os.path.splitext(local_filename)
         if extension.lower().endswith('ogg'):
@@ -431,17 +437,17 @@ class iPodDevice(Device):
 
         track = gpod.itdb_track_new()
 
-        # Add release time to track if pubdate has a valid value
-        if episode.pubdate > 0:
+        # Add release time to track if episode.published has a valid value
+        if episode.published > 0:
             try:
                 # libgpod>= 0.5.x uses a new timestamp format
-                track.time_released = gpod.itdb_time_host_to_mac(int(episode.pubdate))
+                track.time_released = gpod.itdb_time_host_to_mac(int(episode.published))
             except:
                 # old (pre-0.5.x) libgpod versions expect mactime, so
                 # we're going to manually build a good mactime timestamp here :)
                 #
                 # + 2082844800 for unixtime => mactime (1970 => 1904)
-                track.time_released = int(episode.pubdate + 2082844800)
+                track.time_released = int(episode.published + 2082844800)
 
         track.title = str(episode.title)
         track.album = str(episode.channel.title)
@@ -467,9 +473,7 @@ class iPodDevice(Device):
         gpod.itdb_playlist_add_track(self.master_playlist, track, -1)
         gpod.itdb_playlist_add_track(self.podcasts_playlist, track, -1)
         copied = gpod.itdb_cp_track_to_ipod(track, str(local_filename), None)
-
-        if copied and gpodder.user_hooks is not None:
-            gpodder.user_hooks.on_file_copied_to_ipod(self, local_filename)
+        reporthook(episode.file_size, 1, episode.file_size)
 
         # If the file has been converted, delete the temporary file here
         if local_filename != original_filename:
@@ -806,7 +810,7 @@ class MTPDevice(Device):
             metadata.artist = str(episode.channel.title)
             metadata.album = str(episode.channel.title)
             metadata.genre = "podcast"
-            metadata.date = self.__date_to_mtp(episode.pubdate)
+            metadata.date = self.__date_to_mtp(episode.published)
             metadata.duration = get_track_length(str(filename))
 
             folder_name = ''
