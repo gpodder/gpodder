@@ -17,7 +17,7 @@
 #
 
 # This metadata block gets parsed by setup.py - use single quotes only
-__tagline__   = 'Media aggregator and podcast client'
+__tagline__   = 'Media and podcast aggregator'
 __author__    = 'Thomas Perl <thp@gpodder.org>'
 __version__   = '3.99.9'
 __date__      = '2013-04-10'

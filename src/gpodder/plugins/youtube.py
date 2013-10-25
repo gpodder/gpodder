@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# gPodder - A media aggregator and podcast client
+# gPodder: Media and podcast aggregator
 # Copyright (c) 2005-2013 Thomas Perl and the gPodder Team
 #
 # gPodder is free software; you can redistribute it and/or modify
