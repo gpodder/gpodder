@@ -58,14 +58,14 @@
     "gpodder" prefix must not be specified there).
 
     If you want to add unit tests for a specific module (ex: gpodder.model),
-    you should add the tests as gpodder.test.model, or in other words:
+    you should add the tests as test_gpodder.model, or in other words:
 
         The file       src/gpodder/model.py
-        is tested by   src/gpodder/test/model.py
+        is tested by   tests/test_gpodder/model.py
 
     After you've added the test, make sure that the module appears in
-    "test_modules" in src/gpodder/test/__init__.py - for the example above,
-    the unittests in src/gpodder/test/model.py are added as 'model'. For unit
+    "test_modules" in tests/test_gpodder/__init__.py - for the example above,
+    the unittests in tests/test_gpodder/model.py are added as 'model'. For unit
     tests, coverage reporting happens for the tested module (that's why the
     test module name should mirror the module to be tested).
 

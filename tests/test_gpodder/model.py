@@ -1,5 +1,5 @@
 #
-# gpodder.test.model - Unit tests for gpodder.model (2013-02-12)
+# test_gpodder.model - Unit tests for gpodder.model (2013-02-12)
 # Copyright (c) 2013, Thomas Perl <m@thp.io>
 #
 # Permission to use, copy, modify, and/or distribute this software for any

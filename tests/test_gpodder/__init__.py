@@ -1,5 +1,5 @@
 #
-# gpodder.test - Run doctests and unittests for gPodder modules (2009-02-25)
+# test_gpodder - Run doctests and unittests for gPodder modules (2009-02-25)
 # Copyright (c) 2006-2013, Thomas Perl <m@thp.io>
 #
 # Permission to use, copy, modify, and/or distribute this software for any
@@ -33,7 +33,7 @@ except ImportError as e:
 
 # Main package and test package (for modules in main package)
 package = 'gpodder'
-test_package = '.'.join((package, 'test'))
+test_package = '_'.join(('test', package))
 
 suite = unittest.TestSuite()
 coverage_modules = []

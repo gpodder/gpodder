@@ -42,10 +42,10 @@ help:
 ##########################################################################
 
 unittest:
-	LC_ALL=C PYTHONPATH=src/ $(PYTHON) -m gpodder.test.__init__
+	LC_ALL=C PYTHONPATH=src:tests $(PYTHON) -m test_gpodder.__init__
 
 parsertest:
-	$(PYTHON) tools/test-parser/test_parser.py
+	$(PYTHON) tests/test_podcastparser.py
 
 releasetest: tests $(POFILES)
 	for lang in $(POFILES); do $(MSGFMT) --check $$lang; done
@@ -99,6 +99,7 @@ $(MESSAGES): bin/gpo
 clean:
 	$(PYTHON) setup.py clean
 	find src/ -type d -name '__pycache__' -exec rm -r '{}' +
+	find tests/ -type d -name '__pycache__' -exec rm -r '{}' +
 	rm -f MANIFEST PKG-INFO .coverage messages.mo po/*.mo
 	rm -rf build $(LOCALEDIR)
 

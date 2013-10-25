@@ -23,7 +23,7 @@ import sys
 
 here = os.path.dirname(__file__)
 
-sys.path.insert(0, os.path.join(here, '..', '..', 'src'))
+sys.path.insert(0, os.path.join(here, '..', 'src'))
 
 from gpodder import log
 log.setup(verbose=True)
