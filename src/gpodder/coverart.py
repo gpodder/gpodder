@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # gpodder.coverart - Unified cover art downloading module (2012-03-04)
 # Copyright (c) 2012, 2013, Thomas Perl <m@thp.io>

@@ -1,5 +1,3 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
 #
 # gPodder: Media and podcast aggregator
 # Copyright (c) 2005-2013 Thomas Perl and the gPodder Team

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # gpodder.core - Common functionality used by all UIs (2011-02-06)
 # Copyright (c) 2011-2013, Thomas Perl <m@thp.io>

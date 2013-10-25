@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # test_parser.py: Test Runner for the podcastparser (2012-12-29)
 # Copyright (c) 2012, 2013, Thomas Perl <m@thp.io>

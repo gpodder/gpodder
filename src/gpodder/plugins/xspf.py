@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # gpodder.plugins.xspf: XSPF playlist parser module for gPodder (2010-08-07)
 # Copyright (c) 2010-2013, Thomas Perl <m@thp.io>

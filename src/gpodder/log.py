@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # gpodder.log - Logging setup (2013-03-02)
 # Copyright (c) 2012, 2013, Thomas Perl <m@thp.io>

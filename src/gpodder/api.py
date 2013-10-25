@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # gpodder.api - Functions exposed to external applications (2013-05-23)
 # Copyright (c) 2013 Thomas Perl <m@thp.io>

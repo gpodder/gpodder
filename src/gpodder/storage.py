@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # gpodder.storage - JSON-based Database Backend (2013-05-20)
 # Copyright (c) 2013, Thomas Perl <m@thp.io>

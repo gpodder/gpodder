@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # gpodder: Main module with release metadata
 #

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # podcastparser - Simplified, fast RSS parser (2012-12-29)
 # Copyright (c) 2012, 2013, Thomas Perl <m@thp.io>

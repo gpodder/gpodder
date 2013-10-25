@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # jsonconfig - JSON-based configuration backend (2012-01-18)
 # Copyright (c) 2012, 2013, Thomas Perl <m@thp.io>

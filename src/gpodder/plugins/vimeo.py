@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # gpodder.plugins.vimeo: Vimeo download magic (2012-01-03)
 # Copyright (c) 2012, 2013, Thomas Perl <m@thp.io>

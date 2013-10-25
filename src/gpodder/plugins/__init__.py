@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # gpodder.plugins - Plugins for parsing different types of media feeds
 # Copyright (c) 2013, Thomas Perl <m@thp.io>

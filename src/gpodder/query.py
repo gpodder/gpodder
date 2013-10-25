@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # gpodder.query - Episode Query Language (EQL) implementation (2010-11-29)
 # Copyright (c) 2010-2013, Thomas Perl <m@thp.io>

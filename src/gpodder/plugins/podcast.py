@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # gpodder.plugins.podcast: Faster Podcast Parser module for gPodder (2012-12-29)
 # Copyright (c) 2012, 2013, Thomas Perl <m@thp.io>

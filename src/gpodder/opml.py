@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # gpodder.opml: OPML import and export functionality (2007-08-19)
 # Copyright (c) 2007-2013, Thomas Perl <m@thp.io>

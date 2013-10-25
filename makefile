@@ -67,7 +67,7 @@ $(LOCALEDIR)/%/LC_MESSAGES/gpodder.mo: po/%.po
 	$(MSGFMT) $< -o $@
 
 $(MESSAGES): bin/gpo
-	$(XGETTEXT) --language=Python -k_:1 -kN_:1 -kN_:1,2 -o $(MESSAGES) $^
+	$(XGETTEXT) --from-code=utf-8 --language=Python -k_:1 -kN_:1 -kN_:1,2 -o $(MESSAGES) $^
 
 ##########################################################################
 
@@ -83,7 +83,6 @@ headlink:
 
 clean:
 	$(PYTHON) setup.py clean
-	find src/ '(' -name '*.pyc' -o -name '*.pyo' ')' -exec rm '{}' +
 	find src/ -type d -name '__pycache__' -exec rm -r '{}' +
 	find . -type f -name .DS_Store -exec rm -f '{}' +
 	rm -f MANIFEST PKG-INFO .coverage messages.mo po/*.mo

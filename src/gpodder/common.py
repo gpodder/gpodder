@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # gpodder.common - Common helper functions for all UIs (2012-08-16)
 # Copyright (c) 2012, 2013, Thomas Perl <m@thp.io>

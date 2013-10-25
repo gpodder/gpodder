@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # gpodder.test - Run doctests and unittests for gPodder modules (2009-02-25)
 # Copyright (c) 2006-2013, Thomas Perl <m@thp.io>

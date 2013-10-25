@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # gpodder.test.model - Unit tests for gpodder.model (2013-02-12)
 # Copyright (c) 2013, Thomas Perl <m@thp.io>
