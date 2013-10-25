@@ -56,6 +56,7 @@
   - Other commands -
 
     versioncheck               Check if a new gPodder version is available
+    license                    Show the software license information
     rewrite OLDURL NEWURL      Change the feed URL of [OLDURL] to [NEWURL]
 
 """
@@ -526,6 +527,9 @@ class gPodderCli(object):
         print(stylize(__doc__), file=sys.stderr, end='')
         return True
 
+    def license(self):
+        self._pager(gpodder.__doc__)
+
     # -------------------------------------------------------------------
 
     def _pager(self, output):
@@ -544,7 +548,7 @@ class gPodderCli(object):
         print(os.linesep.join(x.strip() for x in ("""
         gPodder %(__version__)s "%(__relname__)s" (%(__date__)s) - %(__url__)s
         %(__copyright__)s
-        License: %(__license__)s
+        License: %(__license__)s (type 'license' for details)
 
         Entering interactive shell. Type 'help' for help.
         Press Ctrl+D (EOF) or type 'quit' to quit.
