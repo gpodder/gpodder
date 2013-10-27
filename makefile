@@ -41,16 +41,11 @@ help:
 
 ##########################################################################
 
-unittest:
+tests:
 	LC_ALL=C PYTHONPATH=src:tests $(PYTHON) -m test_gpodder.__init__
-
-parsertest:
-	$(PYTHON) tests/test_podcastparser.py
 
 releasetest: tests $(POFILES)
 	for lang in $(POFILES); do $(MSGFMT) --check $$lang; done
-
-tests: unittest parsertest
 
 ##########################################################################
 
@@ -109,6 +104,6 @@ distclean: clean
 ##########################################################################
 
 .PHONY: help \
-    unittest parsertest releasetest tests \
+    tests releasetest \
     release install headlink messages \
     clean distclean \
