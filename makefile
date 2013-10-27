@@ -26,7 +26,7 @@ help:
 	@echo "  make messages       Update translation files in po/ from source"
 	@echo "  make headlink       Print commit URL for the current Git head"
 	@echo ""
-	@echo "  make tests          Run tests"
+	@echo "  make test           Run automated tests"
 	@echo "  make clean          Remove generated and compiled files"
 	@echo "  make distclean      'make clean' + remove dist/"
 	@echo ""
@@ -41,10 +41,13 @@ help:
 
 ##########################################################################
 
-tests:
-	LC_ALL=C PYTHONPATH=src:tests $(PYTHON) -m test_gpodder.__init__
+NOSETEST_OPTIONS += --verbose --all-modules --with-doctest
+NOSETEST_OPTIONS += --with-coverage --cover-erase --cover-package=gpodder
 
-releasetest: tests $(POFILES)
+test:
+	LC_ALL=C $(PYTHON) -m nose $(NOSETEST_OPTIONS)
+
+releasetest: test $(POFILES)
 	for lang in $(POFILES); do $(MSGFMT) --check $$lang; done
 
 ##########################################################################
@@ -94,7 +97,7 @@ $(MESSAGES): bin/gpo
 clean:
 	$(PYTHON) setup.py clean
 	find src/ -type d -name '__pycache__' -exec rm -r '{}' +
-	find tests/ -type d -name '__pycache__' -exec rm -r '{}' +
+	find test/ -type d -name '__pycache__' -exec rm -r '{}' +
 	rm -f MANIFEST PKG-INFO .coverage messages.mo po/*.mo
 	rm -rf build $(LOCALEDIR)
 
@@ -104,6 +107,6 @@ distclean: clean
 ##########################################################################
 
 .PHONY: help \
-    tests releasetest \
+    test releasetest \
     release install headlink messages \
     clean distclean \
