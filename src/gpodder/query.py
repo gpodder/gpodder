@@ -87,9 +87,6 @@ class EQL(object):
     using EQL. Example usage:
 
     >>> q = EQL('downloaded and megabytes > 10')
-    >>> q.filter(channel.episodes)
-
-    >>> EQL('new and video').match(episode)
 
     Regular expression queries are also supported:
 
@@ -102,11 +99,6 @@ class EQL(object):
     >>> q = EQL('"S04"')
 
     >>> q = EQL("'linux'")
-
-    Normal EQL queries cannot be mixed with RegEx
-    or string matching yet, so this does NOT work:
-
-    >>> EQL('downloaded and /The.*/i')
     """
 
     def __init__(self, query):
