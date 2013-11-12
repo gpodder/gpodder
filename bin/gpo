@@ -506,6 +506,7 @@ class gPodderCli(object):
                     'podcast': podcast.title})
                 self._finish_action(skip=True)
 
+        util.delete_empty_folders(gpodder.downloads)
         safe_print(inblue(self._pending_message(count)))
         return True
 
@@ -523,6 +524,7 @@ class gPodderCli(object):
                         safe_print(' ', episode.title)
                         count += 1
 
+        util.delete_empty_folders(gpodder.downloads)
         safe_print(inblue(self._pending_message(count)))
         return True
 
@@ -550,6 +552,7 @@ class gPodderCli(object):
                         self._download_episode(episode)
                         count += 1
 
+        util.delete_empty_folders(gpodder.downloads)
         safe_print(count, 'episodes downloaded.')
         return True
 

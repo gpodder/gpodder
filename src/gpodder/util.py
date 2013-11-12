@@ -1758,3 +1758,9 @@ def website_reachable(url):
 
     return (False, None)
 
+def delete_empty_folders(top):
+    for root, dirs, files in os.walk(top, topdown=False):
+        for name in dirs:
+            if not os.listdir(name):
+                os.rmdir(name)
+
