@@ -1759,3 +1759,14 @@ def website_reachable(url):
 
     return (False, None)
 
+def delete_empty_folders(dir):
+    if os.path.isdir(dir):
+        for item in os.listdir(dir):
+            srcname = os.path.join(dir, item)
+            print srcname
+            if os.path.isdir(srcname):
+                if not os.listdir(srcname):
+                    os.rmdir(srcname)
+                delete_empty_folders(srcname)
+
+
