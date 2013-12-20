@@ -1395,7 +1395,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.show_message(message, _('Device synchronization failed'), True, widget=self.labelDownloads)
 
         # Do post-sync processing if required
-        for task in finished_syncs + failed_syncs:
+        for task in finished_syncs:
             if self.config.device_sync.after_sync.mark_episodes_played:
                 logger.info('Marking as played on transfer: %s', task.episode.url)
                 task.episode.mark(is_played=True)
