@@ -140,9 +140,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.episode_columns_menu = None
         self.config.add_observer(self.on_config_changed)
 
-        self.sw_shownotes = gtk.ScrolledWindow()
-        self.sw_shownotes.set_shadow_type(gtk.SHADOW_IN)
-        self.sw_shownotes.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+        self.shownotes_pane = gtk.HBox()
+        if shownotes.have_webkit and self.config.enable_html_shownotes:
+            self.shownotes_object = shownotes.gPodderShownotesHTML(self.shownotes_pane)
+        else:
+            self.shownotes_object = shownotes.gPodderShownotesText(self.shownotes_pane)
 
         # Vertical paned for the episode list and shownotes
         self.vpaned = gtk.VPaned()
@@ -150,23 +152,17 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.vbox_episode_list.reparent(self.vpaned)
         self.vpaned.child_set_property(self.vbox_episode_list, 'resize', True)
         self.vpaned.child_set_property(self.vbox_episode_list, 'shrink', False)
-        self.vpaned.pack2(self.sw_shownotes, resize=False, shrink=False)
+        self.vpaned.pack2(self.shownotes_pane, resize=False, shrink=False)
         self.vpaned.show()
 
         # Minimum height for both episode list and shownotes
         self.vbox_episode_list.set_size_request(-1, 100)
-        self.sw_shownotes.set_size_request(-1, 100)
+        self.shownotes_pane.set_size_request(-1, 100)
 
         self.config.connect_gtk_paned('ui.gtk.state.main_window.episode_list_size',
                 self.vpaned)
         paned.add2(self.vpaned)
 
-        if self.config.enable_html_shownotes and shownotes.have_webkit:
-            self.shownotes_object = shownotes.gPodderShownotesHTML(self.sw_shownotes)
-        else:
-            self.shownotes_object = shownotes.gPodderShownotesText(self.sw_shownotes)
-
-        self.sw_shownotes.hide()
 
         self.new_episodes_window = None
 
@@ -887,7 +883,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 if self.hbox_search_episodes.get_property('visible'):
                     self.hide_episode_search()
                 else:
-                    self.sw_shownotes.hide()
+                    self.shownotes_object.hide_pane()
             elif event.state & gtk.gdk.CONTROL_MASK:
                 # Don't handle type-ahead when control is pressed (so shortcuts
                 # with the Ctrl key still work, e.g. Ctrl+A, ...)
@@ -920,13 +916,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_episode_list_selection_changed(self, selection):
         # Update the toolbar buttons
         self.play_or_download()
-
-        rows = selection.count_selected_rows()
-        if rows != 1:
-            self.shownotes_object.set_episode(None)
-        elif self.sw_shownotes.get_property('visible'):
-            episode = self.get_selected_episodes()[0]
-            self.shownotes_object.set_episode(episode)
+        # and the shownotes
+        self.shownotes_object.set_episodes(self.get_selected_episodes())
 
     def init_download_list_treeview(self):
         # enable multiple selection support
@@ -1514,16 +1505,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             menu = gtk.Menu()
 
-            item = gtk.ImageMenuItem(_('Episode details'))
-            item.set_image(gtk.image_new_from_stock(gtk.STOCK_INFO, gtk.ICON_SIZE_MENU))
-            if len(selected_tasks) == 1:
-                row_reference, task = selected_tasks[0]
-                episode = task.episode
-                item.connect('activate', lambda item: self.show_episode_shownotes(episode))
-            else:
-                item.set_sensitive(False)
-            menu.append(item)
-            menu.append(gtk.SeparatorMenuItem())
             if can_force:
                 menu.append(make_menu_item(_('Start download now'), gtk.STOCK_GO_DOWN, selected_tasks, download.DownloadTask.QUEUED, True, True))
             else:
@@ -1811,7 +1792,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             # Single item, add episode information menu item
             item = gtk.ImageMenuItem(_('Episode details'))
             item.set_image(gtk.image_new_from_stock( gtk.STOCK_INFO, gtk.ICON_SIZE_MENU))
-            item.connect('activate', lambda w: self.show_episode_shownotes(episodes[0]))
+            item.connect('activate', self.on_shownotes_selected_episodes)
             menu.append(item)
 
             menu.show_all()
@@ -2679,8 +2660,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         gPodderEpisodeSelector(self.gPodder, title = _('Delete episodes'), instructions = instructions, \
                                 episodes = episodes, selected = selected, columns = columns, \
                                 stock_ok_button = gtk.STOCK_DELETE, callback = self.delete_episode_list, \
-                                selection_buttons = selection_buttons, _config=self.config, \
-                                show_episode_shownotes=self.show_episode_shownotes)
+                                selection_buttons = selection_buttons, _config=self.config)
 
     def on_selected_episodes_status_changed(self):
         # The order of the updates here is important! When "All episodes" is
@@ -2878,8 +2858,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 remove_action=_('Mark as old'), \
                 remove_finished=self.episode_new_status_changed, \
                 _config=self.config, \
-                show_notification=False, \
-                show_episode_shownotes=self.show_episode_shownotes)
+                show_notification=False)
 
     def on_itemDownloadAllNew_activate(self, widget, *args):
         if not self.offer_new_episodes():
@@ -3317,12 +3296,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_shownotes_selected_episodes(self, widget):
         episodes = self.get_selected_episodes()
-        if episodes:
-            episode = episodes.pop(0)
-            if episode is not None:
-                self.show_episode_shownotes(episode)
-        else:
-            self.show_message(_('Please select an episode from the episode list to display shownotes.'), _('No episode selected'), widget=self.treeAvailable)
+        self.shownotes_object.toggle_pane_visibility(episodes)
 
     def on_download_selected_episodes(self, widget):
         episodes = self.get_selected_episodes()
@@ -3333,9 +3307,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_treeAvailable_row_activated(self, widget, path, view_column):
         """Double-click/enter action handler for treeAvailable"""
         self.on_shownotes_selected_episodes(widget)
-
-    def show_episode_shownotes(self, episode):
-        self.shownotes_object.set_episode(episode)
 
     def restart_auto_update_timer(self):
         if self._auto_update_timer_source_id is not None:
