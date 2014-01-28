@@ -187,7 +187,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.download_status_model = DownloadStatusModel()
         self.download_queue_manager = download.DownloadQueueManager(self.config)
 
-        self.itemShowAllEpisodes.set_active(self.config.podcast_list_view_all)
         self.itemShowToolbar.set_active(self.config.show_toolbar)
         self.itemShowDescription.set_active(self.config.episode_list_descriptions)
 
@@ -195,8 +194,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.config.connect_gtk_togglebutton('max_downloads_enabled', self.cbMaxDownloads)
         self.config.connect_gtk_spinbutton('limit_rate_value', self.spinLimitDownloads)
         self.config.connect_gtk_togglebutton('limit_rate', self.cbLimitDownloads)
-
-        self.config.connect_gtk_togglebutton('podcast_list_sections', self.item_podcast_sections)
 
         # When the amount of maximum downloads changes, notify the queue manager
         changed_cb = lambda spinbutton: self.download_queue_manager.spawn_threads()
@@ -2872,9 +2869,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def commit_changes_to_database(self):
         """This will be called after the sync process is finished"""
         self.db.commit()
-
-    def on_itemShowAllEpisodes_activate(self, widget):
-        self.config.podcast_list_view_all = widget.get_active()
 
     def on_itemShowToolbar_activate(self, widget):
         self.config.show_toolbar = self.itemShowToolbar.get_active()

@@ -197,6 +197,11 @@ class gPodderPreferences(BuilderWidget):
         self.combobox_preferred_video_format.add_attribute(cellrenderer, 'text', self.preferred_video_format_model.C_CAPTION)
         self.combobox_preferred_video_format.set_active(self.preferred_video_format_model.get_index())
 
+        self._config.connect_gtk_togglebutton('podcast_list_view_all',
+                                              self.checkbutton_show_all_episodes)
+        self._config.connect_gtk_togglebutton('podcast_list_sections',
+                                              self.checkbutton_podcast_sections)
+
         self.update_interval_presets = [0, 10, 30, 60, 2*60, 6*60, 12*60]
         adjustment_update_interval = self.hscale_update_interval.get_adjustment()
         adjustment_update_interval.upper = len(self.update_interval_presets)-1
