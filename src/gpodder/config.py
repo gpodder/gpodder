@@ -146,7 +146,7 @@ defaults = {
             'episode_list': {
                 'descriptions': True,
                 'view_mode': 1,
-                'columns': int('101', 2), # bitfield of visible columns
+                'columns': int('110', 2), # bitfield of visible columns
             },
 
             'download_list': {
