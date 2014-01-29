@@ -415,7 +415,7 @@ class EpisodeListModel(gtk.ListStore):
                 self.C_VIEW_SHOW_UNPLAYED, view_show_unplayed, \
                 self.C_DESCRIPTION, description, \
                 self.C_TOOLTIP, tooltip, \
-                self.C_TIME, episode.get_play_info_string(duration_only=True), \
+                self.C_TIME, episode.get_play_info_string(), \
                 self.C_TIME_VISIBLE, bool(episode.total_time), \
                 self.C_TOTAL_TIME, episode.total_time, \
                 self.C_LOCKED, episode.archive, \
