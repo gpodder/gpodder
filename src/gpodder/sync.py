@@ -56,9 +56,9 @@ except:
 #    logger.warning('Could not load gpopymtp (libmtp not installed?).')
 
 try:
-    import eyeD3
+    import eyed3.mp3
 except:
-    logger.warning('Could not find eyeD3')
+    logger.warning('Could not find eyed3.mp3')
 
 import os.path
 import glob
@@ -134,10 +134,10 @@ def get_track_length(filename):
         logger.info('Please install MPlayer for track length detection.')
 
     try:
-        eyed3_info = eyeD3.Mp3AudioFile(filename)
-        return int(eyed3_info.getPlayTime()*1000)
-    except:
-        pass
+        mp3file = eyed3.mp3.Mp3AudioFile(filename)
+        return int(mp3file.info.time_secs * 1000)
+    except Exception, e:
+        logger.warn('Could not determine length: %s', filename, exc_info=True)
 
     return int(60*60*1000*3) # Default is three hours (to be on the safe side)
 
