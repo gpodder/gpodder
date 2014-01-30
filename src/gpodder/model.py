@@ -818,7 +818,7 @@ class PodcastChannel(PodcastModelObject):
         for episode in self.get_episodes(gpodder.STATE_DOWNLOADED):
             if episode.was_downloaded():
                 filename = episode.local_filename(create=False)
-                if not os.path.exists(filename):
+                if filename is not None and not os.path.exists(filename):
                     # File has been deleted by the user - simulate a
                     # delete event (also marks the episode as deleted)
                     logger.debug('Episode deleted: %s', filename)
