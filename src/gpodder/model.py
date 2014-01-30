@@ -717,6 +717,8 @@ class PodcastEpisode(PodcastModelObject):
         duration = util.format_time(self.total_time)
         if duration_only and self.total_time > 0:
             return duration
+        elif self.is_finished():
+            return '%s (%s)' % (_('Finished'), duration)
         elif self.current_position > 0 and \
                 self.current_position != self.total_time:
             position = util.format_time(self.current_position)
