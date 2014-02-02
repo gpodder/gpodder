@@ -26,6 +26,8 @@ class gPodderExtension:
     def __init__(self, container):
         self.container = container
         self.status_icon = None
+        self.icon_name = None
+        self.icon_size = None
         self.gpodder = None
         self.last_progress = 0
 
@@ -36,13 +38,13 @@ class gPodderExtension:
         theme = gtk.icon_theme_get_default()
         theme.append_search_path(icon_path)
 
-        if not hasattr(self, 'icon_name'):
+        if self.icon_name is None:
             if theme.has_icon('gpodder'):
                 self.icon_name = 'gpodder'
             else:
                 self.icon_name = 'stock_mic'
 
-        if not hasattr(self, 'icon_size'):
+        if self.icon_size is None:
             # first load from icon name to get the automatically determined size
             self.status_icon = gtk.status_icon_new_from_icon_name(self.icon_name)
             self.icon_size = self.status_icon.get_size()
@@ -68,6 +70,8 @@ class gPodderExtension:
         if self.status_icon is not None:
             self.status_icon.set_visible(False)
             self.status_icon = None
+            self.icon_name = None
+            self.icon_size = None
 
     def on_ui_object_available(self, name, ui_object):
         if name == 'gpodder-gtk':
