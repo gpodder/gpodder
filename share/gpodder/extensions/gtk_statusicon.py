@@ -22,14 +22,19 @@ import os.path
 
 from gpodder.gtkui import draw
 
+DefaultConfig = {
+    'download_progress_bar': False, # draw progress bar on icon while downloading?
+}
+
 class gPodderExtension:
     def __init__(self, container):
         self.container = container
+        self.config = self.container.config
         self.status_icon = None
         self.icon_name = None
         self.icon_size = None
         self.gpodder = None
-        self.last_progress = 0
+        self.last_progress = 1
 
     def set_icon(self):
         path = os.path.join(os.path.dirname(__file__), '..', '..', 'icons')
@@ -79,6 +84,14 @@ class gPodderExtension:
 
     def on_download_progress(self, progress):
         logger.debug("download progress: %f", progress)
+
+        if not self.config.download_progress_bar:
+            # reset the icon in case option was turned off during download
+            if self.last_progress < 1:
+                self.last_progress = 1
+                self.set_icon()
+            # in any case, we're now done
+            return
 
         if progress == 1:
             self.set_icon() # no progress bar
