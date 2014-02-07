@@ -32,11 +32,10 @@ class gPodderExtension:
         self.config = self.container.config
         self.status_icon = None
         self.icon_name = None
-        self.icon_size = None
         self.gpodder = None
         self.last_progress = 1
 
-    def set_icon(self):
+    def set_icon(self, use_pixbuf=False):
         path = os.path.join(os.path.dirname(__file__), '..', '..', 'icons')
         icon_path = os.path.abspath(path)
 
@@ -49,14 +48,23 @@ class gPodderExtension:
             else:
                 self.icon_name = 'stock_mic'
 
-        if self.icon_size is None:
-            # first load from icon name to get the automatically determined size
+        if self.status_icon is None:
             self.status_icon = gtk.status_icon_new_from_icon_name(self.icon_name)
-            self.icon_size = self.status_icon.get_size()
-        
-        icon_pixbuf = theme.load_icon(self.icon_name, self.icon_size, gtk.ICON_LOOKUP_USE_BUILTIN)
+            return
 
-        self.status_icon.set_from_pixbuf(icon_pixbuf)
+        # If current mode matches desired mode, nothing to do.
+        is_pixbuf = (self.status_icon.get_storage_type() == gtk.IMAGE_PIXBUF)
+        if is_pixbuf == use_pixbuf:
+            return
+
+        if not use_pixbuf:
+            self.status_icon.set_from_icon_name(self.icon_name)
+        else:
+            # Currently icon is not a pixbuf => was loaded by name, at which
+            # point size was automatically determined.
+            icon_size = self.status_icon.get_size()
+            icon_pixbuf = theme.load_icon(self.icon_name, icon_size, gtk.ICON_LOOKUP_USE_BUILTIN)
+            self.status_icon.set_from_pixbuf(icon_pixbuf)
 
     def on_load(self):
         self.set_icon()
@@ -76,11 +84,16 @@ class gPodderExtension:
             self.status_icon.set_visible(False)
             self.status_icon = None
             self.icon_name = None
-            self.icon_size = None
 
     def on_ui_object_available(self, name, ui_object):
         if name == 'gpodder-gtk':
             self.gpodder = ui_object
+
+    def get_icon_pixbuf(self):
+        assert self.status_icon is not None
+        if self.status_icon.get_storage_type() != gtk.IMAGE_PIXBUF:
+            self.set_icon(use_pixbuf=True)
+        return self.status_icon.get_pixbuf()
 
     def on_download_progress(self, progress):
         logger.debug("download progress: %f", progress)
@@ -102,7 +115,7 @@ class gPodderExtension:
         if abs(progress-self.last_progress) < 0.03 and progress > self.last_progress:
             return
 
-        icon = self.status_icon.get_pixbuf().copy()
+        icon = self.get_icon_pixbuf().copy()
         progressbar = draw.progressbar_pixbuf(icon.get_width(), icon.get_height(), progress)
         progressbar.composite(icon, 0, 0, icon.get_width(), icon.get_height(), 0, 0, 1, 1, gtk.gdk.INTERP_NEAREST, 255)
 
