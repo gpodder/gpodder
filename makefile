@@ -1,6 +1,6 @@
 #
 # gPodder - A media aggregator and podcast client
-# Copyright (c) 2005-2013 Thomas Perl and the gPodder Team
+# Copyright (c) 2005-2014 Thomas Perl and the gPodder Team
 #
 # gPodder is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -129,7 +129,7 @@ clean:
 	find src/ '(' -name '*.pyc' -o -name '*.pyo' ')' -exec rm '{}' +
 	find src/ -type d -name '__pycache__' -exec rm -r '{}' +
 	find share/gpodder/ui/ -name '*.ui.h' -exec rm '{}' +
-	rm -f MANIFEST PKG-INFO .coverage messages.mo po/*.mo
+	rm -f MANIFEST .coverage messages.mo po/*.mo
 	rm -f $(GPODDER_SERVICE_FILE)
 	rm -f $(GPODDER_DESKTOP_FILE)
 	rm -f $(GPODDER_DESKTOP_FILE_H)

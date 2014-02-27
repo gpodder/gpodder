@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # gPodder - A media aggregator and podcast client
-# Copyright (c) 2005-2013 Thomas Perl and the gPodder Team
+# Copyright (c) 2005-2014 Thomas Perl and the gPodder Team
 #
 # gPodder is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -132,6 +132,9 @@ class UIConfig(config.Config):
     def connect_gtk_window(self, window, config_prefix, show_window=False):
         cfg = getattr(self.ui.gtk.state, config_prefix)
 
+        if gpodder.ui.win32:
+            window.set_gravity(gtk.gdk.GRAVITY_STATIC)
+
         window.resize(cfg.width, cfg.height)
         if cfg.x == -1 or cfg.y == -1:
             window.set_position(gtk.WIN_POS_CENTER_ON_PARENT)
@@ -144,7 +147,9 @@ class UIConfig(config.Config):
         def _receive_configure_event(widget, event):
             x_pos, y_pos = event.x, event.y
             width_size, height_size = event.width, event.height
-            if not self.__ignore_window_events and not cfg.maximized:
+            maximized = bool(event.window.get_state() & 
+                    gtk.gdk.WINDOW_STATE_MAXIMIZED)
+            if not self.__ignore_window_events and not maximized:
                 cfg.x = x_pos
                 cfg.y = y_pos
                 cfg.width = width_size
