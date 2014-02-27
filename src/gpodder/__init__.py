@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # gPodder - A media aggregator and podcast client
-# Copyright (c) 2005-2013 Thomas Perl and the gPodder Team
+# Copyright (c) 2005-2014 Thomas Perl and the gPodder Team
 #
 # gPodder is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@ __author__    = 'Thomas Perl <thp@gpodder.org>'
 __version__   = '3.5.2'
 __date__      = '2013-10-24'
 __relname__   = 'The Prime Mover'
-__copyright__ = '© 2005-2013 Thomas Perl and the gPodder Team'
+__copyright__ = '© 2005-2014 Thomas Perl and the gPodder Team'
 __license__   = 'GNU General Public License, version 3 or later'
 __url__       = 'http://gpodder.org/'
 
