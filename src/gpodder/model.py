@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # gPodder - A media aggregator and podcast client
-# Copyright (c) 2005-2013 Thomas Perl and the gPodder Team
+# Copyright (c) 2005-2014 Thomas Perl and the gPodder Team
 # Copyright (c) 2011 Neal H. Walfield
 #
 # gPodder is free software; you can redistribute it and/or modify
@@ -717,6 +717,8 @@ class PodcastEpisode(PodcastModelObject):
         duration = util.format_time(self.total_time)
         if duration_only and self.total_time > 0:
             return duration
+        elif self.is_finished():
+            return '%s (%s)' % (_('Finished'), duration)
         elif self.current_position > 0 and \
                 self.current_position != self.total_time:
             position = util.format_time(self.current_position)
@@ -818,6 +820,10 @@ class PodcastChannel(PodcastModelObject):
         for episode in self.get_episodes(gpodder.STATE_DOWNLOADED):
             if episode.was_downloaded():
                 filename = episode.local_filename(create=False)
+                if filename is None:
+                    # No filename has been determined for this episode
+                    continue
+
                 if not os.path.exists(filename):
                     # File has been deleted by the user - simulate a
                     # delete event (also marks the episode as deleted)

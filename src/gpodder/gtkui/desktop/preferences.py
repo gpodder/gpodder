@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # gPodder - A media aggregator and podcast client
-# Copyright (c) 2005-2013 Thomas Perl and the gPodder Team
+# Copyright (c) 2005-2014 Thomas Perl and the gPodder Team
 #
 # gPodder is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -69,6 +69,7 @@ class DeviceTypeActionList(gtk.ListStore):
         gtk.ListStore.__init__(self, str, str)
         self._config = config
         self.append((_('None'), 'none'))
+        self.append((_('iPod'), 'ipod'))        
         self.append((_('Filesystem-based'), 'filesystem'))
 
     def get_index(self):
@@ -195,6 +196,11 @@ class gPodderPreferences(BuilderWidget):
         self.combobox_preferred_video_format.pack_start(cellrenderer, True)
         self.combobox_preferred_video_format.add_attribute(cellrenderer, 'text', self.preferred_video_format_model.C_CAPTION)
         self.combobox_preferred_video_format.set_active(self.preferred_video_format_model.get_index())
+
+        self._config.connect_gtk_togglebutton('podcast_list_view_all',
+                                              self.checkbutton_show_all_episodes)
+        self._config.connect_gtk_togglebutton('podcast_list_sections',
+                                              self.checkbutton_podcast_sections)
 
         self.update_interval_presets = [0, 10, 30, 60, 2*60, 6*60, 12*60]
         adjustment_update_interval = self.hscale_update_interval.get_adjustment()
@@ -577,7 +583,7 @@ class gPodderPreferences(BuilderWidget):
             self.toggle_playlist_interface(True)
 
     def toggle_playlist_interface(self, enabled):
-        if enabled and self._config.device_sync.device_type != 'none':
+        if enabled and self._config.device_sync.device_type == 'filesystem':
             self.btn_playlistfolder.set_sensitive(True)
             self.btn_playlistfolder.set_label(self._config.device_sync.playlists.folder)
             self.checkbutton_delete_using_playlists.set_sensitive(True)
@@ -614,6 +620,20 @@ class gPodderPreferences(BuilderWidget):
             self.toggle_playlist_interface(self._config.device_sync.playlists.create)
             self.combobox_on_sync.set_sensitive(True)
             self.checkbutton_skip_played_episodes.set_sensitive(True)
+        elif device_type == 'ipod':
+            self.btn_filesystemMountpoint.set_label(self._config.device_sync.device_folder)
+            self.btn_filesystemMountpoint.set_sensitive(True)
+            self.checkbutton_create_playlists.set_sensitive(False)
+            self.toggle_playlist_interface(False)
+            self.checkbutton_delete_using_playlists.set_sensitive(False)
+            self.combobox_on_sync.set_sensitive(False)
+            self.checkbutton_skip_played_episodes.set_sensitive(False)
+
+            children = self.btn_filesystemMountpoint.get_children()
+            if children:
+                label = children.pop()
+                label.set_alignment(0., .5)
+
         else:
             # TODO: Add support for iPod and MTP devices
             pass
@@ -627,6 +647,8 @@ class gPodderPreferences(BuilderWidget):
         if fs.run() == gtk.RESPONSE_OK:
             filename = fs.get_filename()
             if self._config.device_sync.device_type == 'filesystem':
+                self._config.device_sync.device_folder = filename
+            elif self._config.device_sync.device_type == 'ipod':
                 self._config.device_sync.device_folder = filename
             # Request an update of the mountpoint button
             self.on_combobox_device_type_changed(None)

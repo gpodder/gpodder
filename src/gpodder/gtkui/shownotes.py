@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # gPodder - A media aggregator and podcast client
-# Copyright (c) 2005-2013 Thomas Perl and the gPodder Team
+# Copyright (c) 2005-2014 Thomas Perl and the gPodder Team
 #
 # gPodder is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -33,6 +33,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 from gpodder import util
+from gpodder.gtkui.draw import draw_text_box_centered
 
 
 try:
@@ -48,20 +49,75 @@ except ImportError:
 
 
 class gPodderShownotes:
-    def __init__(self, scrolled_window):
-        self.scrolled_window = scrolled_window
+    def __init__(self, shownotes_pane):
+        self.shownotes_pane = shownotes_pane
+
+        self.scrolled_window = gtk.ScrolledWindow()
+        self.scrolled_window.set_shadow_type(gtk.SHADOW_IN)
+        self.scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
         self.scrolled_window.add(self.init())
         self.scrolled_window.show_all()
 
-    def set_episode(self, episode):
-        if episode is None:
-            self.clear()
+        self.da_message = gtk.DrawingArea()
+        self.da_message.connect('expose-event', \
+                                    self.on_shownotes_message_expose_event)
+        self.shownotes_pane.add(self.da_message)
+        self.shownotes_pane.add(self.scrolled_window)
+
+        self.set_complain_about_selection(True)
+        self.hide_pane()
+
+    # Either show the shownotes *or* a message, 'Please select an episode'
+    def set_complain_about_selection(self, message=True):
+        if message:
             self.scrolled_window.hide()
+            self.da_message.show()
         else:
-            heading = episode.title
-            subheading = _('from %s') % (episode.channel.title)
-            self.update(heading, subheading, episode)
+            self.da_message.hide()
             self.scrolled_window.show()
+
+    def set_episodes(self, selected_episodes):
+        if self.pane_is_visible:
+            if len(selected_episodes) == 1:
+                episode = selected_episodes[0]
+                heading = episode.title
+                subheading = _('from %s') % (episode.channel.title)
+                self.update(heading, subheading, episode)
+                self.set_complain_about_selection(False)
+            else:
+                self.set_complain_about_selection(True)
+
+    def show_pane(self, selected_episodes):
+        self.pane_is_visible = True
+        self.set_episodes(selected_episodes)
+        self.shownotes_pane.show()
+
+    def hide_pane(self):
+        self.pane_is_visible = False
+        self.shownotes_pane.hide()
+
+    def toggle_pane_visibility(self, selected_episodes):
+        if self.pane_is_visible:
+            self.hide_pane()
+        else:
+            self.show_pane(selected_episodes)
+
+    def on_shownotes_message_expose_event(self, drawingarea, event):
+        ctx = event.window.cairo_create()
+        ctx.rectangle(event.area.x, event.area.y, \
+                      event.area.width, event.area.height)
+        ctx.clip()
+
+        # paint the background white
+        colormap = event.window.get_colormap()
+        gc = event.window.new_gc(foreground=colormap.alloc_color('white'))
+        event.window.draw_rectangle(gc, True, event.area.x, event.area.y, \
+                                    event.area.width, event.area.height)
+
+        x, y, width, height, depth = event.window.get_geometry()
+        text = _('Please select an episode')
+        draw_text_box_centered(ctx, drawingarea, width, height, text, None, None)
+        return False
 
 
 class gPodderShownotesText(gPodderShownotes):
@@ -77,9 +133,6 @@ class gPodderShownotesText(gPodderShownotes):
         self.text_view.modify_bg(gtk.STATE_NORMAL,
                 gtk.gdk.color_parse('#ffffff'))
         return self.text_view
-
-    def clear(self):
-        self.text_buffer.set_text('')
 
     def update(self, heading, subheading, episode):
         self.text_buffer.set_text('')
@@ -123,9 +176,6 @@ class gPodderShownotesHTML(gPodderShownotes):
             decision.use()
         else:
             decision.ignore()
-
-    def clear(self):
-        self.html_view.load_html_string('', '')
 
     def update(self, heading, subheading, episode):
         html = self.SHOWNOTES_HTML_TEMPLATE % (

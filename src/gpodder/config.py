@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # gPodder - A media aggregator and podcast client
-# Copyright (c) 2005-2013 Thomas Perl and the gPodder Team
+# Copyright (c) 2005-2014 Thomas Perl and the gPodder Team
 #
 # gPodder is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -146,7 +146,7 @@ defaults = {
             'episode_list': {
                 'descriptions': True,
                 'view_mode': 1,
-                'columns': int('101', 2), # bitfield of visible columns
+                'columns': int('110', 2), # bitfield of visible columns
             },
 
             'download_list': {
@@ -157,8 +157,8 @@ defaults = {
 
     # Synchronization with portable devices (MP3 players, etc..)
     'device_sync': {
-        'device_type': 'none', # Possible values: 'none', 'filesystem'
-        'device_folder': '/media',
+        'device_type': 'none', # Possible values: 'none', 'filesystem', 'ipod'
+        'device_folder': '/media',        
 
         'one_folder_per_podcast': True,
         'skip_played_episodes': True,
