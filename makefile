@@ -96,7 +96,7 @@ install: messages $(GPODDER_SERVICE_FILE) $(GPODDER_DESKTOP_FILE)
 manpage: $(MANPAGE)
 
 $(MANPAGE): src/gpodder/__init__.py $(BINFILE)
-	$(HELP2MAN) --name="$(shell $(PYTHON) setup.py --description)" -N $(BINFILE) >$(MANPAGE)
+	LC_ALL=C $(HELP2MAN) --name="$(shell $(PYTHON) setup.py --description)" -N $(BINFILE) >$(MANPAGE)
 
 ##########################################################################
 
