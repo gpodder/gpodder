@@ -26,6 +26,7 @@ GPODDER_SERVICE_FILE=share/dbus-1/services/org.gpodder.service
 GPODDER_SERVICE_FILE_IN=$(addsuffix .in,$(GPODDER_SERVICE_FILE))
 
 GPODDER_DESKTOP_FILE=share/applications/gpodder.desktop
+GPODDER_DESKTOP_FILE_TMP=$(addsuffix .tmp,$(GPODDER_DESKTOP_FILE))
 GPODDER_DESKTOP_FILE_IN=$(addsuffix .in,$(GPODDER_DESKTOP_FILE))
 GPODDER_DESKTOP_FILE_H=$(addsuffix .h,$(GPODDER_DESKTOP_FILE_IN))
 
@@ -80,7 +81,9 @@ $(GPODDER_SERVICE_FILE): $(GPODDER_SERVICE_FILE_IN)
 	sed -e 's#__PREFIX__#$(PREFIX)#' $< >$@
 
 $(GPODDER_DESKTOP_FILE): $(GPODDER_DESKTOP_FILE_IN) $(POFILES)
-	intltool-merge -d -u po $< $@
+	sed -e 's#__PREFIX__#$(PREFIX)#' $< >$(GPODDER_DESKTOP_FILE_TMP)
+	intltool-merge -d -u po $(GPODDER_DESKTOP_FILE_TMP) $@
+	rm -f $(GPODDER_DESKTOP_FILE_TMP)
 
 $(GPODDER_DESKTOP_FILE_IN).h: $(GPODDER_DESKTOP_FILE_IN)
 	intltool-extract --quiet --type=gettext/ini $<
@@ -93,7 +96,7 @@ install: messages $(GPODDER_SERVICE_FILE) $(GPODDER_DESKTOP_FILE)
 manpage: $(MANPAGE)
 
 $(MANPAGE): src/gpodder/__init__.py $(BINFILE)
-	$(HELP2MAN) --name="$(shell $(PYTHON) setup.py --description)" -N $(BINFILE) >$(MANPAGE)
+	LC_ALL=C $(HELP2MAN) --name="$(shell $(PYTHON) setup.py --description)" -N $(BINFILE) >$(MANPAGE)
 
 ##########################################################################
 
