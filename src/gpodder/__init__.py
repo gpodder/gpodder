@@ -20,9 +20,9 @@
 # This metadata block gets parsed by setup.py - use single quotes only
 __tagline__   = 'Media aggregator and podcast client'
 __author__    = 'Thomas Perl <thp@gpodder.org>'
-__version__   = '3.6.0'
-__date__      = '2014-02-27'
-__relname__   = 'Population: Zero'
+__version__   = '3.6.1'
+__date__      = '2014-03-08'
+__relname__   = 'Little Orphan Airplane'
 __copyright__ = '© 2005-2014 Thomas Perl and the gPodder Team'
 __license__   = 'GNU General Public License, version 3 or later'
 __url__       = 'http://gpodder.org/'
