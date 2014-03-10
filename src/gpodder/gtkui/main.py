@@ -2469,6 +2469,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 # updated, not in other podcasts (for single-feed updates)
                 episodes = self.get_new_episodes([c for c in updated_channels])
 
+                # download older episodes first
+                episodes = list(Model.sort_episodes_by_pubdate(episodes))
+
                 if not episodes:
                     # Nothing new here - but inform the user
                     self.pbFeedUpdate.set_fraction(1.0)
