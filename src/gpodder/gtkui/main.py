@@ -2468,11 +2468,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 # Only search for new episodes in podcasts that have been
                 # updated, not in other podcasts (for single-feed updates)
                 episodes = self.get_new_episodes([c for c in updated_channels])
+
                 # download older episodes first
                 episodes = list(Model.sort_episodes_by_pubdate(episodes))
-               # for e in episodes:
-               #     logger.warn('NEWNEW episode: %s %s', e.url, e.published)
-               # episodes.reverse()
 
                 if not episodes:
                     # Nothing new here - but inform the user
