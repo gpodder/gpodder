@@ -209,7 +209,6 @@ def normalize_feed_url(url):
             'fb:': 'http://feeds.feedburner.com/%s',
             'yt:': 'http://www.youtube.com/rss/user/%s/videos.rss',
             'sc:': 'http://soundcloud.com/%s',
-            'fm4od:': 'http://onapp1.orf.at/webcam/fm4/fod/%s.xspf',
             # YouTube playlists. To get a list of playlists per-user, use:
             # https://gdata.youtube.com/feeds/api/users/<username>/playlists
             'ytpl:': 'http://gdata.youtube.com/feeds/api/playlists/%s',
