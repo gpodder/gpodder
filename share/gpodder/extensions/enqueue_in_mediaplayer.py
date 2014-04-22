@@ -50,6 +50,18 @@ PLAYERS = [
 
     # Totem, https://live.gnome.org/Totem
     Player('Totem', ['totem', '--enqueue']),
+
+    # DeaDBeeF, http://deadbeef.sourceforge.net/
+    Player('DeaDBeeF', ['deadbeef', '--queue']),
+
+    # gmusicbrowser, http://gmusicbrowser.org/
+    Player('gmusicbrowser', ['gmusicbrowser', '-enqueue']),
+
+    # Audacious, http://audacious-media-player.org/
+    Player('Audacious', ['audacious', '--enqueue']),
+
+    # Clementine, http://www.clementine-player.org/
+    Player('Clementine', ['clementine', '--append']),
 ]
 
 class gPodderExtension:
