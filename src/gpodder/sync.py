@@ -517,32 +517,28 @@ class MP3PlayerDevice(Device):
 
         return False
 
-    def add_track(self, episode,reporthook=None):
-        self.notify('status', _('Adding %s') % episode.title.decode('utf-8', 'ignore'))
-
+    def get_episode_folder_on_device(self, episode):
         if self._config.device_sync.one_folder_per_podcast:
             # Add channel title as subfolder
             folder = episode.channel.title
             # Clean up the folder name for use on limited devices
             folder = util.sanitize_filename(folder,
-                    self._config.device_sync.max_filename_length)
+                self._config.device_sync.max_filename_length)
             folder = os.path.join(self.destination, folder)
         else:
             folder = self.destination
 
-        folder = util.sanitize_encoding(folder)
+        return util.sanitize_encoding(folder)
 
-        filename = episode.local_filename(create=False)
-        # The file has to exist, if we ought to transfer it, and therefore,
-        # local_filename(create=False) must never return None as filename
-        assert filename is not None
-
-        from_file = util.sanitize_encoding(filename)
+    def get_episode_file_on_device(self, episode):
+        # get the local file
+        from_file = util.sanitize_encoding(episode.local_filename(create=False))
+        # get the formated base name
         filename_base = util.sanitize_filename(episode.sync_filename(
             self._config.device_sync.custom_sync_name_enabled,
             self._config.device_sync.custom_sync_name),
             self._config.device_sync.max_filename_length)
-
+        # add the file extension
         to_file = filename_base + os.path.splitext(from_file)[1].lower()
 
         # dirty workaround: on bad (empty) episode titles,
@@ -551,6 +547,22 @@ class MP3PlayerDevice(Device):
         if os.path.splitext(to_file)[0] == '':
             to_file = os.path.basename(from_file)
 
+        return to_file
+
+    def add_track(self, episode,reporthook=None):
+        self.notify('status', _('Adding %s') % episode.title.decode('utf-8', 'ignore'))
+
+        # get the folder on the device
+        folder = self.get_episode_folder_on_device(episode)
+
+        filename = episode.local_filename(create=False)
+        # The file has to exist, if we ought to transfer it, and therefore,
+        # local_filename(create=False) must never return None as filename
+        assert filename is not None
+
+        from_file = util.sanitize_encoding(filename)
+        # get the filename that will be used on the device
+        to_file = self.get_episode_file_on_device(episode)
         to_file = util.sanitize_encoding(os.path.join(folder, to_file))
 
         if not os.path.exists(folder):
@@ -1059,7 +1071,7 @@ class SyncTask(download.DownloadTask):
                 self.total_size = util.calculate_size(self.filename)
                 logger.info('Total size updated to %d', self.total_size)
             self.progress = 1.0
-            gpodder.user_extensions.on_episode_downloaded(self.__episode)
+            gpodder.user_extensions.on_episode_synced(self.device, self.__episode)
             return True
 
         self.speed = 0.0

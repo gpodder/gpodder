@@ -491,6 +491,22 @@ class ExtensionManager(object):
         pass
 
     @call_extensions
+    def on_episode_synced(self, device, episode):
+        """Called when an episode has been synced to device
+
+        You can retrieve the filename via episode.local_filename(False)
+        For MP3PlayerDevice:
+            You can retrieve the filename on device via
+                device.get_episode_file_on_device(episode)
+            You can retrieve the folder name on device via
+                device.get_episode_folder_on_device(episode)
+
+        @param device: A gpodder.sync.Device instance
+        @param episode: A gpodder.model.PodcastEpisode instance
+        """
+        pass
+
+    @call_extensions
     def on_episodes_context_menu(self, episodes):
         """Called when the episode list context menu is opened
 
