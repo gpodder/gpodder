@@ -41,7 +41,7 @@ USECS_IN_SEC = 1000000
 TrackInfo = collections.namedtuple('TrackInfo',
                         ['uri', 'length', 'status', 'pos', 'rate'])
 
-def same_second(usec1, usec2):
+def subsecond_difference(usec1, usec2):
     return abs(usec1 - usec2) < USECS_IN_SEC
     
 class CurrentTrackTracker(object):
@@ -85,7 +85,7 @@ class CurrentTrackTracker(object):
 
         for field in kwargs:
             if field == 'pos':
-                if not same_second(kwargs['pos'], cur['pos']):
+                if not subsecond_difference(kwargs['pos'], cur['pos']):
                     break
             elif kwargs[field] != cur[field]:
                 break
@@ -114,7 +114,7 @@ class CurrentTrackTracker(object):
             # has changed discontinuously, notify a stop for the old position
             if (    cur['status'] == 'Playing'
                 and (not kwargs.has_key('status') or kwargs['status'] == 'Playing')
-                and not same_second(cur['pos'], kwargs['pos'])
+                and not subsecond_difference(cur['pos'], kwargs['pos'])
             ):
                 logger.debug('notify Stopped: playback discontinuity:' + 
                               'calc: %f observed: %f', cur['pos'], kwargs['pos'])
