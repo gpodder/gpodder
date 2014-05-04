@@ -77,22 +77,25 @@ class CurrentTrackTracker(object):
         finally:
             self._last_time = now
         
+    def update_needed(self, current, updated):
+        for field in updated:
+            if field == 'pos':
+                if not subsecond_difference(updated['pos'], current['pos']):
+                    return True
+            elif updated[field] != current[field]:
+                return True
+        # no unequal field was found, no new info here!
+        return False
+
     def update(self, **kwargs):
 
         # check if there is any new info here -- if not, no need to update!
 
         cur = self.getinfo()._asdict()
+        if not self.update_needed(cur, kwargs):
+            return
 
-        for field in kwargs:
-            if field == 'pos':
-                if not subsecond_difference(kwargs['pos'], cur['pos']):
-                    break
-            elif kwargs[field] != cur[field]:
-                break
-        else:
-            return # all fields are equal, no new info here!
-
-        # if there is new info, go ahead and update...
+        # there *is* new info, go ahead and update...
 
         uri = kwargs.pop('uri', None)
         if uri is not None:
