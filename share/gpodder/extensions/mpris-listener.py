@@ -61,8 +61,8 @@ class CurrentTrackTracker(object):
 
         now = time.time()
 
-        logger.debug('CurrentTrackTracker: calculating at %d (status: %r)' %
-                      (now, self.status))
+        logger.debug('CurrentTrackTracker: calculating at %d (status: %r)',
+                     now, self.status)
 
         try:
             if self.status != 'Playing':
@@ -71,8 +71,8 @@ class CurrentTrackTracker(object):
             if self.pos is None or self.rate is None:
                 logger.debug('CurrentTrackTracker: unknown pos/rate, no change')
                 return
-            logger.debug('CurrentTrackTracker: %f @%f (diff: %f)' % 
-                          (self.pos, self.rate, now - self._last_time))
+            logger.debug('CurrentTrackTracker: %f @%f (diff: %f)',
+                         self.pos, self.rate, now - self._last_time)
             self.pos = self.pos + self.rate * (now - self._last_time) * USECS_IN_SEC
         finally:
             self._last_time = now
@@ -102,8 +102,8 @@ class CurrentTrackTracker(object):
                 # notify that the previous track has stopped before updating to
                 # the new track.
                 if cur['status'] == 'Playing':
-                    logger.debug('notify Stopped: new uri: old %s new %s' %
-                                  (cur['uri'], uri))
+                    logger.debug('notify Stopped: new uri: old %s new %s',
+                                 cur['uri'], uri)
                     self.notify_stop()
             self.uri = uri
             self.length = float(length)
@@ -117,24 +117,24 @@ class CurrentTrackTracker(object):
                 and not same_second(cur['pos'], kwargs['pos'])
             ):
                 logger.debug('notify Stopped: playback discontinuity:' + 
-                              'calc: %f observed: %f' % (cur['pos'], kwargs['pos']))
+                              'calc: %f observed: %f', cur['pos'], kwargs['pos'])
                 self.notify_stop()
 
             if (    (kwargs['pos']) == 0
                 and self.pos > (self.length - USECS_IN_SEC)
                 and self.pos < (self.length + 2 * USECS_IN_SEC)
             ):
-                logger.debug('fixing for position 0 (calculated pos: %f/%f [%f])' %
-                              (self.pos / USECS_IN_SEC, self.length / USECS_IN_SEC,
-                               (self.pos/USECS_IN_SEC)-(self.length/USECS_IN_SEC)))
+                logger.debug('fixing for position 0 (calculated pos: %f/%f [%f])',
+                             self.pos / USECS_IN_SEC, self.length / USECS_IN_SEC,
+                             (self.pos/USECS_IN_SEC)-(self.length/USECS_IN_SEC))
                 self.pos = self.length
                 kwargs.pop('pos') # remove 'pos' even though we're not using it
             else:
                 if self.pos is not None:
-                    logger.debug("%r %r" %(self.pos,self.length))
-                    logger.debug('not fixing for position 0 (calculated pos: %f/%f [%f])' %
-                                  (self.pos / USECS_IN_SEC, self.length / USECS_IN_SEC,
-                                   (self.pos/USECS_IN_SEC)-(self.length/USECS_IN_SEC)))
+                    logger.debug("%r %r", self.pos, self.length)
+                    logger.debug('not fixing for position 0 (calculated pos: %f/%f [%f])',
+                                 self.pos / USECS_IN_SEC, self.length / USECS_IN_SEC,
+                                 (self.pos/USECS_IN_SEC)-(self.length/USECS_IN_SEC))
                 self.pos = kwargs.pop('pos')
 
         if 'status' in kwargs:
@@ -144,13 +144,13 @@ class CurrentTrackTracker(object):
             self.rate = kwargs.pop('rate')
 
         if kwargs:
-            logger.error('unexpected update fields %r' % kwargs)
+            logger.error('unexpected update fields %r', kwargs)
 
         # notify about the current state
         if self.status == 'Playing':
             self.notify_playing()
         else:
-            logger.debug('notify Stopped: status %s' % self.status)
+            logger.debug('notify Stopped: status %s', self.status)
             self.notify_stop()
 
     def getinfo(self):
@@ -190,7 +190,7 @@ class CurrentTrackTracker(object):
                 self._prev_notif = (start_position, file_uri)
             self._notifier.start_position = start_position
 
-        logger.info('CurrentTrackTracker: %s: %r' % (status, self))
+        logger.info('CurrentTrackTracker: %s: %r', status, self)
 
     def __repr__(self):
         return '%s: %s at %d/%d (@%f)' % (
@@ -237,7 +237,7 @@ class MPRISDBusReceiver(object):
     def on_prop_change(self, interface_name, changed_properties,
                        invalidated_properties, path=None):
         if interface_name != self.INTERFACE_MPRIS:
-            logger.warn('unexpected interface: %s' % interface_name)
+            logger.warn('unexpected interface: %s', interface_name)
             return
         
         collected_info = {}
@@ -253,12 +253,12 @@ class MPRISDBusReceiver(object):
 
         if not collected_info.has_key('status'):
             collected_info['status'] = str(self.query_status())
-        logger.debug('collected info: %r' % collected_info)
+        logger.debug('collected info: %r', collected_info)
 
         self.cur.update(**collected_info)
 
     def on_seeked(self, position):
-        logger.debug('seeked to pos: %f' % position)
+        logger.debug('seeked to pos: %f', position)
         self.cur.update(pos=position)
 
     def query_position(self):
@@ -277,12 +277,12 @@ class gPodderNotifier(dbus.service.Object):
 
     @dbus.service.signal(dbus_interface='org.gpodder.player', signature='us')
     def PlaybackStarted(self, start_position, file_uri):
-        logger.info('PlaybackStarted: %s: %d' % (file_uri, start_position))
+        logger.info('PlaybackStarted: %s: %d', file_uri, start_position)
 
     @dbus.service.signal(dbus_interface='org.gpodder.player', signature='uuus')
     def PlaybackStopped(self, start_position, end_position, total_time, file_uri):
-        logger.info('PlaybackStopped: %s: %d--%d/%d' %
-            (file_uri, start_position, end_position, total_time))
+        logger.info('PlaybackStopped: %s: %d--%d/%d',
+            file_uri, start_position, end_position, total_time)
          
 # Finally, this is the extension, which just pulls this all together
 class gPodderExtension:
