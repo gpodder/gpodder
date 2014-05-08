@@ -89,8 +89,8 @@ class gPodderExtension(object):
         INTRO_DEFAULT = 15
         try:
             # intro in the data could be 15 or 15.33
-            intro = episode_data.split('introDuration%22%3A')[1] \
-                                .split('%2C')[0] or INTRO_DEFAULT
+            intro = episode_data.split('introDuration":')[1] \
+                                .split(',')[0] or INTRO_DEFAULT
             intro = int(float(intro)*1000)
         except ValueError, e:
             logger.info("Couldn't parse introDuration string: %s", intro)
