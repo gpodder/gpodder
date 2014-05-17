@@ -36,7 +36,7 @@ class gPodderExtension:
             device_art = os.path.join(device_folder, self.config.art_name_on_device)
             # make sure we have art to copy and it doesnt already exist
             if os.path.isfile(episode_art) and not os.path.isfile(device_art):
-                print("Syncing Cover Art For: {}".format(episode.channel.title))
+                logger.info('Syncing cover art for %s', episode.channel.title)
                 # copy and rename art
                 shutil.copy(episode_art, device_art)
 
