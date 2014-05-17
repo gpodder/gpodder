@@ -69,6 +69,11 @@ defaults = {
         'episodes': 200, # max episodes per feed
     },
 
+    # Behavior of downloads
+    'downloads': {
+        'chronological_order': True, # download older episodes first
+    },
+
     # Automatic feed updates, download removal and retry on download timeout
     'auto': {
         'update': {

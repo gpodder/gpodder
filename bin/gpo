@@ -138,6 +138,7 @@ from gpodder import my
 from gpodder import opml
 from gpodder import util
 from gpodder import youtube
+from gpodder import model
 from gpodder.config import config_value_to_string
 
 def incolor(color_id, s):
@@ -540,20 +541,26 @@ class gPodderCli(object):
 
     @FirstArgumentIsPodcastURL
     def download(self, url=None):
-        count = 0
+        episodes = []
         for podcast in self._model.get_podcasts():
-            podcast_printed = False
             if url is None or podcast.url == url:
                 for episode in podcast.get_all_episodes():
                     if self.is_episode_new(episode):
-                        if not podcast_printed:
-                            safe_print(inblue(podcast.title))
-                            podcast_printed = True
-                        self._download_episode(episode)
-                        count += 1
+                        episodes.append(episode)
+
+        if self._config.downloads.chronological_order:
+            # download older episodes first
+            episodes = list(model.Model.sort_episodes_by_pubdate(episodes))
+
+        last_podcast = None
+        for episode in episodes:
+            if episode.channel != last_podcast:
+                safe_print(inblue(episode.channel.title))
+                last_podcast = episode.channel
+            self._download_episode(episode)
 
         util.delete_empty_folders(gpodder.downloads)
-        safe_print(count, 'episodes downloaded.')
+        safe_print(len(episodes), 'episodes downloaded.')
         return True
 
     @FirstArgumentIsPodcastURL

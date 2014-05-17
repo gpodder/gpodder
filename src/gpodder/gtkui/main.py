@@ -2469,8 +2469,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 # updated, not in other podcasts (for single-feed updates)
                 episodes = self.get_new_episodes([c for c in updated_channels])
 
-                # download older episodes first
-                episodes = list(Model.sort_episodes_by_pubdate(episodes))
+                if self.config.downloads.chronological_order:
+                    # download older episodes first
+                    episodes = list(Model.sort_episodes_by_pubdate(episodes))
 
                 if not episodes:
                     # Nothing new here - but inform the user
@@ -2768,6 +2769,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def download_episode_list(self, episodes, add_paused=False, force_start=False):
         enable_update = False
+
+        if self.config.downloads.chronological_order:
+            # Download episodes in chronological order (older episodes first)
+            episodes = list(Model.sort_episodes_by_pubdate(episodes))
 
         for episode in episodes:
             logger.debug('Downloading episode: %s', episode.title)
