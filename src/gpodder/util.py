@@ -1761,6 +1761,7 @@ def website_reachable(url):
 def delete_empty_folders(top):
     for root, dirs, files in os.walk(top, topdown=False):
         for name in dirs:
-            if not os.listdir(name):
+            dirname = os.path.join(root, name)
+            if not os.listdir(dirname):
                 os.rmdir(name)
 
