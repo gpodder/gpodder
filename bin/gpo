@@ -486,7 +486,7 @@ class gPodderCli(object):
         except Exception, e:
             self._finish_action(False)
 
-    def _pending_message(self, count):
+    def __message(self, count):
         return N_('%(count)d new episode', '%(count)d new episodes',
                 count) % {'count': count}
 
