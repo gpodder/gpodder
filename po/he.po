@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gPodder\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-02-27 21:45+0100\n"
+"POT-Creation-Date: 2014-05-17 11:14+0200\n"
 "PO-Revision-Date: 2013-01-19 12:30+0000\n"
 "Last-Translator: Thomas Perl <m@thp.io>\n"
 "Language-Team: Hebrew (http://www.transifex.com/projects/p/gpodder/language/"
@@ -21,98 +21,101 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: src/gpodder/util.py:419
-#, python-format
-msgid "%(count)d day ago"
-msgid_plural "%(count)d days ago"
-msgstr[0] "לפני יום"
-msgstr[1] "לפני %(count)d ימים"
-
-#: src/gpodder/util.py:495
-msgid "Today"
-msgstr "היום"
-
-#: src/gpodder/util.py:497
-msgid "Yesterday"
-msgstr "אתמול"
-
-#: src/gpodder/util.py:540 src/gpodder/util.py:543
-msgid "(unknown)"
-msgstr "(לא ידוע)"
-
-#: src/gpodder/util.py:1223 src/gpodder/util.py:1242
-#, python-format
-msgid "%(count)d second"
-msgid_plural "%(count)d seconds"
-msgstr[0] "שנייה אחת"
-msgstr[1] "%(count)d שניות"
-
-#: src/gpodder/util.py:1236
-#, python-format
-msgid "%(count)d hour"
-msgid_plural "%(count)d hours"
-msgstr[0] "שעה אחת"
-msgstr[1] "%(count)d שעות"
-
-#: src/gpodder/util.py:1239
-#, python-format
-msgid "%(count)d minute"
-msgid_plural "%(count)d minutes"
-msgstr[0] "דקה אחת"
-msgstr[1] "%(count)d דקות"
-
-#: src/gpodder/util.py:1245
-msgid "and"
-msgstr "וגם"
-
-#: src/gpodder/model.py:448 src/gpodder/plugins/soundcloud.py:155
-msgid "No description available"
-msgstr "אין תיאור זמין"
-
-#: src/gpodder/model.py:679
-msgid "unknown"
-msgstr "לא ידוע"
-
-#: src/gpodder/model.py:721 src/gpodder/sync.py:897
-#: src/gpodder/download.py:527 src/gpodder/qmlui/__init__.py:69
-msgid "Finished"
-msgstr "הסתיים"
-
-#: src/gpodder/model.py:746
-msgid "Default"
-msgstr ""
-
-#: src/gpodder/model.py:747
-msgid "Only keep latest"
-msgstr ""
-
-#: src/gpodder/model.py:779 src/gpodder/model.py:1215
-#: src/gpodder/extensions.py:59
-msgid "Other"
-msgstr "אחר"
-
-#: src/gpodder/model.py:1198 src/gpodder/model.py:1213
-msgid "Video"
-msgstr "וידאו"
-
-#: src/gpodder/model.py:1211
-msgid "Audio"
-msgstr "שמע"
-
-#: src/gpodder/my.py:176
-#, python-format
-msgid "Add %s"
-msgstr "הוסף את %s"
-
-#: src/gpodder/my.py:178
-#, python-format
-msgid "Remove %s"
-msgstr "הסר את %s"
-
 #: src/gpodder/config.py:55
 #, python-format
 msgid "gPodder on %s"
 msgstr "gPodder על %s"
+
+#: src/gpodder/download.py:328
+msgid "Wrong username/password"
+msgstr "שם משתמש/ססמה שגויים"
+
+#: src/gpodder/download.py:526 src/gpodder/sync.py:908
+msgid "Added"
+msgstr "נוסף"
+
+#: src/gpodder/download.py:526 src/gpodder/sync.py:908
+msgid "Queued"
+msgstr "ממתין"
+
+#: src/gpodder/download.py:526 src/gpodder/gtkui/model.py:328
+msgid "Downloading"
+msgstr "מוריד"
+
+#: src/gpodder/download.py:527 src/gpodder/model.py:721
+#: src/gpodder/sync.py:909 src/gpodder/qmlui/__init__.py:69
+msgid "Finished"
+msgstr "הסתיים"
+
+#: src/gpodder/download.py:527 src/gpodder/sync.py:909
+msgid "Failed"
+msgstr "נכשל"
+
+#: src/gpodder/download.py:527 src/gpodder/sync.py:909
+msgid "Cancelled"
+msgstr "בוטל"
+
+#: src/gpodder/download.py:527 src/gpodder/sync.py:909
+msgid "Paused"
+msgstr "הושהה"
+
+#: src/gpodder/download.py:853
+msgid "Missing content from server"
+msgstr "חסר תוכן מהשרת"
+
+#: src/gpodder/download.py:859
+#, python-format
+msgid "I/O Error: %(error)s: %(filename)s"
+msgstr "שגיאת I/O: %(error)s: %(filename)s‎"
+
+#: src/gpodder/download.py:866
+#, python-format
+msgid "HTTP Error %(code)s: %(message)s"
+msgstr "שגיאת HTTP %(code)s: %(message)s‎"
+
+#: src/gpodder/download.py:870 src/gpodder/sync.py:1065
+#, python-format
+msgid "Error: %s"
+msgstr "שגיאה: %s"
+
+#: src/gpodder/extensions.py:55
+#, fuzzy
+msgid "Desktop Integration"
+msgstr "שילוב עם ממשק Unity של אובונטו"
+
+#: src/gpodder/extensions.py:56
+#, fuzzy
+msgid "Interface"
+msgstr "Integer"
+
+#: src/gpodder/extensions.py:57
+#, fuzzy
+msgid "Post download"
+msgstr "השהה הורדה"
+
+#: src/gpodder/extensions.py:59 src/gpodder/model.py:779
+#: src/gpodder/model.py:1226
+msgid "Other"
+msgstr "אחר"
+
+#: src/gpodder/extensions.py:100
+msgid "No description for this extension."
+msgstr "אין תיאורים זמינים להרחבה זו."
+
+#: src/gpodder/extensions.py:213
+#, python-format
+msgid "Command not found: %(command)s"
+msgstr "הפקודה לא נמצאה: %(command)s"
+
+#: src/gpodder/extensions.py:229
+#, python-format
+msgid "Need at least one of the following commands: %(list_of_commands)s"
+msgstr ""
+
+#: src/gpodder/extensions.py:266
+#, python-format
+msgid "Python module not found: %(module)s"
+msgstr "מודול פייתון לא נמצא: %(module)s"
 
 #: src/gpodder/flattr.py:211
 msgid "Not enough means to flattr"
@@ -138,6 +141,40 @@ msgstr ""
 msgid "No description"
 msgstr "אין תיאור"
 
+#: src/gpodder/model.py:448 src/gpodder/plugins/soundcloud.py:155
+msgid "No description available"
+msgstr "אין תיאור זמין"
+
+#: src/gpodder/model.py:679
+msgid "unknown"
+msgstr "לא ידוע"
+
+#: src/gpodder/model.py:746
+msgid "Default"
+msgstr ""
+
+#: src/gpodder/model.py:747
+msgid "Only keep latest"
+msgstr ""
+
+#: src/gpodder/model.py:1209 src/gpodder/model.py:1224
+msgid "Video"
+msgstr "וידאו"
+
+#: src/gpodder/model.py:1222
+msgid "Audio"
+msgstr "שמע"
+
+#: src/gpodder/my.py:176
+#, python-format
+msgid "Add %s"
+msgstr "הוסף את %s"
+
+#: src/gpodder/my.py:178
+#, python-format
+msgid "Remove %s"
+msgstr "הסר את %s"
+
 #: src/gpodder/sync.py:196
 msgid "Cancelled by user"
 msgstr "בוטל בידי משתמש"
@@ -162,12 +199,12 @@ msgstr "שומר בסיס נתונים של iPod"
 msgid "Writing extended gtkpod database"
 msgstr "כותב לבסיס נתונים מורחב של gtkpod"
 
-#: src/gpodder/sync.py:393 src/gpodder/sync.py:653 src/gpodder/sync.py:847
+#: src/gpodder/sync.py:393 src/gpodder/sync.py:665 src/gpodder/sync.py:859
 #, python-format
 msgid "Removing %s"
 msgstr "מסיר את %s"
 
-#: src/gpodder/sync.py:408 src/gpodder/sync.py:521
+#: src/gpodder/sync.py:408 src/gpodder/sync.py:553
 #, python-format
 msgid "Adding %s"
 msgstr "מוסיף %s"
@@ -185,143 +222,86 @@ msgstr "פותח נגן MP3"
 msgid "MP3 player opened"
 msgstr "נגן MP3 נפתח"
 
-#: src/gpodder/sync.py:576 src/gpodder/sync.py:584
+#: src/gpodder/sync.py:588 src/gpodder/sync.py:596
 #, python-format
 msgid "Error opening %(filename)s: %(message)s"
 msgstr "שגיאה בפתיחת %(filename)s: %(message)s"
 
-#: src/gpodder/sync.py:753 src/gpodder/sync.py:759
+#: src/gpodder/sync.py:765 src/gpodder/sync.py:771
 msgid "MTP device"
 msgstr "התקן MTP"
 
-#: src/gpodder/sync.py:766
+#: src/gpodder/sync.py:778
 msgid "Opening the MTP device"
 msgstr "פותח התקן MTP"
 
-#: src/gpodder/sync.py:776
+#: src/gpodder/sync.py:788
 #, python-format
 msgid "%s opened"
 msgstr "%s נפתח"
 
-#: src/gpodder/sync.py:781
+#: src/gpodder/sync.py:793
 #, python-format
 msgid "Closing %s"
 msgstr "סוגר את %s"
 
-#: src/gpodder/sync.py:789
+#: src/gpodder/sync.py:801
 #, python-format
 msgid "%s closed"
 msgstr "%s נסגר"
 
-#: src/gpodder/sync.py:794 bin/gpo:658
+#: src/gpodder/sync.py:806 bin/gpo:663
 #, python-format
 msgid "Adding %s..."
 msgstr "מוסיף את %s..."
 
-#: src/gpodder/sync.py:896 src/gpodder/download.py:526
-msgid "Added"
-msgstr "נוסף"
-
-#: src/gpodder/sync.py:896 src/gpodder/download.py:526
-msgid "Queued"
-msgstr "ממתין"
-
-#: src/gpodder/sync.py:896
+#: src/gpodder/sync.py:908
 msgid "Synchronizing"
 msgstr "מסנכרן"
 
-#: src/gpodder/sync.py:897 src/gpodder/download.py:527
-msgid "Failed"
-msgstr "נכשל"
-
-#: src/gpodder/sync.py:897 src/gpodder/download.py:527
-msgid "Cancelled"
-msgstr "בוטל"
-
-#: src/gpodder/sync.py:897 src/gpodder/download.py:527
-msgid "Paused"
-msgstr "הושהה"
-
-#: src/gpodder/sync.py:1053 src/gpodder/download.py:870
+#: src/gpodder/util.py:418
 #, python-format
-msgid "Error: %s"
-msgstr "שגיאה: %s"
+msgid "%(count)d day ago"
+msgid_plural "%(count)d days ago"
+msgstr[0] "לפני יום"
+msgstr[1] "לפני %(count)d ימים"
 
-#: src/gpodder/download.py:328
-msgid "Wrong username/password"
-msgstr "שם משתמש/ססמה שגויים"
+#: src/gpodder/util.py:494
+msgid "Today"
+msgstr "היום"
 
-#: src/gpodder/download.py:526 src/gpodder/gtkui/model.py:328
-msgid "Downloading"
-msgstr "מוריד"
+#: src/gpodder/util.py:496
+msgid "Yesterday"
+msgstr "אתמול"
 
-#: src/gpodder/download.py:853
-msgid "Missing content from server"
-msgstr "חסר תוכן מהשרת"
+#: src/gpodder/util.py:539 src/gpodder/util.py:542
+msgid "(unknown)"
+msgstr "(לא ידוע)"
 
-#: src/gpodder/download.py:859
+#: src/gpodder/util.py:1222 src/gpodder/util.py:1241
 #, python-format
-msgid "I/O Error: %(error)s: %(filename)s"
-msgstr "שגיאת I/O: %(error)s: %(filename)s‎"
+msgid "%(count)d second"
+msgid_plural "%(count)d seconds"
+msgstr[0] "שנייה אחת"
+msgstr[1] "%(count)d שניות"
 
-#: src/gpodder/download.py:866
+#: src/gpodder/util.py:1235
 #, python-format
-msgid "HTTP Error %(code)s: %(message)s"
-msgstr "שגיאת HTTP %(code)s: %(message)s‎"
+msgid "%(count)d hour"
+msgid_plural "%(count)d hours"
+msgstr[0] "שעה אחת"
+msgstr[1] "%(count)d שעות"
 
-#: src/gpodder/extensions.py:55
-#, fuzzy
-msgid "Desktop Integration"
-msgstr "שילוב עם ממשק Unity של אובונטו"
-
-#: src/gpodder/extensions.py:56
-#, fuzzy
-msgid "Interface"
-msgstr "Integer"
-
-#: src/gpodder/extensions.py:57
-#, fuzzy
-msgid "Post download"
-msgstr "השהה הורדה"
-
-#: src/gpodder/extensions.py:100
-msgid "No description for this extension."
-msgstr "אין תיאורים זמינים להרחבה זו."
-
-#: src/gpodder/extensions.py:213
+#: src/gpodder/util.py:1238
 #, python-format
-msgid "Command not found: %(command)s"
-msgstr "הפקודה לא נמצאה: %(command)s"
+msgid "%(count)d minute"
+msgid_plural "%(count)d minutes"
+msgstr[0] "דקה אחת"
+msgstr[1] "%(count)d דקות"
 
-#: src/gpodder/extensions.py:229
-#, python-format
-msgid "Need at least one of the following commands: %(list_of_commands)s"
-msgstr ""
-
-#: src/gpodder/extensions.py:266
-#, python-format
-msgid "Python module not found: %(module)s"
-msgstr "מודול פייתון לא נמצא: %(module)s"
-
-#: src/gpodder/gtkui/desktopfile.py:65
-#, python-format
-msgid "Command: %s"
-msgstr "פקודה: %s"
-
-#: src/gpodder/gtkui/desktopfile.py:111
-msgid "Default application"
-msgstr "יישום ברירת מחדל"
-
-#: src/gpodder/gtkui/shownotes.py:84 src/gpodder/gtkui/model.py:70
-#: src/gpodder/gtkui/model.py:88 src/gpodder/gtkui/model.py:238
-#, python-format
-msgid "from %s"
-msgstr "מאת %s"
-
-#: src/gpodder/gtkui/shownotes.py:118
-#, fuzzy
-msgid "Please select an episode"
-msgstr "בחר פרקים"
+#: src/gpodder/util.py:1244
+msgid "and"
+msgstr "וגם"
 
 #: src/gpodder/gtkui/config.py:50
 msgid "Integer"
@@ -339,6 +319,15 @@ msgstr "Boolean"
 msgid "String"
 msgstr "String"
 
+#: src/gpodder/gtkui/desktopfile.py:65
+#, python-format
+msgid "Command: %s"
+msgstr "פקודה: %s"
+
+#: src/gpodder/gtkui/desktopfile.py:111
+msgid "Default application"
+msgstr "יישום ברירת מחדל"
+
 #: src/gpodder/gtkui/flattr.py:43 src/gpodder/qmlui/__init__.py:236
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:10
 msgid "Sign in"
@@ -352,93 +341,6 @@ msgstr "נתרם ב־Flattr"
 #: src/gpodder/gtkui/desktop/preferences.py:369
 msgid "Flattr this"
 msgstr "תרום ב־Flattr"
-
-#: src/gpodder/gtkui/model.py:69
-#, python-format
-msgid "released %s"
-msgstr "פורסם %s"
-
-#: src/gpodder/gtkui/model.py:81 src/gpodder/gtkui/model.py:394
-msgid "played"
-msgstr "הושמע"
-
-#: src/gpodder/gtkui/model.py:83
-msgid "unplayed"
-msgstr "לא הושמע"
-
-#: src/gpodder/gtkui/model.py:86
-msgid "today"
-msgstr "היום"
-
-#: src/gpodder/gtkui/model.py:87
-#, python-format
-msgid "downloaded %s"
-msgstr "הורד %s"
-
-#: src/gpodder/gtkui/model.py:338 src/gpodder/qmlui/__init__.py:68
-msgid "Deleted"
-msgstr "נמחק"
-
-#: src/gpodder/gtkui/model.py:343
-msgid "New episode"
-msgstr "פרק חדש"
-
-#: src/gpodder/gtkui/model.py:357
-msgid "Downloaded episode"
-msgstr "פרק הורד"
-
-#: src/gpodder/gtkui/model.py:360
-msgid "Downloaded video episode"
-msgstr "פרק וידאו הורד"
-
-#: src/gpodder/gtkui/model.py:363
-msgid "Downloaded image"
-msgstr "תמונה הורדה"
-
-#: src/gpodder/gtkui/model.py:366
-msgid "Downloaded file"
-msgstr "קובץ הורד"
-
-#: src/gpodder/gtkui/model.py:381
-msgid "missing file"
-msgstr "קובץ חסר"
-
-#: src/gpodder/gtkui/model.py:385
-msgid "never displayed"
-msgstr "לא הוצג מעולם"
-
-#: src/gpodder/gtkui/model.py:387
-msgid "never played"
-msgstr "לא הושמע מעולם"
-
-#: src/gpodder/gtkui/model.py:389
-msgid "never opened"
-msgstr "לא נפתח מעולם"
-
-#: src/gpodder/gtkui/model.py:392
-msgid "displayed"
-msgstr "הוצג"
-
-#: src/gpodder/gtkui/model.py:396
-msgid "opened"
-msgstr "נפתח"
-
-#: src/gpodder/gtkui/model.py:398
-msgid "deletion prevented"
-msgstr "מחיקה מנועה"
-
-#: src/gpodder/gtkui/model.py:433 src/gpodder/qmlui/__init__.py:878
-#: share/gpodder/ui/gtk/gpodder.ui.h:31
-msgid "All episodes"
-msgstr "כל הפרקים"
-
-#: src/gpodder/gtkui/model.py:434
-msgid "from all podcasts"
-msgstr "מכל הפודקסטים"
-
-#: src/gpodder/gtkui/model.py:626
-msgid "Subscription paused"
-msgstr "הרשמה מושהת"
 
 #: src/gpodder/gtkui/main.py:203 share/applications/gpodder.desktop.in.h:1
 msgid "gPodder"
@@ -497,7 +399,7 @@ msgid "Error while uploading"
 msgstr "התרחשה שגיאה בהעלאה"
 
 #: src/gpodder/gtkui/main.py:798 src/gpodder/gtkui/main.py:926
-#: src/gpodder/gtkui/main.py:2631 src/gpodder/gtkui/main.py:2829
+#: src/gpodder/gtkui/main.py:2634 src/gpodder/gtkui/main.py:2832
 #: src/gpodder/gtkui/desktop/episodeselector.py:132
 #: src/gpodder/gtkui/desktop/sync.py:270
 msgid "Episode"
@@ -639,20 +541,20 @@ msgid "Start download now"
 msgstr "התחל הורדה עכשיו"
 
 #: src/gpodder/gtkui/main.py:1508 src/gpodder/gtkui/main.py:1718
-#: src/gpodder/gtkui/desktop/podcastdirectory.py:64
 #: src/gpodder/gtkui/desktop/episodeselector.py:144
+#: src/gpodder/gtkui/desktop/podcastdirectory.py:64
 #: share/gpodder/ui/gtk/gpodder.ui.h:20
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:4
-#: share/gpodder/ui/qml/Main.qml:342
 #: share/gpodder/ui/qml/EpisodeActions.qml:20
+#: share/gpodder/ui/qml/Main.qml:342
 msgid "Download"
 msgstr "הורד"
 
 #: src/gpodder/gtkui/main.py:1509 src/gpodder/qmlui/__init__.py:639
 #: src/gpodder/qmlui/__init__.py:648 src/gpodder/qmlui/__init__.py:658
-#: share/gpodder/ui/gtk/gpodder.ui.h:21 share/gpodder/ui/qml/Main.qml:484
+#: share/gpodder/ui/gtk/gpodder.ui.h:21
 #: share/gpodder/ui/qml/EpisodeActions.qml:28
-#: share/gpodder/ui/qml/Subscribe.qml:154
+#: share/gpodder/ui/qml/Main.qml:484 share/gpodder/ui/qml/Subscribe.qml:154
 msgid "Cancel"
 msgstr "בטל"
 
@@ -725,7 +627,7 @@ msgstr "חדש"
 msgid "Episode details"
 msgstr "פרטי הפרק"
 
-#: src/gpodder/gtkui/main.py:1915 src/gpodder/gtkui/main.py:2687
+#: src/gpodder/gtkui/main.py:1915 src/gpodder/gtkui/main.py:2690
 #: src/gpodder/gtkui/desktop/preferences.py:459
 msgid "Flattr status"
 msgstr "מצב Flattr"
@@ -843,41 +745,41 @@ msgstr "שגיאה בעדכון הזנה"
 msgid "Updated %(podcast)s (%(position)d/%(total)d)"
 msgstr "מעדכן את %(podcast)s (%(position)d/%(total)d)"
 
-#: src/gpodder/gtkui/main.py:2475
+#: src/gpodder/gtkui/main.py:2478
 msgid "No new episodes"
 msgstr "אין פרקים חדשים"
 
-#: src/gpodder/gtkui/main.py:2488
+#: src/gpodder/gtkui/main.py:2491
 #, python-format
 msgid "Downloading %(count)d new episode."
 msgid_plural "Downloading %(count)d new episodes."
 msgstr[0] "מוריד פרק חדש."
 msgstr[1] "מוריד %(count)d פרקים חדשים."
 
-#: src/gpodder/gtkui/main.py:2489 src/gpodder/gtkui/main.py:2493
-#: src/gpodder/gtkui/main.py:2847
+#: src/gpodder/gtkui/main.py:2492 src/gpodder/gtkui/main.py:2496
+#: src/gpodder/gtkui/main.py:2850
 msgid "New episodes available"
 msgstr "פרקים חדשים זמינים"
 
-#: src/gpodder/gtkui/main.py:2492
+#: src/gpodder/gtkui/main.py:2495
 #, python-format
 msgid "%(count)d new episode added to download list."
 msgid_plural "%(count)d new episodes added to download list."
 msgstr[0] "פרק חדש נוסף לרשימת ההורדות."
 msgstr[1] "%(count)d פרקים חדשים נוספו לרשימת ההורדות."
 
-#: src/gpodder/gtkui/main.py:2499
+#: src/gpodder/gtkui/main.py:2502
 #, python-format
 msgid "%(count)d new episode available"
 msgid_plural "%(count)d new episodes available"
 msgstr[0] "פרק חדש זמין"
 msgstr[1] "%(count)d פרקים חדשים זמינים"
 
-#: src/gpodder/gtkui/main.py:2518
+#: src/gpodder/gtkui/main.py:2521
 msgid "Quit gPodder"
 msgstr "יציאה מ־gPodder"
 
-#: src/gpodder/gtkui/main.py:2519
+#: src/gpodder/gtkui/main.py:2522
 msgid ""
 "You are downloading episodes. You can resume downloads the next time you "
 "start gPodder. Do you want to quit now?"
@@ -885,264 +787,362 @@ msgstr ""
 "אתה באמצע הורדת פרקים. אתה יכול להמשיך את ההורדות בהפעלה הבאה של gPodder. "
 "האם ברצונך לצאת?"
 
-#: src/gpodder/gtkui/main.py:2568
+#: src/gpodder/gtkui/main.py:2571
 msgid "Episodes are locked"
 msgstr "הפרקים נעולים"
 
-#: src/gpodder/gtkui/main.py:2569
+#: src/gpodder/gtkui/main.py:2572
 msgid ""
 "The selected episodes are locked. Please unlock the episodes that you want "
 "to delete before trying to delete them."
 msgstr "הפרקים שבחרת נעולים. שחרר את הנעילה שלהם כדי שתוכל למחוק אותם."
 
-#: src/gpodder/gtkui/main.py:2574 src/gpodder/qmlui/__init__.py:320
+#: src/gpodder/gtkui/main.py:2577 src/gpodder/qmlui/__init__.py:320
 #, python-format
 msgid "Delete %(count)d episode?"
 msgid_plural "Delete %(count)d episodes?"
 msgstr[0] "למחוק פרק?"
 msgstr[1] "למחוק %(count)d פרקים?"
 
-#: src/gpodder/gtkui/main.py:2575
+#: src/gpodder/gtkui/main.py:2578
 msgid "Deleting episodes removes downloaded files."
 msgstr "מוחק את הפרקים ומסיר את הקבצים שהורדו."
 
-#: src/gpodder/gtkui/main.py:2580
+#: src/gpodder/gtkui/main.py:2583
 msgid "Deleting episodes"
 msgstr "מוחק פרקים"
 
-#: src/gpodder/gtkui/main.py:2581
+#: src/gpodder/gtkui/main.py:2584
 msgid "Please wait while episodes are deleted"
 msgstr "אנא המתן בעת מחיקת הפרקים"
 
-#: src/gpodder/gtkui/main.py:2634
+#: src/gpodder/gtkui/main.py:2637
 #, python-format
 msgid "Select older than %(count)d day"
 msgid_plural "Select older than %(count)d days"
 msgstr[0] "בחר ישן יותר מיום אחד"
 msgstr[1] "בחר ישן יותר מ־%(count)d ימים"
 
-#: src/gpodder/gtkui/main.py:2636
+#: src/gpodder/gtkui/main.py:2639
 msgid "Select played"
 msgstr "בחר מנוגנים"
 
-#: src/gpodder/gtkui/main.py:2637
+#: src/gpodder/gtkui/main.py:2640
 msgid "Select finished"
 msgstr "בחר פרקים שהסתיימו"
 
-#: src/gpodder/gtkui/main.py:2641
+#: src/gpodder/gtkui/main.py:2644
 msgid "Select the episodes you want to delete:"
 msgstr "בחר את הפרקים שברצונך למחוק:"
 
-#: src/gpodder/gtkui/main.py:2657 share/gpodder/ui/gtk/gpodder.ui.h:4
+#: src/gpodder/gtkui/main.py:2660 share/gpodder/ui/gtk/gpodder.ui.h:4
 #: share/gpodder/ui/qml/Main.qml:352
 msgid "Delete episodes"
 msgstr "מחק פרקים"
 
-#: src/gpodder/gtkui/main.py:2721 src/gpodder/gtkui/main.py:2949
-#: src/gpodder/gtkui/main.py:3050
+#: src/gpodder/gtkui/main.py:2724 src/gpodder/gtkui/main.py:2952
+#: src/gpodder/gtkui/main.py:3053
 msgid "No podcast selected"
 msgstr "לא נבחרו פודקסטים"
 
-#: src/gpodder/gtkui/main.py:2722
+#: src/gpodder/gtkui/main.py:2725
 msgid "Please select a podcast in the podcasts list to update."
 msgstr "בחר פודקסט מהרשימה לעדכון."
 
-#: src/gpodder/gtkui/main.py:2788
+#: src/gpodder/gtkui/main.py:2791
 #, python-format
 msgid "Download error while downloading %(episode)s: %(message)s"
 msgstr "התרחשה שגיאה בהורדת %(episode)s: %(message)s"
 
-#: src/gpodder/gtkui/main.py:2789
+#: src/gpodder/gtkui/main.py:2792
 msgid "Download error"
 msgstr "שגיאת הורדה"
 
-#: src/gpodder/gtkui/main.py:2832
+#: src/gpodder/gtkui/main.py:2835
 msgid "Select the episodes you want to download:"
 msgstr "בחר את הפרקים שברצונך להוריד:"
 
-#: src/gpodder/gtkui/main.py:2855 src/gpodder/qmlui/__init__.py:753
+#: src/gpodder/gtkui/main.py:2858 src/gpodder/qmlui/__init__.py:753
 msgid "Mark as old"
 msgstr "סמן כישן"
 
-#: src/gpodder/gtkui/main.py:2862
+#: src/gpodder/gtkui/main.py:2865
 msgid "Please check for new episodes later."
 msgstr "אנא בדוק מאוחר יותר לפרקים חדשים."
 
-#: src/gpodder/gtkui/main.py:2863
+#: src/gpodder/gtkui/main.py:2866
 msgid "No new episodes available"
 msgstr "לא זמינים פרקים חדשים"
 
-#: src/gpodder/gtkui/main.py:2915
+#: src/gpodder/gtkui/main.py:2918
 msgid "Login to gpodder.net"
 msgstr "התחבר אל gpodder.net"
 
-#: src/gpodder/gtkui/main.py:2916
+#: src/gpodder/gtkui/main.py:2919
 msgid "Please login to download your subscriptions."
 msgstr "אנא התחבר כדי להוריד את ההרשמות שלך."
 
-#: src/gpodder/gtkui/main.py:2931
+#: src/gpodder/gtkui/main.py:2934
 msgid "Subscriptions on gpodder.net"
 msgstr "הרשמות ב־gpodder.net"
 
-#: src/gpodder/gtkui/main.py:2950
+#: src/gpodder/gtkui/main.py:2953
 msgid "Please select a podcast in the podcasts list to edit."
 msgstr "בחר פודקסט מהרשימה לעריכה."
 
-#: src/gpodder/gtkui/main.py:2965
+#: src/gpodder/gtkui/main.py:2968
 #: src/gpodder/gtkui/desktop/podcastdirectory.py:75
 msgid "Podcast"
 msgstr "פודקסט"
 
-#: src/gpodder/gtkui/main.py:2971 share/gpodder/ui/gtk/gpodder.ui.h:12
+#: src/gpodder/gtkui/main.py:2974 share/gpodder/ui/gtk/gpodder.ui.h:12
 msgid "Remove podcasts"
 msgstr "הסר פודקסטים"
 
-#: src/gpodder/gtkui/main.py:2972
+#: src/gpodder/gtkui/main.py:2975
 msgid "Select the podcast you want to remove."
 msgstr "בחר את הפודקסט שברצונך להסיר."
 
-#: src/gpodder/gtkui/main.py:2976
+#: src/gpodder/gtkui/main.py:2979
 #: src/gpodder/gtkui/desktop/episodeselector.py:105
 #: share/gpodder/ui/qml/MediaPlayer.qml:243
 msgid "Remove"
 msgstr "הסר"
 
-#: src/gpodder/gtkui/main.py:2985
+#: src/gpodder/gtkui/main.py:2988
 msgid "Removing podcast"
 msgstr "מסיר פודקסט"
 
-#: src/gpodder/gtkui/main.py:2986
+#: src/gpodder/gtkui/main.py:2989
 msgid "Please wait while the podcast is removed"
 msgstr "אנא המתן להסרת הפודקסט"
 
-#: src/gpodder/gtkui/main.py:2987
+#: src/gpodder/gtkui/main.py:2990
 msgid "Do you really want to remove this podcast and its episodes?"
 msgstr "אתה בטוח שברצונך להסיר את הפודקסט הזה ואת הפרקים שלו?"
 
-#: src/gpodder/gtkui/main.py:2989
+#: src/gpodder/gtkui/main.py:2992
 msgid "Removing podcasts"
 msgstr "מסיר פודקסטים"
 
-#: src/gpodder/gtkui/main.py:2990
+#: src/gpodder/gtkui/main.py:2993
 msgid "Please wait while the podcasts are removed"
 msgstr "אנא המתן להסרת הפודקסטים"
 
-#: src/gpodder/gtkui/main.py:2991
+#: src/gpodder/gtkui/main.py:2994
 msgid "Do you really want to remove the selected podcasts and their episodes?"
 msgstr "אתה בטוח שברצונך להסיר את הפודקסטים הנבחרים ואת הפרקים שלהם?"
 
-#: src/gpodder/gtkui/main.py:3051
+#: src/gpodder/gtkui/main.py:3054
 msgid "Please select a podcast in the podcasts list to remove."
 msgstr "בחר פודקסט מהרשימה להסרה."
 
-#: src/gpodder/gtkui/main.py:3061
+#: src/gpodder/gtkui/main.py:3064
 msgid "OPML files"
 msgstr "קובצי OPML"
 
-#: src/gpodder/gtkui/main.py:3066
+#: src/gpodder/gtkui/main.py:3069
 msgid "Import from OPML"
 msgstr "ייבא מקובץ OPML"
 
-#: src/gpodder/gtkui/main.py:3080
+#: src/gpodder/gtkui/main.py:3083
 msgid "Import podcasts from OPML file"
 msgstr "ייבא פודקסטים מקובץ OPML"
 
-#: src/gpodder/gtkui/main.py:3087
+#: src/gpodder/gtkui/main.py:3090
 msgid "Nothing to export"
 msgstr "אין כלום לייצוא"
 
-#: src/gpodder/gtkui/main.py:3088
+#: src/gpodder/gtkui/main.py:3091
 msgid ""
 "Your list of podcast subscriptions is empty. Please subscribe to some "
 "podcasts first before trying to export your subscription list."
 msgstr "רשימת ההרשמות שלך ריקה. הרשם לכמה פודקסטים לפני ייצוא הרשימה."
 
-#: src/gpodder/gtkui/main.py:3092
+#: src/gpodder/gtkui/main.py:3095
 msgid "Export to OPML"
 msgstr "ייצא לקובץ OPML"
 
-#: src/gpodder/gtkui/main.py:3103
+#: src/gpodder/gtkui/main.py:3106
 #, python-format
 msgid "%(count)d subscription exported"
 msgid_plural "%(count)d subscriptions exported"
 msgstr[0] "הרשמה אחת יוצאה"
 msgstr[1] "%(count)d הרשמות יוצאו"
 
-#: src/gpodder/gtkui/main.py:3104
+#: src/gpodder/gtkui/main.py:3107
 msgid "Your podcast list has been successfully exported."
 msgstr "רשימת הפודקסטים שלך יוצאה בהצלחה."
 
-#: src/gpodder/gtkui/main.py:3106
+#: src/gpodder/gtkui/main.py:3109
 msgid "Could not export OPML to file. Please check your permissions."
 msgstr "לא ניתן לייצא לקובץ OPML. בדוק את ההרשאות שלך."
 
-#: src/gpodder/gtkui/main.py:3106
+#: src/gpodder/gtkui/main.py:3109
 msgid "OPML export failed"
 msgstr "ייצוא OPML נכשל"
 
-#: src/gpodder/gtkui/main.py:3133
+#: src/gpodder/gtkui/main.py:3136
 msgid "No updates available"
 msgstr "אין עדכונים זמינים"
 
-#: src/gpodder/gtkui/main.py:3134
+#: src/gpodder/gtkui/main.py:3137
 msgid "You have the latest version of gPodder."
 msgstr "יש לך את הגרסה העדכנית ביותר של gPodder."
 
-#: src/gpodder/gtkui/main.py:3138
+#: src/gpodder/gtkui/main.py:3141
 msgid "New version available"
 msgstr "גרסה חדשה זמינה"
 
-#: src/gpodder/gtkui/main.py:3140
+#: src/gpodder/gtkui/main.py:3143
 #, python-format
 msgid "Installed version: %s"
 msgstr "גרסה מותקנת: %s"
 
-#: src/gpodder/gtkui/main.py:3141
+#: src/gpodder/gtkui/main.py:3144
 #, python-format
 msgid "Newest version: %s"
 msgstr "הגרסה החדשה ביותר: %s"
 
-#: src/gpodder/gtkui/main.py:3142
+#: src/gpodder/gtkui/main.py:3145
 #, python-format
 msgid "Release date: %s"
 msgstr "תאריך פרסום: %s"
 
-#: src/gpodder/gtkui/main.py:3144
+#: src/gpodder/gtkui/main.py:3147
 msgid "Download the latest version from gpodder.org?"
 msgstr "להוריד את הגרסה העדכנית מ־gpodder.org?"
 
-#: src/gpodder/gtkui/main.py:3157 share/gpodder/ui/qml/main_default.qml:48
+#: src/gpodder/gtkui/main.py:3160 share/gpodder/ui/qml/main_default.qml:48
 msgid "About gPodder"
 msgstr "על אודות gPodder"
 
-#: src/gpodder/gtkui/main.py:3184
+#: src/gpodder/gtkui/main.py:3187
 msgid "Donate / Wishlist"
 msgstr "תרומות / משאלות"
 
-#: src/gpodder/gtkui/main.py:3187
+#: src/gpodder/gtkui/main.py:3190
 msgid "Report a problem"
 msgstr "דווח על בעיה"
 
-#: src/gpodder/gtkui/main.py:3213
+#: src/gpodder/gtkui/main.py:3216
 msgid "translator-credits"
 msgstr "מתרגמים"
 
-#: src/gpodder/gtkui/main.py:3215
+#: src/gpodder/gtkui/main.py:3218
 msgid "Translation by:"
 msgstr "תורגם בידי:"
 
-#: src/gpodder/gtkui/main.py:3219
+#: src/gpodder/gtkui/main.py:3222
 msgid "Thanks to:"
 msgstr "תודות:"
 
-#: src/gpodder/gtkui/main.py:3485
+#: src/gpodder/gtkui/main.py:3488
 msgid "Cannot start gPodder"
 msgstr "לא ניתן להפעיל את gPodder"
 
-#: src/gpodder/gtkui/main.py:3486
+#: src/gpodder/gtkui/main.py:3489
 #, python-format
 msgid "D-Bus error: %s"
 msgstr "שגיאת D-Bus: %s"
+
+#: src/gpodder/gtkui/model.py:69
+#, python-format
+msgid "released %s"
+msgstr "פורסם %s"
+
+#: src/gpodder/gtkui/model.py:70 src/gpodder/gtkui/model.py:88
+#: src/gpodder/gtkui/model.py:238 src/gpodder/gtkui/shownotes.py:84
+#, python-format
+msgid "from %s"
+msgstr "מאת %s"
+
+#: src/gpodder/gtkui/model.py:81 src/gpodder/gtkui/model.py:394
+msgid "played"
+msgstr "הושמע"
+
+#: src/gpodder/gtkui/model.py:83
+msgid "unplayed"
+msgstr "לא הושמע"
+
+#: src/gpodder/gtkui/model.py:86
+msgid "today"
+msgstr "היום"
+
+#: src/gpodder/gtkui/model.py:87
+#, python-format
+msgid "downloaded %s"
+msgstr "הורד %s"
+
+#: src/gpodder/gtkui/model.py:338 src/gpodder/qmlui/__init__.py:68
+msgid "Deleted"
+msgstr "נמחק"
+
+#: src/gpodder/gtkui/model.py:343
+msgid "New episode"
+msgstr "פרק חדש"
+
+#: src/gpodder/gtkui/model.py:357
+msgid "Downloaded episode"
+msgstr "פרק הורד"
+
+#: src/gpodder/gtkui/model.py:360
+msgid "Downloaded video episode"
+msgstr "פרק וידאו הורד"
+
+#: src/gpodder/gtkui/model.py:363
+msgid "Downloaded image"
+msgstr "תמונה הורדה"
+
+#: src/gpodder/gtkui/model.py:366
+msgid "Downloaded file"
+msgstr "קובץ הורד"
+
+#: src/gpodder/gtkui/model.py:381
+msgid "missing file"
+msgstr "קובץ חסר"
+
+#: src/gpodder/gtkui/model.py:385
+msgid "never displayed"
+msgstr "לא הוצג מעולם"
+
+#: src/gpodder/gtkui/model.py:387
+msgid "never played"
+msgstr "לא הושמע מעולם"
+
+#: src/gpodder/gtkui/model.py:389
+msgid "never opened"
+msgstr "לא נפתח מעולם"
+
+#: src/gpodder/gtkui/model.py:392
+msgid "displayed"
+msgstr "הוצג"
+
+#: src/gpodder/gtkui/model.py:396
+msgid "opened"
+msgstr "נפתח"
+
+#: src/gpodder/gtkui/model.py:398
+msgid "deletion prevented"
+msgstr "מחיקה מנועה"
+
+#: src/gpodder/gtkui/model.py:433 src/gpodder/qmlui/__init__.py:878
+#: share/gpodder/ui/gtk/gpodder.ui.h:31
+msgid "All episodes"
+msgstr "כל הפרקים"
+
+#: src/gpodder/gtkui/model.py:434
+msgid "from all podcasts"
+msgstr "מכל הפודקסטים"
+
+#: src/gpodder/gtkui/model.py:626
+msgid "Subscription paused"
+msgstr "הרשמה מושהת"
+
+#: src/gpodder/gtkui/shownotes.py:118
+#, fuzzy
+msgid "Please select an episode"
+msgstr "בחר פרקים"
 
 #: src/gpodder/gtkui/interface/addpodcast.py:74
 msgid "Nothing to paste."
@@ -1195,6 +1195,92 @@ msgstr ""
 #: src/gpodder/gtkui/interface/configeditor.py:85
 msgid "Error setting option"
 msgstr "שגיאה בהגדרת אפשרות"
+
+#: src/gpodder/gtkui/desktop/channel.py:98
+msgid "Add section"
+msgstr "הוסף קבוצה"
+
+#: src/gpodder/gtkui/desktop/channel.py:98
+msgid "New section:"
+msgstr "קבוצה חדשה:"
+
+#: src/gpodder/gtkui/desktop/channel.py:131
+msgid "Select new podcast cover artwork"
+msgstr "בחר תמונת עטיפה חדשה לפודקסט"
+
+#: src/gpodder/gtkui/desktop/channel.py:157
+msgid "You can only drop a single image or URL here."
+msgstr "אתה יכול לגרור רק תמונה אחת או כתובת אינטרנט לכאן."
+
+#: src/gpodder/gtkui/desktop/channel.py:157
+#: src/gpodder/gtkui/desktop/channel.py:167
+msgid "Drag and drop"
+msgstr "גרור ושחרר"
+
+#: src/gpodder/gtkui/desktop/channel.py:167
+msgid "You can only drop local files and http:// URLs here."
+msgstr "אתה יכול לגרור לכאן רק קבצים מקומיים וכתובות http."
+
+#: src/gpodder/gtkui/desktop/deviceplaylist.py:98
+#, fuzzy, python-format
+msgid "Folder %s could not be created."
+msgstr "ההזנה בכתובת %(url)s לא יכולה להתעדכן."
+
+#: src/gpodder/gtkui/desktop/deviceplaylist.py:98
+#, fuzzy
+msgid "Error writing playlist"
+msgstr "שגיאה בפתיחת נגן"
+
+#: src/gpodder/gtkui/desktop/episodeselector.py:288
+#: share/gpodder/ui/gtk/gpodderepisodeselector.ui.h:2
+#: share/gpodder/ui/qml/Main.qml:542
+msgid "Select all"
+msgstr "בחר הכל"
+
+#: src/gpodder/gtkui/desktop/episodeselector.py:292
+#: share/gpodder/ui/gtk/gpodderepisodeselector.ui.h:3
+#: share/gpodder/ui/qml/Main.qml:566
+msgid "Select none"
+msgstr "אל תבחר כלום"
+
+#: src/gpodder/gtkui/desktop/episodeselector.py:324
+msgid "Nothing selected"
+msgstr "לא נבחר דבר"
+
+#: src/gpodder/gtkui/desktop/episodeselector.py:325
+#, python-format
+msgid "%(count)d episode"
+msgid_plural "%(count)d episodes"
+msgstr[0] "פרק אחד"
+msgstr[1] "%(count)d פרקים"
+
+#: src/gpodder/gtkui/desktop/episodeselector.py:327
+#, python-format
+msgid "size: %s"
+msgstr "גודל: %s"
+
+#: src/gpodder/gtkui/desktop/podcastdirectory.py:62
+#: share/gpodder/ui/qml/Subscribe.qml:63
+msgid "Search"
+msgstr "חפש"
+
+#: src/gpodder/gtkui/desktop/podcastdirectory.py:123
+#: src/gpodder/gtkui/desktop/podcastdirectory.py:134
+msgid "The specified URL does not provide any valid OPML podcast items."
+msgstr "הכתובת אינה מזינה קובץ OPML חוקי."
+
+#: src/gpodder/gtkui/desktop/podcastdirectory.py:123
+#: src/gpodder/gtkui/desktop/podcastdirectory.py:134
+msgid "No feeds found"
+msgstr "לא נמצאו הזנות"
+
+#: src/gpodder/gtkui/desktop/podcastdirectory.py:127
+msgid "There are no YouTube channels that would match this query."
+msgstr "אלה לא ערוצי YouTube שמתאימים לאפשרות הזו."
+
+#: src/gpodder/gtkui/desktop/podcastdirectory.py:127
+msgid "No channels found"
+msgstr "לא נמצאו ערוצים"
 
 #: src/gpodder/gtkui/desktop/preferences.py:50
 #: src/gpodder/gtkui/desktop/preferences.py:92
@@ -1342,92 +1428,6 @@ msgstr "בחר תיקייה לנקודת עיגון"
 msgid "Select folder for playlists"
 msgstr "בחר תיקייה לנקודת עיגון"
 
-#: src/gpodder/gtkui/desktop/podcastdirectory.py:62
-#: share/gpodder/ui/qml/Subscribe.qml:63
-msgid "Search"
-msgstr "חפש"
-
-#: src/gpodder/gtkui/desktop/podcastdirectory.py:123
-#: src/gpodder/gtkui/desktop/podcastdirectory.py:134
-msgid "The specified URL does not provide any valid OPML podcast items."
-msgstr "הכתובת אינה מזינה קובץ OPML חוקי."
-
-#: src/gpodder/gtkui/desktop/podcastdirectory.py:123
-#: src/gpodder/gtkui/desktop/podcastdirectory.py:134
-msgid "No feeds found"
-msgstr "לא נמצאו הזנות"
-
-#: src/gpodder/gtkui/desktop/podcastdirectory.py:127
-msgid "There are no YouTube channels that would match this query."
-msgstr "אלה לא ערוצי YouTube שמתאימים לאפשרות הזו."
-
-#: src/gpodder/gtkui/desktop/podcastdirectory.py:127
-msgid "No channels found"
-msgstr "לא נמצאו ערוצים"
-
-#: src/gpodder/gtkui/desktop/episodeselector.py:288
-#: share/gpodder/ui/gtk/gpodderepisodeselector.ui.h:2
-#: share/gpodder/ui/qml/Main.qml:542
-msgid "Select all"
-msgstr "בחר הכל"
-
-#: src/gpodder/gtkui/desktop/episodeselector.py:292
-#: share/gpodder/ui/gtk/gpodderepisodeselector.ui.h:3
-#: share/gpodder/ui/qml/Main.qml:566
-msgid "Select none"
-msgstr "אל תבחר כלום"
-
-#: src/gpodder/gtkui/desktop/episodeselector.py:324
-msgid "Nothing selected"
-msgstr "לא נבחר דבר"
-
-#: src/gpodder/gtkui/desktop/episodeselector.py:325
-#, python-format
-msgid "%(count)d episode"
-msgid_plural "%(count)d episodes"
-msgstr[0] "פרק אחד"
-msgstr[1] "%(count)d פרקים"
-
-#: src/gpodder/gtkui/desktop/episodeselector.py:327
-#, python-format
-msgid "size: %s"
-msgstr "גודל: %s"
-
-#: src/gpodder/gtkui/desktop/deviceplaylist.py:98
-#, fuzzy, python-format
-msgid "Folder %s could not be created."
-msgstr "ההזנה בכתובת %(url)s לא יכולה להתעדכן."
-
-#: src/gpodder/gtkui/desktop/deviceplaylist.py:98
-#, fuzzy
-msgid "Error writing playlist"
-msgstr "שגיאה בפתיחת נגן"
-
-#: src/gpodder/gtkui/desktop/channel.py:98
-msgid "Add section"
-msgstr "הוסף קבוצה"
-
-#: src/gpodder/gtkui/desktop/channel.py:98
-msgid "New section:"
-msgstr "קבוצה חדשה:"
-
-#: src/gpodder/gtkui/desktop/channel.py:131
-msgid "Select new podcast cover artwork"
-msgstr "בחר תמונת עטיפה חדשה לפודקסט"
-
-#: src/gpodder/gtkui/desktop/channel.py:157
-msgid "You can only drop a single image or URL here."
-msgstr "אתה יכול לגרור רק תמונה אחת או כתובת אינטרנט לכאן."
-
-#: src/gpodder/gtkui/desktop/channel.py:157
-#: src/gpodder/gtkui/desktop/channel.py:167
-msgid "Drag and drop"
-msgstr "גרור ושחרר"
-
-#: src/gpodder/gtkui/desktop/channel.py:167
-msgid "You can only drop local files and http:// URLs here."
-msgstr "אתה יכול לגרור לכאן רק קבצים מקומיים וכתובות http."
-
 #: src/gpodder/gtkui/desktop/sync.py:86
 msgid "No device configured"
 msgstr "לא הוגדר התקן"
@@ -1529,8 +1529,8 @@ msgstr "לא ניתן להתחבר ל־Flattr."
 
 #: src/gpodder/qmlui/__init__.py:321 src/gpodder/qmlui/__init__.py:735
 #: src/gpodder/qmlui/__init__.py:760 share/gpodder/ui/gtk/gpodder.ui.h:22
-#: share/gpodder/ui/qml/Main.qml:354 share/gpodder/ui/qml/Main.qml:480
 #: share/gpodder/ui/qml/EpisodeActions.qml:44
+#: share/gpodder/ui/qml/Main.qml:354 share/gpodder/ui/qml/Main.qml:480
 msgid "Delete"
 msgstr "מחק"
 
@@ -1639,13 +1639,139 @@ msgstr "המועדפים של %s ב־Soundcloud"
 msgid "Tracks favorited by %s on Soundcloud."
 msgstr "רצועות שמועדפות בידי %s ב־Soundcloud."
 
-#: share/gpodder/extensions/ted_subtitles.py:16
-msgid "Subtitle Downloader for TED Talks"
-msgstr "מוריד כתוביות עבור הרצאות של TED"
+#: share/gpodder/extensions/audio_converter.py:20
+#, fuzzy
+msgid "Convert audio files"
+msgstr "ההמרה נכשלה"
 
-#: share/gpodder/extensions/ted_subtitles.py:17
-msgid "Downloads .srt subtitles for TED Talks Videos"
-msgstr "הורדת כתובויות srt עבור סרטוני הרצאות של TED"
+#: share/gpodder/extensions/audio_converter.py:21
+#, fuzzy
+msgid "Transcode audio files to mp3/ogg"
+msgstr "המר קובצי m4a ל־mp3 או ל־ogg באמצעות ffmpeg"
+
+#: share/gpodder/extensions/audio_converter.py:84
+#: share/gpodder/extensions/video_converter.py:86
+#, python-format
+msgid "Convert to %(format)s"
+msgstr "המר ל־%(format)s"
+
+#: share/gpodder/extensions/audio_converter.py:111
+#: share/gpodder/extensions/rockbox_convert2mp4.py:65
+#: share/gpodder/extensions/video_converter.py:111
+msgid "File converted"
+msgstr "הקובץ הומר"
+
+#: share/gpodder/extensions/audio_converter.py:114
+#: share/gpodder/extensions/video_converter.py:114
+msgid "Conversion failed"
+msgstr "ההמרה נכשלה"
+
+#: share/gpodder/extensions/concatenate_videos.py:20
+#: share/gpodder/extensions/concatenate_videos.py:100
+#, fuzzy
+msgid "Concatenate videos"
+msgstr "ההמרה נכשלה"
+
+#: share/gpodder/extensions/concatenate_videos.py:21
+msgid "Add a context menu item for concatenating multiple videos"
+msgstr ""
+
+#: share/gpodder/extensions/concatenate_videos.py:37
+msgid "Save video"
+msgstr ""
+
+#: share/gpodder/extensions/concatenate_videos.py:66
+#, fuzzy
+msgid "Concatenating video files"
+msgstr "ההמרה נכשלה"
+
+#: share/gpodder/extensions/concatenate_videos.py:67
+#, python-format
+msgid "Writing %(filename)s"
+msgstr ""
+
+#: share/gpodder/extensions/concatenate_videos.py:78
+msgid "Videos successfully converted"
+msgstr ""
+
+#: share/gpodder/extensions/concatenate_videos.py:79
+#, fuzzy
+msgid "Error converting videos"
+msgstr "שגיאה בהמרת קובץ."
+
+#: share/gpodder/extensions/concatenate_videos.py:80
+msgid "Concatenation result"
+msgstr ""
+
+#: share/gpodder/extensions/enqueue_in_mediaplayer.py:16
+msgid "Enqueue in media players"
+msgstr ""
+
+#: share/gpodder/extensions/enqueue_in_mediaplayer.py:17
+msgid ""
+"Add a context menu item for enqueueing episodes in installed media players"
+msgstr ""
+
+#: share/gpodder/extensions/enqueue_in_mediaplayer.py:26
+msgid "Enqueue in"
+msgstr ""
+
+#: share/gpodder/extensions/gtk_statusicon.py:14
+msgid "Gtk Status Icon"
+msgstr ""
+
+#: share/gpodder/extensions/gtk_statusicon.py:15
+#, fuzzy
+msgid "Show a status icon for Gtk-based Desktops."
+msgstr "הצג את מחוון המצב בסרגל העליון."
+
+#: share/gpodder/extensions/minimize_on_start.py:10
+msgid "Minimize on start"
+msgstr "מזער בהפעלה"
+
+#: share/gpodder/extensions/minimize_on_start.py:11
+msgid "Minimizes the gPodder window on startup."
+msgstr "ממזער את החלון של gPodder בהפעלה התכנה."
+
+#: share/gpodder/extensions/mpris-listener.py:33
+msgid "MPRIS Listener"
+msgstr ""
+
+#: share/gpodder/extensions/mpris-listener.py:34
+msgid "Convert MPRIS notifications to gPodder Media Player D-Bus API"
+msgstr ""
+
+#: share/gpodder/extensions/normalize_audio.py:21
+msgid "Normalize audio with re-encoding"
+msgstr "נרמל שמע באמצעות קידוד מחדש"
+
+#: share/gpodder/extensions/normalize_audio.py:22
+msgid "Normalize the volume of audio files with normalize-audio"
+msgstr "נרמל את עצמת קובצי השמע באמצעות normalize-audio"
+
+#: share/gpodder/extensions/normalize_audio.py:99
+msgid "File normalized"
+msgstr "הקובץ נורמל"
+
+#: share/gpodder/extensions/rename_download.py:16
+msgid "Rename episodes after download"
+msgstr "שנה את שם הפרקים לאחר ההורדה"
+
+#: share/gpodder/extensions/rename_download.py:17
+msgid "Rename episodes to \"<Episode Title>.<ext>\" on download"
+msgstr "שנה בהורדה את שם הפרקים למבנה \"<Episode Title>.<ext>\""
+
+#: share/gpodder/extensions/rm_ogg_cover.py:37
+msgid "Remove cover art from OGG files"
+msgstr "הסר תמונת עטיפה מקובצי OGG"
+
+#: share/gpodder/extensions/rm_ogg_cover.py:38
+msgid "removes coverart from all downloaded ogg files"
+msgstr "מסיר את תמונת העטיפה מכל קובצי ogg שהורדו"
+
+#: share/gpodder/extensions/rm_ogg_cover.py:66
+msgid "Remove cover art"
+msgstr "הסר תמונת עטיפה"
 
 #: share/gpodder/extensions/rockbox_convert2mp4.py:26
 msgid "Convert video files to MP4 for Rockbox"
@@ -1655,11 +1781,38 @@ msgstr "המר קובצי וידאו ל־MP4 עבור Rockbox"
 msgid "Converts all videos to a Rockbox-compatible format"
 msgstr "ממיר את כל הסרטונים לסוג שתואם ל־Rockbox"
 
-#: share/gpodder/extensions/rockbox_convert2mp4.py:65
-#: share/gpodder/extensions/video_converter.py:111
-#: share/gpodder/extensions/audio_converter.py:111
-msgid "File converted"
-msgstr "הקובץ הומר"
+#: share/gpodder/extensions/sonos.py:19 share/gpodder/extensions/sonos.py:78
+msgid "Stream to Sonos"
+msgstr ""
+
+#: share/gpodder/extensions/sonos.py:20
+msgid "Stream podcasts to Sonos speakers"
+msgstr ""
+
+#: share/gpodder/extensions/tagging.py:45
+msgid "Tag downloaded files using Mutagen"
+msgstr "תייג באמצעות Mutagen קבצים שהורדו"
+
+#: share/gpodder/extensions/tagging.py:46
+msgid "Add episode and podcast titles to MP3/OGG tags"
+msgstr "הוסף את כותרות הפרק והפודקסט לתגי mp3/ogg"
+
+#: share/gpodder/extensions/taskbar_progress.py:28
+#, fuzzy
+msgid "Show download progress on the taskbar"
+msgstr "הצג התקדמות הורדה באיקון המשגר של Unity."
+
+#: share/gpodder/extensions/taskbar_progress.py:29
+msgid "Displays the progress on the Windows taskbar."
+msgstr ""
+
+#: share/gpodder/extensions/ted_subtitles.py:16
+msgid "Subtitle Downloader for TED Talks"
+msgstr "מוריד כתוביות עבור הרצאות של TED"
+
+#: share/gpodder/extensions/ted_subtitles.py:17
+msgid "Downloads .srt subtitles for TED Talks Videos"
+msgstr "הורדת כתובויות srt עבור סרטוני הרצאות של TED"
 
 #: share/gpodder/extensions/ubuntu_appindicator.py:10
 msgid "Ubuntu App Indicator"
@@ -1678,68 +1831,13 @@ msgstr "הצג חלון ראשי"
 msgid "Quit"
 msgstr "יציאה"
 
-#: share/gpodder/extensions/taskbar_progress.py:28
-#, fuzzy
-msgid "Show download progress on the taskbar"
+#: share/gpodder/extensions/ubuntu_unity.py:10
+msgid "Ubuntu Unity Integration"
+msgstr "שילוב עם ממשק Unity של אובונטו"
+
+#: share/gpodder/extensions/ubuntu_unity.py:11
+msgid "Show download progress in the Unity Launcher icon."
 msgstr "הצג התקדמות הורדה באיקון המשגר של Unity."
-
-#: share/gpodder/extensions/taskbar_progress.py:29
-msgid "Displays the progress on the Windows taskbar."
-msgstr ""
-
-#: share/gpodder/extensions/rename_download.py:16
-msgid "Rename episodes after download"
-msgstr "שנה את שם הפרקים לאחר ההורדה"
-
-#: share/gpodder/extensions/rename_download.py:17
-msgid "Rename episodes to \"<Episode Title>.<ext>\" on download"
-msgstr "שנה בהורדה את שם הפרקים למבנה \"<Episode Title>.<ext>\""
-
-#: share/gpodder/extensions/video_converter.py:22
-#, fuzzy
-msgid "Convert video files"
-msgstr "ההמרה נכשלה"
-
-#: share/gpodder/extensions/video_converter.py:23
-#, fuzzy
-msgid "Transcode video files to avi/mp4/m4v"
-msgstr "המר קובצי m4a ל־mp3 או ל־ogg באמצעות ffmpeg"
-
-#: share/gpodder/extensions/video_converter.py:86
-#: share/gpodder/extensions/audio_converter.py:84
-#, python-format
-msgid "Convert to %(format)s"
-msgstr "המר ל־%(format)s"
-
-#: share/gpodder/extensions/video_converter.py:114
-#: share/gpodder/extensions/audio_converter.py:114
-msgid "Conversion failed"
-msgstr "ההמרה נכשלה"
-
-#: share/gpodder/extensions/rm_ogg_cover.py:37
-msgid "Remove cover art from OGG files"
-msgstr "הסר תמונת עטיפה מקובצי OGG"
-
-#: share/gpodder/extensions/rm_ogg_cover.py:38
-msgid "removes coverart from all downloaded ogg files"
-msgstr "מסיר את תמונת העטיפה מכל קובצי ogg שהורדו"
-
-#: share/gpodder/extensions/rm_ogg_cover.py:66
-msgid "Remove cover art"
-msgstr "הסר תמונת עטיפה"
-
-#: share/gpodder/extensions/enqueue_in_mediaplayer.py:16
-msgid "Enqueue in media players"
-msgstr ""
-
-#: share/gpodder/extensions/enqueue_in_mediaplayer.py:17
-msgid ""
-"Add a context menu item for enqueueing episodes in installed media players"
-msgstr ""
-
-#: share/gpodder/extensions/enqueue_in_mediaplayer.py:26
-msgid "Enqueue in"
-msgstr ""
 
 #: share/gpodder/extensions/update_feeds_on_startup.py:14
 #, fuzzy
@@ -1751,148 +1849,15 @@ msgstr "בדוק אם ישנם פרקים חדשים בהפעלה"
 msgid "Starts the search for new episodes on startup"
 msgstr "בדוק אם ישנם פרקים חדשים בהפעלה"
 
-#: share/gpodder/extensions/normalize_audio.py:21
-msgid "Normalize audio with re-encoding"
-msgstr "נרמל שמע באמצעות קידוד מחדש"
-
-#: share/gpodder/extensions/normalize_audio.py:22
-msgid "Normalize the volume of audio files with normalize-audio"
-msgstr "נרמל את עצמת קובצי השמע באמצעות normalize-audio"
-
-#: share/gpodder/extensions/normalize_audio.py:99
-msgid "File normalized"
-msgstr "הקובץ נורמל"
-
-#: share/gpodder/extensions/gtk_statusicon.py:14
-msgid "Gtk Status Icon"
-msgstr ""
-
-#: share/gpodder/extensions/gtk_statusicon.py:15
+#: share/gpodder/extensions/video_converter.py:22
 #, fuzzy
-msgid "Show a status icon for Gtk-based Desktops."
-msgstr "הצג את מחוון המצב בסרגל העליון."
-
-#: share/gpodder/extensions/sonos.py:19 share/gpodder/extensions/sonos.py:78
-msgid "Stream to Sonos"
-msgstr ""
-
-#: share/gpodder/extensions/sonos.py:20
-msgid "Stream podcasts to Sonos speakers"
-msgstr ""
-
-#: share/gpodder/extensions/minimize_on_start.py:10
-msgid "Minimize on start"
-msgstr "מזער בהפעלה"
-
-#: share/gpodder/extensions/minimize_on_start.py:11
-msgid "Minimizes the gPodder window on startup."
-msgstr "ממזער את החלון של gPodder בהפעלה התכנה."
-
-#: share/gpodder/extensions/audio_converter.py:20
-#, fuzzy
-msgid "Convert audio files"
+msgid "Convert video files"
 msgstr "ההמרה נכשלה"
 
-#: share/gpodder/extensions/audio_converter.py:21
+#: share/gpodder/extensions/video_converter.py:23
 #, fuzzy
-msgid "Transcode audio files to mp3/ogg"
+msgid "Transcode video files to avi/mp4/m4v"
 msgstr "המר קובצי m4a ל־mp3 או ל־ogg באמצעות ffmpeg"
-
-#: share/gpodder/extensions/tagging.py:45
-msgid "Tag downloaded files using Mutagen"
-msgstr "תייג באמצעות Mutagen קבצים שהורדו"
-
-#: share/gpodder/extensions/tagging.py:46
-msgid "Add episode and podcast titles to MP3/OGG tags"
-msgstr "הוסף את כותרות הפרק והפודקסט לתגי mp3/ogg"
-
-#: share/gpodder/extensions/ubuntu_unity.py:10
-msgid "Ubuntu Unity Integration"
-msgstr "שילוב עם ממשק Unity של אובונטו"
-
-#: share/gpodder/extensions/ubuntu_unity.py:11
-msgid "Show download progress in the Unity Launcher icon."
-msgstr "הצג התקדמות הורדה באיקון המשגר של Unity."
-
-#: share/gpodder/ui/gtk/gpodderaddpodcast.ui.h:1
-#: share/gpodder/ui/qml/PodcastList.qml:40
-msgid "Add a new podcast"
-msgstr "הוסף פודקסט חדש"
-
-#: share/gpodder/ui/gtk/gpodderaddpodcast.ui.h:2
-msgid "URL:"
-msgstr "כתובת:"
-
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:1
-msgid "gPodder Podcast Editor"
-msgstr "עורך הפודקסטים של gPodder"
-
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:2
-msgid "Section:"
-msgstr "קבוצה:"
-
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:3
-msgid "Disable feed updates (pause subscription)"
-msgstr "נטרל עדכוני הזנה (השהיית ההרשמה)"
-
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:4
-msgid "Synchronize to MP3 player devices"
-msgstr ""
-
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:5
-msgid "Strategy:"
-msgstr ""
-
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:6
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:7
-msgid "General"
-msgstr "כללי"
-
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:7
-msgid "<b>HTTP/FTP Authentication</b>"
-msgstr "<b>אימות HTTP/FTP</b>"
-
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:8
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:13
-msgid "Username:"
-msgstr "שם משתמש:"
-
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:9
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:14
-msgid "Password:"
-msgstr "ססמה:"
-
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:10
-msgid "<b>Locations</b>"
-msgstr "<b>מיקומים</b>"
-
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:11
-msgid "Download to:"
-msgstr "הורד אל:"
-
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:12
-msgid "Website:"
-msgstr "אתר:"
-
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:13
-msgid "website label"
-msgstr "תווית אתר"
-
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:14
-msgid "Advanced"
-msgstr "מתקדם"
-
-#: share/gpodder/ui/gtk/gpodderconfigeditor.ui.h:1
-msgid "gPodder Configuration Editor"
-msgstr "עורך התצורה של gPodder"
-
-#: share/gpodder/ui/gtk/gpodderconfigeditor.ui.h:2
-msgid "Search for:"
-msgstr "חיפוש עבור:"
-
-#: share/gpodder/ui/gtk/gpodderconfigeditor.ui.h:3
-msgid "Show All"
-msgstr "הצג הכל"
 
 #: share/gpodder/ui/gtk/gpodder.ui.h:1
 msgid "_Podcasts"
@@ -1940,8 +1905,9 @@ msgstr "לך אל gpodder.net"
 msgid "_Episodes"
 msgstr "פ_רקים"
 
-#: share/gpodder/ui/gtk/gpodder.ui.h:18 share/gpodder/ui/qml/Main.qml:348
+#: share/gpodder/ui/gtk/gpodder.ui.h:18
 #: share/gpodder/ui/qml/EpisodeActions.qml:36
+#: share/gpodder/ui/qml/Main.qml:348
 msgid "Play"
 msgstr "נגן"
 
@@ -2025,33 +1991,113 @@ msgstr "ק״ב/שנייה"
 msgid "Limit downloads to"
 msgstr "הגבל הורדות ל־"
 
+#: share/gpodder/ui/gtk/gpodderaddpodcast.ui.h:1
+#: share/gpodder/ui/qml/PodcastList.qml:40
+msgid "Add a new podcast"
+msgstr "הוסף פודקסט חדש"
+
+#: share/gpodder/ui/gtk/gpodderaddpodcast.ui.h:2
+msgid "URL:"
+msgstr "כתובת:"
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:1
+msgid "gPodder Podcast Editor"
+msgstr "עורך הפודקסטים של gPodder"
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:2
+msgid "Section:"
+msgstr "קבוצה:"
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:3
+msgid "Disable feed updates (pause subscription)"
+msgstr "נטרל עדכוני הזנה (השהיית ההרשמה)"
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:4
+msgid "Synchronize to MP3 player devices"
+msgstr ""
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:5
+msgid "Strategy:"
+msgstr ""
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:6
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:7
+msgid "General"
+msgstr "כללי"
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:7
+msgid "<b>HTTP/FTP Authentication</b>"
+msgstr "<b>אימות HTTP/FTP</b>"
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:8
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:13
+msgid "Username:"
+msgstr "שם משתמש:"
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:9
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:14
+msgid "Password:"
+msgstr "ססמה:"
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:10
+msgid "<b>Locations</b>"
+msgstr "<b>מיקומים</b>"
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:11
+msgid "Download to:"
+msgstr "הורד אל:"
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:12
+msgid "Website:"
+msgstr "אתר:"
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:13
+msgid "website label"
+msgstr "תווית אתר"
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:14
+msgid "Advanced"
+msgstr "מתקדם"
+
+#: share/gpodder/ui/gtk/gpodderconfigeditor.ui.h:1
+msgid "gPodder Configuration Editor"
+msgstr "עורך התצורה של gPodder"
+
+#: share/gpodder/ui/gtk/gpodderconfigeditor.ui.h:2
+msgid "Search for:"
+msgstr "חיפוש עבור:"
+
+#: share/gpodder/ui/gtk/gpodderconfigeditor.ui.h:3
+msgid "Show All"
+msgstr "הצג הכל"
+
 #: share/gpodder/ui/gtk/gpodderepisodeselector.ui.h:1
 msgid "Select episodes"
 msgstr "בחר פרקים"
 
-#: share/gpodder/ui/gtk/gpodderwelcome.ui.h:1
-msgid "Getting started"
-msgstr "תחילת העבודה"
+#: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:1
+msgid "Find new podcasts"
+msgstr "מצא פודקסטים חדשים"
 
-#: share/gpodder/ui/gtk/gpodderwelcome.ui.h:2
-msgid "<big>Welcome to gPodder</big>"
-msgstr "<big>ברוך הבא אל gPodder</big>"
+#: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:2
+msgid "Select All"
+msgstr "בחר הכל"
 
-#: share/gpodder/ui/gtk/gpodderwelcome.ui.h:3
-msgid "Your podcast list is empty."
-msgstr "רשימת הפודקסטים שלך ריקה."
+#: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:3
+msgid "Select None"
+msgstr "אל תבחר כלום"
 
-#: share/gpodder/ui/gtk/gpodderwelcome.ui.h:4
-msgid "Choose from a list of example podcasts"
-msgstr "בחר מרשימת הפודקסטים לדוגמה"
+#: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:5
+msgid "_OPML/Search"
+msgstr "OPML/_חפש"
 
-#: share/gpodder/ui/gtk/gpodderwelcome.ui.h:5
-msgid "Add a podcast by entering its URL"
-msgstr "הוסף פודקסט על־ידי הזנת הכתובת שלו"
+#: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:6
+msgid "Top _podcasts"
+msgstr "פודקסטים _מובילים"
 
-#: share/gpodder/ui/gtk/gpodderwelcome.ui.h:6
-msgid "Restore my subscriptions from gpodder.net"
-msgstr "שחזר את ההרשמות שלי מ־gpodder.net"
+#: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:7
+msgid "_YouTube"
+msgstr "_YouTube"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:2
 msgid "Audio player:"
@@ -2168,33 +2214,127 @@ msgstr "התקנים"
 msgid "Edit config"
 msgstr "ערוך תצורה"
 
-#: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:1
-msgid "Find new podcasts"
-msgstr "מצא פודקסטים חדשים"
+#: share/gpodder/ui/gtk/gpodderwelcome.ui.h:1
+msgid "Getting started"
+msgstr "תחילת העבודה"
 
-#: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:2
-msgid "Select All"
-msgstr "בחר הכל"
+#: share/gpodder/ui/gtk/gpodderwelcome.ui.h:2
+msgid "<big>Welcome to gPodder</big>"
+msgstr "<big>ברוך הבא אל gPodder</big>"
 
-#: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:3
-msgid "Select None"
-msgstr "אל תבחר כלום"
+#: share/gpodder/ui/gtk/gpodderwelcome.ui.h:3
+msgid "Your podcast list is empty."
+msgstr "רשימת הפודקסטים שלך ריקה."
 
-#: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:5
-msgid "_OPML/Search"
-msgstr "OPML/_חפש"
+#: share/gpodder/ui/gtk/gpodderwelcome.ui.h:4
+msgid "Choose from a list of example podcasts"
+msgstr "בחר מרשימת הפודקסטים לדוגמה"
 
-#: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:6
-msgid "Top _podcasts"
-msgstr "פודקסטים _מובילים"
+#: share/gpodder/ui/gtk/gpodderwelcome.ui.h:5
+msgid "Add a podcast by entering its URL"
+msgstr "הוסף פודקסט על־ידי הזנת הכתובת שלו"
 
-#: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:7
-msgid "_YouTube"
-msgstr "_YouTube"
+#: share/gpodder/ui/gtk/gpodderwelcome.ui.h:6
+msgid "Restore my subscriptions from gpodder.net"
+msgstr "שחזר את ההרשמות שלי מ־gpodder.net"
 
-#: share/gpodder/ui/qml/main_default.qml:29 share/gpodder/ui/qml/Main.qml:322
+#: share/gpodder/ui/qml/EpisodeActions.qml:52
+#: share/gpodder/ui/qml/Main.qml:408
+msgid "Shownotes"
+msgstr "הערות"
+
+#: share/gpodder/ui/qml/EpisodeList.qml:46
+msgid "No episodes"
+msgstr "אין פרקים"
+
+#: share/gpodder/ui/qml/EpisodeList.qml:46
+msgid "Touch to change filter"
+msgstr "גע לשינוי המסנן"
+
+#: share/gpodder/ui/qml/EpisodeList.qml:179
+msgid "Show episodes"
+msgstr "הצג פרקים"
+
+#: share/gpodder/ui/qml/Main.qml:139 share/gpodder/ui/qml/Main.qml:418
+msgid "Playlist empty"
+msgstr "רשימת ההשמעה ריקה"
+
+#: share/gpodder/ui/qml/Main.qml:169
+#, fuzzy
+msgid "Episode added to playlist"
+msgstr "פרטי הפרק"
+
+#: share/gpodder/ui/qml/Main.qml:322 share/gpodder/ui/qml/main_default.qml:29
 msgid "Now playing"
 msgstr "מושמע כעת"
+
+#: share/gpodder/ui/qml/Main.qml:340
+msgid "Download episodes"
+msgstr "הורד פרקים"
+
+#: share/gpodder/ui/qml/Main.qml:346
+msgid "Playback episodes"
+msgstr "נגן פרקים"
+
+#: share/gpodder/ui/qml/Main.qml:413 share/gpodder/ui/qml/MediaPlayer.qml:242
+msgid "Play queue"
+msgstr "נגן תור"
+
+#: share/gpodder/ui/qml/Main.qml:553
+msgid "Select downloaded"
+msgstr "בחר פרקים שהורדו"
+
+#: share/gpodder/ui/qml/Main.qml:573
+msgid "Invert selection"
+msgstr "הפוך בחירה"
+
+#: share/gpodder/ui/qml/PlaybackBar.qml:12
+#: share/gpodder/ui/qml/PlaybackBar.qml:14
+#, python-format
+msgid "%(count)s minute"
+msgid_plural "%(count)s minutes"
+msgstr[0] "דקה אחת"
+msgstr[1] "%(count)s דקות"
+
+#: share/gpodder/ui/qml/PlaybackBar.qml:16
+#: share/gpodder/ui/qml/PlaybackBar.qml:18
+#, python-format
+msgid "%(count)s second"
+msgid_plural "%(count)s seconds"
+msgstr[0] "שנייה אחת"
+msgstr[1] "%(count)s שניות"
+
+#: share/gpodder/ui/qml/PodcastList.qml:26
+msgid "No podcasts."
+msgstr "אין פודקסטים."
+
+#: share/gpodder/ui/qml/PodcastList.qml:26
+msgid "Add your first podcast now."
+msgstr "הוסף עכשיו את הפודקסט הראשון שלך."
+
+#: share/gpodder/ui/qml/Subscribe.qml:53
+msgid "Search term or URL"
+msgstr "חפש מושג או כתובת"
+
+#: share/gpodder/ui/qml/Subscribe.qml:110
+msgid "Toplist"
+msgstr "פודקסטים מומלצים"
+
+#: share/gpodder/ui/qml/Subscribe.qml:131
+msgid "My gpodder.net"
+msgstr "gpodder.net שלי"
+
+#: share/gpodder/ui/qml/Subscribe.qml:131
+msgid "Examples"
+msgstr "דוגמאות"
+
+#: share/gpodder/ui/qml/Subscribe.qml:144
+msgid "powered by gpodder.net"
+msgstr "מופעל על ידי gpodder.net"
+
+#: share/gpodder/ui/qml/Subscribe.qml:153
+msgid "Subscribe"
+msgstr "הרשם"
 
 #: share/gpodder/ui/qml/main_default.qml:37
 #, fuzzy
@@ -2272,100 +2412,6 @@ msgstr "החלף את הרשימה בשרת"
 msgid "No account? Register here"
 msgstr "אין חשבון? הרשם כאן"
 
-#: share/gpodder/ui/qml/MediaPlayer.qml:242 share/gpodder/ui/qml/Main.qml:413
-msgid "Play queue"
-msgstr "נגן תור"
-
-#: share/gpodder/ui/qml/Main.qml:139 share/gpodder/ui/qml/Main.qml:418
-msgid "Playlist empty"
-msgstr "רשימת ההשמעה ריקה"
-
-#: share/gpodder/ui/qml/Main.qml:169
-#, fuzzy
-msgid "Episode added to playlist"
-msgstr "פרטי הפרק"
-
-#: share/gpodder/ui/qml/Main.qml:340
-msgid "Download episodes"
-msgstr "הורד פרקים"
-
-#: share/gpodder/ui/qml/Main.qml:346
-msgid "Playback episodes"
-msgstr "נגן פרקים"
-
-#: share/gpodder/ui/qml/Main.qml:408
-#: share/gpodder/ui/qml/EpisodeActions.qml:52
-msgid "Shownotes"
-msgstr "הערות"
-
-#: share/gpodder/ui/qml/Main.qml:553
-msgid "Select downloaded"
-msgstr "בחר פרקים שהורדו"
-
-#: share/gpodder/ui/qml/Main.qml:573
-msgid "Invert selection"
-msgstr "הפוך בחירה"
-
-#: share/gpodder/ui/qml/PodcastList.qml:26
-msgid "No podcasts."
-msgstr "אין פודקסטים."
-
-#: share/gpodder/ui/qml/PodcastList.qml:26
-msgid "Add your first podcast now."
-msgstr "הוסף עכשיו את הפודקסט הראשון שלך."
-
-#: share/gpodder/ui/qml/EpisodeList.qml:46
-msgid "No episodes"
-msgstr "אין פרקים"
-
-#: share/gpodder/ui/qml/EpisodeList.qml:46
-msgid "Touch to change filter"
-msgstr "גע לשינוי המסנן"
-
-#: share/gpodder/ui/qml/EpisodeList.qml:179
-msgid "Show episodes"
-msgstr "הצג פרקים"
-
-#: share/gpodder/ui/qml/Subscribe.qml:53
-msgid "Search term or URL"
-msgstr "חפש מושג או כתובת"
-
-#: share/gpodder/ui/qml/Subscribe.qml:110
-msgid "Toplist"
-msgstr "פודקסטים מומלצים"
-
-#: share/gpodder/ui/qml/Subscribe.qml:131
-msgid "My gpodder.net"
-msgstr "gpodder.net שלי"
-
-#: share/gpodder/ui/qml/Subscribe.qml:131
-msgid "Examples"
-msgstr "דוגמאות"
-
-#: share/gpodder/ui/qml/Subscribe.qml:144
-msgid "powered by gpodder.net"
-msgstr "מופעל על ידי gpodder.net"
-
-#: share/gpodder/ui/qml/Subscribe.qml:153
-msgid "Subscribe"
-msgstr "הרשם"
-
-#: share/gpodder/ui/qml/PlaybackBar.qml:12
-#: share/gpodder/ui/qml/PlaybackBar.qml:14
-#, python-format
-msgid "%(count)s minute"
-msgid_plural "%(count)s minutes"
-msgstr[0] "דקה אחת"
-msgstr[1] "%(count)s דקות"
-
-#: share/gpodder/ui/qml/PlaybackBar.qml:16
-#: share/gpodder/ui/qml/PlaybackBar.qml:18
-#, python-format
-msgid "%(count)s second"
-msgid_plural "%(count)s seconds"
-msgstr[0] "שנייה אחת"
-msgstr[1] "%(count)s שניות"
-
 #: share/gpodder/ui/qml/harmattan/org/gpodder/qmlui/ListList.qml:14
 #, fuzzy
 msgid "Pull down to refresh"
@@ -2376,124 +2422,124 @@ msgstr "פורסם: %s"
 msgid "Release to refresh"
 msgstr "פורסם: %s"
 
-#: bin/gpo:248
+#: bin/gpo:250
 msgid "Podcast update requested by extensions."
 msgstr "הרחבות מבקשות לעדכן פודקסט."
 
-#: bin/gpo:252
+#: bin/gpo:254
 msgid "Episode download requested by extensions."
 msgstr "הרחבות מבקשות להוריד פרק."
 
-#: bin/gpo:305
+#: bin/gpo:307
 #, fuzzy, python-format
 msgid "Invalid url: %s"
 msgstr "כתובת אינטרנט לא תקינה: %s"
 
-#: bin/gpo:319 bin/gpo:395 bin/gpo:429 bin/gpo:559 bin/gpo:574 bin/gpo:667
+#: bin/gpo:321 bin/gpo:397 bin/gpo:431 bin/gpo:564 bin/gpo:579 bin/gpo:672
 #, python-format
 msgid "You are not subscribed to %s."
 msgstr "אינך רשום לֹ־%s."
 
-#: bin/gpo:325
+#: bin/gpo:327
 #, fuzzy, python-format
 msgid "Already subscribed to %s."
 msgstr "לא ניתן להירשם ל־%s."
 
-#: bin/gpo:331
+#: bin/gpo:333
 #, python-format
 msgid "Cannot subscribe to %s."
 msgstr "לא ניתן להירשם ל־%s."
 
-#: bin/gpo:347
+#: bin/gpo:349
 #, python-format
 msgid "Successfully added %s."
 msgstr "%s נוסף בהצלחה."
 
-#: bin/gpo:365
+#: bin/gpo:367
 msgid "This configuration option does not exist."
 msgstr "אפשרות תצורה זו אינה קיימת."
 
-#: bin/gpo:369
+#: bin/gpo:371
 msgid "Can only set leaf configuration nodes."
 msgstr "ניתן להגדיר רק על של צומתי תצורה."
 
-#: bin/gpo:383
+#: bin/gpo:385
 #, python-format
 msgid "Renamed %(old_title)s to %(new_title)s."
 msgstr "השם שונה מ־%(old_title)s ל־%(new_title)s."
 
-#: bin/gpo:399
+#: bin/gpo:401
 #, python-format
 msgid "Unsubscribed from %s."
 msgstr "ההרשמה ל־%s בוטלה."
 
-#: bin/gpo:473
+#: bin/gpo:475
 msgid "Updates disabled"
 msgstr "עדכונים מנוטרלים"
 
-#: bin/gpo:488
+#: bin/gpo:490
 #, python-format
 msgid "%(count)d new episode"
 msgid_plural "%(count)d new episodes"
 msgstr[0] "פרק חדש אחד"
 msgstr[1] "%(count)d פרקים חדשים"
 
-#: bin/gpo:494
+#: bin/gpo:496
 msgid "Checking for new episodes"
 msgstr "בודק לפרקים חדשים"
 
-#: bin/gpo:503
+#: bin/gpo:505
 #, python-format
 msgid "Skipping %(podcast)s"
 msgstr "מדלג על %(podcast)s"
 
-#: bin/gpo:565
+#: bin/gpo:570
 #, python-format
 msgid "Disabling feed update from %s."
 msgstr "מנטרל עדכוני הזנה מ־%s."
 
-#: bin/gpo:580
+#: bin/gpo:585
 #, python-format
 msgid "Enabling feed update from %s."
 msgstr "מאפשר עדכוני הזנה מ־%s."
 
-#: bin/gpo:597
+#: bin/gpo:602
 msgid "Listening on ALL network interfaces."
 msgstr "מאזין לכל ממשקי הרשת."
 
-#: bin/gpo:622
+#: bin/gpo:627
 msgid "No podcasts found."
 msgstr "לא נמצאו פודקסטים."
 
-#: bin/gpo:636
+#: bin/gpo:641
 msgid "Enter index to subscribe, ? for list"
 msgstr "הזן את האינדקס להרשמה, ? בשביל רשימה"
 
-#: bin/gpo:650 bin/gpo:654
+#: bin/gpo:655 bin/gpo:659
 msgid "Invalid value."
 msgstr "ערך לא חוקי."
 
-#: bin/gpo:671
+#: bin/gpo:676
 #, python-format
 msgid "Invalid URL: %s"
 msgstr "כתובת אינטרנט לא תקינה: %s"
 
-#: bin/gpo:674
+#: bin/gpo:679
 #, python-format
 msgid "Changed URL from %(old_url)s to %(new_url)s."
 msgstr "הכתובת שונתה מ־%(old_url)s ל־%(new_url)s."
 
-#: bin/gpo:730
+#: bin/gpo:735
 #, python-format
 msgid "Syntax error: %(error)s"
 msgstr "שגיאת תחביר: %(error)s"
 
-#: bin/gpo:824
+#: bin/gpo:829
 #, fuzzy
 msgid "Ambiguous command. Did you mean.."
 msgstr "פקודה דו־משמעית. האם התכוונת לאלה.."
 
-#: bin/gpo:828
+#: bin/gpo:833
 msgid "The requested function is not available."
 msgstr "הפונקציה המבוקשת אינה זמינה."
 

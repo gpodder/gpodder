@@ -30,11 +30,20 @@ from gpodder import util
 import logging
 logger = logging.getLogger(__name__)
 
+try:
+    # For Python < 2.6, we use the "simplejson" add-on module
+    import simplejson as json
+except ImportError:
+    # Python 2.6 already ships with a nice "json" module
+    import json
+
 import re
 
 VIMEOCOM_RE = re.compile(r'http://vimeo\.com/(\d+)$', re.IGNORECASE)
 MOOGALOOP_RE = re.compile(r'http://vimeo\.com/moogaloop\.swf\?clip_id=(\d+)$', re.IGNORECASE)
 SIGNATURE_RE = re.compile(r'"timestamp":(\d+),"signature":"([^"]+)"')
+DATA_CONFIG_RE = re.compile(r'data-config-url="([^"]+)"')
+
 
 class VimeoError(BaseException): pass
 
@@ -49,23 +58,28 @@ def get_real_download_url(url):
 
     web_url = 'http://vimeo.com/%s' % video_id
     web_data = util.urlopen(web_url).read()
-    sig_pair = SIGNATURE_RE.search(web_data)
+    data_config_frag = DATA_CONFIG_RE.search(web_data)
 
-    if sig_pair is None:
-        raise VimeoError('Cannot get signature pair from Vimeo')
+    if data_config_frag is None:
+        raise VimeoError('Cannot get data config from Vimeo')
 
-    timestamp, signature = sig_pair.groups()
-    params = '&'.join('%s=%s' % i for i in [
-        ('clip_id', video_id),
-        ('sig', signature),
-        ('time', timestamp),
-        ('quality', quality),
-        ('codecs', codecs),
-        ('type', 'moogaloop_local'),
-        ('embed_location', ''),
-    ])
-    player_url = 'http://player.vimeo.com/play_redirect?%s' % params
-    return player_url
+    data_config_url = data_config_frag.group(1).replace('&amp;', '&')
+
+    def get_urls(data_config_url):
+        data_config_data = util.urlopen(data_config_url).read().decode('utf-8')
+        data_config = json.loads(data_config_data)
+        for fileinfo in data_config['request']['files'].values():
+            if not isinstance(fileinfo, dict):
+                continue
+
+            for fileformat, keys in fileinfo.items():
+                if not isinstance(keys, dict):
+                    continue
+
+                yield (fileformat, keys['url'])
+
+    for quality, url in get_urls(data_config_url):
+        return url
 
 def get_vimeo_id(url):
     result = MOOGALOOP_RE.match(url)

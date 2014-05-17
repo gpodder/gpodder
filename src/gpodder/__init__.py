@@ -20,9 +20,9 @@
 # This metadata block gets parsed by setup.py - use single quotes only
 __tagline__   = 'Media aggregator and podcast client'
 __author__    = 'Thomas Perl <thp@gpodder.org>'
-__version__   = '3.6.1'
-__date__      = '2014-03-08'
-__relname__   = 'Little Orphan Airplane'
+__version__   = '3.7.0'
+__date__      = '2014-05-17'
+__relname__   = 'Off-Screen Bionic Chiseling'
 __copyright__ = '© 2005-2014 Thomas Perl and the gPodder Team'
 __license__   = 'GNU General Public License, version 3 or later'
 __url__       = 'http://gpodder.org/'
@@ -166,8 +166,23 @@ def set_home(new_home):
     if ENV_DOWNLOADS not in os.environ:
         downloads = os.path.join(home, 'Downloads')
 
+def fixup_home(old_home):
+    if ui.osx:
+        new_home = os.path.expanduser(os.path.join('~', 'Library',
+            'Application Support', 'gPodder'))
+
+        # Users who do not have the old home directory, or who have it but also
+        # have the new home directory (to cater to situations where the user
+        # might for some reason or the other have a ~/gPodder/ directory) get
+        # to use the new, more OS X-ish home.
+        if not os.path.exists(old_home) or os.path.exists(new_home):
+            return new_home
+
+    return old_home
+
 # Default locations for configuration and data files
 default_home = os.path.expanduser(os.path.join('~', 'gPodder'))
+default_home = fixup_home(default_home)
 set_home(os.environ.get(ENV_HOME, default_home))
 
 if home != default_home:
@@ -182,7 +197,6 @@ if ENV_DOWNLOADS in os.environ:
 # Plugins to load by default
 DEFAULT_PLUGINS = [
     'gpodder.plugins.soundcloud',
-    'gpodder.plugins.xspf',
 ]
 
 def load_plugins():
