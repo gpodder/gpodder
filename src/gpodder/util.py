@@ -1763,5 +1763,5 @@ def delete_empty_folders(top):
         for name in dirs:
             dirname = os.path.join(root, name)
             if not os.listdir(dirname):
-                os.rmdir(name)
+                os.rmdir(dirname)
 
