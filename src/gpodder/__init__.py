@@ -43,6 +43,11 @@ except ImportError:
   Error: Module "feedparser" (python-feedparser) not found.
          The feedparser module can be downloaded from
          http://code.google.com/p/feedparser/
+
+  From a source checkout, you can download local copies of all
+  CLI dependencies for debugging (will be placed into "src/"):
+
+      python tools/localdepends.py
 """
     sys.exit(1)
 del feedparser
@@ -54,6 +59,11 @@ except ImportError:
   Error: Module "mygpoclient" (python-mygpoclient) not found.
          The mygpoclient module can be downloaded from
          http://thp.io/2010/mygpoclient/
+
+  From a source checkout, you can download local copies of all
+  CLI dependencies for debugging (will be placed into "src/"):
+
+      python tools/localdepends.py
 """
     sys.exit(1)
 del mygpoclient
