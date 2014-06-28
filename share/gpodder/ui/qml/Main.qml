@@ -304,7 +304,7 @@ Item {
                         verticalCenter: parent.verticalCenter
                     }
 
-                    visible: main.currentPodcast.qupdating
+                    visible: main.currentPodcast.qupdating || main.loadingEpisodes
                     running: visible
                 }                
             }
