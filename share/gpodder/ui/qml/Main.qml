@@ -346,12 +346,6 @@ Item {
                 }
             },
             Action {
-                text: _('Update')
-                onClicked: {
-                    controller.updatePodcast(main.currentPodcast)
-                }
-            },
-            Action {
                 text: _('Download episodes')
                 onClicked: {
                     main.showMultiEpisodesSheet(text, _('Download'), 'download');

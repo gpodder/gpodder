@@ -59,6 +59,12 @@ Item {
     }
 
     ListList {
+        // The episode list is refreshable if it's not the "All episodes" view
+        hasRefresh: main.currentPodcast !== undefined && main.currentPodcast.qurl !== ''
+        onRefresh: {
+            controller.updatePodcast(main.currentPodcast)
+        }
+
         headerText: main.currentPodcast === undefined ? "" : main.currentPodcast.qtitle
 
         id: listView
