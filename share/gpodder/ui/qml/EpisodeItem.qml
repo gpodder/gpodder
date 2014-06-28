@@ -84,6 +84,7 @@ SelectableItem {
 
             text: title
             wrapMode: Text.NoWrap
+            elide: Text.ElideRight
 
             color: {
                 if (downloading) {

@@ -109,6 +109,7 @@ SelectableItem {
 
         font.pixelSize: podcastItem.height * .35
         wrapMode: Text.NoWrap
+        elide: Text.ElideRight
     }
 }
 
