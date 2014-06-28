@@ -238,18 +238,26 @@ Item {
                 id: episodesHeaderRow
                 width: parent.width
                 height: Config.listItemHeight
- 
+
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: mainObject.showFilterDialog();
+                }
+
                 Text {
                     id: headerCaption
 
-                    text: main.currentPodcast.qtitle
+                    text: main.currentPodcast.qtitle + ' - ' + mainObject.currentFilterText
                     color: Config.settingsHeaderColor
 
                     anchors {
                         left: parent.left  
+                        right: counters.left
                         leftMargin: Config.smallSpacing
+                        rightMargin: Config.smallSpacing
                         verticalCenter: parent.verticalCenter                        
                     }
+                    elide: Text.ElideRight
 
                     font.pixelSize: Config.headerHeight * .5
                     wrapMode: Text.NoWrap
@@ -262,8 +270,8 @@ Item {
                     property int downloadedEpisodes: main.currentPodcast.qdownloaded
 
                     anchors {
-                        right: parent.right
-                        rightMargin: Config.smallSpacing                        
+                        right: filterIcon.left
+                        rightMargin: Config.smallSpacing
                         verticalCenter: parent.verticalCenter                        
                     }
 
@@ -272,6 +280,19 @@ Item {
                     color: "white"
 
                     font.pixelSize: Config.headerHeight * .5
+                }
+
+                Image {
+                    id: filterIcon
+
+                    anchors {
+                        right: parent.right
+                        verticalCenter: parent.verticalCenter
+                    }
+
+                    visible: !spinner.visible
+
+                    source: 'image://theme/icon-m-common-filter'
                 }
 
                 BusyIndicator {
@@ -322,12 +343,6 @@ Item {
                 text: _('Now playing')
                 onClicked: {
                     main.clickPlayButton();
-                }
-            },
-            Action {
-                text: _('Filter:') + ' ' + mainObject.currentFilterText
-                onClicked: {
-                    mainObject.showFilterDialog();
                 }
             },
             Action {
