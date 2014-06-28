@@ -1066,13 +1066,9 @@ class qtPodder(QObject):
                 self.tracker_miner_config)
         root_context.setContextProperty('podcastModel', self.podcast_model)
         root_context.setContextProperty('episodeModel', self.episode_model)
-        root_context.setContextProperty('isSailfish', gpodder.ui.sailfish)
 
         for folder in gpodder.ui_folders:
-            if gpodder.ui.sailfish:
-                path = os.path.join(folder, 'sailfish')
-            else:
-                path = os.path.join(folder, 'harmattan')
+            path = os.path.join(folder, 'harmattan')
 
             if os.path.exists(path):
                 logger.info('Adding QML Import Path: %s', path)
@@ -1083,7 +1079,7 @@ class qtPodder(QObject):
 
         self.view.setWindowTitle('gPodder')
 
-        if gpodder.ui.harmattan or gpodder.ui.sailfish:
+        if gpodder.ui.harmattan:
             self.view.showFullScreen()
         else:
             # On the Desktop, scale to fit my small laptop screen..
