@@ -486,6 +486,7 @@ class Controller(QObject):
         menu = []
 
         if isinstance(podcast, model.EpisodeSubsetView):
+            menu.append(helper.Action(_('Mark episodes as old'), 'mark-all-as-read', podcast))
             menu.append(helper.Action(_('Update all'), 'update-all', podcast))
         else:
             menu.append(helper.Action(_('Update'), 'update', podcast))
@@ -628,6 +629,12 @@ class Controller(QObject):
             self.deleteEpisode(action.target)
         elif action.action == 'episode-enqueue':
             self.enqueueEpisode.emit(action.target)
+        elif action.action == 'mark-all-as-read':
+            for episode in action.target.get_all_episodes():
+                if not episode.was_downloaded(and_exists=True):
+                    episode.mark(is_played=True)
+            self.update_subset_stats()
+            self.root.resort_podcast_list()
         elif action.action == 'mark-as-read':
             for episode in action.target.get_all_episodes():
                 if not episode.was_downloaded(and_exists=True):
