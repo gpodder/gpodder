@@ -148,7 +148,7 @@ Item {
         id: resultsSheet
 
         anchors.fill: parent
-        anchors.topMargin: -50
+        anchors.topMargin: (width > height || status == DialogStatus.Closed) ? 0 : -50 // see bug 1915
 
         acceptButtonText: _('Subscribe')
         rejectButtonText: _('Cancel')
