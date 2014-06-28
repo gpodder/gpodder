@@ -25,7 +25,7 @@ Item {
             subscribe.subscribe([q]);
         } else {
             /* Search the web directory */
-            searchResultsListModel.searchFor(q);
+            searchResultsListModel.search(q);
             resultsSheet.open();
         }
     }
@@ -165,18 +165,36 @@ Item {
                 id: listView
                 property variant selectedIndices: []
 
-                opacity: (searchResultsListModel.status == XmlListModel.Ready)?1:0
+                opacity: searchResultsListModel.loaded ? 1 : 0
                 Behavior on opacity { PropertyAnimation { } }
 
                 anchors.fill: parent
 
-                model: SearchResultsListModel {
+                model: ListModel {
                     id: searchResultsListModel
+                    property bool loaded: false
 
-                    function searchFor(query) {
-                        console.log('Searching for: ' + query)
-                        source = 'http://gpodder.net/search.xml?q=' + query
-                        console.log('new source:' + source)
+                    function search(query) {
+                        clear();
+                        searchResultsListModel.loaded = false;
+
+                        var result = new XMLHttpRequest();
+                        result.onreadystatechange = function() {
+                            if (result.readyState == XMLHttpRequest.DONE) {
+                                var data = JSON.parse(result.responseText);
+                                data.sort(function (a, b) {
+                                    // Sort by subscriber count, descending
+                                    return b.subscribers - a.subscribers;
+                                });
+                                for (var i=0; i<data.length; i++) {
+                                    searchResultsListModel.append(data[i]);
+                                }
+                                searchResultsListModel.loaded = true;
+                            }
+                        };
+
+                        result.open('GET', 'http://gpodder.net/search.json?q=' + query);
+                        result.send();
                     }
                 }
 
@@ -202,7 +220,7 @@ Item {
 
                         Image {
                             anchors.centerIn: parent
-                            source: logo
+                            source: scaled_logo_url
                         }
                     }
 
@@ -261,7 +279,7 @@ Item {
                 anchors.centerIn: parent
                 running: opacity > 0
 
-                opacity: (searchResultsListModel.status == XmlListModel.Loading)?1:0
+                opacity: searchResultsListModel.loaded ? 0 : 1
                 Behavior on opacity { PropertyAnimation { } }
             }
         }
