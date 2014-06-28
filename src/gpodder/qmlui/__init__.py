@@ -21,7 +21,7 @@
 # Thomas Perl <thp@gpodder.org>; 2011-02-06
 
 
-from PySide.QtGui import QApplication
+from PySide.QtGui import QApplication, QClipboard
 from PySide.QtCore import Qt, QObject, Signal, Slot, Property, QUrl
 from PySide.QtCore import QAbstractListModel, QModelIndex
 from PySide.QtDeclarative import QDeclarativeView
@@ -491,6 +491,7 @@ class Controller(QObject):
             menu.append(helper.Action(_('Update'), 'update', podcast))
             menu.append(helper.Action(_('Mark episodes as old'), 'mark-as-read', podcast))
             menu.append(helper.Action(_('Rename'), 'rename-podcast', podcast))
+            menu.append(helper.Action(_('Copy URL to clipboard'), 'copy-url-clipboard', podcast))
             menu.append(helper.Action(_('Change section'), 'change-section', podcast))
             menu.append(helper.Action(_('Unsubscribe'), 'unsubscribe', podcast))
 
@@ -651,6 +652,10 @@ class Controller(QObject):
                     self.root.resort_podcast_list()
 
             self.start_input_dialog(title_changer(action.target))
+        elif action.action == 'copy-url-clipboard':
+            clipboard = QClipboard()
+            clipboard.setText(action.target.url)
+            self.showMessage.emit(_('Copied to clipboard: %(url)s') % {'url': action.target.url})
 
     def confirm_action(self, message, affirmative, callback,
             negative_callback=None):
