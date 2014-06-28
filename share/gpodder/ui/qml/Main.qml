@@ -479,7 +479,7 @@ Item {
         property string title: ''
         acceptButtonText: _('Delete')
         anchors.fill: parent
-        anchors.topMargin: -36
+        anchors.topMargin: (width > height || !opened) ? 0 : -36 // see bug 1915
 
         rejectButtonText: _('Cancel')
 
