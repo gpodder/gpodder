@@ -174,6 +174,10 @@ Item {
         flickable: listView
     }
 
+    FastScroll {
+        flickable: listView
+    }
+
     SelectionDialog {
         id: filterDialog
         titleText: _('Show episodes')
