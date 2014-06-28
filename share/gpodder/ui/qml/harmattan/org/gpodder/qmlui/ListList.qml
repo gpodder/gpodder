@@ -11,8 +11,8 @@ ListView {
     PullDownHandle {
         enabled: parent.hasRefresh
         target: parent
-        pullDownText: _('Pull down to refresh')
-        releaseText: _('Release to refresh')
+        pullDownText: '↓ ' + _('Pull down to refresh') + ' ↓'
+        releaseText: '↑ ' + _('Release to refresh') + ' ↑'
         onRefresh: parent.refresh()
     }
 }

@@ -59,10 +59,23 @@ Item {
     }
 
     Label {
+        color: Config.sectionHeaderColorText
+        anchors.centerIn: parent
+        anchors.verticalCenterOffset: height * (opacity-1)
+
+        Behavior on opacity { PropertyAnimation { } }
+        opacity: !pullDown.wouldRefresh ? ((height > parent.height) ? (parent.height / height) : 1) : 0
+        text: pullDown.pullDownText
+    }
+
+    Label {
         color: 'white'
         anchors.centerIn: parent
-        text: pullDown.wouldRefresh?pullDown.releaseText:pullDown.pullDownText
-        anchors.verticalCenter: parent.verticalCenter
+        anchors.verticalCenterOffset: height * (1-opacity)
+
+        Behavior on opacity { PropertyAnimation { } }
+        opacity: pullDown.wouldRefresh ? ((height > parent.height) ? (parent.height / height) : 1) : 0
+        text: pullDown.releaseText
     }
 }
 
