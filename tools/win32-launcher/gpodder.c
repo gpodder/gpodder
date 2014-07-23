@@ -162,6 +162,7 @@ int main(int argc, char** argv)
                 "Python 2.7 installation not found",
                 MB_YESNO | MB_ICONQUESTION) == IDYES) {
             strncpy(Temp_Download_Filename, gPodder_Home, MAX_PATH);
+            strncat(Temp_Download_Filename, "\\", MAX_PATH);
             strncat(Temp_Download_Filename, PYTHON_INSTALLER_FILE, MAX_PATH);
             if (DownloadFile(Temp_Download_Filename,
                         PYTHON_INSTALLER_URL,
@@ -200,6 +201,7 @@ int main(int argc, char** argv)
                 "PyGTK installation not found",
                 MB_YESNO | MB_ICONQUESTION) == IDYES) {
             strncpy(Temp_Download_Filename, gPodder_Home, MAX_PATH);
+            strncat(Temp_Download_Filename, "\\", MAX_PATH);
             strncat(Temp_Download_Filename, PYGTK_INSTALLER_FILE, MAX_PATH);
             if (DownloadFile(Temp_Download_Filename,
                         PYGTK_INSTALLER_URL,
