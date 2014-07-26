@@ -13,8 +13,9 @@ Item {
 
     function show() {
         searchInput.text = ''
-        searchResultsListModel.source = ''
+        searchResultsListModel.clear();
         resultsSheet.reject();
+        directoryButtons.reloadOptions();
     }
 
     function search() {
@@ -25,7 +26,7 @@ Item {
             subscribe.subscribe([q]);
         } else {
             /* Search the web directory */
-            searchResultsListModel.searchFor(q);
+            searchResultsListModel.search(q);
             resultsSheet.open();
         }
     }
@@ -79,76 +80,105 @@ Item {
         }
     }
 
-    Item {
+    ListView {
         id: directoryButtons
+        visible: topBar.visible
+        clip: true
 
-        anchors.fill: parent
-        anchors.bottomMargin: Config.listItemHeight
+        anchors {
+            left: parent.left
+            right: parent.right
+            top: topBar.bottom
+            bottom: parent.bottom
+            topMargin: Config.smallSpacing
+        }
 
-        Row {
-            visible: parent.height > 200
-            anchors.centerIn: parent
-            spacing: Config.largeSpacing * 3
+        model: ListModel { id: directoryButtonsModel }
 
-            Image {
-                source: 'artwork/directory-toplist.png'
-
-                SelectableItem {
-                    property string modelData: 'http://gpodder.org/directory/toplist.xml'
-                    anchors.fill: parent
-                    onSelected: {
-                        searchResultsListModel.source = item;
-                        resultsSheet.open();
-                    }
+        function doAction(action) {
+            if (action === 'toplist') {
+                searchResultsListModel.loadJson('https://gpodder.net/toplist/50.json');
+                resultsSheet.open();
+            } else if (action === 'mygpo') {
+                if (controller.myGpoEnabled) {
+                    searchResultsListModel.loadJson('https://' + controller.myGpoUsername + ':' + controller.myGpoPassword + '@gpodder.net/subscriptions/' + controller.myGpoUsername + '.json');
+                    resultsSheet.open();
                 }
-
-                Label {
-                    anchors.top: parent.bottom
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    font.pixelSize: 30
-                    color: 'white'
-                    text: _('Toplist')
+            } else if (action === 'suggestions') {
+                if (controller.myGpoEnabled) {
+                    searchResultsListModel.loadJson('https://' + controller.myGpoUsername + ':' + controller.myGpoPassword + '@gpodder.net/suggestions/50.json');
+                    resultsSheet.open();
                 }
+            } else {
+                // Assume action is a URL
+                searchResultsListModel.loadJson(action);
+                resultsSheet.open();
+            }
+        }
+
+        Component.onCompleted: {
+            reloadOptions();
+        }
+
+        function reloadOptions() {
+            directoryButtonsModel.clear();
+            directoryButtonsModel.append({label: _('Most-subscribed on gpodder.net'), action: 'toplist'});
+
+            if (controller.myGpoEnabled) {
+                directoryButtonsModel.append({label: _('Your subscriptions on gpodder.net'), action: 'mygpo'});
+                directoryButtonsModel.append({label: _('Recommended by gpodder.net for you'), action: 'suggestions'});
             }
 
-            Image {
-                source: 'artwork/directory-examples.png'
-
-                SelectableItem {
-                    property string modelData: controller.myGpoEnabled?('http://' + controller.myGpoUsername + ':' + controller.myGpoPassword + '@gpodder.net/subscriptions/' + controller.myGpoUsername + '.xml'):('http://gpodder.org/directory/examples.xml')
-                    anchors.fill: parent
-                    onSelected: {
-                        searchResultsListModel.source = item;
-                        resultsSheet.open();
+            var result = new XMLHttpRequest();
+            result.onreadystatechange = function() {
+                if (result.readyState == XMLHttpRequest.DONE) {
+                    var data = JSON.parse(result.responseText);
+                    data.sort(function (a, b) {
+                        // Sort by usage count, descending
+                        return b.usage - a.usage;
+                    });
+                    for (var i=0; i<data.length; i++) {
+                        directoryButtonsModel.append({label: data[i].tag, action: 'https://gpodder.net/api/2/tag/' + data[i].tag + '/50.json'});
                     }
                 }
+            };
+            result.open('GET', 'https://gpodder.net/api/2/tags/50.json');
+            result.send();
+        }
 
-                Label {
-                    anchors.top: parent.bottom
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    font.pixelSize: 30
-                    color: 'white'
-                    text: controller.myGpoEnabled?_('My gpodder.net'):_('Examples')
+        delegate: SelectableItem {
+            property variant modelData: undefined
+
+            Label {
+                text: label
+
+                anchors {
+                    left: parent.left
+                    right: parent.right
+                    verticalCenter: parent.verticalCenter
+                    margins: Config.smallSpacing
                 }
+
+                elide: Text.ElideRight
+            }
+
+            onSelected: {
+                directoryButtons.doAction(action);
             }
         }
     }
 
-    Label {
+    ScrollScroll {
+        flickable: directoryButtons
         visible: directoryButtons.visible
-        anchors.right: parent.right
-        anchors.bottom: parent.bottom
-        anchors.margins: Config.largeSpacing
-        font.pixelSize: 20
-        color: 'white'
-        text: '<em>' + _('powered by gpodder.net') + '</em>'
     }
+
 
     Sheet {
         id: resultsSheet
 
         anchors.fill: parent
-        anchors.topMargin: -50
+        anchors.topMargin: (width > height || status == DialogStatus.Closed) ? 0 : -50 // see bug 1915
 
         acceptButtonText: _('Subscribe')
         rejectButtonText: _('Cancel')
@@ -165,18 +195,40 @@ Item {
                 id: listView
                 property variant selectedIndices: []
 
-                opacity: (searchResultsListModel.status == XmlListModel.Ready)?1:0
+                opacity: searchResultsListModel.loaded ? 1 : 0
                 Behavior on opacity { PropertyAnimation { } }
 
                 anchors.fill: parent
 
-                model: SearchResultsListModel {
+                model: ListModel {
                     id: searchResultsListModel
+                    property bool loaded: false
 
-                    function searchFor(query) {
-                        console.log('Searching for: ' + query)
-                        source = 'http://gpodder.net/search.xml?q=' + query
-                        console.log('new source:' + source)
+                    function search(query) {
+                        loadJson('https://gpodder.net/search.json?q=' + query);
+                    }
+
+                    function loadJson(url) {
+                        clear();
+                        searchResultsListModel.loaded = false;
+
+                        var result = new XMLHttpRequest();
+                        result.onreadystatechange = function() {
+                            if (result.readyState == XMLHttpRequest.DONE) {
+                                var data = JSON.parse(result.responseText);
+                                data.sort(function (a, b) {
+                                    // Sort by subscriber count, descending
+                                    return b.subscribers - a.subscribers;
+                                });
+                                for (var i=0; i<data.length; i++) {
+                                    searchResultsListModel.append(data[i]);
+                                }
+                                searchResultsListModel.loaded = true;
+                            }
+                        };
+
+                        result.open('GET', url);
+                        result.send();
                     }
                 }
 
@@ -202,7 +254,7 @@ Item {
 
                         Image {
                             anchors.centerIn: parent
-                            source: logo
+                            source: scaled_logo_url
                         }
                     }
 
@@ -261,7 +313,7 @@ Item {
                 anchors.centerIn: parent
                 running: opacity > 0
 
-                opacity: (searchResultsListModel.status == XmlListModel.Loading)?1:0
+                opacity: searchResultsListModel.loaded ? 0 : 1
                 Behavior on opacity { PropertyAnimation { } }
             }
         }

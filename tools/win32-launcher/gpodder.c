@@ -41,13 +41,13 @@
 # define MAIN_MODULE "bin\\gpo"
 #endif
 
-#define PYTHON_INSTALLER_FILE "python-2.7.2.msi"
-#define PYTHON_INSTALLER_SIZE 15970304L
-#define PYGTK_INSTALLER_FILE "pygtk-all-in-one-2.24.0.win32-py2.7.msi"
-#define PYGTK_INSTALLER_SIZE 33583548L
+#define PYTHON_INSTALLER_FILE "python-2.7.8.msi"
+#define PYTHON_INSTALLER_SIZE 16703488L
+#define PYGTK_INSTALLER_FILE "pygtk-all-in-one-2.24.2.win32-py2.7.msi"
+#define PYGTK_INSTALLER_SIZE 33239562L
 
 #define PYTHON_INSTALLER_URL \
-    "http://python.org/ftp/python/2.7.2/" \
+    "http://python.org/ftp/python/2.7.8/" \
     PYTHON_INSTALLER_FILE
 
 #define PYGTK_INSTALLER_URL \
@@ -162,6 +162,7 @@ int main(int argc, char** argv)
                 "Python 2.7 installation not found",
                 MB_YESNO | MB_ICONQUESTION) == IDYES) {
             strncpy(Temp_Download_Filename, gPodder_Home, MAX_PATH);
+            strncat(Temp_Download_Filename, "\\", MAX_PATH);
             strncat(Temp_Download_Filename, PYTHON_INSTALLER_FILE, MAX_PATH);
             if (DownloadFile(Temp_Download_Filename,
                         PYTHON_INSTALLER_URL,
@@ -200,6 +201,7 @@ int main(int argc, char** argv)
                 "PyGTK installation not found",
                 MB_YESNO | MB_ICONQUESTION) == IDYES) {
             strncpy(Temp_Download_Filename, gPodder_Home, MAX_PATH);
+            strncat(Temp_Download_Filename, "\\", MAX_PATH);
             strncat(Temp_Download_Filename, PYGTK_INSTALLER_FILE, MAX_PATH);
             if (DownloadFile(Temp_Download_Filename,
                         PYGTK_INSTALLER_URL,

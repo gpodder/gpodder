@@ -21,7 +21,7 @@
 # Thomas Perl <thp@gpodder.org>; 2011-02-06
 
 
-from PySide.QtGui import QApplication
+from PySide.QtGui import QApplication, QClipboard
 from PySide.QtCore import Qt, QObject, Signal, Slot, Property, QUrl
 from PySide.QtCore import QAbstractListModel, QModelIndex
 from PySide.QtDeclarative import QDeclarativeView
@@ -486,11 +486,13 @@ class Controller(QObject):
         menu = []
 
         if isinstance(podcast, model.EpisodeSubsetView):
+            menu.append(helper.Action(_('Mark episodes as old'), 'mark-all-as-read', podcast))
             menu.append(helper.Action(_('Update all'), 'update-all', podcast))
         else:
             menu.append(helper.Action(_('Update'), 'update', podcast))
             menu.append(helper.Action(_('Mark episodes as old'), 'mark-as-read', podcast))
             menu.append(helper.Action(_('Rename'), 'rename-podcast', podcast))
+            menu.append(helper.Action(_('Copy URL to clipboard'), 'copy-url-clipboard', podcast))
             menu.append(helper.Action(_('Change section'), 'change-section', podcast))
             menu.append(helper.Action(_('Unsubscribe'), 'unsubscribe', podcast))
 
@@ -627,6 +629,12 @@ class Controller(QObject):
             self.deleteEpisode(action.target)
         elif action.action == 'episode-enqueue':
             self.enqueueEpisode.emit(action.target)
+        elif action.action == 'mark-all-as-read':
+            for episode in action.target.get_all_episodes():
+                if not episode.was_downloaded(and_exists=True):
+                    episode.mark(is_played=True)
+            self.update_subset_stats()
+            self.root.resort_podcast_list()
         elif action.action == 'mark-as-read':
             for episode in action.target.get_all_episodes():
                 if not episode.was_downloaded(and_exists=True):
@@ -651,6 +659,10 @@ class Controller(QObject):
                     self.root.resort_podcast_list()
 
             self.start_input_dialog(title_changer(action.target))
+        elif action.action == 'copy-url-clipboard':
+            clipboard = QClipboard()
+            clipboard.setText(action.target.url)
+            self.showMessage.emit(_('Copied to clipboard: %(url)s') % {'url': action.target.url})
 
     def confirm_action(self, message, affirmative, callback,
             negative_callback=None):
@@ -1066,13 +1078,9 @@ class qtPodder(QObject):
                 self.tracker_miner_config)
         root_context.setContextProperty('podcastModel', self.podcast_model)
         root_context.setContextProperty('episodeModel', self.episode_model)
-        root_context.setContextProperty('isSailfish', gpodder.ui.sailfish)
 
         for folder in gpodder.ui_folders:
-            if gpodder.ui.sailfish:
-                path = os.path.join(folder, 'sailfish')
-            else:
-                path = os.path.join(folder, 'harmattan')
+            path = os.path.join(folder, 'harmattan')
 
             if os.path.exists(path):
                 logger.info('Adding QML Import Path: %s', path)
@@ -1083,7 +1091,7 @@ class qtPodder(QObject):
 
         self.view.setWindowTitle('gPodder')
 
-        if gpodder.ui.harmattan or gpodder.ui.sailfish:
+        if gpodder.ui.harmattan:
             self.view.showFullScreen()
         else:
             # On the Desktop, scale to fit my small laptop screen..

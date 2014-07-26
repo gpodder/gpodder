@@ -20,9 +20,9 @@
 # This metadata block gets parsed by setup.py - use single quotes only
 __tagline__   = 'Media aggregator and podcast client'
 __author__    = 'Thomas Perl <thp@gpodder.org>'
-__version__   = '3.7.0'
-__date__      = '2014-05-17'
-__relname__   = 'Off-Screen Bionic Chiseling'
+__version__   = '3.8.0'
+__date__      = '2014-07-26'
+__relname__   = 'On-Screen Bionic Screw Fastening'
 __copyright__ = '© 2005-2014 Thomas Perl and the gPodder Team'
 __license__   = 'GNU General Public License, version 3 or later'
 __url__       = 'http://gpodder.org/'
@@ -43,6 +43,11 @@ except ImportError:
   Error: Module "feedparser" (python-feedparser) not found.
          The feedparser module can be downloaded from
          http://code.google.com/p/feedparser/
+
+  From a source checkout, you can download local copies of all
+  CLI dependencies for debugging (will be placed into "src/"):
+
+      python tools/localdepends.py
 """
     sys.exit(1)
 del feedparser
@@ -54,6 +59,11 @@ except ImportError:
   Error: Module "mygpoclient" (python-mygpoclient) not found.
          The mygpoclient module can be downloaded from
          http://thp.io/2010/mygpoclient/
+
+  From a source checkout, you can download local copies of all
+  CLI dependencies for debugging (will be placed into "src/"):
+
+      python tools/localdepends.py
 """
     sys.exit(1)
 del mygpoclient
@@ -77,7 +87,6 @@ user_agent = 'gPodder/%s (+%s)' % (__version__, __url__)
 class UI(object):
     def __init__(self):
         self.harmattan = False
-        self.sailfish = False
         self.gtk = False
         self.qml = False
         self.cli = False
@@ -226,7 +235,6 @@ def detect_platform():
         etc_issue = ''
 
     ui.harmattan = ('MeeGo 1.2 Harmattan' in etc_issue)
-    ui.sailfish = ('Mer release' in etc_issue)
 
     if ui.harmattan and ENV_HOME not in os.environ:
         new_home = os.path.expanduser(os.path.join('~', 'MyDocs', 'gPodder'))
