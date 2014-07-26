@@ -41,13 +41,13 @@
 # define MAIN_MODULE "bin\\gpo"
 #endif
 
-#define PYTHON_INSTALLER_FILE "python-2.7.2.msi"
-#define PYTHON_INSTALLER_SIZE 15970304L
-#define PYGTK_INSTALLER_FILE "pygtk-all-in-one-2.24.0.win32-py2.7.msi"
-#define PYGTK_INSTALLER_SIZE 33583548L
+#define PYTHON_INSTALLER_FILE "python-2.7.8.msi"
+#define PYTHON_INSTALLER_SIZE 16703488L
+#define PYGTK_INSTALLER_FILE "pygtk-all-in-one-2.24.2.win32-py2.7.msi"
+#define PYGTK_INSTALLER_SIZE 33239562L
 
 #define PYTHON_INSTALLER_URL \
-    "http://python.org/ftp/python/2.7.2/" \
+    "http://python.org/ftp/python/2.7.8/" \
     PYTHON_INSTALLER_FILE
 
 #define PYGTK_INSTALLER_URL \
