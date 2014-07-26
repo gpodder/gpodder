@@ -112,7 +112,7 @@ $(LOCALEDIR)/%/LC_MESSAGES/gpodder.mo: po/%.po
 	intltool-extract --quiet --type=gettext/glade $<
 
 $(MESSAGES): $(GETTEXT_SOURCE)
-	xgettext -LPython -k_:1 -kN_:1 -kN_:1,2 -kn_:1,2 -o $(MESSAGES) $^
+	xgettext --from-code=utf-8 -LPython -k_:1 -kN_:1 -kN_:1,2 -kn_:1,2 -o $(MESSAGES) $^
 
 ##########################################################################
 
