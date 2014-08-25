@@ -198,6 +198,12 @@ def normalize_feed_url(url):
 
     >>> normalize_feed_url('http://example.org/test?')
     'http://example.org/test'
+
+    Username and password in the URL must not be affected
+    by URL normalization (see gPodder bug 1942):
+
+    >>> normalize_feed_url('http://UserName:PassWord@Example.com/')
+    'http://UserName:PassWord@example.com/'
     """
     if not url or len(url) < 8:
         return None
@@ -225,8 +231,15 @@ def normalize_feed_url(url):
 
     scheme, netloc, path, query, fragment = urlparse.urlsplit(url)
 
+    # Domain name is case insensitive, but username/password is not (bug 1942)
+    if '@' in netloc:
+        authentication, netloc = netloc.rsplit('@', 1)
+        netloc = '@'.join((authentication, netloc.lower()))
+    else:
+        netloc = netloc.lower()
+
     # Schemes and domain names are case insensitive
-    scheme, netloc = scheme.lower(), netloc.lower()
+    scheme = scheme.lower()
 
     # Normalize empty paths to "/"
     if path == '':
