@@ -175,40 +175,50 @@ def is_video_link(url):
 def is_youtube_guid(guid):
     return guid.startswith('tag:youtube.com,2008:video:')
 
+def for_each_feed_pattern(func, url, fallback_result):
+    """
+    Try to find the username for all possible YouTube feed/webpage URLs
+    Will call func(url, channel) for each match, and if func() returns
+    a result other than None, returns this. If no match is found or
+    func() returns None, return fallback_result.
+    """
+    CHANNEL_MATCH_PATTERNS = [
+        'http[s]?://(?:[a-z]+\.)?youtube\.com/user/([a-z0-9]+)',
+        'http[s]?://(?:[a-z]+\.)?youtube\.com/profile?user=([a-z0-9]+)',
+        'http[s]?://(?:[a-z]+\.)?youtube\.com/channel/([a-z0-9]+)',
+        'http[s]?://(?:[a-z]+\.)?youtube\.com/rss/user/([a-z0-9]+)/videos\.rss',
+        'http[s]?://gdata.youtube.com/feeds/users/([^/]+)/uploads',
+    ]
+
+    for pattern in CHANNEL_MATCH_PATTERNS:
+        m = re.match(pattern, url, re.IGNORECASE)
+        if m is not None:
+            result = func(url, m.group(1))
+            if result is not None:
+                return result
+
+    return fallback_result
+
 def get_real_channel_url(url):
-    r = re.compile('http://(?:[a-z]+\.)?youtube\.com/user/([a-z0-9]+)', re.IGNORECASE)
-    m = r.match(url)
+    def return_user_feed(url, channel):
+        result = 'https://gdata.youtube.com/feeds/users/{}/uploads'.format(channel)
+        logger.debug('YouTube link resolved: %s => %s', url, result)
+        return result
 
-    if m is not None:
-        next = 'http://www.youtube.com/rss/user/'+ m.group(1) +'/videos.rss'
-        logger.debug('YouTube link resolved: %s => %s', url, next)
-        return next
-
-    r = re.compile('http://(?:[a-z]+\.)?youtube\.com/profile?user=([a-z0-9]+)', re.IGNORECASE)
-    m = r.match(url)
-
-    if m is not None:
-        next = 'http://www.youtube.com/rss/user/'+ m.group(1) +'/videos.rss'
-        logger.debug('YouTube link resolved: %s => %s', url, next)
-        return next
-
-    return url
+    return for_each_feed_pattern(return_user_feed, url, url)
 
 def get_real_cover(url):
-    r = re.compile('http://www\.youtube\.com/rss/user/([^/]+)/videos\.rss', \
-            re.IGNORECASE)
-    m = r.match(url)
-
-    if m is not None:
-        username = m.group(1)
-        api_url = 'http://gdata.youtube.com/feeds/api/users/%s?v=2' % username
+    def return_user_cover(url, channel):
+        api_url = 'http://gdata.youtube.com/feeds/api/users/{}?v=2'.format(channel)
         data = util.urlopen(api_url).read()
-        match = re.search('<media:thumbnail url=[\'"]([^\'"]+)[\'"]/>', data)
-        if match is not None:
-            logger.debug('YouTube userpic for %s is: %s', url, match.group(1))
-            return match.group(1)
+        m = re.search('<media:thumbnail url=[\'"]([^\'"]+)[\'"]/>', data)
+        if m is not None:
+            logger.debug('YouTube userpic for %s is: %s', url, m.group(1))
+            return m.group(1)
 
-    return None
+        return None
+
+    return for_each_feed_pattern(return_user_cover, url, None)
 
 def find_youtube_channels(string):
     url = 'http://gdata.youtube.com/feeds/api/videos?alt=json&q=%s' % urllib.quote(string, '')
