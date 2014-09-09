@@ -50,6 +50,7 @@ import email
 
 from email.header import decode_header
 
+from Cookie import SimpleCookie
 
 _ = gpodder.gettext
 
@@ -240,7 +241,7 @@ class DownloadURLOpener(urllib.FancyURLopener):
         # method, at the end after the line "if errcode == 200:"
         return urllib.addinfourl(fp, headers, 'http:' + url)
 
-    def retrieve_resume(self, url, filename, reporthook=None, data=None):
+    def retrieve_resume(self, url, filename, reporthook=None, data=None, cookies=None):
         """Download files from an URL; return (headers, real_url)
 
         Resumes a download if the local filename exists and
@@ -270,6 +271,10 @@ class DownloadURLOpener(urllib.FancyURLopener):
         url = url.encode('ascii')
 
         url = urllib.unwrap(urllib.toBytes(url))
+
+        if cookies:
+            self.addheader('Cookie', cookies.output(attrs='value', header='', sep=';'))
+
         fp = self.open(url, data)
         headers = fp.info()
 
@@ -749,7 +754,7 @@ class DownloadTask(object):
         try:
             # Resolve URL and start downloading the episode
             fmt_ids = youtube.get_fmt_ids(self._config.youtube)
-            url = youtube.get_real_download_url(self.__episode.url, fmt_ids)
+            cookies, url = youtube.get_real_download_url(self.__episode.url, fmt_ids)
             url = vimeo.get_real_download_url(url)
 
             downloader = DownloadURLOpener(self.__episode.channel)
@@ -766,7 +771,7 @@ class DownloadTask(object):
 
                 try:
                     headers, real_url = downloader.retrieve_resume(url,
-                        self.tempname, reporthook=self.status_updated)
+                        self.tempname, reporthook=self.status_updated, cookies=cookies)
                     # If we arrive here, the download was successful
                     break
                 except urllib.ContentTooShortError, ctse:

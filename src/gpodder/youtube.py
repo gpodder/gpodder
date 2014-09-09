@@ -45,6 +45,8 @@ except ImportError:
     # Python < 2.6
     from cgi import parse_qs
 
+from Cookie import SimpleCookie
+
 # http://en.wikipedia.org/wiki/YouTube#Quality_and_codecs
 # format id, (preferred ids, path(?), description) # video bitrate, audio bitrate
 formats = [
@@ -96,6 +98,8 @@ def get_real_download_url(url, preferred_fmt_ids=None):
     if not preferred_fmt_ids:
         preferred_fmt_ids, _, _ = formats_dict[22] # MP4 720p
 
+    cookies = None
+
     vid = get_youtube_id(url)
     if vid is not None:
         page = None
@@ -107,6 +111,10 @@ def get_real_download_url(url, preferred_fmt_ids=None):
                 url = req.msg['location']
             else:
                 page = req.read()
+
+        cookies = SimpleCookie()
+        for cookie in req.msg.getallmatchingheaders('set-cookie'):
+            cookies.load(cookie)
 
         # Try to find the best video format available for this video
         # (http://forum.videohelp.com/topic336882-1800.html#1912972)
@@ -152,7 +160,7 @@ def get_real_download_url(url, preferred_fmt_ids=None):
                 url = fmt_id_url_map[id]
                 break
 
-    return url
+    return cookies, url
 
 def get_youtube_id(url):
     r = re.compile('http[s]?://(?:[a-z]+\.)?youtube\.com/v/(.*)\.swf', re.IGNORECASE).match(url)
