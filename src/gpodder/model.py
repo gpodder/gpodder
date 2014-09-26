@@ -562,7 +562,7 @@ class PodcastEpisode(PodcastModelObject):
             # Use title for YouTube, Vimeo and Soundcloud downloads
             if (youtube.is_video_link(self.url) or
                     vimeo.is_video_link(self.url) or
-                    escapist_video.is_video_link(self.url) or
+                    escapist_videos.is_video_link(self.url) or
                     fn_template == 'stream'):
                 sanitized = util.sanitize_filename(self.title, self.MAX_FILENAME_LENGTH)
                 if sanitized:

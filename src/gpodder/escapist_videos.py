@@ -42,7 +42,7 @@ import re
 # This matches the more reliable URL
 ESCAPIST_NUMBER_RE = re.compile(r'http://www.escapistmagazine.com/videos/view/(\d+)', re.IGNORECASE)
 # This matches regular URL, mainly those that come in the RSS feeds
-ESCAPIST_REGULAR_RE = re.compile(r'http://www.escapistmagazine.com/videos/view/(\w+)/(\d+)-', re.IGNORECASE)
+ESCAPIST_REGULAR_RE = re.compile(r'http://www.escapistmagazine.com/videos/view/([\w-]+)/(\d+)-', re.IGNORECASE)
 # This finds the RSS for a given URL
 DATA_RSS_RE = re.compile(r'http://www.escapistmagazine.com/rss/videos/list/([1-9][0-9]*)\.xml')
 # This matches the flash player's configuration. It's a JSON, but it's always malformed
@@ -70,7 +70,7 @@ def get_real_download_url(url):
     data_config_data_frag = DATA_CONFIG_DATA_RE.search(data_config_data)
     if data_config_data_frag is None:
         raise EscapistError('Cannot get configuration JS from The Escapist')
-    real_url = data_config_data_frag.group(1)
+    real_url = data_config_data_frag.group(0)
     if real_url is None:
         raise EscapistError('Cannot get MP4 URL from The Escapist')
     return real_url
