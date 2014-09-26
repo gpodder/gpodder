@@ -21,14 +21,23 @@ Item {
     function search() {
         var q = searchInput.text;
 
-        if (q.indexOf('http://') === 0 || q.indexOf('https://') === 0) {
-            /* Directly subscribe to a URL */
-            subscribe.subscribe([q]);
-        } else {
-            /* Search the web directory */
-            searchResultsListModel.search(q);
-            resultsSheet.open();
+        var direct_prefixes = {
+            // See src/gpodder/util.py, normalize_feed_url(), this
+            // should be kept in sync if new prefixes are added
+            'http://', 'https://', 'fb:', 'yt:', 'sc:', 'ytpl:'
+        };
+
+        for (var i=0; i<direct_prefixes.length; i++) {
+            if (q.indexOf(direct_prefixes[i]) === 0) {
+                /* Directly subscribe to a URL */
+                subscribe.subscribe([q]);
+                return;
+            }
         }
+
+        /* Search the web directory */
+        searchResultsListModel.search(q);
+        resultsSheet.open();
     }
 
     onVisibleChanged: {
