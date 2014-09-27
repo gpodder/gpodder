@@ -29,6 +29,7 @@ from gpodder import util
 from gpodder import feedcore
 from gpodder import youtube
 from gpodder import vimeo
+from gpodder import escapist_videos
 from gpodder import schema
 from gpodder import coverart
 
@@ -87,6 +88,7 @@ class gPodderFetcher(feedcore.Fetcher):
     def _resolve_url(self, url):
         url = youtube.get_real_channel_url(url)
         url = vimeo.get_real_channel_url(url)
+        url = escapist_videos.get_real_channel_url(url)
         return url
 
     @classmethod
@@ -271,8 +273,9 @@ class PodcastEpisode(PodcastModelObject):
             if not episode.url:
                 continue
 
-            if (youtube.is_video_link(episode.url) or \
-                    vimeo.is_video_link(episode.url)):
+            if ( youtube.is_video_link(episode.url) or \
+                    vimeo.is_video_link(episode.url) or \
+                    escapist_videos.is_video_link(episode.url) ):
                 return episode
 
             # Check if we can resolve this link to a audio/video file
@@ -482,6 +485,7 @@ class PodcastEpisode(PodcastModelObject):
             url = self.url
             url = youtube.get_real_download_url(url, fmt_ids)
             url = vimeo.get_real_download_url(url)
+            url = escapist_videos.get_real_download_url(url)
 
         return url
 
@@ -558,6 +562,7 @@ class PodcastEpisode(PodcastModelObject):
             # Use title for YouTube, Vimeo and Soundcloud downloads
             if (youtube.is_video_link(self.url) or
                     vimeo.is_video_link(self.url) or
+                    escapist_videos.is_video_link(self.url) or
                     fn_template == 'stream'):
                 sanitized = util.sanitize_filename(self.title, self.MAX_FILENAME_LENGTH)
                 if sanitized:
@@ -641,7 +646,7 @@ class PodcastEpisode(PodcastModelObject):
 
     def file_type(self):
         # Assume all YouTube/Vimeo links are video files
-        if youtube.is_video_link(self.url) or vimeo.is_video_link(self.url):
+        if youtube.is_video_link(self.url) or vimeo.is_video_link(self.url) or escapist_videos.is_video_link(self.url):
             return 'video'
 
         return util.file_type_by_extension(self.extension())
@@ -1205,7 +1210,7 @@ class PodcastChannel(PodcastModelObject):
         return self.section
 
     def _get_content_type(self):
-        if 'youtube.com' in self.url or 'vimeo.com' in self.url:
+        if 'youtube.com' in self.url or 'vimeo.com' in self.url or 'escapistmagazine.com' in self.url:
             return _('Video')
 
         audio, video, other = 0, 0, 0
