@@ -199,6 +199,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         changed_cb = lambda spinbutton: self.download_queue_manager.spawn_threads()
         self.spinMaxDownloads.connect('value-changed', changed_cb)
 
+        # Keep a reference to the last add podcast dialog instance
+        self._add_podcast_dialog = None
+
         self.default_title = None
         self.set_title(_('gPodder'))
 
@@ -2949,7 +2952,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         dir.download_opml_file(url)
 
     def on_itemAddChannel_activate(self, widget=None):
-        gPodderAddPodcast(self.gPodder, \
+        self._add_podcast_dialog = gPodderAddPodcast(self.gPodder, \
                 add_podcast_list=self.add_podcast_list)
 
     def on_itemEditChannel_activate(self, widget, *args):
@@ -3423,7 +3426,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     @dbus.service.method(gpodder.dbus_interface)
     def subscribe_to_url(self, url):
-        gPodderAddPodcast(self.gPodder,
+        self._add_podcast_dialog = gPodderAddPodcast(self.gPodder,
                 add_podcast_list=self.add_podcast_list,
                 preset_url=url)
 
