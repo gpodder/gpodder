@@ -57,6 +57,9 @@ class EscapistError(BaseException): pass
 def get_real_download_url(url):
     logger.info('Download: %s', url)
     video_id = get_escapist_id(url)
+    if video_id is None:
+        return url
+
     web_data = get_escapist_web(video_id)
 
     data_config_frag = DATA_CONFIG_RE.search(web_data)
