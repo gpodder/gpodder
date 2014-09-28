@@ -55,8 +55,10 @@ DATA_COVERART_RE = re.compile(r'<url>(http:.+\.jpg)</url>')
 class EscapistError(BaseException): pass
 
 def get_real_download_url(url):
-    logger.info('Download: %s', url)
     video_id = get_escapist_id(url)
+    if video_id is None:
+        return url
+
     web_data = get_escapist_web(video_id)
 
     data_config_frag = DATA_CONFIG_RE.search(web_data)
@@ -91,6 +93,9 @@ def is_video_link(url):
 
 def get_real_channel_url(url):
     video_id = get_escapist_id(url)
+    if video_id is None:
+        return url
+
     web_data = get_escapist_web(video_id)
 
     data_config_frag = DATA_RSS_RE.search(web_data)
