@@ -466,7 +466,7 @@ class PodcastEpisode(PodcastModelObject):
 
         self.set_state(gpodder.STATE_DELETED)
 
-    def get_playback_url(self, fmt_ids=None, allow_partial=False):
+    def get_playback_url(self, fmt_ids=None, vimeo_fmt=None, allow_partial=False):
         """Local (or remote) playback/streaming filename/URL
 
         Returns either the local filename or a streaming URL that
@@ -484,7 +484,7 @@ class PodcastEpisode(PodcastModelObject):
         if url is None or not os.path.exists(url):
             url = self.url
             url = youtube.get_real_download_url(url, fmt_ids)
-            url = vimeo.get_real_download_url(url)
+            url = vimeo.get_real_download_url(url, vimeo_fmt)
             url = escapist_videos.get_real_download_url(url)
 
         return url

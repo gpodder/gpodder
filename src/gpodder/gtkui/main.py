@@ -1873,9 +1873,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.mygpo_client.on_playback([episode])
 
             fmt_ids = youtube.get_fmt_ids(self.config.youtube)
+            vimeo_fmt = self.config.vimeo.fileformat
 
             allow_partial = (player != 'default')
-            filename = episode.get_playback_url(fmt_ids, allow_partial)
+            filename = episode.get_playback_url(fmt_ids, vimeo_fmt, allow_partial)
 
             # Determine the playback resume position - if the file
             # was played 100%, we simply start from the beginning

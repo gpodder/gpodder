@@ -751,7 +751,7 @@ class DownloadTask(object):
             # Resolve URL and start downloading the episode
             fmt_ids = youtube.get_fmt_ids(self._config.youtube)
             url = youtube.get_real_download_url(self.__episode.url, fmt_ids)
-            url = vimeo.get_real_download_url(url)
+            url = vimeo.get_real_download_url(url, self._config.vimeo.fileformat)
             url = escapist_videos.get_real_download_url(url)
 
             downloader = DownloadURLOpener(self.__episode.channel)

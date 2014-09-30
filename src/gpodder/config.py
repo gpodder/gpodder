@@ -193,6 +193,10 @@ defaults = {
         'preferred_fmt_ids': [], # for advanced uses (custom fallback sequence)
     },
 
+    'vimeo': {
+        'fileformat': 'hd', # preferred file format (hd, sd, mobile)
+    },
+
     'extensions': {
         'enabled': [],
     },
