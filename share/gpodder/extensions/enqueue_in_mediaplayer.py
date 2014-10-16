@@ -62,6 +62,10 @@ PLAYERS = [
 
     # Clementine, http://www.clementine-player.org/
     Player('Clementine', ['clementine', '--append']),
+    
+    #Parole, http://docs.xfce.org/apps/parole/start
+    Player('Parole', ['parole', '-a']),
+
 ]
 
 class gPodderExtension:
