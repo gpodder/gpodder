@@ -1,10 +1,13 @@
 # gPodder Win32 Setup Cross-Build script
 # 2014-10-21 Thomas Perl <m@thp.io>
 
-VERSION := $(shell python getversion.py)
+PYTHON ?= python
+
+VERSION := $(shell $(PYTHON) ../getversion.py)
 
 CROSS_MAKE := mingw32-make
 SED := sed
+CHMOD := chmod
 
 # We run the InnoSetup compiler via Wine (just install normally)
 WINE := wine
@@ -22,6 +25,7 @@ all: $(SETUP_OUTPUT)
 
 $(SETUP_OUTPUT): $(SETUP_SCRIPT) $(LAUNCHER_ROOT)/$(GPODDER_EXE) $(LAUNCHER_ROOT)/$(GPO_EXE)
 	$(WINE) $(ISCC) $<
+	$(CHMOD) -x $@
 
 $(LAUNCHER_ROOT)/$(GPODDER_EXE):
 	$(CROSS_MAKE) -C $(LAUNCHER_ROOT) $(GPODDER_EXE)

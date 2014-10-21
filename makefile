@@ -89,6 +89,12 @@ $(GPODDER_SERVICE_FILE): $(GPODDER_SERVICE_FILE_IN)
 install: messages $(GPODDER_SERVICE_FILE) $(DESKTOP_FILES)
 	$(PYTHON) setup.py install --root=$(DESTDIR) --prefix=$(PREFIX) --optimize=1
 
+release-win32:
+	$(MAKE) -C tools/win32-setup
+	cp tools/win32-setup/gpodder-*-setup.exe .
+	$(MAKE) -C tools/win32-portable
+	cp tools/win32-portable/gpodder-*-win32.zip .
+
 ##########################################################################
 
 manpage: $(MANPAGE)
@@ -134,13 +140,16 @@ clean:
 	rm -f $(GPODDER_SERVICE_FILE)
 	rm -f $(DESKTOP_FILES) $(DESKTOP_FILES_IN_H)
 	rm -rf build $(LOCALEDIR)
+	rm -f gpodder-*-win32.zip gpodder-*-setup.exe
 
 distclean: clean
 	rm -rf dist
+	-$(MAKE) -C tools/win32-portable distclean
+	-$(MAKE) -C tools/win32-setup distclean
 
 ##########################################################################
 
-.PHONY: help unittest release releasetest install manpage clean distclean messages headlink
+.PHONY: help unittest release releasetest install manpage clean distclean messages headlink release-win32
 
 ##########################################################################
 
