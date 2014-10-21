@@ -17,6 +17,8 @@ SETUP_SCRIPT := gpodder-setup.iss
 SETUP_SCRIPT_IN := $(SETUP_SCRIPT).in
 SETUP_OUTPUT := gpodder-$(VERSION)-setup.exe
 
+SOURCE_ROOT := ../../
+
 LAUNCHER_ROOT := ../win32-launcher
 GPODDER_EXE := gpodder.exe
 GPO_EXE := gpo.exe
@@ -24,6 +26,8 @@ GPO_EXE := gpo.exe
 all: $(SETUP_OUTPUT)
 
 $(SETUP_OUTPUT): $(SETUP_SCRIPT) $(LAUNCHER_ROOT)/$(GPODDER_EXE) $(LAUNCHER_ROOT)/$(GPO_EXE)
+	$(PYTHON) ../localdepends.py
+	$(MAKE) -C $(SOURCE_ROOT) messages
 	$(WINE) $(ISCC) $<
 	$(CHMOD) -x $@
 
