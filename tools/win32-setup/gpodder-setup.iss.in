@@ -45,6 +45,12 @@ Name: "{group}\{cm:UninstallProgram,gPodder}"; Filename: "{uninstallexe}"
 Name: "{commondesktop}\gPodder"; Filename: "{app}\gpodder.exe"; Tasks: desktopicon
 Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\gPodder"; Filename: "{app}\gpodder.exe"; Tasks: quicklaunchicon
 
+[Registry]
+Root: HKCR; Subkey: "gpodder"; ValueType: string; ValueData: "gPodder Protocol Handler"; Flags: uninsdeletekey
+Root: HKCR; Subkey: "gpodder"; ValueType: string; ValueName: "URL Protocol"; ValueData: ""
+Root: HKCR; Subkey: "gpodder\DefaultIcon"; ValueType: string; ValueData: "{app}\gpodder.exe"
+Root: HKCR; Subkey: "gpodder\shell\open\command"; ValueType: string; ValueData: """{app}\gpodder.exe"" -s ""%1"""
+
 [Run]
 Filename: "{app}\gpodder.exe"; Description: "{cm:LaunchProgram,gPodder}"; Flags: nowait postinstall skipifsilent
 
