@@ -21,51 +21,91 @@ __payment__ = 'https://flattr.com/submit/auto?user_id=BerndSch&url=http://wiki.g
 __category__ = 'interface'
 __only_for__ = 'gtk'
 
-class Player:
+
+class Player(object):
     def __init__(self, application, command):
         self.title = '/'.join((_('Enqueue in'), application))
         self.command = command
         self.gpodder = None
 
     def is_installed(self):
-        return util.find_command(self.command[0]) is not None
+        raise NotImplemented('Must be implemented by subclass')
+
+    def open_files(self, filenames):
+        raise NotImplemented('Must be implemented by subclass')
 
     def enqueue_episodes(self, episodes):
         filenames = [episode.get_playback_url() for episode in episodes]
 
-        subprocess.Popen(self.command + filenames,
-                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        self.open_files(filenames)
 
         for episode in episodes:
             episode.playback_mark()
-            self.gpodder.update_episode_list_icons(selected=True)
+            if self.gpodder is not None:
+                self.gpodder.update_episode_list_icons(selected=True)
+
+
+class FreeDesktopPlayer(Player):
+    def is_installed(self):
+        return util.find_command(self.command[0]) is not None
+
+    def open_files(self, filenames):
+        subprocess.Popen(self.command + filenames,
+                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+
+class Win32Player(Player):
+    def is_installed(self):
+        if not gpodder.ui.win32:
+            return False
+
+        from gpodder.gtkui.desktopfile import win32_read_registry_key
+        try:
+            self.command = win32_read_registry_key(self.command)
+            return True
+        except Exception as e:
+            logger.warn('Win32 player not found: %s (%s)', self.command, e)
+
+        return False
+
+    def open_files(self, filenames):
+        for cmd in util.format_desktop_command(self.command, filenames):
+            subprocess.Popen(cmd)
 
 
 PLAYERS = [
     # Amarok, http://amarok.kde.org/
-    Player('Amarok', ['amarok', '--play', '--append']),
+    FreeDesktopPlayer('Amarok', ['amarok', '--play', '--append']),
 
     # VLC, http://videolan.org/
-    Player('VLC', ['vlc', '--started-from-file', '--playlist-enqueue']),
+    FreeDesktopPlayer('VLC', ['vlc', '--started-from-file', '--playlist-enqueue']),
 
     # Totem, https://live.gnome.org/Totem
-    Player('Totem', ['totem', '--enqueue']),
+    FreeDesktopPlayer('Totem', ['totem', '--enqueue']),
 
     # DeaDBeeF, http://deadbeef.sourceforge.net/
-    Player('DeaDBeeF', ['deadbeef', '--queue']),
+    FreeDesktopPlayer('DeaDBeeF', ['deadbeef', '--queue']),
 
     # gmusicbrowser, http://gmusicbrowser.org/
-    Player('gmusicbrowser', ['gmusicbrowser', '-enqueue']),
+    FreeDesktopPlayer('gmusicbrowser', ['gmusicbrowser', '-enqueue']),
 
     # Audacious, http://audacious-media-player.org/
-    Player('Audacious', ['audacious', '--enqueue']),
+    FreeDesktopPlayer('Audacious', ['audacious', '--enqueue']),
 
     # Clementine, http://www.clementine-player.org/
-    Player('Clementine', ['clementine', '--append']),
-    
-    #Parole, http://docs.xfce.org/apps/parole/start
-    Player('Parole', ['parole', '-a']),
+    FreeDesktopPlayer('Clementine', ['clementine', '--append']),
 
+    # Parole, http://docs.xfce.org/apps/parole/start
+    FreeDesktopPlayer('Parole', ['parole', '-a']),
+
+    # Winamp 2.x, http://www.oldversion.com/windows/winamp/
+    Win32Player('Winamp', r'HKEY_CLASSES_ROOT\Winamp.File\shell\Enqueue\command'),
+
+    # VLC media player, http://videolan.org/vlc/
+    Win32Player('VLC', r'HKEY_CLASSES_ROOT\VLC.mp3\shell\AddToPlaylistVLC\command'),
+
+    # foobar2000, http://www.foobar2000.org/
+    Win32Player('foobar2000', r'HKEY_CLASSES_ROOT\foobar2000.MP3\shell\enqueue\command'),
 ]
 
 class gPodderExtension:
