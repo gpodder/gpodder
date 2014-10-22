@@ -1,0 +1,208 @@
+# -*- coding: utf-8 -*-
+#
+# gPodder - A media aggregator and podcast client
+# Copyright (c) 2005-2014 Thomas Perl and the gPodder Team
+#
+# gPodder is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# gPodder is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+
+#
+# gpodder.directory - Podcast directory and search providers
+# Thomas Perl <thp@gpodder.org>; 2014-10-22
+#
+
+import gpodder
+
+_ = gpodder.gettext
+
+import urllib
+import json
+import os
+
+from gpodder import opml
+
+class DirectoryEntry(object):
+    def __init__(self, title, url, image=None, subscribers=-1, description=None):
+        self.title = title
+        self.url = url
+        self.image = image
+        self.subscribers = subscribers
+        self.description = description
+
+class DirectoryTag(object):
+    def __init__(self, tag, weight):
+        self.tag = tag
+        self.weight = weight
+
+
+class Provider(object):
+    PROVIDER_SEARCH, PROVIDER_URL, PROVIDER_FILE, PROVIDER_TAGCLOUD, PROVIDER_STATIC = range(5)
+
+    def __init__(self):
+        self.name = ''
+        self.kind = self.PROVIDER_SEARCH
+        self.icon = None
+
+    def on_search(self, query):
+        # Should return a list of DirectoryEntry objects
+        raise NotImplemented()
+
+    def on_url(self, url):
+        # Should return a list of DirectoryEntry objects
+        raise NotImplemented()
+
+    def on_file(self, filename):
+        # Should return a list of DirectoryEntry objects
+        raise NotImplemented()
+
+    def on_tag(self, tag):
+        # Should return a list of DirectoryEntry objects
+        raise NotImplemented()
+
+    def on_static(self):
+        # Should return a list of DirectoryEntry objects
+        raise NotImplemented()
+
+    def get_tags(self):
+        # Should return a list of DirectoryTag objects
+        raise NotImplemented()
+
+
+
+def directory_entry_from_opml(url):
+    return [DirectoryEntry(d['title'], d['url'], description=d['description']) for d in opml.Importer(url).items]
+
+def directory_entry_from_mygpo_json(url):
+    return [DirectoryEntry(d['title'], d['url'], d['logo_url'], d['subscribers'], d['description'])
+            for d in json.load(urllib.urlopen(url))]
+
+
+class GPodderNetSearchProvider(Provider):
+    def __init__(self):
+        self.name = _('gpodder.net search')
+        self.kind = Provider.PROVIDER_SEARCH
+        self.icon = 'directory-gpodder.png'
+
+    def on_search(self, query):
+        return directory_entry_from_mygpo_json('http://gpodder.net/search.json?q=' + urllib.quote(query))
+
+class OpmlWebImportProvider(Provider):
+    def __init__(self):
+        self.name = _('OPML from web')
+        self.kind = Provider.PROVIDER_URL
+        self.icon = 'directory-opml.png'
+
+    def on_url(self, url):
+        return directory_entry_from_opml(url)
+
+class OpmlFileImportProvider(Provider):
+    def __init__(self):
+        self.name = _('OPML file')
+        self.kind = Provider.PROVIDER_FILE
+        self.icon = 'directory-opml.png'
+
+    def on_file(self, filename):
+        return directory_entry_from_opml(filename)
+
+class GPodderRecommendationsProvider(Provider):
+    def __init__(self):
+        self.name = _('Getting started')
+        self.kind = Provider.PROVIDER_STATIC
+        self.icon = 'directory-examples.png'
+
+    def on_static(self):
+        return directory_entry_from_opml('http://gpodder.org/directory.opml')
+
+class GPodderNetToplistProvider(Provider):
+    def __init__(self):
+        self.name = _('gpodder.net Top 50')
+        self.kind = Provider.PROVIDER_STATIC
+        self.icon = 'directory-toplist.png'
+
+    def on_static(self):
+        return directory_entry_from_mygpo_json('http://gpodder.net/toplist/50.json')
+
+class GPodderNetTagsProvider(Provider):
+    def __init__(self):
+        self.name = _('gpodder.net Tags')
+        self.kind = Provider.PROVIDER_TAGCLOUD
+        self.icon = 'directory-tags.png'
+
+    def on_tag(self, tag):
+        return directory_entry_from_mygpo_json('http://gpodder.net/api/2/tag/%s/50.json' % urllib.quote(tag))
+
+    def get_tags(self):
+        return [DirectoryTag(d['tag'], d['usage']) for d in json.load(urllib.urlopen('http://gpodder.net/api/2/tags/40.json'))]
+
+class YouTubeSearchProvider(Provider):
+    def __init__(self):
+        self.name = _('YouTube search')
+        self.kind = Provider.PROVIDER_SEARCH
+        self.icon = 'directory-youtube.png'
+
+    def on_search(self, query):
+        url = 'http://gdata.youtube.com/feeds/api/videos?alt=json&q=%s' % urllib.quote(query)
+        data = json.load(urllib.urlopen(url))
+
+        result = []
+
+        seen_users = set()
+        for entry in data['feed']['entry']:
+            user = os.path.basename(entry['author'][0]['uri']['$t'])
+            title = entry['title']['$t']
+            url = 'http://www.youtube.com/rss/user/%s/videos.rss' % user
+            if user not in seen_users:
+                result.append(DirectoryEntry(user, url))
+                seen_users.add(user)
+
+        return result
+
+class SoundcloudSearchProvider(Provider):
+    def __init__(self):
+        self.name = _('Soundcloud search')
+        self.kind = Provider.PROVIDER_SEARCH
+        self.icon = 'directory-soundcloud.png'
+
+    def on_search(self, query):
+        # XXX: This cross-import of the plugin here is bad, but it
+        # works for now (no proper plugin architecture...)
+        from gpodder.plugins.soundcloud import search_for_user
+
+        return [DirectoryEntry(entry['username'], entry['permalink_url']) for entry in search_for_user(query)]
+
+class FixedOpmlFileProvider(Provider):
+    def __init__(self, filename):
+        self.name = _('Imported OPML file')
+        self.kind = Provider.PROVIDER_STATIC
+        self.icon = 'directory-opml.png'
+
+        self.filename = filename
+
+    def on_static(self):
+        return directory_entry_from_opml(self.filename)
+
+PROVIDERS = [
+    GPodderRecommendationsProvider,
+    None,
+    GPodderNetSearchProvider,
+    GPodderNetToplistProvider,
+    #GPodderNetTagsProvider,
+    None,
+    OpmlWebImportProvider,
+    #OpmlFileImportProvider,
+    None,
+    YouTubeSearchProvider,
+    SoundcloudSearchProvider,
+]

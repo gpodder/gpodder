@@ -3123,9 +3123,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
             dlg.destroy()
 
     def on_itemImportChannels_activate(self, widget, *args):
-        dir = gPodderPodcastDirectory(self.main_window, _config=self.config, \
+        self._podcast_directory = gPodderPodcastDirectory(self.main_window,
+                _config=self.config,
                 add_podcast_list=self.add_podcast_list)
-        util.idle_add(dir.download_opml_file, my.EXAMPLES_OPML)
 
     def on_homepage_activate(self, widget, *args):
         util.open_website(gpodder.__url__)

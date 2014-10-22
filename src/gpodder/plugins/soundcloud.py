@@ -40,6 +40,7 @@ import time
 
 import re
 import email
+import urllib
 
 
 # gPodder's consumer key for the Soundcloud API
@@ -227,3 +228,7 @@ class SoundcloudFavFeed(SoundcloudFeed):
 # Register our URL handlers
 model.register_custom_handler(SoundcloudFeed)
 model.register_custom_handler(SoundcloudFavFeed)
+
+def search_for_user(query):
+    json_url = 'http://api.soundcloud.com/users.json?q=%s&consumer_key=%s' % (urllib.quote(query), CONSUMER_KEY)
+    return json.load(util.urlopen(json_url))
