@@ -152,7 +152,7 @@ class EQL(object):
         if self._regex:
             return re.search(self._query, episode.title, self._flags) is not None
         elif self._string:
-            return self._query in episode.title.lower()
+            return self._query in episode.title.lower() or self._query in episode.description.lower()
 
         return Matcher(episode).match(self._query)
 
