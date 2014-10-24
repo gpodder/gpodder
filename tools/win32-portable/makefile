@@ -5,7 +5,6 @@ PYTHON ?= python
 
 VERSION := $(shell $(PYTHON) ../getversion.py)
 
-CROSS_MAKE := mingw32-make
 MKDIR := mkdir
 CP := cp
 
@@ -40,14 +39,14 @@ $(PORTABLE_OUTPUT): $(PORTABLE_OUTPUT_DIR)
 	zip -r $(PORTABLE_OUTPUT) $(PORTABLE_OUTPUT_DIR)
 
 $(LAUNCHER_ROOT)/$(GPODDER_EXE):
-	$(CROSS_MAKE) -C $(LAUNCHER_ROOT) $(GPODDER_EXE)
+	$(MAKE) -C $(LAUNCHER_ROOT) $(GPODDER_EXE)
 
 $(LAUNCHER_ROOT)/$(GPO_EXE):
-	$(CROSS_MAKE) -C $(LAUNCHER_ROOT) $(GPO_EXE)
+	$(MAKE) -C $(LAUNCHER_ROOT) $(GPO_EXE)
 
 clean:
 	$(RM) -r $(PORTABLE_OUTPUT_DIR)
-	$(CROSS_MAKE) -C $(LAUNCHER_ROOT) distclean
+	$(MAKE) -C $(LAUNCHER_ROOT) distclean
 
 distclean: clean
 	$(RM) -r $(PORTABLE_OUTPUT)

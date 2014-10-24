@@ -22,11 +22,14 @@
 # Thomas Perl <thp@gpodder.org>; 2009-04-29
 #
 
-CROSS ?= i686-w64-mingw32-
+CROSS ?= i686-w64-mingw32
 
-CC ?= $(CROSS)gcc
-STRIP ?= $(CROSS)strip
-WINDRES ?= $(CROSS)windres
+CC := $(CROSS)-gcc
+CXX := $(CROSS)-g++
+CPP := $(CROSS)-cpp
+RANLIB := $(CROSS)-ranlib
+STRIP := $(CROSS)-strip
+WINDRES := $(CROSS)-windres
 
 LDFLAGS += -lkernel32 -lshell32 -lwininet -lole32
 MODULES := gpodder downloader folderselector

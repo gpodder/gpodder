@@ -5,13 +5,11 @@ PYTHON ?= python
 
 VERSION := $(shell $(PYTHON) ../getversion.py)
 
-CROSS_MAKE := mingw32-make
 SED := sed
 CHMOD := chmod
 
-# We run the InnoSetup compiler via Wine (just install normally)
-WINE := wine
-ISCC := "C:\Program Files (x86)\Inno Setup 5\ISCC.exe"
+# Simple script that calls ISCC.exe via Wine, and passes arguments
+ISCC ?= iscc
 
 SETUP_SCRIPT := gpodder-setup.iss
 SETUP_SCRIPT_IN := $(SETUP_SCRIPT).in
@@ -28,14 +26,14 @@ all: $(SETUP_OUTPUT)
 $(SETUP_OUTPUT): $(SETUP_SCRIPT) $(LAUNCHER_ROOT)/$(GPODDER_EXE) $(LAUNCHER_ROOT)/$(GPO_EXE)
 	$(PYTHON) ../localdepends.py
 	$(MAKE) -C $(SOURCE_ROOT) messages
-	$(WINE) $(ISCC) $<
+	$(ISCC) $<
 	$(CHMOD) -x $@
 
 $(LAUNCHER_ROOT)/$(GPODDER_EXE):
-	$(CROSS_MAKE) -C $(LAUNCHER_ROOT) $(GPODDER_EXE)
+	$(MAKE) -C $(LAUNCHER_ROOT) $(GPODDER_EXE)
 
 $(LAUNCHER_ROOT)/$(GPO_EXE):
-	$(CROSS_MAKE) -C $(LAUNCHER_ROOT) $(GPO_EXE)
+	$(MAKE) -C $(LAUNCHER_ROOT) $(GPO_EXE)
 
 $(SETUP_SCRIPT): $(SETUP_SCRIPT_IN)
 	$(RM) $@
@@ -43,7 +41,7 @@ $(SETUP_SCRIPT): $(SETUP_SCRIPT_IN)
 
 clean:
 	$(RM) $(SETUP_SCRIPT)
-	$(CROSS_MAKE) -C $(LAUNCHER_ROOT) distclean
+	$(MAKE) -C $(LAUNCHER_ROOT) distclean
 
 distclean: clean
 	$(RM) $(SETUP_OUTPUT)
