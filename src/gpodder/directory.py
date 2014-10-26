@@ -32,6 +32,7 @@ import json
 import os
 
 from gpodder import opml
+from gpodder import util
 
 class DirectoryEntry(object):
     def __init__(self, title, url, image=None, subscribers=-1, description=None):
@@ -86,7 +87,7 @@ def directory_entry_from_opml(url):
 
 def directory_entry_from_mygpo_json(url):
     return [DirectoryEntry(d['title'], d['url'], d['logo_url'], d['subscribers'], d['description'])
-            for d in json.load(urllib.urlopen(url))]
+            for d in json.load(util.urlopen(url))]
 
 
 class GPodderNetSearchProvider(Provider):
@@ -144,7 +145,7 @@ class GPodderNetTagsProvider(Provider):
         return directory_entry_from_mygpo_json('http://gpodder.net/api/2/tag/%s/50.json' % urllib.quote(tag))
 
     def get_tags(self):
-        return [DirectoryTag(d['tag'], d['usage']) for d in json.load(urllib.urlopen('http://gpodder.net/api/2/tags/40.json'))]
+        return [DirectoryTag(d['tag'], d['usage']) for d in json.load(util.urlopen('http://gpodder.net/api/2/tags/40.json'))]
 
 class YouTubeSearchProvider(Provider):
     def __init__(self):
@@ -154,7 +155,7 @@ class YouTubeSearchProvider(Provider):
 
     def on_search(self, query):
         url = 'http://gdata.youtube.com/feeds/api/videos?alt=json&q=%s' % urllib.quote(query)
-        data = json.load(urllib.urlopen(url))
+        data = json.load(util.urlopen(url))
 
         result = []
 
