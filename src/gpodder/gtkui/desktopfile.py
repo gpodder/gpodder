@@ -40,6 +40,9 @@ import gpodder
 
 _ = gpodder.gettext
 
+import logging
+logger = logging.getLogger(__name__)
+
 # where are the .desktop files located?
 userappsdirs = [ '/usr/share/applications/', '/usr/local/share/applications/', '/usr/share/applications/kde/' ]
 
