@@ -9,9 +9,13 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
+# We use bash brace expansion below, so force-use bash here
+SHELL := bash
+
 DOCS		= README
 
-PYTHON		= python2.6
+PYTHON		= python
+TARGET_PYTHON	= python2.6
 SETUP		= GPODDER_INSTALL_UIS="cli qml" $(PYTHON) setup.py
 
 PACKAGE		= gpodder
@@ -19,8 +23,8 @@ DESTDIR		= debian/$(PACKAGE)
 PREFIX		= usr
 OPTDIR          = opt/gpodder
 
-ORG_DIST_PACKAGES = $(PREFIX)/lib/$(PYTHON)/dist-packages
-OPT_DIST_PACKAGES = $(OPTDIR)/lib/$(PYTHON)/dist-packages
+ORG_DIST_PACKAGES = $(PREFIX)/lib/$(TARGET_PYTHON)/dist-packages
+OPT_DIST_PACKAGES = $(OPTDIR)/lib/$(TARGET_PYTHON)/dist-packages
 
 configure: configure-stamp
 configure-stamp:
@@ -50,7 +54,7 @@ install: build
 	dh_testroot
 	dh_clean -k
 	dh_installdirs
-	${SETUP} install --no-compile --install-layout=deb --root='$(DESTDIR)' --prefix='$(PREFIX)'
+	${SETUP} install --no-compile --install-layout=deb --install-pure='$(ORG_DIST_PACKAGES)' --root='$(DESTDIR)' --prefix='$(PREFIX)'
 	# Optification
 	mkdir -p $(DESTDIR)/$(OPTDIR)/share
 	mv $(DESTDIR)/$(PREFIX)/share/{gpodder,locale,man} $(DESTDIR)/$(OPTDIR)/share/
