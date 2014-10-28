@@ -219,29 +219,3 @@ def get_real_cover(url):
         return None
 
     return for_each_feed_pattern(return_user_cover, url, None)
-
-def find_youtube_channels(string):
-    url = 'http://gdata.youtube.com/feeds/api/videos?alt=json&q=%s' % urllib.quote(string, '')
-    data = json.load(util.urlopen(url))
-
-    class FakeImporter(object):
-        def __init__(self):
-            self.items = []
-
-    result = FakeImporter()
-
-    seen_users = set()
-    for entry in data['feed']['entry']:
-        user = os.path.basename(entry['author'][0]['uri']['$t'])
-        title = entry['title']['$t']
-        url = 'http://www.youtube.com/rss/user/%s/videos.rss' % user
-        if user not in seen_users:
-            result.items.append({
-                'title': user,
-                'url': url,
-                'description': title
-            })
-            seen_users.add(user)
-
-    return result
-

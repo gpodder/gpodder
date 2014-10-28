@@ -25,6 +25,8 @@
 #
 
 import glob
+import re
+import os
 import os.path
 import threading
 
@@ -37,6 +39,9 @@ import gtk.gdk
 import gpodder
 
 _ = gpodder.gettext
+
+import logging
+logger = logging.getLogger(__name__)
 
 # where are the .desktop files located?
 userappsdirs = [ '/usr/share/applications/', '/usr/local/share/applications/', '/usr/share/applications/kde/' ]
@@ -101,6 +106,40 @@ class UserApplication(object):
         return self.mime.find(mimetype+'/') != -1
 
 
+WIN32_APP_REG_KEYS = [
+    ('Winamp', ('audio',), r'HKEY_CLASSES_ROOT\Winamp.File\shell\Play\command'),
+    ('foobar2000', ('audio',), r'HKEY_CLASSES_ROOT\Applications\foobar2000.exe\shell\open\command'),
+    ('Windows Media Player 11', ('audio', 'video'), r'HKEY_CLASSES_ROOT\WMP11.AssocFile.MP3\shell\open\command'),
+    ('QuickTime Player', ('audio', 'video'), r'HKEY_CLASSES_ROOT\QuickTime.mp3\shell\open\command'),
+    ('VLC', ('audio', 'video'), r'HKEY_CLASSES_ROOT\VLC.mp3\shell\open\command'),
+]
+
+
+def win32_read_registry_key(path):
+    import _winreg
+
+    rootmap = {
+        'HKEY_CLASSES_ROOT': _winreg.HKEY_CLASSES_ROOT,
+    }
+
+    parts = path.split('\\')
+    root = parts.pop(0)
+    key = _winreg.OpenKey(rootmap[root], parts.pop(0))
+
+    while parts:
+        key = _winreg.OpenKey(key, parts.pop(0))
+
+    value, type_ = _winreg.QueryValueEx(key, '')
+    if type_ == _winreg.REG_EXPAND_SZ:
+        cmdline = re.sub(r'%([^%]+)%', lambda m: os.environ[m.group(1)], value)
+    elif type_ == _winreg.REG_SZ:
+        cmdline = value
+    else:
+        raise ValueError('Not a string: ' + path)
+
+    return cmdline.replace('%1', '%f').replace('%L', '%f')
+
+
 class UserAppsReader(object):
     def __init__(self, mimetypes):
         self.apps = []
@@ -119,6 +158,15 @@ class UserAppsReader(object):
             return
 
         self.__has_read = True
+        if gpodder.ui.win32:
+            import _winreg
+            for caption, types, hkey in WIN32_APP_REG_KEYS:
+                try:
+                    cmdline = win32_read_registry_key(hkey)
+                    self.apps.append(UserApplication(caption, cmdline, ';'.join(typ + '/*' for typ in types), None))
+                except Exception as e:
+                    logger.warn('Parse HKEY error: %s (%s)', hkey, e)
+
         for dir in userappsdirs:
             if os.path.exists( dir):
                 for file in glob.glob(os.path.join(dir, '*.desktop')):

@@ -1,4 +1,6 @@
 
+#include <windows.h>
+
 #include <stdio.h>
 #include <wininet.h>
 #include <commctrl.h>

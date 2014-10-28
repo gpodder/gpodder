@@ -22,18 +22,28 @@
 # Thomas Perl <thp@gpodder.org>; 2009-04-29
 #
 
-CC ?= gcc
+CROSS ?= i686-w64-mingw32
+
+CC := $(CROSS)-gcc
+CXX := $(CROSS)-g++
+CPP := $(CROSS)-cpp
+RANLIB := $(CROSS)-ranlib
+STRIP := $(CROSS)-strip
+WINDRES := $(CROSS)-windres
+
 LDFLAGS += -lkernel32 -lshell32 -lwininet -lole32
 MODULES := gpodder downloader folderselector
-TARGETS := gpodder gpo
+TARGETS := gpodder.exe gpo.exe
 
 all: $(TARGETS)
 
-gpodder: gpodder-res.o $(addsuffix _gui.o, $(MODULES))
+gpodder.exe: gpodder-res.o $(addsuffix _gui.o, $(MODULES))
 	$(CC) -o $@ -mwindows $^ $(LDFLAGS)
+	$(STRIP) -s $@
 
-gpo: gpo-res.o $(addsuffix _cli.o, $(MODULES))
+gpo.exe: gpo-res.o $(addsuffix _cli.o, $(MODULES))
 	$(CC) -o $@ $^ $(LDFLAGS)
+	$(STRIP) -s $@
 
 %_gui.o: %.c
 	$(CC) -c -o $@ $(CFLAGS) -DGPODDER_GUI $^
@@ -42,11 +52,13 @@ gpo: gpo-res.o $(addsuffix _cli.o, $(MODULES))
 	$(CC) -c -o $@ $(CFLAGS) -DGPODDER_CLI $^
 
 %-res.o: %.res
-	windres $^ $@
+	$(WINDRES) $^ $@
 
 clean:
-	rm -f *.o
+	$(RM) *.o
 
-.PHONY: clean all
+distclean: clean
+	$(RM) $(TARGETS)
+
+.PHONY: distclean clean all
 .DEFAULT: all
-

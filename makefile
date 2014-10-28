@@ -25,10 +25,9 @@ MANPAGE = share/man/man1/gpodder.1
 GPODDER_SERVICE_FILE=share/dbus-1/services/org.gpodder.service
 GPODDER_SERVICE_FILE_IN=$(addsuffix .in,$(GPODDER_SERVICE_FILE))
 
-GPODDER_DESKTOP_FILE=share/applications/gpodder.desktop
-GPODDER_DESKTOP_FILE_TMP=$(addsuffix .tmp,$(GPODDER_DESKTOP_FILE))
-GPODDER_DESKTOP_FILE_IN=$(addsuffix .in,$(GPODDER_DESKTOP_FILE))
-GPODDER_DESKTOP_FILE_H=$(addsuffix .h,$(GPODDER_DESKTOP_FILE_IN))
+DESKTOP_FILES_IN=$(wildcard share/applications/*.desktop.in)
+DESKTOP_FILES_IN_H=$(patsubst %.desktop.in,%.desktop.in.h,$(DESKTOP_FILES_IN))
+DESKTOP_FILES=$(patsubst %.desktop.in,%.desktop,$(DESKTOP_FILES_IN))
 
 MESSAGES = po/messages.pot
 POFILES = $(wildcard po/*.po)
@@ -51,7 +50,7 @@ GETTEXT_SOURCE=$(wildcard src/gpodder/*.py \
 GETTEXT_SOURCE += $(UIFILES_H)
 GETTEXT_SOURCE += $(QMLFILES)
 GETTEXT_SOURCE += $(wildcard bin/*)
-GETTEXT_SOURCE += $(GPODDER_DESKTOP_FILE_H)
+GETTEXT_SOURCE += $(DESKTOP_FILES_IN_H)
 
 DESTDIR ?= /
 PREFIX ?= /usr
@@ -72,23 +71,29 @@ unittest:
 release: distclean
 	$(PYTHON) setup.py sdist
 
-releasetest: unittest $(GPODDER_DESKTOP_FILE) $(POFILES)
-	desktop-file-validate $(GPODDER_DESKTOP_FILE)
+releasetest: unittest $(DESKTOP_FILES) $(POFILES)
+	desktop-file-validate $(DESKTOP_FILES)
 	sh tools/i18n/validate.sh
 
 $(GPODDER_SERVICE_FILE): $(GPODDER_SERVICE_FILE_IN)
 	sed -e 's#__PREFIX__#$(PREFIX)#' $< >$@
 
-$(GPODDER_DESKTOP_FILE): $(GPODDER_DESKTOP_FILE_IN) $(POFILES)
-	sed -e 's#__PREFIX__#$(PREFIX)#' $< >$(GPODDER_DESKTOP_FILE_TMP)
-	intltool-merge -d -u po $(GPODDER_DESKTOP_FILE_TMP) $@
-	rm -f $(GPODDER_DESKTOP_FILE_TMP)
+%.desktop: %.desktop.in $(POFILES)
+	sed -e 's#__PREFIX__#$(PREFIX)#' $< >$@.tmp
+	intltool-merge -d -u po $@.tmp $@
+	rm -f $@.tmp
 
-$(GPODDER_DESKTOP_FILE_IN).h: $(GPODDER_DESKTOP_FILE_IN)
+%.desktop.in.h: %.desktop.in
 	intltool-extract --quiet --type=gettext/ini $<
 
-install: messages $(GPODDER_SERVICE_FILE) $(GPODDER_DESKTOP_FILE)
+install: messages $(GPODDER_SERVICE_FILE) $(DESKTOP_FILES)
 	$(PYTHON) setup.py install --root=$(DESTDIR) --prefix=$(PREFIX) --optimize=1
+
+release-win32:
+	$(MAKE) -C tools/win32-setup
+	cp tools/win32-setup/gpodder-*-setup.exe .
+	$(MAKE) -C tools/win32-portable
+	cp tools/win32-portable/gpodder-*-win32.zip .
 
 ##########################################################################
 
@@ -133,16 +138,18 @@ clean:
 	find share/gpodder/ui/ -name '*.ui.h' -exec rm '{}' +
 	rm -f MANIFEST .coverage messages.mo po/*.mo
 	rm -f $(GPODDER_SERVICE_FILE)
-	rm -f $(GPODDER_DESKTOP_FILE)
-	rm -f $(GPODDER_DESKTOP_FILE_H)
+	rm -f $(DESKTOP_FILES) $(DESKTOP_FILES_IN_H)
 	rm -rf build $(LOCALEDIR)
+	rm -f gpodder-*-win32.zip gpodder-*-setup.exe
 
 distclean: clean
 	rm -rf dist
+	-$(MAKE) -C tools/win32-portable distclean
+	-$(MAKE) -C tools/win32-setup distclean
 
 ##########################################################################
 
-.PHONY: help unittest release releasetest install manpage clean distclean messages headlink
+.PHONY: help unittest release releasetest install manpage clean distclean messages headlink release-win32
 
 ##########################################################################
 

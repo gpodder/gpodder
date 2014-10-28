@@ -32,6 +32,7 @@ N_ = gpodder.ngettext
 
 from gpodder import util
 from gpodder import youtube
+from gpodder import vimeo
 
 from gpodder.gtkui.interface.common import BuilderWidget
 from gpodder.gtkui.interface.common import TreeViewHelper
@@ -139,23 +140,28 @@ class gPodderFlattrSignIn(BuilderWidget):
     def on_btn_close_clicked(self, widget):
         util.idle_add(self.main_window.destroy)
 
-class VideoFormatList(gtk.ListStore):
+
+class YouTubeVideoFormatListModel(gtk.ListStore):
     C_CAPTION, C_ID = range(2)
 
     def __init__(self, config):
         gtk.ListStore.__init__(self, str, int)
         self._config = config
+        self.custom_fmt_ids = self._config.youtube.preferred_fmt_ids
 
         if self._config.youtube.preferred_fmt_ids:
             caption = _('Custom (%(format_ids)s)') % {
-                    'format_ids': ', '.join(self.custom_format_ids),
+                    'format_ids': ', '.join(str(x) for x in self.custom_fmt_ids),
             }
             self.append((caption, -1))
-        else:
-            for id, (fmt_id, path, description) in youtube.formats:
-                self.append((description, id))
+
+        for id, (fmt_id, path, description) in youtube.formats:
+            self.append((description, id))
 
     def get_index(self):
+        if self._config.youtube.preferred_fmt_ids:
+            return 0
+
         for index, row in enumerate(self):
             if self._config.youtube.preferred_fmt_id == row[self.C_ID]:
                 return index
@@ -165,6 +171,36 @@ class VideoFormatList(gtk.ListStore):
         value = self[index][self.C_ID]
         if value > 0:
             self._config.youtube.preferred_fmt_id = value
+            # If we set a value, we need to unset the custom one, so that
+            # the single value (preferred_fmt_id) gets used instead
+            self._config.youtube.preferred_fmt_ids = []
+        else:
+            # If the user selects the -1 value, it's our custom one, and
+            # we need to restore the value for preferred_fmt_ids
+            self._config.youtube.preferred_fmt_ids = self.custom_fmt_ids
+
+
+class VimeoVideoFormatListModel(gtk.ListStore):
+    C_CAPTION, C_ID = range(2)
+
+    def __init__(self, config):
+        gtk.ListStore.__init__(self, str, str)
+        self._config = config
+
+        for fileformat, description in vimeo.FORMATS:
+            self.append((description, fileformat))
+
+    def get_index(self):
+        for index, row in enumerate(self):
+            if self._config.vimeo.fileformat == row[self.C_ID]:
+                return index
+        return 0
+
+    def set_index(self, index):
+        value = self[index][self.C_ID]
+        if value > 0:
+            self._config.vimeo.fileformat = value
+
 
 class gPodderPreferences(BuilderWidget):
     C_TOGGLE, C_LABEL, C_EXTENSION, C_SHOW_TOGGLE = range(4)
@@ -190,12 +226,19 @@ class gPodderPreferences(BuilderWidget):
         index = self.video_player_model.get_index(self._config.videoplayer)
         self.combo_video_player_app.set_active(index)
 
-        self.preferred_video_format_model = VideoFormatList(self._config)
-        self.combobox_preferred_video_format.set_model(self.preferred_video_format_model)
+        self.preferred_youtube_format_model = YouTubeVideoFormatListModel(self._config)
+        self.combobox_preferred_youtube_format.set_model(self.preferred_youtube_format_model)
         cellrenderer = gtk.CellRendererText()
-        self.combobox_preferred_video_format.pack_start(cellrenderer, True)
-        self.combobox_preferred_video_format.add_attribute(cellrenderer, 'text', self.preferred_video_format_model.C_CAPTION)
-        self.combobox_preferred_video_format.set_active(self.preferred_video_format_model.get_index())
+        self.combobox_preferred_youtube_format.pack_start(cellrenderer, True)
+        self.combobox_preferred_youtube_format.add_attribute(cellrenderer, 'text', self.preferred_youtube_format_model.C_CAPTION)
+        self.combobox_preferred_youtube_format.set_active(self.preferred_youtube_format_model.get_index())
+
+        self.preferred_vimeo_format_model = VimeoVideoFormatListModel(self._config)
+        self.combobox_preferred_vimeo_format.set_model(self.preferred_vimeo_format_model)
+        cellrenderer = gtk.CellRendererText()
+        self.combobox_preferred_vimeo_format.pack_start(cellrenderer, True)
+        self.combobox_preferred_vimeo_format.add_attribute(cellrenderer, 'text', self.preferred_vimeo_format_model.C_CAPTION)
+        self.combobox_preferred_vimeo_format.set_active(self.preferred_vimeo_format_model.get_index())
 
         self._config.connect_gtk_togglebutton('podcast_list_view_all',
                                               self.checkbutton_show_all_episodes)
@@ -482,9 +525,13 @@ class gPodderPreferences(BuilderWidget):
         index = self.combo_video_player_app.get_active()
         self._config.videoplayer = self.video_player_model.get_command(index)
 
-    def on_combobox_preferred_video_format_changed(self, widget):
-        index = self.combobox_preferred_video_format.get_active()
-        self.preferred_video_format_model.set_index(index)
+    def on_combobox_preferred_youtube_format_changed(self, widget):
+        index = self.combobox_preferred_youtube_format.get_active()
+        self.preferred_youtube_format_model.set_index(index)
+
+    def on_combobox_preferred_vimeo_format_changed(self, widget):
+        index = self.combobox_preferred_vimeo_format.get_active()
+        self.preferred_vimeo_format_model.set_index(index)
 
     def on_button_audio_player_clicked(self, widget):
         result = self.show_text_edit_dialog(_('Configure audio player'), \

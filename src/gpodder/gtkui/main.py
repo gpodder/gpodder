@@ -106,7 +106,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
     # Width (in pixels) of episode list icon
     EPISODE_LIST_ICON_WIDTH = 40
 
-    def __init__(self, bus_name, gpodder_core):
+    def __init__(self, bus_name, gpodder_core, options):
         dbus.service.Object.__init__(self, object_path=gpodder.dbus_gui_object_path, bus_name=bus_name)
         self.podcasts_proxy = DBusPodcastsProxy(lambda: self.channels,
                 self.on_itemUpdate_activate,
@@ -119,6 +119,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.db = self.core.db
         self.model = self.core.model
         self.flattr = self.core.flattr
+        self.options = options
         BuilderWidget.__init__(self, None)
 
     def new(self):
@@ -199,6 +200,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         changed_cb = lambda spinbutton: self.download_queue_manager.spawn_threads()
         self.spinMaxDownloads.connect('value-changed', changed_cb)
 
+        # Keep a reference to the last add podcast dialog instance
+        self._add_podcast_dialog = None
+
         self.default_title = None
         self.set_title(_('gPodder'))
 
@@ -269,7 +273,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
             util.idle_add(self.mygpo_client.flush, True)
 
         # First-time users should be asked if they want to see the OPML
-        if not self.channels:
+        if self.options.subscribe:
+            util.idle_add(self.subscribe_to_url, self.options.subscribe)
+        elif not self.channels:
             self.on_itemUpdate_activate()
         elif self.config.software_update.check_on_startup:
             # Check for software updates from gpodder.org
@@ -1867,9 +1873,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.mygpo_client.on_playback([episode])
 
             fmt_ids = youtube.get_fmt_ids(self.config.youtube)
+            vimeo_fmt = self.config.vimeo.fileformat
 
             allow_partial = (player != 'default')
-            filename = episode.get_playback_url(fmt_ids, allow_partial)
+            filename = episode.get_playback_url(fmt_ids, vimeo_fmt, allow_partial)
 
             # Determine the playback resume position - if the file
             # was played 100%, we simply start from the beginning
@@ -2949,7 +2956,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         dir.download_opml_file(url)
 
     def on_itemAddChannel_activate(self, widget=None):
-        gPodderAddPodcast(self.gPodder, \
+        self._add_podcast_dialog = gPodderAddPodcast(self.gPodder, \
                 add_podcast_list=self.add_podcast_list)
 
     def on_itemEditChannel_activate(self, widget, *args):
@@ -3116,9 +3123,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
             dlg.destroy()
 
     def on_itemImportChannels_activate(self, widget, *args):
-        dir = gPodderPodcastDirectory(self.main_window, _config=self.config, \
+        self._podcast_directory = gPodderPodcastDirectory(self.main_window,
+                _config=self.config,
                 add_podcast_list=self.add_podcast_list)
-        util.idle_add(dir.download_opml_file, my.EXAMPLES_OPML)
 
     def on_homepage_activate(self, widget, *args):
         util.open_website(gpodder.__url__)
@@ -3423,7 +3430,15 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     @dbus.service.method(gpodder.dbus_interface)
     def subscribe_to_url(self, url):
-        gPodderAddPodcast(self.gPodder,
+        # Strip leading application protocol, so these URLs work:
+        # gpodder://example.com/episodes.rss
+        # gpodder:https://example.org/podcast.xml
+        if url.startswith('gpodder:'):
+            url = url[len('gpodder:'):]
+            while url.startswith('/'):
+                url = url[1:]
+
+        self._add_podcast_dialog = gPodderAddPodcast(self.gPodder,
                 add_podcast_list=self.add_podcast_list,
                 preset_url=url)
 
@@ -3497,11 +3512,7 @@ def main(options=None):
         dlg.destroy()
         sys.exit(0)
 
-    gp = gPodder(bus_name, core.Core(UIConfig, model_class=Model))
-
-    # Handle options
-    if options.subscribe:
-        util.idle_add(gp.subscribe_to_url, options.subscribe)
+    gp = gPodder(bus_name, core.Core(UIConfig, model_class=Model), options)
 
     if gpodder.ui.osx:
         from gpodder.gtkui import macosx

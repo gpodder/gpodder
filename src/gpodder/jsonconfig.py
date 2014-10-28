@@ -180,7 +180,7 @@ class JsonConfig(object):
           "a": 1
         }
         """
-        return json.dumps(self._data, indent=self._INDENT)
+        return json.dumps(self._data, indent=self._INDENT, sort_keys=True)
 
     def _lookup(self, name):
         return reduce(lambda d, k: d[k], name.split('.'), self._data)

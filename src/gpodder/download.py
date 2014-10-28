@@ -33,6 +33,7 @@ logger = logging.getLogger(__name__)
 from gpodder import util
 from gpodder import youtube
 from gpodder import vimeo
+from gpodder import escapist_videos
 import gpodder
 
 import socket
@@ -750,7 +751,8 @@ class DownloadTask(object):
             # Resolve URL and start downloading the episode
             fmt_ids = youtube.get_fmt_ids(self._config.youtube)
             url = youtube.get_real_download_url(self.__episode.url, fmt_ids)
-            url = vimeo.get_real_download_url(url)
+            url = vimeo.get_real_download_url(url, self._config.vimeo.fileformat)
+            url = escapist_videos.get_real_download_url(url)
 
             downloader = DownloadURLOpener(self.__episode.channel)
 

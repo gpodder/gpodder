@@ -72,8 +72,6 @@ from mygpoclient import public
 
 from mygpoclient import util as mygpoutil
 
-EXAMPLES_OPML = 'http://gpodder.org/directory.opml'
-TOPLIST_OPML = 'http://gpodder.org/toplist.opml'
 EPISODE_ACTIONS_BATCH_SIZE=100
 
 # Database model classes
