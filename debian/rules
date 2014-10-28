@@ -36,6 +36,7 @@ build-stamp: configure-stamp
 	dh_testdir
 	PYTHON=$(PYTHON) make share/dbus-1/services/org.gpodder.service
 	PYTHON=$(PYTHON) make share/applications/gpodder.desktop
+	PYTHON=$(PYTHON) make share/applications/gpodder-url-handler.desktop
 	PYTHON=$(PYTHON) make messages
 	${SETUP} build
 	touch build-stamp
