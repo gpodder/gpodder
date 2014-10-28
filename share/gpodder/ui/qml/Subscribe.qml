@@ -21,11 +21,11 @@ Item {
     function search() {
         var q = searchInput.text;
 
-        var direct_prefixes = {
+        var direct_prefixes = [
             // See src/gpodder/util.py, normalize_feed_url(), this
             // should be kept in sync if new prefixes are added
             'http://', 'https://', 'fb:', 'yt:', 'sc:', 'ytpl:'
-        };
+        ];
 
         for (var i=0; i<direct_prefixes.length; i++) {
             if (q.indexOf(direct_prefixes[i]) === 0) {
