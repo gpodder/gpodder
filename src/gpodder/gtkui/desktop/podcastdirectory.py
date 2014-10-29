@@ -130,7 +130,6 @@ class gPodderPodcastDirectory(BuilderWidget):
         column = gtk.TreeViewColumn('')
         cell = gtk.CellRendererToggle()
         column.pack_start(cell, False)
-        cell.set_activatable(True)
         column.add_attribute(cell, 'active', DirectoryPodcastsModel.C_SELECTED)
         cell.connect('toggled', lambda cell, path: self.podcasts_model.toggle(path))
         self.tv_podcasts.append_column(column)
@@ -222,7 +221,10 @@ class gPodderPodcastDirectory(BuilderWidget):
         else:
             self.hb_text_entry.hide()
 
-        self.sw_tagcloud.set_visible(provider.kind == directory.Provider.PROVIDER_TAGCLOUD)
+        if provider.kind == directory.Provider.PROVIDER_TAGCLOUD:
+            self.sw_tagcloud.show()
+        else:
+            self.sw_tagcloud.hide()
 
 
     def on_tv_providers_cursor_changed(self, treeview):
