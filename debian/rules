@@ -67,6 +67,9 @@ install: build
 	mv $(DESTDIR)/$(PREFIX)/share/pixmaps/gpodder.png $(DESTDIR)/$(OPTDIR)/gpodder.png
 	rm -rf $(DESTDIR)/$(PREFIX)/share/{icons,pixmaps}/
 	rm -rf $(DESTDIR)/$(PREFIX)/{bin,lib}/
+	# Harmattan doesn't seem to play nice with freedesktop.org "NoDisplay=true", so
+	# we just give up here and remove the installed .desktop file after the fact
+	rm -f $(DESTDIR)/$(PREFIX)/share/applications/gpodder-url-handler.desktop
 
 binary-arch:
 
