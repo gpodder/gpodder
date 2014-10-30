@@ -25,6 +25,7 @@ all: $(SETUP_OUTPUT)
 
 $(SETUP_OUTPUT): $(SETUP_SCRIPT) $(LAUNCHER_ROOT)/$(GPODDER_EXE) $(LAUNCHER_ROOT)/$(GPO_EXE)
 	$(PYTHON) ../localdepends.py
+	cp -rpv ../fake-dbus-module/dbus ../../src/
 	$(MAKE) -C $(SOURCE_ROOT) messages
 	$(ISCC) $<
 	$(CHMOD) -x $@
