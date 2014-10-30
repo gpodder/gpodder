@@ -21,6 +21,7 @@ all: $(PORTABLE_OUTPUT)
 
 $(PORTABLE_OUTPUT_DIR): $(LAUNCHER_ROOT)/$(GPODDER_EXE) $(LAUNCHER_ROOT)/$(GPO_EXE)
 	$(PYTHON) ../localdepends.py
+	cp -rpv ../fake-dbus-module/dbus ../../src/
 	$(MAKE) -C $(SOURCE_ROOT) messages
 	$(RM) -r $(PORTABLE_OUTPUT_DIR)
 	$(MKDIR) -p $(PORTABLE_OUTPUT_DIR)
