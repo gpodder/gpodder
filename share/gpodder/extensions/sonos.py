@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # Extension script to stream podcasts to Sonos speakers
-# Requirements: gPodder 3.x and the soco module (https://github.com/rahims/SoCo)
+# Requirements: gPodder 3.x and the soco module (https://pypi.python.org/pypi/soco)
 # (c) 2013-01-19 Stefan Kögl <stefan@skoegl.net>
 # Released under the same license terms as gPodder itself.
 
@@ -59,7 +59,7 @@ class gPodderExtension:
 
         # enqueue and play
         for episode in episodes:
-            controller.add_to_queue(episode.url)
+            controller.play_uri(episode.url)
             episode.playback_mark()
 
         controller.play()
@@ -75,6 +75,7 @@ class gPodderExtension:
         for speaker_ip, name in self.speakers.items():
             callback = partial(self._stream_to_speaker, speaker_ip)
 
-            menu_entries.append('/'.join((_('Stream to Sonos'), name)), callback)
+            item = ('/'.join((_('Stream to Sonos'), name)), callback)
+            menu_entries.append(item)
 
         return menu_entries
