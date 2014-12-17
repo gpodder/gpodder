@@ -1015,6 +1015,7 @@ class PodcastChannel(PodcastModelObject):
 
     def _consume_updated_feed(self, feed, max_episodes=0):
         # Cover art URL
+        cover_url = None
         if hasattr(feed.feed, 'image'):
             for attribute in ('href', 'url'):
                 new_value = getattr(feed.feed.image, attribute, None)
@@ -1022,8 +1023,6 @@ class PodcastChannel(PodcastModelObject):
                     cover_url = new_value
         elif hasattr(feed.feed, 'icon'):
             cover_url = feed.feed.icon
-        else:
-            cover_url = None
 
         # Payment URL (Flattr auto-payment) information
         payment_info = [link['href'] for link in feed.feed.get('links', [])
