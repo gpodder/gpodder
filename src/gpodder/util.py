@@ -218,6 +218,7 @@ def normalize_feed_url(url):
             # YouTube playlists. To get a list of playlists per-user, use:
             # https://gdata.youtube.com/feeds/api/users/<username>/playlists
             'ytpl:': 'http://gdata.youtube.com/feeds/api/playlists/%s',
+            'rtp:' : 'http://www.rtp.pt/play/podcast/%s'
     }
 
     for prefix, expansion in PREFIXES.iteritems():
