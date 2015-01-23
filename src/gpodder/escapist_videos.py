@@ -46,7 +46,7 @@ ESCAPIST_REGULAR_RE = re.compile(r'http://www.escapistmagazine.com/videos/view/(
 # This finds the RSS for a given URL
 DATA_RSS_RE = re.compile(r'http://www.escapistmagazine.com/rss/videos/list/([1-9][0-9]*)\.xml')
 # This matches the flash player's configuration. It's a JSON, but it's always malformed
-DATA_CONFIG_RE = re.compile(r'name="flashvars".*config=(http.*\.js)', re.IGNORECASE)
+DATA_CONFIG_RE = re.compile(r'flashvars=.*config=(http.*\.js)', re.IGNORECASE)
 # This matches the actual MP4 url, inside the "JSON"
 DATA_CONFIG_DATA_RE = re.compile(r'http[:/\w.?&-]*\.mp4')
 # This matches the cover art for an RSS. We shouldn't parse XML with regex.
