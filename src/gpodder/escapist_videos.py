@@ -77,7 +77,10 @@ def get_real_download_url(url):
     real_url = data_config_data_frag.group(0)
     if real_url is None:
         raise EscapistError('Cannot get MP4 URL from The Escapist')
-    return real_url
+    elif "-ad-rotation/" in real_url:
+        raise EscapistError('Oops, seems The Escapist blocked this IP. Wait a few days/weeks to get it unblocked')
+    else:
+        return real_url
 
 def get_escapist_id(url):
     result = ESCAPIST_NUMBER_RE.match(url)
