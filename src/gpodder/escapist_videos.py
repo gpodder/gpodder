@@ -68,6 +68,8 @@ def get_real_download_url(url):
 
     data_config_url = data_config_frag.group(1)
 
+    logger.debug("Config URL: "+data_config_url)
+
     data_config_data = util.urlopen(data_config_url).read().decode('utf-8')
     data_config_data_frag = DATA_CONFIG_DATA_RE.search(data_config_data)
     if data_config_data_frag is None:
