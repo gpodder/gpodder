@@ -502,7 +502,10 @@ def format_date(timestamp):
     except ValueError, ve:
         logger.warn('Cannot convert timestamp', exc_info=True)
         return None
-    
+    except TypeError, te:
+        logger.warn('Cannot convert timestamp', exc_info=True)
+        return None
+
     if timestamp_date == today:
        return _('Today')
     elif timestamp_date == yesterday:
