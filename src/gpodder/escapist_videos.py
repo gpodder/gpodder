@@ -46,7 +46,7 @@ ESCAPIST_REGULAR_RE = re.compile(r'http://www.escapistmagazine.com/videos/view/(
 # This finds the RSS for a given URL
 DATA_RSS_RE = re.compile(r'http://www.escapistmagazine.com/rss/videos/list/([1-9][0-9]*)\.xml')
 # This matches the flash player's configuration. It's a JSON, but it's always malformed
-DATA_CONFIG_RE = re.compile(r'name="flashvars".*config=(http.*\.js)', re.IGNORECASE)
+DATA_CONFIG_RE = re.compile(r'flashvars=.*config=(http.*\.js)', re.IGNORECASE)
 # This matches the actual MP4 url, inside the "JSON"
 DATA_CONFIG_DATA_RE = re.compile(r'http[:/\w.?&-]*\.mp4')
 # This matches the cover art for an RSS. We shouldn't parse XML with regex.
@@ -68,6 +68,8 @@ def get_real_download_url(url):
 
     data_config_url = data_config_frag.group(1)
 
+    logger.debug('Config URL: %s', data_config_url)
+
     data_config_data = util.urlopen(data_config_url).read().decode('utf-8')
     data_config_data_frag = DATA_CONFIG_DATA_RE.search(data_config_data)
     if data_config_data_frag is None:
@@ -75,7 +77,10 @@ def get_real_download_url(url):
     real_url = data_config_data_frag.group(0)
     if real_url is None:
         raise EscapistError('Cannot get MP4 URL from The Escapist')
-    return real_url
+    elif "-ad-rotation/" in real_url:
+        raise EscapistError('Oops, seems The Escapist blocked this IP. Wait a few days/weeks to get it unblocked')
+    else:
+        return real_url
 
 def get_escapist_id(url):
     result = ESCAPIST_NUMBER_RE.match(url)
