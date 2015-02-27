@@ -753,6 +753,7 @@ class DownloadTask(object):
             url = youtube.get_real_download_url(self.__episode.url, fmt_ids)
             url = vimeo.get_real_download_url(url, self._config.vimeo.fileformat)
             url = escapist_videos.get_real_download_url(url)
+            url = url.strip()
 
             downloader = DownloadURLOpener(self.__episode.channel)
 
