@@ -70,15 +70,6 @@ def rtp_parsedate(s):
 	t = time.mktime( time.strptime(s, "%d %b, %Y") )
 	locale.resetlocale()
 	return t
-def soundcloud_parsedate(s):
-	    """Parse a string into a unix timestamp
-
-	    Only strings provided by Soundcloud's API are
-	    parsed with this function (2009/11/03 13:37:00).
-	    """
-	    m = re.match(r'(\d{4})/(\d{2})/(\d{2}) (\d{2}):(\d{2}):(\d{2})', s)
-	    return time.mktime([int(x) for x in m.groups()]+[0, 0, -1])
-
 def save_cache(filename, obj):
 	json.dump(obj, open(filename, 'w'))
 def read_cache(filename):
@@ -148,12 +139,12 @@ class RTPPlayFeed(object):
 				url_text = root.findall('//script')[-1].text.strip()
 				url = "http://cdn-ondemand.rtp.pt%s" % re.compile('"file": "(.+?)"').search(url_text).group(1)
 				filesize, filetype = get_file_metadata(url)
-				eDate = etree.tostring(root.xpath('//div[@id="collapse-text"]//p[@class="text-white"]')[0]).strip()
+				eDate = etree.tostring(root.find('//div[@id="collapse-text"]//p[@class="text-white"]')).strip()
 				date = re.compile('\d{2} \w{3}, \d{4}').search(eDate).group(0)
 				episode = {
-						'title' : root.xpath('//div[@id="collapse-text"]//p[@class="h3"]/a')[0].text,
+						'title' : root.find('//div[@id="collapse-text"]//p[@class="h3"]/a').text,
 						'link' : eURL,
-						'description' : etree.tostring(root.xpath('//div[@id="promo"]/p')[0]).strip(),
+						'description' : etree.tostring(root.find('//div[@id="promo"]/p')).strip(),
 						'url' : url,
 						'file_size' : int(filesize),
 						'mime_type' : filetype,
@@ -168,12 +159,12 @@ class RTPPlayFeed(object):
 	# Public methods
 	def get_title(self):
 		logger.debug("RTP %s: Get Title" % self.programID)
-		return self._root_etree().xpath('//div[@id="collapse-text"]/div/p[@class="h3"]/a/text()')[0].strip()
+		return self._root_etree().find('//div[@id="collapse-text"]/div/p[@class="h3"]/a').text.strip()
 	def get_link(self):
 		logger.debug("RTP %s: Get Link" % self.programID)
-		info_anchor = self._root_etree().xpath('//i[@class="fa fa-plus fa-lg text-muted"]/ancestor::a[1]')
-		if len(info_anchor) == 1:
-			return "http://www.rtp.pt%s" % info_anchor[0].get("href")
+		info_anchor = self._root_etree().xpath('//i[@class="fa fa-plus fa-lg text-muted"]/ancestor::a[1]')[0]
+		if info_anchor is not None:
+			return "http://www.rtp.pt%s" % info_anchor.get("href")
 		else:
 			return self.play_url
 	def get_description(self):
@@ -182,7 +173,7 @@ class RTPPlayFeed(object):
 		return ''.join(root_info.find('//div[@class="Area ProgPrincipal"]//div[@class="grid_5 omega"]/p[2]').itertext())
 	def get_image(self):
 		logger.debug("RTP %s: Get Coverart", self.programID)
-		s = self._root_etree().xpath('//div[@id="collapse-text"]/div/img')[0].get("src")
+		s = self._root_etree().find('//div[@id="collapse-text"]/div/img').get("src")
 		r = re.compile('http:\/\/([^.]+\.).+\?src=([^&]+)&').match(s)
 		return "http://%srtp.pt%s" % (r.group(1), r.group(2))
 	def get_new_episodes(self, channel, existing_guids):
