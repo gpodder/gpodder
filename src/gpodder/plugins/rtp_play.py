@@ -70,16 +70,6 @@ def rtp_parsedate(s):
 	t = time.mktime( time.strptime(s, "%d %b, %Y") )
 	locale.resetlocale()
 	return t
-def save_cache(filename, obj):
-	json.dump(obj, open(filename, 'w'))
-def read_cache(filename):
-	obj = {}
-	if os.path.exists(filename):
-		try:
-			obj = json.load(open(filename, 'r'))
-		except:
-			obj = {}
-	return obj
 
 class RTPPlayFeed(object):
 	URL_REGEX = re.compile('http://www.rtp.pt/play/p([0-9]+)')
@@ -99,6 +89,24 @@ class RTPPlayFeed(object):
 		self.programID = str(programID)
 		self.play_url = 'http://www.rtp.pt/play/p%s/' % programID
 		self.play_url_etree = None
+		# Cache
+		self.cache_file = os.path.join(gpodder.home, 'rtp_play.cache')
+		self.cache_read()
+
+	def cache_read(self):
+		filename = self.cache_file
+		obj = {}
+		if os.path.exists(filename):
+			try:
+				obj = json.load(open(filename, 'r'))
+			except:
+				obj = {}
+		self.cache = obj
+		logger.debug("Cache Read: %s", self.cache)
+
+	def cache_write(self):
+		logger.debug("Cache write: %s", self.cache)
+		json.dump(self.cache, open(self.cache_file, 'w'))
 
 	def _root_etree(self):
 		if self.play_url_etree is None:
@@ -159,7 +167,14 @@ class RTPPlayFeed(object):
 	# Public methods
 	def get_title(self):
 		logger.debug("RTP %s: Get Title" % self.programID)
-		return self._root_etree().find('//div[@id="collapse-text"]/div/p[@class="h3"]/a').text.strip()
+		if self.programID in self.cache:
+			logger.debug("Cache Hit: Title")
+			res = self.cache[self.programID]['title']
+		else:
+			res = self._root_etree().find('//div[@id="collapse-text"]/div/p[@class="h3"]/a').text.strip()
+			self.cache[self.programID] = {'title': res}
+			self.cache_write()
+		return res
 	def get_link(self):
 		logger.debug("RTP %s: Get Link" % self.programID)
 		info_anchor = self._root_etree().xpath('//i[@class="fa fa-plus fa-lg text-muted"]/ancestor::a[1]')[0]
