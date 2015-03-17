@@ -108,17 +108,7 @@ class RTPPlayFeed(object):
 		logger.debug("Cache write: %s", self.cache)
 		json.dump(self.cache, open(self.cache_file, 'w'))
 
-	def _root_etree(self):
-		if self.play_url_etree is None:
-			self.play_url_etree = etree.parse(self.play_url, etree.HTMLParser())
-		return self.play_url_etree
-
 	def get_episodes(self):
-		"""Get a generator of episodes from a program
-
-		The generator will give you a dictionary for
-		every episode it can find for its program."""
-		logger.debug("RTP %s: Get All Episodes" % self.programID)
 		episodes = []
 
 		try:
@@ -161,36 +151,50 @@ class RTPPlayFeed(object):
 				}
 				episodes.append(episode)
 		finally:
-			logger.debug("Finished parsing all the episodes")# Do nothing
+			logger.debug("Finished parsing all the episodes")
+			self.cache_write()
 		return episodes
+
+	def get_metadata_program(self):
+		if self.programID is None:
+			return None
+		try:
+			logger.debug('Get Metadata')
+			etree_play = etree.parse(self.play_url, etree.HTMLParser())
+			info_anchor = etree_play.xpath('//i[@class="fa fa-plus fa-lg text-muted"]/ancestor::a[1]')[0]
+			info_url  = None if info_anchor is None else "http://www.rtp.pt%s" % info_anchor.get("href")
+			etree_info = None if info_url is None else etree.parse(info_url, etree.HTMLParser())
+			regex_coverart = re.compile('http:\/\/([^.]+\.).+\?src=([^&]+)&')
+			logger.debug('Parsing HTML...')
+			e_title = etree_play.find('//div[@id="collapse-text"]/div/p[@class="h3"]/a').text.strip()
+			e_link = info_url or self.play_url
+			e_desc = "Get from etree_play" if info_url is None else ''.join(etree_info.find('//div[@class="Area ProgPrincipal"]//div[@class="grid_5 omega"]/p[2]').itertext())
+			raw_coverart = self._root_etree().find('//div[@id="collapse-text"]/div/img').get("src")
+			r_coverart = regex_coverart.match(raw_coverart)
+			e_coverart = "http://%srtp.pt%s" % (r_coverart.group(1), r_coverart.group(2))
+			logger.debug('Caching the results')
+			self.cache[self.programID] = {
+					'title': e_title,
+					'url': e_link,
+					'description': e_desc,
+					'coverart': e_coverart
+					}
+		finally:
+			self.cache_write()
+	def metadata(self, name):
+		if self.programID not in self.cache:
+			self.get_metadata_program()
+		return self.cache[self.programID][name]
 
 	# Public methods
 	def get_title(self):
-		logger.debug("RTP %s: Get Title" % self.programID)
-		if self.programID in self.cache:
-			logger.debug("Cache Hit: Title")
-			res = self.cache[self.programID]['title']
-		else:
-			res = self._root_etree().find('//div[@id="collapse-text"]/div/p[@class="h3"]/a').text.strip()
-			self.cache[self.programID] = {'title': res}
-			self.cache_write()
-		return res
+		return self.metadata('title')
 	def get_link(self):
-		logger.debug("RTP %s: Get Link" % self.programID)
-		info_anchor = self._root_etree().xpath('//i[@class="fa fa-plus fa-lg text-muted"]/ancestor::a[1]')[0]
-		if info_anchor is not None:
-			return "http://www.rtp.pt%s" % info_anchor.get("href")
-		else:
-			return self.play_url
+		return self.metadata('url')
 	def get_description(self):
-		logger.debug("RTP %s: Get desc", self.programID)
-		root_info = etree.parse(self.get_link(), etree.HTMLParser())
-		return ''.join(root_info.find('//div[@class="Area ProgPrincipal"]//div[@class="grid_5 omega"]/p[2]').itertext())
+		return self.metadata('description')
 	def get_image(self):
-		logger.debug("RTP %s: Get Coverart", self.programID)
-		s = self._root_etree().find('//div[@id="collapse-text"]/div/img').get("src")
-		r = re.compile('http:\/\/([^.]+\.).+\?src=([^&]+)&').match(s)
-		return "http://%srtp.pt%s" % (r.group(1), r.group(2))
+		return self.metadata('coverart')
 	def get_new_episodes(self, channel, existing_guids):
 		all_episodes = self.get_episodes()
 		all_guids = [ep['guid'] for ep in all_episodes]
