@@ -98,14 +98,14 @@ class RTPPlayFeed(object):
 		obj = {}
 		if os.path.exists(filename):
 			try:
-				obj = json.load(open(filename, 'r'))
+				obj = json.load(open(filename, 'rb'), encoding='UTF-8')
 			except:
 				obj = {}
 		self.cache = obj
 		logger.debug("Cache Read")
 
 	def cache_write(self):
-		json.dump(self.cache, open(self.CACHE_FILE, 'w'))
+		json.dump(self.cache, open(self.CACHE_FILE, 'wb'), sort_keys=True, ensure_ascii=False, encoding='UTF-8')
 		logger.debug("Cache Write")
 
 	def get_all_episodes(self):
