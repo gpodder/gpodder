@@ -170,9 +170,10 @@ class RTPPlayFeed(object):
 			link = 'http://www.rtp.pt/play/p%s/e%s/' % (self.programID, episodeID)
 			etree_link = html_parser(link)
 			logger.debug('P%sE%s: Parsing HTML', self.programID, episodeID)
-			e_title = etree_link.find('//div[@id="collapse-text"]//p[@class="h3"]/a').text.strip()
+			raw_title = etree_link.find('//article//b[@class="h4"]')
+			e_title = self.get_title() if raw_title is None else raw_title.text.strip()
 			e_desc = ''.join(etree_link.find('//div[@id="promo"]/p').itertext()).strip()
-			# separator: "\r\n\t\t    "
+			e_desc, _,_ = e_desc.partition("\r\n\t\t    ")
 			raw_url = etree_link.findall('//script')[-1].text.strip()
 			e_url = "http://cdn-ondemand.rtp.pt%s" % re.search('"file": "(.+?)"',raw_url).group(1)
 			e_filesize, e_filetype = get_file_metadata(e_url)
