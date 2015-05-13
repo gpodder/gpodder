@@ -705,7 +705,8 @@ class Database(object):
         # be recreated without the unique flag. (Maemo bug 12094)
         cur.execute('PRAGMA index_list(%s)' % self.TABLE_EPISODES)
         current_indices = cur.fetchall()
-        for pos, idx_name, idx_is_unique in current_indices:
+        for row in current_indices:
+            pos, idx_name, idx_is_unique = row[:3]
             if idx_name == 'idx_guid' and idx_is_unique:
                 log('Fixing unique index (%s) in %s', idx_name, \
                         self.TABLE_EPISODES, sender=self)
