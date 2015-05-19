@@ -206,7 +206,6 @@ if ENV_DOWNLOADS in os.environ:
 # Plugins to load by default
 DEFAULT_PLUGINS = [
     'gpodder.plugins.soundcloud',
-    'gpodder.plugins.rtp_play',
 ]
 
 def load_plugins():
