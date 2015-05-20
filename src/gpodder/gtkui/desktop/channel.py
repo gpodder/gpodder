@@ -33,6 +33,8 @@ class gPodderChannel(BuilderWidget):
     MAX_SIZE = 120
 
     def new(self):
+        self.show_on_cover_load = True
+
         self.gPodderChannel.set_title( self.channel.title)
         self.entryTitle.set_text( self.channel.title)
         self.labelURL.set_text(self.channel.url)
@@ -147,7 +149,9 @@ class gPodderChannel(BuilderWidget):
         def set_cover(channel, pixbuf):
             if self.channel == channel:
                 self.imgCover.set_from_pixbuf(self.scale_pixbuf(pixbuf))
-                self.gPodderChannel.show()
+                if self.show_on_cover_load:
+                    self.main_window.show()
+                    self.show_on_cover_load = False
 
         util.idle_add(set_cover, channel, pixbuf)
 
@@ -192,6 +196,7 @@ class gPodderChannel(BuilderWidget):
         self.channel.auth_username = self.FeedUsername.get_text().strip()
         self.channel.auth_password = self.FeedPassword.get_text()
 
+        self.cover_downloader.unregister('cover-available', self.cover_download_finished)
         self.clear_cover_cache(self.channel.url)
         self.cover_downloader.request_cover(self.channel)
 
@@ -207,7 +212,7 @@ class gPodderChannel(BuilderWidget):
 
         self.channel.save()
 
-        self.gPodderChannel.destroy()
+        self.main_window.destroy()
 
         self.update_podcast_list_model(selected=True,
                 sections_changed=section_changed)
