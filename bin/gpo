@@ -308,6 +308,9 @@ class gPodderCli(object):
             self._error(_('Invalid url: %s') % url)
             return None
 
+        # Check if it's a YouTube feed, and if we have an API key, auto-resolve the channel
+        url = youtube.resolve_v3_url(url, self._config.youtube.api_key_v3)
+
         # Subscribe to new podcast
         if create:
             return self._model.load_podcast(url, create=True,

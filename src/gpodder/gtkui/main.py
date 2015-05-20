@@ -2179,14 +2179,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             url = util.normalize_feed_url(input_url)
 
             # Check if it's a YouTube feed, and if we have an API key, auto-resolve the channel
-            if url is not None and self.config.youtube.api_key_v3:
-                xurl, xuser = youtube.for_each_feed_pattern(lambda url, channel: (url, channel), url, (None, None))
-                if xurl is not None and xuser is not None:
-                    logger.info('Getting channels for YouTube user %s (%s)', xuser, xurl)
-                    new_urls = youtube.get_channels_for_user(xuser, self.config.youtube.api_key_v3)
-                    logger.debug('YouTube channels retrieved: %r', new_urls)
-                    if len(new_urls) == 1:
-                        url = new_urls[0]
+            url = youtube.resolve_v3_url(url, self.config.youtube.api_key_v3)
 
             if url is None:
                 # Fail this one because the URL is not valid

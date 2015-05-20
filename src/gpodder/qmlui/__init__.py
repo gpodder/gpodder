@@ -48,6 +48,7 @@ from gpodder import util
 from gpodder import my
 from gpodder import query
 from gpodder import common
+from gpodder import youtube
 
 from gpodder.model import Model
 
@@ -807,6 +808,7 @@ class Controller(QObject):
                 for idx, url in enumerate(urls):
                     self.startProgress.emit(_('Adding podcasts...') + ' (%d/%d)' % (idx, len(urls)))
                     try:
+                        url = youtube.resolve_v3_url(url, self.root.config.youtube.api_key_v3)
                         podcast = self.root.model.load_podcast(url=url, create=True,
                                 max_episodes=self.root.config.max_episodes_per_feed)
                         podcast.save()

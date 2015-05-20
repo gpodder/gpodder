@@ -229,3 +229,17 @@ def get_channels_for_user(username, api_key_v3):
     stream = util.urlopen('{}/channels?forUsername={}&part=id&key={}'.format(V3_API_ENDPOINT, username, api_key_v3))
     data = json.load(stream)
     return ['{}?channel_id={}'.format(CHANNEL_VIDEOS_XML, item['id']) for item in data['items']]
+
+
+def resolve_v3_url(url, api_key_v3):
+    # Check if it's a YouTube feed, and if we have an API key, auto-resolve the channel
+    if url and api_key_v3:
+        _, user = for_each_feed_pattern(lambda url, channel: (url, channel), url, (None, None))
+        if user is not None:
+            logger.info('Getting channels for YouTube user %s', user)
+            new_urls = get_channels_for_user(user, api_key_v3)
+            logger.debug('YouTube channels retrieved: %r', new_urls)
+            if len(new_urls) == 1:
+                return new_urls[0]
+
+    return url
