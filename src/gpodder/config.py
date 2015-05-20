@@ -191,6 +191,7 @@ defaults = {
     'youtube': {
         'preferred_fmt_id': 18, # default fmt_id (see fallbacks in youtube.py)
         'preferred_fmt_ids': [], # for advanced uses (custom fallback sequence)
+        'api_key_v3': '', # API key, register for one at https://developers.google.com/youtube/v3/
     },
 
     'vimeo': {

@@ -314,6 +314,7 @@ class gPodderPreferences(BuilderWidget):
         self.entry_username.set_text(self._config.mygpo.username)
         self.entry_password.set_text(self._config.mygpo.password)
         self.entry_caption.set_text(self._config.mygpo.device.caption)
+        self.entry_youtube_api_key.set_text(self._config.youtube.api_key_v3)
 
         # Disable mygpo sync while the dialog is open
         self._config.mygpo.enabled = False
@@ -595,6 +596,12 @@ class gPodderPreferences(BuilderWidget):
     def on_enabled_toggled(self, widget):
         # Only update indirectly (see on_dialog_destroy)
         self._enable_mygpo = widget.get_active()
+
+    def on_youtube_api_key_changed(self, widget):
+        self._config.youtube.api_key_v3 = widget.get_text()
+
+    def on_button_youtube_api_key_clicked(self, widget):
+        util.open_website('https://developers.google.com/youtube/v3/')
 
     def on_username_changed(self, widget):
         self._config.mygpo.username = widget.get_text()

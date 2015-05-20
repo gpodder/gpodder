@@ -78,6 +78,10 @@ formats = [
 ]
 formats_dict = dict(formats)
 
+V3_API_ENDPOINT = 'https://www.googleapis.com/youtube/v3'
+CHANNEL_VIDEOS_XML = 'https://www.youtube.com/feeds/videos.xml'
+
+
 class YouTubeError(Exception): pass
 
 
@@ -188,6 +192,7 @@ def for_each_feed_pattern(func, url, fallback_result):
         'http[s]?://(?:[a-z]+\.)?youtube\.com/channel/([_a-z0-9]+)',
         'http[s]?://(?:[a-z]+\.)?youtube\.com/rss/user/([a-z0-9]+)/videos\.rss',
         'http[s]?://gdata.youtube.com/feeds/users/([^/]+)/uploads',
+        'http[s]?://(?:[a-z]+\.)?youtube\.com/feeds/videos.xml?channel_id=([a-z0-9]+)',
     ]
 
     for pattern in CHANNEL_MATCH_PATTERNS:
@@ -219,3 +224,8 @@ def get_real_cover(url):
         return None
 
     return for_each_feed_pattern(return_user_cover, url, None)
+
+def get_channels_for_user(username, api_key_v3):
+    stream = util.urlopen('{}/channels?forUsername={}&part=id&key={}'.format(V3_API_ENDPOINT, username, api_key_v3))
+    data = json.load(stream)
+    return ['{}?channel_id={}'.format(CHANNEL_VIDEOS_XML, item['id']) for item in data['items']]
