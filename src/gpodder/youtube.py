@@ -206,7 +206,7 @@ def for_each_feed_pattern(func, url, fallback_result):
 
 def get_real_channel_url(url):
     def return_user_feed(url, channel):
-        result = 'https://gdata.youtube.com/feeds/users/{}/uploads'.format(channel)
+        result = 'https://gdata.youtube.com/feeds/users/{0}/uploads'.format(channel)
         logger.debug('YouTube link resolved: %s => %s', url, result)
         return result
 
@@ -214,7 +214,7 @@ def get_real_channel_url(url):
 
 def get_real_cover(url):
     def return_user_cover(url, channel):
-        api_url = 'http://gdata.youtube.com/feeds/api/users/{}?v=2'.format(channel)
+        api_url = 'http://gdata.youtube.com/feeds/api/users/{0}?v=2'.format(channel)
         data = util.urlopen(api_url).read()
         m = re.search('<media:thumbnail url=[\'"]([^\'"]+)[\'"]/>', data)
         if m is not None:
@@ -226,9 +226,9 @@ def get_real_cover(url):
     return for_each_feed_pattern(return_user_cover, url, None)
 
 def get_channels_for_user(username, api_key_v3):
-    stream = util.urlopen('{}/channels?forUsername={}&part=id&key={}'.format(V3_API_ENDPOINT, username, api_key_v3))
+    stream = util.urlopen('{0}/channels?forUsername={1}&part=id&key={2}'.format(V3_API_ENDPOINT, username, api_key_v3))
     data = json.load(stream)
-    return ['{}?channel_id={}'.format(CHANNEL_VIDEOS_XML, item['id']) for item in data['items']]
+    return ['{0}?channel_id={1}'.format(CHANNEL_VIDEOS_XML, item['id']) for item in data['items']]
 
 
 def resolve_v3_url(url, api_key_v3):

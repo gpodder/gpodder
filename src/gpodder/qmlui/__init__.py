@@ -175,6 +175,8 @@ class Controller(QObject):
             self.myGpoPasswordChanged.emit()
         elif name == 'mygpo.device.caption':
             self.myGpoDeviceCaptionChanged.emit()
+        elif name == 'youtube.api_key_v3':
+            self.youTubeAPIKeyChanged.emit()
 
     busyChanged = Signal()
 
@@ -374,6 +376,44 @@ class Controller(QObject):
     def loadLastEpisode(self):
         self.root.load_last_episode()
 
+    @Slot()
+    def migrateYouTubeSubscriptions(self):
+        failed_urls = []
+        migrated_users = []
+        for podcast in self.root.podcast_model.get_podcasts():
+            url, user = youtube.for_each_feed_pattern(lambda url, channel: (url, channel), podcast.url, (None, None))
+            if url is not None and user is not None:
+                try:
+                    logger.info('Getting channels for YouTube user %s (%s)', user, url)
+                    new_urls = youtube.get_channels_for_user(user, self.root.config.youtube.api_key_v3)
+                    logger.debug('YouTube channels retrieved: %r', new_urls)
+
+                    if len(new_urls) != 1:
+                        failed_urls.append(url, _('No unique URL found'))
+                        continue
+
+                    new_url = new_urls[0]
+                    if new_url in set(x.url for x in self.root.podcast_model.get_podcasts()):
+                        failed_urls.append((url, _('Already subscribed')))
+                        continue
+
+                    logger.info('New feed location: %s => %s', url, new_url)
+                    podcast.url = new_url
+                    podcast.save()
+                    migrated_users.append(user)
+                except Exception as e:
+                    logger.error('Exception happened while updating download list.', exc_info=True)
+                    self.showMessage.emit(_('Make sure the API key is correct. Error: %(message)s') % {'message':
+                                                                                                       str(e)})
+                    return
+
+        if migrated_users:
+            self.showMessage.emit(_('Successfully migrated subscriptions'))
+        elif not failed_urls:
+            self.showMessage.emit(_('Subscriptions are up to date'))
+        elif failed_urls:
+            self.showMessage.emit(_('Could not migrate some subscriptions'))
+
     @Slot(QObject, int, int)
     def storePlaybackAction(self, episode, start, end):
         self.episodeUpdated.emit(episode.id)
@@ -437,6 +477,17 @@ class Controller(QObject):
         # Update the device settings and upload changes
         self.root.mygpo_client.create_device()
         self.root.mygpo_client.flush(now=True)
+
+    youTubeAPIKeyChanged = Signal()
+
+    def getYouTubeAPIKey(self):
+        return self.root.config.youtube.api_key_v3
+
+    def setYouTubeAPIKey(self, youtube_api_key):
+        self.root.config.youtube.api_key_v3 = youtube_api_key
+
+    youTubeAPIKey = Property(unicode, getYouTubeAPIKey,
+            setYouTubeAPIKey, notify=youTubeAPIKeyChanged)
 
     myGpoEnabledChanged = Signal()
 

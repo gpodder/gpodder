@@ -3529,7 +3529,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.show_message(_('Subscriptions are up to date'))
 
         if failed_urls:
-            self.show_message('\n'.join([_('These URLs failed:'), ''] + ['{}: {}'.format(url, message)
+            self.show_message('\n'.join([_('These URLs failed:'), ''] + ['{0}: {1}'.format(url, message)
                                                                          for url, message in failed_urls]),
                               _('Could not migrate some subscriptions'), important=True)
 
