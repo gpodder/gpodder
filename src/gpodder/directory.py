@@ -147,29 +147,6 @@ class GPodderNetTagsProvider(Provider):
     def get_tags(self):
         return [DirectoryTag(d['tag'], d['usage']) for d in json.load(util.urlopen('http://gpodder.net/api/2/tags/40.json'))]
 
-class YouTubeSearchProvider(Provider):
-    def __init__(self):
-        self.name = _('YouTube search')
-        self.kind = Provider.PROVIDER_SEARCH
-        self.icon = 'directory-youtube.png'
-
-    def on_search(self, query):
-        url = 'http://gdata.youtube.com/feeds/api/videos?alt=json&q=%s' % urllib.quote(query)
-        data = json.load(util.urlopen(url))
-
-        result = []
-
-        seen_users = set()
-        for entry in data['feed']['entry']:
-            user = os.path.basename(entry['author'][0]['uri']['$t'])
-            title = entry['title']['$t']
-            url = 'http://www.youtube.com/rss/user/%s/videos.rss' % user
-            if user not in seen_users:
-                result.append(DirectoryEntry(user, url))
-                seen_users.add(user)
-
-        return result
-
 class SoundcloudSearchProvider(Provider):
     def __init__(self):
         self.name = _('Soundcloud search')
@@ -204,6 +181,5 @@ PROVIDERS = [
     OpmlWebImportProvider,
     #OpmlFileImportProvider,
     None,
-    YouTubeSearchProvider,
     SoundcloudSearchProvider,
 ]
