@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # gPodder - A media aggregator and podcast client
-# Copyright (c) 2005-2014 Thomas Perl and the gPodder Team
+# Copyright (c) 2005-2015 Thomas Perl and the gPodder Team
 #
 # gPodder is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -2177,6 +2177,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
         queued, failed, existing, worked, authreq = [], [], [], [], []
         for input_title, input_url in podcasts:
             url = util.normalize_feed_url(input_url)
+
+            # Check if it's a YouTube feed, and if we have an API key, auto-resolve the channel
+            url = youtube.resolve_v3_url(url, self.config.youtube.api_key_v3)
+
             if url is None:
                 # Fail this one because the URL is not valid
                 failed.append(input_url)
@@ -3483,6 +3487,52 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.delete_episode_list)
 
         self.sync_ui.on_synchronize_episodes(self.channels, episodes, force_played)
+
+    def on_update_youtube_subscriptions_activate(self, widget):
+        if not self.config.youtube.api_key_v3:
+            if self.show_confirmation('\n'.join((_('Please register a YouTube API key and set it in the preferences.'),
+                                                 _('Would you like to set up an API key now?'))), _('API key required')):
+                self.on_itemPreferences_activate(self, widget)
+            return
+
+        failed_urls = []
+        migrated_users = []
+        for podcast in self.channels:
+            url, user = youtube.for_each_feed_pattern(lambda url, channel: (url, channel), podcast.url, (None, None))
+            if url is not None and user is not None:
+                try:
+                    logger.info('Getting channels for YouTube user %s (%s)', user, url)
+                    new_urls = youtube.get_channels_for_user(user, self.config.youtube.api_key_v3)
+                    logger.debug('YouTube channels retrieved: %r', new_urls)
+
+                    if len(new_urls) != 1:
+                        failed_urls.append(url, _('No unique URL found'))
+                        continue
+
+                    new_url = new_urls[0]
+                    if new_url in set(x.url for x in self.model.get_podcasts()):
+                        failed_urls.append((url, _('Already subscribed')))
+                        continue
+
+                    logger.info('New feed location: %s => %s', url, new_url)
+                    podcast.url = new_url
+                    podcast.save()
+                    migrated_users.append(user)
+                except Exception as e:
+                    logger.error('Exception happened while updating download list.', exc_info=True)
+                    self.show_message(_('Make sure the API key is correct. Error: %(message)s') % {'message': str(e)},
+                                      _('Error getting YouTube channels'), important=True)
+
+        if migrated_users:
+            self.show_message('\n'.join(migrated_users), _('Successfully migrated subscriptions'))
+        elif not failed_urls:
+            self.show_message(_('Subscriptions are up to date'))
+
+        if failed_urls:
+            self.show_message('\n'.join([_('These URLs failed:'), ''] + ['{0}: {1}'.format(url, message)
+                                                                         for url, message in failed_urls]),
+                              _('Could not migrate some subscriptions'), important=True)
+
 
 def main(options=None):
     gobject.threads_init()

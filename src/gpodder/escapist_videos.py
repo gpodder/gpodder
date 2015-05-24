@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # gPodder - A media aggregator and podcast client
-# Copyright (c) 2005-2014 Thomas Perl and the gPodder Team
+# Copyright (c) 2005-2015 Thomas Perl and the gPodder Team
 #
 # gPodder is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -38,6 +38,7 @@ except ImportError:
     import json
 
 import re
+import urllib
 
 # This matches the more reliable URL
 ESCAPIST_NUMBER_RE = re.compile(r'http://www.escapistmagazine.com/videos/view/(\d+)', re.IGNORECASE)
@@ -45,10 +46,8 @@ ESCAPIST_NUMBER_RE = re.compile(r'http://www.escapistmagazine.com/videos/view/(\
 ESCAPIST_REGULAR_RE = re.compile(r'http://www.escapistmagazine.com/videos/view/([\w-]+)/(\d+)-', re.IGNORECASE)
 # This finds the RSS for a given URL
 DATA_RSS_RE = re.compile(r'http://www.escapistmagazine.com/rss/videos/list/([1-9][0-9]*)\.xml')
-# This matches the flash player's configuration. It's a JSON, but it's always malformed
-DATA_CONFIG_RE = re.compile(r'name="flashvars".*config=(http.*\.js)', re.IGNORECASE)
-# This matches the actual MP4 url, inside the "JSON"
-DATA_CONFIG_DATA_RE = re.compile(r'http[:/\w.?&-]*\.mp4')
+# This matches the "configuration". The important part is the JSON between the parens
+DATA_CONFIG_RE = re.compile(r'imsVideo\.play\((.*)\)\;\<\/script\>', re.IGNORECASE)
 # This matches the cover art for an RSS. We shouldn't parse XML with regex.
 DATA_COVERART_RE = re.compile(r'<url>(http:.+\.jpg)</url>')
 
@@ -63,19 +62,24 @@ def get_real_download_url(url):
 
     data_config_frag = DATA_CONFIG_RE.search(web_data)
 
-    if data_config_frag is None:
-        raise EscapistError('Cannot get flashvars URL from The Escapist')
+    data_config_url = get_escapist_config_url(data_config_frag.group(1))
 
-    data_config_url = data_config_frag.group(1)
+    if data_config_url is None:
+        raise EscapistError('Cannot parse configuration from the site')
+
+    logger.debug('Config URL: %s', data_config_url)
 
     data_config_data = util.urlopen(data_config_url).read().decode('utf-8')
-    data_config_data_frag = DATA_CONFIG_DATA_RE.search(data_config_data)
-    if data_config_data_frag is None:
-        raise EscapistError('Cannot get configuration JS from The Escapist')
-    real_url = data_config_data_frag.group(0)
+
+    #TODO: This second argument should get a real name
+    real_url = get_escapist_real_url(data_config_data, data_config_frag.group(1))
+
     if real_url is None:
         raise EscapistError('Cannot get MP4 URL from The Escapist')
-    return real_url
+    elif "sales-marketing/" in real_url:
+        raise EscapistError('Oops, seems The Escapist blocked this IP. Wait a few days/weeks to get it unblocked')
+    else:
+        return real_url
 
 def get_escapist_id(url):
     result = ESCAPIST_NUMBER_RE.match(url)
@@ -107,7 +111,7 @@ def get_real_cover(url):
     rss_url = get_real_channel_url(url)
     if rss_url is None:
         return None
-    
+
     rss_data = util.urlopen(rss_url).read()
     rss_data_frag = DATA_COVERART_RE.search(rss_data)
 
@@ -123,3 +127,46 @@ def get_escapist_web(video_id):
     web_url = 'http://www.escapistmagazine.com/videos/view/%s' % video_id
     return util.urlopen(web_url).read()
 
+def get_escapist_config_url(data):
+    if data is None:
+        return None
+
+    query_string = urllib.urlencode(json.loads(data))
+
+    return 'http://www.escapistmagazine.com/videos/vidconfig.php?%s' % query_string
+
+def get_escapist_real_url(data, config_json):
+    if data is None:
+        return None
+
+    config_data = json.loads(config_json)
+    if config_data is None:
+        return None
+
+    ## The data is scrambled, unscramble
+    ## Direct port from 'imsVideos.prototype.processRequest' from the file 'ims_videos.min.js'
+
+    one_hash = config_data["hash"]
+    # Turn the string into numbers
+    hash_n = [ ord(x) for x in one_hash ]
+    # Split the data into 2char strings
+    hex_hashes = [ data[x:x+2] for x in range(0,len(data),2) ]
+    # Turn the strings into numbers, considering the hex value
+    num_hashes = [ int(h, 16) for h in hex_hashes ]
+    # Characters again, from the value
+    # str_hashes = [ unichr(n) for n in num_hashes ]
+
+    # Bitwise XOR num_hashes and the hash
+    result_num = []
+    for idx in range(0,len(num_hashes)):
+        result_num.append(num_hashes[idx]^hash_n[idx % len(hash_n)])
+
+    # At last, Numbers back into characters
+    result = ''.join([unichr(x) for x in result_num])
+    # A wild JSON appears...
+    # You use "Master Ball"...
+    escapist_cfg = json.loads(result)
+    # It's super effective!
+
+    #TODO: There's a way to choose different video types, for now just pick MP4@480p
+    return escapist_cfg["files"]["videos"][2]["src"]

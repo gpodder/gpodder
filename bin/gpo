@@ -3,7 +3,7 @@
 
 #
 # gPodder - A media aggregator and podcast client
-# Copyright (c) 2005-2014 Thomas Perl and the gPodder Team
+# Copyright (c) 2005-2015 Thomas Perl and the gPodder Team
 #
 # gPodder is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -58,6 +58,7 @@
   - Other commands -
 
     youtube URL                Resolve the YouTube URL to a download URL
+    youtubefix                 Migrate old YouTube subscriptions to new feeds
     rewrite OLDURL NEWURL      Change the feed URL of [OLDURL] to [NEWURL]
     webui [public]             Start gPodder's Web UI server
                                (public = listen on all network interfaces)
@@ -307,6 +308,9 @@ class gPodderCli(object):
         if url is None:
             self._error(_('Invalid url: %s') % url)
             return None
+
+        # Check if it's a YouTube feed, and if we have an API key, auto-resolve the channel
+        url = youtube.resolve_v3_url(url, self._config.youtube.api_key_v3)
 
         # Subscribe to new podcast
         if create:
@@ -599,6 +603,49 @@ class gPodderCli(object):
         safe_print(yurl)
 
         return True
+
+    def youtubefix(self):
+        if not self._config.youtube.api_key_v3:
+            self._error(_('Please register a YouTube API key and set it using %(command)s.') % {
+                'command': 'set youtube.api_key_v3 KEY',
+            })
+            return False
+
+        reported_anything = False
+        for podcast in self._model.get_podcasts():
+            url, user = youtube.for_each_feed_pattern(lambda url, channel: (url, channel), podcast.url, (None, None))
+            if url is not None and user is not None:
+                try:
+                    logger.info('Getting channels for YouTube user %s (%s)', user, url)
+                    new_urls = youtube.get_channels_for_user(user, self._config.youtube.api_key_v3)
+                    logger.debug('YouTube channels retrieved: %r', new_urls)
+
+                    if len(new_urls) != 1:
+                        self._info('%s: %s' % (url, _('No unique URL found')))
+                        reported_anything = True
+                        continue
+
+                    new_url = new_urls[0]
+                    if new_url in set(x.url for x in self._model.get_podcasts()):
+                        self._info('%s: %s' % (url, _('Already subscribed')))
+                        reported_anything = True
+                        continue
+
+                    logger.info('New feed location: %s => %s', url, new_url)
+
+                    self._info(_('Changing: %(old_url)s => %(new_url)s') % {'old_url': url, 'new_url': new_url})
+                    reported_anything = True
+                    podcast.url = new_url
+                    podcast.save()
+                except Exception as e:
+                    logger.error('Exception happened while updating download list.', exc_info=True)
+                    self._error(_('Make sure the API key is correct. Error: %(message)s') % {'message': str(e)})
+                    return False
+
+            if not reported_anything:
+                self._info(_('Nothing to fix'))
+            return True
+
 
     def webui(self, public=None):
         from gpodder import webui

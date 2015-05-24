@@ -277,11 +277,14 @@ WindowWindow {
             myGpoUsernameField.text = controller.myGpoUsername
             myGpoPasswordField.text = controller.myGpoPassword
             myGpoDeviceCaptionField.text = controller.myGpoDeviceCaption
+
+            youTubeAPIKey.text = controller.youTubeAPIKey
         }
 
         onClosed: {
             controller.myGpoEnabled = myGpoEnableSwitch.checked && myGpoUserPassFilled;
             controller.saveMyGpoSettings();
+            controller.youTubeAPIKey = youTubeAPIKey.text;
         }
 
         Item {
@@ -355,6 +358,25 @@ WindowWindow {
                         onCheckedChanged: {
                             configProxy.flattrOnPlay = checked
                         }
+                    }
+
+                    SettingsHeader { text: _('YouTube') }
+
+                    Label {
+                        text: _('API Key (v3):')
+                    }
+
+                    InputField { id: youTubeAPIKey; anchors.left: parent.left; anchors.right: parent.right }
+
+                    Button {
+                        text: _('Migrate subscriptions')
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        width: parent.width * .8
+                        onClicked: {
+                            controller.youTubeAPIKey = youTubeAPIKey.text;
+                            controller.migrateYouTubeSubscriptions();
+                        }
+                        enabled: youTubeAPIKey.text !== ''
                     }
 
                     SettingsHeader { text: _('gpodder.net') }

@@ -234,6 +234,13 @@
           <accelerator key="S" modifiers="GDK_CONTROL_MASK"/>
         </child>
         <child>
+          <object class="GtkAction" id="item_update_youtube_subscriptions">
+            <property name="name">item_update_youtube_subscriptions</property>
+            <property name="label" translatable="yes">Update YouTube subscriptions</property>
+            <signal handler="on_update_youtube_subscriptions_activate" name="activate"/>
+          </object>
+        </child>
+        <child>
           <object class="GtkAction" id="menuView">
             <property name="name">menuView</property>
             <property name="label" translatable="yes">_View</property>
@@ -367,6 +374,7 @@
         </menu>
         <menu action="menuExtras">
           <menuitem action="item_sync"/>
+          <menuitem action="item_update_youtube_subscriptions"/>
         </menu>
         <menu action="menuView">
           <menuitem action="itemShowToolbar"/>
