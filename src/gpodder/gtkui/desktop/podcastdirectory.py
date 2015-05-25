@@ -24,8 +24,8 @@
 #
 
 
-import gtk
-import pango
+from gi.repository import Gtk
+from gi.repository import Pango
 import cgi
 import os
 
@@ -43,11 +43,11 @@ from gpodder.gtkui.interface.common import BuilderWidget
 from gpodder.gtkui.interface.progress import ProgressIndicator
 from gpodder.gtkui.interface.tagcloud import TagCloud
 
-class DirectoryPodcastsModel(gtk.ListStore):
+class DirectoryPodcastsModel(Gtk.ListStore):
     C_SELECTED, C_MARKUP, C_TITLE, C_URL = range(4)
 
     def __init__(self, callback_can_subscribe):
-        gtk.ListStore.__init__(self, bool, str, str, str)
+        GObject.GObject.__init__(self, bool, str, str, str)
         self.callback_can_subscribe = callback_can_subscribe
 
     def load(self, directory_entries):
@@ -74,13 +74,13 @@ class DirectoryPodcastsModel(gtk.ListStore):
         return [(row[self.C_TITLE], row[self.C_URL]) for row in self if row[self.C_SELECTED]]
 
 
-class DirectoryProvidersModel(gtk.ListStore):
+class DirectoryProvidersModel(Gtk.ListStore):
     C_WEIGHT, C_TEXT, C_ICON, C_PROVIDER = range(4)
 
-    SEPARATOR = (pango.WEIGHT_NORMAL, '', None, None)
+    SEPARATOR = (Pango.Weight.NORMAL, '', None, None)
 
     def __init__(self, providers):
-        gtk.ListStore.__init__(self, int, str, gtk.gdk.Pixbuf, object)
+        GObject.GObject.__init__(self, int, str, GdkPixbuf.Pixbuf, object)
         for provider in providers:
             self.add_provider(provider() if provider else None)
 
@@ -89,11 +89,11 @@ class DirectoryProvidersModel(gtk.ListStore):
             self.append(self.SEPARATOR)
         else:
             try:
-                pixbuf = gtk.gdk.pixbuf_new_from_file(os.path.join(gpodder.images_folder, provider.icon)) if provider.icon else None
+                pixbuf = GdkPixbuf.Pixbuf.new_from_file(os.path.join(gpodder.images_folder, provider.icon)) if provider.icon else None
             except Exception as e:
                 logger.warn('Could not load icon: %s (%s)', provider.icon or '-', e)
                 pixbuf = None
-            self.append((pango.WEIGHT_NORMAL, provider.name, pixbuf, provider))
+            self.append((Pango.Weight.NORMAL, provider.name, pixbuf, provider))
 
     def is_row_separator(self, model, it):
         return self.get_value(it, self.C_PROVIDER) is None
@@ -127,17 +127,17 @@ class gPodderPodcastDirectory(BuilderWidget):
         self.tv_providers.set_cursor(len(self.providers_model)-1)
 
     def setup_podcasts_treeview(self):
-        column = gtk.TreeViewColumn('')
-        cell = gtk.CellRendererToggle()
+        column = Gtk.TreeViewColumn('')
+        cell = Gtk.CellRendererToggle()
         column.pack_start(cell, False)
         column.add_attribute(cell, 'active', DirectoryPodcastsModel.C_SELECTED)
         cell.connect('toggled', lambda cell, path: self.podcasts_model.toggle(path))
         self.tv_podcasts.append_column(column)
 
-        column = gtk.TreeViewColumn('')
-        cell = gtk.CellRendererText()
-        cell.set_property('ellipsize', pango.ELLIPSIZE_END)
-        column.pack_start(cell)
+        column = Gtk.TreeViewColumn('')
+        cell = Gtk.CellRendererText()
+        cell.set_property('ellipsize', Pango.EllipsizeMode.END)
+        column.pack_start(cell, True)
         column.add_attribute(cell, 'markup', DirectoryPodcastsModel.C_MARKUP)
         self.tv_podcasts.append_column(column)
 
@@ -145,13 +145,13 @@ class gPodderPodcastDirectory(BuilderWidget):
         self.podcasts_model.append((False, 'a', 'b', 'c'))
 
     def setup_providers_treeview(self):
-        column = gtk.TreeViewColumn('')
-        cell = gtk.CellRendererPixbuf()
+        column = Gtk.TreeViewColumn('')
+        cell = Gtk.CellRendererPixbuf()
         column.pack_start(cell, False)
         column.add_attribute(cell, 'pixbuf', DirectoryProvidersModel.C_ICON)
-        cell = gtk.CellRendererText()
-        #cell.set_property('ellipsize', pango.ELLIPSIZE_END)
-        column.pack_start(cell)
+        cell = Gtk.CellRendererText()
+        #cell.set_property('ellipsize', Pango.EllipsizeMode.END)
+        column.pack_start(cell, True)
         column.add_attribute(cell, 'text', DirectoryProvidersModel.C_TEXT)
         column.add_attribute(cell, 'weight', DirectoryProvidersModel.C_WEIGHT)
         self.tv_providers.append_column(column)
@@ -175,10 +175,10 @@ class gPodderPodcastDirectory(BuilderWidget):
         it = self.providers_model.get_iter(path)
 
         for row in self.providers_model:
-            row[DirectoryProvidersModel.C_WEIGHT] = pango.WEIGHT_NORMAL
+            row[DirectoryProvidersModel.C_WEIGHT] = Pango.Weight.NORMAL
 
         if it:
-            self.providers_model.set_value(it, DirectoryProvidersModel.C_WEIGHT, pango.WEIGHT_BOLD)
+            self.providers_model.set_value(it, DirectoryProvidersModel.C_WEIGHT, Pango.Weight.BOLD)
             provider = self.providers_model.get_value(it, DirectoryProvidersModel.C_PROVIDER)
             self.use_provider(provider)
 

@@ -85,8 +85,8 @@ if pymtp_available:
                 folder = folder.contents
                 name = self.sep.join([path, folder.name]).lstrip(self.sep)
                 result[name] = folder.folder_id
-                if folder.child:
-                    result.update(self.unfold(folder.child, name))
+                if folder.get_child():
+                    result.update(self.unfold(folder.get_child(), name))
                 folder = folder.sibling
             return result
 

@@ -17,8 +17,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import gtk
-import gtk.gdk
+from gi.repository import Gtk
+import Gtk.gdk
 import os.path
 
 import gpodder

@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 from gpodder import util
 from gpodder import coverart
 
-import gtk
+from gi.repository import Gtk
 
 
 class CoverDownloader(ObservableService):
@@ -117,14 +117,14 @@ class CoverDownloader(ObservableService):
         pixbuf = None
 
         try:
-            pixbuf = gtk.gdk.pixbuf_new_from_file(filename)
+            pixbuf = GdkPixbuf.Pixbuf.new_from_file(filename)
         except Exception, e:
             logger.warn('Cannot load cover art', exc_info=True)
             if filename.startswith(channel.cover_file):
                 logger.info('Deleting broken cover: %s', filename)
                 util.delete_file(filename)
                 filename = get_filename()
-                pixbuf = gtk.gdk.pixbuf_new_from_file(filename)
+                pixbuf = GdkPixbuf.Pixbuf.new_from_file(filename)
 
         if async:
             self.notify('cover-available', channel, pixbuf)

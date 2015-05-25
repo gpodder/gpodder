@@ -25,8 +25,8 @@
 
 import gpodder
 
-import gtk
-import pango
+from gi.repository import Gtk
+from gi.repository import Pango
 import pangocairo
 import cairo
 import StringIO
@@ -88,17 +88,17 @@ def rounded_rectangle(ctx, x, y, width, height, radius=4.):
 
 def draw_text_box_centered(ctx, widget, w_width, w_height, text, font_desc=None, add_progress=None):
     style = widget.rc_get_style()
-    text_color = style.text[gtk.STATE_PRELIGHT]
+    text_color = style.text[Gtk.StateType.PRELIGHT]
     red, green, blue = text_color.red, text_color.green, text_color.blue
     text_color = [float(x)/65535. for x in (red, green, blue)]
     text_color.append(.5)
 
     if font_desc is None:
         font_desc = style.font_desc
-        font_desc.set_size(14*pango.SCALE)
+        font_desc.set_size(14*Pango.SCALE)
 
     pango_context = widget.create_pango_context()
-    layout = pango.Layout(pango_context)
+    layout = Pango.Layout(pango_context)
     layout.set_font_description(font_desc)
     layout.set_text(text)
     width, height = layout.get_pixel_size()
@@ -128,11 +128,11 @@ def draw_cake(percentage, text=None, emblem=None, size=None):
     surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, size, size)
     ctx = pangocairo.CairoContext(cairo.Context(surface))
 
-    widget = gtk.ProgressBar()
+    widget = Gtk.ProgressBar()
     style = widget.rc_get_style()
-    bgc = style.bg[gtk.STATE_NORMAL]
-    fgc = style.bg[gtk.STATE_SELECTED]
-    txc = style.text[gtk.STATE_NORMAL]
+    bgc = style.bg[Gtk.StateType.NORMAL]
+    fgc = style.bg[Gtk.StateType.SELECTED]
+    txc = style.text[Gtk.StateType.NORMAL]
 
     border = 1.5
     height = int(size*.4)
@@ -166,7 +166,7 @@ def draw_text_pill(left_text, right_text, x=0, y=0, border=2, radius=14, font_de
     ctx = cairo.Context(cairo.ImageSurface(cairo.FORMAT_ARGB32, 1, 1))
 
     # Use GTK+ style of a normal Button
-    widget = gtk.Label()
+    widget = Gtk.Label()
     style = widget.rc_get_style()
 
     # Padding (in px) at the right edge of the image (for Ubuntu; bug 1533)
@@ -176,13 +176,13 @@ def draw_text_pill(left_text, right_text, x=0, y=0, border=2, radius=14, font_de
 
     if font_desc is None:
         font_desc = style.font_desc
-        font_desc.set_weight(pango.WEIGHT_BOLD)
+        font_desc.set_weight(Pango.Weight.BOLD)
 
     pango_context = widget.create_pango_context()
-    layout_left = pango.Layout(pango_context)
+    layout_left = Pango.Layout(pango_context)
     layout_left.set_font_description(font_desc)
     layout_left.set_text(left_text)
-    layout_right = pango.Layout(pango_context)
+    layout_right = Pango.Layout(pango_context)
     layout_right.set_font_description(font_desc)
     layout_right.set_text(right_text)
 
@@ -295,7 +295,7 @@ def cairo_surface_to_pixbuf(s):
         # Thanks to Chris Arnold for reporting this bug
         sio.write('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A\n/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9cMEQkqIyxn3RkAAAAZdEVYdENv\nbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAAADUlEQVQI12NgYGBgAAAABQABXvMqOgAAAABJ\nRU5ErkJggg==\n'.decode('base64'))
 
-    pbl = gtk.gdk.PixbufLoader()
+    pbl = GdkPixbuf.PixbufLoader()
     pbl.write(sio.getvalue())
     pbl.close()
 
@@ -310,15 +310,15 @@ def draw_flattr_button(widget, flattr_image, flattrs_count):
     if isinstance(flattrs_count, int):
         flattrs_count = str(flattrs_count)
 
-    pixbuf = gtk.gdk.pixbuf_new_from_file(flattr_image)
+    pixbuf = GdkPixbuf.Pixbuf.new_from_file(flattr_image)
     iwidth, iheight = pixbuf.get_width(), pixbuf.get_height()
     pixmap, mask = pixbuf.render_pixmap_and_mask()
 
     # get default-font
     style = widget.rc_get_style()
     font_desc = style.font_desc
-    #font_desc.set_size(12*pango.SCALE)
-    font_desc.set_size(9*pango.SCALE)
+    #font_desc.set_size(12*Pango.SCALE)
+    font_desc.set_size(9*Pango.SCALE)
 
     # set font and text
     layout = widget.create_pango_layout(flattrs_count)

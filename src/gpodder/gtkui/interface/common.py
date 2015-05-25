@@ -17,7 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import gtk
+from gi.repository import Gtk
 import os
 import shutil
 
@@ -58,7 +58,7 @@ class BuilderWidget(GtkBuilderWidget):
                 self.main_window.move(x + w/2 - pw/2, y + h/2 - ph/2)
 
     def _on_window_state_event_visibility(self, widget, event):
-        if event.state & gtk.gdk.VISIBILITY_FULLY_OBSCURED:
+        if event.get_state() & Gdk.VisibilityState.FULLY_OBSCURED:
             self._window_visible = False
         else:
             self._window_visible = True
@@ -66,7 +66,7 @@ class BuilderWidget(GtkBuilderWidget):
         return False
 
     def _on_window_state_event_iconified(self, widget, event):
-        if event.new_window_state & gtk.gdk.WINDOW_STATE_ICONIFIED:
+        if event.new_window_state & Gdk.WindowState.ICONIFIED:
             if not self._window_iconified:
                 self._window_iconified = True
                 self.on_iconify()
@@ -84,12 +84,12 @@ class BuilderWidget(GtkBuilderWidget):
         util.idle_add(self.show_message, message, title, important, widget)
 
     def get_dialog_parent(self):
-        """Return a gtk.Window that should be the parent of dialogs"""
+        """Return a Gtk.Window that should be the parent of dialogs"""
         return self.main_window
 
     def show_message(self, message, title=None, important=False, widget=None):
         if important:
-            dlg = gtk.MessageDialog(self.main_window, gtk.DIALOG_MODAL, gtk.MESSAGE_INFO, gtk.BUTTONS_OK)
+            dlg = Gtk.MessageDialog(self.main_window, Gtk.DialogFlags.MODAL, Gtk.MessageType.INFO, Gtk.ButtonsType.OK)
             if title:
                 dlg.set_title(str(title))
                 dlg.set_markup('<span weight="bold" size="larger">%s</span>\n\n%s' % (title, message))
@@ -101,7 +101,7 @@ class BuilderWidget(GtkBuilderWidget):
             gpodder.user_extensions.on_notification_show(title, message)
 
     def show_confirmation(self, message, title=None):
-        dlg = gtk.MessageDialog(self.main_window, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO)
+        dlg = Gtk.MessageDialog(self.main_window, Gtk.DialogFlags.MODAL, Gtk.MessageType.QUESTION, Gtk.ButtonsType.YES_NO)
         if title:
             dlg.set_title(str(title))
             dlg.set_markup('<span weight="bold" size="larger">%s</span>\n\n%s' % (title, message))
@@ -109,21 +109,21 @@ class BuilderWidget(GtkBuilderWidget):
             dlg.set_markup('<span weight="bold" size="larger">%s</span>' % (message))
         response = dlg.run()
         dlg.destroy()
-        return response == gtk.RESPONSE_YES
+        return response == Gtk.ResponseType.YES
 
     def show_text_edit_dialog(self, title, prompt, text=None, empty=False, \
-            is_url=False, affirmative_text=gtk.STOCK_OK):
-        dialog = gtk.Dialog(title, self.get_dialog_parent(), \
-            gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT)
+            is_url=False, affirmative_text=Gtk.STOCK_OK):
+        dialog = Gtk.Dialog(title, self.get_dialog_parent(), \
+            Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT)
 
-        dialog.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
-        dialog.add_button(affirmative_text, gtk.RESPONSE_OK)
+        dialog.add_button(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL)
+        dialog.add_button(affirmative_text, Gtk.ResponseType.OK)
 
         dialog.set_has_separator(False)
         dialog.set_default_size(300, -1)
-        dialog.set_default_response(gtk.RESPONSE_OK)
+        dialog.set_default_response(Gtk.ResponseType.OK)
 
-        text_entry = gtk.Entry()
+        text_entry = Gtk.Entry()
         text_entry.set_activates_default(True)
         if text is not None:
             text_entry.set_text(text)
@@ -132,15 +132,15 @@ class BuilderWidget(GtkBuilderWidget):
         if not empty:
             def on_text_changed(editable):
                 can_confirm = (editable.get_text() != '')
-                dialog.set_response_sensitive(gtk.RESPONSE_OK, can_confirm)
+                dialog.set_response_sensitive(Gtk.ResponseType.OK, can_confirm)
             text_entry.connect('changed', on_text_changed)
             if text is None:
-                dialog.set_response_sensitive(gtk.RESPONSE_OK, False)
+                dialog.set_response_sensitive(Gtk.ResponseType.OK, False)
 
-        hbox = gtk.HBox()
+        hbox = Gtk.HBox()
         hbox.set_border_width(10)
         hbox.set_spacing(10)
-        hbox.pack_start(gtk.Label(prompt), False, False)
+        hbox.pack_start(Gtk.Label(prompt, True, True, 0), False, False)
         hbox.pack_start(text_entry, True, True)
         dialog.vbox.pack_start(hbox, True, True)
 
@@ -149,7 +149,7 @@ class BuilderWidget(GtkBuilderWidget):
         result = text_entry.get_text()
         dialog.destroy()
 
-        if response == gtk.RESPONSE_OK:
+        if response == Gtk.ResponseType.OK:
             return result
         else:
             return None
@@ -162,23 +162,23 @@ class BuilderWidget(GtkBuilderWidget):
         if register_text is None:
             register_text = _('New user')
 
-        dialog = gtk.MessageDialog(
+        dialog = Gtk.MessageDialog(
             self.main_window,
-            gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-            gtk.MESSAGE_QUESTION,
-            gtk.BUTTONS_CANCEL)
-        dialog.add_button(_('Login'), gtk.RESPONSE_OK)
-        dialog.set_image(gtk.image_new_from_stock(gtk.STOCK_DIALOG_AUTHENTICATION, gtk.ICON_SIZE_DIALOG))
+            Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
+            Gtk.MessageType.QUESTION,
+            Gtk.ButtonsType.CANCEL)
+        dialog.add_button(_('Login'), Gtk.ResponseType.OK)
+        dialog.set_image(Gtk.Image.new_from_stock(Gtk.STOCK_DIALOG_AUTHENTICATION, Gtk.IconSize.DIALOG))
         dialog.set_title(_('Authentication required'))
         dialog.set_markup('<span weight="bold" size="larger">' + title + '</span>')
         dialog.format_secondary_markup(message)
-        dialog.set_default_response(gtk.RESPONSE_OK)
+        dialog.set_default_response(Gtk.ResponseType.OK)
 
         if register_callback is not None:
-            dialog.add_button(register_text, gtk.RESPONSE_HELP)
+            dialog.add_button(register_text, Gtk.ResponseType.HELP)
 
-        username_entry = gtk.Entry()
-        password_entry = gtk.Entry()
+        username_entry = Gtk.Entry()
+        password_entry = Gtk.Entry()
 
         username_entry.connect('activate', lambda w: password_entry.grab_focus())
         password_entry.set_visibility(False)
@@ -189,34 +189,34 @@ class BuilderWidget(GtkBuilderWidget):
         if password is not None:
             password_entry.set_text(password)
 
-        table = gtk.Table(2, 2)
+        table = Gtk.Table(2, 2)
         table.set_row_spacings(6)
         table.set_col_spacings(6)
 
-        username_label = gtk.Label()
+        username_label = Gtk.Label()
         username_label.set_markup('<b>' + username_prompt + ':</b>')
         username_label.set_alignment(0.0, 0.5)
-        table.attach(username_label, 0, 1, 0, 1, gtk.FILL, 0)
+        table.attach(username_label, 0, 1, 0, 1, Gtk.AttachOptions.FILL, 0)
         table.attach(username_entry, 1, 2, 0, 1)
 
-        password_label = gtk.Label()
+        password_label = Gtk.Label()
         password_label.set_markup('<b>' + _('Password') + ':</b>')
         password_label.set_alignment(0.0, 0.5)
-        table.attach(password_label, 0, 1, 1, 2, gtk.FILL, 0)
+        table.attach(password_label, 0, 1, 1, 2, Gtk.AttachOptions.FILL, 0)
         table.attach(password_entry, 1, 2, 1, 2)
 
         dialog.vbox.pack_end(table, True, True, 0)
         dialog.show_all()
         response = dialog.run()
 
-        while response == gtk.RESPONSE_HELP:
+        while response == Gtk.ResponseType.HELP:
             register_callback()
             response = dialog.run()
 
         password_entry.set_visibility(True)
         username = username_entry.get_text()
         password = password_entry.get_text()
-        success = (response == gtk.RESPONSE_OK)
+        success = (response == Gtk.ResponseType.OK)
 
         dialog.destroy()
 
@@ -234,9 +234,9 @@ class BuilderWidget(GtkBuilderWidget):
         if not dst_filename.endswith(extension):
             dst_filename += extension
 
-        dlg = gtk.FileChooserDialog(title=title, parent=self.main_window, action=gtk.FILE_CHOOSER_ACTION_SAVE)
-        dlg.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
-        dlg.add_button(gtk.STOCK_SAVE, gtk.RESPONSE_OK)
+        dlg = Gtk.FileChooserDialog(title=title, parent=self.main_window, action=Gtk.FileChooserAction.SAVE)
+        dlg.add_button(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL)
+        dlg.add_button(Gtk.STOCK_SAVE, Gtk.ResponseType.OK)
 
         dlg.set_do_overwrite_confirmation(True)
         dlg.set_current_name(os.path.basename(dst_filename))
@@ -244,7 +244,7 @@ class BuilderWidget(GtkBuilderWidget):
 
         result = False
         folder = dst_directory
-        if dlg.run() == gtk.RESPONSE_OK:
+        if dlg.run() == Gtk.ResponseType.OK:
             result = True
             dst_filename = dlg.get_filename()
             folder = dlg.get_current_folder()

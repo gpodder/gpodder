@@ -17,7 +17,7 @@ __disable_in__ = 'win32'
 
 
 import appindicator
-import gtk
+from gi.repository import Gtk
 
 import logging
 
@@ -43,8 +43,8 @@ class gPodderExtension:
             self.indicator.set_status(appindicator.STATUS_ACTIVE)
 
     def _rebuild_menu(self):
-        menu = gtk.Menu()
-        toggle_visible = gtk.CheckMenuItem(_('Show main window'))
+        menu = Gtk.Menu()
+        toggle_visible = Gtk.CheckMenuItem(_('Show main window'))
         toggle_visible.set_active(True)
         def on_toggle_visible(menu_item):
             if menu_item.get_active():
@@ -53,8 +53,8 @@ class gPodderExtension:
                 self.gpodder.main_window.hide()
         toggle_visible.connect('activate', on_toggle_visible)
         menu.append(toggle_visible)
-        menu.append(gtk.SeparatorMenuItem())
-        quit_gpodder = gtk.MenuItem(_('Quit'))
+        menu.append(Gtk.SeparatorMenuItem())
+        quit_gpodder = Gtk.MenuItem(_('Quit'))
         def on_quit(menu_item):
             self.gpodder.on_gPodder_delete_event(self.gpodder.main_window)
         quit_gpodder.connect('activate', on_quit)

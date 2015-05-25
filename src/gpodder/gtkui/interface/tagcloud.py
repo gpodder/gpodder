@@ -18,19 +18,19 @@
 #
 
 
-import gtk
-import gobject
+from gi.repository import Gtk
+from gi.repository import GObject
 import cgi
 
-class TagCloud(gtk.Layout):
+class TagCloud(Gtk.Layout):
     __gsignals__ = {
-            'selected': (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE,
-                           (gobject.TYPE_STRING,))
+            'selected': (GObject.SignalFlags.RUN_LAST, None,
+                           (GObject.TYPE_STRING,))
     }
 
     def __init__(self, min_size=20, max_size=36):
         self.__gobject_init__()
-        gtk.Layout.__init__(self)
+        GObject.GObject.__init__(self)
         self._min_weight = 0
         self._max_weight = 0
         self._min_size = min_size
@@ -49,10 +49,10 @@ class TagCloud(gtk.Layout):
         self._max_weight = max(weight for tag, weight in tags)
 
         for tag, weight in tags:
-            label = gtk.Label()
+            label = Gtk.Label()
             markup = '<span size="%d">%s</span>' % (1000*self._scale(weight), cgi.escape(tag))
             label.set_markup(markup)
-            button = gtk.ToolButton(label)
+            button = Gtk.ToolButton(label)
             button.connect('clicked', lambda b, t: self.emit('selected', t), tag)
             self.put(button, 1, 1)
             button.show_all()
@@ -98,6 +98,6 @@ class TagCloud(gtk.Layout):
         def unrelayout():
             self._in_relayout = False
             return False
-        gobject.idle_add(unrelayout)
+        GObject.idle_add(unrelayout)
 
-gobject.type_register(TagCloud)
+GObject.type_register(TagCloud)

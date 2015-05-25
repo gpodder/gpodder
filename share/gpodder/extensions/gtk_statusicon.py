@@ -17,7 +17,7 @@ __category__ = 'desktop-integration'
 __only_for__ = 'gtk'
 __disable_in__ = 'unity,win32'
 
-import gtk
+from gi.repository import Gtk
 import os.path
 
 from gpodder.gtkui import draw
@@ -39,7 +39,7 @@ class gPodderExtension:
         path = os.path.join(os.path.dirname(__file__), '..', '..', 'icons')
         icon_path = os.path.abspath(path)
 
-        theme = gtk.icon_theme_get_default()
+        theme = Gtk.IconTheme.get_default()
         theme.append_search_path(icon_path)
 
         if self.icon_name is None:
@@ -49,11 +49,11 @@ class gPodderExtension:
                 self.icon_name = 'stock_mic'
 
         if self.status_icon is None:
-            self.status_icon = gtk.status_icon_new_from_icon_name(self.icon_name)
+            self.status_icon = Gtk.status_icon_new_from_icon_name(self.icon_name)
             return
 
         # If current mode matches desired mode, nothing to do.
-        is_pixbuf = (self.status_icon.get_storage_type() == gtk.IMAGE_PIXBUF)
+        is_pixbuf = (self.status_icon.get_storage_type() == Gtk.ImageType.PIXBUF)
         if is_pixbuf == use_pixbuf:
             return
 
@@ -63,7 +63,7 @@ class gPodderExtension:
             # Currently icon is not a pixbuf => was loaded by name, at which
             # point size was automatically determined.
             icon_size = self.status_icon.get_size()
-            icon_pixbuf = theme.load_icon(self.icon_name, icon_size, gtk.ICON_LOOKUP_USE_BUILTIN)
+            icon_pixbuf = theme.load_icon(self.icon_name, icon_size, Gtk.IconLookupFlags.USE_BUILTIN)
             self.status_icon.set_from_pixbuf(icon_pixbuf)
 
     def on_load(self):
@@ -91,7 +91,7 @@ class gPodderExtension:
 
     def get_icon_pixbuf(self):
         assert self.status_icon is not None
-        if self.status_icon.get_storage_type() != gtk.IMAGE_PIXBUF:
+        if self.status_icon.get_storage_type() != Gtk.ImageType.PIXBUF:
             self.set_icon(use_pixbuf=True)
         return self.status_icon.get_pixbuf()
 
@@ -117,7 +117,7 @@ class gPodderExtension:
 
         icon = self.get_icon_pixbuf().copy()
         progressbar = draw.progressbar_pixbuf(icon.get_width(), icon.get_height(), progress)
-        progressbar.composite(icon, 0, 0, icon.get_width(), icon.get_height(), 0, 0, 1, 1, gtk.gdk.INTERP_NEAREST, 255)
+        progressbar.composite(icon, 0, 0, icon.get_width(), icon.get_height(), 0, 0, 1, 1, GdkPixbuf.InterpType.NEAREST, 255)
 
         self.status_icon.set_from_pixbuf(icon)
         self.last_progress = progress

@@ -17,10 +17,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import gtk
-import gtk.gdk
-import gobject
-import pango
+from gi.repository import Gtk
+import Gtk.gdk
+from gi.repository import GObject
+from gi.repository import Pango
 import os
 import cgi
 
@@ -37,8 +37,8 @@ from gpodder.gtkui.draw import draw_text_box_centered
 
 
 try:
-    import webkit
-    webview_signals = gobject.signal_list_names(webkit.WebView)
+    from gi.repository import WebKit
+    webview_signals = GObject.signal_list_names(webkit.WebView)
     if 'navigation-policy-decision-requested' in webview_signals:
         have_webkit = True
     else:
@@ -52,13 +52,13 @@ class gPodderShownotes:
     def __init__(self, shownotes_pane):
         self.shownotes_pane = shownotes_pane
 
-        self.scrolled_window = gtk.ScrolledWindow()
-        self.scrolled_window.set_shadow_type(gtk.SHADOW_IN)
-        self.scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+        self.scrolled_window = Gtk.ScrolledWindow()
+        self.scrolled_window.set_shadow_type(Gtk.ShadowType.IN)
+        self.scrolled_window.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
         self.scrolled_window.add(self.init())
         self.scrolled_window.show_all()
 
-        self.da_message = gtk.DrawingArea()
+        self.da_message = Gtk.DrawingArea()
         self.da_message.connect('expose-event', \
                                     self.on_shownotes_message_expose_event)
         self.shownotes_pane.add(self.da_message)
@@ -122,16 +122,16 @@ class gPodderShownotes:
 
 class gPodderShownotesText(gPodderShownotes):
     def init(self):
-        self.text_view = gtk.TextView()
-        self.text_view.set_wrap_mode(gtk.WRAP_WORD_CHAR)
+        self.text_view = Gtk.TextView()
+        self.text_view.set_wrap_mode(Gtk.WrapMode.WORD_CHAR)
         self.text_view.set_border_width(10)
         self.text_view.set_editable(False)
-        self.text_buffer = gtk.TextBuffer()
-        self.text_buffer.create_tag('heading', scale=pango.SCALE_LARGE, weight=pango.WEIGHT_BOLD)
-        self.text_buffer.create_tag('subheading', scale=pango.SCALE_SMALL)
+        self.text_buffer = Gtk.TextBuffer()
+        self.text_buffer.create_tag('heading', scale=Pango.SCALE_LARGE, weight=Pango.Weight.BOLD)
+        self.text_buffer.create_tag('subheading', scale=Pango.SCALE_SMALL)
         self.text_view.set_buffer(self.text_buffer)
-        self.text_view.modify_bg(gtk.STATE_NORMAL,
-                gtk.gdk.color_parse('#ffffff'))
+        self.text_view.modify_bg(Gtk.StateType.NORMAL,
+                Gdk.color_parse('#ffffff'))
         return self.text_view
 
     def update(self, heading, subheading, episode):

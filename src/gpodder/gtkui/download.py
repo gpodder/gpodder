@@ -28,7 +28,7 @@ import gpodder
 from gpodder import util
 from gpodder import download
 
-import gtk
+from gi.repository import Gtk
 import cgi
 
 import collections
@@ -36,22 +36,22 @@ import collections
 _ = gpodder.gettext
 
 
-class DownloadStatusModel(gtk.ListStore):
+class DownloadStatusModel(Gtk.ListStore):
     # Symbolic names for our columns, so we know what we're up to
     C_TASK, C_NAME, C_URL, C_PROGRESS, C_PROGRESS_TEXT, C_ICON_NAME = range(6)
 
     SEARCH_COLUMNS = (C_NAME, C_URL)
 
     def __init__(self):
-        gtk.ListStore.__init__(self, object, str, str, int, str, str)
+        GObject.GObject.__init__(self, object, str, str, int, str, str)
 
         # Set up stock icon IDs for tasks
         self._status_ids = collections.defaultdict(lambda: None)
-        self._status_ids[download.DownloadTask.DOWNLOADING] = gtk.STOCK_GO_DOWN
-        self._status_ids[download.DownloadTask.DONE] = gtk.STOCK_APPLY
-        self._status_ids[download.DownloadTask.FAILED] = gtk.STOCK_STOP
-        self._status_ids[download.DownloadTask.CANCELLED] = gtk.STOCK_CANCEL
-        self._status_ids[download.DownloadTask.PAUSED] = gtk.STOCK_MEDIA_PAUSE
+        self._status_ids[download.DownloadTask.DOWNLOADING] = Gtk.STOCK_GO_DOWN
+        self._status_ids[download.DownloadTask.DONE] = Gtk.STOCK_APPLY
+        self._status_ids[download.DownloadTask.FAILED] = Gtk.STOCK_STOP
+        self._status_ids[download.DownloadTask.CANCELLED] = Gtk.STOCK_CANCEL
+        self._status_ids[download.DownloadTask.PAUSED] = Gtk.STOCK_MEDIA_PAUSE
 
     def _format_message(self, episode, message, podcast):
         episode = cgi.escape(episode)

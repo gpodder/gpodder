@@ -39,13 +39,13 @@ from gpodder.gtkui import draw
 from gpodder.gtkui import flattr
 
 import os
-import gtk
-import gobject
+from gi.repository import Gtk
+from gi.repository import GObject
 import cgi
 import re
 
 try:
-    import gio
+    from gi.repository import Gio
     have_gio = True
 except ImportError:
     have_gio = False
@@ -106,7 +106,7 @@ class Model(model.Model):
 class SeparatorMarker(object): pass
 class SectionMarker(object): pass
 
-class EpisodeListModel(gtk.ListStore):
+class EpisodeListModel(Gtk.ListStore):
     C_URL, C_TITLE, C_FILESIZE_TEXT, C_EPISODE, C_STATUS_ICON, \
             C_PUBLISHED_TEXT, C_DESCRIPTION, C_TOOLTIP, \
             C_VIEW_SHOW_UNDELETED, C_VIEW_SHOW_DOWNLOADED, \
@@ -123,9 +123,9 @@ class EpisodeListModel(gtk.ListStore):
     PROGRESS_STEPS = 20
 
     def __init__(self, config, on_filter_changed=lambda has_episodes: None):
-        gtk.ListStore.__init__(self, str, str, str, object, \
+        GObject.GObject.__init__(self, str, str, str, object, \
                 str, str, str, str, bool, bool, bool, \
-                gobject.TYPE_INT64, gobject.TYPE_INT64, str, bool, gobject.TYPE_INT64, bool)
+                GObject.TYPE_INT64, GObject.TYPE_INT64, str, bool, GObject.TYPE_INT64, bool)
 
         self._config = config
 
@@ -135,7 +135,7 @@ class EpisodeListModel(gtk.ListStore):
 
         # Filter to allow hiding some episodes
         self._filter = self.filter_new()
-        self._sorter = gtk.TreeModelSort(self._filter)
+        self._sorter = Gtk.TreeModelSort(self._filter)
         self._view_mode = self.VIEW_ALL
         self._search_term = None
         self._search_term_eql = None
@@ -148,8 +148,8 @@ class EpisodeListModel(gtk.ListStore):
         self.ICON_VIDEO_FILE = 'video-x-generic'
         self.ICON_IMAGE_FILE = 'image-x-generic'
         self.ICON_GENERIC_FILE = 'text-x-generic'
-        self.ICON_DOWNLOADING = gtk.STOCK_GO_DOWN
-        self.ICON_DELETED = gtk.STOCK_DELETE
+        self.ICON_DOWNLOADING = Gtk.STOCK_GO_DOWN
+        self.ICON_DELETED = Gtk.STOCK_DELETE
 
         if 'KDE_FULL_SESSION' in os.environ:
             # Workaround until KDE adds all the freedesktop icons
@@ -322,7 +322,7 @@ class EpisodeListModel(gtk.ListStore):
         view_show_undeleted = True
         view_show_downloaded = False
         view_show_unplayed = False
-        icon_theme = gtk.icon_theme_get_default()
+        icon_theme = Gtk.IconTheme.get_default()
 
         if episode.downloading:
             tooltip.append('%s %d%%' % (_('Downloading'),
@@ -368,7 +368,7 @@ class EpisodeListModel(gtk.ListStore):
 
                 # Try to find a themed icon for this file
                 if filename is not None and have_gio:
-                    file = gio.File(filename)
+                    file = Gio.File(filename)
                     if file.query_exists():
                         file_info = file.query_info('*')
                         icon = file_info.get_icon()
@@ -454,7 +454,7 @@ class PodcastChannelProxy(object):
                 for e in c.get_all_episodes()), True)
 
 
-class PodcastListModel(gtk.ListStore):
+class PodcastListModel(Gtk.ListStore):
     C_URL, C_TITLE, C_DESCRIPTION, C_PILL, C_CHANNEL, \
             C_COVER, C_ERROR, C_PILL_VISIBLE, \
             C_VIEW_SHOW_UNDELETED, C_VIEW_SHOW_DOWNLOADED, \
@@ -468,8 +468,8 @@ class PodcastListModel(gtk.ListStore):
         return model.get_value(iter, cls.C_SEPARATOR)
 
     def __init__(self, cover_downloader):
-        gtk.ListStore.__init__(self, str, str, str, gtk.gdk.Pixbuf, \
-                object, gtk.gdk.Pixbuf, str, bool, bool, bool, bool, \
+        GObject.GObject.__init__(self, str, str, str, GdkPixbuf.Pixbuf, \
+                object, GdkPixbuf.Pixbuf, str, bool, bool, bool, bool, \
                 bool, bool, int, bool, str)
 
         # Filter to allow hiding some episodes
@@ -558,14 +558,14 @@ class PodcastListModel(gtk.ListStore):
         if pixbuf.get_width() > self._max_image_side:
             f = float(self._max_image_side)/pixbuf.get_width()
             (width, height) = (int(pixbuf.get_width()*f), int(pixbuf.get_height()*f))
-            pixbuf = pixbuf.scale_simple(width, height, gtk.gdk.INTERP_BILINEAR)
+            pixbuf = pixbuf.scale_simple(width, height, GdkPixbuf.InterpType.BILINEAR)
             changed = True
 
         # Resize if too high
         if pixbuf.get_height() > self._max_image_side:
             f = float(self._max_image_side)/pixbuf.get_height()
             (width, height) = (int(pixbuf.get_width()*f), int(pixbuf.get_height()*f))
-            pixbuf = pixbuf.scale_simple(width, height, gtk.gdk.INTERP_BILINEAR)
+            pixbuf = pixbuf.scale_simple(width, height, GdkPixbuf.InterpType.BILINEAR)
             changed = True
 
         if changed:
@@ -582,7 +582,7 @@ class PodcastListModel(gtk.ListStore):
 
     def _overlay_pixbuf(self, pixbuf, icon):
         try:
-            icon_theme = gtk.icon_theme_get_default()
+            icon_theme = Gtk.IconTheme.get_default()
             emblem = icon_theme.load_icon(icon, self._max_image_side/2, 0)
             (width, height) = (emblem.get_width(), emblem.get_height())
             xpos = pixbuf.get_width() - width
@@ -593,7 +593,7 @@ class PodcastListModel(gtk.ListStore):
                 (width, height) = (emblem.get_width(), emblem.get_height())
                 xpos = pixbuf.get_width() - width
                 ypos = pixbuf.get_height() - height
-            emblem.composite(pixbuf, xpos, ypos, width, height, xpos, ypos, 1, 1, gtk.gdk.INTERP_BILINEAR, 255)
+            emblem.composite(pixbuf, xpos, ypos, width, height, xpos, ypos, 1, 1, GdkPixbuf.InterpType.BILINEAR, 255)
         except:
             pass
 

@@ -125,7 +125,7 @@ except AttributeError:
 if ui.win32:
     try:
         # Workaround for bug 650
-        from gtk.glade import bindtextdomain
+        from Gtk.glade import bindtextdomain
         bindtextdomain(textdomain, locale_dir)
         del bindtextdomain
     except:
@@ -133,7 +133,7 @@ if ui.win32:
         pass
 del t
 
-# Set up textdomain for gtk.Builder (this accesses the C library functions)
+# Set up textdomain for Gtk.Builder (this accesses the C library functions)
 if hasattr(locale, 'bindtextdomain'):
     locale.bindtextdomain(textdomain, locale_dir)
 

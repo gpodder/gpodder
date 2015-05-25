@@ -32,9 +32,9 @@ import threading
 
 from ConfigParser import RawConfigParser
 
-import gobject
-import gtk
-import gtk.gdk
+from gi.repository import GObject
+from gi.repository import Gtk
+import Gtk.gdk
 
 import gpodder
 
@@ -49,11 +49,11 @@ userappsdirs = [ '/usr/share/applications/', '/usr/local/share/applications/', '
 # the name of the section in the .desktop files
 sect = 'Desktop Entry'
 
-class PlayerListModel(gtk.ListStore):
+class PlayerListModel(Gtk.ListStore):
     C_ICON, C_NAME, C_COMMAND, C_CUSTOM = range(4)
 
     def __init__(self):
-        gtk.ListStore.__init__(self, gtk.gdk.Pixbuf, str, str, bool)
+        GObject.GObject.__init__(self, GdkPixbuf.Pixbuf, str, str, bool)
 
     def insert_app(self, pixbuf, name, command):
         self.append((pixbuf, name, command, False))
@@ -92,13 +92,13 @@ class UserApplication(object):
             # Load it from an absolute filename
             if os.path.exists(self.icon):
                 try:
-                    return gtk.gdk.pixbuf_new_from_file_at_size(self.icon, 24, 24)
-                except gobject.GError, ge:
+                    return GdkPixbuf.Pixbuf.new_from_file_at_size(self.icon, 24, 24)
+                except GObject.GError, ge:
                     pass
 
             # Load it from the current icon theme
             (icon_name, extension) = os.path.splitext(os.path.basename(self.icon))
-            theme = gtk.IconTheme()
+            theme = Gtk.IconTheme()
             if theme.has_icon(icon_name):
                 return theme.load_icon(icon_name, 24, 0)
 
@@ -147,7 +147,7 @@ class UserAppsReader(object):
         self.__has_read = False
         self.__finished = threading.Event()
         self.__has_sep = False
-        self.apps.append(UserApplication(_('Default application'), 'default', ';'.join((mime+'/*' for mime in self.mimetypes)), gtk.STOCK_OPEN))
+        self.apps.append(UserApplication(_('Default application'), 'default', ';'.join((mime+'/*' for mime in self.mimetypes)), Gtk.STOCK_OPEN))
 
     def add_separator(self):
         self.apps.append(UserApplication('', '', ';'.join((mime+'/*' for mime in self.mimetypes)), ''))
