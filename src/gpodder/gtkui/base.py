@@ -46,6 +46,9 @@ class GtkBuilderWidget(object):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
+        # Keep a reference to the last popup menu around
+        self._keepref_popup_menu = None
+
         self.builder = Gtk.Builder()
         self.builder.set_translation_domain(textdomain)
 
@@ -64,6 +67,13 @@ class GtkBuilderWidget(object):
         self.set_attributes()
 
         self.new()
+
+    def keepref_menu(self, menu):
+        """Keep a reference to the last menu item around
+
+        :param Gtk.Menu menu: Popup menu to keep around
+        """
+        self._keepref_popup_menu = menu
 
     def set_attributes(self):
         """

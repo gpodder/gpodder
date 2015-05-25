@@ -37,11 +37,11 @@ class SimpleMessageArea(Gtk.HBox):
     http://svn.gnome.org/viewvc/gedit/trunk/gedit/gedit-message-area.c
     """
     def __init__(self, message, buttons=()):
-        GObject.GObject.__init__(self, spacing=6)
+        Gtk.HBox.__init__(self, spacing=6)
         self.set_border_width(6)
         self.__in_style_set = False
         self.connect('style-set', self.__style_set)
-        self.connect('expose-event', self.__expose_event)
+        self.connect('draw', self.__expose_event)
 
         self.__label = Gtk.Label()
         self.__label.set_alignment(0.0, 0.5)
@@ -96,7 +96,7 @@ class SimpleMessageArea(Gtk.HBox):
 class SpinningProgressIndicator(Gtk.Image):
     # Progress indicator loading inspired by glchess from gnome-games-clutter
     def __init__(self, size=32):
-        GObject.GObject.__init__(self)
+        Gtk.Image.__init__(self)
 
         self._frames = []
         self._frame_id = 0

@@ -18,7 +18,7 @@
 #
 
 from gi.repository import Gtk
-import Gtk.gdk
+from gi.repository import Gdk
 from gi.repository import GObject
 from gi.repository import Pango
 import os
@@ -38,7 +38,7 @@ from gpodder.gtkui.draw import draw_text_box_centered
 
 try:
     from gi.repository import WebKit
-    webview_signals = GObject.signal_list_names(webkit.WebView)
+    webview_signals = GObject.signal_list_names(WebKit.WebView)
     if 'navigation-policy-decision-requested' in webview_signals:
         have_webkit = True
     else:
@@ -59,7 +59,7 @@ class gPodderShownotes:
         self.scrolled_window.show_all()
 
         self.da_message = Gtk.DrawingArea()
-        self.da_message.connect('expose-event', \
+        self.da_message.connect('draw', \
                                     self.on_shownotes_message_expose_event)
         self.shownotes_pane.add(self.da_message)
         self.shownotes_pane.add(self.scrolled_window)
@@ -127,8 +127,8 @@ class gPodderShownotesText(gPodderShownotes):
         self.text_view.set_border_width(10)
         self.text_view.set_editable(False)
         self.text_buffer = Gtk.TextBuffer()
-        self.text_buffer.create_tag('heading', scale=Pango.SCALE_LARGE, weight=Pango.Weight.BOLD)
-        self.text_buffer.create_tag('subheading', scale=Pango.SCALE_SMALL)
+        self.text_buffer.create_tag('heading', scale=1.3, weight=Pango.Weight.BOLD)
+        self.text_buffer.create_tag('subheading', scale=0.9)
         self.text_view.set_buffer(self.text_buffer)
         self.text_view.modify_bg(Gtk.StateType.NORMAL,
                 Gdk.color_parse('#ffffff'))
@@ -161,7 +161,7 @@ class gPodderShownotesHTML(gPodderShownotes):
     """
 
     def init(self):
-        self.html_view = webkit.WebView()
+        self.html_view = WebKit.WebView()
         self.html_view.connect('navigation-policy-decision-requested',
                 self._navigation_policy_decision)
         self.html_view.load_html_string('', '')

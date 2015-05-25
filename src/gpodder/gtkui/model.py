@@ -40,6 +40,7 @@ from gpodder.gtkui import flattr
 
 import os
 from gi.repository import Gtk
+from gi.repository import GdkPixbuf
 from gi.repository import GObject
 import cgi
 import re
@@ -123,7 +124,7 @@ class EpisodeListModel(Gtk.ListStore):
     PROGRESS_STEPS = 20
 
     def __init__(self, config, on_filter_changed=lambda has_episodes: None):
-        GObject.GObject.__init__(self, str, str, str, object, \
+        Gtk.ListStore.__init__(self, str, str, str, object, \
                 str, str, str, str, bool, bool, bool, \
                 GObject.TYPE_INT64, GObject.TYPE_INT64, str, bool, GObject.TYPE_INT64, bool)
 
@@ -139,7 +140,7 @@ class EpisodeListModel(Gtk.ListStore):
         self._view_mode = self.VIEW_ALL
         self._search_term = None
         self._search_term_eql = None
-        self._filter.set_visible_func(self._filter_visible_func)
+        self._filter.set_visible_func(self._filter_visible_func, None)
 
         # Are we currently showing the "all episodes" view?
         self._all_episodes_view = False
@@ -164,7 +165,7 @@ class EpisodeListModel(Gtk.ListStore):
         else:
             return None
 
-    def _filter_visible_func(self, model, iter):
+    def _filter_visible_func(self, model, iter, data):
         # If searching is active, set visibility based on search text
         if self._search_term is not None:
             episode = model.get_value(iter, self.C_EPISODE)
@@ -368,9 +369,9 @@ class EpisodeListModel(Gtk.ListStore):
 
                 # Try to find a themed icon for this file
                 if filename is not None and have_gio:
-                    file = Gio.File(filename)
+                    file = Gio.File.new_for_path(filename)
                     if file.query_exists():
-                        file_info = file.query_info('*')
+                        file_info = file.query_info('*', Gio.FileQueryInfoFlags.NONE, None)
                         icon = file_info.get_icon()
                         for icon_name in icon.get_names():
                             if icon_theme.has_icon(icon_name):
@@ -468,7 +469,7 @@ class PodcastListModel(Gtk.ListStore):
         return model.get_value(iter, cls.C_SEPARATOR)
 
     def __init__(self, cover_downloader):
-        GObject.GObject.__init__(self, str, str, str, GdkPixbuf.Pixbuf, \
+        Gtk.ListStore.__init__(self, str, str, str, GdkPixbuf.Pixbuf, \
                 object, GdkPixbuf.Pixbuf, str, bool, bool, bool, bool, \
                 bool, bool, int, bool, str)
 
@@ -476,7 +477,7 @@ class PodcastListModel(Gtk.ListStore):
         self._filter = self.filter_new()
         self._view_mode = -1
         self._search_term = None
-        self._filter.set_visible_func(self._filter_visible_func)
+        self._filter.set_visible_func(self._filter_visible_func, None)
 
         self._cover_cache = {}
         self._max_image_side = 40
@@ -484,7 +485,7 @@ class PodcastListModel(Gtk.ListStore):
 
         self.ICON_DISABLED = 'gtk-media-pause'
 
-    def _filter_visible_func(self, model, iter):
+    def _filter_visible_func(self, model, iter, data):
         # If searching is active, set visibility based on search text
         if self._search_term is not None:
             if model.get_value(iter, self.C_CHANNEL) == SectionMarker:

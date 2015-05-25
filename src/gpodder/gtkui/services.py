@@ -35,6 +35,7 @@ from gpodder import util
 from gpodder import coverart
 
 from gi.repository import Gtk
+from gi.repository import GdkPixbuf
 
 
 class CoverDownloader(ObservableService):

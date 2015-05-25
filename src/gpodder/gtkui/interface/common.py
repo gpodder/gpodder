@@ -18,6 +18,8 @@
 #
 
 from gi.repository import Gtk
+from gi.repository import Gdk
+
 import os
 import shutil
 
@@ -33,7 +35,6 @@ from gpodder.gtkui.base import GtkBuilderWidget
 class BuilderWidget(GtkBuilderWidget):
     def __init__(self, parent, **kwargs):
         self._window_iconified = False
-        self._window_visible = False
 
         GtkBuilderWidget.__init__(self, gpodder.ui_folders, gpodder.textdomain, **kwargs)
 
@@ -41,10 +42,6 @@ class BuilderWidget(GtkBuilderWidget):
         if hasattr(self, 'on_iconify') and hasattr(self, 'on_uniconify'):
             self.main_window.connect('window-state-event', \
                     self._on_window_state_event_iconified)
-
-        # Enable support for tracking visibility state
-        self.main_window.connect('visibility-notify-event', \
-                    self._on_window_state_event_visibility)
 
         if parent is not None:
             self.main_window.set_transient_for(parent)
@@ -56,14 +53,6 @@ class BuilderWidget(GtkBuilderWidget):
                 (w, h) = (a.width, a.height)
                 (pw, ph) = self.main_window.get_size()
                 self.main_window.move(x + w/2 - pw/2, y + h/2 - ph/2)
-
-    def _on_window_state_event_visibility(self, widget, event):
-        if event.get_state() & Gdk.VisibilityState.FULLY_OBSCURED:
-            self._window_visible = False
-        else:
-            self._window_visible = True
-
-        return False
 
     def _on_window_state_event_iconified(self, widget, event):
         if event.new_window_state & Gdk.WindowState.ICONIFIED:

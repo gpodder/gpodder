@@ -29,8 +29,7 @@ class TagCloud(Gtk.Layout):
     }
 
     def __init__(self, min_size=20, max_size=36):
-        self.__gobject_init__()
-        GObject.GObject.__init__(self)
+        Gtk.Layout.__init__(self)
         self._min_weight = 0
         self._max_weight = 0
         self._min_size = min_size

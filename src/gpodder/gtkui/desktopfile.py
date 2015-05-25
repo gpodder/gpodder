@@ -34,7 +34,7 @@ from ConfigParser import RawConfigParser
 
 from gi.repository import GObject
 from gi.repository import Gtk
-import Gtk.gdk
+from gi.repository import GdkPixbuf
 
 import gpodder
 
@@ -53,7 +53,7 @@ class PlayerListModel(Gtk.ListStore):
     C_ICON, C_NAME, C_COMMAND, C_CUSTOM = range(4)
 
     def __init__(self):
-        GObject.GObject.__init__(self, GdkPixbuf.Pixbuf, str, str, bool)
+        Gtk.ListStore.__init__(self, GdkPixbuf.Pixbuf, str, str, bool)
 
     def insert_app(self, pixbuf, name, command):
         self.append((pixbuf, name, command, False))

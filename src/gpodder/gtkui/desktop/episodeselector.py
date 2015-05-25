@@ -303,6 +303,7 @@ class gPodderEpisodeSelector(BuilderWidget):
                 menu.popup(None, None, func, 3, 0)
             else:
                 menu.popup(None, None, None, event.button, event.time)
+            self.keepref_menu(menu)
 
             return True
 

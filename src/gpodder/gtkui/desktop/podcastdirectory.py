@@ -25,6 +25,7 @@
 
 
 from gi.repository import Gtk
+from gi.repository import GdkPixbuf
 from gi.repository import Pango
 import cgi
 import os
@@ -47,7 +48,7 @@ class DirectoryPodcastsModel(Gtk.ListStore):
     C_SELECTED, C_MARKUP, C_TITLE, C_URL = range(4)
 
     def __init__(self, callback_can_subscribe):
-        GObject.GObject.__init__(self, bool, str, str, str)
+        Gtk.ListStore.__init__(self, bool, str, str, str)
         self.callback_can_subscribe = callback_can_subscribe
 
     def load(self, directory_entries):
@@ -80,7 +81,7 @@ class DirectoryProvidersModel(Gtk.ListStore):
     SEPARATOR = (Pango.Weight.NORMAL, '', None, None)
 
     def __init__(self, providers):
-        GObject.GObject.__init__(self, int, str, GdkPixbuf.Pixbuf, object)
+        Gtk.ListStore.__init__(self, int, str, GdkPixbuf.Pixbuf, object)
         for provider in providers:
             self.add_provider(provider() if provider else None)
 

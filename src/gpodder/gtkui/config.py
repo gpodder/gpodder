@@ -24,6 +24,7 @@
 
 
 from gi.repository import Gtk
+from gi.repository import Gdk
 from gi.repository import Pango
 
 import gpodder
@@ -37,8 +38,7 @@ class ConfigModel(Gtk.ListStore):
             C_IS_BOOLEAN, C_BOOLEAN_VALUE = range(8)
 
     def __init__(self, config):
-        GObject.GObject.__init__(self, str, str, str, object, \
-                bool, int, bool, bool)
+        Gtk.ListStore.__init__(self, str, str, str, object, bool, int, bool, bool)
 
         self._config = config
         self._fill_model()

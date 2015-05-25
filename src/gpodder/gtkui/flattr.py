@@ -18,7 +18,6 @@
 #
 
 from gi.repository import Gtk
-import Gtk.gdk
 import os.path
 
 import gpodder

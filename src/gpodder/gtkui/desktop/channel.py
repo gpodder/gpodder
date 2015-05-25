@@ -18,7 +18,7 @@
 #
 
 from gi.repository import Gtk
-import Gtk.gdk
+from gi.repository import Gdk
 
 import gpodder
 
@@ -49,7 +49,7 @@ class gPodderChannel(BuilderWidget):
                 active_index = index
         self.combo_section.set_model(self.section_list)
         cell_renderer = Gtk.CellRendererText()
-        self.combo_section.pack_start(cell_renderer, True, True, 0)
+        self.combo_section.pack_start(cell_renderer, True)
         self.combo_section.add_attribute(cell_renderer, 'text', 0)
         self.combo_section.set_active(active_index)
 
@@ -62,7 +62,7 @@ class gPodderChannel(BuilderWidget):
                 active_index = index
         self.combo_strategy.set_model(self.strategy_list)
         cell_renderer = Gtk.CellRendererText()
-        self.combo_strategy.pack_start(cell_renderer, True, True, 0)
+        self.combo_strategy.pack_start(cell_renderer, True)
         self.combo_strategy.add_attribute(cell_renderer, 'text', 0)
         self.combo_strategy.set_active(active_index)
 
@@ -125,6 +125,7 @@ class gPodderChannel(BuilderWidget):
 
         menu.show_all()
         menu.popup(None, None, None, event.button, event.time, None)
+        self.keepref_menu(menu)
 
     def on_btn_website_clicked(self, widget):
         util.open_website(self.channel.link)

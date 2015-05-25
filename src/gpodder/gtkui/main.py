@@ -20,7 +20,7 @@
 import os
 import platform
 from gi.repository import Gtk
-import Gtk.gdk
+from gi.repository import Gdk
 from gi.repository import GObject
 from gi.repository import Pango
 import random
@@ -92,7 +92,7 @@ from gpodder import extensions
 
 
 macapp = None
-if gpodder.ui.osx and getattr(Gtk.gdk, 'WINDOWING', 'x11') == 'quartz':
+if gpodder.ui.osx: # and getattr(Gdk, 'WINDOWING', 'x11') == 'quartz':
     try:
         from gtkosx_application import *
         macapp = Application()
@@ -131,6 +131,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.config.connect_gtk_window(self.main_window, 'main_window')
 
         self.config.connect_gtk_paned('ui.gtk.state.main_window.paned_position', self.channelPaned)
+
+        # Subscribed channels
+        self.active_channel = None
+        self.channels = self.model.get_podcasts()
 
         self.main_window.show()
 
@@ -230,10 +234,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.download_tasks_seen = set()
         self.download_list_update_enabled = False
         self.download_task_monitors = set()
-
-        # Subscribed channels
-        self.active_channel = None
-        self.channels = self.model.get_podcasts()
 
         # Set up the first instance of MygPoClient
         self.mygpo_client = my.MygPoClient(self.config)
@@ -651,7 +651,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         def select_function(selection, model, path, path_currently_selected):
             url = model.get_value(model.get_iter(path), PodcastListModel.C_URL)
             return (url != '-')
-        selection.set_select_function(select_function, full=True)
+        selection.set_select_function(select_function)#, full=True)
 
         # Set up type-ahead find for the podcast list
         def on_key_press(treeview, event):
@@ -767,8 +767,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return False
 
         if self.episode_columns_menu is not None:
-            self.episode_columns_menu.popup(None, None, None, event.button, \
-                    event.time, None)
+            self.episode_columns_menu.popup(None, None, None, None, event.button, event.time)
 
         return False
 
@@ -931,13 +930,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         cell = Gtk.CellRendererPixbuf()
         cell.set_property('stock-size', Gtk.IconSize.BUTTON)
-        column.pack_start(cell, False, True, 0)
+        column.pack_start(cell, True)
         column.add_attribute(cell, 'icon-name', \
                 DownloadStatusModel.C_ICON_NAME)
 
         cell = Gtk.CellRendererText()
         cell.set_property('ellipsize', Pango.EllipsizeMode.END)
-        column.pack_start(cell, True, True, 0)
+        column.pack_start(cell, True)
         column.add_attribute(cell, 'markup', DownloadStatusModel.C_NAME)
         column.set_sizing(Gtk.TreeViewColumnSizing.AUTOSIZE)
         column.set_expand(True)
@@ -961,8 +960,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.treeDownloads.connect('popup-menu', self.treeview_downloads_show_context_menu)
 
-    def on_treeview_expose_event(self, treeview, event):
-        if event.window == treeview.get_bin_window():
+    def on_treeview_expose_event(self, treeview, ctx):
+        if False: #event.window == treeview.get_bin_window():
             model = treeview.get_model()
             if (model is not None and model.get_iter_first() is not None):
                 return False
@@ -971,10 +970,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if role is None:
                 return False
 
-            ctx = event.window.cairo_create()
-            ctx.rectangle(event.area.x, event.area.y,
-                    event.area.width, event.area.height)
-            ctx.clip()
+            #ctx = event.window.cairo_create()
+            #ctx.rectangle(event.area.x, event.area.y,
+            #        event.area.width, event.area.height)
+            #ctx.clip()
 
             x, y, width, height, depth = event.window.get_geometry()
             progress = None
@@ -1519,9 +1518,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             if event is None:
                 func = TreeViewHelper.make_popup_position_func(treeview)
-                menu.popup(None, None, func, 3, 0)
+                menu.popup(None, None, func, None, 3, Gtk.get_current_event_time())
             else:
-                menu.popup(None, None, None, event.button, event.time)
+                menu.popup(None, None, None, None, event.button, event.time)
+            self.keepref_menu(menu)
             return True
 
     def on_mark_episodes_as_old(self, item):
@@ -1602,9 +1602,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             if event is None:
                 func = TreeViewHelper.make_popup_position_func(treeview)
-                menu.popup(None, None, func, 3, 0)
+                menu.popup(None, None, func, None, 3, Gtk.get_current_event_time())
             else:
-                menu.popup(None, None, None, event.button, event.time)
+                menu.popup(None, None, None, None, event.button, event.time)
+            self.keepref_menu(menu)
 
             return True
 
@@ -1803,9 +1804,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
             menu.connect('deactivate', lambda menushell: self.treeview_allow_tooltips(self.treeAvailable, True))
             if event is None:
                 func = TreeViewHelper.make_popup_position_func(treeview)
-                menu.popup(None, None, func, 3, 0)
+                menu.popup(None, None, func, None, 3, Gtk.get_current_event_time())
             else:
-                menu.popup(None, None, None, event.button, event.time)
+                menu.popup(None, None, None, None, event.button, event.time)
+            self.keepref_menu(menu)
 
             return True
 
@@ -2360,7 +2362,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 False, self.get_dialog_parent())
 
         while Gtk.events_pending():
-            Gtk.main_iteration(False)
+            Gtk.main_iteration_do(False)
 
         self.mygpo_client.process_episode_actions(self.find_episode)
 
@@ -2555,7 +2557,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.download_status_model.tell_all_tasks_to_quit()
 
         while Gtk.events_pending():
-            Gtk.main_iteration(False)
+            Gtk.main_iteration_do(False)
 
         self.core.shutdown()
 
@@ -3188,7 +3190,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         out = Gtk.VBox(spacing=10)
         out.set_border_width(12)
         out.pack_start(bg, False, True, 0)
-        out.pack_start(Gtk.HSeparator(, True, True, 0))
+        out.pack_start(Gtk.HSeparator(True, True, 0))
         out.pack_start(Gtk.Label(gpodder.__copyright__, True, True, 0))
 
         button_box = Gtk.HButtonBox()
@@ -3538,10 +3540,10 @@ def main(options=None):
         pixbuf = draw_cake_pixbuf(float(i) /
                 float(EpisodeListModel.PROGRESS_STEPS))
         icon_name = 'gpodder-progress-%d' % i
-        Gtk.icon_theme_add_builtin_icon(icon_name, pixbuf.get_width(), pixbuf)
+        Gtk.IconTheme.add_builtin_icon(icon_name, pixbuf.get_width(), pixbuf)
 
     Gtk.Window.set_default_icon_name('gpodder')
-    Gtk.about_dialog_set_url_hook(lambda dlg, link, data: util.open_website(link), None)
+    #Gtk.AboutDialog.set_url_hook(lambda dlg, link, data: util.open_website(link), None)
 
     try:
         dbus_main_loop = dbus.glib.DBusGMainLoop(set_as_default=True)

@@ -18,6 +18,7 @@
 #
 
 from gi.repository import Gtk
+from gi.repository import Gdk
 from gi.repository import Pango
 import cgi
 import urlparse
@@ -46,7 +47,7 @@ class NewEpisodeActionList(Gtk.ListStore):
     ACTION_NONE, ACTION_ASK, ACTION_MINIMIZED, ACTION_ALWAYS = range(4)
 
     def __init__(self, config):
-        GObject.GObject.__init__(self, str, str)
+        Gtk.ListStore.__init__(self, str, str)
         self._config = config
         self.append((_('Do nothing'), 'ignore'))
         self.append((_('Show episode list'), 'show'))
@@ -67,7 +68,7 @@ class DeviceTypeActionList(Gtk.ListStore):
     C_CAPTION, C_DEVICE_TYPE = range(2)
 
     def __init__(self, config):
-        GObject.GObject.__init__(self, str, str)
+        Gtk.ListStore.__init__(self, str, str)
         self._config = config
         self.append((_('None'), 'none'))
         self.append((_('iPod'), 'ipod'))        
@@ -88,7 +89,7 @@ class OnSyncActionList(Gtk.ListStore):
     ACTION_NONE, ACTION_ASK, ACTION_MINIMIZED, ACTION_ALWAYS = range(4)
 
     def __init__(self, config):
-        GObject.GObject.__init__(self, str, bool, bool)
+        Gtk.ListStore.__init__(self, str, bool, bool)
         self._config = config
         self.append((_('Do nothing'), False, False))
         self.append((_('Mark as played'), False, True))
@@ -112,11 +113,9 @@ class OnSyncActionList(Gtk.ListStore):
 
 
 class gPodderFlattrSignIn(BuilderWidget):
-
     def new(self):
         from gi.repository import WebKit
-
-        self.web = webkit.WebView()
+        self.web = WebKit.WebView()
         self.web.connect('resource-request-starting', self.on_web_request)
         self.main_window.connect('destroy', self.set_flattr_preferences)
 
@@ -145,7 +144,7 @@ class YouTubeVideoFormatListModel(Gtk.ListStore):
     C_CAPTION, C_ID = range(2)
 
     def __init__(self, config):
-        GObject.GObject.__init__(self, str, int)
+        Gtk.ListStore.__init__(self, str, int)
         self._config = config
         self.custom_fmt_ids = self._config.youtube.preferred_fmt_ids
 
@@ -184,7 +183,7 @@ class VimeoVideoFormatListModel(Gtk.ListStore):
     C_CAPTION, C_ID = range(2)
 
     def __init__(self, config):
-        GObject.GObject.__init__(self, str, str)
+        Gtk.ListStore.__init__(self, str, str)
         self._config = config
 
         for fileformat, description in vimeo.FORMATS:
@@ -383,7 +382,7 @@ class gPodderPreferences(BuilderWidget):
         if event.window != treeview.get_bin_window():
             return False
 
-        if event.type == Gdk.BUTTON_RELEASE and event.button == 3:
+        if event.type == Gdk.EventType.BUTTON_RELEASE and event.button == 3:
             return self.on_treeview_extension_show_context_menu(treeview, event)
 
         return False
@@ -422,9 +421,10 @@ class gPodderPreferences(BuilderWidget):
         menu.show_all()
         if event is None:
             func = TreeViewHelper.make_popup_position_func(treeview)
-            menu.popup(None, None, func, 3, 0)
+            menu.popup(None, None, func, None, 3, Gtk.get_current_event_time())
         else:
-            menu.popup(None, None, None, 3, 0)
+            menu.popup(None, None, None, None, 3, Gtk.get_current_event_time())
+        self.keepref_menu(menu)
 
         return True
 

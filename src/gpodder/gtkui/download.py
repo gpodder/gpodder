@@ -29,6 +29,7 @@ from gpodder import util
 from gpodder import download
 
 from gi.repository import Gtk
+from gi.repository import GObject
 import cgi
 
 import collections
@@ -43,7 +44,7 @@ class DownloadStatusModel(Gtk.ListStore):
     SEARCH_COLUMNS = (C_NAME, C_URL)
 
     def __init__(self):
-        GObject.GObject.__init__(self, object, str, str, int, str, str)
+        Gtk.ListStore.__init__(self, object, str, str, int, str, str)
 
         # Set up stock icon IDs for tasks
         self._status_ids = collections.defaultdict(lambda: None)

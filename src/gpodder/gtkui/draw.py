@@ -26,9 +26,12 @@
 import gpodder
 
 from gi.repository import Gtk
+from gi.repository import GdkPixbuf
 from gi.repository import Pango
-import pangocairo
-import cairo
+
+#import pangocairo
+from gi.repository import cairo
+
 import StringIO
 import math
 
@@ -87,14 +90,14 @@ def rounded_rectangle(ctx, x, y, width, height, radius=4.):
 
 
 def draw_text_box_centered(ctx, widget, w_width, w_height, text, font_desc=None, add_progress=None):
-    style = widget.rc_get_style()
-    text_color = style.text[Gtk.StateType.PRELIGHT]
+    style_context = widget.get_style_context()
+    text_color = style_context.get_color(Gtk.StateFlags.PRELIGHT)
     red, green, blue = text_color.red, text_color.green, text_color.blue
     text_color = [float(x)/65535. for x in (red, green, blue)]
     text_color.append(.5)
 
     if font_desc is None:
-        font_desc = style.font_desc
+        font_desc = style_context.get_font(Gtk.StateFlags.NORMAL)
         font_desc.set_size(14*Pango.SCALE)
 
     pango_context = widget.create_pango_context()
@@ -121,6 +124,7 @@ def draw_cake(percentage, text=None, emblem=None, size=None):
     # Download percentage bar icon - it turns out the cake is a lie (d'oh!)
     # ..but the inital idea was to have a cake-style indicator, but that
     # didn't work as well as the progress bar, but the name stuck..
+    return None
 
     if size is None:
         size = EPISODE_LIST_ICON_SIZE
@@ -129,10 +133,10 @@ def draw_cake(percentage, text=None, emblem=None, size=None):
     ctx = pangocairo.CairoContext(cairo.Context(surface))
 
     widget = Gtk.ProgressBar()
-    style = widget.rc_get_style()
-    bgc = style.bg[Gtk.StateType.NORMAL]
-    fgc = style.bg[Gtk.StateType.SELECTED]
-    txc = style.text[Gtk.StateType.NORMAL]
+    style_context = widget.get_style_context()
+    bgc = style_context.get_background_color(Gtk.StateFlags.NORMAL)
+    fgc = style_context.get_background_color(Gtk.StateFlags.SELECTED)
+    txc = style_context.get_color(Gtk.StateFlags.NORMAL)
 
     border = 1.5
     height = int(size*.4)
@@ -142,19 +146,19 @@ def draw_cake(percentage, text=None, emblem=None, size=None):
 
     # Background
     ctx.rectangle(x, y, width, height)
-    ctx.set_source_rgb(bgc.red_float, bgc.green_float, bgc.blue_float)
+    ctx.set_source_rgb(bgc.red, bgc.green, bgc.blue)
     ctx.fill()
 
     # Filling
     if percentage > 0:
         fill_width = max(1, min(width-2, (width-2)*percentage+.5))
         ctx.rectangle(x+1, y+1, fill_width, height-2)
-        ctx.set_source_rgb(fgc.red_float, fgc.green_float, fgc.blue_float)
+        ctx.set_source_rgb(fgc.red, fgc.green, fgc.blue)
         ctx.fill()
 
     # Border
     ctx.rectangle(x, y, width, height)
-    ctx.set_source_rgb(txc.red_float, txc.green_float, txc.blue_float)
+    ctx.set_source_rgb(txc.red, txc.green, txc.blue)
     ctx.set_line_width(1)
     ctx.stroke()
 
@@ -162,12 +166,11 @@ def draw_cake(percentage, text=None, emblem=None, size=None):
     return surface
 
 def draw_text_pill(left_text, right_text, x=0, y=0, border=2, radius=14, font_desc=None):
-    # Create temporary context to calculate the text size
-    ctx = cairo.Context(cairo.ImageSurface(cairo.FORMAT_ARGB32, 1, 1))
+    return None
 
     # Use GTK+ style of a normal Button
     widget = Gtk.Label()
-    style = widget.rc_get_style()
+    style_context = widget.get_style_context()
 
     # Padding (in px) at the right edge of the image (for Ubuntu; bug 1533)
     padding_right = 7
@@ -175,7 +178,7 @@ def draw_text_pill(left_text, right_text, x=0, y=0, border=2, radius=14, font_de
     x_border = border*2
 
     if font_desc is None:
-        font_desc = style.font_desc
+        font_desc = style_context.get_font(Gtk.StateFlags.NORMAL)
         font_desc.set_weight(Pango.Weight.BOLD)
 
     pango_context = widget.create_pango_context()
@@ -193,8 +196,9 @@ def draw_text_pill(left_text, right_text, x=0, y=0, border=2, radius=14, font_de
 
     image_height = int(y+text_height+border*2)
     image_width = int(x+width_left+width_right+x_border*4+padding_right)
-    surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, image_width, image_height)
 
+    surface = GdkPixbuf.Pixbuf.new(GdkPixbuf.Colorspace.RGB, True, 8, image_width, image_height)
+    #surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, image_width, image_height)
     ctx = pangocairo.CairoContext(cairo.Context(surface))
 
     # Clip so as to not draw on the right padding (for Ubuntu; bug 1533)
@@ -315,8 +319,8 @@ def draw_flattr_button(widget, flattr_image, flattrs_count):
     pixmap, mask = pixbuf.render_pixmap_and_mask()
 
     # get default-font
-    style = widget.rc_get_style()
-    font_desc = style.font_desc
+    style_context = widget.get_style_context()
+    font_desc = style.get_font(Gtk.StateFlags.NORMAL)
     #font_desc.set_size(12*Pango.SCALE)
     font_desc.set_size(9*Pango.SCALE)
 
