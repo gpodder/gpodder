@@ -39,21 +39,18 @@ class SimpleMessageArea(Gtk.HBox):
     def __init__(self, message, buttons=()):
         Gtk.HBox.__init__(self, spacing=6)
         self.set_border_width(6)
-        self.__in_style_set = False
-        self.connect('style-set', self.__style_set)
-        self.connect('draw', self.__expose_event)
 
         self.__label = Gtk.Label()
         self.__label.set_alignment(0.0, 0.5)
         self.__label.set_line_wrap(False)
         self.__label.set_ellipsize(Pango.EllipsizeMode.END)
         self.__label.set_markup('<b>%s</b>' % cgi.escape(message))
-        self.pack_start(self.__label, expand=True, fill=True)
+        self.pack_start(self.__label, True, True, 0)
 
         hbox = Gtk.HBox()
         for button in buttons:
-            hbox.pack_start(button, expand=True, fill=False)
-        self.pack_start(hbox, expand=False, fill=False)
+            hbox.pack_start(button, True, False, 0)
+        self.pack_start(hbox, False, False, 0)
 
     def set_markup(self, markup, line_wrap=True, min_width=3, max_width=100):
         # The longest line should determine the size of the label
@@ -65,32 +62,6 @@ class SimpleMessageArea(Gtk.HBox):
         self.__label.set_width_chars(width_chars)
         self.__label.set_markup(markup)
         self.__label.set_line_wrap(line_wrap)
-
-    def __style_set(self, widget, previous_style):
-        if self.__in_style_set:
-            return
-
-        w = Gtk.Window(Gtk.WindowType.POPUP)
-        w.set_name('gtk-tooltip')
-        w.ensure_style()
-        style = w.get_style()
-
-        self.__in_style_set = True
-        self.set_style(style)
-        self.__label.set_style(style)
-        self.__in_style_set = False
-
-        w.destroy()
-
-        self.queue_draw()
-
-    def __expose_event(self, widget, event):
-        style = widget.get_style()
-        rect = widget.get_allocation()
-        style.paint_flat_box(widget.window, Gtk.StateType.NORMAL,
-                Gtk.ShadowType.OUT, None, widget, "tooltip",
-                rect.x, rect.y, rect.width, rect.height)
-        return False
 
 
 class SpinningProgressIndicator(Gtk.Image):

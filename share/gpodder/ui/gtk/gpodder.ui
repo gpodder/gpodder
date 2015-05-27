@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--*- mode: xml -*-->
 <interface>
+  <!-- interface-requires gtk+ 3.8 -->
   <object class="GtkAdjustment" id="adjustment1">
     <property name="upper">10240</property>
     <property name="lower">0.5</property>
@@ -397,7 +398,7 @@
       </menubar>
     </ui>
   </object>
-  <object class="GtkWindow" id="gPodder">
+  <object class="GtkApplicationWindow" id="gPodder">
     <property name="visible">False</property>
     <property name="title">gPodder</property>
     <property name="window_position">GTK_WIN_POS_CENTER</property>
@@ -409,13 +410,95 @@
     <property name="focus_on_map">True</property>
     <property name="urgency_hint">False</property>
     <signal handler="on_gPodder_delete_event" name="delete_event"/>
+    <child type="titlebar">
+      <object class="GtkHeaderBar" id="header_bar">
+        <property name="visible">True</property>
+        <property name="show-close-button">True</property>
+        <child type="title">
+          <object class="GtkStackSwitcher" id="tabs">
+            <property name="visible">True</property>
+            <property name="margin">6</property>
+            <property name="stack">wNotebook</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkButton" id="btnUpdateFeeds">
+            <property name="visible">True</property>
+            <child>
+              <object class="GtkImage" id="btnUpdateFeedsIcon">
+                <property name="visible">True</property>
+                <property name="icon-name">view-refresh-symbolic</property>
+                <property name="icon-size">1</property>
+              </object>
+            </child>
+            <signal handler="on_itemUpdate_activate" name="clicked"/>
+          </object>
+          <packing>
+            <property name="pack-type">start</property>
+          </packing>
+        </child>
+                            <child>
+                              <object class="GtkHBox" id="hboxUpdateFeeds">
+                                <property name="homogeneous">False</property>
+                                <property name="spacing">6</property>
+                                <child>
+                                  <object class="GtkProgressBar" id="pbFeedUpdate">
+                                    <property name="pulse_step">0.10000000149</property>
+                                    <property name="ellipsize">PANGO_ELLIPSIZE_MIDDLE</property>
+                                  </object>
+                                  <packing>
+                                    <property name="min-horizontal-bar-height">50</property>
+                                    <property name="padding">0</property>
+                                    <property name="expand">True</property>
+                                    <property name="fill">True</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkButton" id="btnCancelFeedUpdate">
+                                    <property name="can_focus">True</property>
+                                    <property name="focus_on_click">True</property>
+                                    <signal handler="on_btnCancelFeedUpdate_clicked" name="clicked"/>
+                                    <child>
+                                      <object class="GtkImage" id="image3209">
+                                        <property name="visible">True</property>
+                                        <property name="stock">gtk-cancel</property>
+                                        <property name="icon_size">4</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="padding">0</property>
+                                    <property name="expand">False</property>
+                                    <property name="fill">False</property>
+                                  </packing>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="pack-type">start</property>
+                              </packing>
+                            </child>
+        <child>
+          <object class="GtkMenuButton" id="buttonMenu">
+            <property name="visible">True</property>
+            <property name="direction">none</property>
+            <property name="use-popover">True</property>
+            <style>
+              <class name="image-button"/>
+            </style>
+          </object>
+          <packing>
+            <property name="pack-type">end</property>
+          </packing>
+        </child>
+      </object>
+    </child>
     <child>
       <object class="GtkVBox" id="vMain">
         <property name="visible">True</property>
         <property name="homogeneous">False</property>
         <child>
           <object class="GtkMenuBar" constructor="uimanager1" id="mainMenu">
-            <property name="visible">True</property>
+            <property name="visible">False</property>
             <property name="pack_direction">GTK_PACK_DIRECTION_LTR</property>
             <property name="child_pack_direction">GTK_PACK_DIRECTION_LTR</property>
           </object>
@@ -537,22 +620,17 @@
         </child>
         <child>
           <object class="GtkHBox" id="hboxContainer">
-            <property name="border_width">5</property>
+            <property name="border_width">0</property>
             <property name="visible">True</property>
             <property name="homogeneous">False</property>
             <child>
-              <object class="GtkNotebook" id="wNotebook">
+              <object class="GtkStack" id="wNotebook">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
-                <property name="show_tabs">True</property>
-                <property name="show_border">True</property>
-                <property name="tab_pos">GTK_POS_TOP</property>
-                <property name="scrollable">False</property>
-                <property name="enable_popup">False</property>
-                <signal handler="on_wNotebook_switch_page" name="switch_page"/>
+                <!--<signal handler="on_wNotebook_switch_page" name="switch_page"/>-->
                 <child>
                   <object class="GtkHPaned" id="channelPaned">
-                    <property name="border_width">5</property>
+                    <property name="border_width">0</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <child>
@@ -566,7 +644,6 @@
                             <property name="can_focus">True</property>
                             <property name="hscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
                             <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
-                            <property name="shadow_type">GTK_SHADOW_IN</property>
                             <property name="window_placement">GTK_CORNER_TOP_LEFT</property>
                             <child>
                               <object class="GtkTreeView" id="treeChannels">
@@ -613,71 +690,6 @@
                             <property name="fill">True</property>
                           </packing>
                         </child>
-                        <child>
-                          <object class="GtkVBox" id="vbox42">
-                            <property name="visible">True</property>
-                            <property name="homogeneous">False</property>
-                            <child>
-                              <object class="GtkButton" id="btnUpdateFeeds">
-                                <property name="label" translatable="yes">Check for new episodes</property>
-                                <property name="can_focus">True</property>
-                                <property name="focus_on_click">True</property>
-                                <signal handler="on_itemUpdate_activate" name="clicked"/>
-                              </object>
-                              <packing>
-                                <property name="padding">0</property>
-                                <property name="expand">True</property>
-                                <property name="fill">True</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkHBox" id="hboxUpdateFeeds">
-                                <property name="homogeneous">False</property>
-                                <property name="spacing">6</property>
-                                <child>
-                                  <object class="GtkProgressBar" id="pbFeedUpdate">
-                                    <property name="pulse_step">0.10000000149</property>
-                                    <property name="ellipsize">PANGO_ELLIPSIZE_MIDDLE</property>
-                                  </object>
-                                  <packing>
-                                    <property name="padding">0</property>
-                                    <property name="expand">True</property>
-                                    <property name="fill">True</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkButton" id="btnCancelFeedUpdate">
-                                    <property name="can_focus">True</property>
-                                    <property name="focus_on_click">True</property>
-                                    <signal handler="on_btnCancelFeedUpdate_clicked" name="clicked"/>
-                                    <child>
-                                      <object class="GtkImage" id="image3209">
-                                        <property name="visible">True</property>
-                                        <property name="stock">gtk-cancel</property>
-                                        <property name="icon_size">4</property>
-                                      </object>
-                                    </child>
-                                  </object>
-                                  <packing>
-                                    <property name="padding">0</property>
-                                    <property name="expand">False</property>
-                                    <property name="fill">False</property>
-                                  </packing>
-                                </child>
-                              </object>
-                              <packing>
-                                <property name="padding">0</property>
-                                <property name="expand">True</property>
-                                <property name="fill">True</property>
-                              </packing>
-                            </child>
-                          </object>
-                          <packing>
-                            <property name="padding">0</property>
-                            <property name="expand">False</property>
-                            <property name="fill">False</property>
-                          </packing>
-                        </child>
                       </object>
                       <packing>
                         <property name="shrink">False</property>
@@ -694,7 +706,6 @@
                             <property name="can_focus">True</property>
                             <property name="hscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
                             <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
-                            <property name="shadow_type">GTK_SHADOW_IN</property>
                             <property name="window_placement">GTK_CORNER_TOP_LEFT</property>
                             <child>
                               <object class="GtkTreeView" id="treeAvailable">
@@ -758,25 +769,12 @@
                     </child>
                   </object>
                   <packing>
-                    <property name="tab_expand">False</property>
-                    <property name="tab_fill">True</property>
+                    <property name="title" translatable="yes">Podcasts</property>
                   </packing>
-                </child>
-                <child type="tab">
-                  <object class="GtkLabel" id="label2">
-                    <property name="visible">True</property>
-                    <property name="label" translatable="yes">Podcasts</property>
-                    <property name="use_underline">False</property>
-                    <property name="use_markup">False</property>
-                    <property name="wrap">False</property>
-                    <property name="selectable">False</property>
-                    <property name="width_chars">-1</property>
-                    <property name="single_line_mode">False</property>
-                  </object>
                 </child>
                 <child>
                   <object class="GtkVBox" id="vboxDownloadStatusWidgets">
-                    <property name="border_width">5</property>
+                    <property name="border_width">0</property>
                     <property name="visible">True</property>
                     <property name="homogeneous">False</property>
                     <property name="spacing">5</property>
@@ -786,7 +784,6 @@
                         <property name="can_focus">True</property>
                         <property name="hscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
                         <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
-                        <property name="shadow_type">GTK_SHADOW_IN</property>
                         <property name="window_placement">GTK_CORNER_TOP_LEFT</property>
                         <child>
                           <object class="GtkTreeView" id="treeDownloads">
@@ -815,6 +812,7 @@
                     </child>
                     <child>
                       <object class="GtkHBox" id="hboxDownloadSettings">
+                        <property name="border_width">5</property>
                         <property name="visible">True</property>
                         <property name="spacing">10</property>
                         <child>
@@ -913,21 +911,8 @@
                     </child>
                   </object>
                   <packing>
-                    <property name="tab_expand">False</property>
-                    <property name="tab_fill">True</property>
+                    <property name="title" translatable="yes">Progress</property>
                   </packing>
-                </child>
-                <child type="tab">
-                  <object class="GtkLabel" id="labelDownloads">
-                    <property name="visible">True</property>
-                    <property name="label" translatable="yes">Progress</property>
-                    <property name="use_underline">False</property>
-                    <property name="use_markup">False</property>
-                    <property name="wrap">False</property>
-                    <property name="selectable">False</property>
-                    <property name="width_chars">-1</property>
-                    <property name="single_line_mode">False</property>
-                  </object>
                 </child>
               </object>
               <packing>

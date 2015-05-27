@@ -247,7 +247,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         util.run_in_background(self.user_apps_reader.read)
 
         # Now, update the feed cache, when everything's in place
-        self.btnUpdateFeeds.show()
+        self.btnUpdateFeeds.set_sensitive(True)
         self.feed_cache_update_cancelled = False
         self.update_podcast_list_model()
 
@@ -292,7 +292,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     False, self.get_dialog_parent())
             self.partial_downloads_indicator.on_message(N_('%(count)d partial file', '%(count)d partial files', count) % {'count':count})
 
-            util.idle_add(self.wNotebook.set_current_page, 1)
+            util.idle_add(self.wNotebook.set_visible_child, self.vboxDownloadStatusWidgets)
 
         def progress_callback(title, progress):
             self.partial_downloads_indicator.on_message(title)
@@ -322,7 +322,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     common.clean_up_downloads(delete_partial=False)
                 util.idle_add(offer_resuming)
             else:
-                util.idle_add(self.wNotebook.set_current_page, 0)
+                util.idle_add(self.wNotebook.set_visible_child, self.channelPaned)
 
         common.find_partial_downloads(self.channels,
                 start_progress_callback,
@@ -1037,9 +1037,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_tool_downloads_toggled(self, toolbutton):
         if toolbutton.get_active():
-            self.wNotebook.set_current_page(1)
+            self.wNotebook.set_visible_child(self.vboxDownloadStatusWidgets)
         else:
-            self.wNotebook.set_current_page(0)
+            self.wNotebook.set_visible_child(self.channelPaned)
 
     def add_download_task_monitor(self, monitor):
         self.download_task_monitors.add(monitor)
@@ -1118,7 +1118,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 if queued > 0:
                     s.append(N_('%(count)d queued', '%(count)d queued', queued) % {'count':queued})
                 text.append(' (' + ', '.join(s)+')')
-            self.labelDownloads.set_text(''.join(text))
+
+            parent = self.vboxDownloadStatusWidgets.get_parent()
+            parent.child_set_property(self.vboxDownloadStatusWidgets, 'title', ''.join(text).encode('utf-8'))
 
             title = [self.default_title]
 
@@ -1371,25 +1373,25 @@ class gPodder(BuilderWidget, dbus.service.Object):
             message = self.format_episode_list(finished_downloads, 5)
             message += '\n\n<i>%s</i>\n' % _('Could not download some episodes:')
             message += self.format_episode_list(failed_downloads, 5)
-            self.show_message(message, _('Downloads finished'), widget=self.labelDownloads)
+            self.show_message(message, _('Downloads finished'))
         elif finished_downloads:
             message = self.format_episode_list(finished_downloads)
-            self.show_message(message, _('Downloads finished'), widget=self.labelDownloads)
+            self.show_message(message, _('Downloads finished'))
         elif failed_downloads:
             message = self.format_episode_list(failed_downloads)
-            self.show_message(message, _('Downloads failed'), widget=self.labelDownloads)
+            self.show_message(message, _('Downloads failed'))
 
         if finished_syncs and failed_syncs:
             message = self.format_episode_list(map((lambda task: str(task)),finished_syncs), 5)
             message += '\n\n<i>%s</i>\n' % _('Could not sync some episodes:')
             message += self.format_episode_list(map((lambda task: str(task)),failed_syncs), 5)
-            self.show_message(message, _('Device synchronization finished'), True, widget=self.labelDownloads)
+            self.show_message(message, _('Device synchronization finished'), True)
         elif finished_syncs:
             message = self.format_episode_list(map((lambda task: str(task)),finished_syncs))
-            self.show_message(message, _('Device synchronization finished'), widget=self.labelDownloads)
+            self.show_message(message, _('Device synchronization finished'))
         elif failed_syncs:
             message = self.format_episode_list(map((lambda task: str(task)),failed_syncs))
-            self.show_message(message, _('Device synchronization failed'), True, widget=self.labelDownloads)
+            self.show_message(message, _('Device synchronization failed'), True)
 
         # Do post-sync processing if required
         for task in finished_syncs:
@@ -1959,7 +1961,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.episode_list_status_changed(episodes)
 
     def play_or_download(self):
-        if self.wNotebook.get_current_page() > 0:
+        if self.wNotebook.props.visible_child == self.vboxDownloadStatusWidgets:
             self.toolCancel.set_sensitive(True)
             return (False, False, False, False, False, False)
 
@@ -2377,7 +2379,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # Make sure that the buttons for updating feeds
         # appear - this should happen after a feed update
         self.hboxUpdateFeeds.hide()
-        self.btnUpdateFeeds.show()
+        self.btnUpdateFeeds.set_sensitive(True)
         self.itemUpdate.set_sensitive(True)
         self.itemUpdateChannel.set_sensitive(True)
 
@@ -2411,7 +2413,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.btnCancelFeedUpdate.set_sensitive(True)
         self.btnCancelFeedUpdate.set_image(Gtk.Image.new_from_stock(Gtk.STOCK_STOP, Gtk.IconSize.BUTTON))
         self.hboxUpdateFeeds.show_all()
-        self.btnUpdateFeeds.hide()
+        self.btnUpdateFeeds.set_sensitive(False)
 
         count = len(channels)
         text = N_('Updating %(count)d feed...', 'Updating %(count)d feeds...', count) % {'count':count}
@@ -2495,11 +2497,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     if self.config.auto_download == 'download':
                         self.download_episode_list(episodes)
                         title = N_('Downloading %(count)d new episode.', 'Downloading %(count)d new episodes.', count) % {'count':count}
-                        self.show_message(title, _('New episodes available'), widget=self.labelDownloads)
+                        self.show_message(title, _('New episodes available'))
                     elif self.config.auto_download == 'queue':
                         self.download_episode_list_paused(episodes)
                         title = N_('%(count)d new episode added to download list.', '%(count)d new episodes added to download list.', count) % {'count':count}
-                        self.show_message(title, _('New episodes available'), widget=self.labelDownloads)
+                        self.show_message(title, _('New episodes available'))
                     else:
                         if (show_new_episodes_dialog and
                                 self.config.auto_download == 'show'):
@@ -2872,8 +2874,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_itemDownloadAllNew_activate(self, widget, *args):
         if not self.offer_new_episodes():
-            self.show_message(_('Please check for new episodes later.'), \
-                    _('No new episodes available'), widget=self.btnUpdateFeeds)
+            self.show_message(_('Please check for new episodes later.'), _('No new episodes available'))
 
     def get_new_episodes(self, channels=None):
         return [e for c in channels or self.channels for e in
@@ -3401,7 +3402,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 current_page = self.wNotebook.get_current_page()
 
                 if current_page == self.wNotebook.get_n_pages()-1:
-                    self.wNotebook.set_current_page(0)
+                    self.wNotebook.set_visible_child(self.channelPaned)
                 else:
                     self.wNotebook.next_page()
                 return True
