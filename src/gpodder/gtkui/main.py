@@ -124,7 +124,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def new(self):
         gpodder.user_extensions.on_ui_object_available('gpodder-gtk', self)
-        self.toolbar.set_property('visible', self.config.show_toolbar)
 
         self.bluetooth_available = util.bluetooth_available()
 
@@ -192,7 +191,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.download_status_model = DownloadStatusModel()
         self.download_queue_manager = download.DownloadQueueManager(self.config)
 
-        self.itemShowToolbar.set_active(self.config.show_toolbar)
         self.itemShowDescription.set_active(self.config.episode_list_descriptions)
 
         self.config.connect_gtk_spinbutton('max_downloads', self.spinMaxDownloads)
@@ -1177,9 +1175,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         util.idle_add(self._on_config_changed, *args)
 
     def _on_config_changed(self, name, old_value, new_value):
-        if name == 'ui.gtk.toolbar':
-            self.toolbar.set_property('visible', new_value)
-        elif name == 'ui.gtk.episode_list.descriptions':
+        if name == 'ui.gtk.episode_list.descriptions':
             self.update_episode_list_model()
         elif name in ('auto.update.enabled', 'auto.update.frequency'):
             self.restart_auto_update_timer()
@@ -1956,13 +1952,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
         except Exception, e:
             logger.error('Error in playback!', exc_info=True)
             self.show_message(_('Please check your media player settings in the preferences dialog.'), \
-                    _('Error opening player'), widget=self.toolPreferences)
+                    _('Error opening player'))
 
         self.episode_list_status_changed(episodes)
 
     def play_or_download(self):
         if self.wNotebook.props.visible_child == self.vboxDownloadStatusWidgets:
-            self.toolCancel.set_sensitive(True)
             return (False, False, False, False, False, False)
 
         if self.currently_updating:
@@ -2002,14 +1997,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             can_download = can_download and not can_cancel
             can_play = self.streaming_possible() or (can_play and not can_cancel and not can_download)
             can_delete = not can_cancel
-
-        if open_instead_of_play:
-            self.toolPlay.set_stock_id(Gtk.STOCK_OPEN)
-        else:
-            self.toolPlay.set_stock_id(Gtk.STOCK_MEDIA_PLAY)
-        self.toolPlay.set_sensitive( can_play)
-        self.toolDownload.set_sensitive( can_download)
-        self.toolCancel.set_sensitive( can_cancel)
 
         self.item_cancel_download.set_sensitive(can_cancel)
         self.itemDownloadSelected.set_sensitive(can_download)
@@ -2884,9 +2871,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         """This will be called after the sync process is finished"""
         self.db.commit()
 
-    def on_itemShowToolbar_activate(self, widget):
-        self.config.show_toolbar = self.itemShowToolbar.get_active()
-
     def on_itemShowDescription_activate(self, widget):
         self.config.episode_list_descriptions = self.itemShowDescription.get_active()
 
@@ -3250,10 +3234,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if self.message_area is not None:
                 self.message_area.hide()
                 self.message_area = None
-        else:
-            self.toolDownload.set_sensitive(False)
-            self.toolPlay.set_sensitive(False)
-            self.toolCancel.set_sensitive(False)
 
     def on_treeChannels_row_activated(self, widget, path, *args):
         # double-click action of the podcast list or enter
@@ -3473,7 +3453,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.show_confirmation,
                 self.update_episode_list_icons,
                 self.update_podcast_list_model,
-                self.toolPreferences,
                 self.channels,
                 self.download_status_model,
                 self.download_queue_manager,

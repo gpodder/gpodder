@@ -39,7 +39,6 @@ class gPodderSyncUI(object):
             show_confirmation,
             update_episode_list_icons,
             update_podcast_list_model,
-            preferences_widget,
             channels,
             download_status_model,
             download_queue_manager,
@@ -55,7 +54,6 @@ class gPodderSyncUI(object):
 
         self.update_episode_list_icons = update_episode_list_icons
         self.update_podcast_list_model = update_podcast_list_model
-        self.preferences_widget = preferences_widget
         self.channels=channels
         self.download_status_model = download_status_model
         self.download_queue_manager = download_queue_manager
@@ -85,12 +83,12 @@ class gPodderSyncUI(object):
     def _show_message_unconfigured(self):
         title = _('No device configured')
         message = _('Please set up your device in the preferences dialog.')
-        self.notification(message, title, widget=self.preferences_widget, important=True)
+        self.notification(message, title, important=True)
 
     def _show_message_cannot_open(self):
         title = _('Cannot open device')
         message = _('Please check the settings in the preferences dialog.')
-        self.notification(message, title, widget=self.preferences_widget, important=True)
+        self.notification(message, title, important=True)
 
     def on_synchronize_episodes(self, channels, episodes=None, force_played=True):
         device = sync.open_device(self)
@@ -198,7 +196,7 @@ class gPodderSyncUI(object):
                 if (self._config.device_sync.device_type=='filesystem' and self._config.device_sync.playlists.create):                 
                     title = _('Update successful')
                     message = _('The playlist on your MP3 player has been updated.')
-                    self.notification(message, title, widget=self.preferences_widget)
+                    self.notification(message, title)
 
                 # Finally start the synchronization process
                 @util.run_in_background
@@ -284,7 +282,7 @@ class gPodderSyncUI(object):
                 except IOError, ioe:
                     title =  _('Error writing playlist files')
                     message = _(str(ioe))
-                    self.notification(message, title, widget=self.preferences_widget)
+                    self.notification(message, title)
             else:
                 logger.info ('Not creating playlists - starting sync')
                 resume_sync([],[],None)

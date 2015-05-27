@@ -248,15 +248,6 @@
           </object>
         </child>
         <child>
-          <object class="GtkToggleAction" id="itemShowToolbar">
-            <property name="active">True</property>
-            <property name="name">itemShowToolbar</property>
-            <property name="label" translatable="yes">Toolbar</property>
-            <signal handler="on_itemShowToolbar_activate" name="activate"/>
-          </object>
-          <accelerator key="T" modifiers="GDK_CONTROL_MASK"/>
-        </child>
-        <child>
           <object class="GtkToggleAction" id="itemShowDescription">
             <property name="active">True</property>
             <property name="name">itemShowDescription</property>
@@ -378,7 +369,6 @@
           <menuitem action="item_update_youtube_subscriptions"/>
         </menu>
         <menu action="menuView">
-          <menuitem action="itemShowToolbar"/>
           <menuitem action="itemShowDescription"/>
           <separator/>
           <menuitem action="item_view_episodes_all"/>
@@ -506,116 +496,6 @@
             <property name="padding">0</property>
             <property name="expand">False</property>
             <property name="fill">False</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkToolbar" id="toolbar">
-            <property name="visible">True</property>
-            <property name="show_arrow">True</property>
-            <child>
-              <object class="GtkToolButton" id="toolDownload">
-                <property name="visible">True</property>
-                <property name="label" translatable="yes">Download</property>
-                <property name="use_underline">True</property>
-                <property name="stock_id">gtk-go-down</property>
-                <property name="visible_horizontal">True</property>
-                <property name="visible_vertical">True</property>
-                <property name="is_important">True</property>
-                <property name="sensitive">False</property>
-                <signal handler="on_download_selected_episodes" name="clicked"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkToolButton" id="toolPlay">
-                <property name="visible">True</property>
-                <property name="stock_id">gtk-media-play</property>
-                <property name="visible_horizontal">True</property>
-                <property name="visible_vertical">True</property>
-                <property name="is_important">True</property>
-                <property name="sensitive">False</property>
-                <signal handler="on_playback_selected_episodes" name="clicked"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkToolButton" id="toolCancel">
-                <property name="visible">True</property>
-                <property name="label" translatable="yes">Cancel</property>
-                <property name="use_underline">True</property>
-                <property name="stock_id">gtk-cancel</property>
-                <property name="visible_horizontal">True</property>
-                <property name="visible_vertical">True</property>
-                <property name="is_important">True</property>
-                <property name="sensitive">False</property>
-                <signal handler="on_item_cancel_download_activate" name="clicked"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkSeparatorToolItem" id="toolbutton3">
-                <property name="visible">True</property>
-                <property name="visible_horizontal">True</property>
-                <property name="visible_vertical">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">False</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkToolButton" id="toolPreferences">
-                <property name="visible">True</property>
-                <property name="stock_id">gtk-preferences</property>
-                <property name="visible_horizontal">True</property>
-                <property name="visible_vertical">True</property>
-                <property name="is_important">False</property>
-                <signal handler="on_itemPreferences_activate" name="clicked"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkSeparatorToolItem" id="toolbutton2">
-                <property name="visible">True</property>
-                <property name="visible_horizontal">True</property>
-                <property name="visible_vertical">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">False</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkToolButton" id="toolQuit">
-                <property name="visible">True</property>
-                <property name="stock_id">gtk-quit</property>
-                <property name="visible_horizontal">True</property>
-                <property name="visible_vertical">True</property>
-                <property name="is_important">False</property>
-                <signal handler="on_gPodder_delete_event" name="clicked"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="padding">0</property>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
           </packing>
         </child>
         <child>
