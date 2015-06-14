@@ -74,6 +74,7 @@ import os
 import re
 import inspect
 import functools
+import contextlib
 try:
     import readline
 except ImportError:
@@ -221,17 +222,23 @@ class gPodderCli(object):
                 self._extensions_podcast_update_cb,
                 self._extensions_episode_download_cb)
 
+    @contextlib.contextmanager
+    def _action(self, msg, *args):
+        self._start_action(msg, *args)
+        try:
+            yield
+            self._finish_action()
+        except Exception as ex:
+            logger.warning('Action could not be completed', exc_info=True)
+            self._finish_action(False)
+
     def _run_cleanups(self):
         # Find expired (old) episodes and delete them
         old_episodes = list(common.get_expired_episodes(self._model.get_podcasts(), self._config))
         if old_episodes:
-            self._start_action('Cleaning up old downloads')
-            try:
+            with self._action('Cleaning up old downloads'):
                 for old_episode in old_episodes:
                     old_episode.delete_from_disk()
-                self._finish_action()
-            except Exception, e:
-                self._finish_action(False)
 
     def _build_prefixes_expansions(self):
         prefixes = {}
@@ -497,12 +504,8 @@ class gPodderCli(object):
         return True
 
     def _update_podcast(self, podcast):
-        self._start_action(' %s', podcast.title)
-        try:
+        with self._action(' %s', podcast.title):
             podcast.update()
-            self._finish_action()
-        except Exception, e:
-            self._finish_action(False)
 
     def _pending_message(self, count):
         return N_('%(count)d new episode', '%(count)d new episodes',
@@ -547,14 +550,11 @@ class gPodderCli(object):
         return True
 
     def _download_episode(self, episode):
-        self._start_action('Downloading %s', episode.title)
-        
-        task = download.DownloadTask(episode, self._config)
-        task.add_progress_callback(self._update_action)
-        task.status = download.DownloadTask.QUEUED
-        task.run()
-        
-        self._finish_action()
+        with self._action('Downloading %s', episode.title):
+            task = download.DownloadTask(episode, self._config)
+            task.add_progress_callback(self._update_action)
+            task.status = download.DownloadTask.QUEUED
+            task.run()
 
     @FirstArgumentIsPodcastURL
     def download(self, url=None):
