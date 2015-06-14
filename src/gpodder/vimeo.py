@@ -41,7 +41,8 @@ except ImportError:
 
 import re
 
-VIMEOCOM_RE = re.compile(r'http://vimeo\.com/(\d+)$', re.IGNORECASE)
+VIMEOCOM_RE = re.compile(r'http://vimeo\.com/(channels/[^/]+|\d+)$', re.IGNORECASE)
+VIMEOCOM_VIDEO_RE = re.compile(r'https://vimeo.com/channels/(?:[^/])+/(\d+)$', re.IGNORECASE)
 MOOGALOOP_RE = re.compile(r'http://vimeo\.com/moogaloop\.swf\?clip_id=(\d+)$', re.IGNORECASE)
 SIGNATURE_RE = re.compile(r'"timestamp":(\d+),"signature":"([^"]+)"')
 DATA_CONFIG_RE = re.compile(r'data-config-url="([^"]+)"')
@@ -108,6 +109,10 @@ def get_vimeo_id(url):
         return result.group(1)
 
     result = VIMEOCOM_RE.match(url)
+    if result is not None:
+        return result.group(1)
+
+    result = VIMEOCOM_VIDEO_RE.match(url)
     if result is not None:
         return result.group(1)
 
