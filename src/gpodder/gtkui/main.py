@@ -1967,7 +1967,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def play_or_download(self):
         if self.wNotebook.get_current_page() > 0:
             self.toolCancel.set_sensitive(True)
-            return
+            return (False, False, False, False, False, False)
 
         if self.currently_updating:
             return (False, False, False, False, False, False)
