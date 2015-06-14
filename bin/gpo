@@ -140,6 +140,7 @@ from gpodder import opml
 from gpodder import util
 from gpodder import youtube
 from gpodder import model
+from gpodder import common
 from gpodder.config import config_value_to_string
 
 def incolor(color_id, s):
@@ -219,6 +220,18 @@ class gPodderCli(object):
         gpodder.user_extensions.on_ui_initialized(self.core.model,
                 self._extensions_podcast_update_cb,
                 self._extensions_episode_download_cb)
+
+    def _run_cleanups(self):
+        # Find expired (old) episodes and delete them
+        old_episodes = list(common.get_expired_episodes(self._model.get_podcasts(), self._config))
+        if old_episodes:
+            self._start_action('Cleaning up old downloads')
+            try:
+                for old_episode in old_episodes:
+                    old_episode.delete_from_disk()
+                self._finish_action()
+            except Exception, e:
+                self._finish_action(False)
 
     def _build_prefixes_expansions(self):
         prefixes = {}
@@ -765,6 +778,8 @@ class gPodderCli(object):
         Press Ctrl+D (EOF) or type 'quit' to quit.
         """ % gpodder.__dict__).splitlines()))
 
+        cli._run_cleanups()
+
         if readline is not None:
             readline.parse_and_bind('tab: complete')
             readline.set_completer(self._tab_completion)
@@ -900,6 +915,7 @@ if __name__ == '__main__':
     args = sys.argv[1:]
     if args:
         is_single_command = True
+        cli._run_cleanups()
         cli._parse_single(args)
     elif interactive_console:
         cli._shell()
