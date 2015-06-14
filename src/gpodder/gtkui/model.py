@@ -125,7 +125,7 @@ class EpisodeListModel(gtk.ListStore):
     def __init__(self, config, on_filter_changed=lambda has_episodes: None):
         gtk.ListStore.__init__(self, str, str, str, object, \
                 str, str, str, str, bool, bool, bool, \
-                gobject.TYPE_INT64, int, str, bool, int, bool)
+                gobject.TYPE_INT64, gobject.TYPE_INT64, str, bool, gobject.TYPE_INT64, bool)
 
         self._config = config
 
