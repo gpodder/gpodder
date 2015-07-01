@@ -3505,8 +3505,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     new_urls = youtube.get_channels_for_user(user, self.config.youtube.api_key_v3)
                     logger.debug('YouTube channels retrieved: %r', new_urls)
 
+                    if len(new_urls) == 0 and youtube.get_youtube_id(url) is not None:
+                        logger.info('No need to update %s', url)
+                        continue
+
                     if len(new_urls) != 1:
-                        failed_urls.append(url, _('No unique URL found'))
+                        failed_urls.append((url, _('No unique URL found')))
                         continue
 
                     new_url = new_urls[0]
