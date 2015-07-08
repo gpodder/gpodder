@@ -601,7 +601,7 @@ class gPodderPreferences(BuilderWidget):
         self._config.youtube.api_key_v3 = widget.get_text()
 
     def on_button_youtube_api_key_clicked(self, widget):
-        util.open_website('https://developers.google.com/youtube/v3/')
+        util.open_website('http://wiki.gpodder.org/wiki/Youtube')
 
     def on_username_changed(self, widget):
         self._config.mygpo.username = widget.get_text()
