@@ -35,7 +35,8 @@ import urllib
 
 from gpodder import model
 from gpodder import util
-from lxml import etree
+from HTMLParser import HTMLParser
+from xml.etree import ElementTree
 
 _ = gpodder.gettext
 
@@ -49,19 +50,57 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 
-def get_file_metadata(url):
-    """Get file download metadata
-
-    Returns a (size, type, name) from the given download
-    URL. Will use the network connection to determine the
-    metadata via the HTTP header fields.
+class NaiveHTMLParser(HTMLParser):
     """
-    track_fp = util.urlopen(url)
-    headers = track_fp.info()
-    filesize = headers["content-length"] or '0'
-    filetype = headers["content-type"] or 'application/octet-stream'
-    track_fp.close()
-    return filesize, filetype
+    Python 3.x HTMLParser extension with ElementTree support.
+    @see https://github.com/marmelo/python-htmlparser
+    """
+
+    def __init__(self):
+        self.root = None
+        self.tree = []
+        HTMLParser.__init__(self)
+
+    def feed(self, data):
+        HTMLParser.feed(self, data)
+        return self.root
+
+    def handle_starttag(self, tag, attrs):
+        if len(self.tree) == 0:
+            element = ElementTree.Element(tag, dict(self.__filter_attrs(attrs)))
+            self.tree.append(element)
+            self.root = element
+        else:
+            element = ElementTree.SubElement(self.tree[-1], tag, dict(self.__filter_attrs(attrs)))
+            self.tree.append(element)
+
+    def handle_endtag(self, tag):
+        self.tree.pop()
+
+    def handle_startendtag(self, tag, attrs):
+        self.handle_starttag(tag, attrs)
+        self.handle_endtag(tag)
+        pass
+
+    def handle_data(self, data):
+        if self.tree:
+            self.tree[-1].text = data
+
+    def get_root_element(self):
+        return self.root
+
+    def __filter_attrs(self, attrs):
+        return filter(lambda x: x[0] and x[1], attrs) if attrs else []
+
+
+def parse_url(url):
+    if url is None:
+        return None
+    parser = NaiveHTMLParser()
+    html = util.urlopen(url).read()
+    root = parser.feed(html)
+    parser.close()
+    return root
 
 
 def rtp_parsedate(s):
@@ -75,30 +114,33 @@ def rtp_parsedate(s):
     return t
 
 
-def html_parser(url):
-    return None if url is None else etree.parse(url, etree.HTMLParser())
-
-
 class RTPPlayFeed(object):
-    URL_REGEX = re.compile('http://www.rtp.pt/play/p([0-9]+)')
-    PODCAST_REGEX = re.compile('http://www.rtp.pt/play/podcast/([0-9]+)')
+    URL_REGEXEN = [
+            re.compile('http://www.rtp.pt/play/p([0-9]+)'),
+            re.compile('http://www.rtp.pt/play/podcast/([0-9]+)'),
+            ]
     CACHE_FILE = os.path.join(gpodder.home, 'rtp_play.cache')
 
     @classmethod
     def handle_url(cls, url):
-        m = cls.URL_REGEX.match(url) or cls.PODCAST_REGEX.match(url)
-        if m is not None:
-            RTPid = m.group(1)
-            return cls(RTPid)
+        # NOTE: Can I keep the for here?
+        for regex in cls.URL_REGEXEN:
+            m = regex.match(url)
+            if m is not None:
+                RTPid = m.group(1)
+                return cls(RTPid)
 
-    def __init__(self, programID):
-        self.programID = str(programID)
-        self.play_url = 'http://www.rtp.pt/play/p%s/' % programID
-        self.play_url_etree = None
+    def __init__(self, programmeID):
+        self.programmeID = str(programmeID)
+        self.url_play = 'http://www.rtp.pt/play/p%s/' % self.programmeID
+        self.url_info = None
         # Cache
         self.cache_read()
 
     def cache_read(self):
+        """
+        Read the memory cache from disk
+        """
         filename = self.CACHE_FILE
         obj = {}
         if os.path.exists(filename):
@@ -110,6 +152,9 @@ class RTPPlayFeed(object):
         logger.debug("Cache Read")
 
     def cache_write(self):
+        """
+        Dump the memory cache to disk
+        """
         json.dump(self.cache,
                   open(self.CACHE_FILE, 'wb'),
                   sort_keys=True,
@@ -117,114 +162,206 @@ class RTPPlayFeed(object):
                   encoding='UTF-8')
         logger.debug("Cache Write")
 
-    def get_all_episodes(self):
-        episode_ids = self.get_episodes_program()
-        return self.metadata_episodes(episode_ids)
+    # Network requests and HTML parsing
+    # All the nasty stuff should be contained here
+    def get_metadata_programme(self, cache=False):
+        """
+        Retrieve all programme metadata, except episodes
 
-    def get_metadata_program(self):
-        if self.programID is None:
+        Key: programmeID
+        """
+        if self.programmeID is None:
             return None
         try:
-            logger.debug('P%s: Get Metadata', self.programID)
-            etree_play = html_parser(self.play_url)
-            info_anchor = etree_play.xpath('//i[@class="fa fa-plus fa-lg text-muted"]/ancestor::a[1]')[0]
-            info_url = None if info_anchor is None else "http://www.rtp.pt%s" % info_anchor.get("href")
-            etree_info = html_parser(info_url)
-            logger.debug('P%s: Parsing HTML', self.programID)
-            e_title = etree_play.find('//div[@id="collapse-text"]/div/p[@class="h3"]/a').text.strip()
-            e_link = info_url or self.play_url
-            e_desc = "Get from etree_play" if info_url is None else ''.join(etree_info.find('//div[@class="Area ProgPrincipal"]//div[@class="grid_5 omega"]/p[2]').itertext())
-            raw_coverart = etree_play.find('//div[@id="collapse-text"]/div/img').get("src")
-            r_coverart = re.match('http:\/\/([^.]+\.).+\?src=([^&]+)&', raw_coverart)
-            e_coverart = "http://%srtp.pt%s" % (r_coverart.group(1), r_coverart.group(2))
-            logger.debug('P%s: Caching', self.programID)
-            self.cache[self.programID] = {
-                    'title': e_title,
-                    'url': e_link,
-                    'description': e_desc,
-                    'coverart': e_coverart
-                    }
-        finally:
-            self.cache_write()
-
-    def get_episodes_program(self):
-        e_cache = self.metadata('episodes') or {}
-        ids_all = set(e_cache.keys())
-
-        page = 1
-        goto_next_page = True
-        while goto_next_page:
-            logger.debug('P%s: Updating Episode List - Page %d' % (self.programID, page))
-            url = 'http://www.rtp.pt/play/bg_l_ep/?type=all&page={}&listProgram={}'.format(page, self.programID)
-            etree_url = html_parser(url)
-            if etree_url is None or etree_url.getroot() is None:  # Nothing more to parse
-                goto_next_page = False
+            logger.debug('P%s: Get Metadata', self.programmeID)
+            metadata = {}
+            e_play = parse_url(self.url_play)
+            # Alternative info website
+            A_info = e_play.find('//i[@class="fa fa-plus fa-lg text-muted"]/ancestor::a[1]')
+            self.url_info = None if A_info is None else A_info.get("href")
+            e_info = parse_url(self.url_info)
+            # Title
+            A_title = e_play.find('//div[@id="collapse-text"]/div/p[@class="h3"]/a')
+            tmp_title = A_title.text.strip()
+            if tmp_title.find("\n") or len(tmp_title) > 100:
+                # Stop using the title as as description!
+                A_title = e_info.find('.SectionName > h1')
+                if A_title is None:
+                    # Just make something up
+                    tmp_title = "RTP Play P%s" % self.programmeID
+                tmp_title = A_title.text.strip()
+            metadata['title'] = tmp_title
+            # URL
+            metadata['url'] = self.url_info or self.url_play
+            # Description
+            P_desc = e_info.find('//div[@class="Area ProgPrincipal"]//div[@class="grid_5 omega"]/p[2]')
+            if P_desc is not None:
+                temp_desc = ''.join(P_desc.itertext())
             else:
-                ids_page = set()
-                url_anchors = etree_url.xpath('//a[@class="episode-item"]')
-                for anchor in url_anchors:
-                    ids_page.add(re.search('e([0-9]+)', anchor.get('href')).group(1))
-                if ids_page.issubset(ids_all):
-                    logger.debug('P%s: No more new episodes' % self.programID)
-                    goto_next_page = False
-                else:
-                    ids_all.update(ids_page)
-                    page = page + 1
-        return ids_all
-
-    def get_metadata_episode(self, episodeID, cache=False):
-        _cache_title = 'episodes'
-        if self.programID is None:
-            return None
-        try:
-            logger.debug('P%sE%s: Get Metadata', self.programID, episodeID)
-            link = 'http://www.rtp.pt/play/p%s/e%s/' % (self.programID, episodeID)
-            etree_link = html_parser(link)
-            logger.debug('P%sE%s: Parsing HTML', self.programID, episodeID)
-            raw_title = etree_link.find('//article//b[@class="h4"]')
-            e_title = self.get_title() if raw_title is None else raw_title.text.strip()
-            e_desc = ''.join(etree_link.find('//div[@id="promo"]/p').itertext()).strip()
-            e_desc, _, _ = e_desc.partition("\r\n\t\t    ")
-            raw_url = etree_link.findall('//script')[-1].text.strip()
-            e_url = "http://cdn-ondemand.rtp.pt%s" % re.search('"file": "(.+?)"', raw_url).group(1)
-            e_filesize, e_filetype = get_file_metadata(e_url)
-            raw_date = etree.tostring(etree_link.find('//div[@id="collapse-text"]//p[@class="text-white"]')).strip()
-            e_date = rtp_parsedate(re.search('\d{2} \w{3}, \d{4}', raw_date).group(0))
-            logger.debug('P%sE%s: Caching', self.programID, episodeID)
-            if _cache_title not in self.cache[self.programID]:
-                self.cache[self.programID][_cache_title] = {}
-            self.cache[self.programID][_cache_title][episodeID] = {
-                    'title': e_title,
-                    'link': link,
-                    'description': e_desc,
-                    'url': e_url,
-                    'file_size': int(e_filesize),
-                    'mime_type': e_filetype,
-                    'guid': link,
-                    'published': e_date,
-                    }
+                # Just make something up
+                temp_desc = "RTP Play Description\nProgramme %s" % (self.programmeID)
+            metadata["description"] = temp_desc
+            # Coverart
+            IMG_coverart = e_play.find('//div[@id="collapse-text"]/div/img')
+            if IMG_coverart is None:
+                # Just make something up
+                IMG_coverart = "" #Something
+            temp_coverart_raw = IMG_coverart.get('src')
+            temp_coverart_regex = re.match('http:\/\/([^.]+\.).+\?src=([^&]+)&', temp_coverart_raw)
+            if temp_coverart_regex is not None:
+                temp_coverart = 'http://%srtp.pt%s' % (temp_coverart_regex.group(1), temp_coverart_regex.group(2))
+            else:
+                # In case the pattern changes
+                temp_coverart = temp_coverart_raw
+            metadata['coverart'] = temp_coverart
+            # The Episodes need something
+            metadata['episodes'] = {}
+            # Store it on the memory cache
+            self.cache[self.programmeID] = metadata
         finally:
             if cache:
                 self.cache_write()
 
-    def metadata(self, name):
-        if self.programID not in self.cache:
-            self.get_metadata_program()
-        if name not in self.cache[self.programID]:
-            self.cache[self.programID][name] = {}
-        return self.cache[self.programID][name]
 
-    def metadata_episode(self, episodeID):
-        if episodeID not in self.cache[self.programID]['episodes']:
+    def get_metadata_episodes(self, cache=False):
+        """
+        Retrive the list of new episodes, with no metadata
+
+        Key: programmeID
+        """
+        temp_ids = self.metadata('episodes') or {}
+        ids_all = set(temp_ids.keys())
+        page = 1
+        goto_next_page = True
+        while goto_next_page:
+            logger.debug('P%s: Updating Episode List - Page %d' % (self.programmeID, page))
+            url = 'http://www.rtp.pt/play/bg_l_ep/?type=all&page={}&listProgram={}'.format(page, self.programmeID)
+            e_url = parse_url(url)
+            if e_url is None:
+                # Nothing more to parse
+                goto_next_page = False
+            else:
+                ids_page = set()
+                As_url = e_url.findall('a[@class="episode-item"]')
+                for A_url in As_url:
+                    ids_page.add(re.search('e([0-9]+)', A_url.get('href')).group(1))
+                if ids_page.issubset(ids_all):
+                    # Nothing new to parse
+                    logger.debug('P%s: No more new episodes' % self.programmeID)
+                    goto_next_page = False
+                else:
+                    # Add all the new episodes to the existing
+                    ids_all.update(ids_page)
+                    # Get to the next page
+                    page = page + 1
+        return ids_all
+
+    def get_metadata_episode(self, episodeID, cache=False):
+        """
+        Retrieve all episode metadata, including final URL
+
+        Key: programmeID, episodeID
+        """
+        if self.programmeID is None or episodeID is None:
+            return None
+        try:
+            logger.debug('P%sE%s: Get Metadata', self.programmeID, episodeID)
+            metadata = {}
+            # Link
+            link = 'http://www.rtp.pt/play/p%s/e%s/' % (self.programmeID, episodeID)
+            e_link = parse_url(link)
+            # Title
+            B_title = e_link.find('//article//b[@class="h4"]')
+            if B_title is None:
+                temp_title = "%s E%s" % (sef.get_title(), episodeID)
+            else:
+                temp_title = B_title.text.strip()
+            metadata['title'] = temp_title
+            # Description
+            P_desc = e_link.find('//div[@id="promo"]/p')
+            if P_desc is None:
+                temp_desc = "RTP Play Description\nProgramme %s Episode %s" % (self.programmeID, episodeID)
+            else:
+                temp_desc = ''.join(P_desc.itertext().strip())
+                # There's a characteristic whitespace incantation
+                # that separates the per-episode description from the rest.
+                # If it doesn't exist, just keep the text unchanged
+                temp_desc, _, _ = temp_desc.partition('\r\n\t\t    ')
+            metadata['description'] = temp_desc
+            # URL - Method 1: monkey-parsing JS
+            SCRIPT_url = e_link.findall('//script')[-1]
+            if SCRIPT_url is not None:
+                temp_url_script = SCRIPT_url.text.strip()
+                temp_url_inner_regex = re.search('"file": "(.+?)"', temp_url_script)
+                if temp_url_inner_regex is not None:
+                    temp_url = 'http://cdn-ondemand.rtp.pt%s' % temp_url_inner_regex.group(1)
+            if temp_url is None:  # Abandon all hope of getting a URL
+                raise Exception("Can't get a URL from P%sE%" % (self.programmeID, episodeID))
+            metadata['url'] = temp_url
+            temp_filesize, temp_filetype = get_file_metadata(temp_url)
+            metadata['file_size'] = int(temp_filesize)
+            metadata['mime_type'] = temp_file
+            # Published Date
+            P_date = e_link.find('//div[@id="collapse-text"]//p[@class="text-white"]')
+            if P_date is None:
+                # Something's not right, but to avoid errors just put right now
+                temp_date = time.time()
+            else:
+                temp_date_raw = P_date.text.strip()  # Get the last text node
+                temp_date_regex = re.search('\d{2} \w{3}, \d{4}', temp_date_raw)
+                if temp_date_regex is None:
+                    # Another fishy situation
+                    temp_date = time.time()
+                else:
+                    temp_date = rtp_parsedate(temp_date_regex.group(0))
+            metadata['published'] = temp_date
+            # GUID: The link is enough
+            metadata['guid'] = metadata['link']
+            # Store it on the memory cache
+            self.cache[self.programmeID]['episodes'][episodeID] = metadata
+        finally:
+            if cache:
+                self.cache_write()
+
+    # Private API
+    def metadata(self, key, cache=True):
+        """
+        Get a single value of programme metadata
+
+        Key: programmeID
+        """
+        if self.programmeID not in self.cache:
+            self.get_metadata_programme()
+        if key not in self.cache[self.programmeID]:
+            return None
+        if cache:
+            self.cache_write()
+        return self.cache[self.programmeID][key]
+
+    def metadata_episode(self, episodeID, cache=False):
+        """
+        Get an array of metadata for a single episode
+
+        Key: programmeID, episodeID
+        """
+        if episodeID not in self.cache[self.programmeID]['episodes']:
             self.get_metadata_episode(episodeID)
-        return self.cache[self.programID]['episodes'][episodeID]
+        if cache:
+            self.cache_write()
+        return self.cache[self.programmeID]['episodes'][episodeID]
 
-    def metadata_episodes(self, episodeIDs):
+    def metadata_episodes(self, episodeIDs, cache=True):
+        """
+        Get an array of arrays of metadata for the given episodes
+
+        Key: programmeID, episodeIDs [episodeID]
+        """
         episodes = []
         for episodeID in episodeIDs:
-            episode = self.metadata_episode(episodeID)
+            episode = self.metadata_episode(episodeID, cache=False)
             episodes.append(episode)
-        self.cache_write()  # Only once
+        if cache:
+            self.cache_write()  # Only once
         return episodes
 
     # Public methods
@@ -241,7 +378,8 @@ class RTPPlayFeed(object):
         return self.metadata('coverart')
 
     def get_new_episodes(self, channel, existing_guids):
-        all_episodes = self.get_all_episodes()
+        all_episodes_ids = self.get_metadata_episodes()
+        all_episodes = self.metadata_episodes(all_episodes_ids)
         all_guids = [ep['guid'] for ep in all_episodes]
 
         new_episodes = []
