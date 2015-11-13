@@ -195,7 +195,7 @@ defaults = {
     },
 
     'vimeo': {
-        'fileformat': 'hd', # preferred file format (hd, sd, mobile)
+        'fileformat': '720p', # preferred file format (see vimeo.py)
     },
 
     'extensions': {
