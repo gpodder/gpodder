@@ -399,9 +399,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             episode.current_position_updated = now
             episode.mark(is_played=True)
             episode.save()
-            self.db.commit()
-            self.update_episode_list_icons([episode.url])
-            self.update_podcast_list_model([episode.channel.url])
+            self.episode_list_status_changed([episode])
 
             # Submit this action to the webservice
             self.mygpo_client.on_playback_full(episode, start, end, total)
@@ -1956,13 +1954,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.show_message(_('Please check your media player settings in the preferences dialog.'), \
                     _('Error opening player'), widget=self.toolPreferences)
 
-        channel_urls = set()
-        episode_urls = set()
-        for episode in episodes:
-            channel_urls.add(episode.channel.url)
-            episode_urls.add(episode.url)
-        self.update_episode_list_icons(episode_urls)
-        self.update_podcast_list_model(channel_urls)
+        self.episode_list_status_changed(episodes)
 
     def play_or_download(self):
         if self.wNotebook.get_current_page() > 0:
