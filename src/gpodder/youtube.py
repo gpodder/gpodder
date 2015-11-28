@@ -192,6 +192,7 @@ def for_each_feed_pattern(func, url, fallback_result):
         'http[s]?://(?:[a-z]+\.)?youtube\.com/channel/([-_a-zA-Z0-9]+)',
         'http[s]?://(?:[a-z]+\.)?youtube\.com/rss/user/([a-z0-9]+)/videos\.rss',
         'http[s]?://gdata.youtube.com/feeds/users/([^/]+)/uploads',
+        'http[s]?://gdata.youtube.com/feeds/base/users/([^/]+)/uploads',
         'http[s]?://(?:[a-z]+\.)?youtube\.com/feeds/videos.xml\?channel_id=([-_a-zA-Z0-9]+)',
     ]
 
