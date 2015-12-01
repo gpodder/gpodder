@@ -20,27 +20,41 @@ __doc__ = 'http://wiki.gpodder.org/wiki/Extensions/RenameAfterDownload'
 __payment__ = 'https://flattr.com/submit/auto?user_id=BerndSch&url=http://wiki.gpodder.org/wiki/Extensions/RenameAfterDownload'
 __category__ = 'post-download'
 
+DefaultConfig = {
+    'add_sortdate': False, # Add the sortdate as prefix
+    'add_podcast_title': False, # Add the podcast title as prefix
+}
+
 
 class gPodderExtension:
     def __init__(self, container):
         self.container = container
+        self.config = self.container.config
 
     def on_episode_downloaded(self, episode):
         current_filename = episode.local_filename(create=False)
 
-        new_filename = self.make_filename(current_filename, episode.title)
+        new_filename = self.make_filename(current_filename, episode.title,
+                                          episode.sortdate, episode.channel.title)
 
         if new_filename != current_filename:
             logger.info('Renaming: %s -> %s', current_filename, new_filename)
             os.rename(current_filename, new_filename)
             util.rename_episode_file(episode, new_filename)
 
-    def make_filename(self, current_filename, title):
+    def make_filename(self, current_filename, title, sortdate, podcast_title):
         dirname = os.path.dirname(current_filename)
         filename = os.path.basename(current_filename)
         basename, ext = os.path.splitext(filename)
 
-        new_basename = util.sanitize_encoding(title) + ext
+        new_basename = []
+        new_basename.append(util.sanitize_encoding(title) + ext)
+        if self.config.add_podcast_title:
+            new_basename.insert(0, podcast_title)
+        if self.config.add_sortdate:
+            new_basename.insert(0, sortdate)
+        new_basename = ' - '.join(new_basename)
+
         # On Windows, force ASCII encoding for filenames (bug 1724)
         new_basename = util.sanitize_filename(new_basename,
                 use_ascii=gpodder.ui.win32)

@@ -62,7 +62,6 @@
     rewrite OLDURL NEWURL      Change the feed URL of [OLDURL] to [NEWURL]
     webui [public]             Start gPodder's Web UI server
                                (public = listen on all network interfaces)
-    pipe                       Start gPodder in pipe-based IPC server mode
 
 """
 
@@ -74,6 +73,7 @@ import os
 import re
 import inspect
 import functools
+import contextlib
 try:
     import readline
 except ImportError:
@@ -140,6 +140,7 @@ from gpodder import opml
 from gpodder import util
 from gpodder import youtube
 from gpodder import model
+from gpodder import common
 from gpodder.config import config_value_to_string
 
 def incolor(color_id, s):
@@ -219,6 +220,24 @@ class gPodderCli(object):
         gpodder.user_extensions.on_ui_initialized(self.core.model,
                 self._extensions_podcast_update_cb,
                 self._extensions_episode_download_cb)
+
+    @contextlib.contextmanager
+    def _action(self, msg, *args):
+        self._start_action(msg, *args)
+        try:
+            yield
+            self._finish_action()
+        except Exception as ex:
+            logger.warning('Action could not be completed', exc_info=True)
+            self._finish_action(False)
+
+    def _run_cleanups(self):
+        # Find expired (old) episodes and delete them
+        old_episodes = list(common.get_expired_episodes(self._model.get_podcasts(), self._config))
+        if old_episodes:
+            with self._action('Cleaning up old downloads'):
+                for old_episode in old_episodes:
+                    old_episode.delete_from_disk()
 
     def _build_prefixes_expansions(self):
         prefixes = {}
@@ -484,12 +503,8 @@ class gPodderCli(object):
         return True
 
     def _update_podcast(self, podcast):
-        self._start_action(' %s', podcast.title)
-        try:
+        with self._action(' %s', podcast.title):
             podcast.update()
-            self._finish_action()
-        except Exception, e:
-            self._finish_action(False)
 
     def _pending_message(self, count):
         return N_('%(count)d new episode', '%(count)d new episodes',
@@ -534,14 +549,11 @@ class gPodderCli(object):
         return True
 
     def _download_episode(self, episode):
-        self._start_action('Downloading %s', episode.title)
-        
-        task = download.DownloadTask(episode, self._config)
-        task.add_progress_callback(self._update_action)
-        task.status = download.DownloadTask.QUEUED
-        task.run()
-        
-        self._finish_action()
+        with self._action('Downloading %s', episode.title):
+            task = download.DownloadTask(episode, self._config)
+            task.add_progress_callback(self._update_action)
+            task.status = download.DownloadTask.QUEUED
+            task.run()
 
     @FirstArgumentIsPodcastURL
     def download(self, url=None):
@@ -658,10 +670,6 @@ class gPodderCli(object):
         else:
             webui.main(core=self.core)
 
-    def pipe(self):
-        from gpodder import pipe
-        pipe.main(core=self.core)
-
     def search(self, *terms):
         query = ' '.join(terms)
         if not query:
@@ -764,6 +772,8 @@ class gPodderCli(object):
         Entering interactive shell. Type 'help' for help.
         Press Ctrl+D (EOF) or type 'quit' to quit.
         """ % gpodder.__dict__).splitlines()))
+
+        cli._run_cleanups()
 
         if readline is not None:
             readline.parse_and_bind('tab: complete')
@@ -900,6 +910,7 @@ if __name__ == '__main__':
     args = sys.argv[1:]
     if args:
         is_single_command = True
+        cli._run_cleanups()
         cli._parse_single(args)
     elif interactive_console:
         cli._shell()

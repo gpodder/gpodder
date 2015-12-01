@@ -41,20 +41,16 @@ except ImportError:
 
 import re
 
-VIMEOCOM_RE = re.compile(r'http://vimeo\.com/(\d+)$', re.IGNORECASE)
-MOOGALOOP_RE = re.compile(r'http://vimeo\.com/moogaloop\.swf\?clip_id=(\d+)$', re.IGNORECASE)
+VIMEOCOM_RE = re.compile(r'http[s]?://vimeo\.com/(channels/[^/]+|\d+)$', re.IGNORECASE)
+VIMEOCOM_VIDEO_RE = re.compile(r'http[s]?://vimeo.com/channels/(?:[^/])+/(\d+)$', re.IGNORECASE)
+MOOGALOOP_RE = re.compile(r'http[s]?://vimeo\.com/moogaloop\.swf\?clip_id=(\d+)$', re.IGNORECASE)
 SIGNATURE_RE = re.compile(r'"timestamp":(\d+),"signature":"([^"]+)"')
 DATA_CONFIG_RE = re.compile(r'data-config-url="([^"]+)"')
 
 # List of qualities, from lowest to highest
-FILEFORMAT_RANKING = ['mobile', 'sd', 'hd']
+FILEFORMAT_RANKING = ['270p', '360p', '720p', '1080p']
 
-FORMATS = (
-        ('mobile', _('Mobile')),
-        ('sd', _('SD')),
-        ('hd', _('HD')),
-)
-
+FORMATS = tuple((x, x) for x in FILEFORMAT_RANKING)
 
 class VimeoError(BaseException): pass
 
@@ -77,14 +73,11 @@ def get_real_download_url(url, preferred_fileformat=None):
         data_config_data = util.urlopen(data_config_url).read().decode('utf-8')
         data_config = json.loads(data_config_data)
         for fileinfo in data_config['request']['files'].values():
-            if not isinstance(fileinfo, dict):
+            if not isinstance(fileinfo, list):
                 continue
 
-            for fileformat, keys in fileinfo.items():
-                if not isinstance(keys, dict):
-                    continue
-
-                yield (fileformat, keys['url'])
+            for item in fileinfo:
+                yield (item['quality'], item['url'])
 
     fileformat_to_url = dict(get_urls(data_config_url))
 
@@ -102,12 +95,18 @@ def get_real_download_url(url, preferred_fileformat=None):
         logger.debug('Picking best format: %s', fileformat)
         return fileformat_to_url[fileformat]
 
+    return url
+
 def get_vimeo_id(url):
     result = MOOGALOOP_RE.match(url)
     if result is not None:
         return result.group(1)
 
     result = VIMEOCOM_RE.match(url)
+    if result is not None:
+        return result.group(1)
+
+    result = VIMEOCOM_VIDEO_RE.match(url)
     if result is not None:
         return result.group(1)
 

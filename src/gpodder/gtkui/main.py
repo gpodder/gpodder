@@ -399,9 +399,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             episode.current_position_updated = now
             episode.mark(is_played=True)
             episode.save()
-            self.db.commit()
-            self.update_episode_list_icons([episode.url])
-            self.update_podcast_list_model([episode.channel.url])
+            self.episode_list_status_changed([episode])
 
             # Submit this action to the webservice
             self.mygpo_client.on_playback_full(episode, start, end, total)
@@ -1395,7 +1393,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.show_message(message, _('Device synchronization failed'), True, widget=self.labelDownloads)
 
         # Do post-sync processing if required
-        for task in finished_syncs + failed_syncs:
+        for task in finished_syncs:
             if self.config.device_sync.after_sync.mark_episodes_played:
                 logger.info('Marking as played on transfer: %s', task.episode.url)
                 task.episode.mark(is_played=True)
@@ -1956,18 +1954,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.show_message(_('Please check your media player settings in the preferences dialog.'), \
                     _('Error opening player'), widget=self.toolPreferences)
 
-        channel_urls = set()
-        episode_urls = set()
-        for episode in episodes:
-            channel_urls.add(episode.channel.url)
-            episode_urls.add(episode.url)
-        self.update_episode_list_icons(episode_urls)
-        self.update_podcast_list_model(channel_urls)
+        self.episode_list_status_changed(episodes)
 
     def play_or_download(self):
         if self.wNotebook.get_current_page() > 0:
             self.toolCancel.set_sensitive(True)
-            return
+            return (False, False, False, False, False, False)
 
         if self.currently_updating:
             return (False, False, False, False, False, False)
@@ -3505,8 +3497,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     new_urls = youtube.get_channels_for_user(user, self.config.youtube.api_key_v3)
                     logger.debug('YouTube channels retrieved: %r', new_urls)
 
+                    if len(new_urls) == 0 and youtube.get_youtube_id(url) is not None:
+                        logger.info('No need to update %s', url)
+                        continue
+
                     if len(new_urls) != 1:
-                        failed_urls.append(url, _('No unique URL found'))
+                        failed_urls.append((url, _('No unique URL found')))
                         continue
 
                     new_url = new_urls[0]

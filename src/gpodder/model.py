@@ -133,7 +133,12 @@ class PodcastModelObject(object):
 
 class PodcastEpisode(PodcastModelObject):
     """holds data for one object in a channel"""
-    MAX_FILENAME_LENGTH = 200
+    # In theory, Linux can have 255 bytes (not characters!) in a filename, but
+    # filesystems like eCryptFS store metadata in the filename, making the
+    # effective number of characters less than that. eCryptFS recommends
+    # 140 chars, we use 120 here (140 - len(extension) - len(".partial")).
+    # References: gPodder bug 1898, http://unix.stackexchange.com/a/32834
+    MAX_FILENAME_LENGTH = 120
 
     __slots__ = schema.EpisodeColumns
 

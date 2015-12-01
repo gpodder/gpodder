@@ -561,6 +561,15 @@ class MP3PlayerDevice(Device):
         assert filename is not None
 
         from_file = util.sanitize_encoding(filename)
+
+        # verify free space
+        needed = util.calculate_size(from_file)
+        free = self.get_free_space()
+        if needed > free:
+            d = {'path': self.destination, 'free': util.format_filesize(free), 'need': util.format_filesize(needed)}
+            message =_('Not enough space in %(path)s: %(free)s available, but need at least %(need)s')
+            raise SyncFailedException(message % d)
+
         # get the filename that will be used on the device
         to_file = self.get_episode_file_on_device(episode)
         to_file = util.sanitize_encoding(os.path.join(folder, to_file))
@@ -900,6 +909,7 @@ class MTPDevice(Device):
             return 0
 
 class SyncCancelledException(Exception): pass
+class SyncFailedException(Exception): pass
 
 class SyncTask(download.DownloadTask):
     # An object representing the synchronization task of an episode
@@ -1061,7 +1071,7 @@ class SyncTask(download.DownloadTask):
             self.device.add_track(self.episode, reporthook=self.status_updated)
         except Exception, e:
             self.status = SyncTask.FAILED
-            logger.error('Download failed: %s', str(e), exc_info=True)
+            logger.error('Sync failed: %s', str(e), exc_info=True)
             self.error_message = _('Error: %s') % (str(e),)
 
         if self.status == SyncTask.DOWNLOADING:

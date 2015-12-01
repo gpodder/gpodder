@@ -171,7 +171,7 @@ def get_youtube_id(url):
     if r is not None:
         return r.group(1)
 
-    return None
+    return for_each_feed_pattern(lambda url, channel: channel, url, None)
 
 def is_video_link(url):
     return (get_youtube_id(url) is not None)
@@ -189,10 +189,11 @@ def for_each_feed_pattern(func, url, fallback_result):
     CHANNEL_MATCH_PATTERNS = [
         'http[s]?://(?:[a-z]+\.)?youtube\.com/user/([a-z0-9]+)',
         'http[s]?://(?:[a-z]+\.)?youtube\.com/profile?user=([a-z0-9]+)',
-        'http[s]?://(?:[a-z]+\.)?youtube\.com/channel/([_a-z0-9]+)',
+        'http[s]?://(?:[a-z]+\.)?youtube\.com/channel/([-_a-zA-Z0-9]+)',
         'http[s]?://(?:[a-z]+\.)?youtube\.com/rss/user/([a-z0-9]+)/videos\.rss',
         'http[s]?://gdata.youtube.com/feeds/users/([^/]+)/uploads',
-        'http[s]?://(?:[a-z]+\.)?youtube\.com/feeds/videos.xml?channel_id=([a-z0-9]+)',
+        'http[s]?://gdata.youtube.com/feeds/base/users/([^/]+)/uploads',
+        'http[s]?://(?:[a-z]+\.)?youtube\.com/feeds/videos.xml\?channel_id=([-_a-zA-Z0-9]+)',
     ]
 
     for pattern in CHANNEL_MATCH_PATTERNS:
@@ -214,12 +215,17 @@ def get_real_channel_url(url):
 
 def get_real_cover(url):
     def return_user_cover(url, channel):
-        api_url = 'http://gdata.youtube.com/feeds/api/users/{0}?v=2'.format(channel)
-        data = util.urlopen(api_url).read()
-        m = re.search('<media:thumbnail url=[\'"]([^\'"]+)[\'"]/>', data)
-        if m is not None:
-            logger.debug('YouTube userpic for %s is: %s', url, m.group(1))
-            return m.group(1)
+        try:
+            api_url = 'https://www.youtube.com/channel/{0}'.format(channel)
+            data = util.urlopen(api_url).read()
+            m = re.search('<img class="channel-header-profile-image"[^>]* src=[\'"]([^\'"]+)[\'"][^>]*>', data)
+            if m is not None:
+                logger.debug('YouTube userpic for %s is: %s', url, m.group(1))
+                return m.group(1)
+        except Exception as e:
+            logger.warn('Could not retrieve cover art', exc_info=True)
+            return None
+
 
         return None
 

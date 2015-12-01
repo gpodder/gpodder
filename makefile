@@ -72,7 +72,7 @@ release: distclean
 	$(PYTHON) setup.py sdist
 
 releasetest: unittest $(DESKTOP_FILES) $(POFILES)
-	desktop-file-validate $(DESKTOP_FILES)
+	for f in $(DESKTOP_FILES); do desktop-file-validate $$f; done
 	sh tools/i18n/validate.sh
 
 $(GPODDER_SERVICE_FILE): $(GPODDER_SERVICE_FILE_IN)
