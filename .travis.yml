@@ -1,0 +1,10 @@
+language: python
+python:
+    - "2.7"
+    - "pypy"
+install:
+    - sudo apt-get install intltool desktop-file-utils
+    - pip install coverage minimock
+    - python tools/localdepends.py
+script:
+    - make releasetest
