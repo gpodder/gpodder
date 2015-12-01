@@ -86,8 +86,9 @@ except ImportError:
 
 if __name__ == '__main__':
     if coverage is not None:
-        coverage.erase()
-        coverage.start()
+        cov = coverage.Coverage()
+        cov.erase()
+        cov.start()
 
     result = runner.run(suite)
 
@@ -95,12 +96,11 @@ if __name__ == '__main__':
         sys.exit(1)
 
     if coverage is not None:
-        coverage.stop()
-        coverage.report(coverage_modules)
-        coverage.erase()
+        cov.stop()
+        cov.report(coverage_modules)
+        cov.erase()
     else:
         print >>sys.stderr, """
         No coverage reporting done (Python module "coverage" is missing)
         Please install the python-coverage package to get coverage reporting.
         """
-
