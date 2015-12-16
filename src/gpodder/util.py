@@ -453,7 +453,7 @@ def get_free_disk_space_win32(path):
     """
     if win32file is None:
         # Cannot determine free disk space
-        return 0
+        return -1
 
     drive, tail = os.path.splitdrive(path)
     userFree, userTotal, freeOnDisk = win32file.GetDiskFreeSpaceEx(drive)
@@ -470,7 +470,7 @@ def get_free_disk_space(path):
     """
 
     if not os.path.exists(path):
-        return 0
+        return -1
 
     if gpodder.ui.win32:
         return get_free_disk_space_win32(path)

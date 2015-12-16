@@ -281,7 +281,11 @@ class iPodDevice(Device):
     def get_free_space(self):
         # Reserve 10 MiB for iTunesDB writing (to be on the safe side)
         RESERVED_FOR_ITDB = 1024*1024*10
-        return util.get_free_disk_space(self.mountpoint) - RESERVED_FOR_ITDB
+        result = util.get_free_disk_space(self.mountpoint)
+        if result == -1:
+            # Can't get free disk space
+            return -1
+        return result - RESERVED_FOR_ITDB
 
     def open(self):
         Device.open(self)
@@ -565,7 +569,9 @@ class MP3PlayerDevice(Device):
         # verify free space
         needed = util.calculate_size(from_file)
         free = self.get_free_space()
-        if needed > free:
+        if free == -1:
+            logger.warn('Cannot determine free disk space on device')
+        elif needed > free:
             d = {'path': self.destination, 'free': util.format_filesize(free), 'need': util.format_filesize(needed)}
             message =_('Not enough space in %(path)s: %(free)s available, but need at least %(need)s')
             raise SyncFailedException(message % d)
