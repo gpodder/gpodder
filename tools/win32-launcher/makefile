@@ -31,8 +31,8 @@ RANLIB := $(CROSS)-ranlib
 STRIP := $(CROSS)-strip
 WINDRES := $(CROSS)-windres
 
-LDFLAGS += -lkernel32 -lshell32 -lwininet -lole32
-MODULES := gpodder downloader folderselector
+LDFLAGS += -lkernel32 -lshell32 -lole32
+MODULES := gpodder folderselector
 TARGETS := gpodder.exe gpo.exe
 
 all: $(TARGETS)

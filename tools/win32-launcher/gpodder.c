@@ -35,7 +35,6 @@
 #include <stdbool.h>
 
 #include "gpodder.h"
-#include "downloader.h"
 #include "folderselector.h"
 
 #if defined(GPODDER_GUI)
@@ -206,26 +205,11 @@ int main(int argc, char** argv)
     }
 
     if (python_dll == NULL) {
-        if (MessageBox(NULL,
-                PROGNAME " requires Python 2.7.\n"
-                "Do you want to install it now?",
-                "Python 2.7 installation not found",
-                MB_YESNO | MB_ICONQUESTION) == IDYES) {
-            strncpy(Temp_Download_Filename, gPodder_Home, MAX_PATH);
-            strncat(Temp_Download_Filename, "\\", MAX_PATH);
-            strncat(Temp_Download_Filename, PYTHON_INSTALLER_FILE, MAX_PATH);
-            if (DownloadFile(Temp_Download_Filename,
-                        PYTHON_INSTALLER_URL,
-                        PYTHON_INSTALLER_SIZE) == PYTHON_INSTALLER_SIZE) {
-                ShellExecute(NULL,
-                        "open",
-                        Temp_Download_Filename,
-                        NULL,
-                        NULL,
-                        SW_SHOWNORMAL);
-            }
-        }
-
+        MessageBox(NULL,
+                   PROGNAME " requires Python 2.7.\n"
+                   "See http://gpodder.org/dependencies",
+                   "Python 2.7 installation not found",
+                   MB_OK | MB_ICONQUESTION);
         return 1;
     }
 
@@ -245,26 +229,11 @@ int main(int argc, char** argv)
     /* Check for GTK, but not if we are running the CLI */
     GtkModule = (void*)PyImport_ImportModule("gtk");
     if (GtkModule == NULL) {
-        if (MessageBox(NULL,
-                PROGNAME " requires PyGTK.\n"
-                "Do you want to install it now?",
-                "PyGTK installation not found",
-                MB_YESNO | MB_ICONQUESTION) == IDYES) {
-            strncpy(Temp_Download_Filename, gPodder_Home, MAX_PATH);
-            strncat(Temp_Download_Filename, "\\", MAX_PATH);
-            strncat(Temp_Download_Filename, PYGTK_INSTALLER_FILE, MAX_PATH);
-            if (DownloadFile(Temp_Download_Filename,
-                        PYGTK_INSTALLER_URL,
-                        PYGTK_INSTALLER_SIZE) == PYGTK_INSTALLER_SIZE) {
-                ShellExecute(NULL,
-                        "open",
-                        Temp_Download_Filename,
-                        NULL,
-                        NULL,
-                        SW_SHOWNORMAL);
-            }
-        }
-
+        MessageBox(NULL,
+                   PROGNAME " requires PyGTK.\n"
+                   "See http://gpodder.org/dependencies",
+                   "PyGTK installation not found",
+                   MB_OK | MB_ICONQUESTION);
         return 1;
     }
     // decref GtkModule
