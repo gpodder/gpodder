@@ -822,11 +822,12 @@ class DownloadTask(object):
             # Look at the Content-disposition header; use if if available
             disposition_filename = get_header_param(headers, 'filename', 'content-disposition')
 
-            try:
-                disposition_filename.decode('ascii')
-            except:
-                logger.warn('Content-disposition header contains non-ASCII characters - ignoring')
-                disposition_filename = None
+            if disposition_filename is not None:
+                try:
+                    disposition_filename.decode('ascii')
+                except:
+                    logger.warn('Content-disposition header contains non-ASCII characters - ignoring')
+                    disposition_filename = None
 
             # Some servers do send the content-disposition header, but provide
             # an empty filename, resulting in an empty string here (bug 1440)
