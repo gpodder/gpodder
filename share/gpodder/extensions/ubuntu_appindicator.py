@@ -23,16 +23,24 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
+DefaultConfig = {
+    'visible': True, # Set to False if you don't want to show the appindicator
+}
+
+
 class gPodderExtension:
     def __init__(self, container):
         self.container = container
+        self.config = container.config
         self.indicator = None
         self.gpodder = None
 
     def on_load(self):
-        self.indicator = appindicator.Indicator('gpodder', 'gpodder',
-                appindicator.CATEGORY_APPLICATION_STATUS)
-        self.indicator.set_status(appindicator.STATUS_ACTIVE)
+        if self.config.visible:
+            self.indicator = appindicator.Indicator('gpodder', 'gpodder',
+                    appindicator.CATEGORY_APPLICATION_STATUS)
+            self.indicator.set_status(appindicator.STATUS_ACTIVE)
 
     def _rebuild_menu(self):
         menu = gtk.Menu()
