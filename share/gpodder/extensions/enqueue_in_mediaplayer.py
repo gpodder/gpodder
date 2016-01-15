@@ -22,8 +22,16 @@ __category__ = 'interface'
 __only_for__ = 'gtk'
 
 
+DefaultConfig = {
+    'enqueue_after_download': False, # Set to True to enqueue an episode right after downloading
+    'default_player': '', # Set to the player to be used for auto-enqueueing (otherwise pick first installed)
+}
+
+
 class Player(object):
-    def __init__(self, application, command):
+    def __init__(self, slug, application, command):
+        self.slug = slug
+        self.application = application
         self.title = '/'.join((_('Enqueue in'), application))
         self.command = command
         self.gpodder = None
@@ -75,42 +83,43 @@ class Win32Player(Player):
 
 PLAYERS = [
     # Amarok, http://amarok.kde.org/
-    FreeDesktopPlayer('Amarok', ['amarok', '--play', '--append']),
+    FreeDesktopPlayer('amarok', 'Amarok', ['amarok', '--play', '--append']),
 
     # VLC, http://videolan.org/
-    FreeDesktopPlayer('VLC', ['vlc', '--started-from-file', '--playlist-enqueue']),
+    FreeDesktopPlayer('vlc', 'VLC', ['vlc', '--started-from-file', '--playlist-enqueue']),
 
     # Totem, https://live.gnome.org/Totem
-    FreeDesktopPlayer('Totem', ['totem', '--enqueue']),
+    FreeDesktopPlayer('totem', 'Totem', ['totem', '--enqueue']),
 
     # DeaDBeeF, http://deadbeef.sourceforge.net/
-    FreeDesktopPlayer('DeaDBeeF', ['deadbeef', '--queue']),
+    FreeDesktopPlayer('deadbeef', 'DeaDBeeF', ['deadbeef', '--queue']),
 
     # gmusicbrowser, http://gmusicbrowser.org/
-    FreeDesktopPlayer('gmusicbrowser', ['gmusicbrowser', '-enqueue']),
+    FreeDesktopPlayer('gmusicbrowser', 'gmusicbrowser', ['gmusicbrowser', '-enqueue']),
 
     # Audacious, http://audacious-media-player.org/
-    FreeDesktopPlayer('Audacious', ['audacious', '--enqueue']),
+    FreeDesktopPlayer('audacious', 'Audacious', ['audacious', '--enqueue']),
 
     # Clementine, http://www.clementine-player.org/
-    FreeDesktopPlayer('Clementine', ['clementine', '--append']),
+    FreeDesktopPlayer('clementine', 'Clementine', ['clementine', '--append']),
 
     # Parole, http://docs.xfce.org/apps/parole/start
-    FreeDesktopPlayer('Parole', ['parole', '-a']),
+    FreeDesktopPlayer('parole', 'Parole', ['parole', '-a']),
 
     # Winamp 2.x, http://www.oldversion.com/windows/winamp/
-    Win32Player('Winamp', r'HKEY_CLASSES_ROOT\Winamp.File\shell\Enqueue\command'),
+    Win32Player('winamp', 'Winamp', r'HKEY_CLASSES_ROOT\Winamp.File\shell\Enqueue\command'),
 
     # VLC media player, http://videolan.org/vlc/
-    Win32Player('VLC', r'HKEY_CLASSES_ROOT\VLC.mp3\shell\AddToPlaylistVLC\command'),
+    Win32Player('vlc', 'VLC', r'HKEY_CLASSES_ROOT\VLC.mp3\shell\AddToPlaylistVLC\command'),
 
     # foobar2000, http://www.foobar2000.org/
-    Win32Player('foobar2000', r'HKEY_CLASSES_ROOT\foobar2000.MP3\shell\enqueue\command'),
+    Win32Player('foobar2000', 'foobar2000', r'HKEY_CLASSES_ROOT\foobar2000.MP3\shell\enqueue\command'),
 ]
 
 class gPodderExtension:
     def __init__(self, container):
         self.container = container
+        self.config = container.config
 
         # Only display media players that can be found at extension load time
         self.players = filter(lambda player: player.is_installed(), PLAYERS)
@@ -126,3 +135,16 @@ class gPodderExtension:
 
         return [(p.title, p.enqueue_episodes) for p in self.players]
 
+    def on_episode_downloaded(self, episode):
+        if self.config.enqueue_after_download:
+            if not self.config.default_player and len(self.players):
+                player = self.players[0]
+                logger.info('Picking first installed player: %s (%s)', player.slug, player.application)
+            else:
+                player = next((player for player in self.players if self.config.default_player == player.slug), None)
+                if player is None:
+                    logger.info('No player set, use one of: %r', [player.slug for player in self.players])
+                    return
+
+            logger.info('Enqueueing downloaded file in %s', player.application)
+            player.enqueue_episodes([episode])
