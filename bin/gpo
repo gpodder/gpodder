@@ -60,8 +60,6 @@
     youtube URL                Resolve the YouTube URL to a download URL
     youtubefix                 Migrate old YouTube subscriptions to new feeds
     rewrite OLDURL NEWURL      Change the feed URL of [OLDURL] to [NEWURL]
-    webui [public]             Start gPodder's Web UI server
-                               (public = listen on all network interfaces)
 
 """
 
@@ -654,18 +652,6 @@ class gPodderCli(object):
             if not reported_anything:
                 self._info(_('Nothing to fix'))
             return True
-
-
-    def webui(self, public=None):
-        from gpodder import webui
-        if public == 'public':
-            # Warn the user that the web UI is listening on all network
-            # interfaces, which could lead to problems.
-            # Only use this on a trusted, private network!
-            self._warn(_('Listening on ALL network interfaces.'))
-            webui.main(only_localhost=False, core=self.core)
-        else:
-            webui.main(core=self.core)
 
     def search(self, *terms):
         query = ' '.join(terms)

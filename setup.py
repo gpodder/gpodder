@@ -169,15 +169,10 @@ def find_scripts(uis):
             yield os.path.join(dirpath, filename)
 
 
-# Recognized UIs: cli, gtk, web (default: install all UIs)
+# Recognized UIs: cli, gtk (default: install all UIs)
 uis = os.environ.get('GPODDER_INSTALL_UIS', None)
 if uis is not None:
     uis = uis.split()
-
-    # The CLI has a hard dependency on the Web UI
-    if 'cli' in uis and 'web' not in uis:
-        info('Adding Web UI as dependency of CLI')
-        uis.append('web')
 
     info('Selected UIs (from $GPODDER_INSTALL_UIS):', uis)
 

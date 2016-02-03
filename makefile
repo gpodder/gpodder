@@ -40,7 +40,6 @@ GETTEXT_SOURCE=$(wildcard src/gpodder/*.py \
 		          src/gpodder/gtkui/*.py \
 		          src/gpodder/gtkui/interface/*.py \
 			  src/gpodder/gtkui/desktop/*.py \
-			  src/gpodder/webui/*.py \
 			  src/gpodder/plugins/*.py \
 			  share/gpodder/extensions/*.py)
 
