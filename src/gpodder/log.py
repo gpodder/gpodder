@@ -81,7 +81,7 @@ def setup(verbose=True):
         root.addHandler(file_handler)
 
     logger.debug('==== gPodder starts up (ui=%s) ===', ', '.join(name
-        for name in ('cli', 'gtk', 'qml') if getattr(gpodder.ui, name, False)))
+        for name in ('cli', 'gtk') if getattr(gpodder.ui, name, False)))
 
     return True
 

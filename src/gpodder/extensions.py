@@ -142,14 +142,13 @@ class ExtensionMetadata(object):
 
         Example metadata field in an extension:
 
-            __only_for__ = 'gtk,qml'
+            __only_for__ = 'gtk'
             __only_for__ = 'unity'
 
         In this case, this function will return the value of the default
         if any of the following expressions will evaluate to True:
 
             gpodder.ui.gtk
-            gpodder.ui.qml
             gpodder.ui.unity
             gpodder.ui.cli
             gpodder.ui.osx

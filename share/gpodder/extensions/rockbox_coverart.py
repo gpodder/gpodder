@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 # Provide some metadata that will be displayed in the gPodder GUI
 __title__ = 'Rockbox Cover Art Sync'
 __description__ = 'Copy Cover Art To Rockboxed Media Player'
-__only_for__ = 'gtk, cli, qml'
+__only_for__ = 'gtk, cli'
 __authors__ = 'Alex Mayer <magictrick4906@aim.com>'
 
 DefaultConfig = {

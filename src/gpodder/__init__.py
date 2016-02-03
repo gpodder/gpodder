@@ -83,12 +83,10 @@ del sqlite3
 # The User-Agent string for downloads
 user_agent = 'gPodder/%s (+%s)' % (__version__, __url__)
 
-# Are we running in GUI, MeeGo 1.2 Harmattan or console mode?
+# Are we running in GUI or console mode?
 class UI(object):
     def __init__(self):
-        self.harmattan = False
         self.gtk = False
-        self.qml = False
         self.cli = False
 
 
@@ -129,7 +127,7 @@ if ui.win32:
         bindtextdomain(textdomain, locale_dir)
         del bindtextdomain
     except:
-        # Ignore for QML UI or missing glade module
+        # Ignore for missing glade module
         pass
 del t
 
@@ -224,19 +222,3 @@ def load_plugins():
             __import__(plugin)
         except Exception, e:
             print >>sys.stderr, 'Cannot load plugin: %s (%s)' % (plugin, e)
-
-
-def detect_platform():
-    global ui
-
-    try:
-        etc_issue = open('/etc/issue').read()
-    except Exception, e:
-        etc_issue = ''
-
-    ui.harmattan = ('MeeGo 1.2 Harmattan' in etc_issue)
-
-    if ui.harmattan and ENV_HOME not in os.environ:
-        new_home = os.path.expanduser(os.path.join('~', 'MyDocs', 'gPodder'))
-        set_home(os.path.expanduser(new_home))
-

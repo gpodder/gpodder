@@ -33,8 +33,8 @@ Source: "..\win32-launcher\gpo.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\..\COPYING"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\..\README"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\..\bin\*"; DestDir: "{app}\bin"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "..\..\share\*"; DestDir: "{app}\share"; Excludes: "*.h,*\qml\*"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "..\..\src\*"; DestDir: "{app}\src"; Excludes: "*.pyc,*.py~,*\qmlui\*"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\..\share\*"; DestDir: "{app}\share"; Excludes: "*.h"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\..\src\*"; DestDir: "{app}\src"; Excludes: "*.pyc,*.py~"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
 Name: "{group}\gPodder"; Filename: "{app}\gpodder.exe"

@@ -69,7 +69,7 @@ def find_data_files(uis, scripts):
 
         # Skip desktop stuff if we don't have any UIs requiring it
         skip_folder = False
-        uis_requiring_freedesktop = ('gtk', 'qml')
+        uis_requiring_freedesktop = ('gtk',)
         freedesktop_folders = ('icons', 'dbus-1', 'applications')
         for folder in freedesktop_folders:
             share_folder = os.path.join('share', folder)
@@ -155,7 +155,7 @@ def find_scripts(uis):
     # Functions for scripts to check if they should be installed
     file_checks = {
         'gpo': lambda uis: 'cli' in uis,
-        'gpodder': lambda uis: any(ui in uis for ui in ('qml', 'gtk')),
+        'gpodder': lambda uis: any(ui in uis for ui in ('gtk',)),
     }
 
     for dirpath, dirnames, filenames in os.walk('bin'):
@@ -169,7 +169,7 @@ def find_scripts(uis):
             yield os.path.join(dirpath, filename)
 
 
-# Recognized UIs: cli, gtk, qml, web (default: install all UIs)
+# Recognized UIs: cli, gtk, web (default: install all UIs)
 uis = os.environ.get('GPODDER_INSTALL_UIS', None)
 if uis is not None:
     uis = uis.split()

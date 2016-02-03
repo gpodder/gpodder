@@ -53,28 +53,6 @@
     - PyGTK 2.16 or newer              http://pygtk.org/
 
 
- [ QML UI - ADDITIONAL DEPENDENCIES ]
-
-    - Qt 4.7.1 or newer                http://qt.nokia.com/
-    - PySide 1.0.8 or newer            http://www.pyside.org/
-    - Qt Mobility 1.2 or newer         http://qt.gitorious.org/qt-mobility
-    - Qt Quick Components              http://qt.gitorious.org/qt-components
-
-    The QML UI depends on the QtMultimediaKit QML bindings for playing
-    back audio (libdeclarative-multimedia in Debian) and on the WebKit QML
-    bindings for Flattr integration (libqtwebkit-qmlwebkitplugin in Debian).
-
-    The QML UI now also depends on Qt Quick Components. On MeeGo 1.2 Harmattan,
-    these components are pre-installed. You can install them on your Desktop by
-    checking out the code from the qt-components Git repository and running the
-    "./configure" script with the "-meego" parameter (+ the usual make install).
-
-    You might also need to copy the theme from /usr/share/themes/blanco/ on a
-    MeeGo 1.2 Harmattan device to your development machine in order for all UI
-    elements to be displayed correctly. Alternatively, you can use the free
-    "darko" theme from: https://github.com/jpavelek/meego-handset-theme-darko
-
-
  [ OPTIONAL DEPENDENCIES ]
 
     - Bluetooth file sending: gnome-obex-send or bluetooth-sendto

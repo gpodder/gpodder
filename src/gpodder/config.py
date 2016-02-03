@@ -104,15 +104,6 @@ defaults = {
             'colors': True,
         },
 
-        # Settings for the QML UI (MeeGo Harmattan / N9)
-        'qml': {
-            'state': {
-                'episode_list_filter': 0,
-            },
-
-            'autorotate': False,
-        },
-
         # Settings for the Gtk UI
         'gtk': {
             'state': {

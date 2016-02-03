@@ -92,8 +92,6 @@ if encoding is None:
         lang = os.environ['LANG']
         (language, encoding) = lang.rsplit('.', 1)
         logger.info('Detected encoding: %s', encoding)
-    elif gpodder.ui.harmattan:
-        encoding = 'utf-8'
     elif gpodder.ui.win32:
         # To quote http://docs.python.org/howto/unicode.html:
         # ,,on Windows, Python uses the name "mbcs" to refer
@@ -1065,7 +1063,6 @@ def find_command(command):
 
     return None
 
-idle_add_handler = None
 
 def idle_add(func, *args):
     """Run a function in the main GUI thread
@@ -1080,48 +1077,6 @@ def idle_add(func, *args):
     if gpodder.ui.gtk:
         import gobject
         gobject.idle_add(func, *args)
-    elif gpodder.ui.qml:
-        from PySide.QtCore import Signal, QTimer, QThread, Qt, QObject
-
-        class IdleAddHandler(QObject):
-            signal = Signal(object)
-            def __init__(self):
-                QObject.__init__(self)
-
-                self.main_thread_id = QThread.currentThreadId()
-
-                self.signal.connect(self.run_func)
-
-            def run_func(self, func):
-                assert QThread.currentThreadId() == self.main_thread_id, \
-                    ("Running in %s, not %s"
-                     % (str(QThread.currentThreadId()),
-                        str(self.main_thread_id)))
-                func()
-
-            def idle_add(self, func, *args):
-                def doit():
-                    try:
-                        func(*args)
-                    except Exception, e:
-                        logger.exception("Running %s%s: %s",
-                                         func, str(tuple(args)), str(e))
-
-                if QThread.currentThreadId() == self.main_thread_id:
-                    # If we emit the signal in the main thread,
-                    # then the function will be run immediately.
-                    # Instead, use a single shot timer with a 0
-                    # timeout: this will run the function when the
-                    # event loop next iterates.
-                    QTimer.singleShot(0, doit)
-                else:
-                    self.signal.emit(doit)
-
-        global idle_add_handler
-        if idle_add_handler is None:
-            idle_add_handler = IdleAddHandler()
-
-        idle_add_handler.idle_add(func, *args)
     else:
         func(*args)
 
@@ -1527,9 +1482,7 @@ def detect_device_type():
     Possible return values:
     desktop, laptop, mobile, server, other
     """
-    if gpodder.ui.harmattan:
-        return 'mobile'
-    elif glob.glob('/proc/acpi/battery/*'):
+    if glob.glob('/proc/acpi/battery/*'):
         # Linux: If we have a battery, assume Laptop
         return 'laptop'
 

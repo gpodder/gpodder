@@ -137,11 +137,6 @@ def get_real_download_url(url, preferred_fmt_ids=None):
         formats_available = set(fmt_id for fmt_id, url in fmt_id_url_map)
         fmt_id_url_map = dict(fmt_id_url_map)
 
-        # This provides good quality video, seems to be always available
-        # and is playable fluently in Media Player
-        if gpodder.ui.harmattan:
-            preferred_fmt_ids = [18]
-
         for id in preferred_fmt_ids:
             id = int(id)
             if id in formats_available:

@@ -36,19 +36,15 @@ MOFILES = $(patsubst po/%.po,$(LOCALEDIR)/%/LC_MESSAGES/gpodder.mo, $(POFILES))
 
 UIFILES=$(wildcard share/gpodder/ui/gtk/*.ui)
 UIFILES_H=$(subst .ui,.ui.h,$(UIFILES))
-QMLFILES=$(wildcard share/gpodder/ui/qml/*.qml \
-                    share/gpodder/ui/qml/harmattan/org/gpodder/qmlui/*.qml)
 GETTEXT_SOURCE=$(wildcard src/gpodder/*.py \
 		          src/gpodder/gtkui/*.py \
 		          src/gpodder/gtkui/interface/*.py \
 			  src/gpodder/gtkui/desktop/*.py \
-			  src/gpodder/qmlui/*.py \
 			  src/gpodder/webui/*.py \
 			  src/gpodder/plugins/*.py \
 			  share/gpodder/extensions/*.py)
 
 GETTEXT_SOURCE += $(UIFILES_H)
-GETTEXT_SOURCE += $(QMLFILES)
 GETTEXT_SOURCE += $(wildcard bin/*)
 GETTEXT_SOURCE += $(DESKTOP_FILES_IN_H)
 

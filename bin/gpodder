@@ -86,9 +86,6 @@ def main():
 
     gpodder.prefix = prefix
 
-    # Platform detection (i.e. MeeGo 1.2 Harmattan, etc..)
-    gpodder.detect_platform()
-
     # Enable i18n for gPodder translations
     _ = gpodder.gettext
 
@@ -107,10 +104,6 @@ def main():
                       action="store_true", dest="verbose", default=False,
                       help=_("print logging output on the console"))
 
-    parser.add_option("-q", "--qml",
-                      action="store_true", dest="qml", default=False,
-                      help=_("use the QML-based MeeGo 1.2 Harmattan UI"))
-
     parser.add_option('-s', '--subscribe', dest='subscribe', metavar='URL',
                       help=_('subscribe to the feed at URL'))
 
@@ -121,11 +114,8 @@ def main():
 
     options, args = parser.parse_args(sys.argv)
 
-    if options.qml or gpodder.ui.harmattan:
-        gpodder.ui.qml = True
-    else:
-        gpodder.ui.gtk = True
-    
+    gpodder.ui.gtk = True
+
     gpodder.ui.unity = (os.environ.get('DESKTOP_SESSION', 'unknown').lower() in 
         ('ubuntu', 'ubuntu-2d'))
 
@@ -159,11 +149,7 @@ def main():
         logger.error('Cannot start gPodder: $DISPLAY is not set.')
         sys.exit(1)
 
-    if gpodder.ui.qml:
-        from gpodder import qmlui
-        gpodder.ui_folders.insert(0, os.path.join(ui_folder, 'qml'))
-        sys.exit(qmlui.main(args))
-    elif gpodder.ui.gtk:
+    if gpodder.ui.gtk:
         from gpodder.gtkui import main
         gpodder.ui_folders.insert(0, os.path.join(ui_folder, 'gtk'))
         main.main(options)
