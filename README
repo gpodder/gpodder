@@ -30,22 +30,17 @@
 
  [ DEPENDENCIES ]
 
-    - Python 2.6 or newer              http://python.org/
-    - "sqlite3" Python module          (usually included with Python)
+    - Python 2.7 or newer              http://python.org/
     - Feedparser 5.1.2 or newer        http://code.google.com/p/feedparser/
-    - mygpoclient 1.7 or newer         http://thp.io/2010/mygpoclient/
+    - mygpoclient 1.7 or newer         http://gpodder.org/mygpoclient/
     - Python D-Bus bindings
-
-    gPodder might still work with Python 2.5, but you may need to
-    install the json module ("simplejson") manually. We reserve the
-    right to drop support for Python 2.5 in future point releases.
 
     As an alternative to python-dbus on Mac OS X and Windows, you can use
     the dummy (no-op) D-Bus module provided in "tools/fake-dbus-module/".
 
     For quick testing, you can use the script tools/localdepends.py to
     install local copies of feedparser and mygpoclient into "src/" from
-    PyPI. With this, you get a self-contained gPodder CLI/WebUI codebase.
+    PyPI. With this, you get a self-contained gPodder CLI codebase.
 
 
  [ GTK UI - ADDITIONAL DEPENDENCIES ]
@@ -57,7 +52,6 @@
 
     - Bluetooth file sending: gnome-obex-send or bluetooth-sendto
     - HTML shownotes: python-webkit
-    - Flattr integration: python-webkit
     - Size detection on Windows: PyWin32
     - Native OS X support: ige-mac-integration
     - MP3 Player Sync Support: python-eyed3 (0.7 or newer)
@@ -112,7 +106,6 @@
     To run gPodder from source, use..
 
         bin/gpodder              for the Gtk+ UI
-        bin/gpodder --qml        for the QML UI
         bin/gpo                  for the command-line interface
 
     To install gPodder system-wide, use "make install". By default, this
@@ -139,25 +132,7 @@
 
  [ PYTHON 3 SUPPORT ]
 
-    The CLI version of gPodder (bin/gpo) and the QML UI are compatible with
-    Python 3 after converting the codebase with the 2to3 utility:
-
-      2to3 -w bin/* src share/gpodder/extensions
-
-    You will also need a copy of "mygpoclient" converted using 2to3 and
-    a copy of "feedparser" converted using 2to3 (see the feedparser README
-    for details on how to get it set up on Python 3, including sgmllib).
-
-    Please note that the Gtk UI is not compatible with Python 3 (it will
-    be once we migrate the codebase to Gtk3/GObject Introspection).
-
-    The QML UI has been tested with PySide (Git revision a90f3bc) and
-    Python 3.2.2 - you can use the PySide buildscripts to build PySide:
-
-        http://github.com/PySide/BuildScripts
-
-    As of February 2012, Python 3 support is still experimental. Please
-    report any bugs that you find to the gPodder bug tracker (see below).
+    For Python 3 support, we recommend you use gPodder 4.x for now.
 
 
  [ PORTABLE MODE / ROAMING PROFILES ]
@@ -253,5 +228,5 @@
     - IRC channel                      #gpodder on irc.freenode.net
 
   ............................................................................
-             Last updated: 2013-02-12 by Thomas Perl <thp.io/about>
+             Last updated: 2016-02-03 by Thomas Perl <thp.io/about>
 
