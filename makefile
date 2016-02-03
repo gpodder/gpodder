@@ -104,6 +104,8 @@ messages: $(MOFILES)
 
 %.po: $(MESSAGES)
 	msgmerge --silent $@ $< --output-file=$@
+	msgattrib --set-obsolete --ignore-file=$< -o $@ $@
+	msgattrib --no-obsolete -o $@ $@
 
 $(LOCALEDIR)/%/LC_MESSAGES/gpodder.mo: po/%.po
 	@mkdir -p $(@D)
