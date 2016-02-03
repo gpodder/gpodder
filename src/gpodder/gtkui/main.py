@@ -84,7 +84,6 @@ from gpodder.gtkui.desktop.podcastdirectory import gPodderPodcastDirectory
 from gpodder.gtkui.interface.progress import ProgressIndicator
 
 from gpodder.gtkui.desktop.sync import gPodderSyncUI
-from gpodder.gtkui import flattr
 from gpodder.gtkui import shownotes
 
 from gpodder.dbusproxy import DBusPodcastsProxy
@@ -118,7 +117,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.config = self.core.config
         self.db = self.core.db
         self.model = self.core.model
-        self.flattr = self.core.flattr
         self.options = options
         BuilderWidget.__init__(self, None)
 
@@ -1695,7 +1693,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             episodes = self.get_selected_episodes()
             any_locked = any(e.archive for e in episodes)
             any_new = any(e.is_new for e in episodes)
-            any_flattrable = any(e.payment_url for e in episodes)
             downloaded = all(e.was_downloaded(and_exists=True) for e in episodes)
             downloading = any(e.downloading for e in episodes)
 
@@ -1781,12 +1778,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 item = gtk.CheckMenuItem(_('Archive'))
                 item.set_active(any_locked)
                 item.connect('activate', lambda w: self.on_item_toggle_lock_activate( w, False, not any_locked))
-                menu.append(item)
-
-            if any_flattrable and self.config.flattr.token:
-                menu.append(gtk.SeparatorMenuItem())
-                item = gtk.MenuItem(_('Flattr this'))
-                item.connect('activate', self.flattr_selected_episodes)
                 menu.append(item)
 
             menu.append(gtk.SeparatorMenuItem())
@@ -1912,13 +1903,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     continue # This file was handled by the D-Bus call
                 except Exception, e:
                     logger.error('Calling Panucci using D-Bus', exc_info=True)
-
-            # flattr episode if auto-flattr is enabled
-            if (episode.payment_url and self.config.flattr.token and
-                    self.config.flattr.flattr_on_play):
-                success, message = self.flattr.flattr_url(episode.payment_url)
-                self.show_message(message, title=_('Flattr status'),
-                        important=not success)
 
             groups[player].append(filename)
 
@@ -2685,15 +2669,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             episode.mark_old()
         self.on_selected_episodes_status_changed()
 
-    def flattr_selected_episodes(self, w=None):
-        if not self.config.flattr.token:
-            return
-
-        for episode in [e for e in self.get_selected_episodes() if e.payment_url]:
-            success, message = self.flattr.flattr_url(episode.payment_url)
-            self.show_message(message, title=_('Flattr status'),
-                important=not success)
-
     def on_item_toggle_played_activate( self, widget, toggle = True, new_value = False):
         for episode in self.get_selected_episodes():
             if toggle:
@@ -2912,7 +2887,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_itemPreferences_activate(self, widget, *args):
         gPodderPreferences(self.main_window, \
                 _config=self.config, \
-                flattr=self.flattr, \
                 user_apps_reader=self.user_apps_reader, \
                 parent_window=self.main_window, \
                 mygpo_client=self.mygpo_client, \
@@ -2968,8 +2942,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 cover_downloader=self.cover_downloader,
                 sections=set(c.section for c in self.channels),
                 clear_cover_cache=self.podcast_list_model.clear_cover_cache,
-                _config=self.config,
-                _flattr=self.flattr)
+                _config=self.config)
 
     def on_itemMassUnsubscribe_activate(self, item=None):
         columns = (

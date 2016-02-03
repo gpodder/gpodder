@@ -51,15 +51,6 @@ import string
 _ = gpodder.gettext
 
 
-def get_payment_priority(url):
-    """
-    at the moment we only support flattr.com as an payment provider, so we
-    sort the payment providers and prefer flattr.com ("1" is higher priority than "2")
-    """
-    if 'flattr.com' in url:
-        return 1
-    return 2
-
 class CustomFeed(feedcore.ExceptionWithData): pass
 
 class gPodderFetcher(feedcore.Fetcher):
@@ -205,11 +196,10 @@ class PodcastEpisode(PodcastModelObject):
         # get the desired enclosure picked by the algorithm below.
         filter_and_sort_enclosures = lambda x: x
 
-        # read the flattr auto-url, if exists
         payment_info = [link['href'] for link in entry.get('links', [])
             if link['rel'] == 'payment']
         if payment_info:
-            episode.payment_url = sorted(payment_info, key=get_payment_priority)[0]
+            episode.payment_url = payment_info[0]
 
         # Enclosures
         for e in filter_and_sort_enclosures(enclosures):
@@ -1029,11 +1019,11 @@ class PodcastChannel(PodcastModelObject):
         elif hasattr(feed.feed, 'icon'):
             cover_url = feed.feed.icon
 
-        # Payment URL (Flattr auto-payment) information
+        # Payment URL information
         payment_info = [link['href'] for link in feed.feed.get('links', [])
             if link['rel'] == 'payment']
         if payment_info:
-            payment_url = sorted(payment_info, key=get_payment_priority)[0]
+            payment_url = payment_info[0]
         else:
             payment_url = None
 

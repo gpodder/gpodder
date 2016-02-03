@@ -36,7 +36,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 from gpodder.gtkui import draw
-from gpodder.gtkui import flattr
 
 import os
 import gtk

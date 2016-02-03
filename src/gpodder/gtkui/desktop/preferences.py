@@ -111,36 +111,6 @@ class OnSyncActionList(gtk.ListStore):
 
 
 
-class gPodderFlattrSignIn(BuilderWidget):
-
-    def new(self):
-        import webkit
-
-        self.web = webkit.WebView()
-        self.web.connect('resource-request-starting', self.on_web_request)
-        self.main_window.connect('destroy', self.set_flattr_preferences)
-
-        auth_url = self.flattr.get_auth_url()
-        logger.info(auth_url)
-        self.web.open(auth_url)
-
-        self.scrolledwindow_web.add(self.web)
-        self.web.show()
-
-    def on_web_request(self, web_view, web_frame, web_resource, request, response):
-        uri = request.get_uri()
-        if uri.startswith(self.flattr.CALLBACK):
-            if not self.flattr.process_retrieved_code(uri):
-                self.show_message(query['error_description'][0], _('Error'),
-                        important=True)
-
-            # Destroy the window later
-            util.idle_add(self.main_window.destroy)
-
-    def on_btn_close_clicked(self, widget):
-        util.idle_add(self.main_window.destroy)
-
-
 class YouTubeVideoFormatListModel(gtk.ListStore):
     C_CAPTION, C_ID = range(2)
 
@@ -319,9 +289,6 @@ class gPodderPreferences(BuilderWidget):
         # Disable mygpo sync while the dialog is open
         self._config.mygpo.enabled = False
 
-        # Initialize Flattr settings
-        self.set_flattr_preferences()
-
         # Configure the extensions manager GUI
         self.set_extension_preferences()
 
@@ -409,14 +376,8 @@ class gPodderPreferences(BuilderWidget):
         menu.append(menu_item)
 
         if container.metadata.payment:
-            if self.flattr.is_flattrable(container.metadata.payment):
-                menu_item = gtk.MenuItem(_('Flattr this'))
-                menu_item.connect('activate', self.flattr_extension,
-                    container.metadata.payment)
-            else:
-                menu_item = gtk.MenuItem(_('Support the author'))
-                menu_item.connect('activate', self.open_weblink,
-                    container.metadata.payment)
+            menu_item = gtk.MenuItem(_('Support the author'))
+            menu_item.connect('activate', self.open_weblink, container.metadata.payment)
             menu.append(menu_item)
 
         menu.show_all()
@@ -427,37 +388,6 @@ class gPodderPreferences(BuilderWidget):
             menu.popup(None, None, None, 3, 0)
 
         return True
-
-    def set_flattr_preferences(self, widget=None):
-        if not self._config.flattr.token:
-            self.label_flattr.set_text(_('Please sign in with Flattr and Support Publishers'))
-            self.button_flattr_login.set_label(_('Sign in to Flattr'))
-        else:
-            flattr_user = self.flattr.get_auth_username()
-            self.label_flattr.set_markup(_('Logged in as <b>%(username)s</b>') % {'username': flattr_user})
-            self.button_flattr_login.set_label(_('Sign out'))
-
-        self.checkbutton_flattr_on_play.set_active(self._config.flattr.flattr_on_play)
-
-    def on_button_flattr_login(self, widget):
-        if not self._config.flattr.token:
-            try:
-                import webkit
-            except ImportError, ie:
-                self.show_message(_('Flattr integration requires WebKit/Gtk.'),
-                        _('WebKit/Gtk not found'), important=True)
-                return
-
-            gPodderFlattrSignIn(self.parent_window,
-                    _config=self._config,
-                    flattr=self.flattr,
-                    set_flattr_preferences=self.set_flattr_preferences)
-        else:
-            self._config.flattr.token = ''
-            self.set_flattr_preferences()
-
-    def on_check_flattr_on_play(self, widget):
-        self._config.flattr.flattr_on_play = widget.get_active()
 
     def on_extensions_cell_toggled(self, cell, path):
         model = self.treeviewExtensions.get_model()
@@ -497,11 +427,6 @@ class gPodderPreferences(BuilderWidget):
 
     def open_weblink(self, w, url):
         util.open_website(url)
-
-    def flattr_extension(self, w, flattr_url):
-        success, message = self.flattr.flattr_url(flattr_url)
-        self.show_message(message, title=_('Flattr status'),
-            important=not success)
 
     def on_dialog_destroy(self, widget):
         # Re-enable mygpo sync if the user has selected it

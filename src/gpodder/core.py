@@ -28,7 +28,6 @@ from gpodder import config
 from gpodder import dbsqlite
 from gpodder import extensions
 from gpodder import model
-from gpodder import flattr
 
 
 class Core(object):
@@ -52,9 +51,6 @@ class Core(object):
 
         # Update the current device in the configuration
         self.config.mygpo.device.type = util.detect_device_type()
-
-        # Initialize Flattr integration
-        self.flattr = flattr.Flattr(self.config.flattr)
 
     def shutdown(self):
         # Notify all extensions that we are being shut down
