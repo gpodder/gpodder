@@ -45,7 +45,6 @@ VIMEOCOM_RE = re.compile(r'http[s]?://vimeo\.com/(channels/[^/]+|\d+)$', re.IGNO
 VIMEOCOM_VIDEO_RE = re.compile(r'http[s]?://vimeo.com/channels/(?:[^/])+/(\d+)$', re.IGNORECASE)
 MOOGALOOP_RE = re.compile(r'http[s]?://vimeo\.com/moogaloop\.swf\?clip_id=(\d+)$', re.IGNORECASE)
 SIGNATURE_RE = re.compile(r'"timestamp":(\d+),"signature":"([^"]+)"')
-DATA_CONFIG_RE = re.compile(r'data-config-url="([^"]+)"')
 
 # List of qualities, from lowest to highest
 FILEFORMAT_RANKING = ['270p', '360p', '720p', '1080p']
@@ -60,14 +59,7 @@ def get_real_download_url(url, preferred_fileformat=None):
     if video_id is None:
         return url
 
-    web_url = 'http://vimeo.com/%s' % video_id
-    web_data = util.urlopen(web_url).read()
-    data_config_frag = DATA_CONFIG_RE.search(web_data)
-
-    if data_config_frag is None:
-        raise VimeoError('Cannot get data config from Vimeo')
-
-    data_config_url = data_config_frag.group(1).replace('&amp;', '&')
+    data_config_url = 'https://player.vimeo.com/video/%s/config' % (video_id,)
 
     def get_urls(data_config_url):
         data_config_data = util.urlopen(data_config_url).read().decode('utf-8')
