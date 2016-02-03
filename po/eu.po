@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gPodder\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-05-24 19:46+0200\n"
+"POT-Creation-Date: 2016-02-03 21:09+0100\n"
 "PO-Revision-Date: 2013-01-23 00:23+0000\n"
 "Last-Translator: Asier Iturralde Sarasola <asier.iturralde@gmail.com>\n"
 "Language-Team: Basque (http://www.transifex.com/projects/p/gpodder/language/"
@@ -18,6 +18,95 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: src/gpodder/util.py:429
+#, python-format
+msgid "%(count)d day ago"
+msgid_plural "%(count)d days ago"
+msgstr[0] "Duela egun %(count)d"
+msgstr[1] "Duela %(count)d egun"
+
+#: src/gpodder/util.py:508
+msgid "Today"
+msgstr "Gaur"
+
+#: src/gpodder/util.py:510
+msgid "Yesterday"
+msgstr "Atzo"
+
+#: src/gpodder/util.py:553 src/gpodder/util.py:556
+msgid "(unknown)"
+msgstr "(ezezaguna)"
+
+#: src/gpodder/util.py:1193 src/gpodder/util.py:1212
+#, python-format
+msgid "%(count)d second"
+msgid_plural "%(count)d seconds"
+msgstr[0] "Segundu %(count)d"
+msgstr[1] "%(count)d segundu"
+
+#: src/gpodder/util.py:1206
+#, python-format
+msgid "%(count)d hour"
+msgid_plural "%(count)d hours"
+msgstr[0] "Ordu %(count)d"
+msgstr[1] "%(count)d ordu"
+
+#: src/gpodder/util.py:1209
+#, python-format
+msgid "%(count)d minute"
+msgid_plural "%(count)d minutes"
+msgstr[0] "Minutu %(count)d"
+msgstr[1] "%(count)d minutu"
+
+#: src/gpodder/util.py:1215
+msgid "and"
+msgstr "eta"
+
+#: src/gpodder/model.py:446 src/gpodder/plugins/soundcloud.py:156
+msgid "No description available"
+msgstr "Ez dago deskribapenik eskuragarri"
+
+#: src/gpodder/model.py:679
+msgid "unknown"
+msgstr "ezezaguna"
+
+#: src/gpodder/model.py:721 src/gpodder/sync.py:925
+#: src/gpodder/download.py:528
+msgid "Finished"
+msgstr "Amaituta"
+
+#: src/gpodder/model.py:746
+msgid "Default"
+msgstr "Lehenetsia"
+
+#: src/gpodder/model.py:747
+msgid "Only keep latest"
+msgstr "Mantendu azkena soilik"
+
+#: src/gpodder/model.py:779 src/gpodder/model.py:1225
+#: src/gpodder/extensions.py:59
+msgid "Other"
+msgstr "Bestelakoak"
+
+#: src/gpodder/model.py:1208 src/gpodder/model.py:1223
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:10
+msgid "Video"
+msgstr "Bideoa"
+
+#: src/gpodder/model.py:1221
+msgid "Audio"
+msgstr "Audioa"
+
+#: src/gpodder/my.py:174
+#, python-format
+msgid "Add %s"
+msgstr "Gehitu %s"
+
+#: src/gpodder/my.py:176
+#, python-format
+msgid "Remove %s"
+msgstr "Ezabatu %s"
 
 #: src/gpodder/config.py:55
 #, python-format
@@ -63,57 +152,144 @@ msgstr "%s Soundcloud-en"
 msgid "Imported OPML file"
 msgstr "Inportatu OPML fitxategitik"
 
+#: src/gpodder/sync.py:196
+msgid "Cancelled by user"
+msgstr "Erabiltzaileak ezeztatua"
+
+#: src/gpodder/sync.py:199
+msgid "Writing data to disk"
+msgstr "Datuak diskora idazten"
+
+#: src/gpodder/sync.py:295
+msgid "Opening iPod database"
+msgstr "iPod datu-basea irekitzen"
+
+#: src/gpodder/sync.py:305
+msgid "iPod opened"
+msgstr "iPod irekita"
+
+#: src/gpodder/sync.py:316
+msgid "Saving iPod database"
+msgstr "iPod datu-basea gordetzen"
+
+#: src/gpodder/sync.py:321
+msgid "Writing extended gtkpod database"
+msgstr "Hedatutako gtkpod datu-basea idazten"
+
+#: src/gpodder/sync.py:397 src/gpodder/sync.py:680 src/gpodder/sync.py:874
+#, python-format
+msgid "Removing %s"
+msgstr "%s kentzen"
+
+#: src/gpodder/sync.py:412 src/gpodder/sync.py:557
+#, python-format
+msgid "Adding %s"
+msgstr "%s gehitzen"
+
+#: src/gpodder/sync.py:430
+#, python-format
+msgid "Error copying %(episode)s: Not enough free space on %(mountpoint)s"
+msgstr ""
+"Errorea %(episode)s kopiatzean: Ez dago behar adina leku libre "
+"%(mountpoint)s-(e)n"
+
+#: src/gpodder/sync.py:515
+msgid "Opening MP3 player"
+msgstr "MP3 erreproduzitzailea irekitzen"
+
+#: src/gpodder/sync.py:518
+msgid "MP3 player opened"
+msgstr "MP3 erreproduzitzailea irekita"
+
+#: src/gpodder/sync.py:576
+#, python-format
+msgid ""
+"Not enough space in %(path)s: %(free)s available, but need at least %(need)s"
+msgstr ""
+
+#: src/gpodder/sync.py:603 src/gpodder/sync.py:611
+#, python-format
+msgid "Error opening %(filename)s: %(message)s"
+msgstr "Errorea %(filename)s irekitzean: %(message)s"
+
+#: src/gpodder/sync.py:780 src/gpodder/sync.py:786
+msgid "MTP device"
+msgstr "MTP gailua"
+
+#: src/gpodder/sync.py:793
+msgid "Opening the MTP device"
+msgstr "MTP gailua irekitzen"
+
+#: src/gpodder/sync.py:803
+#, python-format
+msgid "%s opened"
+msgstr "%s irekita"
+
+#: src/gpodder/sync.py:808
+#, python-format
+msgid "Closing %s"
+msgstr "%s ixten"
+
+#: src/gpodder/sync.py:816
+#, python-format
+msgid "%s closed"
+msgstr "%s itxita"
+
+#: src/gpodder/sync.py:821 bin/gpo:708
+#, python-format
+msgid "Adding %s..."
+msgstr "%s gehitzen..."
+
+#: src/gpodder/sync.py:924 src/gpodder/download.py:527
+msgid "Added"
+msgstr "Gehituta"
+
+#: src/gpodder/sync.py:924 src/gpodder/download.py:527
+msgid "Queued"
+msgstr "Ilaran"
+
+#: src/gpodder/sync.py:924
+msgid "Synchronizing"
+msgstr "Sinkronizatzen"
+
+#: src/gpodder/sync.py:925 src/gpodder/download.py:528
+msgid "Failed"
+msgstr "Huts egin du"
+
+#: src/gpodder/sync.py:925 src/gpodder/download.py:528
+msgid "Cancelled"
+msgstr "Bertan behera utzita"
+
+#: src/gpodder/sync.py:925 src/gpodder/download.py:528
+msgid "Paused"
+msgstr "Pausarazita"
+
+#: src/gpodder/sync.py:1081 src/gpodder/download.py:879
+#, python-format
+msgid "Error: %s"
+msgstr "Errorea: %s"
+
 #: src/gpodder/download.py:329
 msgid "Wrong username/password"
 msgstr "Erabiltzaile-izen/pasahitz okerra"
 
-#: src/gpodder/download.py:527 src/gpodder/sync.py:908
-msgid "Added"
-msgstr "Gehituta"
-
-#: src/gpodder/download.py:527 src/gpodder/sync.py:908
-msgid "Queued"
-msgstr "Ilaran"
-
-#: src/gpodder/download.py:527 src/gpodder/gtkui/model.py:328
+#: src/gpodder/download.py:527 src/gpodder/gtkui/model.py:327
 msgid "Downloading"
 msgstr "Deskargatzen"
 
-#: src/gpodder/download.py:528 src/gpodder/model.py:726
-#: src/gpodder/sync.py:909 src/gpodder/qmlui/__init__.py:70
-msgid "Finished"
-msgstr "Amaituta"
-
-#: src/gpodder/download.py:528 src/gpodder/sync.py:909
-msgid "Failed"
-msgstr "Huts egin du"
-
-#: src/gpodder/download.py:528 src/gpodder/sync.py:909
-msgid "Cancelled"
-msgstr "Bertan behera utzita"
-
-#: src/gpodder/download.py:528 src/gpodder/sync.py:909
-msgid "Paused"
-msgstr "Pausarazita"
-
-#: src/gpodder/download.py:856
+#: src/gpodder/download.py:862
 msgid "Missing content from server"
 msgstr "Edukia ez dago zerbitzarian"
 
-#: src/gpodder/download.py:862
+#: src/gpodder/download.py:868
 #, python-format
 msgid "I/O Error: %(error)s: %(filename)s"
 msgstr "I/O Errorea: %(error)s: %(filename)s"
 
-#: src/gpodder/download.py:869
+#: src/gpodder/download.py:875
 #, python-format
 msgid "HTTP Error %(code)s: %(message)s"
 msgstr "HTTP Errorea %(code)s: %(message)s"
-
-#: src/gpodder/download.py:873 src/gpodder/sync.py:1065
-#, python-format
-msgid "Error: %s"
-msgstr "Errorea: %s"
 
 #: src/gpodder/extensions.py:55
 #, fuzzy
@@ -129,229 +305,44 @@ msgstr "Interfazea"
 msgid "Post download"
 msgstr "Hautatu erreproduzitutakoak"
 
-#: src/gpodder/extensions.py:59 src/gpodder/model.py:784
-#: src/gpodder/model.py:1230
-msgid "Other"
-msgstr "Bestelakoak"
-
 #: src/gpodder/extensions.py:100
 msgid "No description for this extension."
 msgstr "Deskribapenik ez hedapen honentzat"
 
-#: src/gpodder/extensions.py:213
+#: src/gpodder/extensions.py:212
 #, python-format
 msgid "Command not found: %(command)s"
 msgstr "Ez da komandoa aurkitu: %(command)s"
 
-#: src/gpodder/extensions.py:229
+#: src/gpodder/extensions.py:228
 #, python-format
 msgid "Need at least one of the following commands: %(list_of_commands)s"
 msgstr ""
 
-#: src/gpodder/extensions.py:266
+#: src/gpodder/extensions.py:265
 #, python-format
 msgid "Python module not found: %(module)s"
 msgstr "Ez da Python modulua aurkitu: %(module)s"
 
-#: src/gpodder/flattr.py:211
-msgid "Not enough means to flattr"
-msgstr ""
-
-#: src/gpodder/flattr.py:213
-msgid "Item does not exist on Flattr"
-msgstr "Elementua ez da existitzen Flattr-en"
-
-#: src/gpodder/flattr.py:215
-msgid "Already flattred or own item"
-msgstr ""
-
-#: src/gpodder/flattr.py:217
-msgid "Invalid request"
-msgstr "Baliogabeko eskaera"
-
-#: src/gpodder/flattr.py:223
-msgid "No internet connection"
-msgstr "Interneteko konexiorik ez"
-
-#: src/gpodder/flattr.py:228
-msgid "No description"
-msgstr "Deskribapenik ez"
-
-#: src/gpodder/model.py:451 src/gpodder/plugins/soundcloud.py:156
-msgid "No description available"
-msgstr "Ez dago deskribapenik eskuragarri"
-
-#: src/gpodder/model.py:684
-msgid "unknown"
-msgstr "ezezaguna"
-
-#: src/gpodder/model.py:751
-msgid "Default"
-msgstr "Lehenetsia"
-
-#: src/gpodder/model.py:752
-msgid "Only keep latest"
-msgstr "Mantendu azkena soilik"
-
-#: src/gpodder/model.py:1213 src/gpodder/model.py:1228
-msgid "Video"
-msgstr "Bideoa"
-
-#: src/gpodder/model.py:1226
-msgid "Audio"
-msgstr "Audioa"
-
-#: src/gpodder/my.py:174
+#: src/gpodder/gtkui/desktopfile.py:70
 #, python-format
-msgid "Add %s"
-msgstr "Gehitu %s"
+msgid "Command: %s"
+msgstr "Komandoa: %s"
 
-#: src/gpodder/my.py:176
+#: src/gpodder/gtkui/desktopfile.py:150
+msgid "Default application"
+msgstr "Aplikazio lehenetsia"
+
+#: src/gpodder/gtkui/shownotes.py:84 src/gpodder/gtkui/model.py:69
+#: src/gpodder/gtkui/model.py:87 src/gpodder/gtkui/model.py:237
 #, python-format
-msgid "Remove %s"
-msgstr "Ezabatu %s"
+msgid "from %s"
+msgstr "%s-tik"
 
-#: src/gpodder/sync.py:196
-msgid "Cancelled by user"
-msgstr "Erabiltzaileak ezeztatua"
-
-#: src/gpodder/sync.py:199
-msgid "Writing data to disk"
-msgstr "Datuak diskora idazten"
-
-#: src/gpodder/sync.py:291
-msgid "Opening iPod database"
-msgstr "iPod datu-basea irekitzen"
-
-#: src/gpodder/sync.py:301
-msgid "iPod opened"
-msgstr "iPod irekita"
-
-#: src/gpodder/sync.py:312
-msgid "Saving iPod database"
-msgstr "iPod datu-basea gordetzen"
-
-#: src/gpodder/sync.py:317
-msgid "Writing extended gtkpod database"
-msgstr "Hedatutako gtkpod datu-basea idazten"
-
-#: src/gpodder/sync.py:393 src/gpodder/sync.py:665 src/gpodder/sync.py:859
-#, python-format
-msgid "Removing %s"
-msgstr "%s kentzen"
-
-#: src/gpodder/sync.py:408 src/gpodder/sync.py:553
-#, python-format
-msgid "Adding %s"
-msgstr "%s gehitzen"
-
-#: src/gpodder/sync.py:426
-#, python-format
-msgid "Error copying %(episode)s: Not enough free space on %(mountpoint)s"
-msgstr ""
-"Errorea %(episode)s kopiatzean: Ez dago behar adina leku libre "
-"%(mountpoint)s-(e)n"
-
-#: src/gpodder/sync.py:511
-msgid "Opening MP3 player"
-msgstr "MP3 erreproduzitzailea irekitzen"
-
-#: src/gpodder/sync.py:514
-msgid "MP3 player opened"
-msgstr "MP3 erreproduzitzailea irekita"
-
-#: src/gpodder/sync.py:588 src/gpodder/sync.py:596
-#, python-format
-msgid "Error opening %(filename)s: %(message)s"
-msgstr "Errorea %(filename)s irekitzean: %(message)s"
-
-#: src/gpodder/sync.py:765 src/gpodder/sync.py:771
-msgid "MTP device"
-msgstr "MTP gailua"
-
-#: src/gpodder/sync.py:778
-msgid "Opening the MTP device"
-msgstr "MTP gailua irekitzen"
-
-#: src/gpodder/sync.py:788
-#, python-format
-msgid "%s opened"
-msgstr "%s irekita"
-
-#: src/gpodder/sync.py:793
-#, python-format
-msgid "Closing %s"
-msgstr "%s ixten"
-
-#: src/gpodder/sync.py:801
-#, python-format
-msgid "%s closed"
-msgstr "%s itxita"
-
-#: src/gpodder/sync.py:806 bin/gpo:717
-#, python-format
-msgid "Adding %s..."
-msgstr "%s gehitzen..."
-
-#: src/gpodder/sync.py:908
-msgid "Synchronizing"
-msgstr "Sinkronizatzen"
-
-#: src/gpodder/util.py:431
-#, python-format
-msgid "%(count)d day ago"
-msgid_plural "%(count)d days ago"
-msgstr[0] "Duela egun %(count)d"
-msgstr[1] "Duela %(count)d egun"
-
-#: src/gpodder/util.py:510
-msgid "Today"
-msgstr "Gaur"
-
-#: src/gpodder/util.py:512
-msgid "Yesterday"
-msgstr "Atzo"
-
-#: src/gpodder/util.py:555 src/gpodder/util.py:558
-msgid "(unknown)"
-msgstr "(ezezaguna)"
-
-#: src/gpodder/util.py:1238 src/gpodder/util.py:1257
-#, python-format
-msgid "%(count)d second"
-msgid_plural "%(count)d seconds"
-msgstr[0] "Segundu %(count)d"
-msgstr[1] "%(count)d segundu"
-
-#: src/gpodder/util.py:1251
-#, python-format
-msgid "%(count)d hour"
-msgid_plural "%(count)d hours"
-msgstr[0] "Ordu %(count)d"
-msgstr[1] "%(count)d ordu"
-
-#: src/gpodder/util.py:1254
-#, python-format
-msgid "%(count)d minute"
-msgid_plural "%(count)d minutes"
-msgstr[0] "Minutu %(count)d"
-msgstr[1] "%(count)d minutu"
-
-#: src/gpodder/util.py:1260
-msgid "and"
-msgstr "eta"
-
-#: src/gpodder/vimeo.py:53
-msgid "Mobile"
-msgstr ""
-
-#: src/gpodder/vimeo.py:54
-msgid "SD"
-msgstr ""
-
-#: src/gpodder/vimeo.py:55
-msgid "HD"
-msgstr ""
+#: src/gpodder/gtkui/shownotes.py:118
+#, fuzzy
+msgid "Please select an episode"
+msgstr "Hautatu atalak"
 
 #: src/gpodder/gtkui/config.py:50
 msgid "Integer"
@@ -369,467 +360,516 @@ msgstr "Boolearra"
 msgid "String"
 msgstr "Katea"
 
-#: src/gpodder/gtkui/desktopfile.py:70
+#: src/gpodder/gtkui/model.py:68
 #, python-format
-msgid "Command: %s"
-msgstr "Komandoa: %s"
+msgid "released %s"
+msgstr "%s-n argitaratua"
 
-#: src/gpodder/gtkui/desktopfile.py:150
-msgid "Default application"
-msgstr "Aplikazio lehenetsia"
+#: src/gpodder/gtkui/model.py:80 src/gpodder/gtkui/model.py:393
+msgid "played"
+msgstr "erreproduzitua"
 
-#: src/gpodder/gtkui/flattr.py:43 src/gpodder/qmlui/__init__.py:239
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:12
-msgid "Sign in"
-msgstr "Hasi saioa"
+#: src/gpodder/gtkui/model.py:82
+msgid "unplayed"
+msgstr "erreproduzitu gabea"
 
-#: src/gpodder/gtkui/flattr.py:51
-msgid "Flattred"
-msgstr ""
+#: src/gpodder/gtkui/model.py:85
+msgid "today"
+msgstr "gaur"
 
-#: src/gpodder/gtkui/flattr.py:54 src/gpodder/gtkui/main.py:1790
-#: src/gpodder/gtkui/desktop/preferences.py:413
-msgid "Flattr this"
-msgstr ""
+#: src/gpodder/gtkui/model.py:86
+#, python-format
+msgid "downloaded %s"
+msgstr "%s deskargatua"
 
-#: src/gpodder/gtkui/main.py:207 share/applications/gpodder.desktop.in.h:1
+#: src/gpodder/gtkui/model.py:337
+msgid "Deleted"
+msgstr "Ezabatua"
+
+#: src/gpodder/gtkui/model.py:342
+msgid "New episode"
+msgstr "Atal berria"
+
+#: src/gpodder/gtkui/model.py:356
+msgid "Downloaded episode"
+msgstr "Deskargatutako atala"
+
+#: src/gpodder/gtkui/model.py:359
+msgid "Downloaded video episode"
+msgstr "Deskargatutako bideo-atala"
+
+#: src/gpodder/gtkui/model.py:362
+msgid "Downloaded image"
+msgstr "Deskargatutako irudia"
+
+#: src/gpodder/gtkui/model.py:365
+msgid "Downloaded file"
+msgstr "Deskargatutako fitxategia"
+
+#: src/gpodder/gtkui/model.py:380
+msgid "missing file"
+msgstr "fitxategia falta da"
+
+#: src/gpodder/gtkui/model.py:384
+msgid "never displayed"
+msgstr "inoiz bistarazi gabea"
+
+#: src/gpodder/gtkui/model.py:386
+msgid "never played"
+msgstr "inoiz erreproduzitu gabea"
+
+#: src/gpodder/gtkui/model.py:388
+msgid "never opened"
+msgstr "inoiz ireki gabea"
+
+#: src/gpodder/gtkui/model.py:391
+msgid "displayed"
+msgstr "bistaratua"
+
+#: src/gpodder/gtkui/model.py:395
+msgid "opened"
+msgstr "irekia"
+
+#: src/gpodder/gtkui/model.py:397
+msgid "deletion prevented"
+msgstr "ezabaketa galarazita"
+
+#: src/gpodder/gtkui/model.py:432 share/gpodder/ui/gtk/gpodder.ui.h:32
+msgid "All episodes"
+msgstr "Atal guztiak"
+
+#: src/gpodder/gtkui/model.py:433
+msgid "from all podcasts"
+msgstr "podcast guztietakoak"
+
+#: src/gpodder/gtkui/model.py:625
+msgid "Subscription paused"
+msgstr "Harpidetza pausarazita"
+
+#: src/gpodder/gtkui/main.py:205 share/applications/gpodder.desktop.in.h:1
 msgid "gPodder"
 msgstr "gPodder"
 
-#: src/gpodder/gtkui/main.py:290 src/gpodder/qmlui/__init__.py:1168
-#: src/gpodder/qmlui/__init__.py:1172
+#: src/gpodder/gtkui/main.py:288
 msgid "Loading incomplete downloads"
 msgstr "Osatu gabeko deskargak kargatzen"
 
-#: src/gpodder/gtkui/main.py:291
+#: src/gpodder/gtkui/main.py:289
 msgid "Some episodes have not finished downloading in a previous session."
 msgstr "Zenbait atal osatu gabe gelditu ziren aurreko saio batean."
 
-#: src/gpodder/gtkui/main.py:293
+#: src/gpodder/gtkui/main.py:291
 #, python-format
 msgid "%(count)d partial file"
 msgid_plural "%(count)d partial files"
 msgstr[0] "Fitxategi %(count)d osatu gabe"
 msgstr[1] "%(count)d fitxategi osatu gabe"
 
-#: src/gpodder/gtkui/main.py:308
+#: src/gpodder/gtkui/main.py:306
 msgid "Resume all"
 msgstr "Berrekin guztiak"
 
-#: src/gpodder/gtkui/main.py:318 src/gpodder/qmlui/__init__.py:1198
+#: src/gpodder/gtkui/main.py:316
 msgid "Incomplete downloads from a previous session were found."
 msgstr "Aurreko saio bateko osatu gabeko deskargak aurkitu dira."
 
-#: src/gpodder/gtkui/main.py:418
+#: src/gpodder/gtkui/main.py:414
 msgid "Action"
 msgstr "Ekintza"
 
-#: src/gpodder/gtkui/main.py:465
+#: src/gpodder/gtkui/main.py:461
 msgid "Confirm changes from gpodder.net"
 msgstr "Berretsi gpodder.net-eko aldaketak"
 
-#: src/gpodder/gtkui/main.py:466
+#: src/gpodder/gtkui/main.py:462
 msgid "Select the actions you want to carry out."
 msgstr "Hautatu burutu nahi dituzun ekintzak."
 
-#: src/gpodder/gtkui/main.py:506
+#: src/gpodder/gtkui/main.py:502
 msgid "Uploading subscriptions"
 msgstr "Harpidetzak igotzen"
 
-#: src/gpodder/gtkui/main.py:507
+#: src/gpodder/gtkui/main.py:503
 msgid "Your subscriptions are being uploaded to the server."
 msgstr "Zure harpidetzak zerbitzarira igotzen ari dira."
 
-#: src/gpodder/gtkui/main.py:512
+#: src/gpodder/gtkui/main.py:508
 msgid "List uploaded successfully."
 msgstr "Zerrenda behar bezala igo da."
 
-#: src/gpodder/gtkui/main.py:519
+#: src/gpodder/gtkui/main.py:515
 msgid "Error while uploading"
 msgstr "Errorea igotzean"
 
-#: src/gpodder/gtkui/main.py:804 src/gpodder/gtkui/main.py:932
-#: src/gpodder/gtkui/main.py:2646 src/gpodder/gtkui/main.py:2848
+#: src/gpodder/gtkui/main.py:800 src/gpodder/gtkui/main.py:928
+#: src/gpodder/gtkui/main.py:2622 src/gpodder/gtkui/main.py:2815
 #: src/gpodder/gtkui/desktop/episodeselector.py:132
 #: src/gpodder/gtkui/desktop/sync.py:270
 msgid "Episode"
 msgstr "Atala"
 
-#: src/gpodder/gtkui/main.py:823
+#: src/gpodder/gtkui/main.py:819
 msgid "Size"
 msgstr "Tamaina"
 
-#: src/gpodder/gtkui/main.py:828
+#: src/gpodder/gtkui/main.py:824
 msgid "Duration"
 msgstr "Iraupena"
 
-#: src/gpodder/gtkui/main.py:832
+#: src/gpodder/gtkui/main.py:828
 msgid "Released"
 msgstr "Argitalpen-data"
 
-#: src/gpodder/gtkui/main.py:859
+#: src/gpodder/gtkui/main.py:855
 msgid "Visible columns"
 msgstr "Ageriko zutabeak"
 
-#: src/gpodder/gtkui/main.py:952 src/gpodder/gtkui/main.py:1112
+#: src/gpodder/gtkui/main.py:948 src/gpodder/gtkui/main.py:1108
 #: share/gpodder/ui/gtk/gpodder.ui.h:45
 msgid "Progress"
 msgstr "Aurrerapena"
 
-#: src/gpodder/gtkui/main.py:986 share/gpodder/ui/qml/EpisodeList.qml:44
+#: src/gpodder/gtkui/main.py:982
 msgid "Loading episodes"
 msgstr "Atalak kargatzen"
 
-#: src/gpodder/gtkui/main.py:989
+#: src/gpodder/gtkui/main.py:985
 msgid "No episodes in current view"
 msgstr "Ez dago atalik uneko ikuspegian"
 
-#: src/gpodder/gtkui/main.py:991
+#: src/gpodder/gtkui/main.py:987
 msgid "No episodes available"
 msgstr "Ez dago atalik eskuragarri"
 
-#: src/gpodder/gtkui/main.py:997
+#: src/gpodder/gtkui/main.py:993
 msgid "No podcasts in this view"
 msgstr "Ez dago podcast-ik ikuspegi honetan"
 
-#: src/gpodder/gtkui/main.py:999
+#: src/gpodder/gtkui/main.py:995
 msgid "No subscriptions"
 msgstr "Ez dago harpidetzarik"
 
-#: src/gpodder/gtkui/main.py:1001
+#: src/gpodder/gtkui/main.py:997
 msgid "No active tasks"
 msgstr "Ataza aktiborik ez"
 
-#: src/gpodder/gtkui/main.py:1116 src/gpodder/gtkui/main.py:1118
+#: src/gpodder/gtkui/main.py:1112 src/gpodder/gtkui/main.py:1114
 #, python-format
 msgid "%(count)d active"
 msgid_plural "%(count)d active"
 msgstr[0] "%(count)d aktibo"
 msgstr[1] "%(count)d aktibo"
 
-#: src/gpodder/gtkui/main.py:1120
+#: src/gpodder/gtkui/main.py:1116
 #, python-format
 msgid "%(count)d failed"
 msgid_plural "%(count)d failed"
 msgstr[0] "%(count)d-ek huts egin du"
 msgstr[1] "%(count)d-(e)k huts egin dute"
 
-#: src/gpodder/gtkui/main.py:1122
+#: src/gpodder/gtkui/main.py:1118
 #, python-format
 msgid "%(count)d queued"
 msgid_plural "%(count)d queued"
 msgstr[0] "%(count)d ilaran"
 msgstr[1] "%(count)d ilaran"
 
-#: src/gpodder/gtkui/main.py:1136
+#: src/gpodder/gtkui/main.py:1132
 #, python-format
 msgid "downloading %(count)d file"
 msgid_plural "downloading %(count)d files"
 msgstr[0] "Fitxategi %(count)d deskargatzen"
 msgstr[1] "%(count)d fitxategi deskargatzen"
 
-#: src/gpodder/gtkui/main.py:1146
+#: src/gpodder/gtkui/main.py:1142
 #, python-format
 msgid "synchronizing %(count)d file"
 msgid_plural "synchronizing %(count)d files"
 msgstr[0] "Fitxategi %(count)d sinkronizatzen"
 msgstr[1] "%(count)d fitxategi sinkronizatzen"
 
-#: src/gpodder/gtkui/main.py:1148
+#: src/gpodder/gtkui/main.py:1144
 #, python-format
 msgid "%(queued)d task queued"
 msgid_plural "%(queued)d tasks queued"
 msgstr[0] "Ataza %(queued)d ilaratuta"
 msgstr[1] "%(queued)d ataza ilaratuta"
 
-#: src/gpodder/gtkui/main.py:1172
+#: src/gpodder/gtkui/main.py:1168
 msgid "Please report this problem and restart gPodder:"
 msgstr "Mesedez jakinarazi arazo hau eta gPodder berrabiarazi:"
 
-#: src/gpodder/gtkui/main.py:1172
+#: src/gpodder/gtkui/main.py:1168
 msgid "Unhandled exception"
 msgstr "Kudeatu gabeko salbuespena"
 
-#: src/gpodder/gtkui/main.py:1239
+#: src/gpodder/gtkui/main.py:1235
 #, python-format
 msgid "Feedparser error: %s"
 msgstr "Jario-analizatzaile errorea: %s"
 
-#: src/gpodder/gtkui/main.py:1375
+#: src/gpodder/gtkui/main.py:1371
 msgid "Could not download some episodes:"
 msgstr "Ezin izan dira zenbait atal deskargatu:"
 
-#: src/gpodder/gtkui/main.py:1377 src/gpodder/gtkui/main.py:1380
+#: src/gpodder/gtkui/main.py:1373 src/gpodder/gtkui/main.py:1376
 msgid "Downloads finished"
 msgstr "Amaitutako deskargak"
 
-#: src/gpodder/gtkui/main.py:1383
+#: src/gpodder/gtkui/main.py:1379
 msgid "Downloads failed"
 msgstr "Huts egindako deskargak"
 
-#: src/gpodder/gtkui/main.py:1387
+#: src/gpodder/gtkui/main.py:1383
 msgid "Could not sync some episodes:"
 msgstr "Ezin izan dira zenbait atal sinkronizatu:"
 
-#: src/gpodder/gtkui/main.py:1389 src/gpodder/gtkui/main.py:1392
+#: src/gpodder/gtkui/main.py:1385 src/gpodder/gtkui/main.py:1388
 msgid "Device synchronization finished"
 msgstr "Gailua sinkronizatzea amaituta"
 
-#: src/gpodder/gtkui/main.py:1395
+#: src/gpodder/gtkui/main.py:1391
 msgid "Device synchronization failed"
 msgstr "Gailua sinkronizatzeak huts egin du"
 
-#: src/gpodder/gtkui/main.py:1438
+#: src/gpodder/gtkui/main.py:1434
 #, python-format
 msgid "%(count)d more episode"
 msgid_plural "%(count)d more episodes"
 msgstr[0] "Atal %(count)d gehiago"
 msgstr[1] "%(count)d atal gehiago"
 
-#: src/gpodder/gtkui/main.py:1512
+#: src/gpodder/gtkui/main.py:1508
 msgid "Start download now"
 msgstr "Hasi deskarga orain"
 
-#: src/gpodder/gtkui/main.py:1514 src/gpodder/gtkui/main.py:1724
+#: src/gpodder/gtkui/main.py:1510 src/gpodder/gtkui/main.py:1719
 #: src/gpodder/gtkui/desktop/episodeselector.py:144
 #: share/gpodder/ui/gtk/gpodder.ui.h:20
-#: share/gpodder/ui/qml/EpisodeActions.qml:20
-#: share/gpodder/ui/qml/Main.qml:351
 msgid "Download"
 msgstr "Deskarga"
 
-#: src/gpodder/gtkui/main.py:1515 src/gpodder/qmlui/__init__.py:699
-#: src/gpodder/qmlui/__init__.py:708 src/gpodder/qmlui/__init__.py:722
-#: share/gpodder/ui/gtk/gpodder.ui.h:21
-#: share/gpodder/ui/qml/EpisodeActions.qml:28
-#: share/gpodder/ui/qml/Main.qml:493 share/gpodder/ui/qml/Subscribe.qml:193
+#: src/gpodder/gtkui/main.py:1511 share/gpodder/ui/gtk/gpodder.ui.h:21
 msgid "Cancel"
 msgstr "Utzi"
 
-#: src/gpodder/gtkui/main.py:1516 share/gpodder/ui/qml/EpisodeActions.qml:36
+#: src/gpodder/gtkui/main.py:1512
 msgid "Pause"
 msgstr "Pausarazi"
 
-#: src/gpodder/gtkui/main.py:1518
+#: src/gpodder/gtkui/main.py:1514
 msgid "Remove from list"
 msgstr "Ezabatu zerrendatik"
 
-#: src/gpodder/gtkui/main.py:1557 share/gpodder/ui/gtk/gpodder.ui.h:13
+#: src/gpodder/gtkui/main.py:1553 share/gpodder/ui/gtk/gpodder.ui.h:13
 msgid "Update podcast"
 msgstr "Eguneratu podcast-a"
 
-#: src/gpodder/gtkui/main.py:1564
+#: src/gpodder/gtkui/main.py:1560
 msgid "Open download folder"
 msgstr "Ireki deskargen karpeta"
 
-#: src/gpodder/gtkui/main.py:1570 src/gpodder/qmlui/__init__.py:541
-#: src/gpodder/qmlui/__init__.py:545
+#: src/gpodder/gtkui/main.py:1566
 msgid "Mark episodes as old"
 msgstr "Markatu atalak zahar bezala"
 
-#: src/gpodder/gtkui/main.py:1574 src/gpodder/gtkui/main.py:1783
-#: src/gpodder/qmlui/__init__.py:820
+#: src/gpodder/gtkui/main.py:1570 src/gpodder/gtkui/main.py:1778
 msgid "Archive"
 msgstr "Artxiboa"
 
-#: src/gpodder/gtkui/main.py:1579
+#: src/gpodder/gtkui/main.py:1575
 msgid "Remove podcast"
 msgstr "Ezabatu podcast-a"
 
-#: src/gpodder/gtkui/main.py:1594 share/gpodder/ui/gtk/gpodder.ui.h:10
+#: src/gpodder/gtkui/main.py:1590 share/gpodder/ui/gtk/gpodder.ui.h:10
 msgid "Podcast settings"
 msgstr "Podcast ezarpenak"
 
-#: src/gpodder/gtkui/main.py:1654
+#: src/gpodder/gtkui/main.py:1650
 msgid "Error converting file."
 msgstr "Errorea fitxategia bihurtzean."
 
-#: src/gpodder/gtkui/main.py:1654
+#: src/gpodder/gtkui/main.py:1650
 msgid "Bluetooth file transfer"
 msgstr "Bluetooth fitxategi-transferentzia"
 
-#: src/gpodder/gtkui/main.py:1714
+#: src/gpodder/gtkui/main.py:1709
 msgid "Preview"
 msgstr "Aurrebista"
 
-#: src/gpodder/gtkui/main.py:1716 share/gpodder/ui/qml/EpisodeActions.qml:36
+#: src/gpodder/gtkui/main.py:1711
 msgid "Stream"
 msgstr "Korrontea"
 
-#: src/gpodder/gtkui/main.py:1760
+#: src/gpodder/gtkui/main.py:1755
 msgid "Send to"
 msgstr "Bidali honi"
 
-#: src/gpodder/gtkui/main.py:1762
+#: src/gpodder/gtkui/main.py:1757
 msgid "Local folder"
 msgstr "Karpeta lokala"
 
-#: src/gpodder/gtkui/main.py:1767
+#: src/gpodder/gtkui/main.py:1762
 msgid "Bluetooth device"
 msgstr "Bluetooth gailua"
 
-#: src/gpodder/gtkui/main.py:1774 src/gpodder/qmlui/__init__.py:67
+#: src/gpodder/gtkui/main.py:1769
 msgid "New"
 msgstr "Berria"
 
-#: src/gpodder/gtkui/main.py:1796 share/gpodder/ui/gtk/gpodder.ui.h:25
+#: src/gpodder/gtkui/main.py:1785 share/gpodder/ui/gtk/gpodder.ui.h:25
 msgid "Episode details"
 msgstr "Atalaren xehetasunak"
 
-#: src/gpodder/gtkui/main.py:1922 src/gpodder/gtkui/main.py:2702
-#: src/gpodder/gtkui/desktop/preferences.py:503
-msgid "Flattr status"
-msgstr "Flattr egoera"
-
-#: src/gpodder/gtkui/main.py:1956
+#: src/gpodder/gtkui/main.py:1938
 msgid "Please check your media player settings in the preferences dialog."
 msgstr ""
 "Mesedez egiaztatu zure erreproduzitzailearen ezarpenak hobespenak "
 "elkarrizketa-koadroan."
 
-#: src/gpodder/gtkui/main.py:1957
+#: src/gpodder/gtkui/main.py:1939
 msgid "Error opening player"
 msgstr "Errorea erreproduzitzailea irekitzean"
 
-#: src/gpodder/gtkui/main.py:2202
+#: src/gpodder/gtkui/main.py:2178
 msgid "Adding podcasts"
 msgstr "Podcast-ak gehitzen"
 
-#: src/gpodder/gtkui/main.py:2203
+#: src/gpodder/gtkui/main.py:2179
 msgid "Please wait while episode information is downloaded."
 msgstr "Mesedez itxaron atalaren informazioa deskargatu bitartean."
 
-#: src/gpodder/gtkui/main.py:2210
+#: src/gpodder/gtkui/main.py:2186
 msgid "Existing subscriptions skipped"
 msgstr "Existitzen diren harpidetzak ekidin dira"
 
-#: src/gpodder/gtkui/main.py:2211
+#: src/gpodder/gtkui/main.py:2187
 msgid "You are already subscribed to these podcasts:"
 msgstr "Dagoeneko harpidetuta zaude honako podcast-etara:"
 
-#: src/gpodder/gtkui/main.py:2219
+#: src/gpodder/gtkui/main.py:2195
 msgid "Podcast requires authentication"
 msgstr "Podcast-ak autorizazioa eskatzen du"
 
-#: src/gpodder/gtkui/main.py:2220
+#: src/gpodder/gtkui/main.py:2196
 #, python-format
 msgid "Please login to %s:"
 msgstr "Mesedez hasi saioa %s-n:"
 
-#: src/gpodder/gtkui/main.py:2228 src/gpodder/gtkui/main.py:2323
+#: src/gpodder/gtkui/main.py:2204 src/gpodder/gtkui/main.py:2299
 msgid "Authentication failed"
 msgstr "Autentifikazioak huts egin du"
 
-#: src/gpodder/gtkui/main.py:2234
+#: src/gpodder/gtkui/main.py:2210
 msgid "Website redirection detected"
 msgstr "Webgune birbidalketa detektatu da"
 
-#: src/gpodder/gtkui/main.py:2235
+#: src/gpodder/gtkui/main.py:2211
 #, python-format
 msgid "The URL %(url)s redirects to %(target)s."
 msgstr "%(url)s URL-ak %(target)s-era birbidaltzen du."
 
-#: src/gpodder/gtkui/main.py:2236
+#: src/gpodder/gtkui/main.py:2212
 msgid "Do you want to visit the website now?"
 msgstr "Webgunea orain bistarazi nahi duzu?"
 
-#: src/gpodder/gtkui/main.py:2245
+#: src/gpodder/gtkui/main.py:2221
 msgid "Could not add some podcasts"
 msgstr "Zenbait podcast ezin izan dira gehitu"
 
-#: src/gpodder/gtkui/main.py:2246
+#: src/gpodder/gtkui/main.py:2222
 msgid "Some podcasts could not be added to your list:"
 msgstr "Zenbait podcast ez dira zure zerrendara gehituko:"
 
-#: src/gpodder/gtkui/main.py:2248
+#: src/gpodder/gtkui/main.py:2224
 msgid "Unknown"
 msgstr "Ezezaguna"
 
-#: src/gpodder/gtkui/main.py:2332
+#: src/gpodder/gtkui/main.py:2308
 msgid "Redirection detected"
 msgstr "Birbidalketa detektatu da"
 
-#: src/gpodder/gtkui/main.py:2366
+#: src/gpodder/gtkui/main.py:2342
 msgid "Merging episode actions"
 msgstr "Atal-ekintzak batzen"
 
-#: src/gpodder/gtkui/main.py:2367
+#: src/gpodder/gtkui/main.py:2343
 msgid "Episode actions from gpodder.net are merged."
 msgstr "gpodder.net-eko atal-ekintzak batu dira"
 
-#: src/gpodder/gtkui/main.py:2392
+#: src/gpodder/gtkui/main.py:2368
 msgid "Cancelling..."
 msgstr "Bertan behera uzten..."
 
-#: src/gpodder/gtkui/main.py:2401 src/gpodder/qmlui/__init__.py:635
+#: src/gpodder/gtkui/main.py:2377
 msgid "Please connect to a network, then try again."
 msgstr "Mesedez konektatu sare batetara, ondoren saiatu berriro."
 
-#: src/gpodder/gtkui/main.py:2402 src/gpodder/qmlui/__init__.py:634
+#: src/gpodder/gtkui/main.py:2378
 msgid "No network connection"
 msgstr "Sareko konexiorik ez"
 
-#: src/gpodder/gtkui/main.py:2423
+#: src/gpodder/gtkui/main.py:2399
 #, python-format
 msgid "Updating %(count)d feed..."
 msgid_plural "Updating %(count)d feeds..."
 msgstr[0] "Jario %(count)d eguneratzen..."
 msgstr[1] "%(count)d jario eguneratzen..."
 
-#: src/gpodder/gtkui/main.py:2441
+#: src/gpodder/gtkui/main.py:2417
 #, python-format
 msgid "Error while updating %(url)s: %(message)s"
 msgstr "Errorea %(url)s eguneratzean: %(message)s"
 
-#: src/gpodder/gtkui/main.py:2443
+#: src/gpodder/gtkui/main.py:2419
 #, python-format
 msgid "The feed at %(url)s could not be updated."
 msgstr "%(url)s-eko jarioa ezin izan da eguneratu."
 
-#: src/gpodder/gtkui/main.py:2444
+#: src/gpodder/gtkui/main.py:2420
 msgid "Error while updating feed"
 msgstr "Errorea jarioa eguneratzean"
 
-#: src/gpodder/gtkui/main.py:2459
+#: src/gpodder/gtkui/main.py:2435
 #, python-format
 msgid "Updated %(podcast)s (%(position)d/%(total)d)"
 msgstr "%(podcast)s (%(position)d/%(total)d) eguneratuta"
 
-#: src/gpodder/gtkui/main.py:2490
+#: src/gpodder/gtkui/main.py:2466
 msgid "No new episodes"
 msgstr "Ez dago atal berririk"
 
-#: src/gpodder/gtkui/main.py:2503
+#: src/gpodder/gtkui/main.py:2479
 #, python-format
 msgid "Downloading %(count)d new episode."
 msgid_plural "Downloading %(count)d new episodes."
 msgstr[0] "Atal berri %(count)d deskargatzen."
 msgstr[1] "%(count)d atal berri deskargatzen."
 
-#: src/gpodder/gtkui/main.py:2504 src/gpodder/gtkui/main.py:2508
-#: src/gpodder/gtkui/main.py:2866
+#: src/gpodder/gtkui/main.py:2480 src/gpodder/gtkui/main.py:2484
+#: src/gpodder/gtkui/main.py:2833
 msgid "New episodes available"
 msgstr "Atal berriak eskuragarri"
 
-#: src/gpodder/gtkui/main.py:2507
+#: src/gpodder/gtkui/main.py:2483
 #, python-format
 msgid "%(count)d new episode added to download list."
 msgid_plural "%(count)d new episodes added to download list."
 msgstr[0] "Atal berri %(count)d gehitu da deskarga-zerrendara."
 msgstr[1] "%(count)d atal berri gehitu dira deskarga-zerrendara."
 
-#: src/gpodder/gtkui/main.py:2514
+#: src/gpodder/gtkui/main.py:2490
 #, python-format
 msgid "%(count)d new episode available"
 msgid_plural "%(count)d new episodes available"
 msgstr[0] "Atal berri %(count)d eskuragarri"
 msgstr[1] "%(count)d atal berri eskuragarri"
 
-#: src/gpodder/gtkui/main.py:2533
+#: src/gpodder/gtkui/main.py:2509
 msgid "Quit gPodder"
 msgstr "Irten gPodder-etik"
 
-#: src/gpodder/gtkui/main.py:2534
+#: src/gpodder/gtkui/main.py:2510
 msgid ""
 "You are downloading episodes. You can resume downloads the next time you "
 "start gPodder. Do you want to quit now?"
@@ -837,11 +877,11 @@ msgstr ""
 "Atalak deskargatzen ari zara. Deskargak berrekin ditzakezu gPodder "
 "abiarazten duzun hurrengo aldian. Aplikazioa itxi nahi duzu orain?"
 
-#: src/gpodder/gtkui/main.py:2583
+#: src/gpodder/gtkui/main.py:2559
 msgid "Episodes are locked"
 msgstr "Atalak blokeatuta daude"
 
-#: src/gpodder/gtkui/main.py:2584
+#: src/gpodder/gtkui/main.py:2560
 msgid ""
 "The selected episodes are locked. Please unlock the episodes that you want "
 "to delete before trying to delete them."
@@ -849,164 +889,162 @@ msgstr ""
 "Hautatutako atalak blokeatuta daude. Mesedez desblokeatu ezabatu nahi "
 "dituzun atalak."
 
-#: src/gpodder/gtkui/main.py:2589 src/gpodder/qmlui/__init__.py:323
+#: src/gpodder/gtkui/main.py:2565
 #, python-format
 msgid "Delete %(count)d episode?"
 msgid_plural "Delete %(count)d episodes?"
 msgstr[0] "Ezabatu atal %(count)d?"
 msgstr[1] "Ezabatu %(count)d atal?"
 
-#: src/gpodder/gtkui/main.py:2590
+#: src/gpodder/gtkui/main.py:2566
 msgid "Deleting episodes removes downloaded files."
 msgstr "Atalak ezabatzeak deskargatutako fitxategiak ezabatzen ditu."
 
-#: src/gpodder/gtkui/main.py:2595
+#: src/gpodder/gtkui/main.py:2571
 msgid "Deleting episodes"
 msgstr "Atalak ezabatzen"
 
-#: src/gpodder/gtkui/main.py:2596
+#: src/gpodder/gtkui/main.py:2572
 msgid "Please wait while episodes are deleted"
 msgstr "Mesedez itxaron atalak ezabatu arte"
 
-#: src/gpodder/gtkui/main.py:2649
+#: src/gpodder/gtkui/main.py:2625
 #, python-format
 msgid "Select older than %(count)d day"
 msgid_plural "Select older than %(count)d days"
 msgstr[0] "Hautatu egun %(count)d baino zaharragoak"
 msgstr[1] "Hautatu %(count)d egun baino zaharragoak"
 
-#: src/gpodder/gtkui/main.py:2651
+#: src/gpodder/gtkui/main.py:2627
 msgid "Select played"
 msgstr "Hautatu erreproduzitutakoak"
 
-#: src/gpodder/gtkui/main.py:2652
+#: src/gpodder/gtkui/main.py:2628
 msgid "Select finished"
 msgstr "Hautatu bukatutakoak"
 
-#: src/gpodder/gtkui/main.py:2656
+#: src/gpodder/gtkui/main.py:2632
 msgid "Select the episodes you want to delete:"
 msgstr "Hautatu ezabatu nahi dituzun atalak:"
 
-#: src/gpodder/gtkui/main.py:2672 share/gpodder/ui/gtk/gpodder.ui.h:4
-#: share/gpodder/ui/qml/Main.qml:361
+#: src/gpodder/gtkui/main.py:2648 share/gpodder/ui/gtk/gpodder.ui.h:4
 msgid "Delete episodes"
 msgstr "Ezabatu atalak"
 
-#: src/gpodder/gtkui/main.py:2736 src/gpodder/gtkui/main.py:2968
-#: src/gpodder/gtkui/main.py:3069
+#: src/gpodder/gtkui/main.py:2703 src/gpodder/gtkui/main.py:2934
+#: src/gpodder/gtkui/main.py:3034
 msgid "No podcast selected"
 msgstr "Ez da podcast-ik hautatu"
 
-#: src/gpodder/gtkui/main.py:2737
+#: src/gpodder/gtkui/main.py:2704
 msgid "Please select a podcast in the podcasts list to update."
 msgstr "Mesedez hautatu podcast-zerrendatik eguneratu nahi duzun podcast-a."
 
-#: src/gpodder/gtkui/main.py:2807
+#: src/gpodder/gtkui/main.py:2774
 #, python-format
 msgid "Download error while downloading %(episode)s: %(message)s"
 msgstr "Deskarga errorea %(episode)s deskargatzean: %(message)s"
 
-#: src/gpodder/gtkui/main.py:2808
+#: src/gpodder/gtkui/main.py:2775
 msgid "Download error"
 msgstr "Deskarga errorea"
 
-#: src/gpodder/gtkui/main.py:2851
+#: src/gpodder/gtkui/main.py:2818
 msgid "Select the episodes you want to download:"
 msgstr "Hautatu deskargatu nahi dituzun atalak:"
 
-#: src/gpodder/gtkui/main.py:2874 src/gpodder/qmlui/__init__.py:817
+#: src/gpodder/gtkui/main.py:2841
 msgid "Mark as old"
 msgstr "Markatu zahar bezala"
 
-#: src/gpodder/gtkui/main.py:2881
+#: src/gpodder/gtkui/main.py:2848
 msgid "Please check for new episodes later."
 msgstr "Mesedez egiaztatu beranduago atal berririk badagoen."
 
-#: src/gpodder/gtkui/main.py:2882
+#: src/gpodder/gtkui/main.py:2849
 msgid "No new episodes available"
 msgstr "Ez dago atal berririk eskuragarri"
 
-#: src/gpodder/gtkui/main.py:2934
+#: src/gpodder/gtkui/main.py:2900
 msgid "Login to gpodder.net"
 msgstr "Saioa hasi gpodder.net-en"
 
-#: src/gpodder/gtkui/main.py:2935
+#: src/gpodder/gtkui/main.py:2901
 msgid "Please login to download your subscriptions."
 msgstr "Mesedez saioa hasi harpidetzak deskargatzeko."
 
-#: src/gpodder/gtkui/main.py:2950
+#: src/gpodder/gtkui/main.py:2916
 msgid "Subscriptions on gpodder.net"
 msgstr "gpodder.net-eko harpidetzak"
 
-#: src/gpodder/gtkui/main.py:2969
+#: src/gpodder/gtkui/main.py:2935
 msgid "Please select a podcast in the podcasts list to edit."
 msgstr "Mesedez hautatu podcast-zerrendako podcast bat editatzeko."
 
-#: src/gpodder/gtkui/main.py:2984
+#: src/gpodder/gtkui/main.py:2949
 msgid "Podcast"
 msgstr "Podcast"
 
-#: src/gpodder/gtkui/main.py:2990 share/gpodder/ui/gtk/gpodder.ui.h:12
+#: src/gpodder/gtkui/main.py:2955 share/gpodder/ui/gtk/gpodder.ui.h:12
 msgid "Remove podcasts"
 msgstr "Ezabatu podcast-ak"
 
-#: src/gpodder/gtkui/main.py:2991
+#: src/gpodder/gtkui/main.py:2956
 msgid "Select the podcast you want to remove."
 msgstr "Hautatu ezabatu nahi duzun podcast-a."
 
-#: src/gpodder/gtkui/main.py:2995
+#: src/gpodder/gtkui/main.py:2960
 #: src/gpodder/gtkui/desktop/episodeselector.py:105
-#: share/gpodder/ui/qml/MediaPlayer.qml:243
 msgid "Remove"
 msgstr "Ezabatu"
 
-#: src/gpodder/gtkui/main.py:3004
+#: src/gpodder/gtkui/main.py:2969
 msgid "Removing podcast"
 msgstr "Podcast-a ezabatzen"
 
-#: src/gpodder/gtkui/main.py:3005
+#: src/gpodder/gtkui/main.py:2970
 msgid "Please wait while the podcast is removed"
 msgstr "Mesedez itxaron podcast-a ezabatu bitartean"
 
-#: src/gpodder/gtkui/main.py:3006
+#: src/gpodder/gtkui/main.py:2971
 msgid "Do you really want to remove this podcast and its episodes?"
 msgstr "Ziur zaude podcast hau eta bere atal guztiak ezabatu nahi dituzula?"
 
-#: src/gpodder/gtkui/main.py:3008
+#: src/gpodder/gtkui/main.py:2973
 msgid "Removing podcasts"
 msgstr "Podcast-ak ezabatzen"
 
-#: src/gpodder/gtkui/main.py:3009
+#: src/gpodder/gtkui/main.py:2974
 msgid "Please wait while the podcasts are removed"
 msgstr "Mesedez itxaron podcast-ak ezabatu bitartean"
 
-#: src/gpodder/gtkui/main.py:3010
+#: src/gpodder/gtkui/main.py:2975
 msgid "Do you really want to remove the selected podcasts and their episodes?"
 msgstr ""
 "Ziur zaude hautatutako podcast-ak eta beren atal guztiak ezabatu nahi "
 "dituzula?"
 
-#: src/gpodder/gtkui/main.py:3070
+#: src/gpodder/gtkui/main.py:3035
 msgid "Please select a podcast in the podcasts list to remove."
 msgstr "Mesedez hautatu zerrendatik ezabatu nahi duzun podcast-a."
 
-#: src/gpodder/gtkui/main.py:3080
+#: src/gpodder/gtkui/main.py:3045
 msgid "OPML files"
 msgstr "OPML fitxategiak"
 
-#: src/gpodder/gtkui/main.py:3085
+#: src/gpodder/gtkui/main.py:3050
 msgid "Import from OPML"
 msgstr "Inportatu OPML-tik"
 
-#: src/gpodder/gtkui/main.py:3099
+#: src/gpodder/gtkui/main.py:3064
 msgid "Import podcasts from OPML file"
 msgstr "Inportatu podcast-ak OPML fitxategitik"
 
-#: src/gpodder/gtkui/main.py:3106
+#: src/gpodder/gtkui/main.py:3071
 msgid "Nothing to export"
 msgstr "Ez dago esportatzeko ezer"
 
-#: src/gpodder/gtkui/main.py:3107
+#: src/gpodder/gtkui/main.py:3072
 msgid ""
 "Your list of podcast subscriptions is empty. Please subscribe to some "
 "podcasts first before trying to export your subscription list."
@@ -1014,246 +1052,125 @@ msgstr ""
 "Zure podcast harpidetza-zerrenda hutsik dago. Mesedez harpidetu zenbait "
 "podcast-etara harpidetza-zerrenda esportatzen saiatu aurretik."
 
-#: src/gpodder/gtkui/main.py:3111
+#: src/gpodder/gtkui/main.py:3076
 msgid "Export to OPML"
 msgstr "Esportatu OPML-ra"
 
-#: src/gpodder/gtkui/main.py:3122
+#: src/gpodder/gtkui/main.py:3087
 #, python-format
 msgid "%(count)d subscription exported"
 msgid_plural "%(count)d subscriptions exported"
 msgstr[0] "Harpidetza %(count)d esportatuta"
 msgstr[1] "%(count)d harpidetza esportatuta"
 
-#: src/gpodder/gtkui/main.py:3123
+#: src/gpodder/gtkui/main.py:3088
 msgid "Your podcast list has been successfully exported."
 msgstr "Zure podcast zerrenda behar bezala esportatu da."
 
-#: src/gpodder/gtkui/main.py:3125
+#: src/gpodder/gtkui/main.py:3090
 msgid "Could not export OPML to file. Please check your permissions."
 msgstr ""
 " Ezin izan da OPML fitxategira esportatu. Mesedez egiaztatu zure baimenak."
 
-#: src/gpodder/gtkui/main.py:3125
+#: src/gpodder/gtkui/main.py:3090
 msgid "OPML export failed"
 msgstr "OPML esportazioak huts egin du"
 
-#: src/gpodder/gtkui/main.py:3152
+#: src/gpodder/gtkui/main.py:3117
 msgid "No updates available"
 msgstr "Ez dago eguneraketarik eskuragarri"
 
-#: src/gpodder/gtkui/main.py:3153
+#: src/gpodder/gtkui/main.py:3118
 msgid "You have the latest version of gPodder."
 msgstr "gPodder-en azken bertsioa daukazu."
 
-#: src/gpodder/gtkui/main.py:3157
+#: src/gpodder/gtkui/main.py:3122
 msgid "New version available"
 msgstr "Bertsio berria eskuragarri"
 
-#: src/gpodder/gtkui/main.py:3159
+#: src/gpodder/gtkui/main.py:3124
 #, python-format
 msgid "Installed version: %s"
 msgstr "Instalatutako bertsioa: %s"
 
-#: src/gpodder/gtkui/main.py:3160
+#: src/gpodder/gtkui/main.py:3125
 #, python-format
 msgid "Newest version: %s"
 msgstr "Bertsio berriena: %s"
 
-#: src/gpodder/gtkui/main.py:3161
+#: src/gpodder/gtkui/main.py:3126
 #, python-format
 msgid "Release date: %s"
 msgstr "Argitalpen data: %s"
 
-#: src/gpodder/gtkui/main.py:3163
+#: src/gpodder/gtkui/main.py:3128
 msgid "Download the latest version from gpodder.org?"
 msgstr "Azken bertsioa deskargatu gpodder.org-etik?"
 
-#: src/gpodder/gtkui/main.py:3176 share/gpodder/ui/qml/main_default.qml:48
+#: src/gpodder/gtkui/main.py:3141
 msgid "About gPodder"
 msgstr "gPodder-i buruz"
 
-#: src/gpodder/gtkui/main.py:3203
-msgid "Donate / Wishlist"
-msgstr "Dohaintza egin / Nahien zerrenda"
-
-#: src/gpodder/gtkui/main.py:3206
-msgid "Report a problem"
-msgstr "Arazoak jakinarazi"
-
-#: src/gpodder/gtkui/main.py:3232
-msgid "translator-credits"
-msgstr "Asier Iturralde Sarasola"
-
-#: src/gpodder/gtkui/main.py:3234
-msgid "Translation by:"
-msgstr "Itzultzailea:"
-
-#: src/gpodder/gtkui/main.py:3238
-msgid "Thanks to:"
-msgstr "Eskerrak:"
-
-#: src/gpodder/gtkui/main.py:3493
+#: src/gpodder/gtkui/main.py:3424
 #, fuzzy
 msgid "Please register a YouTube API key and set it in the preferences."
 msgstr "Mesedez konfiguratu zure gailua hobespenak elkarrizketa-koadroan."
 
-#: src/gpodder/gtkui/main.py:3494
+#: src/gpodder/gtkui/main.py:3425
 msgid "Would you like to set up an API key now?"
 msgstr ""
 
-#: src/gpodder/gtkui/main.py:3494
+#: src/gpodder/gtkui/main.py:3425
 msgid "API key required"
 msgstr ""
 
-#: src/gpodder/gtkui/main.py:3509 src/gpodder/qmlui/__init__.py:392
-#: bin/gpo:624
+#: src/gpodder/gtkui/main.py:3444 bin/gpo:631
 #, fuzzy
 msgid "No unique URL found"
 msgstr "Ez da kanalik aurkitu"
 
-#: src/gpodder/gtkui/main.py:3514 src/gpodder/qmlui/__init__.py:397
-#: bin/gpo:630
+#: src/gpodder/gtkui/main.py:3449 bin/gpo:637
 #, fuzzy
 msgid "Already subscribed"
 msgstr "Ezin da harpidetu %s-(e)ra"
 
-#: src/gpodder/gtkui/main.py:3523 src/gpodder/qmlui/__init__.py:406
-#: bin/gpo:642
+#: src/gpodder/gtkui/main.py:3458 bin/gpo:649
 #, python-format
 msgid "Make sure the API key is correct. Error: %(message)s"
 msgstr ""
 
-#: src/gpodder/gtkui/main.py:3524
+#: src/gpodder/gtkui/main.py:3459
 #, fuzzy
 msgid "Error getting YouTube channels"
 msgstr "Errorea aukera ezartzean"
 
-#: src/gpodder/gtkui/main.py:3527 src/gpodder/qmlui/__init__.py:411
+#: src/gpodder/gtkui/main.py:3462
 #, fuzzy
 msgid "Successfully migrated subscriptions"
 msgstr "Behar bezala gehitu da %s."
 
-#: src/gpodder/gtkui/main.py:3529 src/gpodder/qmlui/__init__.py:413
+#: src/gpodder/gtkui/main.py:3464
 #, fuzzy
 msgid "Subscriptions are up to date"
 msgstr "Harpidetza pausarazita"
 
-#: src/gpodder/gtkui/main.py:3532
+#: src/gpodder/gtkui/main.py:3467
 msgid "These URLs failed:"
 msgstr ""
 
-#: src/gpodder/gtkui/main.py:3534 src/gpodder/qmlui/__init__.py:415
+#: src/gpodder/gtkui/main.py:3469
 #, fuzzy
 msgid "Could not migrate some subscriptions"
 msgstr "Zenbait podcast ezin izan dira gehitu"
 
-#: src/gpodder/gtkui/main.py:3558
+#: src/gpodder/gtkui/main.py:3493
 msgid "Cannot start gPodder"
 msgstr "Ezin izan da gPodder abiarazi"
 
-#: src/gpodder/gtkui/main.py:3559
+#: src/gpodder/gtkui/main.py:3494
 #, python-format
 msgid "D-Bus error: %s"
 msgstr "D-Bus errorea: %s"
-
-#: src/gpodder/gtkui/model.py:69
-#, python-format
-msgid "released %s"
-msgstr "%s-n argitaratua"
-
-#: src/gpodder/gtkui/model.py:70 src/gpodder/gtkui/model.py:88
-#: src/gpodder/gtkui/model.py:238 src/gpodder/gtkui/shownotes.py:84
-#, python-format
-msgid "from %s"
-msgstr "%s-tik"
-
-#: src/gpodder/gtkui/model.py:81 src/gpodder/gtkui/model.py:394
-msgid "played"
-msgstr "erreproduzitua"
-
-#: src/gpodder/gtkui/model.py:83
-msgid "unplayed"
-msgstr "erreproduzitu gabea"
-
-#: src/gpodder/gtkui/model.py:86
-msgid "today"
-msgstr "gaur"
-
-#: src/gpodder/gtkui/model.py:87
-#, python-format
-msgid "downloaded %s"
-msgstr "%s deskargatua"
-
-#: src/gpodder/gtkui/model.py:338 src/gpodder/qmlui/__init__.py:69
-msgid "Deleted"
-msgstr "Ezabatua"
-
-#: src/gpodder/gtkui/model.py:343
-msgid "New episode"
-msgstr "Atal berria"
-
-#: src/gpodder/gtkui/model.py:357
-msgid "Downloaded episode"
-msgstr "Deskargatutako atala"
-
-#: src/gpodder/gtkui/model.py:360
-msgid "Downloaded video episode"
-msgstr "Deskargatutako bideo-atala"
-
-#: src/gpodder/gtkui/model.py:363
-msgid "Downloaded image"
-msgstr "Deskargatutako irudia"
-
-#: src/gpodder/gtkui/model.py:366
-msgid "Downloaded file"
-msgstr "Deskargatutako fitxategia"
-
-#: src/gpodder/gtkui/model.py:381
-msgid "missing file"
-msgstr "fitxategia falta da"
-
-#: src/gpodder/gtkui/model.py:385
-msgid "never displayed"
-msgstr "inoiz bistarazi gabea"
-
-#: src/gpodder/gtkui/model.py:387
-msgid "never played"
-msgstr "inoiz erreproduzitu gabea"
-
-#: src/gpodder/gtkui/model.py:389
-msgid "never opened"
-msgstr "inoiz ireki gabea"
-
-#: src/gpodder/gtkui/model.py:392
-msgid "displayed"
-msgstr "bistaratua"
-
-#: src/gpodder/gtkui/model.py:396
-msgid "opened"
-msgstr "irekia"
-
-#: src/gpodder/gtkui/model.py:398
-msgid "deletion prevented"
-msgstr "ezabaketa galarazita"
-
-#: src/gpodder/gtkui/model.py:433 src/gpodder/qmlui/__init__.py:943
-#: share/gpodder/ui/gtk/gpodder.ui.h:32
-msgid "All episodes"
-msgstr "Atal guztiak"
-
-#: src/gpodder/gtkui/model.py:434
-msgid "from all podcasts"
-msgstr "podcast guztietakoak"
-
-#: src/gpodder/gtkui/model.py:626
-msgid "Subscription paused"
-msgstr "Harpidetza pausarazita"
-
-#: src/gpodder/gtkui/shownotes.py:118
-#, fuzzy
-msgid "Please select an episode"
-msgstr "Hautatu atalak"
 
 #: src/gpodder/gtkui/interface/addpodcast.py:74
 msgid "Nothing to paste."
@@ -1264,7 +1181,6 @@ msgid "Clipboard is empty"
 msgstr "Arbela hutsik dago"
 
 #: src/gpodder/gtkui/interface/common.py:160
-#: share/gpodder/ui/qml/main_default.qml:246
 msgid "Username"
 msgstr "Erabiltzaile-izena"
 
@@ -1281,7 +1197,6 @@ msgid "Authentication required"
 msgstr "Autentifikazioa beharrezkoa da"
 
 #: src/gpodder/gtkui/interface/common.py:203
-#: share/gpodder/ui/qml/main_default.qml:251
 msgid "Password"
 msgstr "Pasahitza"
 
@@ -1306,79 +1221,6 @@ msgstr ""
 #: src/gpodder/gtkui/interface/configeditor.py:85
 msgid "Error setting option"
 msgstr "Errorea aukera ezartzean"
-
-#: src/gpodder/gtkui/desktop/channel.py:100
-msgid "Add section"
-msgstr "Gehitu saila"
-
-#: src/gpodder/gtkui/desktop/channel.py:100
-msgid "New section:"
-msgstr "Sail berria:"
-
-#: src/gpodder/gtkui/desktop/channel.py:133
-msgid "Select new podcast cover artwork"
-msgstr "Hautatu podcast-aren azal berria"
-
-#: src/gpodder/gtkui/desktop/channel.py:161
-msgid "You can only drop a single image or URL here."
-msgstr "Irudi edo URL bakarra jaregin dezakezu hemen."
-
-#: src/gpodder/gtkui/desktop/channel.py:161
-#: src/gpodder/gtkui/desktop/channel.py:171
-msgid "Drag and drop"
-msgstr "Arrastatu eta jaregin"
-
-#: src/gpodder/gtkui/desktop/channel.py:171
-msgid "You can only drop local files and http:// URLs here."
-msgstr "Fitxategi lokal eta http:// URL-ak soilik jaregin ditzazkezu hemen."
-
-#: src/gpodder/gtkui/desktop/deviceplaylist.py:98
-#, fuzzy, python-format
-msgid "Folder %s could not be created."
-msgstr "%(url)s-eko jarioa ezin izan da eguneratu."
-
-#: src/gpodder/gtkui/desktop/deviceplaylist.py:98
-#, fuzzy
-msgid "Error writing playlist"
-msgstr "Errorea erreproduzitzailea irekitzean"
-
-#: src/gpodder/gtkui/desktop/episodeselector.py:288
-#: share/gpodder/ui/gtk/gpodderepisodeselector.ui.h:2
-#: share/gpodder/ui/qml/Main.qml:551
-msgid "Select all"
-msgstr "Hautatu guztiak"
-
-#: src/gpodder/gtkui/desktop/episodeselector.py:292
-#: share/gpodder/ui/gtk/gpodderepisodeselector.ui.h:3
-#: share/gpodder/ui/qml/Main.qml:575
-msgid "Select none"
-msgstr "Bat ere ez hautatu"
-
-#: src/gpodder/gtkui/desktop/episodeselector.py:324
-msgid "Nothing selected"
-msgstr "Ez dago ezer hautatuta"
-
-#: src/gpodder/gtkui/desktop/episodeselector.py:325
-#, python-format
-msgid "%(count)d episode"
-msgid_plural "%(count)d episodes"
-msgstr[0] "Atal %(count)d"
-msgstr[1] "%(count)d atal"
-
-#: src/gpodder/gtkui/desktop/episodeselector.py:327
-#, python-format
-msgid "size: %s"
-msgstr "tamaina: %s"
-
-#: src/gpodder/gtkui/desktop/podcastdirectory.py:238
-#, fuzzy
-msgid "Loading podcasts"
-msgstr "Podcast-ak gehitzen"
-
-#: src/gpodder/gtkui/desktop/podcastdirectory.py:239
-#, fuzzy
-msgid "Please wait while the podcast list is downloaded"
-msgstr "Mesedez itxaron podcast-a ezabatu bitartean"
 
 #: src/gpodder/gtkui/desktop/preferences.py:51
 #: src/gpodder/gtkui/desktop/preferences.py:93
@@ -1417,114 +1259,151 @@ msgstr "Markatu erreproduzituta bezala"
 msgid "Delete from gPodder"
 msgstr "Ezabatu gPodder-etik"
 
-#: src/gpodder/gtkui/desktop/preferences.py:134
-msgid "Error"
-msgstr "Errorea"
-
-#: src/gpodder/gtkui/desktop/preferences.py:153
+#: src/gpodder/gtkui/desktop/preferences.py:123
 #, python-format
 msgid "Custom (%(format_ids)s)"
 msgstr "Pertsonalizatua  (%(format_ids)s)"
 
-#: src/gpodder/gtkui/desktop/preferences.py:351
+#: src/gpodder/gtkui/desktop/preferences.py:318
 msgid "Name"
 msgstr "Izena"
 
-#: src/gpodder/gtkui/desktop/preferences.py:402
+#: src/gpodder/gtkui/desktop/preferences.py:369
 #, fuzzy
 msgid "Documentation"
 msgstr "Iraupena"
 
-#: src/gpodder/gtkui/desktop/preferences.py:407
+#: src/gpodder/gtkui/desktop/preferences.py:374
 #, fuzzy
 msgid "Extension info"
 msgstr "Hedapen moduluaren informazioa"
 
-#: src/gpodder/gtkui/desktop/preferences.py:417
+#: src/gpodder/gtkui/desktop/preferences.py:379
 msgid "Support the author"
 msgstr ""
 
-#: src/gpodder/gtkui/desktop/preferences.py:433
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:11
-msgid "Please sign in with Flattr and Support Publishers"
-msgstr "Mesedez hasi saioa Flattr-en eta babestu argitaratzaileak"
-
-#: src/gpodder/gtkui/desktop/preferences.py:434
-#: share/gpodder/ui/gtk/gpodderflattrsignin.ui.h:1
-#: share/gpodder/ui/qml/main_default.qml:338
-msgid "Sign in to Flattr"
-msgstr "Hasi saioa Flattr-en"
-
-#: src/gpodder/gtkui/desktop/preferences.py:437
-#, python-format
-msgid "Logged in as <b>%(username)s</b>"
-msgstr "<b>%(username)s</b> bezala saioa hasita"
-
-#: src/gpodder/gtkui/desktop/preferences.py:438
-#: share/gpodder/ui/qml/main_default.qml:336
-#: share/gpodder/ui/qml/main_default.qml:394
-msgid "Sign out"
-msgstr "Amaitu saioa"
-
-#: src/gpodder/gtkui/desktop/preferences.py:447
-msgid "Flattr integration requires WebKit/Gtk."
-msgstr "Flattr integraziorako WebKit/Gtk behar da."
-
-#: src/gpodder/gtkui/desktop/preferences.py:448
-msgid "WebKit/Gtk not found"
-msgstr "Ez da WebKit/Gtk aurkitu"
-
-#: src/gpodder/gtkui/desktop/preferences.py:483
+#: src/gpodder/gtkui/desktop/preferences.py:413
 msgid "Extension cannot be activated"
 msgstr "Ezin da hedapena aktibatu"
 
-#: src/gpodder/gtkui/desktop/preferences.py:496
+#: src/gpodder/gtkui/desktop/preferences.py:426
 msgid "Extension module info"
 msgstr "Hedapen moduluaren informazioa"
 
-#: src/gpodder/gtkui/desktop/preferences.py:538
+#: src/gpodder/gtkui/desktop/preferences.py:463
 msgid "Configure audio player"
 msgstr "Konfiguratu audio erreproduzitzailea"
 
-#: src/gpodder/gtkui/desktop/preferences.py:539
-#: src/gpodder/gtkui/desktop/preferences.py:549
+#: src/gpodder/gtkui/desktop/preferences.py:464
+#: src/gpodder/gtkui/desktop/preferences.py:474
 msgid "Command:"
 msgstr "Komandoa:"
 
-#: src/gpodder/gtkui/desktop/preferences.py:548
+#: src/gpodder/gtkui/desktop/preferences.py:473
 msgid "Configure video player"
 msgstr "Konfiguratu bideo erreproduzitzailea"
 
-#: src/gpodder/gtkui/desktop/preferences.py:560
-#: src/gpodder/gtkui/desktop/preferences.py:578
+#: src/gpodder/gtkui/desktop/preferences.py:485
+#: src/gpodder/gtkui/desktop/preferences.py:503
 msgid "manually"
 msgstr "eskuz"
 
-#: src/gpodder/gtkui/desktop/preferences.py:580
+#: src/gpodder/gtkui/desktop/preferences.py:505
 #, python-format
 msgid "after %(count)d day"
 msgid_plural "after %(count)d days"
 msgstr[0] "egun %(count)d geroago"
 msgstr[1] "%(count)d egun geroago"
 
-#: src/gpodder/gtkui/desktop/preferences.py:616
+#: src/gpodder/gtkui/desktop/preferences.py:541
 msgid "Replace subscription list on server"
 msgstr "Ordezkatu zerbitzariko harpidetza zerrenda"
 
-#: src/gpodder/gtkui/desktop/preferences.py:617
+#: src/gpodder/gtkui/desktop/preferences.py:542
 msgid ""
 "Remote podcasts that have not been added locally will be removed on the "
 "server. Continue?"
 msgstr "Lokalean gehitu ez diren urruneko podcast-ak ezabatuko dira. Jarraitu?"
 
-#: src/gpodder/gtkui/desktop/preferences.py:696
+#: src/gpodder/gtkui/desktop/preferences.py:621
 msgid "Select folder for mount point"
 msgstr "Hautatu karpeta muntaketa-punturako"
 
-#: src/gpodder/gtkui/desktop/preferences.py:713
+#: src/gpodder/gtkui/desktop/preferences.py:638
 #, fuzzy
 msgid "Select folder for playlists"
 msgstr "Hautatu karpeta muntaketa-punturako"
+
+#: src/gpodder/gtkui/desktop/podcastdirectory.py:238
+#, fuzzy
+msgid "Loading podcasts"
+msgstr "Podcast-ak gehitzen"
+
+#: src/gpodder/gtkui/desktop/podcastdirectory.py:239
+#, fuzzy
+msgid "Please wait while the podcast list is downloaded"
+msgstr "Mesedez itxaron podcast-a ezabatu bitartean"
+
+#: src/gpodder/gtkui/desktop/episodeselector.py:288
+#: share/gpodder/ui/gtk/gpodderepisodeselector.ui.h:2
+msgid "Select all"
+msgstr "Hautatu guztiak"
+
+#: src/gpodder/gtkui/desktop/episodeselector.py:292
+#: share/gpodder/ui/gtk/gpodderepisodeselector.ui.h:3
+msgid "Select none"
+msgstr "Bat ere ez hautatu"
+
+#: src/gpodder/gtkui/desktop/episodeselector.py:324
+msgid "Nothing selected"
+msgstr "Ez dago ezer hautatuta"
+
+#: src/gpodder/gtkui/desktop/episodeselector.py:325
+#, python-format
+msgid "%(count)d episode"
+msgid_plural "%(count)d episodes"
+msgstr[0] "Atal %(count)d"
+msgstr[1] "%(count)d atal"
+
+#: src/gpodder/gtkui/desktop/episodeselector.py:327
+#, python-format
+msgid "size: %s"
+msgstr "tamaina: %s"
+
+#: src/gpodder/gtkui/desktop/deviceplaylist.py:98
+#, fuzzy, python-format
+msgid "Folder %s could not be created."
+msgstr "%(url)s-eko jarioa ezin izan da eguneratu."
+
+#: src/gpodder/gtkui/desktop/deviceplaylist.py:98
+#, fuzzy
+msgid "Error writing playlist"
+msgstr "Errorea erreproduzitzailea irekitzean"
+
+#: src/gpodder/gtkui/desktop/channel.py:100
+msgid "Add section"
+msgstr "Gehitu saila"
+
+#: src/gpodder/gtkui/desktop/channel.py:100
+msgid "New section:"
+msgstr "Sail berria:"
+
+#: src/gpodder/gtkui/desktop/channel.py:133
+msgid "Select new podcast cover artwork"
+msgstr "Hautatu podcast-aren azal berria"
+
+#: src/gpodder/gtkui/desktop/channel.py:161
+msgid "You can only drop a single image or URL here."
+msgstr "Irudi edo URL bakarra jaregin dezakezu hemen."
+
+#: src/gpodder/gtkui/desktop/channel.py:161
+#: src/gpodder/gtkui/desktop/channel.py:171
+msgid "Drag and drop"
+msgstr "Arrastatu eta jaregin"
+
+#: src/gpodder/gtkui/desktop/channel.py:171
+msgid "You can only drop local files and http:// URLs here."
+msgstr "Fitxategi lokal eta http:// URL-ak soilik jaregin ditzazkezu hemen."
 
 #: src/gpodder/gtkui/desktop/sync.py:86
 msgid "No device configured"
@@ -1573,153 +1452,6 @@ msgstr ""
 msgid "Error writing playlist files"
 msgstr "Errorea fitxategia bihurtzean."
 
-#: src/gpodder/qmlui/__init__.py:65
-msgid "All"
-msgstr "Guztiak"
-
-#: src/gpodder/qmlui/__init__.py:66
-msgid "Hide deleted"
-msgstr "Ezkutatu ezabatuak"
-
-#: src/gpodder/qmlui/__init__.py:68
-msgid "Downloaded"
-msgstr "Deskargatuta"
-
-#: src/gpodder/qmlui/__init__.py:71
-msgid "Archived"
-msgstr "Artxibatuta"
-
-#: src/gpodder/qmlui/__init__.py:72
-msgid "Videos"
-msgstr "Bideoak"
-
-#: src/gpodder/qmlui/__init__.py:73
-msgid "Partially played"
-msgstr "Erdizka erreproduzituta"
-
-#: src/gpodder/qmlui/__init__.py:74
-msgid "Unplayed downloads"
-msgstr "Erreproduzitu gabeko deskargak"
-
-#: src/gpodder/qmlui/__init__.py:247
-#, fuzzy, python-format
-msgid "Flattred (%(count)d)"
-msgstr "egun %(count)d geroago"
-
-#: src/gpodder/qmlui/__init__.py:251
-#, fuzzy, python-format
-msgid "Flattr this (%(count)d)"
-msgstr "egun %(count)d geroago"
-
-#: src/gpodder/qmlui/__init__.py:265
-msgid "Sign in to Flattr in the settings."
-msgstr "Hasi saioa Flattr-en ezarpenetan."
-
-#: src/gpodder/qmlui/__init__.py:268
-#, fuzzy
-msgid "Flattring episode..."
-msgstr "Atalak ezabatzen"
-
-#: src/gpodder/qmlui/__init__.py:292
-msgid "Could not log in to Flattr."
-msgstr "Ezin izan da saioa hasi Flattr-en."
-
-#: src/gpodder/qmlui/__init__.py:324 src/gpodder/qmlui/__init__.py:799
-#: src/gpodder/qmlui/__init__.py:824 share/gpodder/ui/gtk/gpodder.ui.h:22
-#: share/gpodder/ui/qml/EpisodeActions.qml:44
-#: share/gpodder/ui/qml/Main.qml:363 share/gpodder/ui/qml/Main.qml:489
-msgid "Delete"
-msgstr "Ezabatu"
-
-#: src/gpodder/qmlui/__init__.py:462
-msgid "Uploading subscriptions..."
-msgstr "Harpidetzak igotzen..."
-
-#: src/gpodder/qmlui/__init__.py:469
-msgid "Error on upload:"
-msgstr "Errorea igotzean:"
-
-#: src/gpodder/qmlui/__init__.py:542
-msgid "Update all"
-msgstr "Eguneratu dena"
-
-#: src/gpodder/qmlui/__init__.py:544
-msgid "Update"
-msgstr "Eguneratu"
-
-#: src/gpodder/qmlui/__init__.py:546 src/gpodder/qmlui/__init__.py:699
-#: src/gpodder/qmlui/__init__.py:708
-msgid "Rename"
-msgstr "Berrizendatu"
-
-#: src/gpodder/qmlui/__init__.py:547
-msgid "Copy URL to clipboard"
-msgstr ""
-
-#: src/gpodder/qmlui/__init__.py:548
-msgid "Change section"
-msgstr "Aldatu saila"
-
-#: src/gpodder/qmlui/__init__.py:549 src/gpodder/qmlui/__init__.py:671
-#: share/gpodder/ui/gtk/gpodder.ui.h:11
-msgid "Unsubscribe"
-msgstr "Harpidetza kendu"
-
-#: src/gpodder/qmlui/__init__.py:600
-msgid "Merging episode actions..."
-msgstr "Atal-ekintzak batzen..."
-
-#: src/gpodder/qmlui/__init__.py:604
-#, python-format
-msgid "Merging episode actions (%d)"
-msgstr "Atal-ekintzak batzen (%d)"
-
-#: src/gpodder/qmlui/__init__.py:670
-msgid "Remove this podcast and episodes?"
-msgstr "Ezabatu podcast hau eta bere atalak?"
-
-#: src/gpodder/qmlui/__init__.py:698
-msgid "New section name:"
-msgstr "Sail berriaren izena:"
-
-#: src/gpodder/qmlui/__init__.py:707
-msgid "New name:"
-msgstr "Izen berria:"
-
-#: src/gpodder/qmlui/__init__.py:717
-#, python-format
-msgid "Copied to clipboard: %(url)s"
-msgstr ""
-
-#: src/gpodder/qmlui/__init__.py:799
-msgid "Delete this episode?"
-msgstr "Ezabatu atal hau?"
-
-#: src/gpodder/qmlui/__init__.py:817
-msgid "Mark as new"
-msgstr "Markatu berri bezala"
-
-#: src/gpodder/qmlui/__init__.py:820
-msgid "Allow deletion"
-msgstr "Baimendu ezabaketa"
-
-#: src/gpodder/qmlui/__init__.py:826
-msgid "Add to play queue"
-msgstr "Gehitu erreprodukzio-zerrendara"
-
-#: src/gpodder/qmlui/__init__.py:856 src/gpodder/qmlui/__init__.py:860
-msgid "Adding podcasts..."
-msgstr "Podcast-ak gehitzen..."
-
-#: src/gpodder/qmlui/__init__.py:876
-#, fuzzy
-msgid "Could not add some podcasts:"
-msgstr "Zenbait podcast ezin izan dira gehitu"
-
-#: src/gpodder/qmlui/__init__.py:1199
-msgid "Resume"
-msgstr "Berrekin"
-
 #: src/gpodder/plugins/soundcloud.py:154
 msgid "Unknown track"
 msgstr "Pista ezezaguna"
@@ -1744,32 +1476,144 @@ msgstr "%s-ren gogokoak Soundcloud-en"
 msgid "Tracks favorited by %s on Soundcloud."
 msgstr "%s-k Soundcloud-en gustoko dituen pistak."
 
-#: share/gpodder/extensions/audio_converter.py:20
+#: share/gpodder/extensions/ted_subtitles.py:16
+msgid "Subtitle Downloader for TED Talks"
+msgstr "TED Talks-entzako azpitituluen deskargatzailea"
+
+#: share/gpodder/extensions/ted_subtitles.py:17
+msgid "Downloads .srt subtitles for TED Talks Videos"
+msgstr "TED Talks bideoentzako .srt azpitituluak deskargatzen ditu"
+
+#: share/gpodder/extensions/rockbox_convert2mp4.py:26
+msgid "Convert video files to MP4 for Rockbox"
+msgstr "Bihurtu bideo fitxategiak Rockbox-entzako MP4-ra"
+
+#: share/gpodder/extensions/rockbox_convert2mp4.py:27
+msgid "Converts all videos to a Rockbox-compatible format"
+msgstr "Rockbox-ekin bateragarria den formatura bihurtzen ditu bideo guztiak"
+
+#: share/gpodder/extensions/rockbox_convert2mp4.py:65
+#: share/gpodder/extensions/video_converter.py:111
+#: share/gpodder/extensions/audio_converter.py:111
+msgid "File converted"
+msgstr "Fitxategia bihurtuta"
+
+#: share/gpodder/extensions/mpris-listener.py:33
+msgid "MPRIS Listener"
+msgstr ""
+
+#: share/gpodder/extensions/mpris-listener.py:34
+msgid "Convert MPRIS notifications to gPodder Media Player D-Bus API"
+msgstr ""
+
+#: share/gpodder/extensions/ubuntu_appindicator.py:10
+msgid "Ubuntu App Indicator"
+msgstr "Ubuntu Aplikazio Adierazlea"
+
+#: share/gpodder/extensions/ubuntu_appindicator.py:11
+msgid "Show a status indicator in the top bar."
+msgstr "Egoera-adierazle bat erakusten du goiko barran."
+
+#: share/gpodder/extensions/ubuntu_appindicator.py:47
+msgid "Show main window"
+msgstr "Erakutsi leiho nagusia"
+
+#: share/gpodder/extensions/ubuntu_appindicator.py:57
+#: share/gpodder/ui/gtk/gpodder.ui.h:6
+msgid "Quit"
+msgstr "Irten"
+
+#: share/gpodder/extensions/taskbar_progress.py:28
 #, fuzzy
-msgid "Convert audio files"
+msgid "Show download progress on the taskbar"
+msgstr "Erakutsi deskargen aurrerapena Unity Abiarazlearen ikonoan."
+
+#: share/gpodder/extensions/taskbar_progress.py:29
+msgid "Displays the progress on the Windows taskbar."
+msgstr ""
+
+#: share/gpodder/extensions/rename_download.py:16
+msgid "Rename episodes after download"
+msgstr "Berrizendatu atalak deskargatu ondoren"
+
+#: share/gpodder/extensions/rename_download.py:17
+msgid "Rename episodes to \"<Episode Title>.<ext>\" on download"
+msgstr ""
+"Berrizendatu atalak deskargatzean honela: \"<Atalaren izenburua>.<luzapena>\""
+
+#: share/gpodder/extensions/video_converter.py:22
+#, fuzzy
+msgid "Convert video files"
 msgstr "Bihurketak huts egin du"
 
-#: share/gpodder/extensions/audio_converter.py:21
+#: share/gpodder/extensions/video_converter.py:23
 #, fuzzy
-msgid "Transcode audio files to mp3/ogg"
+msgid "Transcode video files to avi/mp4/m4v"
 msgstr "Transkodetu .m4a fitxategiak .mp3 edo .ogg-era ffmpeg erabiliz"
 
-#: share/gpodder/extensions/audio_converter.py:84
 #: share/gpodder/extensions/video_converter.py:86
+#: share/gpodder/extensions/audio_converter.py:84
 #, python-format
 msgid "Convert to %(format)s"
 msgstr "Bihurtu %(format)s-(e)ra"
 
-#: share/gpodder/extensions/audio_converter.py:111
-#: share/gpodder/extensions/rockbox_convert2mp4.py:65
-#: share/gpodder/extensions/video_converter.py:111
-msgid "File converted"
-msgstr "Fitxategia bihurtuta"
-
-#: share/gpodder/extensions/audio_converter.py:114
 #: share/gpodder/extensions/video_converter.py:114
+#: share/gpodder/extensions/audio_converter.py:114
 msgid "Conversion failed"
 msgstr "Bihurketak huts egin du"
+
+#: share/gpodder/extensions/rm_ogg_cover.py:37
+msgid "Remove cover art from OGG files"
+msgstr "Kendu azalak OGG fitxategietatik"
+
+#: share/gpodder/extensions/rm_ogg_cover.py:38
+msgid "removes coverart from all downloaded ogg files"
+msgstr "azalak kentzen ditu deskargatutako ogg fitxategi guztietatik"
+
+#: share/gpodder/extensions/rm_ogg_cover.py:66
+msgid "Remove cover art"
+msgstr "Kendu azalak"
+
+#: share/gpodder/extensions/enqueue_in_mediaplayer.py:16
+msgid "Enqueue in media players"
+msgstr ""
+
+#: share/gpodder/extensions/enqueue_in_mediaplayer.py:17
+msgid ""
+"Add a context menu item for enqueueing episodes in installed media players"
+msgstr ""
+
+#: share/gpodder/extensions/enqueue_in_mediaplayer.py:35
+msgid "Enqueue in"
+msgstr ""
+
+#: share/gpodder/extensions/update_feeds_on_startup.py:14
+msgid "Search for new episodes on startup"
+msgstr "Bilatu atal berriak abioan"
+
+#: share/gpodder/extensions/update_feeds_on_startup.py:15
+msgid "Starts the search for new episodes on startup"
+msgstr "Atal berrien bilaketa hasten du abiaraztean"
+
+#: share/gpodder/extensions/normalize_audio.py:21
+msgid "Normalize audio with re-encoding"
+msgstr "Normalizatu audioa berkodetzearekin"
+
+#: share/gpodder/extensions/normalize_audio.py:22
+msgid "Normalize the volume of audio files with normalize-audio"
+msgstr "Normalizatu audio fitxategien bolumena normalize-audio-rekin"
+
+#: share/gpodder/extensions/normalize_audio.py:99
+msgid "File normalized"
+msgstr "Fitxategia normalizatuta"
+
+#: share/gpodder/extensions/gtk_statusicon.py:14
+msgid "Gtk Status Icon"
+msgstr "Gtk egoera-ikonoa"
+
+#: share/gpodder/extensions/gtk_statusicon.py:15
+msgid "Show a status icon for Gtk-based Desktops."
+msgstr "Erakutsi egoera-ikono bat Gtk-n oinarritutako mahaigainetan."
 
 #: share/gpodder/extensions/concatenate_videos.py:20
 #: share/gpodder/extensions/concatenate_videos.py:100
@@ -1808,18 +1652,31 @@ msgstr "Errorea fitxategia bihurtzean."
 msgid "Concatenation result"
 msgstr ""
 
-#: share/gpodder/extensions/enqueue_in_mediaplayer.py:16
-msgid "Enqueue in media players"
+#: share/gpodder/extensions/sonos.py:19 share/gpodder/extensions/sonos.py:78
+msgid "Stream to Sonos"
 msgstr ""
 
-#: share/gpodder/extensions/enqueue_in_mediaplayer.py:17
-msgid ""
-"Add a context menu item for enqueueing episodes in installed media players"
+#: share/gpodder/extensions/sonos.py:20
+msgid "Stream podcasts to Sonos speakers"
 msgstr ""
 
-#: share/gpodder/extensions/enqueue_in_mediaplayer.py:27
-msgid "Enqueue in"
-msgstr ""
+#: share/gpodder/extensions/minimize_on_start.py:10
+msgid "Minimize on start"
+msgstr "Minimizatu abioan"
+
+#: share/gpodder/extensions/minimize_on_start.py:11
+msgid "Minimizes the gPodder window on startup."
+msgstr "gPodder leihoa minimizatzen du abioan"
+
+#: share/gpodder/extensions/audio_converter.py:20
+#, fuzzy
+msgid "Convert audio files"
+msgstr "Bihurketak huts egin du"
+
+#: share/gpodder/extensions/audio_converter.py:21
+#, fuzzy
+msgid "Transcode audio files to mp3/ogg"
+msgstr "Transkodetu .m4a fitxategiak .mp3 edo .ogg-era ffmpeg erabiliz"
 
 #: share/gpodder/extensions/episode_website_context_menu.py:14
 msgid "\"Open website\" episode context menu"
@@ -1834,79 +1691,6 @@ msgstr ""
 msgid "Open website"
 msgstr "Webgunea:"
 
-#: share/gpodder/extensions/gtk_statusicon.py:14
-msgid "Gtk Status Icon"
-msgstr "Gtk egoera-ikonoa"
-
-#: share/gpodder/extensions/gtk_statusicon.py:15
-msgid "Show a status icon for Gtk-based Desktops."
-msgstr "Erakutsi egoera-ikono bat Gtk-n oinarritutako mahaigainetan."
-
-#: share/gpodder/extensions/minimize_on_start.py:10
-msgid "Minimize on start"
-msgstr "Minimizatu abioan"
-
-#: share/gpodder/extensions/minimize_on_start.py:11
-msgid "Minimizes the gPodder window on startup."
-msgstr "gPodder leihoa minimizatzen du abioan"
-
-#: share/gpodder/extensions/mpris-listener.py:33
-msgid "MPRIS Listener"
-msgstr ""
-
-#: share/gpodder/extensions/mpris-listener.py:34
-msgid "Convert MPRIS notifications to gPodder Media Player D-Bus API"
-msgstr ""
-
-#: share/gpodder/extensions/normalize_audio.py:21
-msgid "Normalize audio with re-encoding"
-msgstr "Normalizatu audioa berkodetzearekin"
-
-#: share/gpodder/extensions/normalize_audio.py:22
-msgid "Normalize the volume of audio files with normalize-audio"
-msgstr "Normalizatu audio fitxategien bolumena normalize-audio-rekin"
-
-#: share/gpodder/extensions/normalize_audio.py:99
-msgid "File normalized"
-msgstr "Fitxategia normalizatuta"
-
-#: share/gpodder/extensions/rename_download.py:16
-msgid "Rename episodes after download"
-msgstr "Berrizendatu atalak deskargatu ondoren"
-
-#: share/gpodder/extensions/rename_download.py:17
-msgid "Rename episodes to \"<Episode Title>.<ext>\" on download"
-msgstr ""
-"Berrizendatu atalak deskargatzean honela: \"<Atalaren izenburua>.<luzapena>\""
-
-#: share/gpodder/extensions/rm_ogg_cover.py:37
-msgid "Remove cover art from OGG files"
-msgstr "Kendu azalak OGG fitxategietatik"
-
-#: share/gpodder/extensions/rm_ogg_cover.py:38
-msgid "removes coverart from all downloaded ogg files"
-msgstr "azalak kentzen ditu deskargatutako ogg fitxategi guztietatik"
-
-#: share/gpodder/extensions/rm_ogg_cover.py:66
-msgid "Remove cover art"
-msgstr "Kendu azalak"
-
-#: share/gpodder/extensions/rockbox_convert2mp4.py:26
-msgid "Convert video files to MP4 for Rockbox"
-msgstr "Bihurtu bideo fitxategiak Rockbox-entzako MP4-ra"
-
-#: share/gpodder/extensions/rockbox_convert2mp4.py:27
-msgid "Converts all videos to a Rockbox-compatible format"
-msgstr "Rockbox-ekin bateragarria den formatura bihurtzen ditu bideo guztiak"
-
-#: share/gpodder/extensions/sonos.py:19 share/gpodder/extensions/sonos.py:78
-msgid "Stream to Sonos"
-msgstr ""
-
-#: share/gpodder/extensions/sonos.py:20
-msgid "Stream podcasts to Sonos speakers"
-msgstr ""
-
 #: share/gpodder/extensions/tagging.py:45
 msgid "Tag downloaded files using Mutagen"
 msgstr "Etiketatu deskargatutako fitxategiak Mutagen-ekin"
@@ -1914,40 +1698,6 @@ msgstr "Etiketatu deskargatutako fitxategiak Mutagen-ekin"
 #: share/gpodder/extensions/tagging.py:46
 msgid "Add episode and podcast titles to MP3/OGG tags"
 msgstr "Gehitu atal eta podcast-aren izenburuak MP3/OGG etiketei"
-
-#: share/gpodder/extensions/taskbar_progress.py:28
-#, fuzzy
-msgid "Show download progress on the taskbar"
-msgstr "Erakutsi deskargen aurrerapena Unity Abiarazlearen ikonoan."
-
-#: share/gpodder/extensions/taskbar_progress.py:29
-msgid "Displays the progress on the Windows taskbar."
-msgstr ""
-
-#: share/gpodder/extensions/ted_subtitles.py:16
-msgid "Subtitle Downloader for TED Talks"
-msgstr "TED Talks-entzako azpitituluen deskargatzailea"
-
-#: share/gpodder/extensions/ted_subtitles.py:17
-msgid "Downloads .srt subtitles for TED Talks Videos"
-msgstr "TED Talks bideoentzako .srt azpitituluak deskargatzen ditu"
-
-#: share/gpodder/extensions/ubuntu_appindicator.py:10
-msgid "Ubuntu App Indicator"
-msgstr "Ubuntu Aplikazio Adierazlea"
-
-#: share/gpodder/extensions/ubuntu_appindicator.py:11
-msgid "Show a status indicator in the top bar."
-msgstr "Egoera-adierazle bat erakusten du goiko barran."
-
-#: share/gpodder/extensions/ubuntu_appindicator.py:39
-msgid "Show main window"
-msgstr "Erakutsi leiho nagusia"
-
-#: share/gpodder/extensions/ubuntu_appindicator.py:49
-#: share/gpodder/ui/gtk/gpodder.ui.h:6
-msgid "Quit"
-msgstr "Irten"
 
 #: share/gpodder/extensions/ubuntu_unity.py:10
 msgid "Ubuntu Unity Integration"
@@ -1957,26 +1707,7 @@ msgstr "Ubuntu Unity Integrazioa"
 msgid "Show download progress in the Unity Launcher icon."
 msgstr "Erakutsi deskargen aurrerapena Unity Abiarazlearen ikonoan."
 
-#: share/gpodder/extensions/update_feeds_on_startup.py:14
-msgid "Search for new episodes on startup"
-msgstr "Bilatu atal berriak abioan"
-
-#: share/gpodder/extensions/update_feeds_on_startup.py:15
-msgid "Starts the search for new episodes on startup"
-msgstr "Atal berrien bilaketa hasten du abiaraztean"
-
-#: share/gpodder/extensions/video_converter.py:22
-#, fuzzy
-msgid "Convert video files"
-msgstr "Bihurketak huts egin du"
-
-#: share/gpodder/extensions/video_converter.py:23
-#, fuzzy
-msgid "Transcode video files to avi/mp4/m4v"
-msgstr "Transkodetu .m4a fitxategiak .mp3 edo .ogg-era ffmpeg erabiliz"
-
 #: share/gpodder/ui/gtk/gpodderaddpodcast.ui.h:1
-#: share/gpodder/ui/qml/PodcastList.qml:40
 msgid "Add a new podcast"
 msgstr "Gehitu podcast berri bat"
 
@@ -2005,7 +1736,7 @@ msgid "Strategy:"
 msgstr "Estrategia:"
 
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:6
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:9
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:6
 msgid "General"
 msgstr "Orokorra"
 
@@ -2014,12 +1745,12 @@ msgid "<b>HTTP/FTP Authentication</b>"
 msgstr "<b>HTTP/FTP Autentifikazioa</b>"
 
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:8
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:15
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:13
 msgid "Username:"
 msgstr "Erabiltzaile-izena:"
 
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:9
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:16
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:14
 msgid "Password:"
 msgstr "Pasahitza:"
 
@@ -2055,172 +1786,22 @@ msgstr "Bilatu hau:"
 msgid "Show All"
 msgstr "Bistaratu guztiak"
 
-#: share/gpodder/ui/gtk/gpodderepisodeselector.ui.h:1
-msgid "Select episodes"
-msgstr "Hautatu atalak"
-
-#: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:1
-msgid "Find new podcasts"
-msgstr "Aurkitu podcast berriak"
-
-#: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:2
-msgid "Select All"
-msgstr "Hautatu guztiak"
-
-#: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:3
-msgid "Select None"
-msgstr "Ez hautatu ezer"
-
-#: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:4
-msgid "label"
-msgstr ""
-
-#: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:5
-msgid "..."
-msgstr ""
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:1
-#: share/gpodder/ui/gtk/gpodder.ui.h:5
-msgid "Preferences"
-msgstr "Hobespenak"
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:2
-msgid "Audio player:"
-msgstr "Audio erreproduzitzailea:"
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:3
-msgid "Video player:"
-msgstr "Bideo erreproduzitzailea:"
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:4
-#, fuzzy
-msgid "Preferred YouTube format:"
-msgstr "Bideo-formatu hobetsia:"
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:5
-msgid "YouTube API key (v3):"
-msgstr ""
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:6
-#, fuzzy
-msgid "Preferred Vimeo format:"
-msgstr "Bideo-formatu hobetsia:"
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:7
-msgid "\"All episodes\" in podcast list"
-msgstr "Podcast zerrendako \"Atal guztiak\""
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:8
-msgid "Use sections for podcast list"
-msgstr "Erabili sailak podcast zerrendan"
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:10
-msgid "Extensions"
-msgstr "Hedapenak"
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:13
-msgid "Automatically flattr episodes on playback"
-msgstr ""
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:14
-msgid "Synchronize subscriptions and episode actions"
-msgstr "Sinkronizatu harpidetzak eta atal-ekintzak"
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:17
-msgid "Replace list on server with local subscriptions"
-msgstr "Ordezkatu zerbitzariko zerrenda harpidetza lokalekin"
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:18
-msgid "Device name:"
-msgstr "Gailuaren izena:"
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:19
-#: share/gpodder/ui/qml/main_default.qml:382
-msgid "gpodder.net"
-msgstr "gpodder.net"
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:20
-msgid "Update interval:"
-msgstr "Eguneraketa maiztasuna:"
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:21
-msgid "Maximum number of episodes per podcast:"
-msgstr "Atal kopuru maximoa podcast-eko:"
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:22
-msgid "When new episodes are found:"
-msgstr "Atal berriak aurkitzean:"
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:23
-msgid "Updating"
-msgstr "Eguneratzen"
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:24
-msgid "Delete played episodes:"
-msgstr "Ezabatu erreproduzitutako atalak:"
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:25
-msgid "Remove played episodes even if unfinished"
-msgstr "Ezabatu erreproduzitutako atalak bukatu gabe badaude ere"
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:26
-msgid "Also remove unplayed episodes"
-msgstr "Ezabatu baita erreproduzitu gabeko atalak"
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:27
-msgid "Clean-up"
-msgstr "Garbitu"
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:28
-msgid "Device type:"
-msgstr "Gailu mota:"
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:29
-msgid "Mountpoint:"
-msgstr "Muntaketa-puntua:"
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:30
-msgid "After syncing an episode:"
-msgstr "Atal bat sinkronizatu ondoren:"
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:31
-#, fuzzy
-msgid "Create playlists on device"
-msgstr "Ordezkatu zerbitzariko zerrenda"
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:32
-#, fuzzy
-msgid "Playlists Folder:"
-msgstr "Erreprodukzio-zerrenda hutsik"
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:33
-msgid "Remove episodes deleted on device from gPodder"
-msgstr ""
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:34
-msgid "Only sync unplayed episodes"
-msgstr "Sinkronizatu soilik erreproduzitu gabeko atalak"
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:35
-msgid "Devices"
-msgstr "Gailuak"
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:36
-msgid "Edit config"
-msgstr "Editatu konfigurazioa"
-
 #: share/gpodder/ui/gtk/gpodder.ui.h:1
 msgid "_Podcasts"
 msgstr "_Podcast-ak"
 
 #: share/gpodder/ui/gtk/gpodder.ui.h:2
-#: share/gpodder/ui/qml/main_default.qml:33
 msgid "Check for new episodes"
 msgstr "Egiaztatu atal berririk badagoen"
 
 #: share/gpodder/ui/gtk/gpodder.ui.h:3
 msgid "Download new episodes"
 msgstr "Deskargatu atal berriak"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:5
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:1
+msgid "Preferences"
+msgstr "Hobespenak"
 
 #: share/gpodder/ui/gtk/gpodder.ui.h:7
 msgid "_Subscriptions"
@@ -2233,6 +1814,10 @@ msgstr "Aurkitu podcast berriak"
 #: share/gpodder/ui/gtk/gpodder.ui.h:9
 msgid "Add podcast via URL"
 msgstr "Gehitu podcast-a URL bidez"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:11
+msgid "Unsubscribe"
+msgstr "Harpidetza kendu"
 
 #: share/gpodder/ui/gtk/gpodder.ui.h:14
 msgid "Import from OPML file"
@@ -2251,14 +1836,16 @@ msgid "_Episodes"
 msgstr "_Atalak"
 
 #: share/gpodder/ui/gtk/gpodder.ui.h:18
-#: share/gpodder/ui/qml/EpisodeActions.qml:36
-#: share/gpodder/ui/qml/Main.qml:357
 msgid "Play"
 msgstr "Erreproduzitu"
 
 #: share/gpodder/ui/gtk/gpodder.ui.h:19
 msgid "Open"
 msgstr "Ireki"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:22
+msgid "Delete"
+msgstr "Ezabatu"
 
 #: share/gpodder/ui/gtk/gpodder.ui.h:23
 msgid "Toggle new status"
@@ -2341,6 +1928,10 @@ msgstr "KiB/s"
 msgid "Limit downloads to"
 msgstr "Mugatu deskarga-kopurua:"
 
+#: share/gpodder/ui/gtk/gpodderepisodeselector.ui.h:1
+msgid "Select episodes"
+msgstr "Hautatu atalak"
+
 #: share/gpodder/ui/gtk/gpodderwelcome.ui.h:2
 msgid "<big>Welcome to gPodder</big>"
 msgstr "<big>Ongietorri gPodder-era</big>"
@@ -2361,358 +1952,296 @@ msgstr "Gehitu podcast bat bere URL-a sartuz"
 msgid "Restore my subscriptions from gpodder.net"
 msgstr "Leheneratu nire harpidetzak gpodder.net-etik"
 
-#: share/gpodder/ui/qml/EpisodeActions.qml:52
-#: share/gpodder/ui/qml/Main.qml:417
-msgid "Shownotes"
-msgstr "Atalaren oharrak"
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:2
+msgid "Audio player:"
+msgstr "Audio erreproduzitzailea:"
 
-#: share/gpodder/ui/qml/EpisodeList.qml:46
-msgid "No episodes"
-msgstr "Atalik ez"
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:3
+msgid "Video player:"
+msgstr "Bideo erreproduzitzailea:"
 
-#: share/gpodder/ui/qml/EpisodeList.qml:46
-msgid "Touch to change filter"
-msgstr "Ukitu iragazkia aldatzeko"
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:4
+msgid "\"All episodes\" in podcast list"
+msgstr "Podcast zerrendako \"Atal guztiak\""
 
-#: share/gpodder/ui/qml/EpisodeList.qml:189
-msgid "Show episodes"
-msgstr "Erakutsi atalak"
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:5
+msgid "Use sections for podcast list"
+msgstr "Erabili sailak podcast zerrendan"
 
-#: share/gpodder/ui/qml/main_default.qml:29 share/gpodder/ui/qml/Main.qml:343
-msgid "Now playing"
-msgstr "Orain erreproduzitzen"
-
-#: share/gpodder/ui/qml/main_default.qml:37
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:7
 #, fuzzy
-msgid "Add podcast"
-msgstr "Podcast-ak gehitzen"
+msgid "Preferred YouTube format:"
+msgstr "Bideo-formatu hobetsia:"
 
-#: share/gpodder/ui/qml/main_default.qml:41
-msgid "Settings"
-msgstr "Ezarpenak"
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:8
+msgid "YouTube API key (v3):"
+msgstr ""
 
-#: share/gpodder/ui/qml/main_default.qml:143
-msgid "About"
-msgstr "Honi buruz"
-
-#: share/gpodder/ui/qml/main_default.qml:168
-msgid "Thanks"
-msgstr "Eskerrak"
-
-#: share/gpodder/ui/qml/main_default.qml:178
-msgid "Credits"
-msgstr "Kredituak"
-
-#: share/gpodder/ui/qml/main_default.qml:239
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:9
 #, fuzzy
-msgid "gPodder.net Login"
+msgid "Preferred Vimeo format:"
+msgstr "Bideo-formatu hobetsia:"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:11
+msgid "Extensions"
+msgstr "Hedapenak"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:12
+msgid "Synchronize subscriptions and episode actions"
+msgstr "Sinkronizatu harpidetzak eta atal-ekintzak"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:15
+msgid "Replace list on server with local subscriptions"
+msgstr "Ordezkatu zerbitzariko zerrenda harpidetza lokalekin"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:16
+msgid "Device name:"
+msgstr "Gailuaren izena:"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:17
+msgid "gpodder.net"
 msgstr "gpodder.net"
 
-#: share/gpodder/ui/qml/main_default.qml:244
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:18
+msgid "Update interval:"
+msgstr "Eguneraketa maiztasuna:"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:19
+msgid "Maximum number of episodes per podcast:"
+msgstr "Atal kopuru maximoa podcast-eko:"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:20
+msgid "When new episodes are found:"
+msgstr "Atal berriak aurkitzean:"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:21
+msgid "Updating"
+msgstr "Eguneratzen"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:22
+msgid "Delete played episodes:"
+msgstr "Ezabatu erreproduzitutako atalak:"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:23
+msgid "Remove played episodes even if unfinished"
+msgstr "Ezabatu erreproduzitutako atalak bukatu gabe badaude ere"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:24
+msgid "Also remove unplayed episodes"
+msgstr "Ezabatu baita erreproduzitu gabeko atalak"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:25
+msgid "Clean-up"
+msgstr "Garbitu"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:26
+msgid "Device type:"
+msgstr "Gailu mota:"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:27
+msgid "Mountpoint:"
+msgstr "Muntaketa-puntua:"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:28
+msgid "After syncing an episode:"
+msgstr "Atal bat sinkronizatu ondoren:"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:29
 #, fuzzy
-msgid "Credentials"
-msgstr "Kredituak"
-
-#: share/gpodder/ui/qml/main_default.qml:256
-msgid "Device name"
-msgstr "Gailuaren izena"
-
-#: share/gpodder/ui/qml/main_default.qml:306
-msgid "gPodder settings"
-msgstr "gPodder ezarpenak"
-
-#: share/gpodder/ui/qml/main_default.qml:311
-msgid "Screen orientation"
-msgstr "Pantailaren orientazioa"
-
-#: share/gpodder/ui/qml/main_default.qml:315
-msgid "Automatic rotation"
-msgstr "Biraketa automatikoa"
-
-#: share/gpodder/ui/qml/main_default.qml:321
-msgid "Media indexing"
-msgstr "Edukiak indexatzen"
-
-#: share/gpodder/ui/qml/main_default.qml:325
-msgid "Show podcasts in Music app"
-msgstr "Erakutsi podcast-ak Musika aplikazioan"
-
-#: share/gpodder/ui/qml/main_default.qml:357
-msgid "Auto-Flattr on playback"
-msgstr ""
-
-#: share/gpodder/ui/qml/main_default.qml:363
-#, fuzzy
-msgid "YouTube"
-msgstr "_YouTube"
-
-#: share/gpodder/ui/qml/main_default.qml:366
-msgid "API Key (v3):"
-msgstr ""
-
-#: share/gpodder/ui/qml/main_default.qml:372
-#, fuzzy
-msgid "Migrate subscriptions"
-msgstr "Ez dago harpidetzarik"
-
-#: share/gpodder/ui/qml/main_default.qml:386
-msgid "Enable synchronization"
-msgstr "Gaitu sinkronizazioa"
-
-#: share/gpodder/ui/qml/main_default.qml:396
-#, fuzzy
-msgid "Sign in to gPodder.net"
-msgstr "Saioa hasi gpodder.net-en"
-
-#: share/gpodder/ui/qml/main_default.qml:415
-msgid "Replace list on server"
+msgid "Create playlists on device"
 msgstr "Ordezkatu zerbitzariko zerrenda"
 
-#: share/gpodder/ui/qml/main_default.qml:426
-msgid "No account? Register here"
-msgstr "Konturik ez daukazu? Erregistratu hemen"
-
-#: share/gpodder/ui/qml/Main.qml:139 share/gpodder/ui/qml/Main.qml:427
-msgid "Playlist empty"
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:30
+#, fuzzy
+msgid "Playlists Folder:"
 msgstr "Erreprodukzio-zerrenda hutsik"
 
-#: share/gpodder/ui/qml/Main.qml:169
-#, fuzzy
-msgid "Episode added to playlist"
-msgstr "Atalaren xehetasunak"
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:31
+msgid "Remove episodes deleted on device from gPodder"
+msgstr ""
 
-#: share/gpodder/ui/qml/Main.qml:349
-msgid "Download episodes"
-msgstr "Deskargatu atalak"
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:32
+msgid "Only sync unplayed episodes"
+msgstr "Sinkronizatu soilik erreproduzitu gabeko atalak"
 
-#: share/gpodder/ui/qml/Main.qml:355
-msgid "Playback episodes"
-msgstr "Erreproduzitu atalak"
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:33
+msgid "Devices"
+msgstr "Gailuak"
 
-#: share/gpodder/ui/qml/Main.qml:422 share/gpodder/ui/qml/MediaPlayer.qml:242
-msgid "Play queue"
-msgstr "Erreprodukzio-zerrenda"
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:34
+msgid "Edit config"
+msgstr "Editatu konfigurazioa"
 
-#: share/gpodder/ui/qml/Main.qml:562
-msgid "Select downloaded"
-msgstr "Hautatu deskargatutakoak"
+#: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:1
+msgid "Find new podcasts"
+msgstr "Aurkitu podcast berriak"
 
-#: share/gpodder/ui/qml/Main.qml:582
-msgid "Invert selection"
-msgstr "Alderantzikatu hautapena"
+#: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:2
+msgid "Select All"
+msgstr "Hautatu guztiak"
 
-#: share/gpodder/ui/qml/PlaybackBar.qml:12
-#: share/gpodder/ui/qml/PlaybackBar.qml:14
-#, python-format
-msgid "%(count)s minute"
-msgid_plural "%(count)s minutes"
-msgstr[0] "Minutu %(count)s"
-msgstr[1] "%(count)s minutu"
+#: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:3
+msgid "Select None"
+msgstr "Ez hautatu ezer"
 
-#: share/gpodder/ui/qml/PlaybackBar.qml:16
-#: share/gpodder/ui/qml/PlaybackBar.qml:18
-#, python-format
-msgid "%(count)s second"
-msgid_plural "%(count)s seconds"
-msgstr[0] "Segundo %(count)s"
-msgstr[1] "%(count)s segundo"
+#: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:4
+msgid "label"
+msgstr ""
 
-#: share/gpodder/ui/qml/PodcastList.qml:26
-msgid "No podcasts."
-msgstr "Podcast-ik ez."
+#: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:5
+msgid "..."
+msgstr ""
 
-#: share/gpodder/ui/qml/PodcastList.qml:26
-msgid "Add your first podcast now."
-msgstr "Gehitu zure lehen podcast-a orain."
-
-#: share/gpodder/ui/qml/Subscribe.qml:63
-msgid "Search term or URL"
-msgstr "Bilatu terminoa edo URLa"
-
-#: share/gpodder/ui/qml/Subscribe.qml:73
-msgid "Search"
-msgstr "Bilatu"
-
-#: share/gpodder/ui/qml/Subscribe.qml:134
-#, fuzzy
-msgid "Most-subscribed on gpodder.net"
-msgstr "gpodder.net-eko harpidetzak"
-
-#: share/gpodder/ui/qml/Subscribe.qml:137
-#, fuzzy
-msgid "Your subscriptions on gpodder.net"
-msgstr "gpodder.net-eko harpidetzak"
-
-#: share/gpodder/ui/qml/Subscribe.qml:138
-#, fuzzy
-msgid "Recommended by gpodder.net for you"
-msgstr "gpodder.net-en oinarritua"
-
-#: share/gpodder/ui/qml/Subscribe.qml:192
-msgid "Subscribe"
-msgstr "Harpidetu"
-
-#: share/gpodder/ui/qml/harmattan/org/gpodder/qmlui/ListList.qml:14
-msgid "Pull down to refresh"
-msgstr "Tira behera freskatzeko"
-
-#: share/gpodder/ui/qml/harmattan/org/gpodder/qmlui/ListList.qml:15
-msgid "Release to refresh"
-msgstr "Askatu freskatzeko"
-
-#: bin/gpo:252
+#: bin/gpo:266
 msgid "Podcast update requested by extensions."
 msgstr "Hedapenek eskatutako podcast eguneraketa."
 
-#: bin/gpo:256
+#: bin/gpo:270
 msgid "Episode download requested by extensions."
 msgstr "Hedapenek eskatutako atalen deskarga."
 
-#: bin/gpo:309
+#: bin/gpo:323
 #, python-format
 msgid "Invalid url: %s"
 msgstr "url baliogabea: %s"
 
-#: bin/gpo:326 bin/gpo:402 bin/gpo:436 bin/gpo:575 bin/gpo:590 bin/gpo:726
+#: bin/gpo:340 bin/gpo:416 bin/gpo:450 bin/gpo:582 bin/gpo:597 bin/gpo:717
 #, python-format
 msgid "You are not subscribed to %s."
 msgstr "Ez zaude %s-(e)ra harpidetuta"
 
-#: bin/gpo:332
+#: bin/gpo:346
 #, fuzzy, python-format
 msgid "Already subscribed to %s."
 msgstr "Ezin da harpidetu %s-(e)ra"
 
-#: bin/gpo:338
+#: bin/gpo:352
 #, python-format
 msgid "Cannot subscribe to %s."
 msgstr "Ezin da harpidetu %s-(e)ra"
 
-#: bin/gpo:354
+#: bin/gpo:368
 #, python-format
 msgid "Successfully added %s."
 msgstr "Behar bezala gehitu da %s."
 
-#: bin/gpo:372
+#: bin/gpo:386
 msgid "This configuration option does not exist."
 msgstr "Konfigurazio aukera hau ez da existitzen."
 
-#: bin/gpo:376
+#: bin/gpo:390
 msgid "Can only set leaf configuration nodes."
 msgstr "Orri konfigurazio nodoak soilik ezarri daitezke."
 
-#: bin/gpo:390
+#: bin/gpo:404
 #, python-format
 msgid "Renamed %(old_title)s to %(new_title)s."
 msgstr "%(old_title)s berrizendatuta %(new_title)s bezala."
 
-#: bin/gpo:406
+#: bin/gpo:420
 #, python-format
 msgid "Unsubscribed from %s."
 msgstr "%s-(e)tik harpidetza kenduta."
 
-#: bin/gpo:480
+#: bin/gpo:494
 msgid "Updates disabled"
 msgstr "Eguneraketak desgaituta"
 
-#: bin/gpo:495
+#: bin/gpo:505
 #, python-format
 msgid "%(count)d new episode"
 msgid_plural "%(count)d new episodes"
 msgstr[0] "Atal berri %(count)d"
 msgstr[1] "%(count)d atal berri"
 
-#: bin/gpo:501
+#: bin/gpo:511
 msgid "Checking for new episodes"
 msgstr "Atal berrien bila"
 
-#: bin/gpo:510
+#: bin/gpo:520
 #, python-format
 msgid "Skipping %(podcast)s"
 msgstr "%(podcast)s saltatzen"
 
-#: bin/gpo:581
+#: bin/gpo:588
 #, python-format
 msgid "Disabling feed update from %s."
 msgstr "%s-(e)ko jario eguneraketa desgaitzen."
 
-#: bin/gpo:596
+#: bin/gpo:603
 #, python-format
 msgid "Enabling feed update from %s."
 msgstr "%s-(e)ko jario eguneraketa gaitzen."
 
-#: bin/gpo:609
+#: bin/gpo:616
 #, python-format
 msgid "Please register a YouTube API key and set it using %(command)s."
 msgstr ""
 
-#: bin/gpo:636
+#: bin/gpo:643
 #, fuzzy, python-format
 msgid "Changing: %(old_url)s => %(new_url)s"
 msgstr "URL-a aldatu da %(old_url)s-(e)tik %(new_url)s-(e)ra."
 
-#: bin/gpo:646
+#: bin/gpo:653
 #, fuzzy
 msgid "Nothing to fix"
 msgstr "Ez dago esportatzeko ezer"
 
-#: bin/gpo:656
-msgid "Listening on ALL network interfaces."
-msgstr "Sareko interfaze GUZTIETAN entzuten."
-
-#: bin/gpo:681
+#: bin/gpo:672
 msgid "No podcasts found."
 msgstr "Ez da podcast-ik aurkitu."
 
-#: bin/gpo:695
+#: bin/gpo:686
 msgid "Enter index to subscribe, ? for list"
 msgstr "Sartu indizea harpidetzeko, ? zerrendarako"
 
-#: bin/gpo:709 bin/gpo:713
+#: bin/gpo:700 bin/gpo:704
 msgid "Invalid value."
 msgstr "Baliogabeko balioa."
 
-#: bin/gpo:730
+#: bin/gpo:721
 #, python-format
 msgid "Invalid URL: %s"
 msgstr "URL baliogabea: %s"
 
-#: bin/gpo:733
+#: bin/gpo:724
 #, python-format
 msgid "Changed URL from %(old_url)s to %(new_url)s."
 msgstr "URL-a aldatu da %(old_url)s-(e)tik %(new_url)s-(e)ra."
 
-#: bin/gpo:789
+#: bin/gpo:782
 #, python-format
 msgid "Syntax error: %(error)s"
 msgstr "Sintaxi errorea: %(error)s"
 
-#: bin/gpo:883
+#: bin/gpo:876
 #, fuzzy
 msgid "Ambiguous command. Did you mean.."
 msgstr "Zalantzazko komandoa. Hau esan nahi al zenuen..."
 
-#: bin/gpo:887
+#: bin/gpo:880
 msgid "The requested function is not available."
 msgstr "Eskatutako funtzioa ez dago eskuragarri."
 
-#: bin/gpodder:108
+#: bin/gpodder:105
 #, fuzzy
 msgid "print logging output on the console"
 msgstr "Inprimatu arazketa irteera stdout-era"
 
-#: bin/gpodder:112
-msgid "use the QML-based MeeGo 1.2 Harmattan UI"
-msgstr ""
-
-#: bin/gpodder:115
+#: bin/gpodder:108
 #, fuzzy
 msgid "subscribe to the feed at URL"
 msgstr "Harpidetu zehaztutako URL-ra"
 
-#: bin/gpodder:120
+#: bin/gpodder:113
 msgid "Mac OS X application process number"
 msgstr "Mac OS X aplikazio prozesu zenbakia"
+
+#: share/applications/gpodder-url-handler.desktop.in.h:1
+#, fuzzy
+msgid "gPodder (subscribe to feed)"
+msgstr "Harpidetu zehaztutako URL-ra"
 
 #: share/applications/gpodder.desktop.in.h:2
 msgid "gPodder Podcast Client"
@@ -2725,75 +2254,3 @@ msgstr "Podcast Bezeroa"
 #: share/applications/gpodder.desktop.in.h:4
 msgid "Subscribe to audio and video content from the web"
 msgstr "Harpidetu sareko audio eta bideo edukira"
-
-#: share/applications/gpodder-url-handler.desktop.in.h:1
-#, fuzzy
-msgid "gPodder (subscribe to feed)"
-msgstr "Harpidetu zehaztutako URL-ra"
-
-#~ msgid "The specified URL does not provide any valid OPML podcast items."
-#~ msgstr "Zehaztutako URL-an ez dago baliozko OPML podcast elementurik."
-
-#~ msgid "No feeds found"
-#~ msgstr "Ez da jariorik aurkitu"
-
-#~ msgid "There are no YouTube channels that would match this query."
-#~ msgstr "Ez dago kontsultarekin bat datorren YouTube-ko kanalik."
-
-#~ msgid "_OPML/Search"
-#~ msgstr "_OPML/Bilatu"
-
-#~ msgid "Top _podcasts"
-#~ msgstr "_Podcast gorenak"
-
-#~ msgid "Toplist"
-#~ msgstr "Top zerrenda"
-
-#~ msgid "My gpodder.net"
-#~ msgstr "Nire gpodder.net"
-
-#~ msgid "Examples"
-#~ msgstr "Adibideak"
-
-#~ msgid "Please select an episode from the episode list to display shownotes."
-#~ msgstr "Mesedez hautatu atal bat atal-zerrendatik oharrak bistaratzeko."
-
-#~ msgid "No episode selected"
-#~ msgstr "Ez da hautatu atalik"
-
-#~ msgid "Convert .flv files from YouTube to .mp4"
-#~ msgstr "Bihurtu YouTube-ko .flv fitxategiak .mp4-ra"
-
-#~ msgid "Useful for playing downloaded videos on hardware players"
-#~ msgstr ""
-#~ "Baliagarria deskargatutako bideoak hardware gailuetan erreproduzitzeko"
-
-#~ msgid "Convert FLV to MP4"
-#~ msgstr "Bihurtu FLV MP4-ra"
-
-#~ msgid "Convert M4A audio to MP3 or OGG"
-#~ msgstr "Bihurtu M4A audioa MP3 edo OGG-ra"
-
-#~ msgid "Transcode .m4a files to .mp3 or .ogg using ffmpeg"
-#~ msgstr "Transkodetu .m4a fitxategiak .mp3 edo .ogg-era ffmpeg erabiliz"
-
-#, fuzzy
-#~ msgid "Convert OGG audio to MP3"
-#~ msgstr "Bihurtu M4A audioa MP3 edo OGG-ra"
-
-#, fuzzy
-#~ msgid "File converted from ogg to mp3"
-#~ msgstr "Fitxategia bihurtuta"
-
-#, fuzzy
-#~ msgid "Conversion failed from ogg to mp3"
-#~ msgstr "Bihurketak huts egin du"
-
-#~ msgid "OK"
-#~ msgstr "Ados"
-
-#~ msgid "Please wait..."
-#~ msgstr "Itxaron mesedez..."
-
-#~ msgid "Start the QML interface of gPodder"
-#~ msgstr "Abiarazi gPodder-en QML interfazea"
