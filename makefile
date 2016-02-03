@@ -69,7 +69,7 @@ release: distclean
 
 releasetest: unittest $(DESKTOP_FILES) $(POFILES)
 	for f in $(DESKTOP_FILES); do desktop-file-validate $$f; done
-	sh tools/i18n/validate.sh
+	for f in $(POFILES); do msgfmt --check $$f; done
 
 $(GPODDER_SERVICE_FILE): $(GPODDER_SERVICE_FILE_IN)
 	sed -e 's#__PREFIX__#$(PREFIX)#' $< >$@
