@@ -3149,7 +3149,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         vb = gtk.VBox()
         vb.set_spacing(6)
         label = gtk.Label()
-        label.set_alignment(0, 1)
+        label.set_alignment(0, 0.5)
         label.set_markup('\n'.join(x.strip() for x in """
         <b>gPodder {version} ({date})</b>
         <i>"{relname}"</i>
