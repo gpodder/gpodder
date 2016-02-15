@@ -36,18 +36,6 @@ from gpodder import util
 from gpodder.gtkui.draw import draw_text_box_centered
 
 
-try:
-    import webkit
-    webview_signals = gobject.signal_list_names(webkit.WebView)
-    if 'navigation-policy-decision-requested' in webview_signals:
-        have_webkit = True
-    else:
-        logger.warn('Your WebKit is too old (gPodder bug 1001).')
-        have_webkit = False
-except ImportError:
-    have_webkit = False
-
-
 class gPodderShownotes:
     def __init__(self, shownotes_pane):
         self.shownotes_pane = shownotes_pane
@@ -142,48 +130,3 @@ class gPodderShownotesText(gPodderShownotes):
         self.text_buffer.insert_at_cursor('\n\n')
         self.text_buffer.insert(self.text_buffer.get_end_iter(), util.remove_html_tags(episode.description))
         self.text_buffer.place_cursor(self.text_buffer.get_start_iter())
-
-
-class gPodderShownotesHTML(gPodderShownotes):
-    SHOWNOTES_HTML_TEMPLATE = """
-    <html>
-      <head>
-        <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
-      </head>
-      <body>
-        <span style="font-size: big; font-weight: bold;">%s</span>
-        <br>
-        <span style="font-size: small;">%s (%s)</span>
-        <hr style="border: 1px #eeeeee solid;">
-        <p>%s</p>
-      </body>
-    </html>
-    """
-
-    def init(self):
-        self.html_view = webkit.WebView()
-        self.html_view.connect('navigation-policy-decision-requested',
-                self._navigation_policy_decision)
-        self.html_view.load_html_string('', '')
-        return self.html_view
-
-    def _navigation_policy_decision(self, wv, fr, req, action, decision):
-        REASON_LINK_CLICKED, REASON_OTHER = 0, 5
-        if action.get_reason() == REASON_LINK_CLICKED:
-            util.open_website(req.get_uri())
-            decision.ignore()
-        elif action.get_reason() == REASON_OTHER:
-            decision.use()
-        else:
-            decision.ignore()
-
-    def update(self, heading, subheading, episode):
-        html = self.SHOWNOTES_HTML_TEMPLATE % (
-                cgi.escape(heading),
-                cgi.escape(subheading),
-                episode.get_play_info_string(),
-                episode.description_html,
-        )
-        url = os.path.dirname(episode.channel.url)
-        self.html_view.load_html_string(html, url)
-

@@ -140,10 +140,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.config.add_observer(self.on_config_changed)
 
         self.shownotes_pane = gtk.HBox()
-        if shownotes.have_webkit and self.config.enable_html_shownotes:
-            self.shownotes_object = shownotes.gPodderShownotesHTML(self.shownotes_pane)
-        else:
-            self.shownotes_object = shownotes.gPodderShownotesText(self.shownotes_pane)
+        self.shownotes_object = shownotes.gPodderShownotesText(self.shownotes_pane)
 
         # Vertical paned for the episode list and shownotes
         self.vpaned = gtk.VPaned()
