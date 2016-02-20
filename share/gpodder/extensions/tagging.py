@@ -55,6 +55,7 @@ DefaultConfig = {
     'genre_tag': 'Podcast',
     'always_remove_tags': False,
     'auto_embed_coverart': False,
+    'set_artist_to_album': False,
 }
 
 
@@ -90,6 +91,9 @@ class AudioFile(object):
 
         if self.pubDate is not None:
             audio.tags['date'] = self.pubDate
+
+        if self.container.config.set_artist_to_album:
+            audio.tags['artist'] = self.album
 
         audio.save()
 
