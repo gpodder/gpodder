@@ -31,8 +31,7 @@ import ConfigParser
 import shutil
 
 gpodder_script = sys.argv[0]
-if os.path.islink(gpodder_script):
-    gpodder_script = os.readlink(gpodder_script)
+gpodder_script = os.path.realpath(gpodder_script)
 gpodder_dir = os.path.join(os.path.dirname(gpodder_script), '..')
 prefix = os.path.abspath(os.path.normpath(gpodder_dir))
 
