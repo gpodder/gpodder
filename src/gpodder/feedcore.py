@@ -292,6 +292,10 @@ def get_pubdate(entry):
     "published" now also takes precedence over "updated" (with updated used as
     a fallback if published is not set/available). RSS' "pubDate" element is
     "updated", and will only be used if published_parsed is not available.
+    
+    If parsing the date into seconds since epoch returns an error (date is
+    before epoch or after the end of time), epoch is used as fallback.
+    This fixes https://bugs.gpodder.org/show_bug.cgi?id=2023
     """
 
     pubdate = entry.get('published_parsed', None)
@@ -303,5 +307,9 @@ def get_pubdate(entry):
         # Cannot determine pubdate - party like it's 1970!
         return 0
 
-    return mktime_tz(pubdate + (0,))
-
+    try:
+        pubtimeseconds = mktime_tz(pubdate + (0,))
+        return pubtimeseconds
+    except(OverflowError,ValueError):
+        logger.warn('bad pubdate %s is before epoch or after end of time (2038)',pubdate)
+        return 0
