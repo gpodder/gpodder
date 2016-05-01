@@ -81,7 +81,7 @@ del sqlite3
 
 
 # The User-Agent string for downloads
-user_agent = 'gPodder/%s (+%s)' % (__version__, __url__)
+user_agent = 'gPodder/%s (+%s) %s/%s' % (__version__, __url__, platform.system(), platform.release())
 
 # Are we running in GUI or console mode?
 class UI(object):
