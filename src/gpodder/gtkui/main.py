@@ -3108,7 +3108,16 @@ class gPodder(BuilderWidget, dbus.service.Object):
         If silent=False, a message will be shown even if no updates are
         available (set silent=False when the check is manually triggered).
         """
-        up_to_date, version, released, days = util.get_update_info()
+        try:
+            up_to_date, version, released, days = util.get_update_info()
+        except Exception as e:
+            if silent:
+                logger.warn('Could not check for updates.', exc_info=True)
+            else:
+                title = _('Could not check for updates')
+                message = _('Please try again later.')
+                self.show_message(message, title, important=True)
+            return
 
         if up_to_date and not silent:
             title = _('No updates available')
