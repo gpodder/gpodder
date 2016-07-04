@@ -144,6 +144,19 @@
 
         export GPODDER_HOME=/media/usbdisk/gpodder-data/
 
+		
+	OS X Specific Notes 
+	
+		default GPODDER_HOME="$HOME/Library/Application Support/gPodder"
+		default GPODDER_DOWNLOAD_DIR="$HOME/Library/Application Support/gPodder/download"
+
+        These settings may be modified by editing the following file of the .app : 
+			/Applications/gPodder.app/Contents/MacOSX/_launcher
+			
+		Add and edit the following lines to alter the launch enviroment on OS X : 
+			export GPODDER_HOME="$HOME/Library/Application Support/gPodder"
+			export GPODDER_DOWNLOAD_DIR="$HOME/Library/Application Support/gPodder/download"
+
 
  [ CHANGING THE DOWNLOAD DIRECTORY ]
 
