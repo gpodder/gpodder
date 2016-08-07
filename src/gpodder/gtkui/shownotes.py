@@ -17,7 +17,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import webbrowser
 import gtk
 import gtk.gdk
 import gobject
@@ -151,4 +150,4 @@ class gPodderShownotesText(gPodderShownotes):
                 i += 1
             target = self.hyperlinks[i][1]
             if target is not None:
-                webbrowser.open(target)
+                util.open_website(target)
