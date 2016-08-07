@@ -17,6 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+import webbrowser
 import gtk
 import gtk.gdk
 import gobject
@@ -114,19 +115,40 @@ class gPodderShownotesText(gPodderShownotes):
         self.text_view.set_wrap_mode(gtk.WRAP_WORD_CHAR)
         self.text_view.set_border_width(10)
         self.text_view.set_editable(False)
+        self.text_view.connect('button-release-event', self.on_button_release)
         self.text_buffer = gtk.TextBuffer()
         self.text_buffer.create_tag('heading', scale=pango.SCALE_LARGE, weight=pango.WEIGHT_BOLD)
         self.text_buffer.create_tag('subheading', scale=pango.SCALE_SMALL)
+        self.text_buffer.create_tag('hyperlink', foreground="#0000FF", underline=pango.UNDERLINE_SINGLE)
         self.text_view.set_buffer(self.text_buffer)
         self.text_view.modify_bg(gtk.STATE_NORMAL,
                 gtk.gdk.color_parse('#ffffff'))
         return self.text_view
 
     def update(self, heading, subheading, episode):
+        self.hyperlinks = [(0, None)]
         self.text_buffer.set_text('')
         self.text_buffer.insert_with_tags_by_name(self.text_buffer.get_end_iter(), heading, 'heading')
         self.text_buffer.insert_at_cursor('\n')
         self.text_buffer.insert_with_tags_by_name(self.text_buffer.get_end_iter(), subheading, 'subheading')
         self.text_buffer.insert_at_cursor('\n\n')
-        self.text_buffer.insert(self.text_buffer.get_end_iter(), util.remove_html_tags(episode.description))
+        for target, text in util.extract_hyperlinked_text(episode.description):
+            self.hyperlinks.append((self.text_buffer.get_char_count(), target))
+            if target:
+                self.text_buffer.insert_with_tags_by_name(
+                    self.text_buffer.get_end_iter(), text, 'hyperlink')
+            else:
+                self.text_buffer.insert(
+                    self.text_buffer.get_end_iter(), text)
+        self.hyperlinks.append((self.text_buffer.get_char_count(), None))
         self.text_buffer.place_cursor(self.text_buffer.get_start_iter())
+
+    def on_button_release(self, widget, event):
+        if event.button == 1:
+            pos = self.text_buffer.props.cursor_position
+            i = 0
+            while i+1 < len(self.hyperlinks) and self.hyperlinks[i+1][0] < pos:
+                i += 1
+            target = self.hyperlinks[i][1]
+            if target is not None:
+                webbrowser.open(target)

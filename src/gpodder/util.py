@@ -620,6 +620,110 @@ def remove_html_tags(html):
     return result.strip()
 
 
+class ExtractHyperlinkedText(object):
+    def __call__(self, document):
+        parts = list(self.visit(document))
+        # Strip leading and trailing whitespace
+        parts[0] = (parts[0][0], parts[0][1].lstrip())
+        parts[-1] = (parts[-1][0], parts[-1][1].rstrip())
+        return parts
+
+    def smash(self, it):
+        # Group together multiple consecutive parts with same link target,
+        # and remove excessive newlines.
+        group_it = itertools.groupby(it, key=lambda x: x[0])
+        for target, parts in group_it:
+            t = ''.join(p[1] for p in parts if p[1])
+            # Remove trailing spaces
+            t = re.sub(' +\n', '\n', t)
+            # Convert more than two newlines to two newlines
+            t = t.replace('\r', '')
+            t = re.sub(r'\n\n\n+', '\n\n', t)
+            yield (target, t)
+
+    def htmlws(self, s):
+        # Replace whitespaces with a single space per HTML spec.
+        if s is not None:
+            return re.sub(r'[ \t\n\r]+', ' ', s)
+
+    def visit(self, element):
+        NS = '{http://www.w3.org/1999/xhtml}'
+        if element.tag.startswith(NS):
+            tag_name = element.tag[len(NS):]
+        else:
+            tag_name = element.tag
+        try:
+            fn = getattr(self, 'visit_' + tag_name.lower())
+        except AttributeError:
+            return self.smash(self.generic_visit(element))
+        else:
+            return self.smash(fn(element))
+
+    def generic_visit(self, element):
+        yield (None, self.htmlws(element.text))
+        for child in element:
+            for t in self.visit(child):
+                yield t
+            yield (None, self.htmlws(child.tail))
+
+    def visit_img(self, element):
+        # Output <img> as its alt text.
+        yield (None, element.get('alt', ''))
+
+    def visit_a(self, element):
+        # Adjust hyperlink targets of text inside <a>...</a>.
+        target = element.get('href')
+        yield (target, element.text)
+        for child in element:
+            for _, t in self.visit(child):
+                yield (target, t)
+            yield (target, child.tail)
+
+    def visit_li(self, element):
+        # Add asterisk before <li> and newline after </li>.
+        return itertools.chain(
+            [(None, '\n * ')],
+            self.generic_visit(element),
+            [(None, '\n')])
+
+    def visit_ul(self, element):
+        # Add newline after </ul>
+        return itertools.chain(
+            self.generic_visit(element),
+            [(None, '\n')])
+
+    def visit_br(self, element):
+        # Output <br> as a single newline character.
+        yield (None, '\n')
+
+    def visit_p(self, element):
+        # Add double newlines before <p> and after </p>.
+        return itertools.chain(
+            [(None, '\n\n')],
+            self.generic_visit(element),
+            [(None, '\n\n')])
+
+
+def extract_hyperlinked_text(html):
+    """
+    Convert HTML to hyperlinked text.
+
+    The output is a list of (target, text) tuples, where target is either a URL
+    or None, and text is a piece of plain text for rendering in a TextView.
+    """
+    if '<' not in html:
+        # Probably plain text. We would remove all the newlines
+        # if we treated it as HTML, so just pass it back as-is.
+        return [(None, html)]
+    try:
+        import html5lib
+    except ImportError:
+        return [(None, 'Could not import html5lib\n'),
+                (None, util.remove_html_tags(html))]
+    document = html5lib.parseFragment(html)
+    return ExtractHyperlinkedText()(document)
+
+
 def wrong_extension(extension):
     """
     Determine if a given extension looks like it's
