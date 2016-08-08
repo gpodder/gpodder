@@ -125,29 +125,27 @@ class gPodderShownotesText(gPodderShownotes):
         return self.text_view
 
     def update(self, heading, subheading, episode):
-        self.hyperlinks = [(0, None)]
+        hyperlinks = [(0, None)]
         self.text_buffer.set_text('')
         self.text_buffer.insert_with_tags_by_name(self.text_buffer.get_end_iter(), heading, 'heading')
         self.text_buffer.insert_at_cursor('\n')
         self.text_buffer.insert_with_tags_by_name(self.text_buffer.get_end_iter(), subheading, 'subheading')
         self.text_buffer.insert_at_cursor('\n\n')
         for target, text in util.extract_hyperlinked_text(episode.description):
-            self.hyperlinks.append((self.text_buffer.get_char_count(), target))
+            hyperlinks.append((self.text_buffer.get_char_count(), target))
             if target:
                 self.text_buffer.insert_with_tags_by_name(
                     self.text_buffer.get_end_iter(), text, 'hyperlink')
             else:
                 self.text_buffer.insert(
                     self.text_buffer.get_end_iter(), text)
-        self.hyperlinks.append((self.text_buffer.get_char_count(), None))
+        hyperlinks.append((self.text_buffer.get_char_count(), None))
+        self.hyperlinks = [(start, end, url) for (start, url), (end, _) in zip(hyperlinks, hyperlinks[1:]) if url]
         self.text_buffer.place_cursor(self.text_buffer.get_start_iter())
 
     def on_button_release(self, widget, event):
         if event.button == 1:
             pos = self.text_buffer.props.cursor_position
-            i = 0
-            while i+1 < len(self.hyperlinks) and self.hyperlinks[i+1][0] < pos:
-                i += 1
-            target = self.hyperlinks[i][1]
+            target = next((url for start, end, url in self.hyperlinks if start < pos < end), None)
             if target is not None:
                 util.open_website(target)
