@@ -728,7 +728,7 @@ def extract_hyperlinked_text_1(html):
         import html5lib
     except ImportError:
         return [(None, 'Could not import html5lib\n'),
-                (None, util.remove_html_tags(html))]
+                (None, remove_html_tags(html))]
     document = html5lib.parseFragment(html)
     return ExtractHyperlinkedText()(document)
 
