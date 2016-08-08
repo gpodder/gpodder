@@ -820,6 +820,42 @@ def extract_hyperlinked_text_2(html):
 
 def extract_hyperlinked_text(html):
     a = extract_hyperlinked_text_1(html)
+    b = extract_hyperlinked_text_2(html)
+    if a == b:
+        print("extract_hyperlinked_text: Same output")
+    else:
+        from pprint import pprint
+        pprint(a)
+        pprint(b)
+        print("extract_hyperlinked_text: Different output")
+
+        def words(parts):
+            return [(target, word)
+                    for target, text in parts
+                    for word in re.findall(ur'\S+\s*', text)]
+
+        from difflib import SequenceMatcher
+        d = SequenceMatcher()
+        a_w = words(a)
+        b_w = words(b)
+        d.set_seqs(a_w, b_w)
+
+        def smash(parts):
+            group_it = itertools.groupby(parts, key=lambda x: x[0])
+            r = []
+            for target, p in group_it:
+                r.append((target, ''.join(x[1] for x in p)))
+            return r
+
+        for tag, i1, i2, j1, j2 in d.get_opcodes():
+            if tag == 'equal':
+                continue
+            if i1 != i2:
+                print('a[%d:%d] =' % (i1, i2))
+                pprint(smash(a_w[i1:i2]))
+            if j1 != j2:
+                print('b[%d:%d] =' % (j1, j2))
+                pprint(smash(b_w[j1:j2]))
     return a
 
 
