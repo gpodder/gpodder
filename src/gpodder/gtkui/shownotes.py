@@ -115,6 +115,7 @@ class gPodderShownotesText(gPodderShownotes):
         self.text_view.set_border_width(10)
         self.text_view.set_editable(False)
         self.text_view.connect('button-release-event', self.on_button_release)
+        self.text_view.connect('key-press-event', self.on_key_press)
         self.text_buffer = gtk.TextBuffer()
         self.text_buffer.create_tag('heading', scale=pango.SCALE_LARGE, weight=pango.WEIGHT_BOLD)
         self.text_buffer.create_tag('subheading', scale=pango.SCALE_SMALL)
@@ -145,6 +146,17 @@ class gPodderShownotesText(gPodderShownotes):
 
     def on_button_release(self, widget, event):
         if event.button == 1:
+            self.activate_links()
+
+    def on_key_press(self, widget, event):
+        if gtk.gdk.keyval_name(event.keyval) == 'Return':
+            self.activate_links()
+            return True
+
+        return False
+
+    def activate_links(self):
+        if self.text_buffer.get_selection_bounds() == ():
             pos = self.text_buffer.props.cursor_position
             target = next((url for start, end, url in self.hyperlinks if start < pos < end), None)
             if target is not None:
