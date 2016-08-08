@@ -71,8 +71,10 @@ import collections
 
 if sys.hexversion < 0x03000000:
     from HTMLParser import HTMLParser
+    from htmlentitydefs import name2codepoint
 else:
     from html.parser import HTMLParser
+    from html.entities import name2codepoint
 
 if gpodder.ui.win32:
     try:
@@ -793,6 +795,17 @@ class ExtractHyperlinkedText2(HTMLParser):
 
     def handle_data(self, data):
         self.output(self.htmlws(data))
+
+    def handle_entityref(self, name):
+        c = unichr(name2codepoint[name])
+        self.output(c)
+
+    def handle_charref(self, name):
+        if name.startswith('x'):
+            c = unichr(int(name[1:], 16))
+        else:
+            c = unichr(int(name))
+        self.output(c)
 
     def output_newline(self, attrs=None):
         self.output('\n')
