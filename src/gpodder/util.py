@@ -67,6 +67,13 @@ import feedparser
 import StringIO
 import xml.dom.minidom
 
+import collections
+
+if sys.hexversion < 0x03000000:
+    from HTMLParser import HTMLParser
+else:
+    from html.parser import HTMLParser
+
 if gpodder.ui.win32:
     try:
         import win32file
@@ -722,6 +729,93 @@ def extract_hyperlinked_text_1(html):
                 (None, util.remove_html_tags(html))]
     document = html5lib.parseFragment(html)
     return ExtractHyperlinkedText()(document)
+
+
+class ExtractHyperlinkedText2(HTMLParser):
+    def __init__(self):
+        HTMLParser.__init__(self)
+        self.parts = []
+        self.target_stack = [None]
+
+    def __call__(self, html):
+        self.feed(html)
+        self.close()
+        self.smash()
+        # Strip leading and trailing whitespace
+        self.parts[0] = (self.parts[0][0], self.parts[0][1].lstrip())
+        self.parts[-1] = (self.parts[-1][0], self.parts[-1][1].rstrip())
+        return self.parts
+
+    def smash(self):
+        # Group together multiple consecutive parts with same link target,
+        # and remove excessive newlines.
+        parts, self.parts = self.parts, []
+        group_it = itertools.groupby(parts, key=lambda x: x[0])
+        for target, parts in group_it:
+            t = ''.join(p[1] for p in parts if p[1])
+            # Remove trailing spaces
+            t = re.sub(' +\n', '\n', t)
+            # Convert more than two newlines to two newlines
+            t = t.replace('\r', '')
+            t = re.sub(r'\n\n\n+', '\n\n', t)
+            self.parts.append((target, t))
+
+    def htmlws(self, s):
+        # Replace whitespaces with a single space per HTML spec.
+        if s is not None:
+            return re.sub(r'[ \t\n\r]+', ' ', s)
+
+    def handle_starttag(self, tag, attrs):
+        try:
+            fn = getattr(self, 'handle_start_' + tag)
+        except AttributeError:
+            pass
+        else:
+            fn(collections.OrderedDict(attrs))
+
+    def handle_endtag(self, tag):
+        try:
+            fn = getattr(self, 'handle_end_' + tag)
+        except AttributeError:
+            pass
+        else:
+            fn()
+
+    def handle_start_a(self, attrs):
+        self.target_stack.append(attrs.get('href'))
+
+    def handle_end_a(self):
+        if len(self.target_stack) > 1:
+            self.target_stack.pop()
+
+    def output(self, text):
+        self.parts.append((self.target_stack[-1], text))
+
+    def handle_data(self, data):
+        self.output(self.htmlws(data))
+
+    def output_newline(self, attrs=None):
+        self.output('\n')
+
+    def output_double_newline(self, attrs=None):
+        self.output('\n')
+
+    def handle_start_img(self, attrs):
+        self.output(self.htmlws(attrs.get('alt', '')))
+
+    def handle_start_li(self, attrs):
+        self.output('\n * ')
+
+    handle_end_li = handle_end_ul = handle_start_br = output_newline
+    handle_start_p = handle_end_p = output_double_newline
+
+
+def extract_hyperlinked_text_2(html):
+    if '<' not in html:
+        # Probably plain text. We would remove all the newlines
+        # if we treated it as HTML, so just pass it back as-is.
+        return [(None, html)]
+    return ExtractHyperlinkedText2()(html)
 
 
 def extract_hyperlinked_text(html):
