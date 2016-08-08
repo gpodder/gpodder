@@ -704,7 +704,7 @@ class ExtractHyperlinkedText(object):
             [(None, '\n\n')])
 
 
-def extract_hyperlinked_text(html):
+def extract_hyperlinked_text_1(html):
     """
     Convert HTML to hyperlinked text.
 
@@ -722,6 +722,11 @@ def extract_hyperlinked_text(html):
                 (None, util.remove_html_tags(html))]
     document = html5lib.parseFragment(html)
     return ExtractHyperlinkedText()(document)
+
+
+def extract_hyperlinked_text(html):
+    a = extract_hyperlinked_text_1(html)
+    return a
 
 
 def wrong_extension(extension):
