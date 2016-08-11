@@ -720,9 +720,8 @@ class HyperlinkExtracter(object):
 
 
 class ExtractHyperlinkedText(object):
-    def __call__(self, html):
+    def __call__(self, document):
         self.extracter = HyperlinkExtracter()
-        document = html5lib.parseFragment(html)
         self.visit(document)
         return self.extracter.get_result()
 
@@ -780,7 +779,7 @@ def extract_hyperlinked_text(html):
         return [(None, html)]
 
     if html5lib is not None:
-        return ExtractHyperlinkedText()(html)
+        return ExtractHyperlinkedText()(html5lib.parseFragment(html))
     else:
         return ExtractHyperlinkedText2()(html)
 
