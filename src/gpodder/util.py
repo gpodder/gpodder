@@ -76,6 +76,12 @@ else:
     from html.parser import HTMLParser
     from html.entities import name2codepoint
 
+try:
+    import html5lib
+except ImportError:
+    logger.warn('html5lib not found, falling back to HTMLParser')
+    html5lib = None
+
 if gpodder.ui.win32:
     try:
         import win32file
