@@ -114,19 +114,50 @@ class gPodderShownotesText(gPodderShownotes):
         self.text_view.set_wrap_mode(gtk.WRAP_WORD_CHAR)
         self.text_view.set_border_width(10)
         self.text_view.set_editable(False)
+        self.text_view.connect('button-release-event', self.on_button_release)
+        self.text_view.connect('key-press-event', self.on_key_press)
         self.text_buffer = gtk.TextBuffer()
         self.text_buffer.create_tag('heading', scale=pango.SCALE_LARGE, weight=pango.WEIGHT_BOLD)
         self.text_buffer.create_tag('subheading', scale=pango.SCALE_SMALL)
+        self.text_buffer.create_tag('hyperlink', foreground="#0000FF", underline=pango.UNDERLINE_SINGLE)
         self.text_view.set_buffer(self.text_buffer)
         self.text_view.modify_bg(gtk.STATE_NORMAL,
                 gtk.gdk.color_parse('#ffffff'))
         return self.text_view
 
     def update(self, heading, subheading, episode):
+        hyperlinks = [(0, None)]
         self.text_buffer.set_text('')
         self.text_buffer.insert_with_tags_by_name(self.text_buffer.get_end_iter(), heading, 'heading')
         self.text_buffer.insert_at_cursor('\n')
         self.text_buffer.insert_with_tags_by_name(self.text_buffer.get_end_iter(), subheading, 'subheading')
         self.text_buffer.insert_at_cursor('\n\n')
-        self.text_buffer.insert(self.text_buffer.get_end_iter(), util.remove_html_tags(episode.description))
+        for target, text in util.extract_hyperlinked_text(episode.description):
+            hyperlinks.append((self.text_buffer.get_char_count(), target))
+            if target:
+                self.text_buffer.insert_with_tags_by_name(
+                    self.text_buffer.get_end_iter(), text, 'hyperlink')
+            else:
+                self.text_buffer.insert(
+                    self.text_buffer.get_end_iter(), text)
+        hyperlinks.append((self.text_buffer.get_char_count(), None))
+        self.hyperlinks = [(start, end, url) for (start, url), (end, _) in zip(hyperlinks, hyperlinks[1:]) if url]
         self.text_buffer.place_cursor(self.text_buffer.get_start_iter())
+
+    def on_button_release(self, widget, event):
+        if event.button == 1:
+            self.activate_links()
+
+    def on_key_press(self, widget, event):
+        if gtk.gdk.keyval_name(event.keyval) == 'Return':
+            self.activate_links()
+            return True
+
+        return False
+
+    def activate_links(self):
+        if self.text_buffer.get_selection_bounds() == ():
+            pos = self.text_buffer.props.cursor_position
+            target = next((url for start, end, url in self.hyperlinks if start < pos < end), None)
+            if target is not None:
+                util.open_website(target)

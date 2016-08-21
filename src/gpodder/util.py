@@ -67,6 +67,21 @@ import feedparser
 import StringIO
 import xml.dom.minidom
 
+import collections
+
+if sys.hexversion < 0x03000000:
+    from HTMLParser import HTMLParser
+    from htmlentitydefs import name2codepoint
+else:
+    from html.parser import HTMLParser
+    from html.entities import name2codepoint
+
+try:
+    import html5lib
+except ImportError:
+    logger.warn('html5lib not found, falling back to HTMLParser')
+    html5lib = None
+
 if gpodder.ui.win32:
     try:
         import win32file
@@ -618,6 +633,155 @@ def remove_html_tags(html):
     result = re.sub('([\r\n]{2})([\r\n])+', '\\1', result)
 
     return result.strip()
+
+
+class HyperlinkExtracter(object):
+    def __init__(self):
+        self.parts = []
+        self.target_stack = [None]
+
+    def get_result(self):
+        # Group together multiple consecutive parts with same link target,
+        # and remove excessive newlines.
+        group_it = itertools.groupby(self.parts, key=lambda x: x[0])
+        result = []
+        for target, parts in group_it:
+            t = u''.join(text for _, text in parts if text is not None)
+            # Remove trailing spaces
+            t = re.sub(' +\n', '\n', t)
+            # Convert more than two newlines to two newlines
+            t = t.replace('\r', '')
+            t = re.sub(r'\n\n\n+', '\n\n', t)
+            result.append((target, t))
+        # Strip leading and trailing whitespace
+        result[0] = (result[0][0], result[0][1].lstrip())
+        result[-1] = (result[-1][0], result[-1][1].rstrip())
+        return result
+
+    def htmlws(self, s):
+        # Replace whitespaces with a single space per HTML spec.
+        if s is not None:
+            return re.sub(r'[ \t\n\r]+', ' ', s)
+
+    def handle_starttag(self, tag_name, attrs):
+        try:
+            handler = getattr(self, 'handle_start_' + tag_name)
+        except AttributeError:
+            pass
+        else:
+            handler(collections.OrderedDict(attrs))
+
+    def handle_endtag(self, tag_name):
+        try:
+            handler = getattr(self, 'handle_end_' + tag_name)
+        except AttributeError:
+            pass
+        else:
+            handler()
+
+    def handle_start_a(self, attrs):
+        self.target_stack.append(attrs.get('href'))
+
+    def handle_end_a(self):
+        if len(self.target_stack) > 1:
+            self.target_stack.pop()
+
+    def output(self, text):
+        self.parts.append((self.target_stack[-1], text))
+
+    def handle_data(self, data):
+        self.output(self.htmlws(data))
+
+    def handle_entityref(self, name):
+        c = unichr(name2codepoint[name])
+        self.output(c)
+
+    def handle_charref(self, name):
+        if name.startswith('x'):
+            c = unichr(int(name[1:], 16))
+        else:
+            c = unichr(int(name))
+        self.output(c)
+
+    def output_newline(self, attrs=None):
+        self.output('\n')
+
+    def output_double_newline(self, attrs=None):
+        self.output('\n')
+
+    def handle_start_img(self, attrs):
+        self.output(self.htmlws(attrs.get('alt', '')))
+
+    def handle_start_li(self, attrs):
+        self.output('\n * ')
+
+    handle_end_li = handle_end_ul = handle_start_br = output_newline
+    handle_start_p = handle_end_p = output_double_newline
+
+
+class ExtractHyperlinkedText(object):
+    def __call__(self, document):
+        self.extracter = HyperlinkExtracter()
+        self.visit(document)
+        return self.extracter.get_result()
+
+    def visit(self, element):
+        NS = '{http://www.w3.org/1999/xhtml}'
+        tag_name = (element.tag[len(NS):] if element.tag.startswith(NS) else element.tag).lower()
+        self.extracter.handle_starttag(tag_name, element.items())
+
+        if element.text is not None:
+            self.extracter.handle_data(element.text)
+
+        for child in element:
+            self.visit(child)
+
+            if child.tail is not None:
+                self.extracter.handle_data(child.tail)
+
+        self.extracter.handle_endtag(tag_name)
+
+
+class ExtractHyperlinkedText2(HTMLParser):
+    def __call__(self, html):
+        self.extracter = HyperlinkExtracter()
+        self.target_stack = [None]
+        self.feed(html)
+        self.close()
+        return self.extracter.get_result()
+
+    def handle_starttag(self, tag, attrs):
+        self.extracter.handle_starttag(tag, attrs)
+
+    def handle_endtag(self, tag):
+        self.extracter.handle_endtag(tag)
+
+    def handle_data(self, data):
+        self.extracter.handle_data(data)
+
+    def handle_entityref(self, name):
+        self.extracter.handle_entityref(name)
+
+    def handle_charref(self, name):
+        self.extracter.handle_charref(name)
+
+
+def extract_hyperlinked_text(html):
+    """
+    Convert HTML to hyperlinked text.
+
+    The output is a list of (target, text) tuples, where target is either a URL
+    or None, and text is a piece of plain text for rendering in a TextView.
+    """
+    if '<' not in html:
+        # Probably plain text. We would remove all the newlines
+        # if we treated it as HTML, so just pass it back as-is.
+        return [(None, html)]
+
+    if html5lib is not None:
+        return ExtractHyperlinkedText()(html5lib.parseFragment(html))
+    else:
+        return ExtractHyperlinkedText2()(html)
 
 
 def wrong_extension(extension):
