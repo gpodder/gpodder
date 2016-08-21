@@ -742,7 +742,7 @@ class ExtractHyperlinkedText(object):
         self.extracter.handle_endtag(tag_name)
 
 
-class ExtractHyperlinkedText2(HTMLParser):
+class ExtractHyperlinkedTextHTMLParser(HTMLParser):
     def __call__(self, html):
         self.extracter = HyperlinkExtracter()
         self.target_stack = [None]
@@ -781,7 +781,7 @@ def extract_hyperlinked_text(html):
     if html5lib is not None:
         return ExtractHyperlinkedText()(html5lib.parseFragment(html))
     else:
-        return ExtractHyperlinkedText2()(html)
+        return ExtractHyperlinkedTextHTMLParser()(html)
 
 
 def wrong_extension(extension):
