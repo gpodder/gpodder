@@ -79,6 +79,10 @@ get_python_install_path()
 char *FindPythonDLL()
 {
     char *path = get_python_install_path();
+    if (path == NULL) {
+        return NULL;
+    }
+
     static const char *python27_dll = "\\python27.dll";
     char *result = malloc(strlen(path) + strlen(python27_dll) + 1);
     sprintf(result, "%s%s", path, python27_dll);
