@@ -141,6 +141,10 @@ def win32_read_registry_key(path):
 
 
 class UserAppsReader(object):
+    # XDG categories, plus some others found in random .desktop files
+    # https://standards.freedesktop.org/menu-spec/latest/apa.html
+    PLAYER_CATEGORIES = ('Audio', 'Video', 'AudioVideo', 'Player')
+
     def __init__(self, mimetypes):
         self.apps = []
         self.mimetypes = mimetypes
@@ -179,7 +183,15 @@ class UserAppsReader(object):
             parser.read([filename])
             if not parser.has_section(sect):
                 return
-            
+
+            app_categories = parser.get(sect, 'Categories')
+            if not app_categories:
+                return
+
+            if not any(category in self.PLAYER_CATEGORIES
+                       for category in app_categories.split(';')):
+                return
+
             # Find out if we need it by comparing mime types
             app_mime = parser.get(sect, 'MimeType')
             for needed_type in self.mimetypes:
