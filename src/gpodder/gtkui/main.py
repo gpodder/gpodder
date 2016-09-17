@@ -1401,6 +1401,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         # Update icon list to show changes, if any
         self.update_episode_list_icons(all=True)
+        self.update_podcast_list_model()
 
 
     def format_episode_list(self, episode_list, max_episodes=10):
