@@ -207,32 +207,6 @@
     check if the bug still appears to see if an extension causes the bug.
 
 
- [ TRANSLATIONS ]
-
-    These instructions are mostly useful for the maintainer, but they are
-    documented here in case you want to update translations yourself:
-
-    To upload a changed translation template:
-
-        make messages       # update translations from source
-        make clean          # remove temporary files after "make messages"
-        tx push --source    # upload po/messages.pot to transifex.net
-
-    To download a translation that has been updated:
-
-        tx pull -l XX -f    # download po/XX.po from transifex.net
-
-    To generate Git commit commands for the translation updates:
-
-        python tools/i18n/generate_commits.py
-
-    The "tx" command is provided by the Transifex client (transifex-client
-    in Debian/Ubuntu) which can be obtained from:
-
-        http://help.transifex.com/features/client/
-
-
-
  [ MORE INFORMATION ]
 
     - Homepage                         http://gpodder.org/
@@ -241,5 +215,5 @@
     - IRC channel                      #gpodder on irc.freenode.net
 
   ............................................................................
-             Last updated: 2016-02-03 by Thomas Perl <thp.io/about>
+             Last updated: 2016-09-17 by Thomas Perl <thp.io/about>
 
