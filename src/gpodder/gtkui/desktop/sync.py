@@ -37,8 +37,6 @@ logger = logging.getLogger(__name__)
 class gPodderSyncUI(object):
     def __init__(self, config, notification, parent_window,
             show_confirmation,
-            update_episode_list_icons,
-            update_podcast_list_model,
             preferences_widget,
             channels,
             download_status_model,
@@ -53,8 +51,6 @@ class gPodderSyncUI(object):
         self.parent_window = parent_window
         self.show_confirmation = show_confirmation
 
-        self.update_episode_list_icons = update_episode_list_icons
-        self.update_podcast_list_model = update_podcast_list_model
         self.preferences_widget = preferences_widget
         self.channels=channels
         self.download_status_model = download_status_model

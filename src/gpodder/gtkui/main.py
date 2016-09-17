@@ -3413,8 +3413,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.sync_ui = gPodderSyncUI(self.config, self.notification,
                 self.main_window,
                 self.show_confirmation,
-                self.update_episode_list_icons,
-                self.update_podcast_list_model,
                 self.toolPreferences,
                 self.channels,
                 self.download_status_model,
