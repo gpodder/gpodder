@@ -70,6 +70,7 @@ class ProgressIndicator(object):
                 self.cancellable)
 
         self.progressbar = Gtk.ProgressBar()
+        self.progressbar.set_show_text(True)
         self.progressbar.set_ellipsize(Pango.EllipsizeMode.END)
 
         # If the window is shown after the first update, set the progress
