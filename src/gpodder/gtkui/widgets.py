@@ -119,7 +119,7 @@ class SpinningProgressIndicator(Gtk.Image):
             self.step_animation()
         except:
             # FIXME: This is not very beautiful :/
-            self.set_from_stock(Gtk.STOCK_EXECUTE, Gtk.IconSize.BUTTON)
+            self.set_from_icon_name("system-run", Gtk.IconSize.BUTTON)
 
     def step_animation(self):
         if len(self._frames) > 1:

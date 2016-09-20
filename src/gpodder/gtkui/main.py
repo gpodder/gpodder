@@ -1494,10 +1494,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
             selected_tasks, can_queue, can_cancel, can_pause, can_remove, can_force = \
                     self.downloads_list_get_selection(model, paths)
 
-            def make_menu_item(label, stock_id, tasks, status, sensitive, force_start=False):
+            def make_menu_item(label, icon_name, tasks, status, sensitive, force_start=False):
                 # This creates a menu item for selection-wide actions
-                item = Gtk.ImageMenuItem(label)
-                item.set_image(Gtk.Image.new_from_stock(stock_id, Gtk.IconSize.MENU))
+                item = Gtk.ImageMenuItem.new_with_mnemonic(label)
+                if icon_name is not None:
+                    item.set_image(Gtk.Image.new_from_icon_name(icon_name, Gtk.IconSize.MENU))
                 item.connect('activate', lambda item: self._for_each_task_set_status(tasks, status, force_start))
                 item.set_sensitive(sensitive)
                 return item
@@ -1505,13 +1506,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
             menu = Gtk.Menu()
 
             if can_force:
-                menu.append(make_menu_item(_('Start download now'), Gtk.STOCK_GO_DOWN, selected_tasks, download.DownloadTask.QUEUED, True, True))
+                menu.append(make_menu_item(_('Start download now'), "go-down", selected_tasks, download.DownloadTask.QUEUED, True, True))
             else:
-                menu.append(make_menu_item(_('Download'), Gtk.STOCK_GO_DOWN, selected_tasks, download.DownloadTask.QUEUED, can_queue, False))
-            menu.append(make_menu_item(_('Cancel'), Gtk.STOCK_CANCEL, selected_tasks, download.DownloadTask.CANCELLED, can_cancel))
-            menu.append(make_menu_item(_('Pause'), Gtk.STOCK_MEDIA_PAUSE, selected_tasks, download.DownloadTask.PAUSED, can_pause))
+                menu.append(make_menu_item(_('Download'), "go-down", selected_tasks, download.DownloadTask.QUEUED, can_queue, False))
+            menu.append(make_menu_item(_('Cancel'), "media-playback-stop", selected_tasks, download.DownloadTask.CANCELLED, can_cancel))
+            menu.append(make_menu_item(_('Pause'), "media-playback-pause", selected_tasks, download.DownloadTask.PAUSED, can_pause))
             menu.append(Gtk.SeparatorMenuItem())
-            menu.append(make_menu_item(_('Remove from list'), Gtk.STOCK_REMOVE, selected_tasks, None, can_remove))
+            menu.append(make_menu_item(_('Remove from list'), "list-remove", selected_tasks, None, can_remove))
 
             menu.show_all()
 
@@ -1551,7 +1552,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             menu = Gtk.Menu()
 
             item = Gtk.ImageMenuItem( _('Update podcast'))
-            item.set_image(Gtk.Image.new_from_stock(Gtk.STOCK_REFRESH, Gtk.IconSize.MENU))
+            item.set_image(Gtk.Image.new_from_icon_name("view-refresh", Gtk.IconSize.MENU))
             item.connect('activate', self.on_itemUpdateChannel_activate)
             menu.append(item)
 
@@ -1573,7 +1574,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             menu.append(item)
 
             item = Gtk.ImageMenuItem(_('Remove podcast'))
-            item.set_image(Gtk.Image.new_from_stock(Gtk.STOCK_DELETE, Gtk.IconSize.MENU))
+            item.set_image(Gtk.Image.new_from_icon_name("edit-delete", Gtk.IconSize.MENU))
             item.connect( 'activate', self.on_itemRemoveChannel_activate)
             menu.append( item)
 
@@ -1588,7 +1589,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             menu.append(Gtk.SeparatorMenuItem())
 
             item = Gtk.ImageMenuItem(_('Podcast settings'))
-            item.set_image(Gtk.Image.new_from_stock(Gtk.STOCK_INFO, Gtk.IconSize.MENU))
+            item.set_image(Gtk.Image.new_from_icon_name("document-properties", Gtk.IconSize.MENU))
             item.connect('activate', self.on_itemEditChannel_activate)
             menu.append(item)
 
@@ -1703,13 +1704,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if open_instead_of_play:
                 item = Gtk.ImageMenuItem(Gtk.STOCK_OPEN)
             elif downloaded:
-                item = Gtk.ImageMenuItem(Gtk.STOCK_MEDIA_PLAY)
+                item = Gtk.ImageMenuItem(_("Play"))
+                item.set_image(Gtk.Image.new_from_icon_name("media-playback-start", Gtk.IconSize.MENU))
             else:
                 if downloading:
                     item = Gtk.ImageMenuItem(_('Preview'))
                 else:
                     item = Gtk.ImageMenuItem(_('Stream'))
-                item.set_image(Gtk.Image.new_from_stock(Gtk.STOCK_MEDIA_PLAY, Gtk.IconSize.MENU))
+                item.set_image(Gtk.Image.new_from_icon_name("media-playback-start", Gtk.IconSize.MENU))
 
             item.set_sensitive(can_play)
             item.connect('activate', self.on_playback_selected_episodes)
@@ -1717,16 +1719,17 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             if not can_cancel:
                 item = Gtk.ImageMenuItem(_('Download'))
-                item.set_image(Gtk.Image.new_from_stock(Gtk.STOCK_GO_DOWN, Gtk.IconSize.MENU))
+                item.set_image(Gtk.Image.new_from_icon_name("go-down", Gtk.IconSize.MENU))
                 item.set_sensitive(can_download)
                 item.connect('activate', self.on_download_selected_episodes)
                 menu.append(item)
             else:
-                item = Gtk.ImageMenuItem(Gtk.STOCK_CANCEL)
+                item = Gtk.ImageMenuItem.new_with_mnemonic(_("_Cancel"))
                 item.connect('activate', self.on_item_cancel_download_activate)
                 menu.append(item)
 
-            item = Gtk.ImageMenuItem(Gtk.STOCK_DELETE)
+            item = Gtk.ImageMenuItem.new_with_mnemonic(_("_Delete"))
+            item.set_image(Gtk.Image.new_from_icon_name("edit-delete", Gtk.IconSize.MENU))
             item.set_sensitive(can_delete)
             item.connect('activate', self.on_btnDownloadedDelete_clicked)
             menu.append(item)
@@ -1755,7 +1758,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 share_menu = self._add_sub_menu(menu, _('Send to'))
 
                 item = Gtk.ImageMenuItem(_('Local folder'))
-                item.set_image(Gtk.Image.new_from_stock(Gtk.STOCK_DIRECTORY, Gtk.IconSize.MENU))
+                item.set_image(Gtk.Image.new_from_icon_name("folder", Gtk.IconSize.MENU))
                 self._submenu_item_activate_hack(item, self.save_episodes_as_file, episodes)
                 share_menu.append(item)
                 if self.bluetooth_available:
@@ -1783,7 +1786,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             menu.append(Gtk.SeparatorMenuItem())
             # Single item, add episode information menu item
             item = Gtk.ImageMenuItem(_('Episode details'))
-            item.set_image(Gtk.Image.new_from_stock( Gtk.STOCK_INFO, Gtk.IconSize.MENU))
+            item.set_image(Gtk.Image.new_from_icon_name( "dialog-information", Gtk.IconSize.MENU))
             item.connect('activate', self.on_shownotes_selected_episodes)
             menu.append(item)
 
@@ -2391,7 +2394,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.feed_cache_update_cancelled = False
         self.btnCancelFeedUpdate.show()
         self.btnCancelFeedUpdate.set_sensitive(True)
-        self.btnCancelFeedUpdate.set_image(Gtk.Image.new_from_stock(Gtk.STOCK_STOP, Gtk.IconSize.BUTTON))
+        self.btnCancelFeedUpdate.set_image(Gtk.Image.new_from_icon_name("process-stop", Gtk.IconSize.BUTTON))
         self.hboxUpdateFeeds.show_all()
         self.btnUpdateFeeds.hide()
 
@@ -2468,7 +2471,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     self.btnCancelFeedUpdate.show()
                     self.btnCancelFeedUpdate.set_sensitive(True)
                     self.itemUpdate.set_sensitive(True)
-                    self.btnCancelFeedUpdate.set_image(Gtk.Image.new_from_stock(Gtk.STOCK_APPLY, Gtk.IconSize.BUTTON))
+                    self.btnCancelFeedUpdate.set_image(Gtk.Image.new_from_icon_name("edit-clear", Gtk.IconSize.BUTTON))
                 else:
                     count = len(episodes)
                     # New episodes are available
@@ -2647,7 +2650,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         gPodderEpisodeSelector(self.main_window, title = _('Delete episodes'), instructions = instructions, \
                                 episodes = episodes, selected = selected, columns = columns, \
-                                stock_ok_button = Gtk.STOCK_DELETE, callback = self.delete_episode_list, \
+                                stock_ok_button = "edit-delete", callback = self.delete_episode_list, \
                                 selection_buttons = selection_buttons, _config=self.config)
 
     def on_selected_episodes_status_changed(self):

@@ -146,7 +146,7 @@ class BuilderWidget(GtkBuilderWidget):
             Gtk.MessageType.QUESTION,
             Gtk.ButtonsType.CANCEL)
         dialog.add_button(_('Login'), Gtk.ResponseType.OK)
-        dialog.set_image(Gtk.Image.new_from_stock(Gtk.STOCK_DIALOG_AUTHENTICATION, Gtk.IconSize.DIALOG))
+        dialog.set_image(Gtk.Image.new_from_icon_name("dialog-password", Gtk.IconSize.DIALOG))
         dialog.set_title(_('Authentication required'))
         dialog.set_markup('<span weight="bold" size="larger">' + title + '</span>')
         dialog.format_secondary_markup(message)
