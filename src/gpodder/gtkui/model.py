@@ -307,7 +307,7 @@ class EpisodeListModel(Gtk.ListStore):
     def update_by_filter_iter(self, iter, include_description=False):
         # Convenience function for use by "outside" methods that use iters
         # from the filtered episode list model (i.e. all UI things normally)
-        iter = self._sorter.convert_iter_to_child_iter(None, iter)
+        iter = self._sorter.convert_iter_to_child_iter(iter)
         self.update_by_iter(self._filter.convert_iter_to_child_iter(iter),
                 include_description)
 
@@ -717,7 +717,7 @@ class PodcastListModel(Gtk.ListStore):
     def iter_is_first_row(self, iter):
         iter = self._filter.convert_iter_to_child_iter(iter)
         path = self.get_path(iter)
-        return (path.get_indices() == [0])
+        return (path == Gtk.TreePath.new_first())
 
     def update_by_filter_iter(self, iter):
         self.update_by_iter(self._filter.convert_iter_to_child_iter(iter))
