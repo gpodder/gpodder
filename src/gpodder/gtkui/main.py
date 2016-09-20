@@ -140,11 +140,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.episode_columns_menu = None
         self.config.add_observer(self.on_config_changed)
 
-        self.shownotes_pane = Gtk.HBox()
+        self.shownotes_pane = Gtk.Box()
         self.shownotes_object = shownotes.gPodderShownotesText(self.shownotes_pane)
 
         # Vertical paned for the episode list and shownotes
-        self.vpaned = Gtk.VPaned()
+        self.vpaned = Gtk.Paned(orientation=Gtk.Orientation.VERTICAL)
         paned = self.vbox_episode_list.get_parent()
         self.vbox_episode_list.reparent(self.vpaned)
         self.vpaned.child_set_property(self.vbox_episode_list, 'resize', True)

@@ -111,6 +111,7 @@ class gPodderShownotes:
 class gPodderShownotesText(gPodderShownotes):
     def init(self):
         self.text_view = Gtk.TextView()
+        self.text_view.set_property("expand", True)
         self.text_view.set_wrap_mode(Gtk.WrapMode.WORD_CHAR)
         self.text_view.set_border_width(10)
         self.text_view.set_editable(False)

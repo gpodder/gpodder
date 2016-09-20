@@ -14,10 +14,11 @@
     <property name="default_height">400</property>
     <property name="type_hint">dialog</property>
     <child internal-child="vbox">
-      <object class="GtkVBox" id="vb_directory">
+      <object class="GtkBox" id="vb_directory">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="spacing">6</property>
+        <property name="orientation">vertical</property>
         <child internal-child="action_area">
           <object class="GtkHButtonBox" id="hboxBottomButtons">
             <property name="visible">True</property>
@@ -95,9 +96,10 @@
           </packing>
         </child>
         <child>
-          <object class="GtkHPaned" id="hpaned">
+          <object class="GtkPaned" id="hpaned">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
+            <property name="orientation">horizontal</property>
             <child>
               <object class="GtkScrolledWindow" id="sw_providers">
                 <property name="visible">True</property>
@@ -122,15 +124,17 @@
               </packing>
             </child>
             <child>
-              <object class="GtkVBox" id="vb_podcasts">
+              <object class="GtkBox" id="vb_podcasts">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="spacing">5</property>
+                <property name="orientation">vertical</property>
                 <child>
-                  <object class="GtkHBox" id="hb_text_entry">
+                  <object class="GtkBox" id="hb_text_entry">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="spacing">5</property>
+                    <property name="orientation">horizontal</property>
                     <child>
                       <object class="GtkLabel" id="lb_search">
                         <property name="visible">True</property>

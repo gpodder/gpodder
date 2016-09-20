@@ -115,7 +115,7 @@ class BuilderWidget(GtkBuilderWidget):
             if text is None:
                 dialog.set_response_sensitive(Gtk.ResponseType.OK, False)
 
-        hbox = Gtk.HBox()
+        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
         hbox.set_border_width(10)
         hbox.set_spacing(10)
         hbox.pack_start(Gtk.Label(prompt, True, True, 0), False, False, 0)

@@ -14,14 +14,16 @@
     <property name="focus_on_map">True</property>
     <property name="urgency_hint">False</property>
     <child internal-child="vbox">
-      <object class="GtkVBox" id="vbox10">
+      <object class="GtkBox" id="vbox10">
         <property name="visible">True</property>
         <property name="homogeneous">False</property>
+        <property name="orientation">vertical</property>
         <child>
-          <object class="GtkVBox" id="vbox_for_episode_selector">
+          <object class="GtkBox" id="vbox_for_episode_selector">
             <property name="border_width">5</property>
             <property name="visible">True</property>
             <property name="spacing">5</property>
+            <property name="orientation">vertical</property>
             <child>
               <object class="GtkLabel" id="labelInstructions">
                 <property name="label">additional text</property>
@@ -69,10 +71,11 @@
               </packing>
             </child>
             <child>
-              <object class="GtkHBox" id="hboxButtons">
+              <object class="GtkBox" id="hboxButtons">
                 <property name="visible">True</property>
                 <property name="homogeneous">False</property>
                 <property name="spacing">5</property>
+                <property name="orientation">horizontal</property>
                 <child>
                   <object class="GtkButton" id="btnCheckAll">
                     <property name="visible">True</property>
@@ -89,10 +92,11 @@
                         <property name="left_padding">0</property>
                         <property name="right_padding">0</property>
                         <child>
-                          <object class="GtkHBox" id="hbox34">
+                          <object class="GtkBox" id="hbox34">
                             <property name="visible">True</property>
                             <property name="homogeneous">False</property>
                             <property name="spacing">2</property>
+                            <property name="orientation">horizontal</property>
                             <child>
                               <object class="GtkImage" id="image2636">
                                 <property name="visible">True</property>
@@ -149,10 +153,11 @@
                         <property name="left_padding">0</property>
                         <property name="right_padding">0</property>
                         <child>
-                          <object class="GtkHBox" id="hbox33">
+                          <object class="GtkBox" id="hbox33">
                             <property name="visible">True</property>
                             <property name="homogeneous">False</property>
                             <property name="spacing">2</property>
+                            <property name="orientation">horizontal</property>
                             <child>
                               <object class="GtkImage" id="image2635">
                                 <property name="visible">True</property>
@@ -226,10 +231,11 @@
           </packing>
         </child>
         <child internal-child="action_area">
-          <object class="GtkHBox" id="hbox35">
+          <object class="GtkBox" id="hbox35">
             <property name="visible">True</property>
             <property name="homogeneous">False</property>
             <property name="spacing">5</property>
+            <property name="orientation">horizontal</property>
             <child>
               <object class="GtkButton" id="btnRemoveAction">
                 <property name="visible">False</property>

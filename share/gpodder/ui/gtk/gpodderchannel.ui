@@ -13,10 +13,11 @@
     <property name="type_hint">dialog</property>
     <signal name="destroy" handler="on_gPodderChannel_destroy" swapped="no"/>
     <child internal-child="vbox">
-      <object class="GtkVBox" id="vboxChannelEditorMain">
+      <object class="GtkBox" id="vboxChannelEditorMain">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="spacing">5</property>
+        <property name="orientation">vertical</property>
         <child internal-child="action_area">
           <object class="GtkHButtonBox" id="hboxButtons">
             <property name="visible">True</property>
@@ -264,11 +265,12 @@
               </packing>
             </child>
             <child>
-              <object class="GtkVBox" id="vboxiPodProperties">
+              <object class="GtkBox" id="vboxiPodProperties">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="border_width">10</property>
                 <property name="spacing">5</property>
+                <property name="orientation">vertical</property>
                 <child>
                   <object class="GtkLabel" id="label96">
                     <property name="visible">True</property>
