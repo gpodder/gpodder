@@ -262,15 +262,16 @@ class gPodderPodcastDirectory(BuilderWidget):
                     self.podcasts_progress_indicator.on_finished()
                     self.podcasts_progress_indicator = None
 
-                if original_provider != self.current_provider:
+                if original_provider == self.current_provider:
+                    self.podcasts_model.load(podcasts or [])
+                else:
                     logger.warn('Ignoring update from old thread')
-                    return
 
-                self.podcasts_model.load(podcasts or [])
                 self.en_query.set_sensitive(True)
                 self.bt_search.set_sensitive(True)
                 self.tag_cloud.set_sensitive(True)
-                self.en_query.grab_focus()
+                if self.en_query.get_realized():
+                    self.en_query.grab_focus()
 
     def on_bt_search_clicked(self, widget):
         if self.current_provider is None:
