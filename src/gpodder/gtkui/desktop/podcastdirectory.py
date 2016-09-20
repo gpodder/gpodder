@@ -72,7 +72,7 @@ class DirectoryPodcastsModel(Gtk.ListStore):
         self.callback_can_subscribe(len(self.get_selected_podcasts()) > 0)
 
     def get_selected_podcasts(self):
-        return [(row[self.C_TITLE], row[self.C_URL]) for row in self if row[self.C_SELECTED]]
+        return [(unicode(row[self.C_TITLE],'utf8'), row[self.C_URL]) for row in self if row[self.C_SELECTED]]
 
 
 class DirectoryProvidersModel(Gtk.ListStore):
@@ -230,7 +230,8 @@ class gPodderPodcastDirectory(BuilderWidget):
 
     def on_tv_providers_cursor_changed(self, treeview):
         path, column = treeview.get_cursor()
-        self.on_tv_providers_row_activated(treeview, path, column)
+        if path is not None:
+            self.on_tv_providers_row_activated(treeview, path, column)
 
     def obtain_podcasts_with(self, callback):
         if self.podcasts_progress_indicator is not None:
