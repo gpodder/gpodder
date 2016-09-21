@@ -635,11 +635,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
         column.pack_start(namecell, True)
         column.add_attribute(namecell, 'markup', PodcastListModel.C_DESCRIPTION)
 
-        iconcell = Gtk.CellRendererText()
+        iconcell = Gtk.CellRendererPixbuf()
         iconcell.set_property('xalign', 1.0)
-        iconcell.set_property('scale', 1.5)
         column.pack_start(iconcell, False)
-        column.add_attribute(iconcell, 'text', PodcastListModel.C_PILL)
+        column.add_attribute(iconcell, 'pixbuf', PodcastListModel.C_PILL)
         column.add_attribute(iconcell, 'visible', PodcastListModel.C_PILL_VISIBLE)
 
         self.treeChannels.append_column(column)
@@ -3191,6 +3190,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         dlg.run()
 
     def on_wNotebook_switch_page(self, notebook, page, page_num):
+        """ DEAD CODE """
         if page_num == 0:
             self.play_or_download()
             # The message area in the downloads tab should be hidden

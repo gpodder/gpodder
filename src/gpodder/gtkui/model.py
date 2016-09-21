@@ -468,7 +468,7 @@ class PodcastListModel(Gtk.ListStore):
         return model.get_value(iter, cls.C_SEPARATOR)
 
     def __init__(self, cover_downloader):
-        Gtk.ListStore.__init__(self, str, str, str, str, \
+        Gtk.ListStore.__init__(self, str, str, str, GdkPixbuf.Pixbuf, \
                 object, GdkPixbuf.Pixbuf, str, bool, bool, bool, bool, \
                 bool, bool, int, bool, str)
 
@@ -610,6 +610,12 @@ class PodcastListModel(Gtk.ListStore):
             pixbuf_overlay.saturate_and_pixelate(pixbuf_overlay, 0.0, False)
 
         return pixbuf_overlay
+
+    def _get_pill_image(self, channel, count_downloaded, count_unplayed):
+        if count_unplayed > 0 or count_downloaded > 0:
+            return draw.draw_pill_pixbuf(str(count_unplayed), str(count_downloaded))
+        else:
+            return None
 
     def _format_description(self, channel, total, deleted, \
             new, downloaded, unplayed):
@@ -772,13 +778,15 @@ class PodcastListModel(Gtk.ListStore):
         description = self._format_description(channel, total, deleted, new, \
                 downloaded, unplayed)
 
+        pill_image = self._get_pill_image(channel, downloaded, unplayed)
+
         self.set(iter, \
                 self.C_TITLE, channel.title, \
                 self.C_DESCRIPTION, description, \
                 self.C_SECTION, channel.section, \
                 self.C_ERROR, self._format_error(channel), \
-                self.C_PILL, str(unplayed), \
-                self.C_PILL_VISIBLE, unplayed > 0, \
+                self.C_PILL, pill_image, \
+                self.C_PILL_VISIBLE, pill_image != None, \
                 self.C_VIEW_SHOW_UNDELETED, total - deleted > 0, \
                 self.C_VIEW_SHOW_DOWNLOADED, downloaded + new > 0, \
                 self.C_VIEW_SHOW_UNPLAYED, unplayed + new > 0, \
