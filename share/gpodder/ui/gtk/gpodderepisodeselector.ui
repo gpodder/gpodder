@@ -3,12 +3,10 @@
 <interface>
   <object class="GtkDialog" id="gPodderEpisodeSelector">
     <property name="visible">False</property>
-    <property name="has_separator">True</property>
     <property name="title" translatable="yes">Select episodes</property>
     <property name="window_position">GTK_WIN_POS_CENTER_ON_PARENT</property>
     <property name="modal">True</property>
-    <property name="default_width">600</property>
-    <property name="default_height">400</property>
+    <property name="transient-for">parent_widget</property>
     <property name="destroy_with_parent">False</property>
     <property name="skip_taskbar_hint">False</property>
     <property name="skip_pager_hint">False</property>
@@ -221,6 +219,11 @@
               </packing>
             </child>
           </object>
+          <packing>
+            <property name="padding">0</property>
+            <property name="expand">True</property>
+            <property name="fill">True</property>
+          </packing>
         </child>
         <child internal-child="action_area">
           <object class="GtkHBox" id="hbox35">

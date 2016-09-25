@@ -24,33 +24,33 @@
 #  Thomas Perl <thp@gpodder.org> 2009-03-31
 #
 
-import gtk
-import gobject
-import pango
+from gi.repository import Gtk
+from gi.repository import GObject
+from gi.repository import Pango
 
 import cgi
 
-class SimpleMessageArea(gtk.HBox):
+class SimpleMessageArea(Gtk.HBox):
     """A simple, yellow message area. Inspired by gedit.
 
     Original C source code:
     http://svn.gnome.org/viewvc/gedit/trunk/gedit/gedit-message-area.c
     """
     def __init__(self, message, buttons=()):
-        gtk.HBox.__init__(self, spacing=6)
+        Gtk.HBox.__init__(self, spacing=6)
         self.set_border_width(6)
         self.__in_style_set = False
         self.connect('style-set', self.__style_set)
         self.connect('expose-event', self.__expose_event)
 
-        self.__label = gtk.Label()
+        self.__label = Gtk.Label()
         self.__label.set_alignment(0.0, 0.5)
         self.__label.set_line_wrap(False)
-        self.__label.set_ellipsize(pango.ELLIPSIZE_END)
+        self.__label.set_ellipsize(Pango.EllipsizeMode.END)
         self.__label.set_markup('<b>%s</b>' % cgi.escape(message))
         self.pack_start(self.__label, expand=True, fill=True)
 
-        hbox = gtk.HBox()
+        hbox = Gtk.HBox()
         for button in buttons:
             hbox.pack_start(button, expand=True, fill=False)
         self.pack_start(hbox, expand=False, fill=False)
@@ -70,7 +70,7 @@ class SimpleMessageArea(gtk.HBox):
         if self.__in_style_set:
             return
 
-        w = gtk.Window(gtk.WINDOW_POPUP)
+        w = Gtk.Window(Gtk.WindowType.POPUP)
         w.set_name('gtk-tooltip')
         w.ensure_style()
         style = w.get_style()
@@ -87,22 +87,22 @@ class SimpleMessageArea(gtk.HBox):
     def __expose_event(self, widget, event):
         style = widget.get_style()
         rect = widget.get_allocation()
-        style.paint_flat_box(widget.window, gtk.STATE_NORMAL,
-                gtk.SHADOW_OUT, None, widget, "tooltip",
+        style.paint_flat_box(widget.window, Gtk.StateType.NORMAL,
+                Gtk.ShadowType.OUT, None, widget, "tooltip",
                 rect.x, rect.y, rect.width, rect.height)
         return False
 
 
-class SpinningProgressIndicator(gtk.Image):
+class SpinningProgressIndicator(Gtk.Image):
     # Progress indicator loading inspired by glchess from gnome-games-clutter
     def __init__(self, size=32):
-        gtk.Image.__init__(self)
+        Gtk.Image.__init__(self)
 
         self._frames = []
         self._frame_id = 0
 
         # Load the progress indicator
-        icon_theme = gtk.icon_theme_get_default()
+        icon_theme = Gtk.IconTheme.get_default()
 
         try:
             icon = icon_theme.load_icon('process-working', size, 0)
@@ -119,7 +119,7 @@ class SpinningProgressIndicator(gtk.Image):
             self.step_animation()
         except:
             # FIXME: This is not very beautiful :/
-            self.set_from_stock(gtk.STOCK_EXECUTE, gtk.ICON_SIZE_BUTTON)
+            self.set_from_stock(Gtk.STOCK_EXECUTE, Gtk.IconSize.BUTTON)
 
     def step_animation(self):
         if len(self._frames) > 1:

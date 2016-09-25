@@ -17,8 +17,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import gtk
-import gtk.gdk
+from gi.repository import Gtk
+from gi.repository import Gdk
 
 import gpodder
 
@@ -41,19 +41,19 @@ class gPodderChannel(BuilderWidget):
         self.cbSkipFeedUpdate.set_active(self.channel.pause_subscription)
         self.cbEnableDeviceSync.set_active(self.channel.sync_to_mp3_player)
 
-        self.section_list = gtk.ListStore(str)
+        self.section_list = Gtk.ListStore(str)
         active_index = 0
         for index, section in enumerate(sorted(self.sections)):
             self.section_list.append([section])
             if section == self.channel.section:
                 active_index = index
         self.combo_section.set_model(self.section_list)
-        cell_renderer = gtk.CellRendererText()
-        self.combo_section.pack_start(cell_renderer)
+        cell_renderer = Gtk.CellRendererText()
+        self.combo_section.pack_start(cell_renderer, True, True, 0)
         self.combo_section.add_attribute(cell_renderer, 'text', 0)
         self.combo_section.set_active(active_index)
 
-        self.strategy_list = gtk.ListStore(str, int)
+        self.strategy_list = Gtk.ListStore(str, int)
         active_index = 0
         for index, (checked, strategy_id, strategy) in \
             enumerate(self.channel.get_download_strategies()):
@@ -61,8 +61,8 @@ class gPodderChannel(BuilderWidget):
             if checked:
                 active_index = index
         self.combo_strategy.set_model(self.strategy_list)
-        cell_renderer = gtk.CellRendererText()
-        self.combo_strategy.pack_start(cell_renderer)
+        cell_renderer = Gtk.CellRendererText()
+        self.combo_strategy.pack_start(cell_renderer, True, True, 0)
         self.combo_strategy.add_attribute(cell_renderer, 'text', 0)
         self.combo_strategy.set_active(active_index)
 
@@ -81,14 +81,14 @@ class gPodderChannel(BuilderWidget):
         if not self.channel.link:
             self.btn_website.hide_all()
 
-        b = gtk.TextBuffer()
+        b = Gtk.TextBuffer()
         b.set_text( self.channel.description)
         self.channel_description.set_buffer( b)
 
         #Add Drag and Drop Support
-        flags = gtk.DEST_DEFAULT_ALL
+        flags = Gtk.DestDefaults.ALL
         targets = [('text/uri-list', 0, 2), ('text/plain', 0, 4)]
-        actions = gtk.gdk.ACTION_DEFAULT | gtk.gdk.ACTION_COPY
+        actions = Gdk.DragAction.DEFAULT | Gdk.DragAction.COPY
         self.imgCover.drag_dest_set(flags, targets, actions)
         self.imgCover.connect('drag_data_received', self.drag_data_received)
         border = 6
@@ -98,7 +98,7 @@ class gPodderChannel(BuilderWidget):
 
     def on_button_add_section_clicked(self, widget):
         text = self.show_text_edit_dialog(_('Add section'), _('New section:'),
-            affirmative_text=gtk.STOCK_ADD)
+            affirmative_text=Gtk.STOCK_ADD)
 
         if text is not None:
             for index, (section,) in enumerate(self.section_list):
@@ -113,13 +113,13 @@ class gPodderChannel(BuilderWidget):
         if event.button != 3:
             return
 
-        menu = gtk.Menu()
+        menu = Gtk.Menu()
 
-        item = gtk.ImageMenuItem(gtk.STOCK_OPEN)
+        item = Gtk.ImageMenuItem(Gtk.STOCK_OPEN)
         item.connect('activate', self.on_btnDownloadCover_clicked)
         menu.append(item)
 
-        item = gtk.ImageMenuItem(gtk.STOCK_REFRESH)
+        item = Gtk.ImageMenuItem(Gtk.STOCK_REFRESH)
         item.connect('activate', self.on_btnClearCover_clicked)
         menu.append(item)
 
@@ -130,11 +130,11 @@ class gPodderChannel(BuilderWidget):
         util.open_website(self.channel.link)
 
     def on_btnDownloadCover_clicked(self, widget):
-        dlg = gtk.FileChooserDialog(title=_('Select new podcast cover artwork'), parent=self.gPodderChannel, action=gtk.FILE_CHOOSER_ACTION_OPEN)
-        dlg.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
-        dlg.add_button(gtk.STOCK_OPEN, gtk.RESPONSE_OK)
+        dlg = Gtk.FileChooserDialog(title=_('Select new podcast cover artwork'), parent=self.gPodderChannel, action=Gtk.FileChooserAction.OPEN)
+        dlg.add_button(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL)
+        dlg.add_button(Gtk.STOCK_OPEN, Gtk.ResponseType.OK)
 
-        if dlg.run() == gtk.RESPONSE_OK:
+        if dlg.run() == Gtk.ResponseType.OK:
             url = dlg.get_uri()
             self.clear_cover_cache(self.channel.url)
             self.cover_downloader.replace_cover(self.channel, custom_url=url)
@@ -179,13 +179,13 @@ class gPodderChannel(BuilderWidget):
         if pixbuf.get_width() > self.MAX_SIZE:
             f = float(self.MAX_SIZE)/pixbuf.get_width()
             (width, height) = (int(pixbuf.get_width()*f), int(pixbuf.get_height()*f))
-            pixbuf = pixbuf.scale_simple(width, height, gtk.gdk.INTERP_BILINEAR)
+            pixbuf = pixbuf.scale_simple(width, height, GdkPixbuf.InterpType.BILINEAR)
 
         # Resize if height is too large
         if pixbuf.get_height() > self.MAX_SIZE:
             f = float(self.MAX_SIZE)/pixbuf.get_height()
             (width, height) = (int(pixbuf.get_width()*f), int(pixbuf.get_height()*f))
-            pixbuf = pixbuf.scale_simple(width, height, gtk.gdk.INTERP_BILINEAR)
+            pixbuf = pixbuf.scale_simple(width, height, GdkPixbuf.InterpType.BILINEAR)
 
         return pixbuf
 

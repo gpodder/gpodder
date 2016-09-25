@@ -38,13 +38,14 @@ logger = logging.getLogger(__name__)
 from gpodder.gtkui import draw
 
 import os
-import gtk
-import gobject
+from gi.repository import Gtk
+from gi.repository import GObject
+from gi.repository import GdkPixbuf
 import cgi
 import re
 
 try:
-    import gio
+    from gi.repository import Gio
     have_gio = True
 except ImportError:
     have_gio = False
@@ -105,7 +106,7 @@ class Model(model.Model):
 class SeparatorMarker(object): pass
 class SectionMarker(object): pass
 
-class EpisodeListModel(gtk.ListStore):
+class EpisodeListModel(Gtk.ListStore):
     C_URL, C_TITLE, C_FILESIZE_TEXT, C_EPISODE, C_STATUS_ICON, \
             C_PUBLISHED_TEXT, C_DESCRIPTION, C_TOOLTIP, \
             C_VIEW_SHOW_UNDELETED, C_VIEW_SHOW_DOWNLOADED, \
@@ -122,9 +123,9 @@ class EpisodeListModel(gtk.ListStore):
     PROGRESS_STEPS = 20
 
     def __init__(self, config, on_filter_changed=lambda has_episodes: None):
-        gtk.ListStore.__init__(self, str, str, str, object, \
+        Gtk.ListStore.__init__(self, str, str, str, object, \
                 str, str, str, str, bool, bool, bool, \
-                gobject.TYPE_INT64, gobject.TYPE_INT64, str, bool, gobject.TYPE_INT64, bool)
+                GObject.TYPE_INT64, GObject.TYPE_INT64, str, bool, GObject.TYPE_INT64, bool)
 
         self._config = config
 
@@ -134,7 +135,7 @@ class EpisodeListModel(gtk.ListStore):
 
         # Filter to allow hiding some episodes
         self._filter = self.filter_new()
-        self._sorter = gtk.TreeModelSort(self._filter)
+        self._sorter = Gtk.TreeModelSort(self._filter)
         self._view_mode = self.VIEW_ALL
         self._search_term = None
         self._search_term_eql = None
@@ -147,8 +148,8 @@ class EpisodeListModel(gtk.ListStore):
         self.ICON_VIDEO_FILE = 'video-x-generic'
         self.ICON_IMAGE_FILE = 'image-x-generic'
         self.ICON_GENERIC_FILE = 'text-x-generic'
-        self.ICON_DOWNLOADING = gtk.STOCK_GO_DOWN
-        self.ICON_DELETED = gtk.STOCK_DELETE
+        self.ICON_DOWNLOADING = Gtk.STOCK_GO_DOWN
+        self.ICON_DELETED = Gtk.STOCK_DELETE
 
         if 'KDE_FULL_SESSION' in os.environ:
             # Workaround until KDE adds all the freedesktop icons
@@ -163,7 +164,7 @@ class EpisodeListModel(gtk.ListStore):
         else:
             return None
 
-    def _filter_visible_func(self, model, iter):
+    def _filter_visible_func(self, model, iter, misc):
         # If searching is active, set visibility based on search text
         if self._search_term is not None:
             episode = model.get_value(iter, self.C_EPISODE)
@@ -321,7 +322,7 @@ class EpisodeListModel(gtk.ListStore):
         view_show_undeleted = True
         view_show_downloaded = False
         view_show_unplayed = False
-        icon_theme = gtk.icon_theme_get_default()
+        icon_theme = Gtk.IconTheme.get_default()
 
         if episode.downloading:
             tooltip.append('%s %d%%' % (_('Downloading'),
@@ -367,9 +368,9 @@ class EpisodeListModel(gtk.ListStore):
 
                 # Try to find a themed icon for this file
                 if filename is not None and have_gio:
-                    file = gio.File(filename)
+                    file = Gio.File.new_for_path(filename)
                     if file.query_exists():
-                        file_info = file.query_info('*')
+                        file_info = file.query_info('*', Gio.FileQueryInfoFlags.NONE, None)
                         icon = file_info.get_icon()
                         for icon_name in icon.get_names():
                             if icon_theme.has_icon(icon_name):
@@ -453,7 +454,7 @@ class PodcastChannelProxy(object):
                 for e in c.get_all_episodes()), True)
 
 
-class PodcastListModel(gtk.ListStore):
+class PodcastListModel(Gtk.ListStore):
     C_URL, C_TITLE, C_DESCRIPTION, C_PILL, C_CHANNEL, \
             C_COVER, C_ERROR, C_PILL_VISIBLE, \
             C_VIEW_SHOW_UNDELETED, C_VIEW_SHOW_DOWNLOADED, \
@@ -467,8 +468,8 @@ class PodcastListModel(gtk.ListStore):
         return model.get_value(iter, cls.C_SEPARATOR)
 
     def __init__(self, cover_downloader):
-        gtk.ListStore.__init__(self, str, str, str, gtk.gdk.Pixbuf, \
-                object, gtk.gdk.Pixbuf, str, bool, bool, bool, bool, \
+        Gtk.ListStore.__init__(self, str, str, str, str, \
+                object, GdkPixbuf.Pixbuf, str, bool, bool, bool, bool, \
                 bool, bool, int, bool, str)
 
         # Filter to allow hiding some episodes
@@ -483,7 +484,7 @@ class PodcastListModel(gtk.ListStore):
 
         self.ICON_DISABLED = 'gtk-media-pause'
 
-    def _filter_visible_func(self, model, iter):
+    def _filter_visible_func(self, model, iter, misc):
         # If searching is active, set visibility based on search text
         if self._search_term is not None:
             if model.get_value(iter, self.C_CHANNEL) == SectionMarker:
@@ -557,14 +558,14 @@ class PodcastListModel(gtk.ListStore):
         if pixbuf.get_width() > self._max_image_side:
             f = float(self._max_image_side)/pixbuf.get_width()
             (width, height) = (int(pixbuf.get_width()*f), int(pixbuf.get_height()*f))
-            pixbuf = pixbuf.scale_simple(width, height, gtk.gdk.INTERP_BILINEAR)
+            pixbuf = pixbuf.scale_simple(width, height, GdkPixbuf.InterpType.BILINEAR)
             changed = True
 
         # Resize if too high
         if pixbuf.get_height() > self._max_image_side:
             f = float(self._max_image_side)/pixbuf.get_height()
             (width, height) = (int(pixbuf.get_width()*f), int(pixbuf.get_height()*f))
-            pixbuf = pixbuf.scale_simple(width, height, gtk.gdk.INTERP_BILINEAR)
+            pixbuf = pixbuf.scale_simple(width, height, GdkPixbuf.InterpType.BILINEAR)
             changed = True
 
         if changed:
@@ -581,7 +582,7 @@ class PodcastListModel(gtk.ListStore):
 
     def _overlay_pixbuf(self, pixbuf, icon):
         try:
-            icon_theme = gtk.icon_theme_get_default()
+            icon_theme = Gtk.IconTheme.get_default()
             emblem = icon_theme.load_icon(icon, self._max_image_side/2, 0)
             (width, height) = (emblem.get_width(), emblem.get_height())
             xpos = pixbuf.get_width() - width
@@ -592,7 +593,7 @@ class PodcastListModel(gtk.ListStore):
                 (width, height) = (emblem.get_width(), emblem.get_height())
                 xpos = pixbuf.get_width() - width
                 ypos = pixbuf.get_height() - height
-            emblem.composite(pixbuf, xpos, ypos, width, height, xpos, ypos, 1, 1, gtk.gdk.INTERP_BILINEAR, 255)
+            emblem.composite(pixbuf, xpos, ypos, width, height, xpos, ypos, 1, 1, GdkPixbuf.InterpType.BILINEAR, 255)
         except:
             pass
 
@@ -609,12 +610,6 @@ class PodcastListModel(gtk.ListStore):
             pixbuf_overlay.saturate_and_pixelate(pixbuf_overlay, 0.0, False)
 
         return pixbuf_overlay
-
-    def _get_pill_image(self, channel, count_downloaded, count_unplayed):
-        if count_unplayed > 0 or count_downloaded > 0:
-            return draw.draw_pill_pixbuf(str(count_unplayed), str(count_downloaded))
-        else:
-            return None
 
     def _format_description(self, channel, total, deleted, \
             new, downloaded, unplayed):
@@ -722,7 +717,7 @@ class PodcastListModel(gtk.ListStore):
     def iter_is_first_row(self, iter):
         iter = self._filter.convert_iter_to_child_iter(iter)
         path = self.get_path(iter)
-        return (path == (0,))
+        return (path.get_indices() == [0])
 
     def update_by_filter_iter(self, iter):
         self.update_by_iter(self._filter.convert_iter_to_child_iter(iter))
@@ -774,15 +769,13 @@ class PodcastListModel(gtk.ListStore):
         description = self._format_description(channel, total, deleted, new, \
                 downloaded, unplayed)
 
-        pill_image = self._get_pill_image(channel, downloaded, unplayed)
-
         self.set(iter, \
                 self.C_TITLE, channel.title, \
                 self.C_DESCRIPTION, description, \
                 self.C_SECTION, channel.section, \
                 self.C_ERROR, self._format_error(channel), \
-                self.C_PILL, pill_image, \
-                self.C_PILL_VISIBLE, pill_image != None, \
+                self.C_PILL, str(unplayed), \
+                self.C_PILL_VISIBLE, unplayed > 0, \
                 self.C_VIEW_SHOW_UNDELETED, total - deleted > 0, \
                 self.C_VIEW_SHOW_DOWNLOADED, downloaded + new > 0, \
                 self.C_VIEW_SHOW_UNPLAYED, unplayed + new > 0, \

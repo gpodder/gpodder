@@ -583,7 +583,7 @@
                                 <signal handler="on_treeChannels_row_activated" name="row_activated"/>
                                 <signal handler="on_treeChannels_cursor_changed" name="cursor_changed"/>
                                 <signal handler="on_treeview_query_tooltip" name="query-tooltip"/>
-                                <signal handler="on_treeview_expose_event" name="expose-event"/>
+                                <signal handler="on_treeview_expose_event" name="draw"/>
                                 <signal handler="on_treeview_button_pressed" name="button-press-event"/>
                                 <signal handler="on_treeview_podcasts_button_released" name="button-release-event"/>
                               </object>
@@ -637,6 +637,7 @@
                                 <child>
                                   <object class="GtkProgressBar" id="pbFeedUpdate">
                                     <property name="pulse_step">0.10000000149</property>
+                                    <property name="show-text">True</property>
                                     <property name="ellipsize">PANGO_ELLIPSIZE_MIDDLE</property>
                                   </object>
                                   <packing>
@@ -711,7 +712,7 @@
                                 <property name="hover_expand">False</property>
                                 <signal handler="on_treeAvailable_row_activated" name="row_activated"/>
                                 <signal handler="on_treeview_query_tooltip" name="query-tooltip"/>
-                                <signal handler="on_treeview_expose_event" name="expose-event"/>
+                                <signal handler="on_treeview_expose_event" name="draw"/>
                                 <signal handler="on_treeview_button_pressed" name="button-press-event"/>
                                 <signal handler="on_treeview_episodes_button_released" name="button-release-event"/>
                               </object>
@@ -801,7 +802,7 @@
                             <property name="hover_selection">False</property>
                             <property name="hover_expand">False</property>
                             <signal handler="on_treeDownloads_row_activated" name="row_activated"/>
-                            <signal handler="on_treeview_expose_event" name="expose-event"/>
+                            <signal handler="on_treeview_expose_event" name="draw"/>
                             <signal handler="on_treeview_button_pressed" name="button-press-event"/>
                             <signal handler="on_treeview_downloads_button_released" name="button-release-event"/>
                           </object>

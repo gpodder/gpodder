@@ -32,7 +32,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 try:
-    import pynotify
+    from gi.repository import Notify
 except ImportError:
     pynotify = None
 
@@ -47,16 +47,16 @@ else:
             self.container = container
 
         def on_load(self):
-            pynotify.init('gPodder')
+            Notify.init('gPodder')
 
         def on_unload(self):
-            pynotify.uninit()
+            Notify.uninit()
 
         def on_notification_show(self, title, message):
             if not message and not title:
                 return
 
-            notify = pynotify.Notification(title or '', message or '',
+            notify = Notify.Notification(title or '', message or '',
                     gpodder.icon_file)
 
             try:

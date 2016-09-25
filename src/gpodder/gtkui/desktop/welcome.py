@@ -17,7 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import gtk
+from gi.repository import Gtk
 
 import gpodder
 
@@ -31,12 +31,12 @@ class gPodderWelcome(BuilderWidget):
     def new(self):
         for widget in self.vbox_buttons.get_children():
             for child in widget.get_children():
-                if isinstance(child, gtk.Alignment):
+                if isinstance(child, Gtk.Alignment):
                     child.set_padding(self.PADDING, self.PADDING,
                         self.PADDING, self.PADDING)
                 else:
                     child.set_padding(self.PADDING, self.PADDING)
 
     def on_btnCancel_clicked(self, button):
-        self.main_window.response(gtk.RESPONSE_CANCEL)
+        self.main_window.response(Gtk.ResponseType.CANCEL)
 

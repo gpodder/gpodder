@@ -120,18 +120,9 @@ except AttributeError:
     gettext = t.gettext
     ngettext = t.ngettext
 
-if ui.win32:
-    try:
-        # Workaround for bug 650
-        from gtk.glade import bindtextdomain
-        bindtextdomain(textdomain, locale_dir)
-        del bindtextdomain
-    except:
-        # Ignore for missing glade module
-        pass
 del t
 
-# Set up textdomain for gtk.Builder (this accesses the C library functions)
+# Set up textdomain for Gtk.Builder (this accesses the C library functions)
 if hasattr(locale, 'bindtextdomain'):
     locale.bindtextdomain(textdomain, locale_dir)
 
