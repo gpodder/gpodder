@@ -7,14 +7,17 @@
         <item>
           <attribute name="action">win.update</attribute>
           <attribute name="label" translatable="yes">Check for new episodes</attribute>
+          <attribute name="accel">&lt;Primary&gt;r</attribute>
         </item>
         <item>
-          <attribute name="action">win.download_all_new</attribute>
+          <attribute name="action">win.downloadAllNew</attribute>
           <attribute name="label" translatable="yes">Download new episodes</attribute>
+          <attribute name="accel">&lt;Primary&gt;n</attribute>
         </item>
         <item>
-          <attribute name="action">win.remove_old_episodes</attribute>
+          <attribute name="action">win.removeOldEpisodes</attribute>
           <attribute name="label" translatable="yes">Delete episodes</attribute>
+          <attribute name="accel">&lt;Primary&gt;k</attribute>
         </item>
       </section>
     </submenu>
@@ -24,33 +27,35 @@
         <item>
           <attribute name="action">win.discover</attribute>
           <attribute name="label" translatable="yes">Discover new podcasts</attribute>
+          <attribute name="accel">&lt;Primary&gt;f</attribute>
         </item>
         <item>
-          <attribute name="action">win.add_channel</attribute>
+          <attribute name="action">win.addChannel</attribute>
           <attribute name="label" translatable="yes">Add podcast via URL</attribute>
+          <attribute name="accel">&lt;Primary&gt;l</attribute>
         </item>
         <item>
-          <attribute name="action">win.mass_unsubscribe</attribute>
+          <attribute name="action">win.massUnsubscribe</attribute>
           <attribute name="label" translatable="yes">Remove podcasts</attribute>
         </item>
       </section>
       <section>
         <item>
-          <attribute name="action">win.update_channel</attribute>
+          <attribute name="action">win.updateChannel</attribute>
           <attribute name="label" translatable="yes">Update podcast</attribute>
         </item>
         <item>
-          <attribute name="action">win.edit_channel</attribute>
+          <attribute name="action">win.editChannel</attribute>
           <attribute name="label" translatable="yes">Podcast settings</attribute>
         </item>
       </section>
       <section>
         <item>
-          <attribute name="action">win.import_from_file</attribute>
+          <attribute name="action">win.importFromFile</attribute>
           <attribute name="label" translatable="yes">Import from OPML file</attribute>
         </item>
         <item>
-          <attribute name="action">win.export_channels</attribute>
+          <attribute name="action">win.exportChannels</attribute>
           <attribute name="label" translatable="yes">Export to OPML file</attribute>
         </item>
       </section>
@@ -61,6 +66,7 @@
         <item>
           <attribute name="action">win.play</attribute>
           <attribute name="label" translatable="yes">Play</attribute>
+          <attribute name="accel">&lt;Shift&gt;Return</attribute>
         </item>
         <item>
           <attribute name="action">win.open</attribute>
@@ -81,29 +87,30 @@
       </section>
       <section>
         <item>
-          <attribute name="action">win.toggle_episode_new</attribute>
+          <attribute name="action">win.toggleEpisodeNew</attribute>
           <attribute name="label" translatable="yes">Toggle new status</attribute>
         </item>
         <item>
-          <attribute name="action">win.toggle_episode_lock</attribute>
+          <attribute name="action">win.toggleEpisodeLock</attribute>
           <attribute name="label" translatable="yes">Change delete lock</attribute>
         </item>
       </section>
       <section>
         <item>
-          <attribute name="action">win.toggle_shownotes</attribute>
+          <attribute name="action">win.toggleShownotes</attribute>
           <attribute name="label" translatable="yes">Episode details</attribute>
         </item>
       </section>
     </submenu>
     <submenu id="menuExtras">
-      <attribute name="label">Extras</attribute>
+      <attribute name="label" translatable="yes">E_xtras</attribute>
       <item>
         <attribute name="action">win.sync</attribute>
         <attribute name="label" translatable="yes">Sync to device</attribute>
+        <attribute name="accel">&lt;Primary&gt;s</attribute>
       </item>
       <item>
-        <attribute name="action">win.update_youtube_subscriptions</attribute>
+        <attribute name="action">win.updateYoutubeSubscriptions</attribute>
         <attribute name="label" translatable="yes">Update YouTube subscriptions</attribute>
       </item>
     </submenu>
@@ -111,39 +118,45 @@
       <attribute name="label">View</attribute>
       <section>
         <item>
-          <attribute name="action">win.show_toolbar</attribute>
+          <attribute name="action">win.showToolbar</attribute>
           <attribute name="label" translatable="yes">Toolbar</attribute>
+          <attribute name="accel">&lt;Primary&gt;t</attribute>
         </item>
         <item>
-          <attribute name="action">win.show_episode_description</attribute>
+          <attribute name="action">win.showEpisodeDescription</attribute>
           <attribute name="label" translatable="yes">Episode descriptions</attribute>
+          <attribute name="accel">&lt;Primary&gt;d</attribute>
         </item>
       </section>
       <section>
         <item>
-          <attribute name="action">win.view_episodes</attribute>
+          <attribute name="action">win.viewEpisodes</attribute>
           <attribute name="label" translatable="yes">All episodes</attribute>
           <attribute name="target">VIEW_ALL</attribute>
+          <attribute name="accel">&lt;Primary&gt;0</attribute>
         </item>
         <item>
-          <attribute name="action">win.view_episodes</attribute>
+          <attribute name="action">win.viewEpisodes</attribute>
           <attribute name="label" translatable="yes">Hide deleted episodes</attribute>
           <attribute name="target">VIEW_UNDELETED</attribute>
+          <attribute name="accel">&lt;Primary&gt;1</attribute>
         </item>
         <item>
-          <attribute name="action">win.view_episodes</attribute>
+          <attribute name="action">win.viewEpisodes</attribute>
           <attribute name="label" translatable="yes">Downloaded episodes</attribute>
           <attribute name="target">VIEW_DOWNLOADED</attribute>
+          <attribute name="accel">&lt;Primary&gt;2</attribute>
         </item>
         <item>
-          <attribute name="action">win.view_episodes</attribute>
+          <attribute name="action">win.viewEpisodes</attribute>
           <attribute name="label" translatable="yes">Unplayed episodes</attribute>
           <attribute name="target">VIEW_UNPLAYED</attribute>
+          <attribute name="accel">&lt;Primary&gt;3</attribute>
         </item>
       </section>
       <section>
         <item>
-          <attribute name="action">win.view_hide_boring_podcasts</attribute>
+          <attribute name="action">win.viewHideBoringPodcasts</attribute>
           <attribute name="label" translatable="yes">Hide podcasts without episodes</attribute>
         </item>
       </section>

@@ -289,18 +289,18 @@ class gPodder(BuilderWidget, dbus.service.Object):
         g = Gio.SimpleActionGroup()
 
         action = Gio.SimpleAction.new_stateful(
-            "show_episode_description", None, GLib.Variant.new_boolean(self.config.episode_list_descriptions))
+            "showEpisodeDescription", None, GLib.Variant.new_boolean(self.config.episode_list_descriptions))
         action.connect("activate", self.on_itemShowDescription_activate)
         g.insert(action)
 
         action = Gio.SimpleAction.new_stateful(
-            "view_hide_boring_podcasts", None, GLib.Variant.new_boolean(self.config.podcast_list_hide_boring))
+            "viewHideBoringPodcasts", None, GLib.Variant.new_boolean(self.config.podcast_list_hide_boring))
         action.connect("activate", self.on_item_view_hide_boring_podcasts_toggled)
         g.insert(action)
 
         value = EpisodeListModel.VIEWS[self.config.episode_list_view_mode or  EpisodeListModel.VIEW_ALL]
         action = Gio.SimpleAction.new_stateful(
-            "view_episodes",  GLib.VariantType.new('s'), GLib.Variant.new_string(value))
+            "viewEpisodes",  GLib.VariantType.new('s'), GLib.Variant.new_string(value))
         action.connect("activate", self.on_item_view_episodes_changed)
         g.insert(action)
 
@@ -309,11 +309,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
         g.insert(action)
         self.update_action = action
 
-        action = Gio.SimpleAction.new("download_all_new", None)
+        action = Gio.SimpleAction.new("downloadAllNew", None)
         action.connect("activate", self.on_itemDownloadAllNew_activate)
         g.insert(action)
         
-        action = Gio.SimpleAction.new("remove_old_episodes", None)
+        action = Gio.SimpleAction.new("removeOldEpisodes", None)
         action.connect("activate", self.on_itemRemoveOldEpisodes_activate)
         g.insert(action)
 
@@ -321,29 +321,29 @@ class gPodder(BuilderWidget, dbus.service.Object):
         action.connect("activate", self.on_itemImportChannels_activate)
         g.insert(action)
 
-        action = Gio.SimpleAction.new("add_channel", None)
+        action = Gio.SimpleAction.new("addChannel", None)
         action.connect("activate", self.on_itemAddChannel_activate)
         g.insert(action)
 
-        action = Gio.SimpleAction.new("mass_unsubscribe", None)
+        action = Gio.SimpleAction.new("massUnsubscribe", None)
         action.connect("activate", self.on_itemMassUnsubscribe_activate)
         g.insert(action)
 
-        action = Gio.SimpleAction.new("update_channel", None)
+        action = Gio.SimpleAction.new("updateChannel", None)
         action.connect("activate", self.on_itemUpdateChannel_activate)
         g.insert(action)
         self.update_channel_action = action
 
-        action = Gio.SimpleAction.new("edit_channel", None)
+        action = Gio.SimpleAction.new("editChannel", None)
         action.connect("activate", self.on_itemEditChannel_activate)
         g.insert(action)
         self.edit_channel_action = action
 
-        action = Gio.SimpleAction.new("import_from_file", None)
+        action = Gio.SimpleAction.new("importFromFile", None)
         action.connect("activate", self.on_item_import_from_file_activate)
         g.insert(action)
 
-        action = Gio.SimpleAction.new("export_channels", None)
+        action = Gio.SimpleAction.new("exportChannels", None)
         action.connect("activate", self.on_itemExportChannels_activate)
         g.insert(action)
 
@@ -372,22 +372,22 @@ class gPodder(BuilderWidget, dbus.service.Object):
         g.insert(action)
         self.delete_action = action
 
-        action = Gio.SimpleAction.new("toggle_episode_new", None)
+        action = Gio.SimpleAction.new("toggleEpisodeNew", None)
         action.connect("activate", self.on_item_toggle_played_activate)
         g.insert(action)
         self.toggle_episode_new_action = action
 
-        action = Gio.SimpleAction.new("toggle_episode_lock", None)
+        action = Gio.SimpleAction.new("toggleEpisodeLock", None)
         action.connect("activate", self.on_item_toggle_lock_activate)
         g.insert(action)
         self.toggle_episode_lock_action = action
 
-        action = Gio.SimpleAction.new("toggle_shownotes", None)
+        action = Gio.SimpleAction.new("toggleShownotes", None)
         action.connect("activate", self.on_shownotes_selected_episodes)
         g.insert(action)
 
         action = Gio.SimpleAction.new_stateful(
-            "show_toolbar", None, GLib.Variant.new_boolean(self.config.show_toolbar))
+            "showToolbar", None, GLib.Variant.new_boolean(self.config.show_toolbar))
         action.connect("activate", self.on_itemShowToolbar_activate)
         g.insert(action)
 
@@ -395,7 +395,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         action.connect("activate", self.on_sync_to_device_activate)
         g.insert(action)
 
-        action = Gio.SimpleAction.new("update_youtube_subscriptions", None)
+        action = Gio.SimpleAction.new("updateYoutubeSubscriptions", None)
         action.connect("activate", self.on_update_youtube_subscriptions_activate)
         g.insert(action)
 
@@ -3552,11 +3552,11 @@ class gPodderApplication(Gtk.Application):
         action.connect("activate", self.on_itemPreferences_activate)
         self.add_action(action)
 
-        action = Gio.SimpleAction.new("goto_mygpo", None)
+        action = Gio.SimpleAction.new("gotoMygpo", None)
         action.connect("activate", self.on_goto_mygpo)
         self.add_action(action)
 
-        action = Gio.SimpleAction.new("check_for_updates", None)
+        action = Gio.SimpleAction.new("checkForUpdates", None)
         action.connect("activate", self.on_check_for_updates_activate)
         self.add_action(action)
 
@@ -3568,8 +3568,6 @@ class gPodderApplication(Gtk.Application):
 
         builder = Gtk.Builder()
         builder.set_translation_domain(gpodder.textdomain)
-
-        #print >>sys.stderr, 'Creating new from file', self.__class__.__name__
 
         ui_file = 'gpoddermenu.ui'
 
