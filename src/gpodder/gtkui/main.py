@@ -19,6 +19,8 @@
 
 import os
 import platform
+import gi
+gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 from gi.repository import GdkPixbuf
 from gi.repository import Gdk
@@ -1115,7 +1117,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 if queued > 0:
                     s.append(N_('%(count)d queued', '%(count)d queued', queued) % {'count':queued})
                 text.append(' (' + ', '.join(s)+')')
-            self.labelDownloads.set_text(''.join(text))
+            self.labelDownloads.set_text(''.join(text).encode('utf-8'))
 
             title = [self.default_title]
 
@@ -1517,7 +1519,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             if event is None:
                 func = TreeViewHelper.make_popup_position_func(treeview)
-                menu.popup(None, None, func, None, 3, 0)
+                menu.popup(None, None, func, None, 3, Gtk.get_current_event_time())
             else:
                 menu.popup(None, None, None, None, event.button, event.time)
             return True
@@ -1600,7 +1602,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             if event is None:
                 func = TreeViewHelper.make_popup_position_func(treeview)
-                menu.popup(None, None, func, None, 3, 0)
+                menu.popup(None, None, func, None, 3, Gtk.get_current_event_time())
             else:
                 menu.popup(None, None, None, None, event.button, event.time)
 
@@ -1796,7 +1798,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             menu.connect('deactivate', lambda menushell: self.treeview_allow_tooltips(self.treeAvailable, True))
             if event is None:
                 func = TreeViewHelper.make_popup_position_func(treeview)
-                menu.popup(None, None, func, None, 3, 0)
+                menu.popup(None, None, func, None, 3, Gtk.get_current_event_time())
             else:
                 menu.popup(None, None, None, None, event.button, event.time)
 
@@ -3190,7 +3192,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         dlg.run()
 
     def on_wNotebook_switch_page(self, notebook, page, page_num):
-        """ DEAD CODE """
         if page_num == 0:
             self.play_or_download()
             # The message area in the downloads tab should be hidden

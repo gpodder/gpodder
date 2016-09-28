@@ -384,9 +384,10 @@ class gPodderPreferences(BuilderWidget):
         menu.show_all()
         if event is None:
             func = TreeViewHelper.make_popup_position_func(treeview)
-            menu.popup(None, None, func, None, 3, 0)
+            menu.popup(None, None, func, None, 3, Gtk.get_current_event_time())
         else:
-            menu.popup(None, None, None, None, 3, 0)
+            menu.popup(None, None, None, None, 3, Gtk.get_current_event_time())
+
 
         return True
 

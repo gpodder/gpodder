@@ -145,7 +145,7 @@ class gPodderShownotesText(gPodderShownotes):
             self.activate_links()
 
     def on_key_press(self, widget, event):
-        if Gdk.keyval_name(event.keyval) == 'Return':
+        if event.keyval == Gdk.KEY_Return:
             self.activate_links()
             return True
 

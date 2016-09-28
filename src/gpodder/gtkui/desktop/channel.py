@@ -50,7 +50,7 @@ class gPodderChannel(BuilderWidget):
                 active_index = index
         self.combo_section.set_model(self.section_list)
         cell_renderer = Gtk.CellRendererText()
-        self.combo_section.pack_start(cell_renderer, True, True, 0)
+        self.combo_section.pack_start(cell_renderer, True)
         self.combo_section.add_attribute(cell_renderer, 'text', 0)
         self.combo_section.set_active(active_index)
 
@@ -63,7 +63,7 @@ class gPodderChannel(BuilderWidget):
                 active_index = index
         self.combo_strategy.set_model(self.strategy_list)
         cell_renderer = Gtk.CellRendererText()
-        self.combo_strategy.pack_start(cell_renderer, True, True, 0)
+        self.combo_strategy.pack_start(cell_renderer, True)
         self.combo_strategy.add_attribute(cell_renderer, 'text', 0)
         self.combo_strategy.set_active(active_index)
 

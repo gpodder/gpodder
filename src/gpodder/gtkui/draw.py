@@ -38,7 +38,6 @@ import cairo
 
 import StringIO
 import math
-import re
 
 
 class TextExtents(object):

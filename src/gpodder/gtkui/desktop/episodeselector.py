@@ -275,7 +275,7 @@ class gPodderEpisodeSelector(BuilderWidget):
         return False
 
     def treeview_episodes_button_pressed(self, treeview, event=None):
-        if event is None or event.button == 3:
+        if event is None or event.triggers_context_menu():
             menu = Gtk.Menu()
 
             if len(self.selection_buttons):
@@ -300,7 +300,7 @@ class gPodderEpisodeSelector(BuilderWidget):
             menu.connect('deactivate', lambda menushell: self.episode_list_allow_tooltips())
             if event is None:
                 func = TreeViewHelper.make_popup_position_func(treeview)
-                menu.popup(None, None, func, None, 3, 0)
+                menu.popup(None, None, func, None, 3, Gtk.get_current_event_time())
             else:
                 menu.popup(None, None, None, None, event.button, event.time)
 
