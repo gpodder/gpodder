@@ -1368,25 +1368,25 @@ class gPodder(BuilderWidget, dbus.service.Object):
             message = self.format_episode_list(finished_downloads, 5)
             message += '\n\n<i>%s</i>\n' % _('Could not download some episodes:')
             message += self.format_episode_list(failed_downloads, 5)
-            self.show_message(message, _('Downloads finished'), widget=self.labelDownloads)
+            self.show_message(message, _('Downloads finished'))
         elif finished_downloads:
             message = self.format_episode_list(finished_downloads)
-            self.show_message(message, _('Downloads finished'), widget=self.labelDownloads)
+            self.show_message(message, _('Downloads finished'))
         elif failed_downloads:
             message = self.format_episode_list(failed_downloads)
-            self.show_message(message, _('Downloads failed'), widget=self.labelDownloads)
+            self.show_message(message, _('Downloads failed'))
 
         if finished_syncs and failed_syncs:
             message = self.format_episode_list(map((lambda task: str(task)),finished_syncs), 5)
             message += '\n\n<i>%s</i>\n' % _('Could not sync some episodes:')
             message += self.format_episode_list(map((lambda task: str(task)),failed_syncs), 5)
-            self.show_message(message, _('Device synchronization finished'), True, widget=self.labelDownloads)
+            self.show_message(message, _('Device synchronization finished'), True)
         elif finished_syncs:
             message = self.format_episode_list(map((lambda task: str(task)),finished_syncs))
-            self.show_message(message, _('Device synchronization finished'), widget=self.labelDownloads)
+            self.show_message(message, _('Device synchronization finished'))
         elif failed_syncs:
             message = self.format_episode_list(map((lambda task: str(task)),failed_syncs))
-            self.show_message(message, _('Device synchronization failed'), True, widget=self.labelDownloads)
+            self.show_message(message, _('Device synchronization failed'), True)
 
         # Do post-sync processing if required
         for task in finished_syncs:
@@ -1938,7 +1938,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         except Exception, e:
             logger.error('Error in playback!', exc_info=True)
             self.show_message(_('Please check your media player settings in the preferences dialog.'), \
-                    _('Error opening player'), widget=self.toolPreferences)
+                    _('Error opening player'))
 
         self.episode_list_status_changed(episodes)
 
@@ -2479,11 +2479,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     if self.config.auto_download == 'download':
                         self.download_episode_list(episodes)
                         title = N_('Downloading %(count)d new episode.', 'Downloading %(count)d new episodes.', count) % {'count':count}
-                        self.show_message(title, _('New episodes available'), widget=self.labelDownloads)
+                        self.show_message(title, _('New episodes available'))
                     elif self.config.auto_download == 'queue':
                         self.download_episode_list_paused(episodes)
                         title = N_('%(count)d new episode added to download list.', '%(count)d new episodes added to download list.', count) % {'count':count}
-                        self.show_message(title, _('New episodes available'), widget=self.labelDownloads)
+                        self.show_message(title, _('New episodes available'))
                     else:
                         if (show_new_episodes_dialog and
                                 self.config.auto_download == 'show'):
@@ -2848,7 +2848,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_itemDownloadAllNew_activate(self, widget, *args):
         if not self.offer_new_episodes():
             self.show_message(_('Please check for new episodes later.'), \
-                    _('No new episodes available'), widget=self.btnUpdateFeeds)
+                    _('No new episodes available'))
 
     def get_new_episodes(self, channels=None):
         return [e for c in channels or self.channels for e in
