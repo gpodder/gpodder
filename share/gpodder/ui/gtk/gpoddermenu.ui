@@ -5,7 +5,8 @@
       <attribute name="label" translatable="yes">Podcasts</attribute>
       <section>
         <item>
-          <attribute name="label" translatable="yes">XXX Check for new episodes</attribute>
+          <attribute name="action">win.update</attribute>
+          <attribute name="label" translatable="yes">Check for new episodes</attribute>
         </item>
         <item>
           <attribute name="action">win.download_all_new</attribute>
@@ -35,10 +36,12 @@
       </section>
       <section>
         <item>
-          <attribute name="label" translatable="yes">XXX Update podcast</attribute>
+          <attribute name="action">win.update_channel</attribute>
+          <attribute name="label" translatable="yes">Update podcast</attribute>
         </item>
         <item>
-          <attribute name="label" translatable="yes">XXX Podcast settings</attribute>
+          <attribute name="action">win.edit_channel</attribute>
+          <attribute name="label" translatable="yes">Podcast settings</attribute>
         </item>
       </section>
       <section>
@@ -56,33 +59,40 @@
       <attribute name="label">Episodes</attribute>
       <section>
         <item>
-          <attribute name="label" translatable="yes">XXX Play</attribute>
+          <attribute name="action">win.play</attribute>
+          <attribute name="label" translatable="yes">Play</attribute>
         </item>
         <item>
-          <attribute name="label" translatable="yes">XXX Open</attribute>
+          <attribute name="action">win.open</attribute>
+          <attribute name="label" translatable="yes">Open</attribute>
         </item>
         <item>
-          <attribute name="label" translatable="yes">XXX Download</attribute>
+          <attribute name="action">win.download</attribute>
+          <attribute name="label" translatable="yes">Download</attribute>
         </item>
         <item>
-          <attribute name="label" translatable="yes">XXX Cancel</attribute>
+          <attribute name="action">win.cancel</attribute>
+          <attribute name="label" translatable="yes">Cancel</attribute>
         </item>
         <item>
-          <attribute name="label" translatable="yes">XXX Delete</attribute>
+          <attribute name="action">win.delete</attribute>
+          <attribute name="label" translatable="yes">Delete</attribute>
         </item>
       </section>
       <section>
         <item>
-          <attribute name="label" translatable="yes">XXX Toggle new status</attribute>
+          <attribute name="action">win.toggle_episode_new</attribute>
+          <attribute name="label" translatable="yes">Toggle new status</attribute>
         </item>
         <item>
-          <attribute name="action">item_toggle_lock</attribute>
+          <attribute name="action">win.toggle_episode_lock</attribute>
           <attribute name="label" translatable="yes">Change delete lock</attribute>
         </item>
       </section>
       <section>
         <item>
-          <attribute name="label" translatable="yes">XXX Episode details</attribute>
+          <attribute name="action">win.toggle_shownotes</attribute>
+          <attribute name="label" translatable="yes">Episode details</attribute>
         </item>
       </section>
     </submenu>
@@ -101,7 +111,8 @@
       <attribute name="label">View</attribute>
       <section>
         <item>
-          <attribute name="label" translatable="yes">XXX Toolbar</attribute>
+          <attribute name="action">win.show_toolbar</attribute>
+          <attribute name="label" translatable="yes">Toolbar</attribute>
         </item>
         <item>
           <attribute name="action">win.show_episode_description</attribute>

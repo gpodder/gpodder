@@ -628,7 +628,7 @@
                                 <property name="label" translatable="yes">Check for new episodes</property>
                                 <property name="can_focus">True</property>
                                 <property name="focus_on_click">True</property>
-                                <signal handler="on_itemUpdate_activate" name="clicked"/>
+                                <property name="action-name">win.update</property>
                               </object>
                               <packing>
                                 <property name="padding">0</property>
