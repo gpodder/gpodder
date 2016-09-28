@@ -739,15 +739,18 @@ class PodcastListModel(Gtk.ListStore):
         channel = self.get_value(iter, self.C_CHANNEL)
 
         if channel is SectionMarker:
-            section = self.get_value(iter, self.C_TITLE)
+            section = unicode(self.get_value(iter, self.C_TITLE), 'utf8')
 
             # This row is a section header - update its visibility flags
             channels = [c for c in (row[self.C_CHANNEL] for row in self)
                     if isinstance(c, GPodcast) and c.section == section]
 
             # Calculate the stats over all podcasts of this section
-            total, deleted, new, downloaded, unplayed = map(sum,
-                    zip(*[c.get_statistics() for c in channels]))
+            if len(channels) is 0:
+                total = deleted = new = downloaded = unplayed = 0
+            else:
+                total, deleted, new, downloaded, unplayed = map(sum,
+                        zip(*[c.get_statistics() for c in channels]))
 
             # We could customized the section header here with the list
             # of channels and their stats (i.e. add some "new" indicator)
