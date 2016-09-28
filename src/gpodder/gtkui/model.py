@@ -116,6 +116,8 @@ class EpisodeListModel(Gtk.ListStore):
 
     VIEW_ALL, VIEW_UNDELETED, VIEW_DOWNLOADED, VIEW_UNPLAYED = range(4)
 
+    VIEWS = ['VIEW_ALL', 'VIEW_UNDELETED', 'VIEW_DOWNLOADED', 'VIEW_UNPLAYED']
+
     # In which steps the UI is updated for "loading" animations
     _UI_UPDATE_STEP = .03
 

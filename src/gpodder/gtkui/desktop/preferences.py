@@ -292,6 +292,7 @@ class gPodderPreferences(BuilderWidget):
 
         # Configure the extensions manager GUI
         self.set_extension_preferences()
+        self.main_window.show()
 
     def set_extension_preferences(self):
         def search_equal_func(model, column, key, it):

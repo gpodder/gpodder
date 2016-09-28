@@ -50,6 +50,9 @@ class GtkBuilderWidget(object):
         if parent is not None:
             self.builder.expose_object('parent_widget', parent)
         self.builder.set_translation_domain(textdomain)
+        if hasattr(self, '_builder_expose'):
+            for (key, value) in self._builder_expose.items():
+                self.builder.expose_object(key, value)
 
         #print >>sys.stderr, 'Creating new from file', self.__class__.__name__
 

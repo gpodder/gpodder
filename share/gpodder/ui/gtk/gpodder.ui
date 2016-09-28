@@ -16,7 +16,7 @@
     <property name="step_increment">1</property>
     <property name="page_size">0</property>
   </object>
-  <object class="GtkUIManager" id="uimanager1">
+<!--  <object class="GtkUIManager" id="uimanager1">
     <child>
       <object class="GtkActionGroup" id="actiongroup1">
         <child>
@@ -397,8 +397,9 @@
         </menu>
       </menubar>
     </ui>
-  </object>
-  <object class="GtkWindow" id="gPodder">
+  </object>-->
+  <object class="GtkApplicationWindow" id="gPodder">
+    <property name="application">app</property>
     <property name="visible">False</property>
     <property name="title">gPodder</property>
     <property name="window_position">GTK_WIN_POS_CENTER</property>
@@ -414,7 +415,7 @@
       <object class="GtkVBox" id="vMain">
         <property name="visible">True</property>
         <property name="homogeneous">False</property>
-        <child>
+        <!--<child>
           <object class="GtkMenuBar" constructor="uimanager1" id="mainMenu">
             <property name="visible">True</property>
             <property name="pack_direction">GTK_PACK_DIRECTION_LTR</property>
@@ -425,7 +426,7 @@
             <property name="expand">False</property>
             <property name="fill">False</property>
           </packing>
-        </child>
+        </child>-->
         <child>
           <object class="GtkToolbar" id="toolbar">
             <property name="visible">True</property>
@@ -497,7 +498,7 @@
                 <property name="visible_horizontal">True</property>
                 <property name="visible_vertical">True</property>
                 <property name="is_important">False</property>
-                <signal handler="on_itemPreferences_activate" name="clicked"/>
+                <property name="action-name">app.preferences</property>
               </object>
               <packing>
                 <property name="expand">False</property>

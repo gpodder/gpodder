@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <menu id="menu-bar">
+    <submenu id="menuPodcasts">
+      <attribute name="label" translatable="yes">Podcasts</attribute>
+      <section>
+        <item>
+          <attribute name="label" translatable="yes">XXX Check for new episodes</attribute>
+        </item>
+        <item>
+          <attribute name="action">win.download_all_new</attribute>
+          <attribute name="label" translatable="yes">Download new episodes</attribute>
+        </item>
+        <item>
+          <attribute name="action">win.remove_old_episodes</attribute>
+          <attribute name="label" translatable="yes">Delete episodes</attribute>
+        </item>
+      </section>
+    </submenu>
+    <submenu id="menuSubscriptions">
+      <attribute name="label">Subscriptions</attribute>
+      <section>
+        <item>
+          <attribute name="action">win.discover</attribute>
+          <attribute name="label" translatable="yes">Discover new podcasts</attribute>
+        </item>
+        <item>
+          <attribute name="action">win.add_channel</attribute>
+          <attribute name="label" translatable="yes">Add podcast via URL</attribute>
+        </item>
+        <item>
+          <attribute name="action">win.mass_unsubscribe</attribute>
+          <attribute name="label" translatable="yes">Remove podcasts</attribute>
+        </item>
+      </section>
+      <section>
+        <item>
+          <attribute name="label" translatable="yes">XXX Update podcast</attribute>
+        </item>
+        <item>
+          <attribute name="label" translatable="yes">XXX Podcast settings</attribute>
+        </item>
+      </section>
+      <section>
+        <item>
+          <attribute name="action">win.import_from_file</attribute>
+          <attribute name="label" translatable="yes">Import from OPML file</attribute>
+        </item>
+        <item>
+          <attribute name="action">win.export_channels</attribute>
+          <attribute name="label" translatable="yes">Export to OPML file</attribute>
+        </item>
+      </section>
+    </submenu>
+    <submenu id="menuChannels">
+      <attribute name="label">Episodes</attribute>
+      <section>
+        <item>
+          <attribute name="label" translatable="yes">XXX Play</attribute>
+        </item>
+        <item>
+          <attribute name="label" translatable="yes">XXX Open</attribute>
+        </item>
+        <item>
+          <attribute name="label" translatable="yes">XXX Download</attribute>
+        </item>
+        <item>
+          <attribute name="label" translatable="yes">XXX Cancel</attribute>
+        </item>
+        <item>
+          <attribute name="label" translatable="yes">XXX Delete</attribute>
+        </item>
+      </section>
+      <section>
+        <item>
+          <attribute name="label" translatable="yes">XXX Toggle new status</attribute>
+        </item>
+        <item>
+          <attribute name="action">item_toggle_lock</attribute>
+          <attribute name="label" translatable="yes">Change delete lock</attribute>
+        </item>
+      </section>
+      <section>
+        <item>
+          <attribute name="label" translatable="yes">XXX Episode details</attribute>
+        </item>
+      </section>
+    </submenu>
+    <submenu id="menuExtras">
+      <attribute name="label">Extras</attribute>
+      <item>
+        <attribute name="action">win.sync</attribute>
+        <attribute name="label" translatable="yes">Sync to device</attribute>
+      </item>
+      <item>
+        <attribute name="action">win.update_youtube_subscriptions</attribute>
+        <attribute name="label" translatable="yes">Update YouTube subscriptions</attribute>
+      </item>
+    </submenu>
+    <submenu id="menuView">
+      <attribute name="label">View</attribute>
+      <section>
+        <item>
+          <attribute name="label" translatable="yes">XXX Toolbar</attribute>
+        </item>
+        <item>
+          <attribute name="action">win.show_episode_description</attribute>
+          <attribute name="label" translatable="yes">Episode descriptions</attribute>
+        </item>
+      </section>
+      <section>
+        <item>
+          <attribute name="action">win.view_episodes</attribute>
+          <attribute name="label" translatable="yes">All episodes</attribute>
+          <attribute name="target">VIEW_ALL</attribute>
+        </item>
+        <item>
+          <attribute name="action">win.view_episodes</attribute>
+          <attribute name="label" translatable="yes">Hide deleted episodes</attribute>
+          <attribute name="target">VIEW_UNDELETED</attribute>
+        </item>
+        <item>
+          <attribute name="action">win.view_episodes</attribute>
+          <attribute name="label" translatable="yes">Downloaded episodes</attribute>
+          <attribute name="target">VIEW_DOWNLOADED</attribute>
+        </item>
+        <item>
+          <attribute name="action">win.view_episodes</attribute>
+          <attribute name="label" translatable="yes">Unplayed episodes</attribute>
+          <attribute name="target">VIEW_UNPLAYED</attribute>
+        </item>
+      </section>
+      <section>
+        <item>
+          <attribute name="action">win.view_hide_boring_podcasts</attribute>
+          <attribute name="label" translatable="yes">Hide podcasts without episodes</attribute>
+        </item>
+      </section>
+    </submenu>
+  </menu>
+</interface>
+<!-- :noTabs=true:tabSize=2:indentSize=2: -->

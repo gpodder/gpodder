@@ -37,7 +37,7 @@ logger = logging.getLogger(__name__)
 class gPodderSyncUI(object):
     def __init__(self, config, notification, parent_window,
             show_confirmation,
-            preferences_widget,
+            show_preferences,
             channels,
             download_status_model,
             download_queue_manager,
@@ -51,7 +51,7 @@ class gPodderSyncUI(object):
         self.parent_window = parent_window
         self.show_confirmation = show_confirmation
 
-        self.preferences_widget = preferences_widget
+        self.show_preferences = show_preferences
         self.channels=channels
         self.download_status_model = download_status_model
         self.download_queue_manager = download_queue_manager
@@ -81,7 +81,8 @@ class gPodderSyncUI(object):
     def _show_message_unconfigured(self):
         title = _('No device configured')
         message = _('Please set up your device in the preferences dialog.')
-        self.notification(message, title, important=True)
+        if self.show_confirmation(message, title):
+            self.show_preferences(self.parent_window, None)
 
     def _show_message_cannot_open(self):
         title = _('Cannot open device')
