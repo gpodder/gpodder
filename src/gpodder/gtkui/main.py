@@ -3560,32 +3560,22 @@ class gPodderApplication(Gtk.Application):
         builder = Gtk.Builder()
         builder.set_translation_domain(gpodder.textdomain)
 
-        ui_file = 'gpoddermenu.ui'
-
-        # Search for the UI file in the UI folders, stop after first match
         for ui_folder in gpodder.ui_folders:
-            filename = os.path.join(ui_folder, ui_file)
+            filename = os.path.join(ui_folder, "gtk/menus.ui")
             if os.path.exists(filename):
                 builder.add_from_file(filename)
                 break
 
-        self.menubar = builder.get_object("menu-bar")
+        menubar = builder.get_object("menubar")
+        if menubar is None:
+            logger.error('Cannot find gtk/menus.ui in %r, exiting' % gpodder.ui_folders)
+            sys.exit(1)
+
         self.menu_view_columns = builder.get_object("menuViewColumns")
-        self.set_menubar(builder.get_object("menu-bar"))
-
-        builder = Gtk.Builder()
-        builder.set_translation_domain(gpodder.textdomain)
-        ui_file = 'gpodderappmenu.ui'
-
-        # Search for the UI file in the UI folders, stop after first match
-        for ui_folder in gpodder.ui_folders:
-            filename = os.path.join(ui_folder, ui_file)
-            if os.path.exists(filename):
-                builder.add_from_file(filename)
-                break
+        self.set_menubar(menubar)
 
         self.set_app_menu(builder.get_object("app-menu"))
-        
+
         for i in range(EpisodeListModel.PROGRESS_STEPS + 1):
            pixbuf = draw_cake_pixbuf(float(i) /
                    float(EpisodeListModel.PROGRESS_STEPS))
