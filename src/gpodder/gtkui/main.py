@@ -95,17 +95,6 @@ from gpodder.dbusproxy import DBusPodcastsProxy
 from gpodder import extensions
 
 
-macapp = None
-if gpodder.ui.osx:
-    try:
-        from gtkosx_application import *
-        macapp = Application()
-    except ImportError:
-        print >> sys.stderr, """
-        Warning: gtk-mac-integration not found, disabling native menus
-        """
-
-
 class gPodder(BuilderWidget, dbus.service.Object):
     # Width (in pixels) of episode list icon
     EPISODE_LIST_ICON_WIDTH = 40
@@ -167,24 +156,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
 
         self.new_episodes_window = None
-
-        # Mac OS X-specific UI tweaks: Native main menu integration
-        # http://sourceforge.net/apps/trac/gtk-osx/wiki/Integrate
-        if macapp is not None:
-            # Move the menu bar from the window to the Mac menu bar
-            self.mainMenu.hide()
-            macapp.set_menu_bar(self.mainMenu)
-
-            # Reparent some items to the "Application" menu
-            item = self.uimanager1.get_widget('/mainMenu/menuHelp/itemAbout')
-            macapp.insert_app_menu_item(item, 0)
-            macapp.insert_app_menu_item(Gtk.SeparatorMenuItem(), 1)
-            item = self.uimanager1.get_widget('/mainMenu/menuPodcasts/itemPreferences')
-            macapp.insert_app_menu_item(item, 2)
-
-            quit_item = self.uimanager1.get_widget('/mainMenu/menuPodcasts/itemQuit')
-            quit_item.hide()
-        # end Mac OS X specific UI tweaks
 
         self.download_status_model = DownloadStatusModel()
         self.download_queue_manager = download.DownloadQueueManager(self.config)
@@ -2629,12 +2600,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         return True
 
-    def quit_cb(self, macapp):
-        """Called when OSX wants to quit the app (Cmd-Q or gPodder > Quit)
-        """
-        # Event can't really be cancelled - don't even try
-        self.close_gpodder()
-        return False
 
     def close_gpodder(self):
         """ clean everything and exit properly
@@ -2651,9 +2616,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         
         self.application.remove_window(self.gPodder)
 
-        #self.quit()
-        #if macapp is None:
-        #    sys.exit(0)
 
     def delete_episode_list(self, episodes, confirm=True, skip_locked=True,
             callback=None):
@@ -3614,11 +3576,6 @@ class gPodderApplication(Gtk.Application):
                # Handle "subscribe to podcast" events from firefox
                macosx.register_handlers(self.window)
         
-               # Handle quit event
-               if macapp is not None:
-                   macapp.connect('NSApplicationBlockTermination', self.window.quit_cb)
-                   macapp.ready()
-
         self.window.gPodder.present()
 
     def on_about(self, action, param):
@@ -3686,50 +3643,9 @@ class gPodderApplication(Gtk.Application):
 
 
 def main(options=None):
-    #GObject.threads_init()
-    #GObject.set_application_name('gPodder')
+    GObject.set_application_name('gPodder')
 
-    #for i in range(EpisodeListModel.PROGRESS_STEPS + 1):
-    #    pixbuf = draw_cake_pixbuf(float(i) /
-    #            float(EpisodeListModel.PROGRESS_STEPS))
-    #    icon_name = 'gpodder-progress-%d' % i
-    #    Gtk.IconTheme.add_builtin_icon(icon_name, pixbuf.get_width(), pixbuf)
-
-    #Gtk.Window.set_default_icon_name('gpodder')
-    ##Gtk.AboutDialog.set_url_hook(lambda dlg, link, data: util.open_website(link), None)
-
-    #try:
-    #    dbus_main_loop = dbus.glib.DBusGMainLoop(set_as_default=True)
-    #    gpodder.dbus_session_bus = dbus.SessionBus(dbus_main_loop)
-
-    #    bus_name = dbus.service.BusName(gpodder.dbus_bus_name, bus=gpodder.dbus_session_bus)
-    #except dbus.exceptions.DBusException, dbe:
-    #    logger.warn('Cannot get "on the bus".', exc_info=True)
-    #    dlg = Gtk.MessageDialog(None, Gtk.DialogFlags.MODAL, Gtk.MessageType.ERROR, \
-    #            Gtk.ButtonsType.CLOSE, _('Cannot start gPodder'))
-    #    dlg.format_secondary_markup(_('D-Bus error: %s') % (str(dbe),))
-    #    dlg.set_title('gPodder')
-    #    dlg.run()
-    #    dlg.destroy()
-    #    sys.exit(0)
-
-    #gp = gPodder(bus_name, core.Core(UIConfig, model_class=Model), options)
-
-    #if gpodder.ui.osx:
-    #    from gpodder.gtkui import macosx
-
-    #    # Handle "subscribe to podcast" events from firefox
-    #    macosx.register_handlers(gp)
-
-    #    # Handle quit event
-    #    if macapp is not None:
-    #        macapp.connect('NSApplicationBlockTermination', gp.quit_cb)
-    #        macapp.ready()
-
-    #gp.run()
-    
     gp = gPodderApplication(options)
     gp.run()
-    if macapp is None:
-       sys.exit(0)
+    sys.exit(0)
 
