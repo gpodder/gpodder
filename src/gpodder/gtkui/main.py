@@ -872,13 +872,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         for index, column in enumerate(columns):
             visible = bool(self.config.episode_list_columns & (1 << index))
             column.set_visible(visible)
+            self.view_column_actions[index].set_state(GLib.Variant.new_boolean(visible))
         self.treeAvailable.columns_autosize()
 
-        if self.episode_columns_menu is not None:
-            children = self.episode_columns_menu.get_children()
-            for index, child in enumerate(children):
-                active = bool(self.config.episode_list_columns & (1 << index))
-                child.set_active(active)
 
     def on_episode_list_header_clicked(self, button, event):
         if event.button != 3:
@@ -955,31 +951,26 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             w.connect('button-release-event', self.on_episode_list_header_clicked)
 
-        # Create a new menu for the visible episode list columns
-        # ELL: TODO
-        # for child in self.mainMenu.get_children():
-        #    if child.get_name() == 'menuView':
-        #        submenu = child.get_submenu()
-        #        item = Gtk.MenuItem(_('Visible columns'))
-        #        submenu.append(Gtk.SeparatorMenuItem())
-        #        submenu.append(item)
-        #        submenu.show_all()
-        #
-        #        self.episode_columns_menu = Gtk.Menu()
-        #        item.set_submenu(self.episode_columns_menu)
-        #        break
-
-        self.episode_columns_menu = Gtk.Menu()
         # For each column that can be shown/hidden, add a menu item
+        self.view_column_actions = []
         columns = TreeViewHelper.get_columns(self.treeAvailable)
-        for index, column in enumerate(columns):
-            item = Gtk.CheckMenuItem(column.get_title())
-            self.episode_columns_menu.append(item)
-            def on_item_toggled(item, index):
-                self.set_episode_list_column(index, item.get_active())
-            item.connect('toggled', on_item_toggled, index)
-        self.episode_columns_menu.show_all()
 
+        def on_visible_toggled(action, param, index):
+            state = action.get_state()
+            self.set_episode_list_column(index, not state)
+            action.set_state(GLib.Variant.new_boolean(not state))
+
+        for index, column in enumerate(columns):
+            name = "showColumn%i" % index
+            action = Gio.SimpleAction.new_stateful(
+                name, None, GLib.Variant.new_boolean(False))
+            action.connect("activate", on_visible_toggled, index)
+            self.main_window.get_action_group("win").insert(action)
+            self.view_column_actions.append(action)
+            self.application.menu_view_columns.insert(index, column.get_title(), "win." + name)
+
+        self.episode_columns_menu = Gtk.Menu.new_from_model(self.application.menu_view_columns)
+        self.episode_columns_menu.attach_to_widget(self.main_window)
         # Update the visibility of the columns and the check menu items
         self.update_episode_list_columns_visibility()
 
@@ -1664,7 +1655,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             item = Gtk.ImageMenuItem( _('Update podcast'))
             item.set_image(Gtk.Image.new_from_icon_name("view-refresh", Gtk.IconSize.MENU))
-            item.connect('activate', self.on_itemUpdateChannel_activate)
+            item.set_action_name("win.updateChannel")
             menu.append(item)
 
             menu.append(Gtk.SeparatorMenuItem())
@@ -1701,9 +1692,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             item = Gtk.ImageMenuItem(_('Podcast settings'))
             item.set_image(Gtk.Image.new_from_icon_name("document-properties", Gtk.IconSize.MENU))
-            item.connect('activate', self.on_itemEditChannel_activate)
+            item.set_action_name('win.editChannel')
             menu.append(item)
 
+            menu.attach_to_widget(treeview)
             menu.show_all()
             # Disable tooltips while we are showing the menu, so
             # the tooltip will not appear over the menu
@@ -1831,18 +1823,16 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if not can_cancel:
                 item = Gtk.ImageMenuItem(_('Download'))
                 item.set_image(Gtk.Image.new_from_icon_name("go-down", Gtk.IconSize.MENU))
-                item.set_sensitive(can_download)
-                item.connect('activate', self.on_download_selected_episodes)
+                item.set_action_name('win.download')
                 menu.append(item)
             else:
                 item = Gtk.ImageMenuItem.new_with_mnemonic(_("_Cancel"))
-                item.connect('activate', self.on_item_cancel_download_activate)
+                item.set_action_name('win.cancel')
                 menu.append(item)
 
             item = Gtk.ImageMenuItem.new_with_mnemonic(_("_Delete"))
             item.set_image(Gtk.Image.new_from_icon_name("edit-delete", Gtk.IconSize.MENU))
-            item.set_sensitive(can_delete)
-            item.connect('activate', self.on_btnDownloadedDelete_clicked)
+            item.set_action_name("win.delete")
             menu.append(item)
 
             result = gpodder.user_extensions.on_episodes_context_menu(episodes)
@@ -1898,9 +1888,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
             # Single item, add episode information menu item
             item = Gtk.ImageMenuItem(_('Episode details'))
             item.set_image(Gtk.Image.new_from_icon_name( "dialog-information", Gtk.IconSize.MENU))
-            item.connect('activate', self.on_shownotes_selected_episodes)
+            item.set_action_name("win.toggleShownotes")
             menu.append(item)
 
+            menu.attach_to_widget(treeview)
             menu.show_all()
             # Disable tooltips while we are showing the menu, so
             # the tooltip will not appear over the menu
@@ -3579,6 +3570,7 @@ class gPodderApplication(Gtk.Application):
                 break
 
         self.menubar = builder.get_object("menu-bar")
+        self.menu_view_columns = builder.get_object("menuViewColumns")
         self.set_menubar(builder.get_object("menu-bar"))
 
         builder = Gtk.Builder()
