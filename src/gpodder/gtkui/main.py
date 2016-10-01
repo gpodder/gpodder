@@ -2571,9 +2571,20 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             util.idle_add(update_feed_cache_finish_callback)
 
-    def on_gPodder_delete_event(self, widget, *args):
+    def on_gPodder_delete_event(self, *args):
         """Called when the GUI wants to close the window
         Displays a confirmation dialog (and closes/hides gPodder)
+        """
+
+        if self.confirm_quit():
+            self.close_gpodder()
+
+        return True
+
+
+    def confirm_quit(self):
+        """Called when the GUI wants to close the window
+        Displays a confirmation dialog
         """
 
         downloading = self.download_status_model.are_downloads_in_progress()
@@ -2593,12 +2604,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
             result = dialog.run()
             dialog.destroy()
 
-            if result == Gtk.ResponseType.CLOSE:
-                self.close_gpodder()
+            return result == Gtk.ResponseType.CLOSE
         else:
-            self.close_gpodder()
-
-        return True
+            return True
 
 
     def close_gpodder(self):
@@ -3486,7 +3494,7 @@ class gPodderApplication(Gtk.Application):
                          flags=Gio.ApplicationFlags.FLAGS_NONE)
         self.window = None
         self.options = options;
-        self.connect("window-removed", self.on_quit)
+        self.connect("window-removed", self.on_window_removed)
 
     def create_actions(self):
         action = Gio.SimpleAction.new("about", None)
@@ -3578,6 +3586,7 @@ class gPodderApplication(Gtk.Application):
         
         self.window.gPodder.present()
 
+
     def on_about(self, action, param):
         dlg = Gtk.Dialog(_('About gPodder'), self.window.gPodder, \
                 Gtk.DialogFlags.MODAL)
@@ -3619,8 +3628,9 @@ class gPodderApplication(Gtk.Application):
         dlg.run()
 
     def on_quit(self, *args):
-        print("on_quit")
-        self.window.close_gpodder()
+        self.window.on_gPodder_delete_event()
+
+    def on_window_removed(self, *args):
         self.quit()
 
     def on_wiki_activate(self, action, param):
