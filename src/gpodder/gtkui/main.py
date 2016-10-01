@@ -257,120 +257,118 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
 
     def create_actions(self):
-        g = Gio.SimpleActionGroup()
+        g = self.gPodder
 
         action = Gio.SimpleAction.new_stateful(
             "showEpisodeDescription", None, GLib.Variant.new_boolean(self.config.episode_list_descriptions))
         action.connect("activate", self.on_itemShowDescription_activate)
-        g.insert(action)
+        g.add_action(action)
 
         action = Gio.SimpleAction.new_stateful(
             "viewHideBoringPodcasts", None, GLib.Variant.new_boolean(self.config.podcast_list_hide_boring))
         action.connect("activate", self.on_item_view_hide_boring_podcasts_toggled)
-        g.insert(action)
+        g.add_action(action)
 
         value = EpisodeListModel.VIEWS[self.config.episode_list_view_mode or  EpisodeListModel.VIEW_ALL]
         action = Gio.SimpleAction.new_stateful(
             "viewEpisodes",  GLib.VariantType.new('s'), GLib.Variant.new_string(value))
         action.connect("activate", self.on_item_view_episodes_changed)
-        g.insert(action)
+        g.add_action(action)
 
         action = Gio.SimpleAction.new("update", None)
         action.connect("activate", self.on_itemUpdate_activate)
-        g.insert(action)
+        g.add_action(action)
         self.update_action = action
 
         action = Gio.SimpleAction.new("downloadAllNew", None)
         action.connect("activate", self.on_itemDownloadAllNew_activate)
-        g.insert(action)
+        g.add_action(action)
         
         action = Gio.SimpleAction.new("removeOldEpisodes", None)
         action.connect("activate", self.on_itemRemoveOldEpisodes_activate)
-        g.insert(action)
+        g.add_action(action)
 
         action = Gio.SimpleAction.new("discover", None)
         action.connect("activate", self.on_itemImportChannels_activate)
-        g.insert(action)
+        g.add_action(action)
 
         action = Gio.SimpleAction.new("addChannel", None)
         action.connect("activate", self.on_itemAddChannel_activate)
-        g.insert(action)
+        g.add_action(action)
 
         action = Gio.SimpleAction.new("massUnsubscribe", None)
         action.connect("activate", self.on_itemMassUnsubscribe_activate)
-        g.insert(action)
+        g.add_action(action)
 
         action = Gio.SimpleAction.new("updateChannel", None)
         action.connect("activate", self.on_itemUpdateChannel_activate)
-        g.insert(action)
+        g.add_action(action)
         self.update_channel_action = action
 
         action = Gio.SimpleAction.new("editChannel", None)
         action.connect("activate", self.on_itemEditChannel_activate)
-        g.insert(action)
+        g.add_action(action)
         self.edit_channel_action = action
 
         action = Gio.SimpleAction.new("importFromFile", None)
         action.connect("activate", self.on_item_import_from_file_activate)
-        g.insert(action)
+        g.add_action(action)
 
         action = Gio.SimpleAction.new("exportChannels", None)
         action.connect("activate", self.on_itemExportChannels_activate)
-        g.insert(action)
+        g.add_action(action)
 
         action = Gio.SimpleAction.new("play", None)
         action.connect("activate", self.on_playback_selected_episodes)
-        g.insert(action)
+        g.add_action(action)
         self.play_action = action
 
         action = Gio.SimpleAction.new("open", None)
         action.connect("activate", self.on_playback_selected_episodes)
-        g.insert(action)
+        g.add_action(action)
         self.open_action = action
 
         action = Gio.SimpleAction.new("download", None)
         action.connect("activate", self.on_download_selected_episodes)
-        g.insert(action)
+        g.add_action(action)
         self.download_action = action
 
         action = Gio.SimpleAction.new("cancel", None)
         action.connect("activate", self.on_item_cancel_download_activate)
-        g.insert(action)
+        g.add_action(action)
         self.cancel_action = action
 
         action = Gio.SimpleAction.new("delete", None)
         action.connect("activate", self.on_btnDownloadedDelete_clicked)
-        g.insert(action)
+        g.add_action(action)
         self.delete_action = action
 
         action = Gio.SimpleAction.new("toggleEpisodeNew", None)
         action.connect("activate", self.on_item_toggle_played_activate)
-        g.insert(action)
+        g.add_action(action)
         self.toggle_episode_new_action = action
 
         action = Gio.SimpleAction.new("toggleEpisodeLock", None)
         action.connect("activate", self.on_item_toggle_lock_activate)
-        g.insert(action)
+        g.add_action(action)
         self.toggle_episode_lock_action = action
 
         action = Gio.SimpleAction.new("toggleShownotes", None)
         action.connect("activate", self.on_shownotes_selected_episodes)
-        g.insert(action)
+        g.add_action(action)
 
         action = Gio.SimpleAction.new_stateful(
             "showToolbar", None, GLib.Variant.new_boolean(self.config.show_toolbar))
         action.connect("activate", self.on_itemShowToolbar_activate)
-        g.insert(action)
+        g.add_action(action)
 
         action = Gio.SimpleAction.new("sync", None)
         action.connect("activate", self.on_sync_to_device_activate)
-        g.insert(action)
+        g.add_action(action)
 
         action = Gio.SimpleAction.new("updateYoutubeSubscriptions", None)
         action.connect("activate", self.on_update_youtube_subscriptions_activate)
-        g.insert(action)
-
-        self.gPodder.insert_action_group("win", g)
+        g.add_action(action)
 
 
     def find_partial_downloads(self):
