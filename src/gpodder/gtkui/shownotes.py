@@ -47,7 +47,7 @@ class gPodderShownotes:
         self.scrolled_window.show_all()
 
         self.da_message = Gtk.DrawingArea()
-        self.da_message.set_property("expand", True)
+        self.da_message.set_property('expand', True)
         self.da_message.connect('draw', self.on_shownotes_message_expose_event)
         self.shownotes_pane.add(self.da_message)
         self.shownotes_pane.add(self.scrolled_window)
@@ -106,7 +106,7 @@ class gPodderShownotes:
 class gPodderShownotesText(gPodderShownotes):
     def init(self):
         self.text_view = Gtk.TextView()
-        self.text_view.set_property("expand", True)
+        self.text_view.set_property('expand', True)
         self.text_view.set_wrap_mode(Gtk.WrapMode.WORD_CHAR)
         self.text_view.set_border_width(10)
         self.text_view.set_editable(False)

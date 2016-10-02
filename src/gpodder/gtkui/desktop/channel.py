@@ -116,11 +116,11 @@ class gPodderChannel(BuilderWidget):
 
         menu = Gtk.Menu()
 
-        item = Gtk.MenuItem.new_with_mnemonic(_("_Open"))
+        item = Gtk.MenuItem.new_with_mnemonic(_('_Open'))
         item.connect('activate', self.on_btnDownloadCover_clicked)
         menu.append(item)
 
-        item = Gtk.MenuItem.new_with_mnemonic(_("_Refresh"))
+        item = Gtk.MenuItem.new_with_mnemonic(_('_Refresh'))
         item.connect('activate', self.on_btnClearCover_clicked)
         menu.append(item)
 

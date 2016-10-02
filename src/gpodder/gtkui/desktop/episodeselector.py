@@ -140,7 +140,7 @@ class gPodderEpisodeSelector(BuilderWidget):
 
         if hasattr(self, 'stock_ok_button'):
             if self.stock_ok_button == 'gpodder-download':
-                self.btnOK.set_image(Gtk.Image.new_from_icon_name("go-down", Gtk.IconSize.BUTTON))
+                self.btnOK.set_image(Gtk.Image.new_from_icon_name('go-down', Gtk.IconSize.BUTTON))
                 self.btnOK.set_label(_('Download'))
             else:
                 self.btnOK.set_label(self.stock_ok_button)

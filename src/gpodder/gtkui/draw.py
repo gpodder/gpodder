@@ -139,11 +139,11 @@ def draw_cake(percentage, text=None, emblem=None, size=None):
     #widget = Gtk.ProgressBar()
     #style_context = widget.get_style_context()
     bgc = Gdk.RGBA() #style_context.get_background_color(Gtk.StateFlags.NORMAL)
-    bgc.parse("white")
+    bgc.parse('white')
     fgc = Gdk.RGBA() #style_context.get_background_color(Gtk.StateFlags.SELECTED)
-    fgc.parse("#4a90d9")
+    fgc.parse('#4a90d9')
     txc = Gdk.RGBA() #style_context.get_color(Gtk.StateFlags.NORMAL)
-    txc.parse("#333333")
+    txc.parse('#333333')
 
     border = 1.5
     height = int(size*.4)

@@ -260,114 +260,114 @@ class gPodder(BuilderWidget, dbus.service.Object):
         g = self.gPodder
 
         action = Gio.SimpleAction.new_stateful(
-            "showEpisodeDescription", None, GLib.Variant.new_boolean(self.config.episode_list_descriptions))
-        action.connect("activate", self.on_itemShowDescription_activate)
+            'showEpisodeDescription', None, GLib.Variant.new_boolean(self.config.episode_list_descriptions))
+        action.connect('activate', self.on_itemShowDescription_activate)
         g.add_action(action)
 
         action = Gio.SimpleAction.new_stateful(
-            "viewHideBoringPodcasts", None, GLib.Variant.new_boolean(self.config.podcast_list_hide_boring))
-        action.connect("activate", self.on_item_view_hide_boring_podcasts_toggled)
+            'viewHideBoringPodcasts', None, GLib.Variant.new_boolean(self.config.podcast_list_hide_boring))
+        action.connect('activate', self.on_item_view_hide_boring_podcasts_toggled)
         g.add_action(action)
 
         value = EpisodeListModel.VIEWS[self.config.episode_list_view_mode or  EpisodeListModel.VIEW_ALL]
         action = Gio.SimpleAction.new_stateful(
-            "viewEpisodes",  GLib.VariantType.new('s'), GLib.Variant.new_string(value))
-        action.connect("activate", self.on_item_view_episodes_changed)
+            'viewEpisodes',  GLib.VariantType.new('s'), GLib.Variant.new_string(value))
+        action.connect('activate', self.on_item_view_episodes_changed)
         g.add_action(action)
 
-        action = Gio.SimpleAction.new("update", None)
-        action.connect("activate", self.on_itemUpdate_activate)
+        action = Gio.SimpleAction.new('update', None)
+        action.connect('activate', self.on_itemUpdate_activate)
         g.add_action(action)
         self.update_action = action
 
-        action = Gio.SimpleAction.new("downloadAllNew", None)
-        action.connect("activate", self.on_itemDownloadAllNew_activate)
+        action = Gio.SimpleAction.new('downloadAllNew', None)
+        action.connect('activate', self.on_itemDownloadAllNew_activate)
         g.add_action(action)
         
-        action = Gio.SimpleAction.new("removeOldEpisodes", None)
-        action.connect("activate", self.on_itemRemoveOldEpisodes_activate)
+        action = Gio.SimpleAction.new('removeOldEpisodes', None)
+        action.connect('activate', self.on_itemRemoveOldEpisodes_activate)
         g.add_action(action)
 
-        action = Gio.SimpleAction.new("discover", None)
-        action.connect("activate", self.on_itemImportChannels_activate)
+        action = Gio.SimpleAction.new('discover', None)
+        action.connect('activate', self.on_itemImportChannels_activate)
         g.add_action(action)
 
-        action = Gio.SimpleAction.new("addChannel", None)
-        action.connect("activate", self.on_itemAddChannel_activate)
+        action = Gio.SimpleAction.new('addChannel', None)
+        action.connect('activate', self.on_itemAddChannel_activate)
         g.add_action(action)
 
-        action = Gio.SimpleAction.new("massUnsubscribe", None)
-        action.connect("activate", self.on_itemMassUnsubscribe_activate)
+        action = Gio.SimpleAction.new('massUnsubscribe', None)
+        action.connect('activate', self.on_itemMassUnsubscribe_activate)
         g.add_action(action)
 
-        action = Gio.SimpleAction.new("updateChannel", None)
-        action.connect("activate", self.on_itemUpdateChannel_activate)
+        action = Gio.SimpleAction.new('updateChannel', None)
+        action.connect('activate', self.on_itemUpdateChannel_activate)
         g.add_action(action)
         self.update_channel_action = action
 
-        action = Gio.SimpleAction.new("editChannel", None)
-        action.connect("activate", self.on_itemEditChannel_activate)
+        action = Gio.SimpleAction.new('editChannel', None)
+        action.connect('activate', self.on_itemEditChannel_activate)
         g.add_action(action)
         self.edit_channel_action = action
 
-        action = Gio.SimpleAction.new("importFromFile", None)
-        action.connect("activate", self.on_item_import_from_file_activate)
+        action = Gio.SimpleAction.new('importFromFile', None)
+        action.connect('activate', self.on_item_import_from_file_activate)
         g.add_action(action)
 
-        action = Gio.SimpleAction.new("exportChannels", None)
-        action.connect("activate", self.on_itemExportChannels_activate)
+        action = Gio.SimpleAction.new('exportChannels', None)
+        action.connect('activate', self.on_itemExportChannels_activate)
         g.add_action(action)
 
-        action = Gio.SimpleAction.new("play", None)
-        action.connect("activate", self.on_playback_selected_episodes)
+        action = Gio.SimpleAction.new('play', None)
+        action.connect('activate', self.on_playback_selected_episodes)
         g.add_action(action)
         self.play_action = action
 
-        action = Gio.SimpleAction.new("open", None)
-        action.connect("activate", self.on_playback_selected_episodes)
+        action = Gio.SimpleAction.new('open', None)
+        action.connect('activate', self.on_playback_selected_episodes)
         g.add_action(action)
         self.open_action = action
 
-        action = Gio.SimpleAction.new("download", None)
-        action.connect("activate", self.on_download_selected_episodes)
+        action = Gio.SimpleAction.new('download', None)
+        action.connect('activate', self.on_download_selected_episodes)
         g.add_action(action)
         self.download_action = action
 
-        action = Gio.SimpleAction.new("cancel", None)
-        action.connect("activate", self.on_item_cancel_download_activate)
+        action = Gio.SimpleAction.new('cancel', None)
+        action.connect('activate', self.on_item_cancel_download_activate)
         g.add_action(action)
         self.cancel_action = action
 
-        action = Gio.SimpleAction.new("delete", None)
-        action.connect("activate", self.on_btnDownloadedDelete_clicked)
+        action = Gio.SimpleAction.new('delete', None)
+        action.connect('activate', self.on_btnDownloadedDelete_clicked)
         g.add_action(action)
         self.delete_action = action
 
-        action = Gio.SimpleAction.new("toggleEpisodeNew", None)
-        action.connect("activate", self.on_item_toggle_played_activate)
+        action = Gio.SimpleAction.new('toggleEpisodeNew', None)
+        action.connect('activate', self.on_item_toggle_played_activate)
         g.add_action(action)
         self.toggle_episode_new_action = action
 
-        action = Gio.SimpleAction.new("toggleEpisodeLock", None)
-        action.connect("activate", self.on_item_toggle_lock_activate)
+        action = Gio.SimpleAction.new('toggleEpisodeLock', None)
+        action.connect('activate', self.on_item_toggle_lock_activate)
         g.add_action(action)
         self.toggle_episode_lock_action = action
 
-        action = Gio.SimpleAction.new("toggleShownotes", None)
-        action.connect("activate", self.on_shownotes_selected_episodes)
+        action = Gio.SimpleAction.new('toggleShownotes', None)
+        action.connect('activate', self.on_shownotes_selected_episodes)
         g.add_action(action)
 
         action = Gio.SimpleAction.new_stateful(
-            "showToolbar", None, GLib.Variant.new_boolean(self.config.show_toolbar))
-        action.connect("activate", self.on_itemShowToolbar_activate)
+            'showToolbar', None, GLib.Variant.new_boolean(self.config.show_toolbar))
+        action.connect('activate', self.on_itemShowToolbar_activate)
         g.add_action(action)
 
-        action = Gio.SimpleAction.new("sync", None)
-        action.connect("activate", self.on_sync_to_device_activate)
+        action = Gio.SimpleAction.new('sync', None)
+        action.connect('activate', self.on_sync_to_device_activate)
         g.add_action(action)
 
-        action = Gio.SimpleAction.new("updateYoutubeSubscriptions", None)
-        action.connect("activate", self.on_update_youtube_subscriptions_activate)
+        action = Gio.SimpleAction.new('updateYoutubeSubscriptions', None)
+        action.connect('activate', self.on_update_youtube_subscriptions_activate)
         g.add_action(action)
 
 
@@ -930,13 +930,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
             action.set_state(GLib.Variant.new_boolean(not state))
 
         for index, column in enumerate(columns):
-            name = "showColumn%i" % index
+            name = 'showColumn%i' % index
             action = Gio.SimpleAction.new_stateful(
                 name, None, GLib.Variant.new_boolean(False))
-            action.connect("activate", on_visible_toggled, index)
+            action.connect('activate', on_visible_toggled, index)
             self.main_window.add_action(action)
             self.view_column_actions.append(action)
-            self.application.menu_view_columns.insert(index, column.get_title(), "win." + name)
+            self.application.menu_view_columns.insert(index, column.get_title(), 'win.' + name)
 
         self.episode_columns_menu = Gtk.Menu.new_from_model(self.application.menu_view_columns)
         self.episode_columns_menu.attach_to_widget(self.main_window)
@@ -1577,13 +1577,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
             menu = Gtk.Menu()
 
             if can_force:
-                menu.append(make_menu_item(_('Start download now'), "go-down", selected_tasks, download.DownloadTask.QUEUED, True, True))
+                menu.append(make_menu_item(_('Start download now'), 'go-down', selected_tasks, download.DownloadTask.QUEUED, True, True))
             else:
-                menu.append(make_menu_item(_('Download'), "go-down", selected_tasks, download.DownloadTask.QUEUED, can_queue, False))
-            menu.append(make_menu_item(_('Cancel'), "media-playback-stop", selected_tasks, download.DownloadTask.CANCELLED, can_cancel))
-            menu.append(make_menu_item(_('Pause'), "media-playback-pause", selected_tasks, download.DownloadTask.PAUSED, can_pause))
+                menu.append(make_menu_item(_('Download'), 'go-down', selected_tasks, download.DownloadTask.QUEUED, can_queue, False))
+            menu.append(make_menu_item(_('Cancel'), 'media-playback-stop', selected_tasks, download.DownloadTask.CANCELLED, can_cancel))
+            menu.append(make_menu_item(_('Pause'), 'media-playback-pause', selected_tasks, download.DownloadTask.PAUSED, can_pause))
             menu.append(Gtk.SeparatorMenuItem())
-            menu.append(make_menu_item(_('Remove from list'), "list-remove", selected_tasks, None, can_remove))
+            menu.append(make_menu_item(_('Remove from list'), 'list-remove', selected_tasks, None, can_remove))
 
             menu.show_all()
 
@@ -1623,8 +1623,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             menu = Gtk.Menu()
 
             item = Gtk.ImageMenuItem( _('Update podcast'))
-            item.set_image(Gtk.Image.new_from_icon_name("view-refresh", Gtk.IconSize.MENU))
-            item.set_action_name("win.updateChannel")
+            item.set_image(Gtk.Image.new_from_icon_name('view-refresh', Gtk.IconSize.MENU))
+            item.set_action_name('win.updateChannel')
             menu.append(item)
 
             menu.append(Gtk.SeparatorMenuItem())
@@ -1645,7 +1645,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             menu.append(item)
 
             item = Gtk.ImageMenuItem(_('Remove podcast'))
-            item.set_image(Gtk.Image.new_from_icon_name("edit-delete", Gtk.IconSize.MENU))
+            item.set_image(Gtk.Image.new_from_icon_name('edit-delete', Gtk.IconSize.MENU))
             item.connect( 'activate', self.on_itemRemoveChannel_activate)
             menu.append( item)
 
@@ -1660,7 +1660,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             menu.append(Gtk.SeparatorMenuItem())
 
             item = Gtk.ImageMenuItem(_('Podcast settings'))
-            item.set_image(Gtk.Image.new_from_icon_name("document-properties", Gtk.IconSize.MENU))
+            item.set_image(Gtk.Image.new_from_icon_name('document-properties', Gtk.IconSize.MENU))
             item.set_action_name('win.editChannel')
             menu.append(item)
 
@@ -1776,14 +1776,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if open_instead_of_play:
                 item = Gtk.ImageMenuItem(Gtk.STOCK_OPEN)
             elif downloaded:
-                item = Gtk.ImageMenuItem(_("Play"))
-                item.set_image(Gtk.Image.new_from_icon_name("media-playback-start", Gtk.IconSize.MENU))
+                item = Gtk.ImageMenuItem(_('Play'))
+                item.set_image(Gtk.Image.new_from_icon_name('media-playback-start', Gtk.IconSize.MENU))
             else:
                 if downloading:
                     item = Gtk.ImageMenuItem(_('Preview'))
                 else:
                     item = Gtk.ImageMenuItem(_('Stream'))
-                item.set_image(Gtk.Image.new_from_icon_name("media-playback-start", Gtk.IconSize.MENU))
+                item.set_image(Gtk.Image.new_from_icon_name('media-playback-start', Gtk.IconSize.MENU))
 
             item.set_sensitive(can_play)
             item.connect('activate', self.on_playback_selected_episodes)
@@ -1791,17 +1791,17 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             if not can_cancel:
                 item = Gtk.ImageMenuItem(_('Download'))
-                item.set_image(Gtk.Image.new_from_icon_name("go-down", Gtk.IconSize.MENU))
+                item.set_image(Gtk.Image.new_from_icon_name('go-down', Gtk.IconSize.MENU))
                 item.set_action_name('win.download')
                 menu.append(item)
             else:
-                item = Gtk.ImageMenuItem.new_with_mnemonic(_("_Cancel"))
+                item = Gtk.ImageMenuItem.new_with_mnemonic(_('_Cancel'))
                 item.set_action_name('win.cancel')
                 menu.append(item)
 
-            item = Gtk.ImageMenuItem.new_with_mnemonic(_("_Delete"))
-            item.set_image(Gtk.Image.new_from_icon_name("edit-delete", Gtk.IconSize.MENU))
-            item.set_action_name("win.delete")
+            item = Gtk.ImageMenuItem.new_with_mnemonic(_('_Delete'))
+            item.set_image(Gtk.Image.new_from_icon_name('edit-delete', Gtk.IconSize.MENU))
+            item.set_action_name('win.delete')
             menu.append(item)
 
             result = gpodder.user_extensions.on_episodes_context_menu(episodes)
@@ -1828,7 +1828,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 share_menu = self._add_sub_menu(menu, _('Send to'))
 
                 item = Gtk.ImageMenuItem(_('Local folder'))
-                item.set_image(Gtk.Image.new_from_icon_name("folder", Gtk.IconSize.MENU))
+                item.set_image(Gtk.Image.new_from_icon_name('folder', Gtk.IconSize.MENU))
                 self._submenu_item_activate_hack(item, self.save_episodes_as_file, episodes)
                 share_menu.append(item)
                 if self.bluetooth_available:
@@ -1856,8 +1856,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             menu.append(Gtk.SeparatorMenuItem())
             # Single item, add episode information menu item
             item = Gtk.ImageMenuItem(_('Episode details'))
-            item.set_image(Gtk.Image.new_from_icon_name( "dialog-information", Gtk.IconSize.MENU))
-            item.set_action_name("win.toggleShownotes")
+            item.set_image(Gtk.Image.new_from_icon_name( 'dialog-information', Gtk.IconSize.MENU))
+            item.set_action_name('win.toggleShownotes')
             menu.append(item)
 
             menu.attach_to_widget(treeview)
@@ -2466,7 +2466,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.feed_cache_update_cancelled = False
         self.btnCancelFeedUpdate.show()
         self.btnCancelFeedUpdate.set_sensitive(True)
-        self.btnCancelFeedUpdate.set_image(Gtk.Image.new_from_icon_name("process-stop", Gtk.IconSize.BUTTON))
+        self.btnCancelFeedUpdate.set_image(Gtk.Image.new_from_icon_name('process-stop', Gtk.IconSize.BUTTON))
         self.hboxUpdateFeeds.show_all()
         self.btnUpdateFeeds.hide()
 
@@ -2543,7 +2543,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     self.btnCancelFeedUpdate.show()
                     self.btnCancelFeedUpdate.set_sensitive(True)
                     self.update_action.set_enabled(True)
-                    self.btnCancelFeedUpdate.set_image(Gtk.Image.new_from_icon_name("edit-clear", Gtk.IconSize.BUTTON))
+                    self.btnCancelFeedUpdate.set_image(Gtk.Image.new_from_icon_name('edit-clear', Gtk.IconSize.BUTTON))
                 else:
                     count = len(episodes)
                     # New episodes are available
@@ -2723,7 +2723,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         gPodderEpisodeSelector(self.main_window, title = _('Delete episodes'), instructions = instructions, \
                                 episodes = episodes, selected = selected, columns = columns, \
-                                stock_ok_button = "edit-delete", callback = self.delete_episode_list, \
+                                stock_ok_button = 'edit-delete', callback = self.delete_episode_list, \
                                 selection_buttons = selection_buttons, _config=self.config)
 
     def on_selected_episodes_status_changed(self):
@@ -3488,35 +3488,35 @@ class gPodder(BuilderWidget, dbus.service.Object):
 class gPodderApplication(Gtk.Application):
 
     def __init__(self, options):
-        Gtk.Application.__init__(self, application_id="org.gpodder.gpodder",
+        Gtk.Application.__init__(self, application_id='org.gpodder.gpodder',
                          flags=Gio.ApplicationFlags.FLAGS_NONE)
         self.window = None
         self.options = options;
-        self.connect("window-removed", self.on_window_removed)
+        self.connect('window-removed', self.on_window_removed)
 
     def create_actions(self):
-        action = Gio.SimpleAction.new("about", None)
-        action.connect("activate", self.on_about)
+        action = Gio.SimpleAction.new('about', None)
+        action.connect('activate', self.on_about)
         self.add_action(action)
 
-        action = Gio.SimpleAction.new("quit", None)
-        action.connect("activate", self.on_quit)
+        action = Gio.SimpleAction.new('quit', None)
+        action.connect('activate', self.on_quit)
         self.add_action(action)
 
-        action = Gio.SimpleAction.new("wiki", None)
-        action.connect("activate", self.on_wiki_activate)
+        action = Gio.SimpleAction.new('wiki', None)
+        action.connect('activate', self.on_wiki_activate)
         self.add_action(action)
 
-        action = Gio.SimpleAction.new("preferences", None)
-        action.connect("activate", self.on_itemPreferences_activate)
+        action = Gio.SimpleAction.new('preferences', None)
+        action.connect('activate', self.on_itemPreferences_activate)
         self.add_action(action)
 
-        action = Gio.SimpleAction.new("gotoMygpo", None)
-        action.connect("activate", self.on_goto_mygpo)
+        action = Gio.SimpleAction.new('gotoMygpo', None)
+        action.connect('activate', self.on_goto_mygpo)
         self.add_action(action)
 
-        action = Gio.SimpleAction.new("checkForUpdates", None)
-        action.connect("activate", self.on_check_for_updates_activate)
+        action = Gio.SimpleAction.new('checkForUpdates', None)
+        action.connect('activate', self.on_check_for_updates_activate)
         self.add_action(action)
 
 
@@ -3529,20 +3529,20 @@ class gPodderApplication(Gtk.Application):
         builder.set_translation_domain(gpodder.textdomain)
 
         for ui_folder in gpodder.ui_folders:
-            filename = os.path.join(ui_folder, "gtk/menus.ui")
+            filename = os.path.join(ui_folder, 'gtk/menus.ui')
             if os.path.exists(filename):
                 builder.add_from_file(filename)
                 break
 
-        menubar = builder.get_object("menubar")
+        menubar = builder.get_object('menubar')
         if menubar is None:
             logger.error('Cannot find gtk/menus.ui in %r, exiting' % gpodder.ui_folders)
             sys.exit(1)
 
-        self.menu_view_columns = builder.get_object("menuViewColumns")
+        self.menu_view_columns = builder.get_object('menuViewColumns')
         self.set_menubar(menubar)
 
-        self.set_app_menu(builder.get_object("app-menu"))
+        self.set_app_menu(builder.get_object('app-menu'))
 
         for i in range(EpisodeListModel.PROGRESS_STEPS + 1):
            pixbuf = draw_cake_pixbuf(float(i) /
