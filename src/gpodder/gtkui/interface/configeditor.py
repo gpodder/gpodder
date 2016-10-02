@@ -41,7 +41,7 @@ class gPodderConfigEditor(BuilderWidget):
 
         value_column = Gtk.TreeViewColumn(_('Set to'))
         value_check_renderer = Gtk.CellRendererToggle()
-        value_column.pack_start(value_check_renderer, False, True, 0)
+        value_column.pack_start(value_check_renderer, False)
         value_column.add_attribute(value_check_renderer, 'active', 7)
         value_column.add_attribute(value_check_renderer, 'visible', 6)
         value_column.add_attribute(value_check_renderer, 'activatable', 6)
