@@ -934,7 +934,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             action = Gio.SimpleAction.new_stateful(
                 name, None, GLib.Variant.new_boolean(False))
             action.connect("activate", on_visible_toggled, index)
-            self.main_window.get_action_group("win").insert(action)
+            self.main_window.add_action(action)
             self.view_column_actions.append(action)
             self.application.menu_view_columns.insert(index, column.get_title(), "win." + name)
 
