@@ -38,6 +38,8 @@ try:
     pynotify = True
 except ImportError:
     pynotify = None
+except ValueError:
+    pynotify = None
 
 
 if pynotify is None:
