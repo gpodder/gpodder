@@ -218,7 +218,7 @@ class gPodderPreferences(BuilderWidget):
 
         self.update_interval_presets = [0, 10, 30, 60, 2*60, 6*60, 12*60]
         adjustment_update_interval = self.hscale_update_interval.get_adjustment()
-        adjustment_update_interval.upper = len(self.update_interval_presets)-1
+        adjustment_update_interval.set_upper(len(self.update_interval_presets)-1)
         if self._config.auto_update_frequency in self.update_interval_presets:
             index = self.update_interval_presets.index(self._config.auto_update_frequency)
             self.hscale_update_interval.set_value(index)
@@ -227,7 +227,7 @@ class gPodderPreferences(BuilderWidget):
             self.update_interval_presets.append(self._config.auto_update_frequency)
             self.update_interval_presets.sort()
 
-            adjustment_update_interval.upper = len(self.update_interval_presets)-1
+            adjustment_update_interval.set_upper(len(self.update_interval_presets)-1)
             index = self.update_interval_presets.index(self._config.auto_update_frequency)
             self.hscale_update_interval.set_value(index)
 
@@ -244,7 +244,7 @@ class gPodderPreferences(BuilderWidget):
             adjustment_expiration = self.hscale_expiration.get_adjustment()
             if self._config.episode_old_age > adjustment_expiration.get_upper():
                 # Patch the adjustment to include the higher current value
-                adjustment_expiration.upper = self._config.episode_old_age
+                adjustment_expiration.set_upper(self._config.episode_old_age)
 
             self.hscale_expiration.set_value(self._config.episode_old_age)
         else:
@@ -484,12 +484,19 @@ class gPodderPreferences(BuilderWidget):
 
     def format_update_interval_value(self, scale, value):
         value = int(value)
+        ret = None
         if value == 0:
-            return _('manually')
+            ret = _('manually')
         elif value > 0 and len(self.update_interval_presets) > value:
-            return util.format_seconds_to_hour_min_sec(self.update_interval_presets[value]*60)
+            ret = util.format_seconds_to_hour_min_sec(self.update_interval_presets[value]*60)
         else:
-            return str(value)
+            ret = str(value)
+        # bug in gtk3: value representation (pixels) must be smaller than value for highest value.
+        # this makes sense when formatting e.g. 0 to 1000 where '1000' is the longest
+        # string, but not when '10 minutes' is longer than '12 hours'
+        # so we replace spaces with non breaking spaces otherwise '10 minutes' is displayed as '10'
+        ret = ret.replace(' ', u'\xa0')
+        return ret
 
     def on_update_interval_value_changed(self, range):
         value = int(range.get_value())
