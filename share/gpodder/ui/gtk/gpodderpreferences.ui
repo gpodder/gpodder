@@ -51,10 +51,8 @@
                 <property name="visible">True</property>
                 <property name="orientation">vertical</property>
                 <child>
-                  <object class="GtkTable" id="table_players">
+                  <object class="GtkGrid" id="table_players">
                     <property name="column_spacing">6</property>
-                    <property name="n_columns">3</property>
-                    <property name="n_rows">2</property>
                     <property name="row_spacing">6</property>
                     <property name="visible">True</property>
                     <child>
@@ -63,9 +61,6 @@
                         <property name="visible">True</property>
                         <property name="xalign">0.0</property>
                       </object>
-                      <packing>
-                        <property name="x_options">fill</property>
-                      </packing>
                     </child>
                     <child>
                       <object class="GtkLabel" id="label_video_player">
@@ -74,30 +69,28 @@
                         <property name="xalign">0.0</property>
                       </object>
                       <packing>
-                        <property name="bottom_attach">2</property>
+                        <property name="left_attach">0</property>
                         <property name="top_attach">1</property>
-                        <property name="x_options">fill</property>
                       </packing>
                     </child>
                     <child>
                       <object class="GtkComboBox" id="combo_audio_player_app">
                         <property name="visible">True</property>
+                        <property name="hexpand">True</property>
                         <signal name="changed" handler="on_combo_audio_player_app_changed"/>
                       </object>
                       <packing>
                         <property name="left_attach">1</property>
-                        <property name="right_attach">2</property>
                       </packing>
                     </child>
                     <child>
                       <object class="GtkComboBox" id="combo_video_player_app">
                         <property name="visible">True</property>
+                        <property name="hexpand">True</property>
                         <signal name="changed" handler="on_combo_video_player_app_changed"/>
                       </object>
                       <packing>
-                        <property name="bottom_attach">2</property>
                         <property name="left_attach">1</property>
-                        <property name="right_attach">2</property>
                         <property name="top_attach">1</property>
                       </packing>
                     </child>
@@ -114,8 +107,7 @@
                       </object>
                       <packing>
                         <property name="left_attach">2</property>
-                        <property name="right_attach">3</property>
-                        <property name="x_options">fill</property>
+                        <property name="top_attach">0</property>
                       </packing>
                     </child>
                     <child>
@@ -130,11 +122,8 @@
                         </child>
                       </object>
                       <packing>
-                        <property name="bottom_attach">2</property>
                         <property name="left_attach">2</property>
-                        <property name="right_attach">3</property>
                         <property name="top_attach">1</property>
-                        <property name="x_options">fill</property>
                       </packing>
                     </child>
                   </object>
@@ -183,10 +172,8 @@
                 <property name="visible">True</property>
                 <property name="orientation">vertical</property>
                 <child>
-                  <object class="GtkTable" id="table_video">
+                  <object class="GtkGrid" id="table_video">
                     <property name="column_spacing">6</property>
-                    <property name="n_columns">3</property>
-                    <property name="n_rows">3</property>
                     <property name="row_spacing">6</property>
                     <property name="visible">True</property>
                     <child>
@@ -198,21 +185,18 @@
                       </object>
                       <packing>
                         <property name="top_attach">0</property>
-                        <property name="bottom_attach">1</property>
-                        <property name="x_options">fill</property>
                       </packing>
                     </child>
                     <child>
                       <object class="GtkComboBox" id="combobox_preferred_youtube_format">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
+                        <property name="hexpand">True</property>
                         <signal name="changed" handler="on_combobox_preferred_youtube_format_changed" swapped="no"/>
                       </object>
                       <packing>
                         <property name="left_attach">1</property>
-                        <property name="right_attach">2</property>
                         <property name="top_attach">0</property>
-                        <property name="bottom_attach">1</property>
                       </packing>
                     </child>
                     <child>
@@ -224,23 +208,18 @@
                       </object>
                       <packing>
                         <property name="left_attach">0</property>
-                        <property name="right_attach">1</property>
                         <property name="top_attach">1</property>
-                        <property name="bottom_attach">2</property>
-                        <property name="x_options">fill</property>
                       </packing>
                     </child>
                     <child>
                       <object class="GtkEntry" id="entry_youtube_api_key">
                         <property name="visible">True</property>
+                        <property name="hexpand">True</property>
                         <signal handler="on_youtube_api_key_changed" name="changed"/>
                       </object>
                       <packing>
                         <property name="left_attach">1</property>
-                        <property name="right_attach">2</property>
                         <property name="top_attach">1</property>
-                        <property name="bottom_attach">2</property>
-                        <property name="x_options">fill</property>
                       </packing>
                     </child>
                     <child>
@@ -256,10 +235,7 @@
                       </object>
                       <packing>
                         <property name="top_attach">1</property>
-                        <property name="bottom_attach">2</property>
                         <property name="left_attach">2</property>
-                        <property name="right_attach">3</property>
-                        <property name="x_options">fill</property>
                       </packing>
                     </child>
                     <child>
@@ -271,8 +247,7 @@
                       </object>
                       <packing>
                         <property name="top_attach">2</property>
-                        <property name="bottom_attach">3</property>
-                        <property name="x_options">fill</property>
+                        <property name="left_attach">0</property>
                       </packing>
                     </child>
                     <child>
@@ -283,9 +258,7 @@
                       </object>
                       <packing>
                         <property name="left_attach">1</property>
-                        <property name="right_attach">2</property>
                         <property name="top_attach">2</property>
-                        <property name="bottom_attach">3</property>
                       </packing>
                     </child>
                   </object>
@@ -477,13 +450,15 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkHScale" id="hscale_update_interval">
+                      <object class="GtkScale" id="hscale_update_interval">
                         <property name="digits">0</property>
                         <property name="is_focus">True</property>
                         <property name="restrict_to_fill_level">False</property>
                         <property name="value_pos">bottom</property>
                         <property name="visible">True</property>
                         <property name="adjustment">adjustment_update_interval</property>
+                        <property name="orientation">horizontal</property>
+                        <property name="hexpand">True</property>
                         <signal name="format-value" handler="format_update_interval_value"/>
                         <signal name="value-changed" handler="on_update_interval_value_changed"/>
                       </object>
@@ -604,12 +579,14 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkHScale" id="hscale_expiration">
+                      <object class="GtkScale" id="hscale_expiration">
                         <property name="digits">0</property>
                         <property name="is_focus">True</property>
                         <property name="value_pos">bottom</property>
                         <property name="visible">True</property>
                         <property name="adjustment">adjustment_expiration</property>
+                        <property name="orientation">horizontal</property>
+                        <property name="hexpand">True</property>
                         <signal name="format-value" handler="format_expiration_value"/>
                         <signal name="value-changed" handler="on_expiration_value_changed"/>
                       </object>
