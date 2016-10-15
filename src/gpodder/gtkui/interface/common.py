@@ -18,6 +18,8 @@
 #
 
 from gi.repository import Gtk
+from gi.repository import Gdk
+
 import os
 import shutil
 
@@ -33,7 +35,6 @@ from gpodder.gtkui.base import GtkBuilderWidget
 class BuilderWidget(GtkBuilderWidget):
     def __init__(self, parent, **kwargs):
         self._window_iconified = False
-        self._window_visible = False
 
         GtkBuilderWidget.__init__(self, gpodder.ui_folders, gpodder.textdomain, parent, **kwargs)
 
@@ -42,28 +43,6 @@ class BuilderWidget(GtkBuilderWidget):
             self.main_window.connect('window-state-event', \
                     self._on_window_state_event_iconified)
 
-        # Enable support for tracking visibility state
-        self.main_window.connect('visibility-notify-event', \
-                    self._on_window_state_event_visibility)
-
-        if parent is not None:
-            self.main_window.set_transient_for(parent)
-
-            if hasattr(self, 'center_on_widget'):
-                (x, y) = parent.get_position()
-                a = self.center_on_widget.allocation
-                (x, y) = (x + a.x, y + a.y)
-                (w, h) = (a.width, a.height)
-                (pw, ph) = self.main_window.get_size()
-                self.main_window.move(x + w/2 - pw/2, y + h/2 - ph/2)
-
-    def _on_window_state_event_visibility(self, widget, event):
-        if event.get_state() & Gdk.VisibilityState.FULLY_OBSCURED:
-            self._window_visible = False
-        else:
-            self._window_visible = True
-
-        return False
 
     def _on_window_state_event_iconified(self, widget, event):
         if event.new_window_state & Gdk.WindowState.ICONIFIED:
@@ -136,7 +115,7 @@ class BuilderWidget(GtkBuilderWidget):
             if text is None:
                 dialog.set_response_sensitive(Gtk.ResponseType.OK, False)
 
-        hbox = Gtk.HBox()
+        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
         hbox.set_border_width(10)
         hbox.set_spacing(10)
         hbox.pack_start(Gtk.Label(prompt, True, True, 0), False, False, 0)
@@ -145,7 +124,7 @@ class BuilderWidget(GtkBuilderWidget):
 
         dialog.show_all()
         response = dialog.run()
-        result = text_entry.get_text()
+        result = unicode(text_entry.get_text(), 'utf8')
         dialog.destroy()
 
         if response == Gtk.ResponseType.OK:
@@ -167,7 +146,7 @@ class BuilderWidget(GtkBuilderWidget):
             Gtk.MessageType.QUESTION,
             Gtk.ButtonsType.CANCEL)
         dialog.add_button(_('Login'), Gtk.ResponseType.OK)
-        dialog.set_image(Gtk.Image.new_from_stock(Gtk.STOCK_DIALOG_AUTHENTICATION, Gtk.IconSize.DIALOG))
+        dialog.set_image(Gtk.Image.new_from_icon_name('dialog-password', Gtk.IconSize.DIALOG))
         dialog.set_title(_('Authentication required'))
         dialog.set_markup('<span weight="bold" size="larger">' + title + '</span>')
         dialog.format_secondary_markup(message)

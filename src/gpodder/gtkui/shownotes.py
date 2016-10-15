@@ -47,6 +47,7 @@ class gPodderShownotes:
         self.scrolled_window.show_all()
 
         self.da_message = Gtk.DrawingArea()
+        self.da_message.set_property('expand', True)
         self.da_message.connect('draw', self.on_shownotes_message_expose_event)
         self.shownotes_pane.add(self.da_message)
         self.shownotes_pane.add(self.scrolled_window)
@@ -89,20 +90,14 @@ class gPodderShownotes:
         else:
             self.show_pane(selected_episodes)
 
-    def on_shownotes_message_expose_event(self, drawingarea, event):
-        return
-        ctx = event.window.cairo_create()
-        ctx.rectangle(event.area.x, event.area.y, \
-                      event.area.width, event.area.height)
-        ctx.clip()
-
+    def on_shownotes_message_expose_event(self, drawingarea, ctx):
         # paint the background white
-        colormap = event.window.get_colormap()
-        gc = event.window.new_gc(foreground=colormap.alloc_color('white'))
-        event.window.draw_rectangle(gc, True, event.area.x, event.area.y, \
-                                    event.area.width, event.area.height)
+        ctx.set_source_rgba(1,1,1)
+        x1, y1, x2, y2 = ctx.clip_extents()
+        ctx.rectangle(x1, y1, x2 - x1, y2 - y1)
+        ctx.fill()
 
-        x, y, width, height, depth = event.window.get_geometry()
+        width, height = drawingarea.get_allocated_width(), drawingarea.get_allocated_height(),
         text = _('Please select an episode')
         draw_text_box_centered(ctx, drawingarea, width, height, text, None, None)
         return False
@@ -111,6 +106,7 @@ class gPodderShownotes:
 class gPodderShownotesText(gPodderShownotes):
     def init(self):
         self.text_view = Gtk.TextView()
+        self.text_view.set_property('expand', True)
         self.text_view.set_wrap_mode(Gtk.WrapMode.WORD_CHAR)
         self.text_view.set_border_width(10)
         self.text_view.set_editable(False)
@@ -149,7 +145,7 @@ class gPodderShownotesText(gPodderShownotes):
             self.activate_links()
 
     def on_key_press(self, widget, event):
-        if Gdk.keyval_name(event.keyval) == 'Return':
+        if event.keyval == Gdk.KEY_Return:
             self.activate_links()
             return True
 

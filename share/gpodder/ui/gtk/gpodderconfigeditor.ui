@@ -17,19 +17,22 @@
     <property name="urgency_hint">False</property>
     <signal handler="on_gPodderConfigEditor_destroy" name="destroy"/>
     <child internal-child="vbox">
-      <object class="GtkVBox" id="vbox13">
+      <object class="GtkBox" id="vbox13">
         <property name="visible">True</property>
         <property name="homogeneous">False</property>
+        <property name="orientation">vertical</property>
         <child>
-          <object class="GtkVBox" id="vbox_for_episode_selector">
+          <object class="GtkBox" id="vbox_for_episode_selector">
             <property name="border_width">5</property>
             <property name="visible">True</property>
             <property name="spacing">5</property>
+            <property name="orientation">vertical</property>
             <child>
-              <object class="GtkHBox" id="hbox38">
+              <object class="GtkBox" id="hbox38">
                 <property name="visible">True</property>
                 <property name="homogeneous">False</property>
                 <property name="spacing">6</property>
+                <property name="orientation">horizontal</property>
                 <child>
                   <object class="GtkLabel" id="label121">
                     <property name="visible">True</property>

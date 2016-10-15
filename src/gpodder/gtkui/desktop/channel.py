@@ -19,6 +19,7 @@
 
 from gi.repository import Gtk
 from gi.repository import Gdk
+from gi.repository import GdkPixbuf
 
 import gpodder
 
@@ -49,7 +50,7 @@ class gPodderChannel(BuilderWidget):
                 active_index = index
         self.combo_section.set_model(self.section_list)
         cell_renderer = Gtk.CellRendererText()
-        self.combo_section.pack_start(cell_renderer, True, True, 0)
+        self.combo_section.pack_start(cell_renderer, True)
         self.combo_section.add_attribute(cell_renderer, 'text', 0)
         self.combo_section.set_active(active_index)
 
@@ -62,7 +63,7 @@ class gPodderChannel(BuilderWidget):
                 active_index = index
         self.combo_strategy.set_model(self.strategy_list)
         cell_renderer = Gtk.CellRendererText()
-        self.combo_strategy.pack_start(cell_renderer, True, True, 0)
+        self.combo_strategy.pack_start(cell_renderer, True)
         self.combo_strategy.add_attribute(cell_renderer, 'text', 0)
         self.combo_strategy.set_active(active_index)
 
@@ -87,7 +88,7 @@ class gPodderChannel(BuilderWidget):
 
         #Add Drag and Drop Support
         flags = Gtk.DestDefaults.ALL
-        targets = [('text/uri-list', 0, 2), ('text/plain', 0, 4)]
+        targets = [Gtk.TargetEntry.new('text/uri-list', 0, 2), Gtk.TargetEntry.new('text/plain', 0, 4)]
         actions = Gdk.DragAction.DEFAULT | Gdk.DragAction.COPY
         self.imgCover.drag_dest_set(flags, targets, actions)
         self.imgCover.connect('drag_data_received', self.drag_data_received)
@@ -102,7 +103,7 @@ class gPodderChannel(BuilderWidget):
 
         if text is not None:
             for index, (section,) in enumerate(self.section_list):
-                if text == section:
+                if text == unicode(section, 'utf8'):
                     self.combo_section.set_active(index)
                     return
 
@@ -110,21 +111,22 @@ class gPodderChannel(BuilderWidget):
             self.combo_section.set_active(len(self.section_list)-1)
 
     def on_cover_popup_menu(self, widget, event):
-        if event.button != 3:
+        if not event.triggers_context_menu():
             return
 
         menu = Gtk.Menu()
 
-        item = Gtk.ImageMenuItem(Gtk.STOCK_OPEN)
+        item = Gtk.MenuItem.new_with_mnemonic(_('_Open'))
         item.connect('activate', self.on_btnDownloadCover_clicked)
         menu.append(item)
 
-        item = Gtk.ImageMenuItem(Gtk.STOCK_REFRESH)
+        item = Gtk.MenuItem.new_with_mnemonic(_('_Refresh'))
         item.connect('activate', self.on_btnClearCover_clicked)
         menu.append(item)
 
+        menu.attach_to_widget(widget)
         menu.show_all()
-        menu.popup(None, None, None, event.button, event.time, None)
+        menu.popup(None, None, None, None, event.button, event.time)
 
     def on_btn_website_clicked(self, widget):
         util.open_website(self.channel.link)
@@ -200,7 +202,7 @@ class gPodderChannel(BuilderWidget):
         self.clear_cover_cache(self.channel.url)
         self.cover_downloader.request_cover(self.channel)
 
-        new_section = self.section_list[self.combo_section.get_active()][0]
+        new_section = unicode(self.section_list[self.combo_section.get_active()][0], 'utf8')
         if self.channel.section != new_section:
             self.channel.section = new_section
             section_changed = True

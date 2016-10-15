@@ -32,8 +32,13 @@ import logging
 logger = logging.getLogger(__name__)
 
 try:
+    import gi
+    gi.require_version('Notify', '0.7')
     from gi.repository import Notify
+    pynotify = True
 except ImportError:
+    pynotify = None
+except ValueError:
     pynotify = None
 
 
@@ -56,7 +61,7 @@ else:
             if not message and not title:
                 return
 
-            notify = Notify.Notification(title or '', message or '',
+            notify = Notify.Notification.new(title or '', message or '',
                     gpodder.icon_file)
 
             try:

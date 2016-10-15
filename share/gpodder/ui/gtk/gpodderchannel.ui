@@ -13,10 +13,11 @@
     <property name="type_hint">dialog</property>
     <signal name="destroy" handler="on_gPodderChannel_destroy" swapped="no"/>
     <child internal-child="vbox">
-      <object class="GtkVBox" id="vboxChannelEditorMain">
+      <object class="GtkBox" id="vboxChannelEditorMain">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="spacing">5</property>
+        <property name="orientation">vertical</property>
         <child internal-child="action_area">
           <object class="GtkHButtonBox" id="hboxButtons">
             <property name="visible">True</property>
@@ -264,44 +265,44 @@
               </packing>
             </child>
             <child>
-              <object class="GtkVBox" id="vboxiPodProperties">
+              <object class="GtkBox" id="vboxiPodProperties">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="border_width">10</property>
                 <property name="spacing">5</property>
+                <property name="orientation">vertical</property>
                 <child>
-                  <object class="GtkLabel" id="label96">
+                  <object class="GtkGrid" id="table10">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
-                    <property name="label" translatable="yes">&lt;b&gt;HTTP/FTP Authentication&lt;/b&gt;</property>
-                    <property name="use_markup">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkTable" id="table10">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="n_rows">2</property>
-                    <property name="n_columns">2</property>
                     <property name="column_spacing">6</property>
                     <property name="row_spacing">6</property>
+          <child>
+            <object class="GtkLabel" id="label96">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="xalign">0</property>
+            <property name="label" translatable="yes">&lt;b&gt;HTTP/FTP Authentication&lt;/b&gt;</property>
+            <property name="use_markup">True</property>
+            </object>
+            <packing>
+                        <property name="left_attach">0</property>
+                        <property name="top_attach">0</property>
+                        <property name="width">3</property>
+            </packing>
+          </child>
                     <child>
                       <object class="GtkLabel" id="label93">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="xalign">0</property>
                         <property name="label" translatable="yes">Username:</property>
+                        <property name="expand">False</property>
                       </object>
-                      <packing>
-                        <property name="x_options">GTK_FILL</property>
-                        <property name="y_options"/>
-                      </packing>
+            <packing>
+                        <property name="left_attach">0</property>
+                        <property name="top_attach">1</property>
+            </packing>
                     </child>
                     <child>
                       <object class="GtkLabel" id="label94">
@@ -309,12 +310,11 @@
                         <property name="can_focus">False</property>
                         <property name="xalign">0</property>
                         <property name="label" translatable="yes">Password:</property>
+                        <property name="expand">False</property>
                       </object>
                       <packing>
-                        <property name="top_attach">1</property>
-                        <property name="bottom_attach">2</property>
-                        <property name="x_options">GTK_FILL</property>
-                        <property name="y_options"/>
+                        <property name="left_attach">0</property>
+                        <property name="top_attach">2</property>
                       </packing>
                     </child>
                     <child>
@@ -326,11 +326,12 @@
                         <property name="secondary_icon_activatable">False</property>
                         <property name="primary_icon_sensitive">True</property>
                         <property name="secondary_icon_sensitive">True</property>
+                        <property name="hexpand">True</property>
+                        <property name="vexpand">False</property>
                       </object>
                       <packing>
                         <property name="left_attach">1</property>
-                        <property name="right_attach">2</property>
-                        <property name="y_options"/>
+                        <property name="top_attach">1</property>
                       </packing>
                     </child>
                     <child>
@@ -342,65 +343,50 @@
                         <property name="secondary_icon_activatable">False</property>
                         <property name="primary_icon_sensitive">True</property>
                         <property name="secondary_icon_sensitive">True</property>
+                        <property name="hexpand">True</property>
+                        <property name="vexpand">False</property>
                       </object>
                       <packing>
                         <property name="left_attach">1</property>
-                        <property name="right_attach">2</property>
-                        <property name="top_attach">1</property>
-                        <property name="bottom_attach">2</property>
-                        <property name="y_options"/>
+                        <property name="top_attach">2</property>
                       </packing>
                     </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkHSeparator" id="hseparator13">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">2</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label97">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
-                    <property name="label" translatable="yes">&lt;b&gt;Locations&lt;/b&gt;</property>
-                    <property name="use_markup">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">3</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkTable" id="table3">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="n_rows">2</property>
-                    <property name="n_columns">3</property>
-                    <property name="column_spacing">6</property>
-                    <property name="row_spacing">6</property>
+          <child>
+            <object class="GtkHSeparator" id="hseparator13">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            </object>
+            <packing>
+                        <property name="left_attach">0</property>
+                        <property name="top_attach">3</property>
+                        <property name="width">3</property>
+            </packing>
+          </child>
+          <child>
+            <object class="GtkLabel" id="label97">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="xalign">0</property>
+            <property name="label" translatable="yes">&lt;b&gt;Locations&lt;/b&gt;</property>
+            <property name="use_markup">True</property>
+            </object>
+            <packing>
+                        <property name="left_attach">0</property>
+                        <property name="top_attach">4</property>
+                        <property name="width">3</property>
+            </packing>
+          </child>
                     <child>
                       <object class="GtkLabel" id="label29">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="xalign">0</property>
                         <property name="label" translatable="yes">Download to:</property>
+                        <property name="expand">False</property>
                       </object>
                       <packing>
-                        <property name="x_options">GTK_FILL</property>
-                        <property name="y_options"/>
+                        <property name="left_attach">0</property>
+                        <property name="top_attach">5</property>
                       </packing>
                     </child>
                     <child>
@@ -411,11 +397,13 @@
                         <property name="label">download to label</property>
                         <property name="selectable">True</property>
                         <property name="ellipsize">start</property>
+                        <property name="hexpand">True</property>
+                        <property name="vexpand">False</property>
                       </object>
                       <packing>
                         <property name="left_attach">1</property>
-                        <property name="right_attach">3</property>
-                        <property name="y_options"/>
+                        <property name="top_attach">5</property>
+                        <property name="width">2</property>
                       </packing>
                     </child>
                     <child>
@@ -424,12 +412,11 @@
                         <property name="can_focus">False</property>
                         <property name="xalign">0</property>
                         <property name="label" translatable="yes">Website:</property>
+                        <property name="expand">False</property>
                       </object>
                       <packing>
-                        <property name="top_attach">1</property>
-                        <property name="bottom_attach">2</property>
-                        <property name="x_options">GTK_FILL</property>
-                        <property name="y_options"/>
+                        <property name="top_attach">6</property>
+                        <property name="left_attach">0</property>
                       </packing>
                     </child>
                     <child>
@@ -440,13 +427,12 @@
                         <property name="label" translatable="yes">website label</property>
                         <property name="selectable">True</property>
                         <property name="ellipsize">end</property>
+                        <property name="hexpand">True</property>
+                        <property name="vexpand">False</property>
                       </object>
                       <packing>
                         <property name="left_attach">1</property>
-                        <property name="right_attach">2</property>
-                        <property name="top_attach">1</property>
-                        <property name="bottom_attach">2</property>
-                        <property name="y_options"/>
+                        <property name="top_attach">6</property>
                       </packing>
                     </child>
                     <child>
@@ -466,17 +452,14 @@
                       </object>
                       <packing>
                         <property name="left_attach">2</property>
-                        <property name="right_attach">3</property>
-                        <property name="top_attach">1</property>
-                        <property name="bottom_attach">2</property>
-                        <property name="x_options">GTK_FILL</property>
+                        <property name="top_attach">6</property>
                       </packing>
                     </child>
                   </object>
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">True</property>
-                    <property name="position">4</property>
+                    <property name="position">1</property>
                   </packing>
                 </child>
               </object>

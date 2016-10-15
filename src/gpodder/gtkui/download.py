@@ -47,11 +47,11 @@ class DownloadStatusModel(Gtk.ListStore):
 
         # Set up stock icon IDs for tasks
         self._status_ids = collections.defaultdict(lambda: None)
-        self._status_ids[download.DownloadTask.DOWNLOADING] = Gtk.STOCK_GO_DOWN
+        self._status_ids[download.DownloadTask.DOWNLOADING] = 'go-down'
         self._status_ids[download.DownloadTask.DONE] = Gtk.STOCK_APPLY
-        self._status_ids[download.DownloadTask.FAILED] = Gtk.STOCK_STOP
-        self._status_ids[download.DownloadTask.CANCELLED] = Gtk.STOCK_CANCEL
-        self._status_ids[download.DownloadTask.PAUSED] = Gtk.STOCK_MEDIA_PAUSE
+        self._status_ids[download.DownloadTask.FAILED] = 'dialog-error'
+        self._status_ids[download.DownloadTask.CANCELLED] = 'media-playback-stop'
+        self._status_ids[download.DownloadTask.PAUSED] = 'media-playback-pause'
 
     def _format_message(self, episode, message, podcast):
         episode = cgi.escape(episode)

@@ -116,6 +116,8 @@ class EpisodeListModel(Gtk.ListStore):
 
     VIEW_ALL, VIEW_UNDELETED, VIEW_DOWNLOADED, VIEW_UNPLAYED = range(4)
 
+    VIEWS = ['VIEW_ALL', 'VIEW_UNDELETED', 'VIEW_DOWNLOADED', 'VIEW_UNPLAYED']
+
     # In which steps the UI is updated for "loading" animations
     _UI_UPDATE_STEP = .03
 
@@ -307,7 +309,7 @@ class EpisodeListModel(Gtk.ListStore):
     def update_by_filter_iter(self, iter, include_description=False):
         # Convenience function for use by "outside" methods that use iters
         # from the filtered episode list model (i.e. all UI things normally)
-        iter = self._sorter.convert_iter_to_child_iter(None, iter)
+        iter = self._sorter.convert_iter_to_child_iter(iter)
         self.update_by_iter(self._filter.convert_iter_to_child_iter(iter),
                 include_description)
 
@@ -468,7 +470,7 @@ class PodcastListModel(Gtk.ListStore):
         return model.get_value(iter, cls.C_SEPARATOR)
 
     def __init__(self, cover_downloader):
-        Gtk.ListStore.__init__(self, str, str, str, str, \
+        Gtk.ListStore.__init__(self, str, str, str, GdkPixbuf.Pixbuf, \
                 object, GdkPixbuf.Pixbuf, str, bool, bool, bool, bool, \
                 bool, bool, int, bool, str)
 
@@ -611,6 +613,12 @@ class PodcastListModel(Gtk.ListStore):
 
         return pixbuf_overlay
 
+    def _get_pill_image(self, channel, count_downloaded, count_unplayed):
+        if count_unplayed > 0 or count_downloaded > 0:
+            return draw.draw_pill_pixbuf(str(count_unplayed), str(count_downloaded))
+        else:
+            return None
+
     def _format_description(self, channel, total, deleted, \
             new, downloaded, unplayed):
         title_markup = cgi.escape(channel.title)
@@ -717,7 +725,7 @@ class PodcastListModel(Gtk.ListStore):
     def iter_is_first_row(self, iter):
         iter = self._filter.convert_iter_to_child_iter(iter)
         path = self.get_path(iter)
-        return (path.get_indices() == [0])
+        return (path == Gtk.TreePath.new_first())
 
     def update_by_filter_iter(self, iter):
         self.update_by_iter(self._filter.convert_iter_to_child_iter(iter))
@@ -739,15 +747,18 @@ class PodcastListModel(Gtk.ListStore):
         channel = self.get_value(iter, self.C_CHANNEL)
 
         if channel is SectionMarker:
-            section = self.get_value(iter, self.C_TITLE)
+            section = unicode(self.get_value(iter, self.C_TITLE), 'utf8')
 
             # This row is a section header - update its visibility flags
             channels = [c for c in (row[self.C_CHANNEL] for row in self)
                     if isinstance(c, GPodcast) and c.section == section]
 
             # Calculate the stats over all podcasts of this section
-            total, deleted, new, downloaded, unplayed = map(sum,
-                    zip(*[c.get_statistics() for c in channels]))
+            if len(channels) is 0:
+                total = deleted = new = downloaded = unplayed = 0
+            else:
+                total, deleted, new, downloaded, unplayed = map(sum,
+                        zip(*[c.get_statistics() for c in channels]))
 
             # We could customized the section header here with the list
             # of channels and their stats (i.e. add some "new" indicator)
@@ -769,13 +780,15 @@ class PodcastListModel(Gtk.ListStore):
         description = self._format_description(channel, total, deleted, new, \
                 downloaded, unplayed)
 
+        pill_image = self._get_pill_image(channel, downloaded, unplayed)
+
         self.set(iter, \
                 self.C_TITLE, channel.title, \
                 self.C_DESCRIPTION, description, \
                 self.C_SECTION, channel.section, \
                 self.C_ERROR, self._format_error(channel), \
-                self.C_PILL, str(unplayed), \
-                self.C_PILL_VISIBLE, unplayed > 0, \
+                self.C_PILL, pill_image, \
+                self.C_PILL_VISIBLE, pill_image != None, \
                 self.C_VIEW_SHOW_UNDELETED, total - deleted > 0, \
                 self.C_VIEW_SHOW_DOWNLOADED, downloaded + new > 0, \
                 self.C_VIEW_SHOW_UNPLAYED, unplayed + new > 0, \

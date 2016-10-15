@@ -157,6 +157,7 @@ class UIConfig(config.Config):
         window.connect('configure-event', _receive_configure_event)
 
         def _receive_window_state(widget, event):
+            # ELL: why is it commented out?
             #new_value = bool(event.new_window_state & Gdk.WindowState.MAXIMIZED)
             #cfg.maximized = new_value
             pass

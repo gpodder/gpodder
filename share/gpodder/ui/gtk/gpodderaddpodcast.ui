@@ -8,7 +8,8 @@
     <property name="transient-for">parent_widget</property>
     <property name="default_width">400</property>
     <child internal-child="vbox">
-      <object class="GtkVBox" id="vboxmain">
+      <object class="GtkBox" id="vboxmain">
+        <property name="orientation">vertical</property>
         <child internal-child="action_area">
           <object class="GtkHButtonBox" id="hbuttonbox">
             <property name="layout_style">GTK_BUTTONBOX_END</property>
@@ -38,11 +39,12 @@
           </packing>
         </child>
         <child>
-          <object class="GtkHBox" id="hboxurlentry">
+          <object class="GtkBox" id="hboxurlentry">
             <property name="border_width">10</property>
             <property name="visible">True</property>
             <property name="homogeneous">False</property>
             <property name="spacing">5</property>
+            <property name="orientation">horizontal</property>
             <child>
               <object class="GtkLabel" id="label_add">
                 <property name="visible">True</property>
