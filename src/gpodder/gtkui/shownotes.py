@@ -117,8 +117,6 @@ class gPodderShownotesText(gPodderShownotes):
         self.text_buffer.create_tag('subheading', scale=1.5)
         self.text_buffer.create_tag('hyperlink', foreground="#0000FF", underline=Pango.Underline.SINGLE)
         self.text_view.set_buffer(self.text_buffer)
-        self.text_view.modify_bg(Gtk.StateType.NORMAL,
-                Gdk.color_parse('#ffffff'))
         return self.text_view
 
     def update(self, heading, subheading, episode):
