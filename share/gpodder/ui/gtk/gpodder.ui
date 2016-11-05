@@ -30,9 +30,9 @@
     <property name="urgency_hint">False</property>
     <signal handler="on_gPodder_delete_event" name="delete-event"/>
     <child>
-      <object class="GtkVBox" id="vMain">
+      <object class="GtkGrid" id="vMain">
         <property name="visible">True</property>
-        <property name="homogeneous">False</property>
+        <property name="orientation">vertical</property>
         <child>
           <object class="GtkToolbar" id="toolbar">
             <property name="visible">True</property>
@@ -137,18 +137,14 @@
               </packing>
             </child>
           </object>
-          <packing>
-            <property name="padding">0</property>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-          </packing>
         </child>
         <child>
-          <object class="GtkBox" id="hboxContainer">
+          <object class="GtkGrid" id="hboxContainer">
             <property name="border_width">5</property>
             <property name="visible">True</property>
-            <property name="homogeneous">False</property>
             <property name="orientation">horizontal</property>
+            <property name="hexpand">True</property>
+            <property name="vexpand">True</property>
             <child>
               <object class="GtkNotebook" id="wNotebook">
                 <property name="visible">True</property>
@@ -166,10 +162,9 @@
                     <property name="can_focus">True</property>
                     <property name="orientation">horizontal</property>
                     <child>
-                      <object class="GtkBox" id="vboxChannelNavigator">
+                      <object class="GtkGrid" id="vboxChannelNavigator">
                         <property name="visible">True</property>
-                        <property name="homogeneous">False</property>
-                        <property name="spacing">5</property>
+                        <property name="row_spacing">5</property>
                         <property name="orientation">vertical</property>
                         <child>
                           <object class="GtkScrolledWindow" id="scrolledwindow6">
@@ -177,6 +172,7 @@
                             <property name="can_focus">True</property>
                             <property name="hscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
                             <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
+                            <property name="vexpand">True</property>                            
                             <property name="shadow_type">GTK_SHADOW_IN</property>
                             <property name="window_placement">GTK_CORNER_TOP_LEFT</property>
                             <child>
@@ -200,15 +196,10 @@
                               </object>
                             </child>
                           </object>
-                          <packing>
-                            <property name="padding">0</property>
-                            <property name="expand">True</property>
-                            <property name="fill">True</property>
-                          </packing>
                         </child>
                         <child>
-                          <object class="GtkBox" id="hbox_search_podcasts">
-                            <property name="spacing">6</property>
+                          <object class="GtkGrid" id="hbox_search_podcasts">
+                            <property name="column_spacing">6</property>
                             <property name="orientation">horizontal</property>
                             <child>
                               <object class="GtkEntry" id="entry_search_podcasts">
@@ -220,42 +211,34 @@
                               </object>
                             </child>
                           </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">True</property>
-                          </packing>
                         </child>
                         <child>
-                          <object class="GtkVBox" id="vbox42">
+                          <object class="GtkGrid" id="vbox42">
                             <property name="visible">True</property>
-                            <property name="homogeneous">False</property>
+                            <property name="orientation">vertical</property>
                             <child>
                               <object class="GtkButton" id="btnUpdateFeeds">
                                 <property name="label" translatable="yes">Check for new episodes</property>
                                 <property name="can_focus">True</property>
                                 <property name="focus_on_click">True</property>
                                 <property name="action-name">win.update</property>
+                                <property name="hexpand">True</property>
                               </object>
                               <packing>
-                                <property name="padding">0</property>
-                                <property name="expand">True</property>
-                                <property name="fill">True</property>
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkHBox" id="hboxUpdateFeeds">
-                                <property name="homogeneous">False</property>
-                                <property name="spacing">6</property>
+                              <object class="GtkGrid" id="hboxUpdateFeeds">
+                                <property name="column_spacing">6</property>
+                                <property name="orientation">horizontal</property>
                                 <child>
                                   <object class="GtkProgressBar" id="pbFeedUpdate">
+                                    <property name="hexpand">True</property>
                                     <property name="pulse_step">0.10000000149</property>
                                     <property name="show-text">True</property>
                                     <property name="ellipsize">PANGO_ELLIPSIZE_MIDDLE</property>
                                   </object>
                                   <packing>
-                                    <property name="padding">0</property>
-                                    <property name="expand">True</property>
-                                    <property name="fill">True</property>
                                   </packing>
                                 </child>
                                 <child>
@@ -271,25 +254,12 @@
                                       </object>
                                     </child>
                                   </object>
-                                  <packing>
-                                    <property name="padding">0</property>
-                                    <property name="expand">False</property>
-                                    <property name="fill">False</property>
-                                  </packing>
                                 </child>
                               </object>
                               <packing>
-                                <property name="padding">0</property>
-                                <property name="expand">True</property>
-                                <property name="fill">True</property>
                               </packing>
                             </child>
                           </object>
-                          <packing>
-                            <property name="padding">0</property>
-                            <property name="expand">False</property>
-                            <property name="fill">False</property>
-                          </packing>
                         </child>
                       </object>
                       <packing>
@@ -298,9 +268,9 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkBox" id="vbox_episode_list">
+                      <object class="GtkGrid" id="vbox_episode_list">
                         <property name="visible">True</property>
-                        <property name="spacing">6</property>
+                        <property name="row_spacing">6</property>
                         <property name="orientation">vertical</property>
                         <child>
                           <object class="GtkScrolledWindow" id="scrollAvailable">
@@ -309,6 +279,8 @@
                             <property name="hscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
                             <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
                             <property name="shadow_type">GTK_SHADOW_IN</property>
+                            <property name="hexpand">True</property>                            
+                            <property name="vexpand">True</property>                            
                             <property name="window_placement">GTK_CORNER_TOP_LEFT</property>
                             <child>
                               <object class="GtkTreeView" id="treeAvailable">
@@ -331,24 +303,16 @@
                               </object>
                             </child>
                           </object>
-                          <packing>
-                            <property name="expand">True</property>
-                            <property name="fill">True</property>
-                          </packing>
                         </child>
                         <child>
-                          <object class="GtkBox" id="hbox_search_episodes">
-                            <property name="spacing">6</property>
+                          <object class="GtkGrid" id="hbox_search_episodes">
+                            <property name="column_spacing">6</property>
                             <property name="orientation">horizontal</property>
                             <child>
                               <object class="GtkLabel" id="label_search_episodes">
                                 <property name="visible">True</property>
                                 <property name="label" translatable="yes">Filter:</property>
                               </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">True</property>
-                              </packing>
                             </child>
                             <child>
                               <object class="GtkEntry" id="entry_search_episodes">
@@ -360,10 +324,6 @@
                               </object>
                             </child>
                           </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">True</property>
-                          </packing>
                         </child>
                       </object>
                       <packing>
@@ -390,16 +350,16 @@
                   </object>
                 </child>
                 <child>
-                  <object class="GtkBox" id="vboxDownloadStatusWidgets">
+                  <object class="GtkGrid" id="vboxDownloadStatusWidgets">
                     <property name="border_width">5</property>
                     <property name="visible">True</property>
-                    <property name="homogeneous">False</property>
-                    <property name="spacing">5</property>
+                    <property name="row_spacing">5</property>
                     <property name="orientation">vertical</property>
                     <child>
                       <object class="GtkScrolledWindow" id="scrolledwindow1">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
+                        <property name="vexpand">True</property>
                         <property name="hscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
                         <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
                         <property name="shadow_type">GTK_SHADOW_IN</property>
@@ -423,22 +383,17 @@
                           </object>
                         </child>
                       </object>
-                      <packing>
-                        <property name="padding">0</property>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
-                      </packing>
                     </child>
                     <child>
-                      <object class="GtkBox" id="hboxDownloadSettings">
+                      <object class="GtkGrid" id="hboxDownloadSettings">
                         <property name="border_width">5</property>
                         <property name="visible">True</property>
-                        <property name="spacing">10</property>
+                        <property name="column_spacing">10</property>
                         <property name="orientation">horizontal</property>
                         <child>
-                          <object class="GtkBox" id="hboxDownloadLimit">
+                          <object class="GtkGrid" id="hboxDownloadLimit">
                             <property name="visible">True</property>
-                            <property name="spacing">5</property>
+                            <property name="column_spacing">5</property>
                             <property name="orientation">horizontal</property>
                             <child>
                               <object class="GtkCheckButton" id="cbLimitDownloads">
@@ -449,9 +404,6 @@
                                 <property name="draw_indicator">True</property>
                                 <signal name="toggled" handler="on_cbLimitDownloads_toggled"/>
                               </object>
-                              <packing>
-                                <property name="expand">False</property>
-                              </packing>
                             </child>
                             <child>
                               <object class="GtkSpinButton" id="spinLimitDownloads">
@@ -462,9 +414,6 @@
                                 <property name="digits">1</property>
                                 <property name="adjustment">adjustment1</property>
                               </object>
-                              <packing>
-                                <property name="expand">False</property>
-                              </packing>
                             </child>
                             <child>
                               <object class="GtkLabel" id="labelLimitRate">
@@ -472,27 +421,19 @@
                                 <property name="xalign">0</property>
                                 <property name="label" translatable="yes">KiB/s</property>
                               </object>
-                              <packing>
-                                <property name="expand">False</property>
-                              </packing>
                             </child>
                           </object>
-                          <packing>
-                            <property name="expand">False</property>
-                          </packing>
                         </child>
                         <child>
                           <object class="GtkLabel" id="DownloadSettingsSpacer">
                             <property name="visible">True</property>
+                            <property name="hexpand">True</property>                            
                           </object>
-                          <packing>
-                            <property name="expand">True</property>
-                          </packing>
                         </child>
                         <child>
-                          <object class="GtkBox" id="hboxDownloadRate">
+                          <object class="GtkGrid" id="hboxDownloadRate">
                             <property name="visible">True</property>
-                            <property name="spacing">5</property>
+                            <property name="column_spacing">5</property>
                             <property name="orientation">horizontal</property>
                             <child>
                               <object class="GtkCheckButton" id="cbMaxDownloads">
@@ -503,9 +444,6 @@
                                 <property name="draw_indicator">True</property>
                                 <signal name="toggled" handler="on_cbMaxDownloads_toggled"/>
                               </object>
-                              <packing>
-                                <property name="expand">False</property>
-                              </packing>
                             </child>
                             <child>
                               <object class="GtkSpinButton" id="spinMaxDownloads">
@@ -515,21 +453,10 @@
                                 <property name="climb_rate">1</property>
                                 <property name="adjustment">adjustment2</property>
                               </object>
-                              <packing>
-                                <property name="expand">False</property>
-                              </packing>
                             </child>
                           </object>
-                          <packing>
-                            <property name="expand">False</property>
-                          </packing>
                         </child>
                       </object>
-                      <packing>
-                        <property name="padding">0</property>
-                        <property name="expand">False</property>
-                        <property name="fill">False</property>
-                      </packing>
                     </child>
                   </object>
                   <packing>
@@ -550,17 +477,9 @@
                   </object>
                 </child>
               </object>
-              <packing>
-                <property name="padding">0</property>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-              </packing>
             </child>
           </object>
           <packing>
-            <property name="padding">0</property>
-            <property name="expand">True</property>
-            <property name="fill">True</property>
           </packing>
         </child>
       </object>
