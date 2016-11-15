@@ -23,6 +23,8 @@
 #  Based on code from gpodder.services (thp, 2007-08-24)
 #
 
+from __future__ import with_statement
+
 import gpodder
 
 from gpodder import util
@@ -32,6 +34,7 @@ from gi.repository import Gtk
 import cgi
 
 import collections
+import threading
 
 _ = gpodder.gettext
 
@@ -44,6 +47,8 @@ class DownloadStatusModel(Gtk.ListStore):
 
     def __init__(self):
         Gtk.ListStore.__init__(self, object, str, str, int, str, str)
+
+        self.set_downloading_access = threading.RLock()
 
         # Set up stock icon IDs for tasks
         self._status_ids = collections.defaultdict(lambda: None)
@@ -137,6 +142,27 @@ class DownloadStatusModel(Gtk.ListStore):
                 return True
 
         return False
+
+    def has_work(self):
+        return any(task for task in
+                (row[DownloadStatusModel.C_TASK] for row in self)
+                if task.status == task.QUEUED)
+
+    def get_next(self):
+        with self.set_downloading_access:
+            result = next(task for task in
+                    (row[DownloadStatusModel.C_TASK] for row in self)
+                    if task.status == task.QUEUED)
+            self.set_downloading(result)
+        return result
+
+    def set_downloading(self, task):
+        with self.set_downloading_access:
+            if task.status is task.DOWNLOADING:
+                # Task was already set as DOWNLOADING by get_next           
+                return False
+            task.status = task.DOWNLOADING
+            return True
 
 
 class DownloadTaskMonitor(object):
