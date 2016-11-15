@@ -226,7 +226,7 @@ class Device(services.ObservableService):
                 sync_task.status=sync_task.QUEUED
                 sync_task.device=self
                 self.download_status_model.register_task(sync_task)
-                self.download_queue_manager.add_task(sync_task)
+                self.download_queue_manager.queue_task(sync_task)
         else:
             logger.warning("No episodes to sync")
 
