@@ -1424,7 +1424,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         finished_downloads = [unicode(task)
                 for task in download_tasks if task.notify_as_finished()]
-        failed_downloads = ['%s (%s)' % (str(task), task.error_message)
+        failed_downloads = ['%s (%s)' % (task, task.error_message)
                 for task in download_tasks if task.notify_as_failed()]
 
         sync_tasks = filter_by_activity(download.DownloadTask.ACTIVITY_SYNCHRONIZE,
@@ -1449,15 +1449,15 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.show_message(message, _('Downloads failed'))
 
         if finished_syncs and failed_syncs:
-            message = self.format_episode_list(map((lambda task: str(task)),finished_syncs), 5)
+            message = self.format_episode_list(map((lambda task: unicode(task)),finished_syncs), 5)
             message += '\n\n<i>%s</i>\n' % _('Could not sync some episodes:')
-            message += self.format_episode_list(map((lambda task: str(task)),failed_syncs), 5)
+            message += self.format_episode_list(map((lambda task: unicode(task)),failed_syncs), 5)
             self.show_message(message, _('Device synchronization finished'), True)
         elif finished_syncs:
-            message = self.format_episode_list(map((lambda task: str(task)),finished_syncs))
+            message = self.format_episode_list(map((lambda task: unicode(task)),finished_syncs))
             self.show_message(message, _('Device synchronization finished'))
         elif failed_syncs:
-            message = self.format_episode_list(map((lambda task: str(task)),failed_syncs))
+            message = self.format_episode_list(map((lambda task: unicode(task)),failed_syncs))
             self.show_message(message, _('Device synchronization failed'), True)
 
         # Do post-sync processing if required
