@@ -402,9 +402,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         self.message_area.hide()
                     resume_all.connect('clicked', on_resume_all)
 
-                    self.message_area = SimpleMessageArea(_('Incomplete downloads from a previous session were found.'), (resume_all,))
-                    self.vboxDownloadStatusWidgets.pack_start(self.message_area, False, True, 0)
-                    self.vboxDownloadStatusWidgets.reorder_child(self.message_area, 0)
+                    self.message_area = SimpleMessageArea(
+                            _('Incomplete downloads from a previous session were found.'),
+                            (resume_all,))
+                    self.vboxDownloadStatusWidgets.attach(self.message_area, 0, -1, 1, 1)
                     self.message_area.show_all()
                     common.clean_up_downloads(delete_partial=False)
                 util.idle_add(offer_resuming)
