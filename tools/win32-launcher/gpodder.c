@@ -252,7 +252,7 @@ int main(int argc, char** argv)
     // decref GtkModule
 #endif
 
-    // XXX: Test for feedparser, mygpoclient, dbus
+    // XXX: Test for podcastparser, mygpoclient, dbus
 
     MainPy = (void*)PyFile_FromString(MAIN_MODULE, "r");
     if (MainPy == NULL) { BAILOUT("Cannot load main file") }
