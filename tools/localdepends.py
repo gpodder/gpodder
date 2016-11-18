@@ -24,7 +24,7 @@ tmp_dir = tempfile.mkdtemp()
 
 MODULES = [
     # Module name, Regex-file chooser (1st group = location in "src/")
-    ('feedparser', r'feedparser-[0-9.]+/feedparser/(feedparser.py)'),
+    ('podcastparser', r'podcastparser-[0-9.]+/(podcastparser.py)'),
     ('mygpoclient', r'mygpoclient-[0-9.]+/(mygpoclient/[^/]*\.py)')
 ]
 

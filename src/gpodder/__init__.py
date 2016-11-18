@@ -37,12 +37,12 @@ import locale
 
 # Check if real hard dependencies are available
 try:
-    import feedparser
+    import podcastparser
 except ImportError:
     print """
-  Error: Module "feedparser" (python-feedparser) not found.
-         The feedparser module can be downloaded from
-         http://code.google.com/p/feedparser/
+  Error: Module "podcastparser" (python-podcastparser) not found.
+         The podcastparser module can be downloaded from
+         http://gpodder.org/podcastparser/
 
   From a source checkout, you can download local copies of all
   CLI dependencies for debugging (will be placed into "src/"):
@@ -50,7 +50,7 @@ except ImportError:
       python tools/localdepends.py
 """
     sys.exit(1)
-del feedparser
+del podcastparser
 
 try:
     import mygpoclient
@@ -58,7 +58,7 @@ except ImportError:
     print """
   Error: Module "mygpoclient" (python-mygpoclient) not found.
          The mygpoclient module can be downloaded from
-         http://thp.io/2010/mygpoclient/
+         http://gpodder.org/mygpoclient/
 
   From a source checkout, you can download local copies of all
   CLI dependencies for debugging (will be placed into "src/"):

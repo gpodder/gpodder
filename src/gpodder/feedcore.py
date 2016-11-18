@@ -22,10 +22,16 @@
 # Thomas Perl <thp@gpodder.org>; 2009-06-11
 #
 
-import feedparser
+import podcastparser
+
+from gpodder import util
 
 import logging
 logger = logging.getLogger(__name__)
+
+from urllib2 import HTTPError
+from HTMLParser import HTMLParser
+import urlparse
 
 try:
     # Python 2
@@ -33,75 +39,6 @@ try:
 except ImportError:
     # Python 3
     from email.utils import mktime_tz
-
-
-# Version check to avoid bug 1648
-feedparser_version = tuple(int(x) if x.isdigit() else x
-        for x in feedparser.__version__.split('.'))
-feedparser_miniumum_version = (5, 1, 2)
-if feedparser_version < feedparser_miniumum_version:
-    installed_version = feedparser.__version__
-    required_version = '.'.join(str(x) for x in feedparser_miniumum_version)
-    logger.warn('Your feedparser is too old. Installed: %s, recommended: %s',
-            installed_version, required_version)
-
-
-def patch_feedparser():
-    """Monkey-patch the Universal Feed Parser"""
-    # Detect the 'plain' content type as 'text/plain'
-    # http://code.google.com/p/feedparser/issues/detail?id=80
-    def mapContentType2(self, contentType):
-        contentType = contentType.lower()
-        if contentType == 'text' or contentType == 'plain':
-            contentType = 'text/plain'
-        elif contentType == 'html':
-            contentType = 'text/html'
-        elif contentType == 'xhtml':
-            contentType = 'application/xhtml+xml'
-        return contentType
-
-    try:
-        if feedparser._FeedParserMixin().mapContentType('plain') == 'plain':
-            feedparser._FeedParserMixin.mapContentType = mapContentType2
-    except:
-        pass
-    
-    # Fix parsing of Media RSS with feedparser, as described here: 
-    #   http://code.google.com/p/feedparser/issues/detail?id=100#c4
-    def _start_media_content(self, attrsD):
-        context = self._getContext()
-        context.setdefault('media_content', [])
-        context['media_content'].append(attrsD)
-        
-    try:
-        feedparser._FeedParserMixin._start_media_content = _start_media_content
-    except:
-        pass
-
-    # Fix problem with the EA.com official podcast
-    # https://bugs.gpodder.org/show_bug.cgi?id=588
-    if '*/*' not in feedparser.ACCEPT_HEADER.split(','):
-        feedparser.ACCEPT_HEADER += ',*/*'
-
-    # Fix problem with YouTube feeds and pubDate/atom:modified
-    # https://bugs.gpodder.org/show_bug.cgi?id=1492
-    # http://code.google.com/p/feedparser/issues/detail?id=310
-    def _end_updated(self):
-        value = self.pop('updated')
-        parsed_value = feedparser._parse_date(value)
-        overwrite = ('youtube.com' not in self.baseuri)
-        try:
-            self._save('updated_parsed', parsed_value, overwrite=overwrite)
-        except TypeError, te:
-            logger.warn('Your feedparser version is too old: %s', te)
-
-    try:
-        feedparser._FeedParserMixin._end_updated = _end_updated
-    except:
-        pass
-
-
-patch_feedparser()
 
 
 class ExceptionWithData(Exception):
@@ -114,7 +51,6 @@ class ExceptionWithData(Exception):
         return '%s: %s' % (self.__class__.__name__, str(self.data))
 
 # Temporary errors
-class Offline(Exception): pass
 class BadRequest(Exception): pass
 class InternalServerError(Exception): pass
 class WifiLogin(ExceptionWithData): pass
@@ -137,6 +73,26 @@ class Result:
         self.feed = feed
 
 
+class FeedAutodiscovery(HTMLParser):
+    def __init__(self, base):
+        HTMLParser.__init__(self)
+        self._base = base
+        self._resolved_url = None
+
+    def handle_starttag(self, tag, attrs):
+        if tag == 'link':
+            attrs = dict(attrs)
+
+            is_feed = attrs.get('type', '') in Fetcher.FEED_TYPES
+            is_alternate = attrs.get('rel', '') == 'alternate'
+            url = attrs.get('href', None)
+            url = urlparse.urljoin(self._base, url)
+
+            if is_feed and is_alternate and url:
+                logger.info('Feed autodiscovery: %s', url)
+                self._resolved_url = url
+
+
 class Fetcher(object):
     # Supported types, see http://feedvalidator.org/docs/warning/EncodingMismatch.html
     FEED_TYPES = ('application/rss+xml',
@@ -144,9 +100,6 @@ class Fetcher(object):
                   'application/rdf+xml',
                   'application/xml',
                   'text/xml')
-
-    def __init__(self, user_agent):
-        self.user_agent = user_agent
 
     def _resolve_url(self, url):
         """Provide additional ways of resolving an URL
@@ -157,45 +110,6 @@ class Fetcher(object):
         method as a last resort for coming up with a feed URL.
         """
         return None
-
-    def _autodiscover_feed(self, feed):
-        # First, try all <link> elements if available
-        for link in feed.feed.get('links', ()):
-            is_feed = link.get('type', '') in self.FEED_TYPES
-            is_alternate = link.get('rel', '') == 'alternate'
-            url = link.get('href', None)
-
-            if url and is_feed and is_alternate:
-                try:
-                    return self._parse_feed(url, None, None, False)
-                except Exception, e:
-                    pass
-
-        # Second, try to resolve the URL
-        url = self._resolve_url(feed.href)
-        if url:
-            result = self._parse_feed(url, None, None, False)
-            result.status = NEW_LOCATION
-            return result
-
-    def _check_offline(self, feed):
-        if not hasattr(feed, 'headers'):
-            raise Offline()
-
-    def _check_wifi_login_page(self, feed):
-        html_page = 'text/html' in feed.headers.get('content-type', '')
-        if not feed.version and feed.status == 302 and html_page:
-            raise WifiLogin(feed.href)
-
-    def _check_valid_feed(self, feed):
-        if feed is None:
-            raise InvalidFeed('feed is None')
-
-        if not hasattr(feed, 'status'):
-            raise InvalidFeed('feed has no status code')
-
-        if not feed.version and feed.status != 304 and feed.status != 401:
-            raise InvalidFeed('unknown feed type')
 
     def _normalize_status(self, status):
         # Based on Mark Pilgrim's "Atom aggregator behaviour" article
@@ -212,16 +126,9 @@ class Fetcher(object):
         else:
             return status
 
-    def _check_rss_redirect(self, feed):
-        new_location = feed.feed.get('newlocation', None)
-        if new_location:
-            feed.href = feed.feed.newlocation
-            return Result(NEW_LOCATION, feed)
+    def _check_statuscode(self, response, feed):
+        status = self._normalize_status(response.getcode())
 
-        return None
-
-    def _check_statuscode(self, feed):
-        status = self._normalize_status(feed.status)
         if status == 200:
             return Result(UPDATED_FEED, feed)
         elif status == 301:
@@ -247,69 +154,43 @@ class Fetcher(object):
             raise UnknownStatusCode(status)
 
     def _parse_feed(self, url, etag, modified, autodiscovery=True):
+        headers = {}
+        if modified is not None:
+            headers['If-Modified-Since'] = modified
+        if etag is not None:
+            headers['If-None-Match'] = etag
+
         if url.startswith('file://'):
             is_local = True
             url = url[len('file://'):]
+            stream = open(url)
         else:
             is_local = False
+            try:
+                stream = util.urlopen(url, headers)
+            except HTTPError as e:
+                return self._check_statuscode(e, e.geturl())
 
-        feed = feedparser.parse(url,
-                agent=self.user_agent,
-                modified=modified,
-                etag=etag)
+        if stream.headers.get('content-type', '').startswith('text/html'):
+            if autodiscovery:
+                ad = FeedAutodiscovery(url)
+                ad.feed(stream.read())
+                if ad._resolved_url:
+                    try:
+                        self._parse_feed(ad._resolved_url, None, None, False)
+                        return Result(NEW_LOCATION, ad._resolved_url)
+                    except Exception as e:
+                        logger.warn('Feed autodiscovery failed', exc_info=True)
 
-        if is_local:
-            if feed.version:
-                feed.headers = {}
-                return Result(UPDATED_FEED, feed)
-            else:
-                raise InvalidFeed('Not a valid feed file')
-        else:
-            self._check_offline(feed)
-            self._check_wifi_login_page(feed)
+                    # Second, try to resolve the URL
+                    url = self._resolve_url(url)
+                    if url:
+                        return Result(NEW_LOCATION, url)
 
-            if feed.status != 304 and not feed.version and autodiscovery:
-                feed = self._autodiscover_feed(feed).feed
+            raise InvalidFeed('Got HTML document instead')
 
-            self._check_valid_feed(feed)
-
-            redirect = self._check_rss_redirect(feed)
-            if redirect is not None:
-                return redirect
-
-            return self._check_statuscode(feed)
+        feed = podcastparser.parse(url, stream)
+        return self._check_statuscode(stream, feed)
 
     def fetch(self, url, etag=None, modified=None):
         return self._parse_feed(url, etag, modified)
-
-
-def get_pubdate(entry):
-    """Try to determine the real pubDate of a feedparser entry
-
-    This basically takes the updated_parsed value, but also uses some more
-    advanced techniques to work around various issues with ugly feeds.
-
-    "published" now also takes precedence over "updated" (with updated used as
-    a fallback if published is not set/available). RSS' "pubDate" element is
-    "updated", and will only be used if published_parsed is not available.
-    
-    If parsing the date into seconds since epoch returns an error (date is
-    before epoch or after the end of time), epoch is used as fallback.
-    This fixes https://bugs.gpodder.org/show_bug.cgi?id=2023
-    """
-
-    pubdate = entry.get('published_parsed', None)
-
-    if pubdate is None:
-        pubdate = entry.get('updated_parsed', None)
-
-    if pubdate is None:
-        # Cannot determine pubdate - party like it's 1970!
-        return 0
-
-    try:
-        pubtimeseconds = mktime_tz(pubdate + (0,))
-        return pubtimeseconds
-    except(OverflowError,ValueError):
-        logger.warn('bad pubdate %s is before epoch or after end of time (2038)',pubdate)
-        return 0
