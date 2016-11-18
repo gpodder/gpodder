@@ -62,8 +62,6 @@ import webbrowser
 import mimetypes
 import itertools
 
-import feedparser
-
 import StringIO
 import xml.dom.minidom
 
