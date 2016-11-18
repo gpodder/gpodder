@@ -1623,6 +1623,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             menu.append(Gtk.SeparatorMenuItem())
             menu.append(make_menu_item(_('Remove from list'), 'list-remove', selected_tasks, sensitive=can_remove))
 
+            menu.attach_to_widget(treeview)
             menu.show_all()
 
             if event is None:
