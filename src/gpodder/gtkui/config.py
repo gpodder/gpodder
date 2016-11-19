@@ -108,7 +108,13 @@ class UIConfig(config.Config):
         editable.connect('changed', _editable_changed)
 
     def connect_gtk_spinbutton(self, name, spinbutton):
-        spinbutton.set_value(getattr(self, name))
+        current_value = getattr(self, name)
+
+        adjustment = spinbutton.get_adjustment()
+        if current_value > adjustment.get_upper():
+            adjustment.set_upper(current_value)
+
+        spinbutton.set_value(current_value)
 
         def _spinbutton_changed(spinbutton):
             setattr(self, name, spinbutton.get_value())
