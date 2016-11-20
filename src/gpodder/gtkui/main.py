@@ -200,7 +200,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.init_episode_list_treeview()
         self.init_download_list_treeview()
 
-        self.currently_updating = False
+        if self.config.podcast_list_hide_boring:
+            self.item_view_hide_boring_podcasts.set_active(True)
 
         self.download_tasks_seen = set()
         self.download_list_update_enabled = False
@@ -629,9 +630,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return False
 
         role = getattr(treeview, TreeViewHelper.ROLE)
-        if role == TreeViewHelper.ROLE_PODCASTS:
-            return self.currently_updating
-        elif (role == TreeViewHelper.ROLE_EPISODES and event.button == 1):
+        if role == TreeViewHelper.ROLE_EPISODES and event.button == 1:
             # Toggle episode "new" status by clicking the icon (bug 1432)
             result = treeview.get_path_at_pos(int(event.x), int(event.y))
             if result is not None:
@@ -1049,10 +1048,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             progress = None
 
             if role == TreeViewHelper.ROLE_EPISODES:
-                if self.currently_updating:
-                    text = _('Loading episodes')
-                elif self.config.episode_list_view_mode != \
-                        EpisodeListModel.VIEW_ALL:
+                if self.config.episode_list_view_mode != EpisodeListModel.VIEW_ALL:
                     text = _('No episodes in current view')
                 else:
                     text = _('No episodes available')
@@ -2058,9 +2054,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.toolCancel.set_sensitive(True)
             return (False, False, False, False, False, False)
 
-        if self.currently_updating:
-            return (False, False, False, False, False, False)
-
         ( can_play, can_download, can_cancel, can_delete ) = (False,)*4
         ( is_played, is_locked ) = (False,)*2
 
@@ -2220,24 +2213,15 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 logger.error('Cannot select podcast in list', exc_info=True)
 
     def on_episode_list_filter_changed(self, has_episodes):
-        pass # XXX: Remove?
+        self.play_or_download()
 
     def update_episode_list_model(self):
         if self.channels and self.active_channel is not None:
-            self.currently_updating = True
-            self.episode_list_model.clear()
+            self.treeAvailable.get_selection().unselect_all()
+            self.treeAvailable.scroll_to_point(0, 0)
 
-            def update():
-                descriptions = self.config.episode_list_descriptions
-                self.episode_list_model.replace_from_channel(self.active_channel, descriptions)
-
-                self.treeAvailable.get_selection().unselect_all()
-                self.treeAvailable.scroll_to_point(0, 0)
-
-                self.currently_updating = False
-                self.play_or_download()
-
-            util.idle_add(update)
+            descriptions = self.config.episode_list_descriptions
+            self.episode_list_model.replace_from_channel(self.active_channel, descriptions)
         else:
             self.episode_list_model.clear()
 
@@ -2649,6 +2633,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def close_gpodder(self):
         """ clean everything and exit properly
         """
+        # Cancel any running background updates of the episode list model
+        self.episode_list_model.background_update = None
+
         self.gPodder.hide()
 
         # Notify all tasks to to carry out any clean-up actions
@@ -2660,7 +2647,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.core.shutdown()
         
         self.application.remove_window(self.gPodder)
-
 
     def delete_episode_list(self, episodes, confirm=True, skip_locked=True,
             callback=None):
