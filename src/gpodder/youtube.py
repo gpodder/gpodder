@@ -213,14 +213,17 @@ def get_real_cover(url):
         try:
             api_url = 'https://www.youtube.com/channel/{0}'.format(channel)
             data = util.urlopen(api_url).read()
-            m = re.search('<img class="channel-header-profile-image"[^>]* src=[\'"]([^\'"]+)[\'"][^>]*>', data)
+            # Look for 900x900px image first.
+            m = re.search('<link rel="image_src"[^>]* href=[\'"]([^\'"]+)[\'"][^>]*>', data)
+            if m is None:
+                # Fallback to image that may only be 100x100px.
+                m = re.search('<img class="channel-header-profile-image"[^>]* src=[\'"]([^\'"]+)[\'"][^>]*>', data)
             if m is not None:
                 logger.debug('YouTube userpic for %s is: %s', url, m.group(1))
                 return m.group(1)
         except Exception as e:
             logger.warn('Could not retrieve cover art', exc_info=True)
             return None
-
 
         return None
 
