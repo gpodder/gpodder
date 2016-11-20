@@ -681,6 +681,7 @@ class PodcastChannel(PodcastModelObject):
         self.download_folder = None
         self.pause_subscription = False
         self.sync_to_mp3_player = True
+        self.cover_thumb = None
 
         self.section = _('Other')
         self._common_prefix = None

@@ -441,6 +441,7 @@ class PodcastChannelProxy(object):
         self.auth_password = None
         self.pause_subscription = False
         self.sync_to_mp3_player = False
+        self.cover_thumb = None
         self.auto_archive_episodes = False
 
     def get_statistics(self):
@@ -451,6 +452,9 @@ class PodcastChannelProxy(object):
         """Returns a generator that yields every episode"""
         return Model.sort_episodes_by_pubdate((e for c in self.channels
                 for e in c.get_all_episodes()), True)
+
+    def save(self):
+        pass
 
 
 class PodcastListModel(gtk.ListStore):
@@ -598,12 +602,38 @@ class PodcastListModel(gtk.ListStore):
 
         return pixbuf
 
+    def _get_cached_thumb(self, channel):
+        if channel.cover_thumb is None:
+            return None
+
+        try:
+            loader = gtk.gdk.PixbufLoader('png')
+            loader.write(channel.cover_thumb)
+            loader.close()
+            return loader.get_pixbuf()
+        except Exception, e:
+            logger.warn('Could not load cached cover art for %s', channel.url, exc_info=True)
+            channel.cover_thumb = None
+            channel.save()
+            return None
+
+    def _save_cached_thumb(self, channel, pixbuf):
+        bufs = []
+        pixbuf.save_to_callback(lambda buf, data: data.append(buf), 'png', {}, bufs)
+        channel.cover_thumb = buffer(''.join(bufs))
+        channel.save()
+
     def _get_cover_image(self, channel, add_overlay=False):
         if self._cover_downloader is None:
             return None
 
-        pixbuf = self._cover_downloader.get_cover(channel, avoid_downloading=True)
-        pixbuf_overlay = self._resize_pixbuf(channel.url, pixbuf)
+        pixbuf_overlay = self._get_cached_thumb(channel)
+
+        if pixbuf_overlay is None:
+            pixbuf = self._cover_downloader.get_cover(channel, avoid_downloading=True)
+            pixbuf_overlay = self._resize_pixbuf(channel.url, pixbuf)
+            self._save_cached_thumb(channel, pixbuf_overlay)
+
         if add_overlay and channel.pause_subscription:
             pixbuf_overlay = self._overlay_pixbuf(pixbuf_overlay, self.ICON_DISABLED)
             pixbuf_overlay.saturate_and_pixelate(pixbuf_overlay, 0.0, False)
@@ -800,6 +830,8 @@ class PodcastListModel(gtk.ListStore):
 
         # Resize and add the new cover image
         pixbuf = self._resize_pixbuf(channel.url, pixbuf)
+        self._save_cached_thumb(channel, pixbuf)
+
         if channel.pause_subscription:
             pixbuf = self._overlay_pixbuf(pixbuf, self.ICON_DISABLED)
             pixbuf.saturate_and_pixelate(pixbuf, 0.0, False)

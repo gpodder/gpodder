@@ -66,9 +66,10 @@ PodcastColumns = (
     'payment_url',
     'download_strategy',
     'sync_to_mp3_player',
+    'cover_thumb',
 )
 
-CURRENT_VERSION = 5
+CURRENT_VERSION = 6
 
 
 # SQL commands to upgrade old database versions to new ones
@@ -96,7 +97,12 @@ UPGRADE_SQL = [
         # Version 5: Per-podcast MP3 player device synchronization option
         (4, 5, """
         ALTER TABLE podcast ADD COLUMN sync_to_mp3_player INTEGER NOT NULL DEFAULT 1
-        """)
+        """),
+
+        # Version 6: Add thumbnail for cover art
+        (5, 6, """
+        ALTER TABLE podcast ADD COLUMN cover_thumb BLOB NULL DEFAULT NULL
+        """),
 ]
 
 def initialize_database(db):
@@ -119,7 +125,8 @@ def initialize_database(db):
         section TEXT NOT NULL DEFAULT '',
         payment_url TEXT NULL DEFAULT NULL,
         download_strategy INTEGER NOT NULL DEFAULT 0,
-        sync_to_mp3_player INTEGER NOT NULL DEFAULT 1
+        sync_to_mp3_player INTEGER NOT NULL DEFAULT 1,
+        cover_thumb BLOB NULL DEFAULT NULL
     )
     """)
 
