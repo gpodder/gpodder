@@ -2542,8 +2542,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.core.shutdown()
 
         self.quit()
-        if macapp is None:
-            sys.exit(0)
 
     def delete_episode_list(self, episodes, confirm=True, skip_locked=True,
             callback=None):
