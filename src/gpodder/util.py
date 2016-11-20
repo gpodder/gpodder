@@ -1435,10 +1435,14 @@ def convert_bytes(d):
     u'Hello'
     >>> convert_bytes(u'Hey')
     u'Hey'
+    >>> type(convert_bytes(buffer('hoho')))
+    <type 'buffer'>
     """
     if d is None:
         return d
-    if any(isinstance(d, t) for t in (int, long, bool, float)):
+    if isinstance(d, buffer):
+        return d
+    elif any(isinstance(d, t) for t in (int, long, bool, float)):
         return d
     elif not isinstance(d, unicode):
         return d.decode('utf-8', 'ignore')
