@@ -21,7 +21,7 @@ from gi.repository import Gtk
 from gi.repository import Gdk
 from gi.repository import Pango
 import cgi
-import urlparse
+import urllib.parse
 
 import logging
 logger = logging.getLogger(__name__)
@@ -42,9 +42,9 @@ from gpodder.gtkui.interface.configeditor import gPodderConfigEditor
 from gpodder.gtkui.desktopfile import PlayerListModel
 
 class NewEpisodeActionList(Gtk.ListStore):
-    C_CAPTION, C_AUTO_DOWNLOAD = range(2)
+    C_CAPTION, C_AUTO_DOWNLOAD = list(range(2))
 
-    ACTION_NONE, ACTION_ASK, ACTION_MINIMIZED, ACTION_ALWAYS = range(4)
+    ACTION_NONE, ACTION_ASK, ACTION_MINIMIZED, ACTION_ALWAYS = list(range(4))
 
     def __init__(self, config):
         Gtk.ListStore.__init__(self, str, str)
@@ -65,7 +65,7 @@ class NewEpisodeActionList(Gtk.ListStore):
         self._config.auto_download = self[index][self.C_AUTO_DOWNLOAD]
 
 class DeviceTypeActionList(Gtk.ListStore):
-    C_CAPTION, C_DEVICE_TYPE = range(2)
+    C_CAPTION, C_DEVICE_TYPE = list(range(2))
 
     def __init__(self, config):
         Gtk.ListStore.__init__(self, str, str)
@@ -85,8 +85,8 @@ class DeviceTypeActionList(Gtk.ListStore):
 
 
 class OnSyncActionList(Gtk.ListStore):
-    C_CAPTION, C_ON_SYNC_DELETE, C_ON_SYNC_MARK_PLAYED = range(3)
-    ACTION_NONE, ACTION_ASK, ACTION_MINIMIZED, ACTION_ALWAYS = range(4)
+    C_CAPTION, C_ON_SYNC_DELETE, C_ON_SYNC_MARK_PLAYED = list(range(3))
+    ACTION_NONE, ACTION_ASK, ACTION_MINIMIZED, ACTION_ALWAYS = list(range(4))
 
     def __init__(self, config):
         Gtk.ListStore.__init__(self, str, bool, bool)
@@ -113,7 +113,7 @@ class OnSyncActionList(Gtk.ListStore):
 
 
 class YouTubeVideoFormatListModel(Gtk.ListStore):
-    C_CAPTION, C_ID = range(2)
+    C_CAPTION, C_ID = list(range(2))
 
     def __init__(self, config):
         Gtk.ListStore.__init__(self, str, int)
@@ -152,7 +152,7 @@ class YouTubeVideoFormatListModel(Gtk.ListStore):
 
 
 class VimeoVideoFormatListModel(Gtk.ListStore):
-    C_CAPTION, C_ID = range(2)
+    C_CAPTION, C_ID = list(range(2))
 
     def __init__(self, config):
         Gtk.ListStore.__init__(self, str, str)
@@ -174,7 +174,7 @@ class VimeoVideoFormatListModel(Gtk.ListStore):
 
 
 class gPodderPreferences(BuilderWidget):
-    C_TOGGLE, C_LABEL, C_EXTENSION, C_SHOW_TOGGLE = range(4)
+    C_TOGGLE, C_LABEL, C_EXTENSION, C_SHOW_TOGGLE = list(range(4))
 
     def new(self):
         for cb in (self.combo_audio_player_app, self.combo_video_player_app):
@@ -423,7 +423,7 @@ class gPodderPreferences(BuilderWidget):
         # This is one ugly hack, but it displays the attributes of
         # the metadata object of the container..
         info = '\n'.join('<b>%s:</b> %s' %
-                tuple(map(cgi.escape, map(str, (key, value))))
+                tuple(map(cgi.escape, list(map(str, (key, value)))))
                 for key, value in container.metadata.get_sorted())
 
         self.show_message(info, _('Extension module info'), important=True)
@@ -495,7 +495,7 @@ class gPodderPreferences(BuilderWidget):
         # this makes sense when formatting e.g. 0 to 1000 where '1000' is the longest
         # string, but not when '10 minutes' is longer than '12 hours'
         # so we replace spaces with non breaking spaces otherwise '10 minutes' is displayed as '10'
-        ret = ret.replace(' ', u'\xa0')
+        ret = ret.replace(' ', '\xa0')
         return ret
 
     def on_update_interval_value_changed(self, range):

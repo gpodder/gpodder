@@ -64,7 +64,7 @@ def get_real_download_url(url, preferred_fileformat=None):
     def get_urls(data_config_url):
         data_config_data = util.urlopen(data_config_url).read().decode('utf-8')
         data_config = json.loads(data_config_data)
-        for fileinfo in data_config['request']['files'].values():
+        for fileinfo in list(data_config['request']['files'].values()):
             if not isinstance(fileinfo, list):
                 continue
 

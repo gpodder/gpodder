@@ -40,7 +40,7 @@ import time
 
 import re
 import email
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 
 # gPodder's consumer key for the Soundcloud API
@@ -72,8 +72,8 @@ def get_param(s, param='filename', header='content-disposition'):
             if encoding:
                 value.append(part.decode(encoding))
             else:
-                value.append(unicode(part))
-        return u''.join(value)
+                value.append(str(part))
+        return ''.join(value)
 
     return None
 
@@ -88,7 +88,7 @@ def get_metadata(url):
     headers = track_fp.info()
     filesize = headers['content-length'] or '0'
     filetype = headers['content-type'] or 'application/octet-stream'
-    headers_s = '\n'.join('%s:%s'%(k,v) for k, v in headers.items())
+    headers_s = '\n'.join('%s:%s'%(k,v) for k, v in list(headers.items()))
     filename = get_param(headers_s) or os.path.basename(os.path.dirname(url))
     track_fp.close()
     return filesize, filetype, filename
@@ -230,5 +230,5 @@ model.register_custom_handler(SoundcloudFeed)
 model.register_custom_handler(SoundcloudFavFeed)
 
 def search_for_user(query):
-    json_url = 'http://api.soundcloud.com/users.json?q=%s&consumer_key=%s' % (urllib.quote(query), CONSUMER_KEY)
+    json_url = 'http://api.soundcloud.com/users.json?q=%s&consumer_key=%s' % (urllib.parse.quote(query), CONSUMER_KEY)
     return json.load(util.urlopen(json_url))

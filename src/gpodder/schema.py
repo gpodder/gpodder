@@ -195,7 +195,7 @@ def upgrade(db, filename):
     backup = '%s_upgraded-v%d_%d' % (filename, int(version), int(time.time()))
     try:
         shutil.copy(filename, backup)
-    except Exception, e:
+    except Exception as e:
         raise Exception('Cannot create DB backup before upgrade: ' + e)
 
     db.execute("DELETE FROM version")
@@ -231,7 +231,7 @@ def convert_gpodder2_db(old_db, new_db):
     old_cur = old_db.cursor()
     columns = [x[1] for x in old_cur.execute('PRAGMA table_info(channels)')]
     for row in old_cur.execute('SELECT * FROM channels'):
-        row = dict(zip(columns, row))
+        row = dict(list(zip(columns, row)))
         values = (
                 row['id'],
                 row['override_title'] or row['title'],
@@ -260,7 +260,7 @@ def convert_gpodder2_db(old_db, new_db):
     old_cur = old_db.cursor()
     columns = [x[1] for x in old_cur.execute('PRAGMA table_info(episodes)')]
     for row in old_cur.execute('SELECT * FROM episodes'):
-        row = dict(zip(columns, row))
+        row = dict(list(zip(columns, row)))
         values = (
                 row['id'],
                 row['channel_id'],

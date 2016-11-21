@@ -97,7 +97,7 @@ if pymtp_available:
             while parts:
                 prefix.append(parts[0])
                 tmpath = self.sep.join(prefix)
-                if self.folders.has_key(tmpath):
+                if tmpath in self.folders:
                     folder_id = self.folders[tmpath]
                 else:
                     folder_id = self.create_folder(parts[0], parent=folder_id)
@@ -136,7 +136,7 @@ def get_track_length(filename):
     try:
         mp3file = eyed3.mp3.Mp3AudioFile(filename)
         return int(mp3file.info.time_secs * 1000)
-    except Exception, e:
+    except Exception as e:
         logger.warn('Could not determine length: %s', filename, exc_info=True)
 
     return int(60*60*1000*3) # Default is three hours (to be on the safe side)
@@ -379,7 +379,7 @@ class iPodDevice(Device):
             try:
                 released = gpod.itdb_time_mac_to_host(track.time_released)
                 released = util.format_date(released)
-            except ValueError, ve:
+            except ValueError as ve:
                 # timestamp out of range for platform time_t (bug 418)
                 logger.info('Cannot convert track time: %s', ve)
                 released = 0
@@ -598,7 +598,7 @@ class MP3PlayerDevice(Device):
     def copy_file_progress(self, from_file, to_file, reporthook=None):
         try:
             out_file = open(to_file, 'wb')
-        except IOError, ioerror:
+        except IOError as ioerror:
             d = {'filename': ioerror.filename, 'message': ioerror.strerror}
             self.errors.append(_('Error opening %(filename)s: %(message)s') % d)
             self.cancel()
@@ -606,7 +606,7 @@ class MP3PlayerDevice(Device):
 
         try:
             in_file = open(from_file, 'rb')
-        except IOError, ioerror:
+        except IOError as ioerror:
             d = {'filename': ioerror.filename, 'message': ioerror.strerror}
             self.errors.append(_('Error opening %(filename)s: %(message)s') % d)
             self.cancel()
@@ -622,7 +622,7 @@ class MP3PlayerDevice(Device):
             bytes_read += len(s)
             try:
                 out_file.write(s)
-            except IOError, ioerror:
+            except IOError as ioerror:
                 self.errors.append(ioerror.strerror)
                 try:
                     out_file.close()
@@ -697,7 +697,7 @@ class MTPDevice(Device):
         self.__model_name = None
         try:
             self.__MTPDevice = MTP()
-        except NameError, e:
+        except NameError as e:
             # pymtp not available / not installed (see bug 924)
             logger.error('pymtp not found: %s', str(e))
             self.__MTPDevice = None
@@ -722,7 +722,7 @@ class MTPDevice(Device):
         try:
             d = time.gmtime(date)
             return time.strftime("%Y%m%d-%H%M%S.0Z", d)
-        except Exception, exc:
+        except Exception as exc:
             logger.error('ERROR: An error has happend while trying to convert date to an mtp string')
             return None
 
@@ -752,10 +752,10 @@ class MTPDevice(Device):
                         _date -= shift_in_sec
                     else:
                         raise ValueError("Expected + or -")
-                except Exception, exc:
+                except Exception as exc:
                     logger.warning('WARNING: ignoring invalid time zone information for %s (%s)')
             return max( 0, _date )
-        except Exception, exc:
+        except Exception as exc:
             logger.warning('WARNING: the mtp date "%s" can not be parsed against mtp specification (%s)')
             return None
 
@@ -796,7 +796,7 @@ class MTPDevice(Device):
             self.__MTPDevice.connect()
             # build the initial tracks_list
             self.tracks_list = self.get_all_tracks()
-        except Exception, exc:
+        except Exception as exc:
             logger.error('unable to find an MTP device (%s)')
             return False
 
@@ -809,7 +809,7 @@ class MTPDevice(Device):
 
         try:
             self.__MTPDevice.disconnect()
-        except Exception, exc:
+        except Exception as exc:
             logger.error('unable to close %s (%s)', self.get_name())
             return False
 
@@ -876,7 +876,7 @@ class MTPDevice(Device):
 
         try:
             self.__MTPDevice.delete_object(sync_track.mtptrack.item_id)
-        except Exception, exc:
+        except Exception as exc:
             logger.error('unable remove file %s (%s)', sync_track.mtptrack.filename)
 
         logger.info('%s removed', sync_track.mtptrack.title)
@@ -884,7 +884,7 @@ class MTPDevice(Device):
     def get_all_tracks(self):
         try:
             listing = self.__MTPDevice.get_tracklisting(callback=self.__callback)
-        except Exception, exc:
+        except Exception as exc:
             logger.error('unable to get file listing %s (%s)')
 
         tracks = []
@@ -923,7 +923,7 @@ class SyncTask(download.DownloadTask):
     # Possible states this sync task can be in
     STATUS_MESSAGE = (_('Added'), _('Queued'), _('Synchronizing'),
             _('Finished'), _('Failed'), _('Cancelled'), _('Paused'))
-    (INIT, QUEUED, DOWNLOADING, DONE, FAILED, CANCELLED, PAUSED) = range(7)
+    (INIT, QUEUED, DOWNLOADING, DONE, FAILED, CANCELLED, PAUSED) = list(range(7))
 
 
     def __str__(self):
@@ -1075,7 +1075,7 @@ class SyncTask(download.DownloadTask):
         try:
             logger.info('Starting SyncTask')
             self.device.add_track(self.episode, reporthook=self.status_updated)
-        except Exception, e:
+        except Exception as e:
             self.status = SyncTask.FAILED
             logger.error('Sync failed: %s', str(e), exc_info=True)
             self.error_message = _('Error: %s') % (str(e),)

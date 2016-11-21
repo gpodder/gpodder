@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 #
@@ -63,7 +63,7 @@
 
 """
 
-from __future__ import print_function
+
 
 import sys
 import collections
@@ -144,10 +144,10 @@ def incolor(color_id, s):
 
 def safe_print(*args, **kwargs):
     def convert(arg):
-        return unicode(util.convert_bytes(arg))
+        return str(util.convert_bytes(arg))
 
     ofile = kwargs.get('file', sys.stdout)
-    output = u' '.join(map(convert, args))
+    output = ' '.join(map(convert, args))
     if ofile.encoding is None:
         output = util.sanitize_encoding(output)
     else:
@@ -155,7 +155,7 @@ def safe_print(*args, **kwargs):
 
     try:
         ofile.write(output)
-    except Exception, e:
+    except Exception as e:
         print("""
         *** ENCODING FAIL ***
 
@@ -165,7 +165,7 @@ def safe_print(*args, **kwargs):
         map(convert, args) = %s
 
         Exception = %s
-        """ % (repr(args), repr(map(convert, args)), e))
+        """ % (repr(args), repr(list(map(convert, args))), e))
 
     ofile.write(kwargs.get('end', os.linesep))
     ofile.flush()
@@ -241,7 +241,7 @@ class gPodderCli(object):
 
         # Generator for all prefixes of a given string (longest first)
         # e.g. ['gpodder', 'gpodde', 'gpodd', 'gpod', 'gpo', 'gp', 'g']
-        mkprefixes = lambda n: (n[:x] for x in xrange(len(n), 0, -1))
+        mkprefixes = lambda n: (n[:x] for x in range(len(n), 0, -1))
 
         # Return True if the given prefix is unique in "names"
         is_unique = lambda p: len([n for n in names if n.startswith(p)]) == 1
@@ -354,7 +354,7 @@ class gPodderCli(object):
             if title is not None:
                 podcast.rename(title)
             podcast.save()
-        except Exception, e:
+        except Exception as e:
             logger.warn('Cannot subscribe: %s', e, exc_info=True)
             if hasattr(e, 'strerror'):
                 self._error(e.strerror)
@@ -427,17 +427,17 @@ class gPodderCli(object):
         def status_str(episode):
             # is new
             if self.is_episode_new(episode):
-                return u' * '
+                return ' * '
             # is downloaded
             if (episode.state == gpodder.STATE_DOWNLOADED):
-                return u' ▉ '
+                return ' ▉ '
             # is deleted
             if (episode.state == gpodder.STATE_DELETED):
-                return u' ░ '
+                return ' ░ '
     
-            return u'   '
+            return '   '
 
-        episodes = (u'%3d. %s %s' % (i+1, status_str(e), e.title)
+        episodes = ('%3d. %s %s' % (i+1, status_str(e), e.title)
                 for i, e in enumerate(podcast.get_all_episodes()))
         return episodes
 
@@ -456,8 +456,8 @@ class gPodderCli(object):
             title, url, status = podcast.title, podcast.url, \
                 feed_update_status_msg(podcast)
             episodes = self._episodesList(podcast)
-            episodes = u'\n      '.join(episodes)
-            self._pager(u"""
+            episodes = '\n      '.join(episodes)
+            self._pager("""
     Title: %(title)s
     URL: %(url)s
     Feed update is %(status)s
@@ -475,13 +475,13 @@ class gPodderCli(object):
             podcast_printed = False
             if url is None or podcast.url == url:
                 episodes = self._episodesList(podcast)
-                episodes = u'\n      '.join(episodes)
-                output.append(u"""
+                episodes = '\n      '.join(episodes)
+                output.append("""
     Episodes from %s:
       %s
 """ % (podcast.url, episodes))
 
-        self._pager(u'\n'.join(output))
+        self._pager('\n'.join(output))
         return True
 
     def list(self):
@@ -676,7 +676,7 @@ class gPodderCli(object):
             return
 
         def show_list():
-            self._pager('\n'.join(u'%3d: %s\n     %s' %
+            self._pager('\n'.join('%3d: %s\n     %s' %
                 (index+1, title, url if title != url else '')
                 for index, (title, url) in enumerate(results)))
 
@@ -684,7 +684,7 @@ class gPodderCli(object):
 
         msg = _('Enter index to subscribe, ? for list')
         while True:
-            index = raw_input(msg + ': ')
+            index = input(msg + ': ')
 
             if not index:
                 return
@@ -764,7 +764,7 @@ class gPodderCli(object):
 
         while True:
             try:
-                line = raw_input('gpo> ')
+                line = input('gpo> ')
             except EOFError:
                 safe_print('')
                 break
@@ -777,7 +777,7 @@ class gPodderCli(object):
 
             try:
                 args = shlex.split(line)
-            except ValueError, value_error:
+            except ValueError as value_error:
                 self._error(_('Syntax error: %(error)s') %
                         {'error': value_error})
                 continue

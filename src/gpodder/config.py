@@ -228,7 +228,7 @@ def config_value_to_string(config_value):
 
     if config_type == list:
         return ','.join(map(config_value_to_string, config_value))
-    elif config_type in (str, unicode):
+    elif config_type in (str, str):
         return config_value
     else:
         return str(config_value)
@@ -237,7 +237,7 @@ def string_to_config_value(new_value, old_value):
     config_type = type(old_value)
 
     if config_type == list:
-        return filter(None, [x.strip() for x in new_value.split(',')])
+        return [_f for _f in [x.strip() for x in new_value.split(',')] if _f]
     elif config_type == bool:
         return (new_value.strip().lower() in ('1', 'true'))
     else:
@@ -366,7 +366,7 @@ class Config(object):
         for observer in self.__observers:
             try:
                 observer(name, old_value, value)
-            except Exception, exception:
+            except Exception as exception:
                 logger.error('Error while calling observer %r: %s',
                         observer, exception, exc_info=True)
 

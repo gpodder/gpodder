@@ -45,7 +45,7 @@ from gpodder.gtkui.interface.progress import ProgressIndicator
 from gpodder.gtkui.interface.tagcloud import TagCloud
 
 class DirectoryPodcastsModel(Gtk.ListStore):
-    C_SELECTED, C_MARKUP, C_TITLE, C_URL = range(4)
+    C_SELECTED, C_MARKUP, C_TITLE, C_URL = list(range(4))
 
     def __init__(self, callback_can_subscribe):
         Gtk.ListStore.__init__(self, bool, str, str, str)
@@ -72,11 +72,11 @@ class DirectoryPodcastsModel(Gtk.ListStore):
         self.callback_can_subscribe(len(self.get_selected_podcasts()) > 0)
 
     def get_selected_podcasts(self):
-        return [(unicode(row[self.C_TITLE],'utf8'), row[self.C_URL]) for row in self if row[self.C_SELECTED]]
+        return [(str(row[self.C_TITLE],'utf8'), row[self.C_URL]) for row in self if row[self.C_SELECTED]]
 
 
 class DirectoryProvidersModel(Gtk.ListStore):
-    C_WEIGHT, C_TEXT, C_ICON, C_PROVIDER = range(4)
+    C_WEIGHT, C_TEXT, C_ICON, C_PROVIDER = list(range(4))
 
     SEPARATOR = (Pango.Weight.NORMAL, '', None, None)
 

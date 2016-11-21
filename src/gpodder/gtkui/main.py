@@ -37,7 +37,7 @@ import time
 import threading
 import tempfile
 import collections
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import cgi
 
 
@@ -426,9 +426,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         URL (e.g. from external D-Bus calls / signals, etc..)
         """
         if uri.startswith('/'):
-            uri = 'file://' + urllib.quote(uri)
+            uri = 'file://' + urllib.parse.quote(uri)
 
-        prefix = 'file://' + urllib.quote(gpodder.downloads)
+        prefix = 'file://' + urllib.parse.quote(gpodder.downloads)
 
         # By default, assume we can't pre-select any channel
         # but can match episodes simply via the download URL
@@ -440,8 +440,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             # Try to reduce search space by pre-selecting the channel
             # based on the folder name of the local file
 
-            filename = urllib.unquote(uri[len(prefix):])
-            file_parts = filter(None, filename.split(os.sep))
+            filename = urllib.parse.unquote(uri[len(prefix):])
+            file_parts = [_f for _f in filename.split(os.sep) if _f]
 
             if len(file_parts) != 2:
                 return None
@@ -597,7 +597,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         try:
             self.mygpo_client.set_subscriptions([c.url for c in self.channels])
             util.idle_add(self.show_message, _('List uploaded successfully.'))
-        except Exception, e:
+        except Exception as e:
             def show_error(e):
                 message = str(e)
                 if not message:
@@ -783,7 +783,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 unicode_char_id = Gdk.keyval_to_unicode(event.keyval)
                 if unicode_char_id == 0:
                     return False
-                input_char = unichr(unicode_char_id)
+                input_char = chr(unicode_char_id)
                 self.show_podcast_search(input_char)
             return True
         self.treeChannels.connect('key-press-event', on_key_press)
@@ -960,7 +960,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 unicode_char_id = Gdk.keyval_to_unicode(event.keyval)
                 if unicode_char_id == 0:
                     return False
-                input_char = unichr(unicode_char_id)
+                input_char = chr(unicode_char_id)
                 self.show_episode_search(input_char)
             return True
         self.treeAvailable.connect('key-press-event', on_key_press)
@@ -1089,7 +1089,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     # this is needed, so update_episode_list_icons()
                     # below gets the correct list of "seen" tasks
                     self.download_tasks_seen.remove(task)
-                except KeyError, key_error:
+                except KeyError as key_error:
                     pass
                 changed_episode_urls.add(task.url)
                 # Tell the task that it has been removed (so it can clean up)
@@ -1184,7 +1184,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 if queued > 0:
                     s.append(N_('%(count)d queued', '%(count)d queued', queued) % {'count':queued})
                 text.append(' (' + ', '.join(s)+')')
-            self.labelDownloads.set_text(''.join(text).encode('utf-8'))
+            self.labelDownloads.set_text(''.join(text))
 
             title = [self.default_title]
 
@@ -1230,7 +1230,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.update_podcast_list_model(channel_urls)
 
             return self.download_list_update_enabled
-        except Exception, e:
+        except Exception as e:
             logger.error('Exception happened while updating download list.', exc_info=True)
             self.show_message('%s\n\n%s' % (_('Please report this problem and restart gPodder:'), str(e)), _('Unhandled exception'), important=True)
             # We return False here, so the update loop won't be called again,
@@ -1414,12 +1414,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # tasks will have their flags cleared if we do downloads first
 
         def filter_by_activity(activity, tasks):
-            return filter(lambda task: task.activity == activity, tasks)
+            return [task for task in tasks if task.activity == activity]
 
         download_tasks = filter_by_activity(download.DownloadTask.ACTIVITY_DOWNLOAD,
                 download_tasks_seen)
 
-        finished_downloads = [unicode(task)
+        finished_downloads = [str(task)
                 for task in download_tasks if task.notify_as_finished()]
         failed_downloads = ['%s (%s)' % (task, task.error_message)
                 for task in download_tasks if task.notify_as_failed()]
@@ -1446,15 +1446,15 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.show_message(message, _('Downloads failed'))
 
         if finished_syncs and failed_syncs:
-            message = self.format_episode_list(map((lambda task: unicode(task)),finished_syncs), 5)
+            message = self.format_episode_list(list(map((lambda task: str(task)),finished_syncs)), 5)
             message += '\n\n<i>%s</i>\n' % _('Could not sync some episodes:')
-            message += self.format_episode_list(map((lambda task: unicode(task)),failed_syncs), 5)
+            message += self.format_episode_list(list(map((lambda task: str(task)),failed_syncs)), 5)
             self.show_message(message, _('Device synchronization finished'), True)
         elif finished_syncs:
-            message = self.format_episode_list(map((lambda task: unicode(task)),finished_syncs))
+            message = self.format_episode_list(list(map((lambda task: str(task)),finished_syncs)))
             self.show_message(message, _('Device synchronization finished'))
         elif failed_syncs:
-            message = self.format_episode_list(map((lambda task: unicode(task)),failed_syncs))
+            message = self.format_episode_list(list(map((lambda task: str(task)),failed_syncs)))
             self.show_message(message, _('Device synchronization failed'), True)
 
         # Do post-sync processing if required
@@ -1540,7 +1540,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     # this is needed, so update_episode_list_icons()
                     # below gets the correct list of "seen" tasks
                     self.download_tasks_seen.remove(task)
-                except KeyError, key_error:
+                except KeyError as key_error:
                     pass
                 episode_urls.add(task.url)
                 # Tell the task that it has been removed (so it can clean up)
@@ -2010,7 +2010,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                             reply_handler=on_reply, error_handler=on_error)
 
                     continue # This file was handled by the D-Bus call
-                except Exception, e:
+                except Exception as e:
                     logger.error('Calling Panucci using D-Bus', exc_info=True)
 
             groups[player].append(filename)
@@ -2042,7 +2042,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         try:
             self.playback_episodes_for_real(episodes)
-        except Exception, e:
+        except Exception as e:
             logger.error('Error in playback!', exc_info=True)
             self.show_message(_('Please check your media player settings in the preferences dialog.'), \
                     _('Error opening player'))
@@ -2066,7 +2066,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             for path in paths:
                 try:
                     episode = model.get_value(model.get_iter(path), EpisodeListModel.C_EPISODE)
-                except TypeError, te:
+                except TypeError as te:
                     logger.error('Invalid episode at path %s', str(path))
                     continue
 
@@ -2158,7 +2158,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # Filter items in the list model that are not podcasts, so we get the
         # correct podcast list count (ignore section headers and separators)
         is_not_podcast = lambda r: is_section(r) or is_separator(r)
-        list_model_length -= len(filter(is_not_podcast, self.podcast_list_model))
+        list_model_length -= len(list(filter(is_not_podcast, self.podcast_list_model)))
 
         if selected and not force_update:
             # very cheap! only update selected channel
@@ -2340,7 +2340,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             # If we have authentication data to retry, do so here
             if retry_podcasts:
                 podcasts = [(title_for_url.get(url), url)
-                        for url in retry_podcasts.keys()]
+                        for url in list(retry_podcasts.keys())]
                 self.add_podcast_list(podcasts, retry_podcasts)
                 # This will NOT show new episodes for podcasts that have
                 # been added ("worked"), but it will prevent problems with
@@ -2376,7 +2376,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
                     try:
                         username, password = util.username_password_from_url(url)
-                    except ValueError, ve:
+                    except ValueError as ve:
                         username, password = (None, None)
 
                     if title is not None:
@@ -2400,12 +2400,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         # Queue for login dialog later
                         authreq.append(url)
                     continue
-                except feedcore.WifiLogin, error:
+                except feedcore.WifiLogin as error:
                     redirections[url] = error.data
                     failed.append(url)
                     error_messages[url] = _('Redirection detected')
                     continue
-                except Exception, e:
+                except Exception as e:
                     logger.error('Subscription error: %s', e, exc_info=True)
                     error_messages[url] = str(e)
                     failed.append(url)
@@ -2509,7 +2509,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 try:
                     channel.update(max_episodes=self.config.max_episodes_per_feed)
                     self._update_cover(channel)
-                except Exception, e:
+                except Exception as e:
                     d = {'url': cgi.escape(channel.url), 'message': cgi.escape(str(e))}
                     if d['message']:
                         message = _('Error while updating %(url)s: %(message)s')
@@ -2870,7 +2870,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
                 try:
                     task = download.DownloadTask(episode, self.config)
-                except Exception, e:
+                except Exception as e:
                     d = {'episode': episode.title, 'message': str(e)}
                     message = _('Download error while downloading %(episode)s: %(message)s')
                     self.show_message(message % d, _('Download error'), important=True)
@@ -2958,7 +2958,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def get_new_episodes(self, channels=None):
         return [e for c in channels or self.channels for e in
-                filter(lambda e: e.check_is_new(), c.get_all_episodes())]
+                [e for e in c.get_all_episodes() if e.check_is_new()]]
 
     def commit_changes_to_database(self):
         """This will be called after the sync process is finished"""
@@ -3593,7 +3593,7 @@ class gPodderApplication(Gtk.Application):
            gpodder.dbus_session_bus = dbus.SessionBus(dbus_main_loop)
     
            self.bus_name = dbus.service.BusName(gpodder.dbus_bus_name, bus=gpodder.dbus_session_bus)
-        except dbus.exceptions.DBusException, dbe:
+        except dbus.exceptions.DBusException as dbe:
            logger.warn('Cannot get "on the bus".', exc_info=True)
            dlg = Gtk.MessageDialog(None, Gtk.DialogFlags.MODAL, Gtk.MessageType.ERROR, \
                    Gtk.ButtonsType.CLOSE, _('Cannot start gPodder'))

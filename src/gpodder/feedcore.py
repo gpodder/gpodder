@@ -29,9 +29,9 @@ from gpodder import util
 import logging
 logger = logging.getLogger(__name__)
 
-from urllib2 import HTTPError
-from HTMLParser import HTMLParser
-import urlparse
+from urllib.error import HTTPError
+from html.parser import HTMLParser
+import urllib.parse
 
 try:
     # Python 2
@@ -65,7 +65,7 @@ class UnknownStatusCode(ExceptionWithData): pass
 class AuthenticationRequired(Exception): pass
 
 # Successful status codes
-UPDATED_FEED, NEW_LOCATION, NOT_MODIFIED, CUSTOM_FEED = range(4)
+UPDATED_FEED, NEW_LOCATION, NOT_MODIFIED, CUSTOM_FEED = list(range(4))
 
 class Result:
     def __init__(self, status, feed=None):
@@ -86,7 +86,7 @@ class FeedAutodiscovery(HTMLParser):
             is_feed = attrs.get('type', '') in Fetcher.FEED_TYPES
             is_alternate = attrs.get('rel', '') == 'alternate'
             url = attrs.get('href', None)
-            url = urlparse.urljoin(self._base, url)
+            url = urllib.parse.urljoin(self._base, url)
 
             if is_feed and is_alternate and url:
                 logger.info('Feed autodiscovery: %s', url)
