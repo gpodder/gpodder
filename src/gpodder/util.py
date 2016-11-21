@@ -127,7 +127,6 @@ def _sanitize_char(c):
     return c.encode('utf-8')
 
 SANITIZATION_TABLE = b''.join(map(_sanitize_char, list(map(chr, list(range(256))))))
-print(len(SANITIZATION_TABLE))
 del _sanitize_char
 
 _MIME_TYPE_LIST = [
