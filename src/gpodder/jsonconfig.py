@@ -90,7 +90,7 @@ class JsonConfig(object):
         For newly-set keys, on_key_changed is also called. In this case,
         None will be the old_value:
 
-        >>> def callback(*args): print 'callback:', args
+        >>> def callback(*args): print('callback:', args)
         >>> c = JsonConfig(on_key_changed=callback)
         >>> c.a.b = 10
         callback: ('a.b', None, 10)
@@ -103,7 +103,7 @@ class JsonConfig(object):
 
         Please note that dict-style access will not call on_key_changed:
 
-        >>> def callback(*args): print 'callback:', args
+        >>> def callback(*args): print('callback:', args)
         >>> c = JsonConfig(on_key_changed=callback)
         >>> c.a.b = 1        # This works as expected
         callback: ('a.b', None, 1)
@@ -130,14 +130,14 @@ class JsonConfig(object):
         >>> c = JsonConfig()
         >>> c.a.b = 10
         >>> backup = repr(c)
-        >>> print c.a.b
+        >>> print(c.a.b)
         10
         >>> c.a.b = 11
-        >>> print c.a.b
+        >>> print(c.a.b)
         11
         >>> c._restore(backup)
         False
-        >>> print c.a.b
+        >>> print(c.a.b)
         10
         """
         self._data = json.loads(backup)
@@ -176,7 +176,7 @@ class JsonConfig(object):
     def __repr__(self):
         """
         >>> c = JsonConfig('{"a": 1}')
-        >>> print c
+        >>> print(c)
         {
           "a": 1
         }

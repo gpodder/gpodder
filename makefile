@@ -50,7 +50,7 @@ GETTEXT_SOURCE += $(DESKTOP_FILES_IN_H)
 DESTDIR ?= /
 PREFIX ?= /usr
 
-PYTHON ?= python
+PYTHON ?= python3
 HELP2MAN ?= help2man
 
 ##########################################################################
