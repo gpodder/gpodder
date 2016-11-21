@@ -626,7 +626,7 @@ def remove_html_tags(html):
     result = re_unicode_entities.sub(lambda x: chr(int(x.group(1))), result)
 
     # Convert named HTML entities to their unicode character
-    result = re_html_entities.sub(lambda x: str(entitydefs.get(x.group(1),''), 'iso-8859-1'), result)
+    result = re_html_entities.sub(lambda x: entitydefs.get(x.group(1),''), result)
     
     # Convert more than two newlines to two newlines
     result = re.sub('([\r\n]{2})([\r\n])+', '\\1', result)
@@ -1810,7 +1810,7 @@ def osx_get_active_interfaces():
     """
     process = subprocess.Popen(['ifconfig'], stdout=subprocess.PIPE)
     stdout, _ = process.communicate()
-    for i in re.split('\n(?!\t)', stdout, re.MULTILINE):
+    for i in re.split('\n(?!\t)', stdout.decode('utf-8'), re.MULTILINE):
         b = re.match('(\\w+):.*status: (active|associated)$', i, re.MULTILINE | re.DOTALL)
         if b:
             yield b.group(1)

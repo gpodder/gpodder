@@ -38,9 +38,9 @@ class CoverDownloader(object):
     # File name extension dict, lists supported cover art extensions
     # Values: functions that check if some data is of that file type
     SUPPORTED_EXTENSIONS = {
-        '.png': lambda d: d.startswith('\x89PNG\r\n\x1a\n\x00'),
-        '.jpg': lambda d: d.startswith('\xff\xd8'),
-        '.gif': lambda d: d.startswith('GIF89a') or d.startswith('GIF87a'),
+        '.png': lambda d: d.startswith(b'\x89PNG\r\n\x1a\n\x00'),
+        '.jpg': lambda d: d.startswith(b'\xff\xd8'),
+        '.gif': lambda d: d.startswith(b'GIF89a') or d.startswith(b'GIF87a'),
     }
 
     EXTENSIONS = list(SUPPORTED_EXTENSIONS.keys())

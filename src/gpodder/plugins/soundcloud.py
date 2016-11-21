@@ -54,7 +54,7 @@ def soundcloud_parsedate(s):
     parsed with this function (2009/11/03 13:37:00).
     """
     m = re.match(r'(\d{4})/(\d{2})/(\d{2}) (\d{2}):(\d{2}):(\d{2})', s)
-    return time.mktime([int(x) for x in m.groups()]+[0, 0, -1])
+    return time.mktime(tuple([int(x) for x in m.groups()]+[0, 0, -1]))
 
 def get_param(s, param='filename', header='content-disposition'):
     """Get a parameter from a string of headers
@@ -118,7 +118,7 @@ class SoundcloudUser(object):
         image = None
         try:
             json_url = 'http://api.soundcloud.com/users/%s.json?consumer_key=%s' % (self.username, CONSUMER_KEY)
-            user_info = json.load(util.urlopen(json_url))
+            user_info = json.loads(util.urlopen(json_url).read().decode('utf-8'))
             image = user_info.get('avatar_url', None)
             self.cache[key] = image
         finally:
@@ -135,7 +135,7 @@ class SoundcloudUser(object):
         try:
             json_url = 'http://api.soundcloud.com/users/%(user)s/%(feed)s.json?filter=downloadable&consumer_key=%(consumer_key)s' \
                     % { "user":self.username, "feed":feed, "consumer_key": CONSUMER_KEY }
-            tracks = (track for track in json.load(util.urlopen(json_url)) \
+            tracks = (track for track in json.loads(util.urlopen(json_url).read().decode('utf-8')) \
                     if track['downloadable'])
 
             for track in tracks:
@@ -231,4 +231,4 @@ model.register_custom_handler(SoundcloudFavFeed)
 
 def search_for_user(query):
     json_url = 'http://api.soundcloud.com/users.json?q=%s&consumer_key=%s' % (urllib.parse.quote(query), CONSUMER_KEY)
-    return json.load(util.urlopen(json_url))
+    return json.loads(util.urlopen(json_url).read().decode('utf-8'))
