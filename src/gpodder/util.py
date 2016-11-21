@@ -1445,15 +1445,11 @@ def convert_bytes(d):
     return d
 
 
-def sanitize_filename(filename, max_length=0, use_ascii=False):
+def sanitize_filename(filename, max_length=0):
     """
     Generate a sanitized version of a filename; trim filename
     if greater than max_length (0 = no limit).
-
-    The use_ascii parameter is ignored and will be removed in the future.
     """
-    assert isinstance(filename, str), 'Filename must be ascii'
-
     if max_length > 0 and len(filename) > max_length:
         logger.info('Limiting file/folder name "%s" to %d characters.', filename, max_length)
         filename = filename[:max_length]

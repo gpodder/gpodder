@@ -56,8 +56,7 @@ class gPodderExtension:
         new_basename = ' - '.join(new_basename)
 
         # On Windows, force ASCII encoding for filenames (bug 1724)
-        new_basename = util.sanitize_filename(new_basename,
-                use_ascii=gpodder.ui.win32)
+        new_basename = util.sanitize_filename(new_basename)
         new_filename = os.path.join(dirname, new_basename)
 
         if new_filename == current_filename:
