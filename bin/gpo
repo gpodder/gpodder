@@ -709,7 +709,7 @@ class gPodderCli(object):
             if rows_needed < rows:
                 print(output)
             else:
-                pydoc.pager(util.sanitize_encoding(output))
+                pydoc.pager(output)
         else:
             print(output)
 

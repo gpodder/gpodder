@@ -1444,12 +1444,6 @@ def convert_bytes(d):
         return d.decode('utf-8', 'ignore')
     return d
 
-def sanitize_encoding(filename):
-    r"""
-    This is a no-op in Python 3 and will be removed in the future.
-    """
-    return filename
-
 
 def sanitize_filename(filename, max_length=0, use_ascii=False):
     """
@@ -1709,7 +1703,6 @@ def atomic_rename(old_name, new_name):
 def check_command(self, cmd):
     """Check if a command line command/program exists"""
     # Prior to Python 2.7.3, this module (shlex) did not support Unicode input.
-    cmd = sanitize_encoding(cmd)
     program = shlex.split(cmd)[0]
     return (find_command(program) is not None)
 

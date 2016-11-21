@@ -502,8 +502,7 @@ class PodcastEpisode(PodcastModelObject):
             self.download_filename = wanted_filename
             self.save()
 
-        return os.path.join(util.sanitize_encoding(self.channel.save_dir),
-                util.sanitize_encoding(self.download_filename))
+        return os.path.join(self.channel.save_dir, self.download_filename)
 
     def extension(self, may_call_local_filename=True):
         filename, ext = util.filename_from_url(self.url)
@@ -1186,9 +1185,6 @@ class PodcastChannel(PodcastModelObject):
             self.save()
 
         save_dir = os.path.join(gpodder.downloads, self.download_folder)
-
-        # Avoid encoding errors for OS-specific functions (bug 1570)
-        save_dir = util.sanitize_encoding(save_dir)
 
         # Create save_dir if it does not yet exist
         if not util.make_directory(save_dir):

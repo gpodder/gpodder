@@ -502,7 +502,7 @@ class MP3PlayerDevice(Device):
             download_status_model,
             download_queue_manager):
         Device.__init__(self, config)
-        self.destination = util.sanitize_encoding(self._config.device_sync.device_folder)
+        self.destination = self._config.device_sync.device_folder
         self.buffer_size = 1024*1024 # 1 MiB
         self.download_status_model = download_status_model
         self.download_queue_manager = download_queue_manager
@@ -532,11 +532,11 @@ class MP3PlayerDevice(Device):
         else:
             folder = self.destination
 
-        return util.sanitize_encoding(folder)
+        return folder
 
     def get_episode_file_on_device(self, episode):
         # get the local file
-        from_file = util.sanitize_encoding(episode.local_filename(create=False))
+        from_file = episode.local_filename(create=False)
         # get the formated base name
         filename_base = util.sanitize_filename(episode.sync_filename(
             self._config.device_sync.custom_sync_name_enabled,
@@ -564,7 +564,7 @@ class MP3PlayerDevice(Device):
         # local_filename(create=False) must never return None as filename
         assert filename is not None
 
-        from_file = util.sanitize_encoding(filename)
+        from_file = filename
 
         # verify free space
         needed = util.calculate_size(from_file)
@@ -578,7 +578,7 @@ class MP3PlayerDevice(Device):
 
         # get the filename that will be used on the device
         to_file = self.get_episode_file_on_device(episode)
-        to_file = util.sanitize_encoding(os.path.join(folder, to_file))
+        to_file = os.path.join(folder, to_file)
 
         if not os.path.exists(folder):
             try:
