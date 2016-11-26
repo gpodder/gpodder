@@ -124,7 +124,7 @@ class BuilderWidget(GtkBuilderWidget):
 
         dialog.show_all()
         response = dialog.run()
-        result = str(text_entry.get_text(), 'utf8')
+        result = text_entry.get_text()
         dialog.destroy()
 
         if response == Gtk.ResponseType.OK:

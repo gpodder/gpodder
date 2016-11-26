@@ -1732,7 +1732,7 @@ def get_update_info(url='http://gpodder.org/downloads'):
     Example result (outdated version, 10 days after release):
         (False, '3.0.5', '2012-02-29', 10)
     """
-    data = urlopen(url).read()
+    data = urlopen(url).read().decode('utf-8')
     id_field_re = re.compile(r'<([a-z]*)[^>]*id="([^"]*)"[^>]*>([^<]*)</\1>')
     info = dict((m.group(2), m.group(3)) for m in id_field_re.finditer(data))
 
