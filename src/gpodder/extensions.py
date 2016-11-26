@@ -85,7 +85,7 @@ def call_extensions(func):
                     result.extend(cb_res)
                 elif cb_res is not None:
                     result = cb_res
-            except Exception, exception:
+            except Exception as exception:
                 logger.error('Error in %s in %s: %s', container.filename,
                         method_name, exception, exc_info=True)
         func(self, *args, **kwargs)
@@ -123,12 +123,12 @@ class ExtensionMetadata(object):
     def __getattr__(self, name):
         try:
             return self.DEFAULTS[name]
-        except KeyError, e:
+        except KeyError as e:
             raise AttributeError(name, e)
             
     def get_sorted(self):
         kf = lambda x: self.SORTKEYS.get(x[0], 99)
-        return sorted([(k, v) for k, v in self.__dict__.items()], key=kf)
+        return sorted([(k, v) for k, v in list(self.__dict__.items())], key=kf)
 
     def check_ui(self, target, default):
         """Checks metadata information like
@@ -159,7 +159,7 @@ class ExtensionMetadata(object):
         if not hasattr(self, target):
             return default
 
-        uis = filter(None, [x.strip() for x in getattr(self, target).split(',')])
+        uis = [_f for _f in [x.strip() for x in getattr(self, target).split(',')] if _f]
         return any(getattr(gpodder.ui, ui.lower(), False) for ui in uis)
 
     @property   
@@ -253,15 +253,14 @@ class ExtensionContainer(object):
                 self.enabled = True
                 if hasattr(self.module, 'on_load'):
                     self.module.on_load()
-            except Exception, exception:
+            except Exception as exception:
                 logger.error('Cannot load %s from %s: %s', self.name,
                         self.filename, exception, exc_info=True)
                 if isinstance(exception, ImportError):
                     # Wrap ImportError in MissingCommand for user-friendly
                     # message (might be displayed in the GUI)
-                    match = re.match('No module named (.*)', exception.message)
-                    if match:
-                        module = match.group(1)
+                    if exception.name:
+                        module = exception.name
                         msg = _('Python module not found: %(module)s') % {
                             'module': module
                         }
@@ -272,7 +271,7 @@ class ExtensionContainer(object):
             try:
                 if hasattr(self.module, 'on_unload'):
                     self.module.on_unload()
-            except Exception, exception:
+            except Exception as exception:
                 logger.error('Failed to on_unload %s: %s', self.name,
                         exception, exc_info=True)
             self.enabled = False

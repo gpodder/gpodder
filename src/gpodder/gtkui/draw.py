@@ -36,7 +36,7 @@ from gi.repository import PangoCairo
 
 import cairo
 
-import StringIO
+import io
 import math
 
 
@@ -293,19 +293,19 @@ def cairo_surface_to_pixbuf(s):
     Converts a Cairo surface to a Gtk Pixbuf by
     encoding it as PNG and using the PixbufLoader.
     """
-    sio = StringIO.StringIO()
+    bio = io.BytesIO()
     try:
-        s.write_to_png(sio)
+        s.write_to_png(bio)
     except:
         # Write an empty PNG file to the StringIO, so
         # in case of an error we have "something" to
         # load. This happens in PyCairo < 1.1.6, see:
         # http://webcvs.cairographics.org/pycairo/NEWS?view=markup
         # Thanks to Chris Arnold for reporting this bug
-        sio.write('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A\n/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9cMEQkqIyxn3RkAAAAZdEVYdENv\nbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAAADUlEQVQI12NgYGBgAAAABQABXvMqOgAAAABJ\nRU5ErkJggg==\n'.decode('base64'))
+        bio.write('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A\n/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9cMEQkqIyxn3RkAAAAZdEVYdENv\nbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAAADUlEQVQI12NgYGBgAAAABQABXvMqOgAAAABJ\nRU5ErkJggg==\n'.decode('base64'))
 
     pbl = GdkPixbuf.PixbufLoader()
-    pbl.write(sio.getvalue())
+    pbl.write(bio.getvalue())
     pbl.close()
 
     pixbuf = pbl.get_pixbuf()

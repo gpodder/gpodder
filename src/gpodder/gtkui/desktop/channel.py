@@ -103,7 +103,7 @@ class gPodderChannel(BuilderWidget):
 
         if text is not None:
             for index, (section,) in enumerate(self.section_list):
-                if text == unicode(section, 'utf8'):
+                if text == section:
                     self.combo_section.set_active(index)
                     return
 
@@ -202,7 +202,7 @@ class gPodderChannel(BuilderWidget):
         self.clear_cover_cache(self.channel.url)
         self.cover_downloader.request_cover(self.channel)
 
-        new_section = unicode(self.section_list[self.combo_section.get_active()][0], 'utf8')
+        new_section = self.section_list[self.combo_section.get_active()][0]
         if self.channel.section != new_section:
             self.channel.section = new_section
             section_changed = True

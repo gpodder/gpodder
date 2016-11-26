@@ -29,7 +29,7 @@
 
 
 # For Python 2.5, we need to request the "with" statement
-from __future__ import with_statement
+
 
 try:
     import sqlite3.dbapi2 as sqlite
@@ -55,7 +55,7 @@ class Store(object):
         # necessary. The value None is special-cased and never cast.
         cls = o.__class__.__slots__[slot]
         if value is not None:
-            if isinstance(value, unicode):
+            if isinstance(value, str):
                 value = value.decode('utf-8')
             value = cls(value)
         setattr(o, slot, value)
@@ -86,7 +86,7 @@ class Store(object):
                         ', '.join('%s TEXT'%s for s in slots)))
 
     def convert(self, v):
-        if isinstance(v, unicode):
+        if isinstance(v, str):
             return v
         elif isinstance(v, str):
             # XXX: Rewrite ^^^ as "isinstance(v, bytes)" in Python 3
@@ -96,7 +96,7 @@ class Store(object):
 
     def update(self, o, **kwargs):
         self.remove(o)
-        for k, v in kwargs.items():
+        for k, v in list(kwargs.items()):
             setattr(o, k, v)
         self.save(o)
 
@@ -134,9 +134,9 @@ class Store(object):
             if kwargs:
                 sql += ' WHERE %s' % (' AND '.join('%s=?' % k for k in kwargs))
             try:
-                self.db.execute(sql, kwargs.values())
+                self.db.execute(sql, list(kwargs.values()))
                 return True
-            except Exception, e:
+            except Exception as e:
                 return False
 
     def remove(self, o):
@@ -164,18 +164,18 @@ class Store(object):
             if kwargs:
                 sql += ' WHERE %s' % (' AND '.join('%s=?' % k for k in kwargs))
             try:
-                cur = self.db.execute(sql, kwargs.values())
-            except Exception, e:
+                cur = self.db.execute(sql, list(kwargs.values()))
+            except Exception as e:
                 raise
             def apply(row):
                 o = class_.__new__(class_)
                 for attr, value in zip(slots, row):
                     try:
                         self._set(o, attr, value)
-                    except ValueError, ve:
+                    except ValueError as ve:
                         return None
                 return o
-            return filter(lambda x: x is not None, [apply(row) for row in cur])
+            return [x for x in [apply(row) for row in cur] if x is not None]
 
     def get(self, class_, **kwargs):
         result = self.load(class_, **kwargs)
@@ -199,7 +199,7 @@ if __name__ == '__main__':
     m.save(Person('User %d' % x, x*20) for x in range(50))
 
     p = m.get(Person, id=200)
-    print p
+    print(p)
     m.remove(p)
     p = m.get(Person, id=200)
 
@@ -219,5 +219,5 @@ if __name__ == '__main__':
 
     # A schema update takes place here
     m.save(Person('User %d' % x, x*20, 'user@home.com') for x in range(50))
-    print m.load(Person)
+    print(m.load(Person))
 

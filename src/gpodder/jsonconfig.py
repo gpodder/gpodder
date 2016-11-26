@@ -24,6 +24,7 @@
 #
 
 import copy
+from functools import reduce
 
 try:
     # For Python < 2.6, we use the "simplejson" add-on module
@@ -89,7 +90,7 @@ class JsonConfig(object):
         For newly-set keys, on_key_changed is also called. In this case,
         None will be the old_value:
 
-        >>> def callback(*args): print 'callback:', args
+        >>> def callback(*args): print('callback:', args)
         >>> c = JsonConfig(on_key_changed=callback)
         >>> c.a.b = 10
         callback: ('a.b', None, 10)
@@ -102,7 +103,7 @@ class JsonConfig(object):
 
         Please note that dict-style access will not call on_key_changed:
 
-        >>> def callback(*args): print 'callback:', args
+        >>> def callback(*args): print('callback:', args)
         >>> c = JsonConfig(on_key_changed=callback)
         >>> c.a.b = 1        # This works as expected
         callback: ('a.b', None, 1)
@@ -129,14 +130,14 @@ class JsonConfig(object):
         >>> c = JsonConfig()
         >>> c.a.b = 10
         >>> backup = repr(c)
-        >>> print c.a.b
+        >>> print(c.a.b)
         10
         >>> c.a.b = 11
-        >>> print c.a.b
+        >>> print(c.a.b)
         11
         >>> c._restore(backup)
         False
-        >>> print c.a.b
+        >>> print(c.a.b)
         10
         """
         self._data = json.loads(backup)
@@ -156,7 +157,7 @@ class JsonConfig(object):
         work_queue = [(self._data, merge_source)]
         while work_queue:
             data, default = work_queue.pop()
-            for key, value in default.iteritems():
+            for key, value in default.items():
                 if key not in data:
                     # Copy defaults for missing key
                     data[key] = copy.deepcopy(value)
@@ -175,7 +176,7 @@ class JsonConfig(object):
     def __repr__(self):
         """
         >>> c = JsonConfig('{"a": 1}')
-        >>> print c
+        >>> print(c)
         {
           "a": 1
         }

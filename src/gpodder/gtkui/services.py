@@ -119,7 +119,7 @@ class CoverDownloader(ObservableService):
 
         try:
             pixbuf = GdkPixbuf.Pixbuf.new_from_file(filename)
-        except Exception, e:
+        except Exception as e:
             logger.warn('Cannot load cover art', exc_info=True)
             if filename.startswith(channel.cover_file):
                 logger.info('Deleting broken cover: %s', filename)

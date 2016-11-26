@@ -23,7 +23,7 @@
 #  Based on code from gpodder.services (thp, 2007-08-24)
 #
 
-from __future__ import with_statement
+
 
 import gpodder
 
@@ -41,7 +41,7 @@ _ = gpodder.gettext
 
 class DownloadStatusModel(Gtk.ListStore):
     # Symbolic names for our columns, so we know what we're up to
-    C_TASK, C_NAME, C_URL, C_PROGRESS, C_PROGRESS_TEXT, C_ICON_NAME = range(6)
+    C_TASK, C_NAME, C_URL, C_PROGRESS, C_PROGRESS_TEXT, C_ICON_NAME = list(range(6))
 
     SEARCH_COLUMNS = (C_NAME, C_URL)
 

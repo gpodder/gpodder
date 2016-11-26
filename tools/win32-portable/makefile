@@ -1,7 +1,7 @@
 # gPodder Win32 Portable Cross-Build script
 # 2014-10-21 Thomas Perl <m@thp.io>
 
-PYTHON ?= python
+PYTHON ?= python3
 
 VERSION := $(shell $(PYTHON) ../getversion.py)
 

@@ -30,7 +30,7 @@
 
  [ DEPENDENCIES ]
 
-    - Python 2.7 or newer              http://python.org/
+    - Python 3.5 or newer              http://python.org/
     - Podcastparser 0.6.0 or newer     http://gpodder.org/podcastparser/
     - mygpoclient 1.7 or newer         http://gpodder.org/mygpoclient/
     - Python D-Bus bindings
@@ -43,9 +43,9 @@
     PyPI. With this, you get a self-contained gPodder CLI codebase.
 
 
- [ GTK UI - ADDITIONAL DEPENDENCIES ]
+ [ GTK3 UI - ADDITIONAL DEPENDENCIES ]
 
-    - PyGTK 2.16 or newer              http://pygtk.org/
+    - PyGObject 3.22.0 or newer        https://wiki.gnome.org/PyGObject
 
 
  [ OPTIONAL DEPENDENCIES ]
@@ -76,12 +76,12 @@
         make unittest
 
     To set a specific python binary set PYTHON:
-        PYTHON=python2 make unittest
+        PYTHON=python3 make unittest
 
     Tests in gPodder are written in two different ways:
 
-       - doctests (see http://docs.python.org/2/library/doctest.html)
-       - unittests (see http://docs.python.org/2/library/unittest.html)
+       - doctests (see http://docs.python.org/3/library/doctest.html)
+       - unittests (see http://docs.python.org/3/library/unittest.html)
 
     If you want to add doctests, simply write the doctest and make sure that
     the module appears in "doctest_modules" in src/gpodder/unittests.py. For
@@ -128,11 +128,6 @@
     into an alternative root (default /) and prefix (default /usr):
 
         make install DESTDIR=tmp/ PREFIX=/usr/local/
-
-
- [ PYTHON 3 SUPPORT ]
-
-    For Python 3 support, we recommend you use gPodder 4.x for now.
 
 
  [ PORTABLE MODE / ROAMING PROFILES ]
@@ -215,5 +210,5 @@
     - IRC channel                      #gpodder on irc.freenode.net
 
   ............................................................................
-             Last updated: 2016-09-17 by Thomas Perl <thp.io/about>
+             Last updated: 2016-11-21 by Thomas Perl <thp.io/about>
 

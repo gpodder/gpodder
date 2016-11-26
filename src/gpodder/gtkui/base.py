@@ -43,7 +43,7 @@ class GtkBuilderWidget(object):
         **kwargs:
             Keyword arguments will be set as attributes to this window
         """
-        for key, value in kwargs.items():
+        for key, value in list(kwargs.items()):
             setattr(self, key, value)
 
         self.builder = Gtk.Builder()
@@ -51,7 +51,7 @@ class GtkBuilderWidget(object):
             self.builder.expose_object('parent_widget', parent)
         self.builder.set_translation_domain(textdomain)
         if hasattr(self, '_builder_expose'):
-            for (key, value) in self._builder_expose.items():
+            for (key, value) in list(self._builder_expose.items()):
                 self.builder.expose_object(key, value)
 
         #print >>sys.stderr, 'Creating new from file', self.__class__.__name__

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 #
@@ -43,9 +43,9 @@ try:
     import dbus.glib
     have_dbus = True
 except ImportError:
-    print >>sys.stderr, """
+    print("""
     Warning: python-dbus not found. Disabling D-Bus support.
-    """
+    """, file=sys.stderr)
     have_dbus = False
 
 from optparse import OptionParser
@@ -74,9 +74,9 @@ def main():
         process = subprocess.Popen(locale_cmd, stdout=subprocess.PIPE)
         output, error_output = process.communicate()
         # the output is a string like 'fr_FR', and we need 'fr_FR.utf-8'
-        user_locale = output.strip() + '.UTF-8'
+        user_locale = output.decode('utf-8').strip() + '.UTF-8'
         os.environ['LANG'] = user_locale
-        print >>sys.stderr, 'Setting locale to', user_locale
+        print('Setting locale to', user_locale, file=sys.stderr)
 
     # Set up the path to translation files
     gettext.bindtextdomain('gpodder', locale_dir)
@@ -141,7 +141,7 @@ def main():
                     remote_object.subscribe_to_url(options.subscribe)
 
                 return
-            except dbus.exceptions.DBusException, dbus_exception:
+            except dbus.exceptions.DBusException as dbus_exception:
                 logger.info('Cannot connect to remote object.', exc_info=True)
 
     if not gpodder.ui.win32 and os.environ.get('DISPLAY', '') == '':

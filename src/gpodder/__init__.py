@@ -39,7 +39,7 @@ import locale
 try:
     import podcastparser
 except ImportError:
-    print """
+    print("""
   Error: Module "podcastparser" (python-podcastparser) not found.
          The podcastparser module can be downloaded from
          http://gpodder.org/podcastparser/
@@ -48,14 +48,14 @@ except ImportError:
   CLI dependencies for debugging (will be placed into "src/"):
 
       python tools/localdepends.py
-"""
+""")
     sys.exit(1)
 del podcastparser
 
 try:
     import mygpoclient
 except ImportError:
-    print """
+    print("""
   Error: Module "mygpoclient" (python-mygpoclient) not found.
          The mygpoclient module can be downloaded from
          http://gpodder.org/mygpoclient/
@@ -64,18 +64,18 @@ except ImportError:
   CLI dependencies for debugging (will be placed into "src/"):
 
       python tools/localdepends.py
-"""
+""")
     sys.exit(1)
 del mygpoclient
 
 try:
     import sqlite3
 except ImportError:
-    print """
+    print("""
   Error: Module "sqlite3" not found.
          Build Python with SQLite 3 support or get it from
          http://code.google.com/p/pysqlite/
-"""
+""")
     sys.exit(1)
 del sqlite3
 
@@ -143,7 +143,7 @@ images_folder = None
 user_extensions = None
 
 # Episode states used in the database
-STATE_NORMAL, STATE_DOWNLOADED, STATE_DELETED = range(3)
+STATE_NORMAL, STATE_DOWNLOADED, STATE_DELETED = list(range(3))
 
 # Paths (gPodder's home folder, config, db, download and data prefix)
 home = None
@@ -184,13 +184,13 @@ default_home = fixup_home(default_home)
 set_home(os.environ.get(ENV_HOME, default_home))
 
 if home != default_home:
-    print >>sys.stderr, 'Storing data in', home, '(GPODDER_HOME is set)'
+    print('Storing data in', home, '(GPODDER_HOME is set)', file=sys.stderr)
 
 if ENV_DOWNLOADS in os.environ:
     # Allow to relocate the downloads folder (pull request 4, bug 466)
     downloads = os.environ[ENV_DOWNLOADS]
-    print >>sys.stderr, 'Storing downloads in %s (%s is set)' % (downloads,
-            ENV_DOWNLOADS)
+    print('Storing downloads in %s (%s is set)' % (downloads,
+            ENV_DOWNLOADS), file=sys.stderr)
 
 # Plugins to load by default
 DEFAULT_PLUGINS = [
@@ -211,5 +211,5 @@ def load_plugins():
     for plugin in PLUGINS:
         try:
             __import__(plugin)
-        except Exception, e:
-            print >>sys.stderr, 'Cannot load plugin: %s (%s)' % (plugin, e)
+        except Exception as e:
+            print('Cannot load plugin: %s (%s)' % (plugin, e), file=sys.stderr)

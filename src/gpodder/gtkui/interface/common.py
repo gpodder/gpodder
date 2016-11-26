@@ -124,7 +124,7 @@ class BuilderWidget(GtkBuilderWidget):
 
         dialog.show_all()
         response = dialog.run()
-        result = unicode(text_entry.get_text(), 'utf8')
+        result = text_entry.get_text()
         dialog.destroy()
 
         if response == Gtk.ResponseType.OK:
@@ -242,7 +242,7 @@ class TreeViewHelper(object):
     COLUMNS = '_gpodder_columns'
 
     # Enum for the role attribute
-    ROLE_PODCASTS, ROLE_EPISODES, ROLE_DOWNLOADS = range(3)
+    ROLE_PODCASTS, ROLE_EPISODES, ROLE_DOWNLOADS = list(range(3))
 
     @classmethod
     def set(cls, treeview, role):

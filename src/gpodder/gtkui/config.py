@@ -35,7 +35,7 @@ _ = gpodder.gettext
 
 class ConfigModel(Gtk.ListStore):
     C_NAME, C_TYPE_TEXT, C_VALUE_TEXT, C_TYPE, C_EDITABLE, C_FONT_STYLE, \
-            C_IS_BOOLEAN, C_BOOLEAN_VALUE = range(8)
+            C_IS_BOOLEAN, C_BOOLEAN_VALUE = list(range(8))
 
     def __init__(self, config):
         Gtk.ListStore.__init__(self, str, str, str, object, bool, int, bool, bool)

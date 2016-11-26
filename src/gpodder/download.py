@@ -25,7 +25,7 @@
 #  Based on libwget.py (2005-10-29)
 #
 
-from __future__ import with_statement
+
 
 import logging
 logger = logging.getLogger(__name__)
@@ -38,8 +38,8 @@ import gpodder
 
 import socket
 import threading
-import urllib
-import urlparse
+import urllib.request, urllib.parse, urllib.error
+import urllib.parse
 import shutil
 import os.path
 import os
@@ -66,13 +66,13 @@ def get_header_param(headers, param, header_name):
     """
     value = None
     try:
-        headers_string = ['%s:%s'%(k,v) for k,v in headers.items()]
+        headers_string = ['%s:%s'%(k,v) for k,v in list(headers.items())]
         msg = email.message_from_string('\n'.join(headers_string))
         if header_name in msg:
             raw_value = msg.get_param(param, header=header_name)
             if raw_value is not None:
                 value = email.utils.collapse_rfc2231_value(raw_value)
-    except Exception, e:
+    except Exception as e:
         logger.error('Cannot get %s from %s', param, header_name, exc_info=True)
 
     return value
@@ -188,18 +188,18 @@ class gPodderDownloadHTTPError(Exception):
         self.error_code = error_code
         self.error_message = error_message
 
-class DownloadURLOpener(urllib.FancyURLopener):
+class DownloadURLOpener(urllib.request.FancyURLopener):
     version = gpodder.user_agent
 
     # Sometimes URLs are not escaped correctly - try to fix them
     # (see RFC2396; Section 2.4.3. Excluded US-ASCII Characters)
     # FYI: The omission of "%" in the list is to avoid double escaping!
-    ESCAPE_CHARS = dict((ord(c), u'%%%x'%ord(c)) for c in u' <>#"{}|\\^[]`')
+    ESCAPE_CHARS = dict((ord(c), '%%%x'%ord(c)) for c in ' <>#"{}|\\^[]`')
 
     def __init__( self, channel):
         self.channel = channel
         self._auth_retry_counter = 0
-        urllib.FancyURLopener.__init__(self, None)
+        urllib.request.FancyURLopener.__init__(self, None)
 
     def http_error_default(self, url, fp, errcode, errmsg, headers):
         """
@@ -230,7 +230,7 @@ class DownloadURLOpener(urllib.FancyURLopener):
         fp.close()
         
         # In case the server sent a relative URL, join with original:
-        newurl = urlparse.urljoin(self.type + ":" + url, newurl)
+        newurl = urllib.parse.urljoin(self.type + ":" + url, newurl)
         return self.open(newurl)
     
 # The following is based on Python's urllib.py "URLopener.retrieve"
@@ -266,11 +266,8 @@ class DownloadURLOpener(urllib.FancyURLopener):
             tfp = open(filename, 'wb')
 
         # Fix a problem with bad URLs that are not encoded correctly (bug 549)
-        url = url.decode('ascii', 'ignore')
         url = url.translate(self.ESCAPE_CHARS)
-        url = url.encode('ascii')
 
-        url = urllib.unwrap(urllib.toBytes(url))
         fp = self.open(url, data)
         headers = fp.info()
 
@@ -294,7 +291,7 @@ class DownloadURLOpener(urllib.FancyURLopener):
         blocknum = int(current_size/bs)
         if reporthook:
             if "content-length" in headers:
-                size = int(headers.getrawheader("Content-Length"))  + current_size
+                size = int(headers['Content-Length'])  + current_size
             reporthook(blocknum, bs, size)
         while read < size or size == -1:
             if size == -1:
@@ -315,7 +312,7 @@ class DownloadURLOpener(urllib.FancyURLopener):
 
         # raise exception if actual size does not match content-length header
         if size >= 0 and read < size:
-            raise urllib.ContentTooShortError("retrieval incomplete: got only %i out "
+            raise urllib.error.ContentTooShortError("retrieval incomplete: got only %i out "
                                        "of %i bytes" % (read, size), result)
 
         return result
@@ -356,7 +353,7 @@ class DownloadQueueWorker(object):
                 logger.info('%s is processing: %s', self, task)
                 task.run()
                 task.recycle()
-            except StopIteration, e:
+            except StopIteration as e:
                 logger.info('No more tasks for %s to carry out.', self)
                 break
         self.exit_callback(self)
@@ -505,10 +502,10 @@ class DownloadTask(object):
     # Possible states this download task can be in
     STATUS_MESSAGE = (_('Added'), _('Queued'), _('Downloading'),
             _('Finished'), _('Failed'), _('Cancelled'), _('Paused'))
-    (INIT, QUEUED, DOWNLOADING, DONE, FAILED, CANCELLED, PAUSED) = range(7)
+    (INIT, QUEUED, DOWNLOADING, DONE, FAILED, CANCELLED, PAUSED) = list(range(7))
 
     # Wheter this task represents a file download or a device sync operation
-    ACTIVITY_DOWNLOAD, ACTIVITY_SYNCHRONIZE = range(2)
+    ACTIVITY_DOWNLOAD, ACTIVITY_SYNCHRONIZE = list(range(2))
 
     # Minimum time between progress updates (in seconds)
     MIN_TIME_BETWEEN_UPDATES = 1.
@@ -603,7 +600,7 @@ class DownloadTask(object):
                 already_downloaded = os.path.getsize(self.tempname)
                 if self.total_size > 0:
                     self.progress = max(0.0, min(1.0, float(already_downloaded)/self.total_size))
-            except OSError, os_error:
+            except OSError as os_error:
                 logger.error('Cannot get size for %s', os_error)
         else:
             # "touch self.tempname", so we also get partial
@@ -751,18 +748,18 @@ class DownloadTask(object):
                         self.tempname, reporthook=self.status_updated)
                     # If we arrive here, the download was successful
                     break
-                except urllib.ContentTooShortError, ctse:
+                except urllib.error.ContentTooShortError as ctse:
                     if retry < max_retries:
                         logger.info('Content too short: %s - will retry.',
                                 url)
                         continue
                     raise
-                except socket.timeout, tmout:
+                except socket.timeout as tmout:
                     if retry < max_retries:
                         logger.info('Socket timeout: %s - will retry.', url)
                         continue
                     raise
-                except gPodderDownloadHTTPError, http:
+                except gPodderDownloadHTTPError as http:
                     if retry < max_retries and http.error_code in retry_codes:
                         logger.info('HTTP error %d: %s - will retry.',
                                 http.error_code, url)
@@ -836,23 +833,23 @@ class DownloadTask(object):
                 util.delete_file(self.tempname)
                 self.progress = 0.0
                 self.speed = 0.0
-        except urllib.ContentTooShortError, ctse:
+        except urllib.error.ContentTooShortError as ctse:
             self.status = DownloadTask.FAILED
             self.error_message = _('Missing content from server')
-        except IOError, ioe:
+        except IOError as ioe:
             logger.error('%s while downloading "%s": %s', ioe.strerror,
                     self.__episode.title, ioe.filename, exc_info=True)
             self.status = DownloadTask.FAILED
             d = {'error': ioe.strerror, 'filename': ioe.filename}
             self.error_message = _('I/O Error: %(error)s: %(filename)s') % d
-        except gPodderDownloadHTTPError, gdhe:
+        except gPodderDownloadHTTPError as gdhe:
             logger.error('HTTP %s while downloading "%s": %s',
                     gdhe.error_code, self.__episode.title, gdhe.error_message,
                     exc_info=True)
             self.status = DownloadTask.FAILED
             d = {'code': gdhe.error_code, 'message': gdhe.error_message}
             self.error_message = _('HTTP Error %(code)s: %(message)s') % d
-        except Exception, e:
+        except Exception as e:
             self.status = DownloadTask.FAILED
             logger.error('Download failed: %s', str(e), exc_info=True)
             self.error_message = _('Error: %s') % (str(e),)

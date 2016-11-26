@@ -2,12 +2,11 @@ language: python
 dist: trusty
 sudo: required
 python:
-    - "2.7"
-    - "pypy"
+    - "3.5"
 install:
     - sudo apt-get update -q
     - sudo apt-get install intltool desktop-file-utils
-    - pip install coverage minimock
-    - python tools/localdepends.py
+    - pip3 install coverage minimock
+    - python3 tools/localdepends.py
 script:
     - make releasetest

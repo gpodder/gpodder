@@ -30,7 +30,7 @@ import os
 import os.path
 import threading
 
-from ConfigParser import RawConfigParser
+from configparser import RawConfigParser
 
 from gi.repository import GObject
 from gi.repository import GdkPixbuf
@@ -50,7 +50,7 @@ userappsdirs = [ '/usr/share/applications/', '/usr/local/share/applications/', '
 sect = 'Desktop Entry'
 
 class PlayerListModel(Gtk.ListStore):
-    C_ICON, C_NAME, C_COMMAND, C_CUSTOM = range(4)
+    C_ICON, C_NAME, C_COMMAND, C_CUSTOM = list(range(4))
 
     def __init__(self):
         Gtk.ListStore.__init__(self, GdkPixbuf.Pixbuf, str, str, bool)
@@ -93,7 +93,7 @@ class UserApplication(object):
             if os.path.exists(self.icon):
                 try:
                     return GdkPixbuf.Pixbuf.new_from_file_at_size(self.icon, 24, 24)
-                except GObject.GError, ge:
+                except GObject.GError as ge:
                     pass
 
             # Load it from the current icon theme
@@ -116,23 +116,23 @@ WIN32_APP_REG_KEYS = [
 
 
 def win32_read_registry_key(path):
-    import _winreg
+    import winreg
 
     rootmap = {
-        'HKEY_CLASSES_ROOT': _winreg.HKEY_CLASSES_ROOT,
+        'HKEY_CLASSES_ROOT': winreg.HKEY_CLASSES_ROOT,
     }
 
     parts = path.split('\\')
     root = parts.pop(0)
-    key = _winreg.OpenKey(rootmap[root], parts.pop(0))
+    key = winreg.OpenKey(rootmap[root], parts.pop(0))
 
     while parts:
-        key = _winreg.OpenKey(key, parts.pop(0))
+        key = winreg.OpenKey(key, parts.pop(0))
 
-    value, type_ = _winreg.QueryValueEx(key, '')
-    if type_ == _winreg.REG_EXPAND_SZ:
+    value, type_ = winreg.QueryValueEx(key, '')
+    if type_ == winreg.REG_EXPAND_SZ:
         cmdline = re.sub(r'%([^%]+)%', lambda m: os.environ[m.group(1)], value)
-    elif type_ == _winreg.REG_SZ:
+    elif type_ == winreg.REG_SZ:
         cmdline = value
     else:
         raise ValueError('Not a string: ' + path)
@@ -163,7 +163,7 @@ class UserAppsReader(object):
 
         self.__has_read = True
         if gpodder.ui.win32:
-            import _winreg
+            import winreg
             for caption, types, hkey in WIN32_APP_REG_KEYS:
                 try:
                     cmdline = win32_read_registry_key(hkey)

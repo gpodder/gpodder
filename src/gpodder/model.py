@@ -114,7 +114,7 @@ class PodcastModelObject(object):
         o = cls(*args)
 
         # XXX: all(map(lambda k: hasattr(o, k), d))?
-        for k, v in d.iteritems():
+        for k, v in d.items():
             setattr(o, k, v)
 
         return o
@@ -435,7 +435,7 @@ class PodcastEpisode(PodcastModelObject):
         if self.download_filename is None and (check_only or not create):
             return None
 
-        ext = self.extension(may_call_local_filename=False).encode('utf-8', 'ignore')
+        ext = self.extension(may_call_local_filename=False)
 
         if not check_only and (force_update or not self.download_filename):
             # Avoid and catch gPodder bug 1440 and similar situations
@@ -502,8 +502,7 @@ class PodcastEpisode(PodcastModelObject):
             self.download_filename = wanted_filename
             self.save()
 
-        return os.path.join(util.sanitize_encoding(self.channel.save_dir),
-                util.sanitize_encoding(self.download_filename))
+        return os.path.join(self.channel.save_dir, self.download_filename)
 
     def extension(self, may_call_local_filename=True):
         filename, ext = util.filename_from_url(self.url)
@@ -642,10 +641,10 @@ class PodcastEpisode(PodcastModelObject):
 class PodcastChannel(PodcastModelObject):
     __slots__ = schema.PodcastColumns + ('_common_prefix',)
 
-    UNICODE_TRANSLATE = {ord(u'ö'): u'o', ord(u'ä'): u'a', ord(u'ü'): u'u'}
+    UNICODE_TRANSLATE = {ord('ö'): 'o', ord('ä'): 'a', ord('ü'): 'u'}
 
     # Enumerations for download strategy
-    STRATEGY_DEFAULT, STRATEGY_LATEST = range(2)
+    STRATEGY_DEFAULT, STRATEGY_LATEST = list(range(2))
 
     # Description and ordering of strategies
     STRATEGIES = [
@@ -814,12 +813,8 @@ class PodcastChannel(PodcastModelObject):
         return re.sub('^the ', '', key).translate(cls.UNICODE_TRANSLATE)
 
     @classmethod
-    def load(cls, model, url, create=True, authentication_tokens=None,\
-            max_episodes=0):
-        if isinstance(url, unicode):
-            url = url.encode('utf-8')
-
-        existing = filter(lambda p: p.url == url, model.get_podcasts())
+    def load(cls, model, url, create=True, authentication_tokens=None, max_episodes=0):
+        existing = [p for p in model.get_podcasts() if p.url == url]
 
         if existing:
             return existing[0]
@@ -837,7 +832,7 @@ class PodcastChannel(PodcastModelObject):
 
             try:
                 tmp.update(max_episodes)
-            except Exception, e:
+            except Exception as e:
                 logger.debug('Fetch failed. Removing buggy feed.')
                 tmp.remove_downloaded()
                 tmp.delete()
@@ -1034,7 +1029,7 @@ class PodcastChannel(PodcastModelObject):
                 self.http_etag = result.feed.headers.get('etag', self.http_etag)
                 self.http_last_modified = result.feed.headers.get('last-modified', self.http_last_modified)
             self.save()
-        except Exception, e:
+        except Exception as e:
             # "Not really" errors
             #feedcore.AuthenticationRequired
             # Temporary errors
@@ -1153,7 +1148,7 @@ class PodcastChannel(PodcastModelObject):
         return self.children
 
     def get_episodes(self, state):
-        return filter(lambda e: e.state == state, self.get_all_episodes())
+        return [e for e in self.get_all_episodes() if e.state == state]
 
     def find_unique_folder_name(self, download_folder):
         # Remove trailing dots to avoid errors on Windows (bug 600)
@@ -1190,9 +1185,6 @@ class PodcastChannel(PodcastModelObject):
             self.save()
 
         save_dir = os.path.join(gpodder.downloads, self.download_folder)
-
-        # Avoid encoding errors for OS-specific functions (bug 1570)
-        save_dir = util.sanitize_encoding(save_dir)
 
         # Create save_dir if it does not yet exist
         if not util.make_directory(save_dir):

@@ -147,9 +147,9 @@ class EpisodeListModel(Gtk.ListStore):
             C_VIEW_SHOW_UNDELETED, C_VIEW_SHOW_DOWNLOADED, \
             C_VIEW_SHOW_UNPLAYED, C_FILESIZE, C_PUBLISHED, \
             C_TIME, C_TIME_VISIBLE, C_TOTAL_TIME, \
-            C_LOCKED = range(17)
+            C_LOCKED = list(range(17))
 
-    VIEW_ALL, VIEW_UNDELETED, VIEW_DOWNLOADED, VIEW_UNPLAYED = range(4)
+    VIEW_ALL, VIEW_UNDELETED, VIEW_DOWNLOADED, VIEW_UNPLAYED = list(range(4))
 
     VIEWS = ['VIEW_ALL', 'VIEW_UNDELETED', 'VIEW_DOWNLOADED', 'VIEW_UNPLAYED']
 
@@ -213,7 +213,7 @@ class EpisodeListModel(Gtk.ListStore):
 
             try:
                 return self._search_term_eql.match(episode)
-            except Exception, e:
+            except Exception as e:
                 return True
 
         if self._view_mode == self.VIEW_ALL:
@@ -512,7 +512,7 @@ class PodcastListModel(Gtk.ListStore):
             C_COVER, C_ERROR, C_PILL_VISIBLE, \
             C_VIEW_SHOW_UNDELETED, C_VIEW_SHOW_DOWNLOADED, \
             C_VIEW_SHOW_UNPLAYED, C_HAS_EPISODES, C_SEPARATOR, \
-            C_DOWNLOADS, C_COVER_VISIBLE, C_SECTION = range(16)
+            C_DOWNLOADS, C_COVER_VISIBLE, C_SECTION = list(range(16))
 
     SEARCH_COLUMNS = (C_TITLE, C_DESCRIPTION, C_SECTION)
 
@@ -661,7 +661,7 @@ class PodcastListModel(Gtk.ListStore):
             loader.write(channel.cover_thumb)
             loader.close()
             return loader.get_pixbuf()
-        except Exception, e:
+        except Exception as e:
             logger.warn('Could not load cached cover art for %s', channel.url, exc_info=True)
             channel.cover_thumb = None
             channel.save()
@@ -673,7 +673,7 @@ class PodcastListModel(Gtk.ListStore):
             user_data.append(buf)
             return True
         pixbuf.save_to_callbackv(save_callback, bufs, 'png', [None], [])
-        channel.cover_thumb = buffer(''.join(bufs))
+        channel.cover_thumb = bytes(b''.join(bufs))
         channel.save()
 
     def _get_cover_image(self, channel, add_overlay=False):
@@ -827,7 +827,7 @@ class PodcastListModel(Gtk.ListStore):
         channel = self.get_value(iter, self.C_CHANNEL)
 
         if channel is SectionMarker:
-            section = unicode(self.get_value(iter, self.C_TITLE), 'utf8')
+            section = self.get_value(iter, self.C_TITLE)
 
             # This row is a section header - update its visibility flags
             channels = [c for c in (row[self.C_CHANNEL] for row in self)
@@ -837,8 +837,8 @@ class PodcastListModel(Gtk.ListStore):
             if len(channels) is 0:
                 total = deleted = new = downloaded = unplayed = 0
             else:
-                total, deleted, new, downloaded, unplayed = map(sum,
-                        zip(*[c.get_statistics() for c in channels]))
+                total, deleted, new, downloaded, unplayed = list(map(sum,
+                        list(zip(*[c.get_statistics() for c in channels]))))
 
             # We could customized the section header here with the list
             # of channels and their stats (i.e. add some "new" indicator)

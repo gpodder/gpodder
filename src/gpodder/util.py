@@ -48,28 +48,28 @@ import string
 
 import re
 import subprocess
-from htmlentitydefs import entitydefs
+from html.entities import entitydefs
 import time
 import gzip
 import datetime
 import threading
 
-import urlparse
-import urllib
-import urllib2
-import httplib
+import urllib.parse
+import urllib.request, urllib.parse, urllib.error
+import urllib.request, urllib.error, urllib.parse
+import http.client
 import webbrowser
 import mimetypes
 import itertools
 
-import StringIO
+import io
 import xml.dom.minidom
 
 import collections
 
 if sys.hexversion < 0x03000000:
-    from HTMLParser import HTMLParser
-    from htmlentitydefs import name2codepoint
+    from html.parser import HTMLParser
+    from html.entities import name2codepoint
 else:
     from html.parser import HTMLParser
     from html.entities import name2codepoint
@@ -94,7 +94,7 @@ N_ = gpodder.ngettext
 import locale
 try:
     locale.setlocale(locale.LC_ALL, '')
-except Exception, e:
+except Exception as e:
     logger.warn('Cannot set locale (%s)', e, exc_info=True)
 
 # Native filesystem encoding detection
@@ -118,15 +118,15 @@ if encoding is None:
 # Filename / folder name sanitization
 def _sanitize_char(c):
     if c in string.whitespace:
-        return ' '
+        return b' '
     elif c in ',-.()':
-        return c
-    elif c in string.punctuation or ord(c) <= 31:
-        return '_'
+        return c.encode('utf-8')
+    elif c in string.punctuation or ord(c) <= 31 or ord(c) >= 127:
+        return b'_'
 
-    return c
+    return c.encode('utf-8')
 
-SANITIZATION_TABLE = ''.join(map(_sanitize_char, map(chr, range(256))))
+SANITIZATION_TABLE = b''.join(map(_sanitize_char, list(map(chr, list(range(256))))))
 del _sanitize_char
 
 _MIME_TYPE_LIST = [
@@ -231,7 +231,7 @@ def normalize_feed_url(url):
             'ytpl:': 'http://gdata.youtube.com/feeds/api/playlists/%s',
     }
 
-    for prefix, expansion in PREFIXES.iteritems():
+    for prefix, expansion in PREFIXES.items():
         if url.startswith(prefix):
             url = expansion % (url[len(prefix):],)
             break
@@ -240,7 +240,7 @@ def normalize_feed_url(url):
     if not '://' in url:
         url = 'http://' + url
 
-    scheme, netloc, path, query, fragment = urlparse.urlsplit(url)
+    scheme, netloc, path, query, fragment = urllib.parse.urlsplit(url)
 
     # Domain name is case insensitive, but username/password is not (bug 1942)
     if '@' in netloc:
@@ -264,7 +264,7 @@ def normalize_feed_url(url):
         return None
 
     # urlunsplit might return "a slighty different, but equivalent URL"
-    return urlparse.urlunsplit((scheme, netloc, path, query, fragment))
+    return urllib.parse.urlunsplit((scheme, netloc, path, query, fragment))
 
 
 def username_password_from_url(url):
@@ -286,11 +286,11 @@ def username_password_from_url(url):
     >>> username_password_from_url(1)
     Traceback (most recent call last):
       ...
-    ValueError: URL has to be a string or unicode object.
+    ValueError: URL has to be a string.
     >>> username_password_from_url(None)
     Traceback (most recent call last):
       ...
-    ValueError: URL has to be a string or unicode object.
+    ValueError: URL has to be a string.
     >>> username_password_from_url('http://a@b:c@host.com/')
     ('a@b', 'c')
     >>> username_password_from_url('ftp://a:b:c@host.com/')
@@ -298,18 +298,18 @@ def username_password_from_url(url):
     >>> username_password_from_url('http://i%2Fo:P%40ss%3A@host.com/')
     ('i/o', 'P@ss:')
     >>> username_password_from_url('ftp://%C3%B6sterreich@host.com/')
-    ('\xc3\xb6sterreich', None)
+    ('österreich', None)
     >>> username_password_from_url('http://w%20x:y%20z@example.org/')
     ('w x', 'y z')
     >>> username_password_from_url('http://example.com/x@y:z@test.com/')
     (None, None)
     """
-    if type(url) not in (str, unicode):
-        raise ValueError('URL has to be a string or unicode object.')
+    if not isinstance(url, str):
+        raise ValueError('URL has to be a string.')
 
     (username, password) = (None, None)
 
-    (scheme, netloc, path, params, query, fragment) = urlparse.urlparse(url)
+    (scheme, netloc, path, params, query, fragment) = urllib.parse.urlparse(url)
 
     if '@' in netloc:
         (authentication, netloc) = netloc.rsplit('@', 1)
@@ -329,10 +329,10 @@ def username_password_from_url(url):
             #    is handled by the authentication.split(':', 1) above, and
             #    will cause any extraneous ':'s to be part of the password.
 
-            username = urllib.unquote(username)
-            password = urllib.unquote(password)
+            username = urllib.parse.unquote(username)
+            password = urllib.parse.unquote(password)
         else:
-            username = urllib.unquote(authentication)
+            username = urllib.parse.unquote(authentication)
 
     return (username, password)
 
@@ -352,10 +352,10 @@ def calculate_size( path):
     to list all subdirectories of the given path.
     """
     if path is None:
-        return 0L
+        return 0
 
     if os.path.dirname( path) == '/':
-        return 0L
+        return 0
 
     if os.path.isfile( path):
         return os.path.getsize( path)
@@ -374,7 +374,7 @@ def calculate_size( path):
 
         return sum
 
-    return 0L
+    return 0
 
 
 def file_modification_datetime(filename):
@@ -432,9 +432,9 @@ def file_age_to_string(days):
     >>> file_age_to_string(0)
     ''
     >>> file_age_to_string(1)
-    u'1 day ago'
+    '1 day ago'
     >>> file_age_to_string(2)
-    u'2 days ago'
+    '2 days ago'
     """
     if days < 1:
         return ''
@@ -510,10 +510,10 @@ def format_date(timestamp):
     yesterday = time.localtime(time.time() - seconds_in_a_day)[:3]
     try:
         timestamp_date = time.localtime(timestamp)[:3]
-    except ValueError, ve:
+    except ValueError as ve:
         logger.warn('Cannot convert timestamp', exc_info=True)
         return None
-    except TypeError, te:
+    except TypeError as te:
         logger.warn('Cannot convert timestamp', exc_info=True)
         return None
 
@@ -535,10 +535,10 @@ def format_date(timestamp):
 
     if diff < 7:
         # Weekday name
-        return str(timestamp.strftime('%A').decode(encoding))
+        return timestamp.strftime('%A')
     else:
         # Locale's appropriate date representation
-        return str(timestamp.strftime('%x'))
+        return timestamp.strftime('%x')
 
 
 def format_filesize(bytesize, use_si_units=False, digits=2):
@@ -622,10 +622,10 @@ def remove_html_tags(html):
     result = re_strip_tags.sub('', result)
 
     # Convert numeric XML entities to their unicode character
-    result = re_unicode_entities.sub(lambda x: unichr(int(x.group(1))), result)
+    result = re_unicode_entities.sub(lambda x: chr(int(x.group(1))), result)
 
     # Convert named HTML entities to their unicode character
-    result = re_html_entities.sub(lambda x: unicode(entitydefs.get(x.group(1),''), 'iso-8859-1'), result)
+    result = re_html_entities.sub(lambda x: entitydefs.get(x.group(1),''), result)
     
     # Convert more than two newlines to two newlines
     result = re.sub('([\r\n]{2})([\r\n])+', '\\1', result)
@@ -644,7 +644,7 @@ class HyperlinkExtracter(object):
         group_it = itertools.groupby(self.parts, key=lambda x: x[0])
         result = []
         for target, parts in group_it:
-            t = u''.join(text for _, text in parts if text is not None)
+            t = ''.join(text for _, text in parts if text is not None)
             # Remove trailing spaces
             t = re.sub(' +\n', '\n', t)
             # Convert more than two newlines to two newlines
@@ -691,14 +691,14 @@ class HyperlinkExtracter(object):
         self.output(self.htmlws(data))
 
     def handle_entityref(self, name):
-        c = unichr(name2codepoint[name])
+        c = chr(name2codepoint[name])
         self.output(c)
 
     def handle_charref(self, name):
         if name.startswith('x'):
-            c = unichr(int(name[1:], 16))
+            c = chr(int(name[1:], 16))
         else:
-            c = unichr(int(name))
+            c = chr(int(name))
         self.output(c)
 
     def output_newline(self, attrs=None):
@@ -726,7 +726,7 @@ class ExtractHyperlinkedText(object):
     def visit(self, element):
         NS = '{http://www.w3.org/1999/xhtml}'
         tag_name = (element.tag[len(NS):] if element.tag.startswith(NS) else element.tag).lower()
-        self.extracter.handle_starttag(tag_name, element.items())
+        self.extracter.handle_starttag(tag_name, list(element.items()))
 
         if element.text is not None:
             self.extracter.handle_data(element.text)
@@ -926,8 +926,8 @@ def filename_from_url(url):
     http://server/get.jsp?file=/episode0815.MOV => ("episode0815", ".mov")
     http://s/redirect.mp4?http://serv2/test.mp4 => ("test", ".mp4")
     """
-    (scheme, netloc, path, para, query, fragid) = urlparse.urlparse(url)
-    (filename, extension) = os.path.splitext(os.path.basename( urllib.unquote(path)))
+    (scheme, netloc, path, para, query, fragid) = urllib.parse.urlparse(url)
+    (filename, extension) = os.path.splitext(os.path.basename( urllib.parse.unquote(path)))
 
     if file_type_by_extension(extension) is not None and not \
         query.startswith(scheme+'://'):
@@ -937,7 +937,7 @@ def filename_from_url(url):
 
     # If the query string looks like a possible URL, try that first
     if len(query.strip()) > 0 and query.find('/') != -1:
-        query_url = '://'.join((scheme, urllib.unquote(query)))
+        query_url = '://'.join((scheme, urllib.parse.unquote(query)))
         (query_filename, query_extension) = filename_from_url(query_url)
 
         if file_type_by_extension(query_extension) is not None:
@@ -1019,7 +1019,7 @@ def object_string_formatter(s, **kwargs):
     'Hi 123 456'
     """
     result = s
-    for key, o in kwargs.iteritems():
+    for key, o in kwargs.items():
         matches = re.findall(r'\{%s\.([^\}]+)\}' % key, s)
         for attr in matches:
             if hasattr(o, attr):
@@ -1102,14 +1102,14 @@ def url_strip_authentication(url):
     >>> url_strip_authentication('http://x@x.com:s3cret@example.com/')
     'http://example.com/'
     """
-    url_parts = list(urlparse.urlsplit(url))
+    url_parts = list(urllib.parse.urlsplit(url))
     # url_parts[1] is the HOST part of the URL
 
     # Remove existing authentication data
     if '@' in url_parts[1]:
         url_parts[1] = url_parts[1].rsplit('@', 1)[1]
 
-    return urlparse.urlunsplit(url_parts)
+    return urllib.parse.urlunsplit(url_parts)
 
 
 def url_add_authentication(url, username, password):
@@ -1144,21 +1144,21 @@ def url_add_authentication(url, username, password):
     # Relaxations of the strict quoting rules (bug 1521):
     # 1. Accept '@' in username and password
     # 2. Acecpt ':' in password only
-    username = urllib.quote(username, safe='@')
+    username = urllib.parse.quote(username, safe='@')
 
     if password is not None:
-        password = urllib.quote(password, safe='@:')
+        password = urllib.parse.quote(password, safe='@:')
         auth_string = ':'.join((username, password))
     else:
         auth_string = username
 
     url = url_strip_authentication(url)
 
-    url_parts = list(urlparse.urlsplit(url))
+    url_parts = list(urllib.parse.urlsplit(url))
     # url_parts[1] is the HOST part of the URL
     url_parts[1] = '@'.join((auth_string, url_parts[1]))
 
-    return urlparse.urlunsplit(url_parts)
+    return urllib.parse.urlunsplit(url_parts)
 
 
 def urlopen(url, headers=None, data=None, timeout=None):
@@ -1168,12 +1168,12 @@ def urlopen(url, headers=None, data=None, timeout=None):
     username, password = username_password_from_url(url)
     if username is not None or password is not None:
         url = url_strip_authentication(url)
-        password_mgr = urllib2.HTTPPasswordMgrWithDefaultRealm()
+        password_mgr = urllib.request.HTTPPasswordMgrWithDefaultRealm()
         password_mgr.add_password(None, url, username, password)
-        handler = urllib2.HTTPBasicAuthHandler(password_mgr)
-        opener = urllib2.build_opener(handler)
+        handler = urllib.request.HTTPBasicAuthHandler(password_mgr)
+        opener = urllib.request.build_opener(handler)
     else:
-        opener = urllib2.build_opener()
+        opener = urllib.request.build_opener()
 
     if headers is None:
         headers = {}
@@ -1181,7 +1181,7 @@ def urlopen(url, headers=None, data=None, timeout=None):
         headers = dict(headers)
 
     headers.update({'User-agent': gpodder.user_agent})
-    request = urllib2.Request(url, data=data, headers=headers)
+    request = urllib.request.Request(url, data=data, headers=headers)
     if timeout is None:
         return opener.open(request)
     else:
@@ -1344,11 +1344,11 @@ def format_seconds_to_hour_min_sec(seconds):
     human-readable string (duration).
 
     >>> format_seconds_to_hour_min_sec(3834)
-    u'1 hour, 3 minutes and 54 seconds'
+    '1 hour, 3 minutes and 54 seconds'
     >>> format_seconds_to_hour_min_sec(3600)
-    u'1 hour'
+    '1 hour'
     >>> format_seconds_to_hour_min_sec(62)
-    u'1 minute and 2 seconds'
+    '1 minute and 2 seconds'
     """
 
     if seconds < 1:
@@ -1358,11 +1358,11 @@ def format_seconds_to_hour_min_sec(seconds):
 
     seconds = int(seconds)
 
-    hours = seconds/3600
-    seconds = seconds%3600
+    hours = int(seconds/3600)
+    seconds = int(seconds%3600)
 
-    minutes = seconds/60
-    seconds = seconds%60
+    minutes = int(seconds/60)
+    seconds = int(seconds%60)
 
     if hours:
         result.append(N_('%(count)d hour', '%(count)d hours', hours) % {'count':hours})
@@ -1379,8 +1379,8 @@ def format_seconds_to_hour_min_sec(seconds):
         return result[0]
 
 def http_request(url, method='HEAD'):
-    (scheme, netloc, path, parms, qry, fragid) = urlparse.urlparse(url)
-    conn = httplib.HTTPConnection(netloc)
+    (scheme, netloc, path, parms, qry, fragid) = urllib.parse.urlparse(url)
+    conn = http.client.HTTPConnection(netloc)
     start = len(scheme) + len('://') + len(netloc)
     conn.request(method, url[start:])
     return conn.getresponse()
@@ -1423,75 +1423,38 @@ def convert_bytes(d):
     strings. Any other data types will be left alone.
 
     >>> convert_bytes(None)
-    >>> convert_bytes(1)
-    1
-    >>> convert_bytes(4711L)
-    4711L
+    >>> convert_bytes(4711)
+    4711
     >>> convert_bytes(True)
     True
     >>> convert_bytes(3.1415)
     3.1415
     >>> convert_bytes('Hello')
-    u'Hello'
-    >>> convert_bytes(u'Hey')
-    u'Hey'
-    >>> type(convert_bytes(buffer('hoho')))
-    <type 'buffer'>
+    'Hello'
+    >>> type(convert_bytes(b'hoho'))
+    <class 'bytes'>
     """
     if d is None:
         return d
-    if isinstance(d, buffer):
+    elif isinstance(d, bytes):
         return d
-    elif any(isinstance(d, t) for t in (int, long, bool, float)):
+    elif any(isinstance(d, t) for t in (int, int, bool, float)):
         return d
-    elif not isinstance(d, unicode):
+    elif not isinstance(d, str):
         return d.decode('utf-8', 'ignore')
     return d
 
-def sanitize_encoding(filename):
-    r"""
-    Generate a sanitized version of a string (i.e.
-    remove invalid characters and encode in the
-    detected native language encoding).
 
-    >>> sanitize_encoding('\x80')
-    ''
-    >>> sanitize_encoding(u'unicode')
-    'unicode'
+def sanitize_filename(filename, max_length=0):
     """
-    # The encoding problem goes away in Python 3.. hopefully!
-    if sys.version_info >= (3, 0):
-        return filename
-
-    global encoding
-    if not isinstance(filename, unicode):
-        filename = filename.decode(encoding, 'ignore')
-    return filename.encode(encoding, 'ignore')
-
-
-def sanitize_filename(filename, max_length=0, use_ascii=False):
+    Generate a sanitized version of a filename; trim filename
+    if greater than max_length (0 = no limit).
     """
-    Generate a sanitized version of a filename that can
-    be written on disk (i.e. remove/replace invalid
-    characters and encode in the native language) and
-    trim filename if greater than max_length (0 = no limit).
-
-    If use_ascii is True, don't encode in the native language,
-    but use only characters from the ASCII character set.
-    """
-    if not isinstance(filename, unicode):
-        filename = filename.decode(encoding, 'ignore')
-
     if max_length > 0 and len(filename) > max_length:
-        logger.info('Limiting file/folder name "%s" to %d characters.',
-                filename, max_length)
+        logger.info('Limiting file/folder name "%s" to %d characters.', filename, max_length)
         filename = filename[:max_length]
 
-    filename = filename.encode('ascii' if use_ascii else encoding, 'ignore')
-    filename = filename.translate(SANITIZATION_TABLE)
-    filename = filename.strip('.' + string.whitespace)
-
-    return filename
+    return filename.strip('.' + string.whitespace)
 
 
 def find_mount_point(directory):
@@ -1505,10 +1468,10 @@ def find_mount_point(directory):
     >>> find_mount_point('/')
     '/'
 
-    >>> find_mount_point(u'/something')
+    >>> find_mount_point(b'/something')
     Traceback (most recent call last):
       ...
-    ValueError: Convert unicode objects to str first.
+    ValueError: Convert bytes objects to str first.
 
     >>> find_mount_point(None)
     Traceback (most recent call last):
@@ -1559,15 +1522,14 @@ def find_mount_point(directory):
     '/media/usbdisk'
     >>> restore()
     """
-    if isinstance(directory, unicode):
-        # XXX: This is only valid for Python 2 - misleading error in Python 3?
-        # We do not accept unicode strings, because they could fail when
+    if isinstance(directory, bytes):
+        # We do not accept byte strings, because they could fail when
         # trying to be converted to some native encoding, so fail loudly
-        # and leave it up to the callee to encode into the proper encoding.
-        raise ValueError('Convert unicode objects to str first.')
+        # and leave it up to the callee to decode from the proper encoding.
+        raise ValueError('Convert bytes objects to str first.')
 
     if not isinstance(directory, str):
-        # In Python 2, we assume it's a byte str; in Python 3, we assume
+        # In Python 2, we assumed it's a byte str; in Python 3, we assume
         # that it's a unicode str. The abspath/ismount/split functions of
         # os.path work with unicode str in Python 3, but not in Python 2.
         raise ValueError('Directory names should be of type str.')
@@ -1737,7 +1699,6 @@ def atomic_rename(old_name, new_name):
 def check_command(self, cmd):
     """Check if a command line command/program exists"""
     # Prior to Python 2.7.3, this module (shlex) did not support Unicode input.
-    cmd = sanitize_encoding(cmd)
     program = shlex.split(cmd)[0]
     return (find_command(program) is not None)
 
@@ -1771,7 +1732,7 @@ def get_update_info(url='http://gpodder.org/downloads'):
     Example result (outdated version, 10 days after release):
         (False, '3.0.5', '2012-02-29', 10)
     """
-    data = urlopen(url).read()
+    data = urlopen(url).read().decode('utf-8')
     id_field_re = re.compile(r'<([a-z]*)[^>]*id="([^"]*)"[^>]*>([^<]*)</\1>')
     info = dict((m.group(2), m.group(3)) for m in id_field_re.finditer(data))
 
@@ -1818,7 +1779,7 @@ def osx_get_active_interfaces():
     """
     process = subprocess.Popen(['ifconfig'], stdout=subprocess.PIPE)
     stdout, _ = process.communicate()
-    for i in re.split('\n(?!\t)', stdout, re.MULTILINE):
+    for i in re.split('\n(?!\t)', stdout.decode('utf-8'), re.MULTILINE):
         b = re.match('(\\w+):.*status: (active|associated)$', i, re.MULTILINE | re.DOTALL)
         if b:
             yield b.group(1)
@@ -1871,7 +1832,7 @@ def connection_available():
             return not offline
 
         return False
-    except Exception, e:
+    except Exception as e:
         logger.warn('Cannot get connection status: %s', e, exc_info=True)
         # When we can't determine the connection status, act as if we're online (bug 1730)
         return True
@@ -1886,9 +1847,9 @@ def website_reachable(url):
         return (False, None)
 
     try:
-        response = urllib2.urlopen(url, timeout=1)
+        response = urllib.request.urlopen(url, timeout=1)
         return (True, response)
-    except urllib2.URLError as err:
+    except urllib.error.URLError as err:
         pass
 
     return (False, None)
