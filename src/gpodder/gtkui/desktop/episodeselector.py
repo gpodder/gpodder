@@ -19,7 +19,6 @@
 
 from gi.repository import Gtk
 from gi.repository import Pango
-import cgi
 
 import gpodder
 

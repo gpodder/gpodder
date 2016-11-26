@@ -30,20 +30,12 @@ import os.path
 import logging
 logger = logging.getLogger(__name__)
 
-try:
-    import simplejson as json
-except ImportError:
-    import json
+import json
 
 import re
 import urllib.request, urllib.parse, urllib.error
 
-try:
-    # Python >= 2.6
-    from urllib.parse import parse_qs
-except ImportError:
-    # Python < 2.6
-    from cgi import parse_qs
+from urllib.parse import parse_qs
 
 # http://en.wikipedia.org/wiki/YouTube#Quality_and_codecs
 # format id, (preferred ids, path(?), description) # video bitrate, audio bitrate

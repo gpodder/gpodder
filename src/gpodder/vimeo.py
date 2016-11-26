@@ -32,12 +32,7 @@ from gpodder import util
 import logging
 logger = logging.getLogger(__name__)
 
-try:
-    # For Python < 2.6, we use the "simplejson" add-on module
-    import simplejson as json
-except ImportError:
-    # Python 2.6 already ships with a nice "json" module
-    import json
+import json
 
 import re
 
