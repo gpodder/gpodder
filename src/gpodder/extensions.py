@@ -259,9 +259,8 @@ class ExtensionContainer(object):
                 if isinstance(exception, ImportError):
                     # Wrap ImportError in MissingCommand for user-friendly
                     # message (might be displayed in the GUI)
-                    match = re.match('No module named (.*)', exception.message)
-                    if match:
-                        module = match.group(1)
+                    if exception.name:
+                        module = exception.name
                         msg = _('Python module not found: %(module)s') % {
                             'module': module
                         }
