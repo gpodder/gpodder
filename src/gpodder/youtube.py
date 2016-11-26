@@ -212,7 +212,7 @@ def get_real_cover(url):
     def return_user_cover(url, channel):
         try:
             api_url = 'https://www.youtube.com/channel/{0}'.format(channel)
-            data = util.urlopen(api_url).read()
+            data = util.urlopen(api_url).read().decode('utf-8')
             m = re.search('<img class="channel-header-profile-image"[^>]* src=[\'"]([^\'"]+)[\'"][^>]*>', data)
             if m is not None:
                 logger.debug('YouTube userpic for %s is: %s', url, m.group(1))

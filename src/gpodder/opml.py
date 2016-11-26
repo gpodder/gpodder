@@ -71,6 +71,7 @@ class Importer(object):
             if os.path.exists(url):
                 doc = xml.dom.minidom.parse(url)
             else:
+                # FIXME: is it ok to pass bytes to parseString?
                 doc = xml.dom.minidom.parseString(util.urlopen(url).read())
 
             for outline in doc.getElementsByTagName('outline'):

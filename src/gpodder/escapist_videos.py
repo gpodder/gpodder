@@ -112,6 +112,7 @@ def get_real_cover(url):
     if rss_url is None:
         return None
 
+    # FIXME: can I be sure to decode it as utf-8?
     rss_data = util.urlopen(rss_url).read()
     rss_data_frag = DATA_COVERART_RE.search(rss_data)
 
@@ -124,6 +125,7 @@ def get_escapist_web(video_id):
     if video_id is None:
         return None
 
+    # FIXME: must check if it's utf-8
     web_url = 'http://www.escapistmagazine.com/videos/view/%s' % video_id
     return util.urlopen(web_url).read()
 
