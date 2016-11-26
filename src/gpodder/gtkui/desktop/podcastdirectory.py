@@ -72,7 +72,7 @@ class DirectoryPodcastsModel(Gtk.ListStore):
         self.callback_can_subscribe(len(self.get_selected_podcasts()) > 0)
 
     def get_selected_podcasts(self):
-        return [(str(row[self.C_TITLE],'utf8'), row[self.C_URL]) for row in self if row[self.C_SELECTED]]
+        return [(row[self.C_TITLE], row[self.C_URL]) for row in self if row[self.C_SELECTED]]
 
 
 class DirectoryProvidersModel(Gtk.ListStore):
