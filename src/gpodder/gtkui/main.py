@@ -3121,7 +3121,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 util.open_website('http://gpodder.org/downloads')
 
     def on_bug_tracker_activate(self, widget, *args):
-        util.open_website('https://bugs.gpodder.org/enter_bug.cgi?product=gPodder&component=Application&version=%s' % gpodder.__version__)
+        util.open_website('https://github.com/gpodder/gpodder/issues')
 
     def on_item_support_activate(self, widget):
         util.open_website('http://gpodder.org/donate')
@@ -3153,7 +3153,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                    copyright=gpodder.__copyright__,
                    license=gpodder.__license__,
                    donate_url='http://gpodder.org/donate',
-                   bugs_url='https://bugs.gpodder.org/',
+                   bugs_url='https://github.com/gpodder/gpodder/issues',
                    url=cgi.escape(gpodder.__url__)).strip().split('\n')))
 
         vb.pack_start(label)
