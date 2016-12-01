@@ -133,7 +133,7 @@ class SoundcloudUser(object):
         track it can find for its user."""
         global CONSUMER_KEY
         try:
-            json_url = 'http://api.soundcloud.com/users/%(user)s/%(feed)s.json?filter=downloadable&consumer_key=%(consumer_key)s' \
+            json_url = 'http://api.soundcloud.com/users/%(user)s/%(feed)s.json?filter=downloadable&consumer_key=%(consumer_key)s&limit=200' \
                     % { "user":self.username, "feed":feed, "consumer_key": CONSUMER_KEY }
             tracks = (track for track in json.load(util.urlopen(json_url)) \
                     if track['downloadable'])
