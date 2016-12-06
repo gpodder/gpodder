@@ -136,7 +136,7 @@ class SoundcloudUser(object):
             json_url = 'http://api.soundcloud.com/users/%(user)s/%(feed)s.json?filter=downloadable&consumer_key=%(consumer_key)s&limit=50&linked_partitioning=1' \
                     % { "user":self.username, "feed":feed, "consumer_key": CONSUMER_KEY }
 
-            while not json_url == '':
+            while json_url != '':
                 result = json.load(util.urlopen(json_url))
                 json_url = result.get('next_href', '')
                 tracks = (track for track in result['collection'] \
