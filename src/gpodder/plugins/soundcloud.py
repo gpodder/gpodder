@@ -133,33 +133,37 @@ class SoundcloudUser(object):
         track it can find for its user."""
         global CONSUMER_KEY
         try:
-            json_url = 'http://api.soundcloud.com/users/%(user)s/%(feed)s.json?filter=downloadable&consumer_key=%(consumer_key)s&limit=200' \
+            json_url = 'http://api.soundcloud.com/users/%(user)s/%(feed)s.json?filter=downloadable&consumer_key=%(consumer_key)s&limit=50&linked_partitioning=1' \
                     % { "user":self.username, "feed":feed, "consumer_key": CONSUMER_KEY }
-            tracks = (track for track in json.load(util.urlopen(json_url)) \
-                    if track['downloadable'])
 
-            for track in tracks:
-                # Prefer stream URL (MP3), fallback to download URL
-                url = track.get('stream_url', track['download_url']) + \
-                    '?consumer_key=%(consumer_key)s' \
-                    % { 'consumer_key': CONSUMER_KEY }
-                if url not in self.cache:
-                    try:
-                        self.cache[url] = get_metadata(url)
-                    except:
-                        continue
-                filesize, filetype, filename = self.cache[url]
+            while not json_url == '':
+                result = json.load(util.urlopen(json_url))
+                json_url = result.get('next_href', '')
+                tracks = (track for track in result['collection'] \
+                        if track['downloadable'])
 
-                yield {
-                    'title': track.get('title', track.get('permalink')) or _('Unknown track'),
-                    'link': track.get('permalink_url') or 'http://soundcloud.com/'+self.username,
-                    'description': track.get('description') or _('No description available'),
-                    'url': url,
-                    'file_size': int(filesize),
-                    'mime_type': filetype,
-                    'guid': track.get('permalink', track.get('id')),
-                    'published': soundcloud_parsedate(track.get('created_at', None)),
-                }
+                for track in tracks:
+                    # Prefer stream URL (MP3), fallback to download URL
+                    url = track.get('stream_url', track['download_url']) + \
+                        '?consumer_key=%(consumer_key)s' \
+                        % { 'consumer_key': CONSUMER_KEY }
+                    if url not in self.cache:
+                        try:
+                            self.cache[url] = get_metadata(url)
+                        except:
+                            continue
+                    filesize, filetype, filename = self.cache[url]
+
+                    yield {
+                        'title': track.get('title', track.get('permalink')) or _('Unknown track'),
+                        'link': track.get('permalink_url') or 'http://soundcloud.com/'+self.username,
+                        'description': track.get('description') or _('No description available'),
+                        'url': url,
+                        'file_size': int(filesize),
+                        'mime_type': filetype,
+                        'guid': track.get('permalink', track.get('id')),
+                        'published': soundcloud_parsedate(track.get('created_at', None)),
+                    }
         finally:
             self.commit_cache()
 
