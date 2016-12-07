@@ -53,7 +53,7 @@ if __name__ != '__main__':
             try:
                 self.process.stdin.write('progress %f\n' % progress)
                 self.process.stdin.flush()
-            except Exception, e:
+            except Exception as e:
                 logger.debug('Ubuntu progress update failed.', exc_info=True)
 else:
     from gi.repository import Unity, GObject
