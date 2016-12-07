@@ -1765,7 +1765,7 @@ def linux_get_active_interfaces():
     """
     process = subprocess.Popen(['ip', 'link'], stdout=subprocess.PIPE)
     data, _ = process.communicate()
-    for interface, _ in re.findall(r'\d+: ([^:]+):.*state (UP|UNKNOWN)', data):
+    for interface, _ in re.findall(r'\d+: ([^:]+):.*state (UP|UNKNOWN)', data.decode(locale.getpreferredencoding())):
         if interface != 'lo':
             yield interface
 
@@ -1793,7 +1793,7 @@ def unix_get_active_interfaces():
     """
     process = subprocess.Popen(['ifconfig'], stdout=subprocess.PIPE)
     stdout, _ = process.communicate()
-    for i in re.split('\n(?!\t)', stdout, re.MULTILINE):
+    for i in re.split('\n(?!\t)', stdout.decode(locale.getpreferredencoding()), re.MULTILINE):
         b = re.match('(\\w+):.*status: active$', i, re.MULTILINE | re.DOTALL)
         if b:
             yield b.group(1)
