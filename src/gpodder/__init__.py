@@ -47,7 +47,7 @@ except ImportError:
   From a source checkout, you can download local copies of all
   CLI dependencies for debugging (will be placed into "src/"):
 
-      python tools/localdepends.py
+      python3 tools/localdepends.py
 """)
     sys.exit(1)
 del podcastparser
@@ -63,7 +63,7 @@ except ImportError:
   From a source checkout, you can download local copies of all
   CLI dependencies for debugging (will be placed into "src/"):
 
-      python tools/localdepends.py
+      python3 tools/localdepends.py
 """)
     sys.exit(1)
 del mygpoclient
