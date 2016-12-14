@@ -1723,19 +1723,29 @@ class gPodder(BuilderWidget, dbus.service.Object):
         util.idle_add(self.podcast_list_model.add_cover_by_channel,
                 channel, pixbuf)
 
-    def save_episodes_as_file(self, episodes):
-        for episode in episodes:
-            self.save_episode_as_file(episode)
+    @staticmethod
+    def build_filename(filename, extension):
+        filename = util.sanitize_filename(filename)
+        if not filename.endswith(extension):
+            filename += extension
+        return filename
 
-    def save_episode_as_file(self, episode):
+    def save_episodes_as_file(self, episodes):
         PRIVATE_FOLDER_ATTRIBUTE = '_save_episodes_as_file_folder'
-        if episode.was_downloaded(and_exists=True):
-            folder = getattr(self, PRIVATE_FOLDER_ATTRIBUTE, None)
-            copy_from = episode.local_filename(create=False)
-            assert copy_from is not None
-            copy_to = util.sanitize_filename(episode.sync_filename())
-            (result, folder) = self.show_copy_dialog(src_filename=copy_from, dst_filename=copy_to, dst_directory=folder)
-            setattr(self, PRIVATE_FOLDER_ATTRIBUTE, folder)
+        folder = getattr(self, PRIVATE_FOLDER_ATTRIBUTE, None)
+        (notCancelled, folder) = self.show_folder_select_dialog(initial_directory=folder)
+        setattr(self, PRIVATE_FOLDER_ATTRIBUTE, folder)
+
+        if notCancelled:
+            for episode in episodes:
+                if episode.was_downloaded(and_exists=True):
+                    copy_from = episode.local_filename(create=False)
+                    assert copy_from is not None
+
+                    base, extension = os.path.splitext(copy_from)
+                    filename = self.build_filename(episode.sync_filename(), extension)
+                    copy_to = os.path.join(folder, filename)
+                    shutil.copyfile(copy_from, copy_to)
 
     def copy_episodes_bluetooth(self, episodes):
         episodes_to_copy = [e for e in episodes if e.was_downloaded(and_exists=True)]
@@ -1744,11 +1754,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
             for episode in episodes:
                 filename = episode.local_filename(create=False)
                 assert filename is not None
-                destfile = os.path.join(tempfile.gettempdir(), \
-                        util.sanitize_filename(episode.sync_filename()))
                 (base, ext) = os.path.splitext(filename)
-                if not destfile.endswith(ext):
-                    destfile += ext
+                destfile = self.build_fileName(episode.sync_filename(), ext)
+                destfile = os.path.join(tempfile.gettempdir(), destfile)
 
                 try:
                     shutil.copyfile(filename, destfile)

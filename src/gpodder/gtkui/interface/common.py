@@ -200,36 +200,22 @@ class BuilderWidget(GtkBuilderWidget):
 
         return (success, (username, password))
 
-    def show_copy_dialog(self, src_filename, dst_filename=None, dst_directory=None, title=_('Select destination')):
-        if dst_filename is None:
-            dst_filename = src_filename
+    def show_folder_select_dialog(self, initial_directory=None, title=_('Select destination')):
+        if initial_directory is None:
+            initial_directory = os.path.expanduser('~')
 
-        if dst_directory is None:
-            dst_directory = os.path.expanduser('~')
-
-        base, extension = os.path.splitext(src_filename)
-
-        if not dst_filename.endswith(extension):
-            dst_filename += extension
-
-        dlg = Gtk.FileChooserDialog(title=title, parent=self.main_window, action=Gtk.FileChooserAction.SAVE)
+        dlg = Gtk.FileChooserDialog(title=title, parent=self.main_window, action=Gtk.FileChooserAction.SELECT_FOLDER)
         dlg.add_button(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL)
         dlg.add_button(Gtk.STOCK_SAVE, Gtk.ResponseType.OK)
 
         dlg.set_do_overwrite_confirmation(True)
-        dlg.set_current_name(os.path.basename(dst_filename))
-        dlg.set_current_folder(dst_directory)
+        dlg.set_current_folder(initial_directory)
 
         result = False
-        folder = dst_directory
+        folder = initial_directory
         if dlg.run() == Gtk.ResponseType.OK:
             result = True
-            dst_filename = dlg.get_filename()
             folder = dlg.get_current_folder()
-            if not dst_filename.endswith(extension):
-                dst_filename += extension
-
-            shutil.copyfile(src_filename, dst_filename)
 
         dlg.destroy()
         return (result, folder)
