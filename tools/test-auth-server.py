@@ -77,21 +77,21 @@ class AuthRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             auth_data = m.group(1).decode('base64').split(':', 1)
             if len(auth_data) == 2:
                 username, password = auth_data
-                print 'Got username:', username
-                print 'Got password:', password
+                print('Got username:', username)
+                print('Got password:', password)
                 if (username, password) == (USERNAME, PASSWORD):
-                    print 'Valid credentials provided.'
+                    print('Valid credentials provided.')
                     authorized = True
 
         if self.path == self.FEEDFILE_PATH:
-            print 'Feed request.'
+            print('Feed request.')
             is_feed = True
         elif self.path.startswith(self.EPISODES_PATH):
-            print 'Episode request.'
+            print('Episode request.')
             is_episode = True
 
         if not authorized:
-            print 'Not authorized - sending WWW-Authenticate header.'
+            print('Not authorized - sending WWW-Authenticate header.')
             self.send_response(401)
             self.send_header('WWW-Authenticate',
                     'Basic realm="%s"' % sys.argv[0])
@@ -109,11 +109,11 @@ class AuthRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
 if __name__ == '__main__':
     httpd = BaseHTTPServer.HTTPServer((HOST, PORT), AuthRequestHandler)
-    print """
+    print("""
     Feed URL: %(URL)s/%(FEEDFILE)s
     Username: %(USERNAME)s
     Password: %(PASSWORD)s
-    """ % locals()
+    """ % locals())
     while True:
         httpd.handle_request()
 

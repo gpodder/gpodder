@@ -47,15 +47,15 @@ for filename in glob.glob(os.path.join(po_folder, '*.po')):
     match = re.match(COUNTS_RE, stderr).groups()
     languages.append(Language(language, match[1] or '0', match[3] or '0', match[5] or '0'))
 
-print ''
+print('')
 for language in sorted(languages):
     tc = '#'*(int(math.floor(width*language.get_translated_ratio())))
     fc = '~'*(int(math.floor(width*language.get_fuzzy_ratio())))
     uc = ' '*(width-len(tc)-len(fc))
 
-    print ' %5s [%s%s%s] -- %3.0f %% translated' % (language.language, tc, fc, uc, language.get_translated_ratio()*100)
+    print(' %5s [%s%s%s] -- %3.0f %% translated' % (language.language, tc, fc, uc, language.get_translated_ratio()*100))
 
-print """
+print("""
   Total translations: %s
-""" % (len(languages))
+""" % (len(languages)))
 

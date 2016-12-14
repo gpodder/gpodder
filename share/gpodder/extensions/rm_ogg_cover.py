@@ -94,6 +94,6 @@ class gPodderExtension:
             if found:
                 logger.info('Removed cover art from OGG file: %s', filename)
                 ogg.save()
-        except Exception, e:
+        except Exception as e:
             logger.warn('Failed to remove OGG cover: %s', e, exc_info=True)
 
