@@ -55,7 +55,7 @@ class Store(object):
         # necessary. The value None is special-cased and never cast.
         cls = o.__class__.__slots__[slot]
         if value is not None:
-            if isinstance(value, str):
+            if isinstance(value, bytes):
                 value = value.decode('utf-8')
             value = cls(value)
         setattr(o, slot, value)
