@@ -190,6 +190,7 @@ class Fetcher(object):
             raise InvalidFeed('Got HTML document instead')
 
         feed = podcastparser.parse(url, stream)
+        feed['headers'] = stream.headers
         return self._check_statuscode(stream, feed)
 
     def fetch(self, url, etag=None, modified=None):
