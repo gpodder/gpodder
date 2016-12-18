@@ -61,8 +61,6 @@ class gPodderFetcher(feedcore.Fetcher):
     custom_handlers = []
 
     def fetch_channel(self, channel):
-        etag = channel.http_etag
-        modified = podcastparser.parse_pubdate(channel.http_last_modified)
         # If we have a username or password, rebuild the url with them included
         # Note: using a HTTPBasicAuthHandler would be pain because we need to
         # know the realm. It can be done, but I think this method works, too
@@ -71,7 +69,7 @@ class gPodderFetcher(feedcore.Fetcher):
             custom_feed = handler.handle_url(url)
             if custom_feed is not None:
                 return feedcore.Result(feedcore.CUSTOM_FEED, custom_feed)
-        return self.fetch(url, etag, modified)
+        return self.fetch(url, channel.http_etag, channel.http_last_modified)
 
     def _resolve_url(self, url):
         url = youtube.get_real_channel_url(url)
@@ -922,6 +920,11 @@ class PodcastChannel(PodcastModelObject):
                                feed.get('cover_url', None),
                                feed.get('payment_url', None))
 
+        # Update values for HTTP conditional requests
+        headers = feed.get('headers', {})
+        self.http_etag = headers.get('etag', self.http_etag)
+        self.http_last_modified = headers.get('last-modified', self.http_last_modified)
+
         # Load all episodes to update them properly.
         existing = self.get_all_episodes()
 
@@ -1030,9 +1033,6 @@ class PodcastChannel(PodcastModelObject):
             elif result.status == feedcore.NOT_MODIFIED:
                 pass
 
-            if hasattr(result.feed, 'headers'):
-                self.http_etag = result.feed.headers.get('etag', self.http_etag)
-                self.http_last_modified = result.feed.headers.get('last-modified', self.http_last_modified)
             self.save()
         except Exception, e:
             # "Not really" errors
