@@ -210,6 +210,10 @@ class MPRISDBusReceiver(object):
     INTERFACE_MPRIS = 'org.mpris.MediaPlayer2.Player'
     SIGNAL_SEEKED = 'Seeked'
     OBJECT_VLC = 'org.mpris.MediaPlayer2.vlc'
+    OTHER_MPRIS_INTERFACES = [ 'org.mpris.MediaPlayer2',
+                               'org.mpris.MediaPlayer2.TrackList',
+                               'org.mpris.MediaPlayer2.Playlists'
+    ]
 
     def __init__(self, bus, notifier):
         self.bus = bus
@@ -240,7 +244,8 @@ class MPRISDBusReceiver(object):
     def on_prop_change(self, interface_name, changed_properties,
                        invalidated_properties, path=None):
         if interface_name != self.INTERFACE_MPRIS:
-            logger.warn('unexpected interface: %s', interface_name)
+            if interface_name not in self.OTHER_MPRIS_INTERFACES:
+                logger.warn('unexpected interface: %s, props=%r', interface_name, changed_properties.keys())
             return
         
         collected_info = {}
@@ -248,8 +253,10 @@ class MPRISDBusReceiver(object):
         if changed_properties.has_key('PlaybackStatus'):
             collected_info['status'] = str(changed_properties['PlaybackStatus'])
         if changed_properties.has_key('Metadata'):
-            collected_info['uri'] = changed_properties['Metadata']['xesam:url']
-            collected_info['length'] = changed_properties['Metadata']['mpris:length']
+            # on stop there is no xesam:url
+            if changed_properties['Metadata'].has_key('xesam:url'):
+                collected_info['uri'] = changed_properties['Metadata']['xesam:url']
+                collected_info['length'] = changed_properties['Metadata']['mpris:length']
         if changed_properties.has_key('Rate'):
             collected_info['rate'] = changed_properties['Rate']
         collected_info['pos'] = self.query_position()
