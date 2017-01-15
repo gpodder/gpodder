@@ -766,6 +766,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def init_episode_list_treeview(self):
         # For loading the list model
         self.episode_list_model = EpisodeListModel(self.config, self.on_episode_list_filter_changed)
+        self.episode_list_last_selected_row = None
+        self.episode_list_selection_delta = 0
 
         if self.config.episode_list_view_mode == EpisodeListModel.VIEW_UNDELETED:
             self.item_view_episodes_undeleted.set_active(True)
@@ -906,6 +908,15 @@ class gPodder(BuilderWidget, dbus.service.Object):
         selection.connect('changed', self.on_episode_list_selection_changed)
 
     def on_episode_list_selection_changed(self, selection):
+        if selection.count_selected_rows() == 1:
+            _, paths = selection.get_selected_rows()
+            (index,) = paths[0]
+            if self.episode_list_last_selected_row is not None:
+                self.episode_list_selection_delta = index - self.episode_list_last_selected_row
+            self.episode_list_last_selected_row = index
+        else:
+            self.episode_list_last_selected_row = None
+
         # Update the toolbar buttons
         self.play_or_download()
         # and the shownotes
@@ -2532,6 +2543,23 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if not episodes:
             return False
 
+        # If there is only one episode selected, we restore the row-based selection afterwards
+        # TODO: We could generalize this and allow previous-selection to work every time we have
+        # a contiguous selection of multiple rows, too (problem with non-contiguous selection
+        # being that it's unclear "where" in the old selection we want to pick up the selection)
+        path_to_select = None
+        previous_selection_delta = self.episode_list_selection_delta
+        if len(episodes) == 1:
+            model = self.treeAvailable.get_model()
+            episode = episodes[0]
+
+            it = model.get_iter_first()
+            while it is not None:
+                if model.get_value(it, EpisodeListModel.C_EPISODE) == episode:
+                    path_to_select = model.get_path(it)
+                    break
+                it = model.iter_next(it)
+
         if skip_locked:
             episodes = [e for e in episodes if not e.archive]
 
@@ -2561,6 +2589,22 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.update_episode_list_icons(episode_urls)
             self.update_podcast_list_model(channel_urls)
             self.play_or_download()
+
+            # We have a specific path that we want to select afterwards
+            if path_to_select is not None:
+                (index,) = path_to_select
+                # If the last movement of the selection was 1 row up, continue this motion;
+                # this allows deletion of episodes going from the bottom up (row-by-row)
+                if previous_selection_delta == -1:
+                    index -= 1
+                model = self.treeAvailable.get_model()
+                selection = self.treeAvailable.get_selection()
+                rows = len(model)
+                if index >= rows:
+                    # Clamp to the last row (if the last episode has been deleted)
+                    index = rows - 1
+                selection.select_path((index,))
+
 
         @util.run_in_background
         def thread_proc():
