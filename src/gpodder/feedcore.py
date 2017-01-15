@@ -171,7 +171,7 @@ class Fetcher(object):
             except HTTPError as e:
                 return self._check_statuscode(e, e.geturl())
 
-        if stream.headers.get('content-type', '').startswith('text/html'):
+        if not is_local and stream.headers.get('content-type', '').startswith('text/html'):
             if autodiscovery:
                 ad = FeedAutodiscovery(url)
                 ad.feed(stream.read())
@@ -190,8 +190,12 @@ class Fetcher(object):
             raise InvalidFeed('Got HTML document instead')
 
         feed = podcastparser.parse(url, stream)
-        feed['headers'] = stream.headers
-        return self._check_statuscode(stream, feed)
+        if is_local:
+            feed['headers'] = {}
+            return Result(UPDATED_FEED, feed)
+        else:
+            feed['headers'] = stream.headers
+            return self._check_statuscode(stream, feed)
 
     def fetch(self, url, etag=None, modified=None):
         return self._parse_feed(url, etag, modified)
