@@ -55,9 +55,9 @@ class Database(object):
         self.commit()
 
         with self.lock:
-            cur = self.cursor()
-            cur.execute("VACUUM")
-            cur.close()
+            self.db.isolation_level = None
+            self.db.execute('VACUUM')
+            self.db.isolation_level = ''
 
         self._db.close()
         self._db = None
