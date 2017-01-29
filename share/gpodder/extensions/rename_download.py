@@ -3,6 +3,10 @@
 # Copyright (c) 2011-04-04 Thomas Perl <thp.io>
 # Licensed under the same terms as gPodder itself
 
+import sys
+reload(sys)
+sys.setdefaultencoding("utf-8")
+
 import os
 
 import gpodder
