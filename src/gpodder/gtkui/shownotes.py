@@ -21,8 +21,18 @@ from gi.repository import Gtk
 from gi.repository import Gdk
 from gi.repository import GObject
 from gi.repository import Pango
-import os
 
+import os
+import urllib.parse
+
+has_webkit2 = False
+try:
+    import gi
+    gi.require_version('WebKit2', '4.0')
+    from gi.repository import WebKit2
+    has_webkit2 = True
+except ImportError:
+    logger.info('No WebKit2 gobject bindings, so no HTML shownotes')
 
 import gpodder
 
@@ -34,6 +44,12 @@ logger = logging.getLogger(__name__)
 from gpodder import util
 from gpodder.gtkui.draw import draw_text_box_centered
 
+
+def get_shownotes(enable_html, pane):
+    if enable_html and has_webkit2:
+        return gPodderShownotesHTML(pane)
+    else:
+        return gPodderShownotesText(pane)
 
 class gPodderShownotes:
     def __init__(self, shownotes_pane):
@@ -154,3 +170,105 @@ class gPodderShownotesText(gPodderShownotes):
             target = next((url for start, end, url in self.hyperlinks if start < pos < end), None)
             if target is not None:
                 util.open_website(target)
+
+
+class gPodderShownotesHTML(gPodderShownotes):
+    def init(self):
+        self.html_view = WebKit2.WebView()
+        self.html_view.set_property('expand', True)
+        self.html_view.connect('mouse-target-changed', self.on_mouse_over)
+        self.html_view.connect('context-menu', self.on_context_menu)
+        self.html_view.connect('decide-policy', self.on_decide_policy)
+        self.header = Gtk.Label.new()
+        self.header.set_halign(Gtk.Align.START)
+        self.header.set_valign(Gtk.Align.START)
+        self.header.set_property('margin', 10)
+        self.status = Gtk.Label.new()
+        self.status.set_halign(Gtk.Align.START)
+        self.status.set_valign(Gtk.Align.END)
+        self.set_status(None)
+        grid = Gtk.Grid()
+        grid.attach(self.header, 0, 0, 1, 1)
+        grid.attach(self.html_view, 0, 1, 1, 1)
+        grid.attach(self.status, 0, 2, 1, 1)
+        return grid
+
+    def update(self, heading, subheading, episode):
+        tmpl = '<span size="x-large" font_weight="bold">%s</span>\n' \
+              +'<span size="medium">%s</span>'
+        self.header.set_markup(tmpl % (heading, subheading))
+        if episode.has_website_link:
+            self._base_uri = episode.link
+        else:
+            self._base_uri = episode.channel.url
+        self._loaded = False
+        self.html_view.load_html(episode.description_html, self._base_uri)
+
+    def on_mouse_over(self, webview, hit_test_result, modifiers):
+        if hit_test_result.context_is_link():
+            self.set_status(hit_test_result.get_link_uri())
+        else:
+            self.set_status(None)
+
+    def on_context_menu(self, webview, context_menu, event, hit_test_result):
+        whitelist_actions = [
+            WebKit2.ContextMenuAction.NO_ACTION,
+            WebKit2.ContextMenuAction.STOP,
+            WebKit2.ContextMenuAction.RELOAD,
+            WebKit2.ContextMenuAction.COPY,
+            WebKit2.ContextMenuAction.CUT,
+            WebKit2.ContextMenuAction.PASTE,
+            WebKit2.ContextMenuAction.DELETE,
+            WebKit2.ContextMenuAction.SELECT_ALL,
+            WebKit2.ContextMenuAction.INPUT_METHODS,
+            WebKit2.ContextMenuAction.COPY_VIDEO_LINK_TO_CLIPBOARD,
+            WebKit2.ContextMenuAction.COPY_AUDIO_LINK_TO_CLIPBOARD,
+            WebKit2.ContextMenuAction.COPY_LINK_TO_CLIPBOARD,
+            WebKit2.ContextMenuAction.COPY_IMAGE_TO_CLIPBOARD,
+            WebKit2.ContextMenuAction.COPY_IMAGE_URL_TO_CLIPBOARD
+        ]
+        items = context_menu.get_items()
+        for item in items:
+            if item.get_stock_action() not in whitelist_actions:
+                context_menu.remove(item)
+        if hit_test_result.get_context() == WebKit2.HitTestResultContext.DOCUMENT:
+            item = self.create_open_item(
+                'shownotes-in-browser',
+                _('Open Show Notes in Web Browser'),
+                self._base_uri)
+            context_menu.insert(item, -1)
+        elif hit_test_result.context_is_link():
+            item = self.create_open_item(
+                'link-in-browser',
+                _('Open Link in Web Browser'),
+                hit_test_result.get_link_uri())
+            context_menu.insert(item, -1)
+        return False
+
+    def on_decide_policy(self, webview, decision, decision_type):
+        if decision_type == WebKit2.PolicyDecisionType.NEW_WINDOW_ACTION:
+            decision.ignore()
+            return False
+        elif decision_type == WebKit2.PolicyDecisionType.NAVIGATION_ACTION:
+            req = decision.get_request()
+            if req.get_uri() == self._base_uri:
+                decision.use()
+            else:
+                logger.debug("refusing to go to %s" % req.get_uri())
+                decision.ignore()
+            return False
+        else:
+            decision.use()
+            return False
+
+    def on_open_in_browser(self, action):
+        util.open_website(action.url)
+
+    def create_open_item(self, name, label, url):
+        action = Gtk.Action.new(name, label, None, Gtk.STOCK_OPEN)
+        action.url = url
+        action.connect('activate', self.on_open_in_browser)
+        return WebKit2.ContextMenuItem.new(action)
+
+    def set_status(self, text):
+        self.status.set_label(text or " ")

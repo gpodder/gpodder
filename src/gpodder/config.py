@@ -147,6 +147,8 @@ defaults = {
             'download_list': {
                 'remove_finished': True,
             },
+
+            'html_shownotes': True # enable webkit renderer
         },
     },
 
