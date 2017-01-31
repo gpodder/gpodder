@@ -66,7 +66,9 @@ class Store(object):
 
     def close(self):
         with self.lock:
+            self.db.isolation_level = None
             self.db.execute('VACUUM')
+            self.db.isolation_level = ''
             self.db.close()
 
     def _register(self, class_):
