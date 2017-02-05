@@ -148,7 +148,7 @@ defaults = {
                 'remove_finished': True,
             },
 
-            'html_shownotes': True # enable webkit renderer
+            'html_shownotes': True,  # enable webkit renderer
         },
     },
 

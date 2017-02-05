@@ -144,8 +144,7 @@ class PodcastEpisode(PodcastModelObject):
         episode.guid = entry['guid']
         episode.title = entry['title']
         episode.link = entry['link']
-        episode.description = entry.get('description_html',
-                                        entry.get('description'))
+        episode.description = entry.get('description_html', entry.get('description'))
         episode.total_time = entry['total_time']
         episode.published = entry['published']
         episode.payment_url = entry['payment_url']

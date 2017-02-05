@@ -19,11 +19,19 @@
 
 from gi.repository import Gtk
 from gi.repository import Gdk
-from gi.repository import GObject
 from gi.repository import Pango
 
-import os
-import urllib.parse
+import html
+import logging
+
+import gpodder
+
+from gpodder import util
+from gpodder.gtkui.draw import draw_text_box_centered
+
+_ = gpodder.gettext
+
+logger = logging.getLogger(__name__)
 
 has_webkit2 = False
 try:
@@ -31,18 +39,8 @@ try:
     gi.require_version('WebKit2', '4.0')
     from gi.repository import WebKit2
     has_webkit2 = True
-except ImportError:
+except (ImportError, ValueError):
     logger.info('No WebKit2 gobject bindings, so no HTML shownotes')
-
-import gpodder
-
-_ = gpodder.gettext
-
-import logging
-logger = logging.getLogger(__name__)
-
-from gpodder import util
-from gpodder.gtkui.draw import draw_text_box_centered
 
 
 def get_shownotes(enable_html, pane):
@@ -50,6 +48,7 @@ def get_shownotes(enable_html, pane):
         return gPodderShownotesHTML(pane)
     else:
         return gPodderShownotesText(pane)
+
 
 class gPodderShownotes:
     def __init__(self, shownotes_pane):
@@ -107,7 +106,7 @@ class gPodderShownotes:
 
     def on_shownotes_message_expose_event(self, drawingarea, ctx):
         # paint the background white
-        ctx.set_source_rgba(1,1,1)
+        ctx.set_source_rgba(1, 1, 1)
         x1, y1, x2, y2 = ctx.clip_extents()
         ctx.rectangle(x1, y1, x2 - x1, y2 - y1)
         ctx.fill()
@@ -195,8 +194,8 @@ class gPodderShownotesHTML(gPodderShownotes):
 
     def update(self, heading, subheading, episode):
         tmpl = '<span size="x-large" font_weight="bold">%s</span>\n' \
-              +'<span size="medium">%s</span>'
-        self.header.set_markup(tmpl % (heading, subheading))
+              + '<span size="medium">%s</span>'
+        self.header.set_markup(tmpl % (html.escape(heading), html.escape(subheading)))
         if episode.has_website_link:
             self._base_uri = episode.link
         else:
@@ -234,13 +233,13 @@ class gPodderShownotesHTML(gPodderShownotes):
         if hit_test_result.get_context() == WebKit2.HitTestResultContext.DOCUMENT:
             item = self.create_open_item(
                 'shownotes-in-browser',
-                _('Open Show Notes in Web Browser'),
+                _('Open shownotes in web browser'),
                 self._base_uri)
             context_menu.insert(item, -1)
         elif hit_test_result.context_is_link():
             item = self.create_open_item(
                 'link-in-browser',
-                _('Open Link in Web Browser'),
+                _('Open link in web browser'),
                 hit_test_result.get_link_uri())
             context_menu.insert(item, -1)
         return False
@@ -254,7 +253,7 @@ class gPodderShownotesHTML(gPodderShownotes):
             if req.get_uri() == self._base_uri:
                 decision.use()
             else:
-                logger.debug("refusing to go to %s" % req.get_uri())
+                logger.debug("refusing to go to %s", req.get_uri())
                 decision.ignore()
             return False
         else:
