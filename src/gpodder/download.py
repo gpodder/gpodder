@@ -288,7 +288,7 @@ class DownloadURLOpener(urllib.request.FancyURLopener):
         bs = 1024*8
         size = -1
         read = current_size
-        blocknum = int(current_size/bs)
+        blocknum = current_size//bs
         if reporthook:
             if "content-length" in headers:
                 size = int(headers['Content-Length'])  + current_size
@@ -599,7 +599,7 @@ class DownloadTask(object):
             try:
                 already_downloaded = os.path.getsize(self.tempname)
                 if self.total_size > 0:
-                    self.progress = max(0.0, min(1.0, float(already_downloaded)/self.total_size))
+                    self.progress = max(0.0, min(1.0, already_downloaded/self.total_size))
             except OSError as os_error:
                 logger.error('Cannot get size for %s', os_error)
         else:
@@ -645,7 +645,7 @@ class DownloadTask(object):
                 self.__episode.save()
 
         if self.total_size > 0:
-            self.progress = max(0.0, min(1.0, float(count*blockSize)/self.total_size))
+            self.progress = max(0.0, min(1.0, count*blockSize/self.total_size))
             if self._progress_updated is not None:
                 diff = time.time() - self._last_progress_updated
                 if diff > self.MIN_TIME_BETWEEN_UPDATES or self.progress == 1.:
@@ -694,7 +694,7 @@ class DownloadTask(object):
             if self._config.limit_rate and speed > self._config.limit_rate_value:
                 # calculate the time that should have passed to reach
                 # the desired download rate and wait if necessary
-                should_have_passed = float((count-self.__start_blocks)*blockSize)/(self._config.limit_rate_value*1024.0)
+                should_have_passed = (count-self.__start_blocks)*blockSize/(self._config.limit_rate_value*1024.0)
                 if should_have_passed > passed:
                     # sleep a maximum of 10 seconds to not cause time-outs
                     delay = min(10.0, float(should_have_passed-passed))

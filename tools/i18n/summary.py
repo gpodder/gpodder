@@ -22,13 +22,13 @@ class Language(object):
         self.untranslated = int(untranslated)
 
     def get_translated_ratio(self):
-        return float(self.translated)/float(self.translated+self.fuzzy+self.untranslated)
+        return self.translated/(self.translated+self.fuzzy+self.untranslated)
 
     def get_fuzzy_ratio(self):
-        return float(self.fuzzy)/float(self.translated+self.fuzzy+self.untranslated)
+        return self.fuzzy/(self.translated+self.fuzzy+self.untranslated)
 
     def get_untranslated_ratio(self):
-        return float(self.untranslated)/float(self.translated+self.fuzzy+self.untranslated)
+        return self.untranslated/(self.translated+self.fuzzy+self.untranslated)
 
     def __cmp__(self, other):
         return cmp(self.get_translated_ratio(), other.get_translated_ratio())

@@ -68,7 +68,7 @@ def find_partial_downloads(channels, start_progress_callback, progress_callback,
                 filename = episode.local_filename(create=False, check_only=True)
                 if filename in candidates:
                     found += 1
-                    progress_callback(episode.title, float(found)/count)
+                    progress_callback(episode.title, found/count)
                     candidates.remove(filename)
                     partial_files.remove(filename+'.partial')
 

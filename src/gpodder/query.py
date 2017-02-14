@@ -69,7 +69,7 @@ class Matcher(object):
 
         # Nouns (for comparisons)
         if k in ('megabytes', 'mb'):
-            return float(episode.file_size) / (1024*1024)
+            return episode.file_size / (1024*1024)
         elif k == 'title':
             return episode.title
         elif k == 'description':
@@ -79,9 +79,9 @@ class Matcher(object):
         elif k == 'age':
             return episode.age_in_days()
         elif k in ('minutes', 'min'):
-            return float(episode.total_time) / 60
+            return episode.total_time / 60
         elif k in ('remaining', 'rem'):
-            return float(episode.total_time - episode.current_position) / 60
+            return episode.total_time - episode.current_position / 60
 
         raise KeyError(k)
 

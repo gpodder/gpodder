@@ -705,7 +705,7 @@ class MTPDevice(Device):
     def __callback(self, sent, total):
         if self.cancelled:
             return -1
-        percentage = round(float(sent)/float(total)*100)
+        percentage = round(sent/total*100)
         text = ('%i%%' % percentage)
         self.notify('progress', sent, total, text)
 
@@ -1040,7 +1040,7 @@ class SyncTask(download.DownloadTask):
             self.total_size = float(totalSize)
 
         if self.total_size > 0:
-            self.progress = max(0.0, min(1.0, float(count*blockSize)/self.total_size))
+            self.progress = max(0.0, min(1.0, (count*blockSize)/self.total_size))
             self._progress_updated(self.progress)
 
         if self.status == SyncTask.CANCELLED:

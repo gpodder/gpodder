@@ -199,8 +199,8 @@ class CurrentTrackTracker(object):
         return '%s: %s at %d/%d (@%f)' % (
             self.uri or 'None',
             self.status or 'None',
-            (self.pos or 0) / USECS_IN_SEC,
-            (self.length or 0) / USECS_IN_SEC,
+            (self.pos or 0) // USECS_IN_SEC,
+            (self.length or 0) // USECS_IN_SEC,
             self.rate or 0)
             
 class MPRISDBusReceiver(object):
