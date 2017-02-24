@@ -41,7 +41,7 @@ for module, required_files in MODULES:
         print('Cannot determine download URL for', module, '- aborting!')
         break
     data = urllib.request.urlopen(tarball_url).read()
-    print('%d KiB' % (len(data)/1024))
+    print('%d KiB' % (len(data)//1024))
     tar = tarfile.open(fileobj=io.BytesIO(data))
     for name in tar.getnames():
         match = re.match(required_files, name)

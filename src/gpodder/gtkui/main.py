@@ -1202,7 +1202,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     percentage = 100.0*done_size/total_size
                 else:
                     percentage = 0.0
-                self.set_download_progress(percentage/100.)
+                self.set_download_progress(percentage/100)
                 total_speed = util.format_filesize(total_speed)
                 title[1] += ' (%d%%, %s/s)' % (percentage, total_speed)
             if synchronizing > 0:
@@ -1491,7 +1491,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             # so it may be cut correctly on UTF-8 char boundaries
             title = util.convert_bytes(title)
             if len(title) > MAX_TITLE_LENGTH:
-                middle = (MAX_TITLE_LENGTH/2)-2
+                middle = (MAX_TITLE_LENGTH//2)-2
                 title = '%s...%s' % (title[0:middle], title[-middle:])
             result.append(cgi.escape(title))
             result.append('\n')
@@ -2698,7 +2698,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             episodes_status_update = []
             for idx, episode in enumerate(episodes):
-                progress.on_progress(float(idx)/float(len(episodes)))
+                progress.on_progress(idx/len(episodes))
                 if not episode.archive or not skip_locked:
                     progress.on_message(episode.title)
                     episode.delete_from_disk()
@@ -3097,7 +3097,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             for idx, channel in enumerate(channels):
                 # Update the UI for correct status messages
-                progress.on_progress(float(idx)/float(len(channels)))
+                progress.on_progress(idx/len(channels))
                 progress.on_message(channel.title)
 
                 # Delete downloaded episodes
@@ -3588,8 +3588,8 @@ class gPodderApplication(Gtk.Application):
         self.set_app_menu(builder.get_object('app-menu'))
 
         for i in range(EpisodeListModel.PROGRESS_STEPS + 1):
-           pixbuf = draw_cake_pixbuf(float(i) /
-                   float(EpisodeListModel.PROGRESS_STEPS))
+           pixbuf = draw_cake_pixbuf(i /
+                   EpisodeListModel.PROGRESS_STEPS)
            icon_name = 'gpodder-progress-%d' % i
            Gtk.IconTheme.add_builtin_icon(icon_name, pixbuf.get_width(), pixbuf)
     

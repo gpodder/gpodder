@@ -26,7 +26,7 @@ for y in xrange(1):
     v.add(h)
     PARTS = 20
     for x in xrange(PARTS + 1):
-        h.add(gen(float(x)/float(PARTS)))
+        h.add(gen(x/PARTS))
 w.set_default_size(400, 100)
 w.show_all()
 Gtk.main()

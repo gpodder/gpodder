@@ -97,7 +97,7 @@ def draw_text_box_centered(ctx, widget, w_width, w_height, text, font_desc=None,
     style_context = widget.get_style_context()
     text_color = style_context.get_color(Gtk.StateFlags.PRELIGHT)
     red, green, blue = text_color.red, text_color.green, text_color.blue
-    text_color = [float(x)/65535. for x in (red, green, blue)]
+    text_color = [x/65535. for x in (red, green, blue)]
     text_color.append(.5)
 
     if font_desc is None:
@@ -321,7 +321,7 @@ def progressbar_pixbuf(width, height, percentage):
     surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
     ctx = cairo.Context(surface)
 
-    padding = int(float(width)/8.0)
+    padding = int(width/8.0)
     bar_width = 2*padding
     bar_height = height - 2*padding
     bar_height_fill = bar_height*percentage

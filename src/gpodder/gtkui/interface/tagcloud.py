@@ -64,8 +64,8 @@ class TagCloud(Gtk.Layout):
             self.relayout()
 
     def _scale(self, weight):
-        weight_range = float(self._max_weight-self._min_weight)
-        ratio = float(weight-self._min_weight)/weight_range
+        weight_range = self._max_weight-self._min_weight
+        ratio = (weight-self._min_weight)/weight_range
         return int(self._min_size + (self._max_size-self._min_size)*ratio)
 
     def relayout(self):
@@ -75,10 +75,10 @@ class TagCloud(Gtk.Layout):
         pw, ph = self._size
         def fixup_row(widgets, x, y, max_h):
             residue = (pw - x)
-            x = int(residue/2)
+            x = int(residue//2)
             for widget in widgets:
                 cw, ch = widget.size_request()
-                self.move(widget, x, y+max(0, int((max_h-ch)/2)))
+                self.move(widget, x, y+max(0, int(max_h-ch)//2))
                 x += cw + 10
         for child in self.get_children():
             w, h = child.size_request()
