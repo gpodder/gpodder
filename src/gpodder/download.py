@@ -753,6 +753,20 @@ class DownloadTask(object):
             url = youtube.get_real_download_url(self.__episode.url, fmt_ids)
             url = vimeo.get_real_download_url(url, self._config.vimeo.fileformat)
             url = escapist_videos.get_real_download_url(url)
+
+            # We should have properly-escaped characters in the URL, but sometimes
+            # this is not true -- take any characters that are not in ASCII and
+            # convert them to UTF-8 and then percent-encode the UTF-8 string data
+            # Example: https://github.com/gpodder/gpodder/issues/232
+            url_chars = []
+            for char in url:
+                if ord(char) <= 31 or ord(char) >= 127:
+                    for char in urllib.quote(char.encode('utf-8')):
+                        url_chars.append(char.decode('utf-8'))
+                else:
+                    url_chars.append(char)
+            url = u''.join(url_chars)
+
             url = url.strip()
 
             downloader = DownloadURLOpener(self.__episode.channel)
