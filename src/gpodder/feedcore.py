@@ -174,7 +174,13 @@ class Fetcher(object):
         if stream.headers.get('content-type', '').startswith('text/html'):
             if autodiscovery:
                 ad = FeedAutodiscovery(url)
-                ad.feed(stream.read())
+
+                # Not very robust attempt to detect encoding: http://stackoverflow.com/a/1495675/1072626
+                charset = stream.headers.get_param('charset')
+                if charset is None:
+                    charset = 'utf-8' # utf-8 appears hard-coded elsewhere in this codebase
+
+                ad.feed(stream.read().decode(charset))
                 if ad._resolved_url:
                     try:
                         self._parse_feed(ad._resolved_url, None, None, False)
