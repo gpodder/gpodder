@@ -164,7 +164,7 @@ class SoundcloudUser(object):
             self.commit_cache()
 
 class SoundcloudFeed(object):
-    URL_REGEX = re.compile('http://([a-z]+\.)?soundcloud\.com/([^/]+)$', re.I)
+    URL_REGEX = re.compile('https?://([a-z]+\.)?soundcloud\.com/([^/]+)$', re.I)
 
     @classmethod
     def handle_url(cls, url):
@@ -207,7 +207,7 @@ class SoundcloudFeed(object):
         return episodes, seen_guids
 
 class SoundcloudFavFeed(SoundcloudFeed):
-    URL_REGEX = re.compile('http://([a-z]+\.)?soundcloud\.com/([^/]+)/favorites', re.I)
+    URL_REGEX = re.compile('https?://([a-z]+\.)?soundcloud\.com/([^/]+)/favorites', re.I)
 
 
     def __init__(self, username):
