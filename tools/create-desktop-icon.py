@@ -19,11 +19,11 @@ Type=Application
 DESTINATION = os.path.expanduser('~/Desktop/gpodder-git.desktop')
 
 if os.path.exists(DESTINATION):
-    print '%(DESTINATION)s already exists, not overwriting'
+    print('%(DESTINATION)s already exists, not overwriting')
     sys.exit(1)
 
 with open(DESTINATION, 'w') as fp:
     fp.write(TEMPLATE)
-os.chmod(DESTINATION, 0755)
+os.chmod(DESTINATION, 0o755)
 
-print 'Wrote %(DESTINATION)s' % locals()
+print('Wrote %(DESTINATION)s' % locals())
