@@ -104,22 +104,29 @@ class SoundcloudUser(object):
     def commit_cache(self):
         json.dump(self.cache, open(self.cache_file, 'w'))
 
-    def get_coverart(self):
+    def get_user_info(self):
         global CONSUMER_KEY
-        key = ':'.join((self.username, 'avatar_url'))
+        key = ':'.join((self.username, 'user_info'))
         if key in self.cache:
             return self.cache[key]
 
-        image = None
         try:
             json_url = 'http://api.soundcloud.com/users/%s.json?consumer_key=%s' % (self.username, CONSUMER_KEY)
             user_info = json.loads(util.urlopen(json_url).read().decode('utf-8'))
-            image = user_info.get('avatar_url', None)
-            self.cache[key] = image
+            self.cache[key] = user_info
         finally:
             self.commit_cache()
 
-        return image
+        return user_info
+
+    def get_coverart(self):
+        user_info = self.get_user_info()
+        return user_info.get('avatar_url', None)
+
+    def get_user_id(self):
+        user_info = self.get_user_info()
+        return user_info.get('id', None)
+
 
     def get_tracks(self, feed):
         """Get a generator of tracks from a SC user
@@ -129,7 +136,8 @@ class SoundcloudUser(object):
         global CONSUMER_KEY
         try:
             json_url = 'http://api.soundcloud.com/users/%(user)s/%(feed)s.json?filter=downloadable&consumer_key=%(consumer_key)s&limit=200' \
-                    % { "user":self.username, "feed":feed, "consumer_key": CONSUMER_KEY }
+                    % { "user":self.get_user_id(), "feed":feed, "consumer_key": CONSUMER_KEY }
+
             tracks = (track for track in json.loads(util.urlopen(json_url).read().decode('utf-8')) \
                     if track['downloadable'])
 
