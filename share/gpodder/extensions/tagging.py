@@ -103,7 +103,7 @@ class AudioFile(object):
         None
 
     def get_cover_picture(self, cover):
-        """ Returns mutage Picture class for the cover image
+        """ Returns mutagen Picture class for the cover image
         Usefull for OGG and FLAC format
 
         Picture type = cover image
@@ -183,32 +183,28 @@ class gPodderExtension:
     def get_audio(self, info, episode):
         audio = None
         cover = None
+        audioClass = None
 
         if self.container.config.auto_embed_coverart:
             cover = self.get_cover(episode.channel)
 
         if info['filename'].endswith('.mp3'):
-            audio = Mp3File(info['filename'],
-                info['album'],
-                info['title'],
-                info['genre'],
-                info['pubDate'],
-                cover)
+            audioClass = Mp3File
         elif info['filename'].endswith('.ogg'):
-            audio = OggFile(info['filename'],
-                info['album'],
-                info['title'],
-                info['genre'],
-                info['pubDate'],
-                cover)
+            audioClass = OggFile
         elif info['filename'].endswith('.m4a') or info['filename'].endswith('.mp4'):
-            audio = Mp4File(info['filename'],
+            audioClass = Mp4File
+        elif File(info['filename'], easy=True):
+            # mutagen can work with it: at least add basic tags
+            audioClass = AudioFile
+
+        if audioClass:
+            audio = audioClass(info['filename'],
                 info['album'],
                 info['title'],
                 info['genre'],
                 info['pubDate'],
                 cover)
-
         return audio
 
     def read_episode_info(self, episode):
