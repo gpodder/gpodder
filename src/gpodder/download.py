@@ -731,6 +731,21 @@ class DownloadTask(object):
             url = escapist_videos.get_real_download_url(url)
             url = url.strip()
 
+            # Properly escapes Unicode characters in the URL path section
+            # TODO: Explore if this should also handle the domain
+            # Based on: http://stackoverflow.com/a/18269491/1072626
+            # In response to issue: https://github.com/gpodder/gpodder/issues/232
+            def iri_to_url(url):
+                url = urllib.parse.urlsplit(url)
+                url = list(url)
+                # First unquote to avoid escaping quoted content
+                url[2] = urllib.parse.unquote(url[2])
+                url[2] = urllib.parse.quote(url[2])
+                url = urllib.parse.urlunsplit(url)
+                return url
+
+            url = iri_to_url(url)
+
             downloader = DownloadURLOpener(self.__episode.channel)
 
             # HTTP Status codes for which we retry the download

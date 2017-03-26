@@ -104,22 +104,29 @@ class SoundcloudUser(object):
     def commit_cache(self):
         json.dump(self.cache, open(self.cache_file, 'w'))
 
-    def get_coverart(self):
+    def get_user_info(self):
         global CONSUMER_KEY
-        key = ':'.join((self.username, 'avatar_url'))
+        key = ':'.join((self.username, 'user_info'))
         if key in self.cache:
             return self.cache[key]
 
-        image = None
         try:
-            json_url = 'http://api.soundcloud.com/users/%s.json?consumer_key=%s' % (self.username, CONSUMER_KEY)
+            json_url = 'https://api.soundcloud.com/users/%s.json?consumer_key=%s' % (self.username, CONSUMER_KEY)
             user_info = json.loads(util.urlopen(json_url).read().decode('utf-8'))
-            image = user_info.get('avatar_url', None)
-            self.cache[key] = image
+            self.cache[key] = user_info
         finally:
             self.commit_cache()
 
-        return image
+        return user_info
+
+    def get_coverart(self):
+        user_info = self.get_user_info()
+        return user_info.get('avatar_url', None)
+
+    def get_user_id(self):
+        user_info = self.get_user_info()
+        return user_info.get('id', None)
+
 
     def get_tracks(self, feed):
         """Get a generator of tracks from a SC user
@@ -128,8 +135,9 @@ class SoundcloudUser(object):
         track it can find for its user."""
         global CONSUMER_KEY
         try:
-            json_url = 'http://api.soundcloud.com/users/%(user)s/%(feed)s.json?filter=downloadable&consumer_key=%(consumer_key)s&limit=200' \
-                    % { "user":self.username, "feed":feed, "consumer_key": CONSUMER_KEY }
+            json_url = 'https://api.soundcloud.com/users/%(user)s/%(feed)s.json?filter=downloadable&consumer_key=%(consumer_key)s&limit=200' \
+                    % { "user":self.get_user_id(), "feed":feed, "consumer_key": CONSUMER_KEY }
+
             tracks = (track for track in json.loads(util.urlopen(json_url).read().decode('utf-8')) \
                     if track['downloadable'])
 
@@ -147,7 +155,7 @@ class SoundcloudUser(object):
 
                 yield {
                     'title': track.get('title', track.get('permalink')) or _('Unknown track'),
-                    'link': track.get('permalink_url') or 'http://soundcloud.com/'+self.username,
+                    'link': track.get('permalink_url') or 'https://soundcloud.com/'+self.username,
                     'description': track.get('description') or _('No description available'),
                     'url': url,
                     'file_size': int(filesize),
@@ -159,7 +167,7 @@ class SoundcloudUser(object):
             self.commit_cache()
 
 class SoundcloudFeed(object):
-    URL_REGEX = re.compile('http://([a-z]+\.)?soundcloud\.com/([^/]+)$', re.I)
+    URL_REGEX = re.compile('https?://([a-z]+\.)?soundcloud\.com/([^/]+)$', re.I)
 
     @classmethod
     def handle_url(cls, url):
@@ -179,7 +187,7 @@ class SoundcloudFeed(object):
         return self.sc_user.get_coverart()
 
     def get_link(self):
-        return 'http://soundcloud.com/%s' % self.username
+        return 'https://soundcloud.com/%s' % self.username
 
     def get_description(self):
         return _('Tracks published by %s on Soundcloud.') % self.username
@@ -202,7 +210,7 @@ class SoundcloudFeed(object):
         return episodes, seen_guids
 
 class SoundcloudFavFeed(SoundcloudFeed):
-    URL_REGEX = re.compile('http://([a-z]+\.)?soundcloud\.com/([^/]+)/favorites', re.I)
+    URL_REGEX = re.compile('https?://([a-z]+\.)?soundcloud\.com/([^/]+)/favorites', re.I)
 
 
     def __init__(self, username):
@@ -212,7 +220,7 @@ class SoundcloudFavFeed(SoundcloudFeed):
         return _('%s\'s favorites on Soundcloud') % self.username
 
     def get_link(self):
-        return 'http://soundcloud.com/%s/favorites' % self.username
+        return 'https://soundcloud.com/%s/favorites' % self.username
 
     def get_description(self):
         return _('Tracks favorited by %s on Soundcloud.') % self.username
@@ -225,5 +233,5 @@ model.register_custom_handler(SoundcloudFeed)
 model.register_custom_handler(SoundcloudFavFeed)
 
 def search_for_user(query):
-    json_url = 'http://api.soundcloud.com/users.json?q=%s&consumer_key=%s' % (urllib.parse.quote(query), CONSUMER_KEY)
+    json_url = 'https://api.soundcloud.com/users.json?q=%s&consumer_key=%s' % (urllib.parse.quote(query), CONSUMER_KEY)
     return json.loads(util.urlopen(json_url).read().decode('utf-8'))

@@ -21,7 +21,32 @@
 # gpodder.player - Podcatcher implementation of the Media Player D-Bus API
 # Thomas Perl <thp@gpodder.org>; 2010-04-25
 #
-# Specification: http://gpodder.org/wiki/Media_Player_D-Bus_API
+
+#
+# This API specification aims at providing a documented, easy-to-use API for
+# getting and setting the media player position via D-Bus. This should allow
+# media players (such as Panucci) and podcast aggregators (such as gPodder) to
+# work together and synchronize the playback position of media files.
+#
+# == Interface: org.gpodder.player ==
+#
+# - PlaybackStarted(uint32 position, string file_uri)
+#
+#   Emitted when the media player starts playback of a given file at file_uri
+#   at the position position.
+#
+#
+# - PlaybackStopped(uint32 start_position, uint32 end_position,
+#                   uint32 total_time, string file_uri)
+#
+#   Emitted when the user stops/pauses playback, when the playback ends or the
+#   player is closed. The file URI is in file_uri, the start time of the
+#   segment that has just been played is in start_position, the stop time in
+#   end_position and the (detected) total time of the file is in total_time.
+#
+#   Seeking in the file should also emit a PlaybackStopped signal (at the
+#   position where the seek is initialized) and a PlaybackStarted signal (at
+#   the position to which the seek jumps).
 #
 
 

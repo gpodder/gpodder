@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # summary.py - Text-based visual translation completeness summary
 # Thomas Perl <thp@gpodder.org>, 2009-01-03
 #

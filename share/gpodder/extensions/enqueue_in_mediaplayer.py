@@ -122,7 +122,7 @@ class gPodderExtension:
         self.config = container.config
 
         # Only display media players that can be found at extension load time
-        self.players = filter(lambda player: player.is_installed(), PLAYERS)
+        self.players = [player for player in PLAYERS if player.is_installed()]
 
     def on_ui_object_available(self, name, ui_object):
         if name == 'gpodder-gtk':

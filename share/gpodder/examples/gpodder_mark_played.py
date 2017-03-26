@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # Example script that can be used as post-play extension in media players
 #
 # Set the configuration options "audio_played_dbus" and "video_played_dbus"
@@ -16,9 +16,9 @@ import sys
 import os
 
 if len(sys.argv) != 2:
-    print >>sys.stderr, """
+    print("""
     Usage: %s /path/to/episode.mp3
-    """ % (sys.argv[0],)
+    """ % (sys.argv[0],), file=sys.stderr)
     sys.exit(1)
 
 filename = os.path.abspath(sys.argv[1])
@@ -32,6 +32,6 @@ proxy = session_bus.get_object(gpodder.dbus_bus_name, \
 interface = dbus.Interface(proxy, gpodder.dbus_interface)
 
 if not interface.mark_episode_played(filename):
-    print >>sys.stderr, 'Warning: Could not mark episode as played.'
+    print('Warning: Could not mark episode as played.', file=sys.stderr)
     sys.exit(2)
 

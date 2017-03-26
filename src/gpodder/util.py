@@ -225,7 +225,7 @@ def normalize_feed_url(url):
     PREFIXES = {
             'fb:': 'http://feeds.feedburner.com/%s',
             'yt:': 'http://www.youtube.com/rss/user/%s/videos.rss',
-            'sc:': 'http://soundcloud.com/%s',
+            'sc:': 'https://soundcloud.com/%s',
             # YouTube playlists. To get a list of playlists per-user, use:
             # https://gdata.youtube.com/feeds/api/users/<username>/playlists
             'ytpl:': 'http://gdata.youtube.com/feeds/api/playlists/%s',
@@ -1794,7 +1794,7 @@ def unix_get_active_interfaces():
     process = subprocess.Popen(['ifconfig'], stdout=subprocess.PIPE)
     stdout, _ = process.communicate()
     for i in re.split('\n(?!\t)', stdout.decode(locale.getpreferredencoding()), re.MULTILINE):
-        b = re.match('(\\w+):.*status: active$', i, re.MULTILINE | re.DOTALL)
+        b = re.match('(\\w+):.*status: (active|associated)$', i, re.MULTILINE | re.DOTALL)
         if b:
             yield b.group(1)
 

@@ -1,10 +1,10 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 # Simple HTTP web server for testing HTTP Authentication (see bug 1539)
 # from our crappy-but-does-the-job department
 # Thomas Perl <thp.io/about>; 2012-01-20
 
-import BaseHTTPServer
+import http.server
 import sys
 import re
 import hashlib
@@ -47,7 +47,7 @@ def mkrss(items=EP_COUNT):
           type="%(EPISODES_MIME)s"
           length="%(SIZE)s"/>
     </item>
-    """ % dict(locals().items()+globals().items())
+    """ % dict(list(locals().items())+list(globals().items()))
         for INDEX, PUBDATE in enumerate(mkpubdates(items)))
 
     return """
@@ -56,13 +56,13 @@ def mkrss(items=EP_COUNT):
     %(ITEMS)s
     </channel>
     </rss>
-    """ % dict(locals().items()+globals().items())
+    """ % dict(list(locals().items())+list(globals().items()))
 
 def mkdata(size=SIZE):
     """Generate dummy data of a given size (in bytes)"""
     return ''.join(chr(32+(i%(127-32))) for i in range(size))
 
-class AuthRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
+class AuthRequestHandler(http.server.BaseHTTPRequestHandler):
     FEEDFILE_PATH = '/%s' % FEEDFILE
     EPISODES_PATH = '/%s' % EPISODES
 
@@ -108,7 +108,7 @@ class AuthRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
 
 if __name__ == '__main__':
-    httpd = BaseHTTPServer.HTTPServer((HOST, PORT), AuthRequestHandler)
+    httpd = http.server.HTTPServer((HOST, PORT), AuthRequestHandler)
     print("""
     Feed URL: %(URL)s/%(FEEDFILE)s
     Username: %(USERNAME)s
