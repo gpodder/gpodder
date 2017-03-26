@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # Progressbar icon tester
 # Thomas Perl <thp.io/about>; 2012-02-05
 #
@@ -20,12 +20,12 @@ w = Gtk.Window()
 w.connect('destroy', Gtk.main_quit)
 v = Gtk.VBox()
 w.add(v)
-for y in xrange(1):
+for y in range(1):
     h = Gtk.HBox()
     h.set_homogeneous(True)
     v.add(h)
     PARTS = 20
-    for x in xrange(PARTS + 1):
+    for x in range(PARTS + 1):
         h.add(gen(x/PARTS))
 w.set_default_size(400, 100)
 w.show_all()
