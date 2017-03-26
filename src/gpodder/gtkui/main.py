@@ -200,9 +200,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.init_episode_list_treeview()
         self.init_download_list_treeview()
 
-        if self.config.podcast_list_hide_boring:
-            self.item_view_hide_boring_podcasts.set_active(True)
-
         self.download_tasks_seen = set()
         self.download_list_update_enabled = False
         self.download_task_monitors = set()

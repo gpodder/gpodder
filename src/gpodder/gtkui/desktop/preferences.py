@@ -169,7 +169,7 @@ class VimeoVideoFormatListModel(Gtk.ListStore):
 
     def set_index(self, index):
         value = self[index][self.C_ID]
-        if value > 0:
+        if value is not None:
             self._config.vimeo.fileformat = value
 
 
@@ -412,7 +412,11 @@ class gPodderPreferences(BuilderWidget):
         if new_enabled == now_enabled:
             model.set_value(it, self.C_TOGGLE, new_enabled)
         elif container.error is not None:
-            self.show_message(container.error.message,
+            if hasattr(container.error, 'message'):
+                error_msg = container.error.message
+            else:
+                error_msg = str(container.error)
+            self.show_message(error_msg,
                     _('Extension cannot be activated'), important=True)
             model.set_value(it, self.C_TOGGLE, False)
 
