@@ -776,9 +776,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 # Don't handle type-ahead when control is pressed (so shortcuts
                 # with the Ctrl key still work, e.g. Ctrl+A, ...)
                 return True
+            elif event.keyval == Gdk.KEY_Delete:
+                return False
             else:
                 unicode_char_id = Gdk.keyval_to_unicode(event.keyval)
-                if unicode_char_id == 0:
+                # < 32 to intercept Delete and Tab events
+                if unicode_char_id < 32:
                     return False
                 input_char = chr(unicode_char_id)
                 self.show_podcast_search(input_char)
@@ -955,7 +958,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 return False
             else:
                 unicode_char_id = Gdk.keyval_to_unicode(event.keyval)
-                if unicode_char_id == 0:
+                # < 32 to intercept Delete and Tab events
+                if unicode_char_id < 32:
                     return False
                 input_char = chr(unicode_char_id)
                 self.show_episode_search(input_char)
@@ -3398,6 +3402,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 if current_page == self.wNotebook.get_n_pages() - 1:
                     current_page = -1
                 self.wNotebook.set_current_page(current_page + 1)
+                return True
+        elif event.keyval == Gdk.KEY_Delete:
+            if isinstance(widget.get_focus(), Gtk.Entry):
+                logger.debug("Entry has focus, ignoring Delete")
+            else:
+                self.main_window.activate_action('delete')
                 return True
 
         return False
