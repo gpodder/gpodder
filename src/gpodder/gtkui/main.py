@@ -2075,6 +2075,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
             for path in paths:
                 try:
                     episode = model.get_value(model.get_iter(path), EpisodeListModel.C_EPISODE)
+                    if episode is None:
+                        logger.info('Invalid episode at path %s', str(path))
+                        continue
                 except TypeError as te:
                     logger.error('Invalid episode at path %s', str(path))
                     continue
