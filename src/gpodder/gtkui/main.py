@@ -179,6 +179,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         # Generate list models for podcasts and their episodes
         self.podcast_list_model = PodcastListModel(self.cover_downloader)
+        self.apply_podcast_list_hide_boring()
 
         self.cover_downloader.register('cover-available', self.cover_download_finished)
 
@@ -2990,19 +2991,20 @@ class gPodder(BuilderWidget, dbus.service.Object):
         state = action.get_state()
         self.config.podcast_list_hide_boring = not state
         action.set_state(GLib.Variant.new_boolean(not state))
-        if self.config.podcast_list_hide_boring:
-            self.podcast_list_model.set_view_mode(self.config.episode_list_view_mode)
-        else:
-            self.podcast_list_model.set_view_mode(-1)
+        self.apply_podcast_list_hide_boring()
 
     def on_item_view_episodes_changed(self, action, param):
         self.config.episode_list_view_mode = getattr(EpisodeListModel, param.get_string()) or EpisodeListModel.VIEW_ALL
         action.set_state(param)
 
         self.episode_list_model.set_view_mode(self.config.episode_list_view_mode)
+        self.apply_podcast_list_hide_boring()
 
+    def apply_podcast_list_hide_boring(self):
         if self.config.podcast_list_hide_boring:
            self.podcast_list_model.set_view_mode(self.config.episode_list_view_mode)
+        else:
+            self.podcast_list_model.set_view_mode(-1)
 
     def on_download_subscriptions_from_mygpo(self, action=None):
         title = _('Login to gpodder.net')
