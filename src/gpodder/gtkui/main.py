@@ -2691,6 +2691,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def mark_selected_episodes_old(self):
         for episode in self.get_selected_episodes():
             episode.mark_old()
+            if self.mygpo_client.can_access_webservice():
+                self.mygpo_client.on_playback_full(episode, 0, episode.total_time,
+                                                   episode.total_time)
+                self.mygpo_client.flush()
         self.on_selected_episodes_status_changed()
 
     def on_item_toggle_played_activate( self, widget, toggle = True, new_value = False):
