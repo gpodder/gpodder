@@ -346,6 +346,16 @@ class MygPoClient(object):
                 episode.url, self.device_id, action, \
                 int(time.time()), None, None, None)
 
+    def on_mark_new(self, episodes):
+        """TODO create New action"""
+        logger.debug('Storing mark new action. (Not yet implemented)')
+
+    def on_mark_old(self, episodes):
+        """Sending played action for antennapod compatibility"""
+        logger.debug('Storing mark old action')
+        self._store.save(self._convert_played_episode(e, 0, e.total_time, e.total_time)
+                         for e in episodes)
+
     def on_delete(self, episodes):
         logger.debug('Storing %d episode delete actions', len(episodes))
         self._store.save(self._convert_episode(e, 'delete') for e in episodes)
