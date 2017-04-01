@@ -42,7 +42,7 @@ TrackInfo = collections.namedtuple('TrackInfo',
                         ['uri', 'length', 'status', 'pos', 'rate'])
 
 def subsecond_difference(usec1, usec2):
-    return abs(usec1 - usec2) < USECS_IN_SEC
+    return usec1 is not None and usec2 is not None and abs(usec1 - usec2) < USECS_IN_SEC
     
 class CurrentTrackTracker(object):
     '''An instance of this class is responsible for tracking the state of the
@@ -124,6 +124,7 @@ class CurrentTrackTracker(object):
                 self.notify_stop()
 
             if (    (kwargs['pos']) == 0
+                and self.pos is not None
                 and self.pos > (self.length - USECS_IN_SEC)
                 and self.pos < (self.length + 2 * USECS_IN_SEC)
             ):

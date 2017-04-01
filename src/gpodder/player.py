@@ -77,11 +77,6 @@ class MediaPlayerDBusReceiver(object):
         pass
 
     def on_playback_stopped(self, start, end, total, file_uri):
-        # Assume the URI comes as quoted UTF-8 string, so decode
-        # it first to utf-8 (should be no problem) for unquoting
-        # to work correctly on this later on (Maemo bug 11811)
-        if isinstance(file_uri, str):
-            file_uri = file_uri.encode('utf-8')
         if file_uri.startswith('/'):
             file_uri = 'file://' + urllib.parse.quote(file_uri)
         self.on_play_event(start, end, total, file_uri)
