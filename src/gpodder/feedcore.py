@@ -36,9 +36,11 @@ import urlparse
 try:
     # Python 2
     from rfc822 import mktime_tz
+    from StringIO import StringIO
 except ImportError:
     # Python 3
     from email.utils import mktime_tz
+    from io import StringIO
 
 
 class ExceptionWithData(Exception):
@@ -171,10 +173,13 @@ class Fetcher(object):
             except HTTPError as e:
                 return self._check_statuscode(e, e.geturl())
 
+        data = stream
         if not is_local and stream.headers.get('content-type', '').startswith('text/html'):
             if autodiscovery:
+                # We use StringIO in case the stream needs to be read again
+                data = StringIO(stream.read())
                 ad = FeedAutodiscovery(url)
-                ad.feed(stream.read())
+                ad.feed(data.read())
                 if ad._resolved_url:
                     try:
                         self._parse_feed(ad._resolved_url, None, None, False)
@@ -186,10 +191,15 @@ class Fetcher(object):
                     url = self._resolve_url(url)
                     if url:
                         return Result(NEW_LOCATION, url)
+                
+                # Reset the stream so podcastparser can give it a go
+                data.seek(0)
 
-            raise InvalidFeed('Got HTML document instead')
-
-        feed = podcastparser.parse(url, stream)
+        try:
+            feed = podcastparser.parse(url, data)
+        except ValueError as e:
+            raise InvalidFeed(u'Could not parse feed: {msg}'.format(msg=e))
+        
         if is_local:
             feed['headers'] = {}
             return Result(UPDATED_FEED, feed)
