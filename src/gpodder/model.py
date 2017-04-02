@@ -145,6 +145,7 @@ class PodcastEpisode(PodcastModelObject):
         episode.title = entry['title']
         episode.link = entry['link']
         episode.description = entry['description']
+        episode.descr_html = entry.get('description_html', '')
         episode.total_time = entry['total_time']
         episode.published = entry['published']
         episode.payment_url = entry['payment_url']
@@ -202,6 +203,7 @@ class PodcastEpisode(PodcastModelObject):
         self.mime_type = 'application/octet-stream'
         self.guid = ''
         self.description = ''
+        self.descr_html = ''
         self.link = ''
         self.published = 0
         self.download_filename = None
@@ -335,6 +337,8 @@ class PodcastEpisode(PodcastModelObject):
 
     @property
     def description_html(self):
+        if self.descr_html:
+            return self.descr_html
         # XXX: That's not a very well-informed heuristic to check
         # if the description already contains HTML. Better ideas?
         if '<' in self.description:
@@ -633,7 +637,7 @@ class PodcastEpisode(PodcastModelObject):
             return '-'
 
     def update_from(self, episode):
-        for k in ('title', 'url', 'description', 'link', 'published', 'guid', 'file_size', 'payment_url'):
+        for k in ('title', 'url', 'description', 'descr_html', 'link', 'published', 'guid', 'file_size', 'payment_url'):
             setattr(self, k, getattr(episode, k))
 
 

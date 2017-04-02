@@ -47,6 +47,7 @@ EpisodeColumns = (
     'current_position_updated',
     'last_playback',
     'payment_url',
+    'descr_html'
 )
 
 PodcastColumns = (
@@ -69,7 +70,7 @@ PodcastColumns = (
     'cover_thumb',
 )
 
-CURRENT_VERSION = 6
+CURRENT_VERSION = 7
 
 
 # SQL commands to upgrade old database versions to new ones
@@ -102,6 +103,11 @@ UPGRADE_SQL = [
         # Version 6: Add thumbnail for cover art
         (5, 6, """
         ALTER TABLE podcast ADD COLUMN cover_thumb BLOB NULL DEFAULT NULL
+        """),
+
+        # Version 7: Add HTML description
+        (6, 7, """
+        ALTER TABLE episode ADD COLUMN descr_html TEXT NOT NULL DEFAULT ''
         """),
 ]
 
@@ -159,7 +165,8 @@ def initialize_database(db):
         current_position INTEGER NOT NULL DEFAULT 0,
         current_position_updated INTEGER NOT NULL DEFAULT 0,
         last_playback INTEGER NOT NULL DEFAULT 0,
-        payment_url TEXT NULL DEFAULT NULL
+        payment_url TEXT NULL DEFAULT NULL,
+        descr_html TEXT NOT NULL DEFAULT ''
     )
     """)
 
