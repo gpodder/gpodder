@@ -174,26 +174,25 @@ class Fetcher(object):
                 return self._check_statuscode(e, e.geturl())
 
         data = stream
-        if not is_local and stream.headers.get('content-type', '').startswith('text/html'):
-            if autodiscovery:
-                # We use StringIO in case the stream needs to be read again
-                data = StringIO(stream.read())
-                ad = FeedAutodiscovery(url)
-                ad.feed(data.read())
-                if ad._resolved_url:
-                    try:
-                        self._parse_feed(ad._resolved_url, None, None, False)
-                        return Result(NEW_LOCATION, ad._resolved_url)
-                    except Exception as e:
-                        logger.warn('Feed autodiscovery failed', exc_info=True)
+        if autodiscovery and not is_local and stream.headers.get('content-type', '').startswith('text/html'):
+            # We use StringIO in case the stream needs to be read again
+            data = StringIO(stream.read())
+            ad = FeedAutodiscovery(url)
+            ad.feed(data.read())
+            if ad._resolved_url:
+                try:
+                    self._parse_feed(ad._resolved_url, None, None, False)
+                    return Result(NEW_LOCATION, ad._resolved_url)
+                except Exception as e:
+                    logger.warn('Feed autodiscovery failed', exc_info=True)
 
-                    # Second, try to resolve the URL
-                    url = self._resolve_url(url)
-                    if url:
-                        return Result(NEW_LOCATION, url)
-                
-                # Reset the stream so podcastparser can give it a go
-                data.seek(0)
+                # Second, try to resolve the URL
+                url = self._resolve_url(url)
+                if url:
+                    return Result(NEW_LOCATION, url)
+            
+            # Reset the stream so podcastparser can give it a go
+            data.seek(0)
 
         try:
             feed = podcastparser.parse(url, data)
