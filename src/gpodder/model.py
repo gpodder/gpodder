@@ -149,10 +149,9 @@ class PodcastEpisode(PodcastModelObject):
             episode.description_html = entry['description_html']
         # XXX: That's not a very well-informed heuristic to check
         # if the description already contains HTML. Better ideas?
+        # TODO: This really should be handled in podcastparser and not here.
         elif '<' in entry['description']:
             episode.description_html = entry['description']
-        else:
-            episode.description_html = entry['description'].replace('\n', '<br>')
         episode.total_time = entry['total_time']
         episode.published = entry['published']
         episode.payment_url = entry['payment_url']
