@@ -145,6 +145,13 @@ class PodcastEpisode(PodcastModelObject):
         episode.title = entry['title']
         episode.link = entry['link']
         episode.description = entry['description']
+        if entry.get('description_html'):
+            episode.description_html = entry['description_html']
+        # XXX: That's not a very well-informed heuristic to check
+        # if the description already contains HTML. Better ideas?
+        # TODO: This really should be handled in podcastparser and not here.
+        elif '<' in entry['description']:
+            episode.description_html = entry['description']
         episode.total_time = entry['total_time']
         episode.published = entry['published']
         episode.payment_url = entry['payment_url']
@@ -202,6 +209,7 @@ class PodcastEpisode(PodcastModelObject):
         self.mime_type = 'application/octet-stream'
         self.guid = ''
         self.description = ''
+        self.description_html = ''
         self.link = ''
         self.published = 0
         self.download_filename = None
@@ -333,14 +341,6 @@ class PodcastEpisode(PodcastModelObject):
 
     age_prop = property(fget=get_age_string)
 
-    @property
-    def description_html(self):
-        # XXX: That's not a very well-informed heuristic to check
-        # if the description already contains HTML. Better ideas?
-        if '<' in self.description:
-            return self.description
-
-        return self.description.replace('\n', '<br>')
 
     def one_line_description(self):
         MAX_LINE_LENGTH = 120
@@ -633,7 +633,7 @@ class PodcastEpisode(PodcastModelObject):
             return '-'
 
     def update_from(self, episode):
-        for k in ('title', 'url', 'description', 'link', 'published', 'guid', 'file_size', 'payment_url'):
+        for k in ('title', 'url', 'description', 'description_html', 'link', 'published', 'guid', 'file_size', 'payment_url'):
             setattr(self, k, getattr(episode, k))
 
 
