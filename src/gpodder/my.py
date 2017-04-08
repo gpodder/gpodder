@@ -638,6 +638,12 @@ class MygPoClient(object):
     def open_website(self):
         util.open_website('http://' + self._config.mygpo.server)
 
+    def get_download_user_subscriptions_url(self):
+        OPML_URL = self._client.locator.subscriptions_uri()
+        url = util.url_add_authentication(OPML_URL, \
+                self._config.mygpo.username, \
+                self._config.mygpo.password)
+        return url
 
 class Directory(object):
     def __init__(self):

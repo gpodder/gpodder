@@ -2921,33 +2921,34 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.mygpo_client.open_website()
 
     def on_download_subscriptions_from_mygpo(self, action=None):
+        def after_login():
+            dir = gPodderPodcastDirectory(self.gPodder,
+                                           _config=self.config,
+                                           custom_title=_('Subscriptions on gpodder.net'),
+                                           add_podcast_list=self.add_podcast_list,
+                                           hide_url_entry=True)
+
+            url = self.mygpo_client.get_download_user_subscriptions_url()
+            dir.download_opml_file(url)
+
         title = _('Login to gpodder.net')
         message = _('Please login to download your subscriptions.')
 
         def on_register_button_clicked():
             util.open_website('http://gpodder.net/register/')
 
-        success, (username, password) = self.show_login_dialog(title, message,
+        success, (root_url, username, password) = self.show_login_dialog(title, message,
+                self.config.mygpo.server,
                 self.config.mygpo.username, self.config.mygpo.password,
                 register_callback=on_register_button_clicked)
         if not success:
             return
 
+        self.config.mygpo.server = root_url
         self.config.mygpo.username = username
         self.config.mygpo.password = password
 
-        dir = gPodderPodcastDirectory(self.gPodder, _config=self.config, \
-                custom_title=_('Subscriptions on gpodder.net'), \
-                add_podcast_list=self.add_podcast_list,
-                hide_url_entry=True)
-
-        # TODO: Refactor this into "gpodder.my" or mygpoclient, so that
-        #       we do not have to hardcode the URL here
-        OPML_URL = 'http://gpodder.net/subscriptions/%s.opml' % self.config.mygpo.username
-        url = util.url_add_authentication(OPML_URL, \
-                self.config.mygpo.username, \
-                self.config.mygpo.password)
-        dir.download_opml_file(url)
+        util.idle_add(after_login)
 
     def on_itemAddChannel_activate(self, widget=None):
         self._add_podcast_dialog = gPodderAddPodcast(self.gPodder, \
