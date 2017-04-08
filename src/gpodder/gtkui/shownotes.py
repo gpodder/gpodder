@@ -201,7 +201,14 @@ class gPodderShownotesHTML(gPodderShownotes):
         else:
             self._base_uri = episode.channel.url
         self._loaded = False
-        self.html_view.load_html(episode.description_html, self._base_uri)
+
+        description = episode.description_html
+        if not description:
+            description = self.coerce_text_to_html(episode.description)
+        self.html_view.load_html(description, self._base_uri)
+
+    def coerce_text_to_html(self, text):
+        return text.replace('\n', '<br>')
 
     def on_mouse_over(self, webview, hit_test_result, modifiers):
         if hit_test_result.context_is_link():
