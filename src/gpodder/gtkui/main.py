@@ -2940,7 +2940,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         success, (root_url, username, password) = self.show_login_dialog(title, message,
                 self.config.mygpo.server,
                 self.config.mygpo.username, self.config.mygpo.password,
-                register_callback=on_register_button_clicked)
+                register_callback=on_register_button_clicked,
+                ask_server=True)
         if not success:
             return
 

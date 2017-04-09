@@ -155,7 +155,7 @@ class BuilderWidget(GtkBuilderWidget):
             return None
 
     def show_login_dialog(self, title, message, root_url=None, username=None, password=None,
-            username_prompt=None, register_callback=None, register_text=None):
+            username_prompt=None, register_callback=None, register_text=None, ask_server=False):
         if username_prompt is None:
             username_prompt = _('Username')
 
@@ -177,18 +177,18 @@ class BuilderWidget(GtkBuilderWidget):
         if register_callback is not None:
             dialog.add_button(register_text, gtk.RESPONSE_HELP)
 
-        url_entry = gtk.Entry()
-        url_entry.set_tooltip_text(_('hostname or root URL (e.g. https://my.gpo.me)'))
+        server_entry = gtk.Entry()
+        server_entry.set_tooltip_text(_('hostname or root URL (e.g. https://gpodder.net)'))
         username_entry = gtk.Entry()
         password_entry = gtk.Entry()
 
-        url_entry.connect('activate', lambda w: username_entry.grab_focus())
+        server_entry.connect('activate', lambda w: username_entry.grab_focus())
         username_entry.connect('activate', lambda w: password_entry.grab_focus())
         password_entry.set_visibility(False)
         password_entry.set_activates_default(True)
 
         if root_url is not None:
-            url_entry.set_text(root_url)
+            server_entry.set_text(root_url)
         if username is not None:
             username_entry.set_text(username)
         if password is not None:
@@ -198,23 +198,25 @@ class BuilderWidget(GtkBuilderWidget):
         table.set_row_spacings(6)
         table.set_col_spacings(6)
 
-        url_label = gtk.Label()
-        url_label.set_markup('<b>' + _('Server') + ':</b>')
-        url_label.set_alignment(0.0, 0.5)
-        table.attach(url_label, 0, 1, 0, 1, gtk.FILL, 0)
-        table.attach(url_entry, 1, 2, 0, 1)
+        server_label = gtk.Label()
+        server_label.set_markup('<b>' + _('Server') + ':</b>')
 
         username_label = gtk.Label()
         username_label.set_markup('<b>' + username_prompt + ':</b>')
-        username_label.set_alignment(0.0, 0.5)
-        table.attach(username_label, 0, 1, 1, 2, gtk.FILL, 0)
-        table.attach(username_entry, 1, 2, 1, 2)
 
         password_label = gtk.Label()
         password_label.set_markup('<b>' + _('Password') + ':</b>')
-        password_label.set_alignment(0.0, 0.5)
-        table.attach(password_label, 0, 1, 2, 3, gtk.FILL, 0)
-        table.attach(password_entry, 1, 2, 2, 3)
+
+        label_entries = [(username_label, username_entry),
+                         (password_label, password_entry)]
+
+        if ask_server:
+            label_entries.insert(0, (server_label, server_entry))
+
+        for i, (label, entry) in enumerate(label_entries):
+            label.set_alignment(0.0, 0.5)
+            table.attach(label, 0, 1, i, i + 1, gtk.FILL, 0)
+            table.attach(entry, 1, 2, i, i + 1)
 
         dialog.vbox.pack_end(table, True, True, 0)
         dialog.show_all()
@@ -226,14 +228,17 @@ class BuilderWidget(GtkBuilderWidget):
             response = dialog.run()
 
         password_entry.set_visibility(True)
-        root_url = url_entry.get_text()
+        root_url = server_entry.get_text()
         username = username_entry.get_text()
         password = password_entry.get_text()
         success = (response == gtk.RESPONSE_OK)
 
         dialog.destroy()
 
-        return (success, (root_url, username, password))
+        if ask_server:
+            return (success, (root_url, username, password))
+        else:
+            return (success, (username, password))
 
     def show_copy_dialog(self, src_filename, dst_filename=None, dst_directory=None, title=_('Select destination')):
         if dst_filename is None:
