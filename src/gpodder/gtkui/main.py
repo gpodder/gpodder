@@ -2922,9 +2922,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_download_subscriptions_from_mygpo(self, action=None):
         def after_login():
+            title = _('Subscriptions on %(server)s') \
+                    % {'server': self.config.mygpo.server}
             dir = gPodderPodcastDirectory(self.gPodder,
                                            _config=self.config,
-                                           custom_title=_('Subscriptions on gpodder.net'),
+                                           custom_title=title,
                                            add_podcast_list=self.add_podcast_list,
                                            hide_url_entry=True)
 
