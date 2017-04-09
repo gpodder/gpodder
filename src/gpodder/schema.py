@@ -165,7 +165,8 @@ def initialize_database(db):
         current_position INTEGER NOT NULL DEFAULT 0,
         current_position_updated INTEGER NOT NULL DEFAULT 0,
         last_playback INTEGER NOT NULL DEFAULT 0,
-        payment_url TEXT NULL DEFAULT NULL
+        payment_url TEXT NULL DEFAULT NULL,
+        description_html TEXT NOT NULL DEFAULT ''
     )
     """)
 
