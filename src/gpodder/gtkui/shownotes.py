@@ -182,6 +182,7 @@ class gPodderShownotesHTML(gPodderShownotes):
         self.header.set_halign(Gtk.Align.START)
         self.header.set_valign(Gtk.Align.START)
         self.header.set_property('margin', 10)
+        self.header.set_selectable(True)
         self.status = Gtk.Label.new()
         self.status.set_halign(Gtk.Align.START)
         self.status.set_valign(Gtk.Align.END)
@@ -202,13 +203,11 @@ class gPodderShownotesHTML(gPodderShownotes):
             self._base_uri = episode.channel.url
         self._loaded = False
 
-        description = episode.description_html
-        if not description:
-            description = self.coerce_text_to_html(episode.description)
-        self.html_view.load_html(description, self._base_uri)
-
-    def coerce_text_to_html(self, text):
-        return text.replace('\n', '<br>')
+        description_html = episode.description_html
+        if description_html:
+            self.html_view.load_html(description_html, self._base_uri)
+        else:
+            self.html_view.load_plain_text(episode.description)
 
     def on_mouse_over(self, webview, hit_test_result, modifiers):
         if hit_test_result.context_is_link():
@@ -257,7 +256,8 @@ class gPodderShownotesHTML(gPodderShownotes):
             return False
         elif decision_type == WebKit2.PolicyDecisionType.NAVIGATION_ACTION:
             req = decision.get_request()
-            if req.get_uri() == self._base_uri:
+            # about:blank is for plain text shownotes
+            if req.get_uri() in (self._base_uri, 'about:blank'):
                 decision.use()
             else:
                 logger.debug("refusing to go to %s", req.get_uri())
