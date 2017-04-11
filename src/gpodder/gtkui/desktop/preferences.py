@@ -282,6 +282,7 @@ class gPodderPreferences(BuilderWidget):
 
         # Initialize the UI state with configuration settings
         self.checkbutton_enable.set_active(self._config.mygpo.enabled)
+        self.entry_server.set_text(self._config.mygpo.server)
         self.entry_username.set_text(self._config.mygpo.username)
         self.entry_password.set_text(self._config.mygpo.password)
         self.entry_caption.set_text(self._config.mygpo.device.caption)
@@ -541,6 +542,9 @@ class gPodderPreferences(BuilderWidget):
 
     def on_button_youtube_api_key_clicked(self, widget):
         util.open_website('http://wiki.gpodder.org/wiki/Youtube')
+
+    def on_server_changed(self, widget):
+        self._config.mygpo.server = widget.get_text()
 
     def on_username_changed(self, widget):
         self._config.mygpo.username = widget.get_text()

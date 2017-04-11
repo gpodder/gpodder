@@ -328,14 +328,27 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="label_username">
-                    <property name="label" translatable="yes">Username:</property>
+                  <object class="GtkLabel" id="label_server">
+                    <property name="label" translatable="yes">Server:</property>
                     <property name="visible">True</property>
                     <property name="xalign">1.0</property>
                   </object>
                   <packing>
                     <property name="bottom_attach">3</property>
                     <property name="top_attach">2</property>
+                    <property name="x_options">fill</property>
+		    <property name="y_options"></property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label_username">
+                    <property name="label" translatable="yes">Username:</property>
+                    <property name="visible">True</property>
+                    <property name="xalign">1.0</property>
+                  </object>
+                  <packing>
+                    <property name="bottom_attach">4</property>
+                    <property name="top_attach">3</property>
                     <property name="x_options">fill</property>
 		    <property name="y_options"></property>
                   </packing>
@@ -347,8 +360,8 @@
                     <property name="xalign">1.0</property>
                   </object>
                   <packing>
-                    <property name="bottom_attach">4</property>
-                    <property name="top_attach">3</property>
+                    <property name="bottom_attach">5</property>
+                    <property name="top_attach">4</property>
                     <property name="x_options">fill</property>
 		    <property name="y_options"></property>
                   </packing>
@@ -360,9 +373,9 @@
                     <signal handler="on_button_overwrite_clicked" name="clicked"/>
                   </object>
                   <packing>
-                    <property name="bottom_attach">6</property>
+                    <property name="bottom_attach">7</property>
                     <property name="right_attach">3</property>
-                    <property name="top_attach">5</property>
+                    <property name="top_attach">6</property>
 		    <property name="y_options"></property>
                   </packing>
                 </child>
@@ -373,9 +386,22 @@
                     <property name="xalign">1.0</property>
                   </object>
                   <packing>
-                    <property name="bottom_attach">5</property>
-                    <property name="top_attach">4</property>
+                    <property name="bottom_attach">6</property>
+                    <property name="top_attach">5</property>
                     <property name="x_options">fill</property>
+		    <property name="y_options"></property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkEntry" id="entry_server">
+                    <property name="visible">True</property>
+                    <signal handler="on_server_changed" name="changed"/>
+                  </object>
+                  <packing>
+                    <property name="bottom_attach">3</property>
+                    <property name="left_attach">1</property>
+                    <property name="right_attach">3</property>
+                    <property name="top_attach">2</property>
 		    <property name="y_options"></property>
                   </packing>
                 </child>
@@ -385,10 +411,10 @@
                     <signal handler="on_username_changed" name="changed"/>
                   </object>
                   <packing>
-                    <property name="bottom_attach">3</property>
+                    <property name="bottom_attach">4</property>
                     <property name="left_attach">1</property>
                     <property name="right_attach">3</property>
-                    <property name="top_attach">2</property>
+                    <property name="top_attach">3</property>
 		    <property name="y_options"></property>
                   </packing>
                 </child>
@@ -400,10 +426,10 @@
                     <signal handler="on_password_changed" name="changed"/>
                   </object>
                   <packing>
-                    <property name="bottom_attach">4</property>
+                    <property name="bottom_attach">5</property>
                     <property name="left_attach">1</property>
                     <property name="right_attach">3</property>
-                    <property name="top_attach">3</property>
+                    <property name="top_attach">4</property>
 		    <property name="y_options"></property>
                   </packing>
                 </child>
@@ -413,10 +439,10 @@
                     <signal handler="on_device_caption_changed" name="changed"/>
                   </object>
                   <packing>
-                    <property name="bottom_attach">5</property>
+                    <property name="bottom_attach">6</property>
                     <property name="left_attach">1</property>
                     <property name="right_attach">3</property>
-                    <property name="top_attach">4</property>
+                    <property name="top_attach">5</property>
 		    <property name="y_options"></property>
                   </packing>
                 </child>
