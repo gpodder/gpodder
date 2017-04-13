@@ -16,6 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
+from urllib.parse import urlparse
 
 from gi.repository import Gtk
 from gi.repository import Gdk
@@ -196,10 +197,16 @@ class gPodderShownotesHTML(gPodderShownotes):
         tmpl = '<span size="x-large" font_weight="bold">%s</span>\n' \
               + '<span size="medium">%s</span>'
         self.header.set_markup(tmpl % (html.escape(heading), html.escape(subheading)))
+
         if episode.has_website_link:
             self._base_uri = episode.link
         else:
             self._base_uri = episode.channel.url
+
+        # for incomplete base URI (e.g. http://919.noagendanotes.com)
+        baseURI = urlparse(self._base_uri)
+        if baseURI.path == '':
+            self._base_uri += '/'
         self._loaded = False
 
         description = episode.description_html
@@ -260,7 +267,7 @@ class gPodderShownotesHTML(gPodderShownotes):
             if req.get_uri() == self._base_uri:
                 decision.use()
             else:
-                logger.debug("refusing to go to %s", req.get_uri())
+                logger.debug("refusing to go to %s (base URI=%s)", req.get_uri(), self._base_uri)
                 decision.ignore()
             return False
         else:
