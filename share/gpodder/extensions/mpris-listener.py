@@ -35,6 +35,7 @@ __description__ = _('Convert MPRIS notifications to gPodder Media Player D-Bus A
 __authors__ = 'Dov Feldstern <dovdevel@gmail.com>'
 __doc__ = 'http://wiki.gpodder.org/wiki/Extensions/MprisListener'
 __category__ = 'desktop-integration'
+__only_for__ = 'freedesktop'
 
 USECS_IN_SEC = 1000000
 
