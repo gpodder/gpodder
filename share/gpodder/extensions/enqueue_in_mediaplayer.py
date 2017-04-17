@@ -97,7 +97,7 @@ class MPRISResumer(FreeDesktopPlayer):
         self.title = '/'.join((_('Resume in'), application))
         self.bus_name = bus_name
         self.player = None
-        self.position = None
+        self.position_us = None
         self.url = None
 
     def is_installed(self):
@@ -122,13 +122,12 @@ class MPRISResumer(FreeDesktopPlayer):
             return False
 
         self.player = bus.get_object(self.bus_name, self.OBJECT_PLAYER)
-        self.signal_match = self.player.connect_to_signal(
-            self.SIGNAL_PROP_CHANGE,
+        self.signal_match = self.player.connect_to_signal(self.SIGNAL_PROP_CHANGE,
             self.on_prop_change,
             dbus_interface=self.INTERFACE_PROPS)
         return True
 
-    def wait_for_player(self, filename, pos):
+    def prepare_wait_for_player(self, filename, pos):
         def name_owner_changed(name, old_owner, new_owner):
             logger.debug('name_owner_changed "%s" "%s" "%s"',
                          name, old_owner, new_owner)
@@ -137,14 +136,9 @@ class MPRISResumer(FreeDesktopPlayer):
                 cancel.remove()
                 util.idle_add(lambda: self.do_enqueue(filename, pos))
 
-        logger.debug('waiting for player %s to enqueue %s',
-                     self.bus_name, filename)
         bus = gpodder.dbus_session_bus
         obj = bus.get_object(self.NAME_DBUS, self.OBJECT_DBUS)
-        cancel = obj.connect_to_signal(
-            'NameOwnerChanged',
-            name_owner_changed,
-            dbus_interface=self.NAME_DBUS)
+        cancel = obj.connect_to_signal('NameOwnerChanged', name_owner_changed, dbus_interface=self.NAME_DBUS)
 
     def do_enqueue(self, filename, pos):
         def on_reply():
@@ -158,10 +152,9 @@ class MPRISResumer(FreeDesktopPlayer):
             try:
                 import pathlib
                 self.url = pathlib.Path(filename).as_uri()
-            except:
+            except ImportError:
                 self.url = 'file://' + filename
-            logger.debug('URL: %s', self.url)
-        self.position = pos * 1000 * 1000  # pos in microseconds
+        self.position_us = pos * 1000 * 1000  # pos in microseconds
         if self.init_dbus():
             # async to not freeze the ui waiting for the application to answer
             self.player.OpenUri(self.url,
@@ -169,26 +162,26 @@ class MPRISResumer(FreeDesktopPlayer):
                                 reply_handler=on_reply,
                                 error_handler=on_error)
         else:
-            self.wait_for_player(filename, pos)
+            self.prepare_wait_for_player(filename, pos)
             logger.debug('MPRISResumer launching player %s', self.application)
             super(MPRISResumer, self).open_files([])
 
     def on_prop_change(self, interface, props, invalidated_props):
         def on_reply():
-            logger.debug('MPRISResumer has SetPosition for %s', self.url)
+            pass
 
         def on_error(exception):
             logger.error('MPRISResumer SetPosition error %s', repr(exception))
             self.signal_match.remove()
 
-        url = props.get('Metadata', {}).get('xesam:url')
-        track_id = props.get('Metadata', {}).get('mpris:trackid')
-        logger.debug('on_prop_change url=%s', url)
+        metadata = props.get('Metadata', {})
+        url = metadata.get('xesam:url')
+        track_id = metadata.get('mpris:trackid')
         if url is not None and track_id is not None:
             if url == self.url:
                 logger.info('Enqueue %s setting track %s position=%d',
-                            url, track_id, self.position)
-                self.player.SetPosition(str(track_id), self.position,
+                            url, track_id, self.position_us)
+                self.player.SetPosition(str(track_id), self.position_us,
                                         dbus_interface=self.INTERFACE_PLAYER,
                                         reply_handler=on_reply,
                                         error_handler=on_error)
