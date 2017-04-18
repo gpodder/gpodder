@@ -604,8 +604,8 @@ def is_html(text):
     >>> is_html('a < b < c')
     False
     """
-    e = re.compile('<[a-zA-Z][a-zA-Z0-9]*(\\s.*)?>')
-    return e.search(text) is not None
+    html_test = re.compile('<[a-z][a-z0-9]*(?:\s.*?>|\/?>)', re.IGNORECASE | re.DOTALL)
+    return bool(html_test.search(text))
 
 
 def remove_html_tags(html):
