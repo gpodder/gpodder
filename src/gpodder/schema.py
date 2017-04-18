@@ -28,6 +28,8 @@ import shutil
 import logging
 logger = logging.getLogger(__name__)
 
+from gpodder import util
+
 EpisodeColumns = (
     'podcast_id',
     'title',
@@ -108,6 +110,9 @@ UPGRADE_SQL = [
         # Version 7: Add HTML description
         (6, 7, """
         ALTER TABLE episode ADD COLUMN description_html TEXT NOT NULL DEFAULT ''
+        UPDATE episode SET description_html=description WHERE is_html(description)
+        UPDATE episode SET description=remove_html_tags(description_html) WHERE is_html(description)
+        UPDATE podcast SET http_last_modified=NULL, http_etag=NULL
         """),
 ]
 
@@ -193,6 +198,9 @@ def upgrade(db, filename):
     if not list(db.execute('PRAGMA table_info(version)')):
         initialize_database(db)
         return
+
+    db.create_function('is_html', 1, util.is_html)
+    db.create_function('remove_html_tags', 1, util.remove_html_tags)
 
     version = db.execute('SELECT version FROM version').fetchone()[0]
     if version == CURRENT_VERSION:
