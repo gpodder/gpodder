@@ -595,6 +595,19 @@ def delete_file(filename):
         pass
 
 
+def is_html(text):
+    """Heuristically tell if text is HTML
+
+    By looking for an open tag (more or less:)
+    >>> is_html('<h1>HELLO</h1>')
+    True
+    >>> is_html('a < b < c')
+    False
+    """
+    html_test = re.compile('<[a-z][a-z0-9]*(?:\s.*?>|\/?>)', re.IGNORECASE | re.DOTALL)
+    return bool(html_test.search(text))
+
+
 def remove_html_tags(html):
     """
     Remove HTML tags from a string and replace numeric and
