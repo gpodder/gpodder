@@ -616,7 +616,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def for_each_episode_set_task_status(self, episodes, status):
         episode_urls = set(episode.url for episode in episodes)
         model = self.treeDownloads.get_model()
-        selected_tasks = [(Gtk.TreeRowReference(model, row.path), \
+        selected_tasks = [(Gtk.TreeRowReference.new(model, row.path), \
                            model.get_value(row.iter, \
                            DownloadStatusModel.C_TASK)) for row in model \
                            if model.get_value(row.iter, DownloadStatusModel.C_TASK).url \
@@ -1081,7 +1081,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def cleanup_downloads(self):
         model = self.download_status_model
 
-        all_tasks = [(Gtk.TreeRowReference(model, row.path), row[0]) for row in model]
+        all_tasks = [(Gtk.TreeRowReference.new(model, row.path), row[0]) for row in model]
         changed_episode_urls = set()
         for row_reference, task in all_tasks:
             if task.status in (task.DONE, task.CANCELLED):
@@ -1383,7 +1383,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             model, paths = selection.get_selected_rows()
 
         can_queue, can_cancel, can_pause, can_remove, can_force = (True,)*5
-        selected_tasks = [(Gtk.TreeRowReference(model, path), \
+        selected_tasks = [(Gtk.TreeRowReference.new(model, path), \
                            model.get_value(model.get_iter(path), \
                            DownloadStatusModel.C_TASK)) for path in paths]
 
@@ -3357,7 +3357,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # Use the standard way of working on the treeview
         selection = self.treeDownloads.get_selection()
         (model, paths) = selection.get_selected_rows()
-        selected_tasks = [(Gtk.TreeRowReference(model, path), model.get_value(model.get_iter(path), 0)) for path in paths]
+        selected_tasks = [(Gtk.TreeRowReference.new(model, path), model.get_value(model.get_iter(path), 0)) for path in paths]
 
         for tree_row_reference, task in selected_tasks:
             if task.status in (task.DOWNLOADING, task.QUEUED):
