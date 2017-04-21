@@ -29,6 +29,7 @@ from gi.repository import GdkPixbuf
 from gi.repository import GObject
 from gi.repository import Pango
 import random
+import re
 import sys
 import shutil
 import subprocess
@@ -1747,7 +1748,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     base, extension = os.path.splitext(copy_from)
                     filename = self.build_filename(episode.sync_filename(), extension)
                     copy_to = os.path.join(folder, filename)
-                    shutil.copyfile(copy_from, copy_to)
+                    try:
+                        shutil.copyfile(copy_from, copy_to)
+                    except (OSError, IOError):
+                        copy_to = os.path.join(folder, re.sub(r"[\"*/:<>?\\|]", "_", filename))
+                        shutil.copyfile(copy_from, copy_to)
 
     def copy_episodes_bluetooth(self, episodes):
         episodes_to_copy = [e for e in episodes if e.was_downloaded(and_exists=True)]
