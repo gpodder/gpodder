@@ -225,15 +225,15 @@ class Device(services.ObservableService):
     
                 sync_task.status=sync_task.QUEUED
                 sync_task.device=self
+                # New Task, we must wait on the GTK Loop
                 self.download_status_model.register_task(sync_task)
-                self.download_queue_manager.queue_task(sync_task)
+                # Executes after task has been registered
+                util.idle_add(self.download_queue_manager.queue_task, sync_task)
         else:
             logger.warning("No episodes to sync")
 
         if done_callback:
             done_callback()
-
-        return True
 
     def remove_tracks(self, tracklist):
         for idx, track in enumerate(tracklist):
@@ -554,7 +554,7 @@ class MP3PlayerDevice(Device):
         return to_file
 
     def add_track(self, episode,reporthook=None):
-        self.notify('status', _('Adding %s') % episode.title.decode('utf-8', 'ignore'))
+        self.notify('status', _('Adding %s') % episode.title)
 
         # get the folder on the device
         folder = self.get_episode_folder_on_device(episode)
@@ -590,7 +590,7 @@ class MP3PlayerDevice(Device):
         if not os.path.exists(to_file):
             logger.info('Copying %s => %s',
                     os.path.basename(from_file),
-                    to_file.decode(util.encoding))
+                    to_file)
             self.copy_file_progress(from_file, to_file, reporthook)
 
         return True
@@ -1064,8 +1064,8 @@ class SyncTask(download.DownloadTask):
             self.speed = 0.0
             return False
 
-        # We only start this download if its status is "queued"
-        if self.status != SyncTask.QUEUED:
+        # We only start this download if its status is "downloading"
+        if self.status != SyncTask.DOWNLOADING:
             return False
 
         # We are synching this file right now
