@@ -3241,12 +3241,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if self.show_confirmation(message, title):
                 util.open_website('http://gpodder.org/downloads')
 
-    def on_bug_tracker_activate(self, widget, *args):
-        util.open_website('https://github.com/gpodder/gpodder/issues')
-
-    def on_item_support_activate(self, widget):
-        util.open_website('http://gpodder.org/donate')
-
     def on_wNotebook_switch_page(self, notebook, page, page_num):
         if page_num == 0:
             self.play_or_download()
@@ -3663,7 +3657,7 @@ class gPodderApplication(Gtk.Application):
                    copyright=gpodder.__copyright__,
                    license=gpodder.__license__,
                    donate_url='http://gpodder.org/donate',
-                   bugs_url='https://bugs.gpodder.org/',
+                   bugs_url='https://github.com/gpodder/gpodder/issues',
                    url=cgi.escape(gpodder.__url__)).strip().split('\n')))
 
         vb.pack_start(label, False, False, 0)
