@@ -285,6 +285,7 @@ class MPRISDBusReceiver(object):
 class gPodderNotifier(dbus.service.Object):
     def __init__(self, bus, path):
         dbus.service.Object.__init__(self, bus, path)
+        self.start_position = 0
 
     @dbus.service.signal(dbus_interface='org.gpodder.player', signature='us')
     def PlaybackStarted(self, start_position, file_uri):
