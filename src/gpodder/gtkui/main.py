@@ -1030,47 +1030,38 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.treeDownloads.connect('popup-menu', self.treeview_downloads_show_context_menu)
 
-    def on_treeview_expose_event(self, treeview, event):
-        return False
-        if event.window == treeview.get_bin_window():
-            model = treeview.get_model()
-            if (model is not None and model.get_iter_first() is not None):
-                return False
+    def on_treeview_expose_event(self, treeview, ctx):
+        model = treeview.get_model()
+        if (model is not None and model.get_iter_first() is not None):
+            return False
 
-            role = getattr(treeview, TreeViewHelper.ROLE, None)
-            if role is None:
-                return False
+        role = getattr(treeview, TreeViewHelper.ROLE, None)
+        if role is None:
+            return False
 
-            ctx = event.window.cairo_create()
-            ctx.rectangle(event.area.x, event.area.y,
-                    event.area.width, event.area.height)
-            ctx.clip()
+        width = treeview.get_allocated_width()
+        height= treeview.get_allocated_height()
 
-            x, y, width, height, depth = event.window.get_geometry()
-            progress = None
-
-            if role == TreeViewHelper.ROLE_EPISODES:
-                if self.config.episode_list_view_mode != EpisodeListModel.VIEW_ALL:
-                    text = _('No episodes in current view')
-                else:
-                    text = _('No episodes available')
-            elif role == TreeViewHelper.ROLE_PODCASTS:
-                if self.config.episode_list_view_mode != \
-                        EpisodeListModel.VIEW_ALL and \
-                        self.config.podcast_list_hide_boring and \
-                        len(self.channels) > 0:
-                    text = _('No podcasts in this view')
-                else:
-                    text = _('No subscriptions')
-            elif role == TreeViewHelper.ROLE_DOWNLOADS:
-                text = _('No active tasks')
+        if role == TreeViewHelper.ROLE_EPISODES:
+            if self.config.episode_list_view_mode != EpisodeListModel.VIEW_ALL:
+                text = _('No episodes in current view')
             else:
-                raise Exception('on_treeview_expose_event: unknown role')
+                text = _('No episodes available')
+        elif role == TreeViewHelper.ROLE_PODCASTS:
+            if self.config.episode_list_view_mode != \
+                    EpisodeListModel.VIEW_ALL and \
+                    self.config.podcast_list_hide_boring and \
+                    len(self.channels) > 0:
+                text = _('No podcasts in this view')
+            else:
+                text = _('No subscriptions')
+        elif role == TreeViewHelper.ROLE_DOWNLOADS:
+            text = _('No active tasks')
+        else:
+            raise Exception('on_treeview_expose_event: unknown role')
 
-            font_desc = None
-            draw_text_box_centered(ctx, treeview, width, height, text, font_desc, progress)
-
-        return False
+        draw_text_box_centered(ctx, treeview, width, height, text, None, None)
+        return True
 
     def enable_download_list_update(self):
         if not self.download_list_update_enabled:
