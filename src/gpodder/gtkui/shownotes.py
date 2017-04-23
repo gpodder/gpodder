@@ -174,7 +174,12 @@ class gPodderShownotesText(gPodderShownotes):
 
 class gPodderShownotesHTML(gPodderShownotes):
     def init(self):
-        self.html_view = WebKit2.WebView()
+        # basic restrictions
+        settings = WebKit2.Settings()
+        settings.set_enable_java(False)
+        settings.set_enable_plugins(False)
+        settings.set_enable_javascript(False)
+        self.html_view = WebKit2.WebView.new_with_settings(settings)
         self.html_view.set_property('expand', True)
         self.html_view.connect('mouse-target-changed', self.on_mouse_over)
         self.html_view.connect('context-menu', self.on_context_menu)
