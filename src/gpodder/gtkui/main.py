@@ -1750,9 +1750,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     copy_to = os.path.join(folder, filename)
                     try:
                         shutil.copyfile(copy_from, copy_to)
-                    except (OSError, IOError):
-                        copy_to = os.path.join(folder, re.sub(r"[\"*/:<>?\\|]", "_", filename))
-                        shutil.copyfile(copy_from, copy_to)
+                    except (OSError, IOError) as e:
+                        # Remove characters not supported by VFAT (#282)
+                        new_filename = re.sub(r"[\"*/:<>?\\|]", "_", filename)
+                        destination = os.path.join(folder, new_filename)
+                        if (copy_to != destination):
+                            shutil.copyfile(copy_from, destination)
+                        else:
+                            raise
 
     def copy_episodes_bluetooth(self, episodes):
         episodes_to_copy = [e for e in episodes if e.was_downloaded(and_exists=True)]
