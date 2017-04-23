@@ -127,7 +127,7 @@ class MPRISResumer(FreeDesktopPlayer):
             dbus_interface=self.INTERFACE_PROPS)
         return True
 
-    def prepare_wait_for_player(self, filename, pos):
+    def enqueue_when_ready(self, filename, pos):
         def name_owner_changed(name, old_owner, new_owner):
             logger.debug('name_owner_changed "%s" "%s" "%s"',
                          name, old_owner, new_owner)
@@ -162,7 +162,7 @@ class MPRISResumer(FreeDesktopPlayer):
                                 reply_handler=on_reply,
                                 error_handler=on_error)
         else:
-            self.prepare_wait_for_player(filename, pos)
+            self.enqueue_when_ready(filename, pos)
             logger.debug('MPRISResumer launching player %s', self.application)
             super(MPRISResumer, self).open_files([])
 
