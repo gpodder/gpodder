@@ -2519,7 +2519,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 if self.feed_cache_update_cancelled:
                     break
 
+                def indicate_updating_podcast(channel):
+                    d = {'podcast': channel.title, 'position': updated+1, 'total': count}
+                    progression = _('Updating %(podcast)s (%(position)d/%(total)d)') % d
+                    self.pbFeedUpdate.set_text(progression)
+
                 try:
+                    util.idle_add(indicate_updating_podcast, channel)
                     channel.update(max_episodes=self.config.max_episodes_per_feed)
                     self._update_cover(channel)
                 except Exception as e:
@@ -2542,10 +2548,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         logger.debug('Updated channel is active, updating UI')
                         self.update_episode_list_model()
 
-                    d = {'podcast': channel.title, 'position': updated+1, 'total': count}
-                    progression = _('Updated %(podcast)s (%(position)d/%(total)d)') % d
-
-                    self.pbFeedUpdate.set_text(progression)
                     self.pbFeedUpdate.set_fraction(float(updated+1)/float(count))
 
                 util.idle_add(update_progress, channel)
