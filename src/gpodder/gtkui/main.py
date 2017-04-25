@@ -3293,6 +3293,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         model, paths = selection.get_selected_rows()
 
         episodes = [model.get_value(model.get_iter(path), EpisodeListModel.C_EPISODE) for path in paths]
+        episodes = [e for e in episodes if e is not None]
         return episodes
 
     def on_playback_selected_episodes(self, *params):
