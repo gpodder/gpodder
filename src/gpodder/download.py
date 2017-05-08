@@ -24,12 +24,9 @@
 #
 #  Based on libwget.py (2005-10-29)
 #
-
-
-
 import logging
-logger = logging.getLogger(__name__)
 
+from gpodder.task import Task, TaskCancelledException, DOWNLOAD_ACTIVITY
 from gpodder import util
 from gpodder import youtube
 from gpodder import vimeo
@@ -37,22 +34,21 @@ from gpodder import escapist_videos
 import gpodder
 
 import socket
-import threading
 import urllib.request, urllib.parse, urllib.error
 import urllib.parse
 import shutil
 import os.path
 import os
 import time
-import collections
 
 import mimetypes
 import email
 
-from email.header import decode_header
 
+logger = logging.getLogger(__name__)
 
 _ = gpodder.gettext
+
 
 def get_header_param(headers, param, header_name):
     """Extract a HTTP header parameter from a dict
@@ -76,6 +72,7 @@ def get_header_param(headers, param, header_name):
         logger.error('Cannot get %s from %s', param, header_name, exc_info=True)
 
     return value
+
 
 class ContentRange(object):
     # Based on:
@@ -179,14 +176,16 @@ class ContentRange(object):
             return cls(start, end-1, length)
 
 
-class DownloadCancelledException(Exception): pass
-class AuthenticationError(Exception): pass
+class AuthenticationError(Exception):
+    pass
+
 
 class gPodderDownloadHTTPError(Exception):
     def __init__(self, url, error_code, error_message):
         self.url = url
         self.error_code = error_code
         self.error_message = error_message
+
 
 class DownloadURLOpener(urllib.request.FancyURLopener):
     version = gpodder.user_agent
@@ -213,26 +212,26 @@ class DownloadURLOpener(urllib.request.FancyURLopener):
         void = fp.read()
         fp.close()
         raise gPodderDownloadHTTPError(url, errcode, errmsg)
-    
+
     def redirect_internal(self, url, fp, errcode, errmsg, headers, data):
         """ This is the exact same function that's included with urllib
             except with "void = fp.read()" commented out. """
-        
+
         if 'location' in headers:
             newurl = headers['location']
         elif 'uri' in headers:
             newurl = headers['uri']
         else:
             return
-        
+
         # This blocks forever(?) with certain servers (see bug #465)
         #void = fp.read()
         fp.close()
-        
+
         # In case the server sent a relative URL, join with original:
         newurl = urllib.parse.urljoin(self.type + ":" + url, newurl)
         return self.open(newurl)
-    
+
 # The following is based on Python's urllib.py "URLopener.retrieve"
 # Also based on http://mail.python.org/pipermail/python-list/2001-October/110069.html
 
@@ -333,266 +332,42 @@ class DownloadURLOpener(urllib.request.FancyURLopener):
         return (None, None)
 
 
-class DownloadQueueWorker(object):
-    def __init__(self, queue, exit_callback, continue_check_callback):
-        self.queue = queue
-        self.exit_callback = exit_callback
-        self.continue_check_callback = continue_check_callback
-
-    def __repr__(self):
-        return threading.current_thread().getName()
-
-    def run(self):
-        logger.info('Starting new thread: %s', self)
-        while True:
-            if not self.continue_check_callback(self):
-                return
-
-            try:
-                task = self.queue.get_next()
-                logger.info('%s is processing: %s', self, task)
-                task.run()
-                task.recycle()
-            except StopIteration as e:
-                logger.info('No more tasks for %s to carry out.', self)
-                break
-        self.exit_callback(self)
-
-
-class ForceDownloadWorker(object):
-    def __init__(self, task):
-        self.task = task
-
-    def __repr__(self):
-        return threading.current_thread().getName()
-
-    def run(self):
-        logger.info('Starting new thread: %s', self)
-        logger.info('%s is processing: %s', self, self.task)
-        self.task.run()
-
-
-class DownloadQueueManager(object):
-    def __init__(self, config, queue):
-        self._config = config
-        self.tasks = queue
-
-        self.worker_threads_access = threading.RLock()
-        self.worker_threads = []
-
-    def __exit_callback(self, worker_thread):
-        with self.worker_threads_access:
-            self.worker_threads.remove(worker_thread)
-
-    def __continue_check_callback(self, worker_thread):
-        with self.worker_threads_access:
-            if len(self.worker_threads) > self._config.max_downloads and \
-                    self._config.max_downloads_enabled:
-                self.worker_threads.remove(worker_thread)
-                return False
-            else:
-                return True
-
-    def __spawn_threads(self):
-        """Spawn new worker threads if necessary
-        """
-        with self.worker_threads_access:
-            if not self.tasks.has_work():
-                return
-
-            if len(self.worker_threads) == 0 or \
-                    len(self.worker_threads) < self._config.max_downloads or \
-                    not self._config.max_downloads_enabled:
-                # We have to create a new thread here, there's work to do
-                logger.info('Starting new worker thread.')
-
-                worker = DownloadQueueWorker(self.tasks, self.__exit_callback,
-                        self.__continue_check_callback)
-                self.worker_threads.append(worker)
-                util.run_in_background(worker.run)
-
-    def update_max_downloads(self):
-        self.__spawn_threads()
-
-    def force_start_task(self, task):
-        if self.tasks.set_downloading(task):
-            worker = ForceDownloadWorker(task)
-            util.run_in_background(worker.run)
-
-    def queue_task(self, task):
-        """Marks a task as queued
-        """
-        task.status = DownloadTask.QUEUED
-        self.__spawn_threads()
-
-
-class DownloadTask(object):
+class DownloadTask(Task):
     """An object representing the download task of an episode
 
     You can create a new download task like this:
 
         task = DownloadTask(episode, gpodder.config.Config(CONFIGFILE))
-        task.status = DownloadTask.QUEUED
+        task.status = Task.QUEUED
         task.run()
-
-    While the download is in progress, you can access its properties:
-
-        task.total_size       # in bytes
-        task.progress         # from 0.0 to 1.0
-        task.speed            # in bytes per second
-        str(task)             # name of the episode
-        task.status           # current status
-        task.status_changed   # True if the status has been changed (see below)
-        task.url              # URL of the episode being downloaded
-        task.podcast_url      # URL of the podcast this download belongs to
-        task.episode          # Episode object of this task
-
-    You can cancel a running download task by setting its status:
-
-        task.status = DownloadTask.CANCELLED
-
-    The task will then abort as soon as possible (due to the nature
-    of downloading data, this can take a while when the Internet is
-    busy).
-
-    The "status_changed" attribute gets set to True everytime the
-    "status" attribute changes its value. After you get the value of
-    the "status_changed" attribute, it is always reset to False:
-
-        if task.status_changed:
-            new_status = task.status
-            # .. update the UI accordingly ..
-
-    Obviously, this also means that you must have at most *one*
-    place in your UI code where you check for status changes and
-    broadcast the status updates from there.
-
-    While the download is taking place and after the .run() method
-    has finished, you can get the final status to check if the download
-    was successful:
-
-        if task.status == DownloadTask.DONE:
-            # .. everything ok ..
-        elif task.status == DownloadTask.FAILED:
-            # .. an error happened, and the
-            #    error_message attribute is set ..
-            print task.error_message
-        elif task.status == DownloadTask.PAUSED:
-            # .. user paused the download ..
-        elif task.status == DownloadTask.CANCELLED:
-            # .. user cancelled the download ..
 
     The difference between cancelling and pausing a DownloadTask is
     that the temporary file gets deleted when cancelling, but does
     not get deleted when pausing.
-
-    Be sure to call .removed_from_list() on this task when removing
-    it from the UI, so that it can carry out any pending clean-up
-    actions (e.g. removing the temporary file when the task has not
-    finished successfully; i.e. task.status != DownloadTask.DONE).
-
-    The UI can call the method "notify_as_finished()" to determine if
-    this episode still has still to be shown as "finished" download
-    in a notification window. This will return True only the first time
-    it is called when the status is DONE. After returning True once,
-    it will always return False afterwards.
-
-    The same thing works for failed downloads ("notify_as_failed()").
     """
     # Possible states this download task can be in
     STATUS_MESSAGE = (_('Added'), _('Queued'), _('Downloading'),
             _('Finished'), _('Failed'), _('Cancelled'), _('Paused'))
-    (INIT, QUEUED, DOWNLOADING, DONE, FAILED, CANCELLED, PAUSED) = list(range(7))
+    ACTIVITY = DOWNLOAD_ACTIVITY
 
-    # Wheter this task represents a file download or a device sync operation
-    ACTIVITY_DOWNLOAD, ACTIVITY_SYNCHRONIZE = list(range(2))
-
-    # Minimum time between progress updates (in seconds)
-    MIN_TIME_BETWEEN_UPDATES = 1.
-
-    def __str__(self):
-        return self.__episode.title
-
-    def __get_status(self):
-        return self.__status
-
-    def __set_status(self, status):
-        if status != self.__status:
-            self.__status_changed = True
-            self.__status = status
-
-    status = property(fget=__get_status, fset=__set_status)
-
-    def __get_status_changed(self):
-        if self.__status_changed:
-            self.__status_changed = False
-            return True
-        else:
-            return False
-
-    status_changed = property(fget=__get_status_changed)
-
-    def __get_activity(self):
-        return self.__activity
-
-    def __set_activity(self, activity):
-        self.__activity = activity
-
-    activity = property(fget=__get_activity, fset=__set_activity)
-
-
-    def __get_url(self):
-        return self.__episode.url
-
-    url = property(fget=__get_url)
-
-    def __get_podcast_url(self):
-        return self.__episode.channel.url
-
-    podcast_url = property(fget=__get_podcast_url)
-
-    def __get_episode(self):
-        return self.__episode
-
-    episode = property(fget=__get_episode)
-
-    def cancel(self):
-        if self.status in (self.DOWNLOADING, self.QUEUED):
-            self.status = self.CANCELLED
-
-    def removed_from_list(self):
-        if self.status != self.DONE:
-            util.delete_file(self.tempname)
+    def cleanup(self):
+        util.delete_file(self.tempname)
 
     def __init__(self, episode, config):
         assert episode.download_task is None
-        self.__status = DownloadTask.INIT
-        self.__activity = DownloadTask.ACTIVITY_DOWNLOAD
-        self.__status_changed = True
-        self.__episode = episode
+        super(DownloadTask, self).__init__(DownloadTask.ACTIVITY, episode)
         self._config = config
 
         # Create the target filename and save it in the database
-        self.filename = self.__episode.local_filename(create=True)
+        self.filename = self.episode.local_filename(create=True)
         self.tempname = self.filename + '.partial'
 
-        self.total_size = self.__episode.file_size
-        self.speed = 0.0
-        self.progress = 0.0
-        self.error_message = None
-
-        # Have we already shown this task in a notification?
-        self._notification_shown = False
+        self.total_size = self.episode.file_size
 
         # Variables for speed limit and speed calculation
-        self.__start_time = 0
-        self.__start_blocks = 0
+        self._speed_refresh_period = 5
         self.__limit_rate_value = self._config.limit_rate_value
         self.__limit_rate = self._config.limit_rate
-
-        # Progress update functions
-        self._progress_updated = None
-        self._last_progress_updated = 0.
 
         # If the tempname already exists, set progress accordingly
         if os.path.exists(self.tempname):
@@ -610,91 +385,44 @@ class DownloadTask(object):
         # Store a reference to this task in the episode
         episode.download_task = self
 
-    def notify_as_finished(self):
-        if self.status == DownloadTask.DONE:
-            if self._notification_shown:
-                return False
-            else:
-                self._notification_shown = True
-                return True
-
-        return False
-
-    def notify_as_failed(self):
-        if self.status == DownloadTask.FAILED:
-            if self._notification_shown:
-                return False
-            else:
-                self._notification_shown = True
-                return True
-
-        return False
-
-    def add_progress_callback(self, callback):
-        self._progress_updated = callback
-
     def status_updated(self, count, blockSize, totalSize):
         # We see a different "total size" while downloading,
         # so correct the total size variable in the thread
         if totalSize != self.total_size and totalSize > 0:
             self.total_size = float(totalSize)
-            if self.__episode.file_size != self.total_size:
+            if self.episode.file_size != self.total_size:
                 logger.debug('Updating file size of %s to %s',
                         self.filename, self.total_size)
-                self.__episode.file_size = self.total_size
-                self.__episode.save()
+                self.episode.file_size = self.total_size
+                self.episode.save()
 
-        if self.total_size > 0:
-            self.progress = max(0.0, min(1.0, count*blockSize/self.total_size))
-            if self._progress_updated is not None:
-                diff = time.time() - self._last_progress_updated
-                if diff > self.MIN_TIME_BETWEEN_UPDATES or self.progress == 1.:
-                    self._progress_updated(self.progress)
-                    self._last_progress_updated = time.time()
+        super(DownloadTask, self).status_updated(count, blockSize, totalSize)
+        self.apply_speed_limit(count, blockSize)
 
-        self.calculate_speed(count, blockSize)
-
-        if self.status == DownloadTask.CANCELLED:
-            raise DownloadCancelledException()
-
-        if self.status == DownloadTask.PAUSED:
-            raise DownloadCancelledException()
-
-    def calculate_speed(self, count, blockSize):
-        if count % 5 == 0:
+    def apply_speed_limit(self, count, blockSize):
+        if count % self._speed_refresh_period == 0:
             now = time.time()
-            if self.__start_time > 0:
-                # Has rate limiting been enabled or disabled?                
-                if self.__limit_rate != self._config.limit_rate: 
-                    # If it has been enabled then reset base time and block count                    
+            if self._start_time > 0:
+                # Has rate limiting been enabled or disabled?
+                if self.__limit_rate != self._config.limit_rate:
+                    # If it has been enabled then reset base time and block count
                     if self._config.limit_rate:
-                        self.__start_time = now
-                        self.__start_blocks = count
+                        self._start_time = now
+                        self._start_blocks = count
                     self.__limit_rate = self._config.limit_rate
-                    
-                # Has the rate been changed and are we currently limiting?            
-                if self.__limit_rate_value != self._config.limit_rate_value and self.__limit_rate: 
-                    self.__start_time = now
-                    self.__start_blocks = count
+
+                # Has the rate been changed and are we currently limiting?
+                if self.__limit_rate_value != self._config.limit_rate_value and self.__limit_rate:
+                    self._start_time = now
+                    self._start_blocks = count
                     self.__limit_rate_value = self._config.limit_rate_value
 
-                passed = now - self.__start_time
-                if passed > 0:
-                    speed = ((count-self.__start_blocks)*blockSize)/passed
-                else:
-                    speed = 0
-            else:
-                self.__start_time = now
-                self.__start_blocks = count
-                passed = now - self.__start_time
-                speed = count*blockSize
-
-            self.speed = float(speed)
-
-            if self._config.limit_rate and speed > self._config.limit_rate_value:
+            limit_rate_value_bs = self.__limit_rate_value * 1024
+            if self.__limit_rate and self.speed > limit_rate_value_bs:
                 # calculate the time that should have passed to reach
                 # the desired download rate and wait if necessary
-                should_have_passed = (count-self.__start_blocks)*blockSize/(self._config.limit_rate_value*1024.0)
+                passed = now - self._start_time
+                should_have_passed = (count - self._start_blocks) * blockSize / limit_rate_value_bs
                 if should_have_passed > passed:
                     # sleep a maximum of 10 seconds to not cause time-outs
                     delay = min(10.0, float(should_have_passed-passed))
@@ -703,30 +431,11 @@ class DownloadTask(object):
     def recycle(self):
         self.episode.download_task = None
 
-    def run(self):
-        # Speed calculation (re-)starts here
-        self.__start_time = 0
-        self.__start_blocks = 0
-
-        # If the download has already been cancelled, skip it
-        if self.status == DownloadTask.CANCELLED:
-            util.delete_file(self.tempname)
-            self.progress = 0.0
-            self.speed = 0.0
-            return False
-
-        # We only start this download if its status is "downloading"
-        if self.status != DownloadTask.DOWNLOADING:
-            return False
-
-        # We are downloading this file right now
-        self.status = DownloadTask.DOWNLOADING
-        self._notification_shown = False
-
+    def do_run(self):
         try:
             # Resolve URL and start downloading the episode
             fmt_ids = youtube.get_fmt_ids(self._config.youtube)
-            url = youtube.get_real_download_url(self.__episode.url, fmt_ids)
+            url = youtube.get_real_download_url(self.episode.url, fmt_ids)
             url = vimeo.get_real_download_url(url, self._config.vimeo.fileformat)
             url = escapist_videos.get_real_download_url(url)
             url = url.strip()
@@ -746,7 +455,7 @@ class DownloadTask(object):
 
             url = iri_to_url(url)
 
-            downloader = DownloadURLOpener(self.__episode.channel)
+            downloader = DownloadURLOpener(self.episode.channel)
 
             # HTTP Status codes for which we retry the download
             retry_codes = (408, 418, 504, 598, 599)
@@ -781,20 +490,20 @@ class DownloadTask(object):
                         continue
                     raise
 
-            new_mimetype = headers.get('content-type', self.__episode.mime_type)
-            old_mimetype = self.__episode.mime_type
+            new_mimetype = headers.get('content-type', self.episode.mime_type)
+            old_mimetype = self.episode.mime_type
             _basename, ext = os.path.splitext(self.filename)
             if new_mimetype != old_mimetype or util.wrong_extension(ext):
                 logger.info('Updating mime type: %s => %s', old_mimetype, new_mimetype)
-                old_extension = self.__episode.extension()
-                self.__episode.mime_type = new_mimetype
-                new_extension = self.__episode.extension()
+                old_extension = self.episode.extension()
+                self.episode.mime_type = new_mimetype
+                new_extension = self.episode.extension()
 
                 # If the desired filename extension changed due to the new
                 # mimetype, we force an update of the local filename to fix the
                 # extension.
                 if old_extension != new_extension or util.wrong_extension(ext):
-                    self.filename = self.__episode.local_filename(create=True, force_update=True)
+                    self.filename = self.episode.local_filename(create=True, force_update=True)
 
             # In some cases, the redirect of a URL causes the real filename to
             # be revealed in the final URL (e.g. http://gpodder.org/bug/1423)
@@ -805,7 +514,7 @@ class DownloadTask(object):
                 # a proper extension (this is needed for e.g. YouTube)
                 if not util.wrong_extension(realext):
                     real_filename = ''.join((realname, realext))
-                    self.filename = self.__episode.local_filename(create=True,
+                    self.filename = self.episode.local_filename(create=True,
                             force_update=True, template=real_filename)
                     logger.info('Download was redirected (%s). New filename: %s',
                             real_url, os.path.basename(self.filename))
@@ -825,62 +534,55 @@ class DownloadTask(object):
             if disposition_filename is not None and disposition_filename != '':
                 # The server specifies a download filename - try to use it
                 disposition_filename = os.path.basename(disposition_filename)
-                self.filename = self.__episode.local_filename(create=True, \
+                self.filename = self.episode.local_filename(create=True, \
                         force_update=True, template=disposition_filename)
                 new_mimetype, encoding = mimetypes.guess_type(self.filename)
                 if new_mimetype is not None:
                     logger.info('Using content-disposition mimetype: %s',
                             new_mimetype)
-                    self.__episode.mime_type = new_mimetype
+                    self.episode.mime_type = new_mimetype
 
             # Re-evaluate filename and tempname to take care of podcast renames
             # while downloads are running (which will change both file names)
-            self.filename = self.__episode.local_filename(create=False)
+            self.filename = self.episode.local_filename(create=False)
             self.tempname = os.path.join(os.path.dirname(self.filename),
                     os.path.basename(self.tempname))
             shutil.move(self.tempname, self.filename)
 
             # Model- and database-related updates after a download has finished
-            self.__episode.on_downloaded(self.filename)
-        except DownloadCancelledException:
-            logger.info('Download has been cancelled/paused: %s', self)
-            if self.status == DownloadTask.CANCELLED:
-                util.delete_file(self.tempname)
-                self.progress = 0.0
-                self.speed = 0.0
+            self.episode.on_downloaded(self.filename)
+        except TaskCancelledException:
+            raise
         except urllib.error.ContentTooShortError as ctse:
-            self.status = DownloadTask.FAILED
+            self.status = Task.FAILED
             self.error_message = _('Missing content from server')
         except IOError as ioe:
             logger.error('%s while downloading "%s": %s', ioe.strerror,
-                    self.__episode.title, ioe.filename, exc_info=True)
-            self.status = DownloadTask.FAILED
+                    self.episode.title, ioe.filename, exc_info=True)
+            self.status = Task.FAILED
             d = {'error': ioe.strerror, 'filename': ioe.filename}
             self.error_message = _('I/O Error: %(error)s: %(filename)s') % d
         except gPodderDownloadHTTPError as gdhe:
             logger.error('HTTP %s while downloading "%s": %s',
-                    gdhe.error_code, self.__episode.title, gdhe.error_message,
+                    gdhe.error_code, self.episode.title, gdhe.error_message,
                     exc_info=True)
-            self.status = DownloadTask.FAILED
+            self.status = Task.FAILED
             d = {'code': gdhe.error_code, 'message': gdhe.error_message}
             self.error_message = _('HTTP Error %(code)s: %(message)s') % d
         except Exception as e:
-            self.status = DownloadTask.FAILED
+            self.status = Task.FAILED
             logger.error('Download failed: %s', str(e), exc_info=True)
             self.error_message = _('Error: %s') % (str(e),)
 
-        if self.status == DownloadTask.DOWNLOADING:
+        if self.status == Task.ACTIVE:
             # Everything went well - we're done
-            self.status = DownloadTask.DONE
+            self.status = Task.DONE
             if self.total_size <= 0:
                 self.total_size = util.calculate_size(self.filename)
                 logger.info('Total size updated to %d', self.total_size)
             self.progress = 1.0
-            gpodder.user_extensions.on_episode_downloaded(self.__episode)
+            gpodder.user_extensions.on_episode_downloaded(self.episode)
             return True
-        
-        self.speed = 0.0
 
         # We finished, but not successfully (at least not really)
         return False
-

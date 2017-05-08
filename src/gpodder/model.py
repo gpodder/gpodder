@@ -291,7 +291,7 @@ class PodcastEpisode(PodcastModelObject):
         if task is None:
             return False
 
-        return task.status in (task.DOWNLOADING, task.QUEUED, task.PAUSED)
+        return task.status in (task.ACTIVE, task.QUEUED, task.PAUSED)
 
     def check_is_new(self):
         return (self.state == gpodder.STATE_NORMAL and self.is_new and

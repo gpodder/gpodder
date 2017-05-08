@@ -53,11 +53,17 @@ from gpodder import core
 from gpodder import feedcore
 from gpodder import util
 from gpodder import opml
-from gpodder import download
 from gpodder import my
 from gpodder import youtube
 from gpodder import player
 from gpodder import common
+from gpodder import sendto
+from gpodder import sync
+from gpodder import task
+
+from gpodder.download import DownloadTask
+from gpodder.sendto import SendToTask
+from gpodder.sync import SyncTask
 
 import logging
 logger = logging.getLogger(__name__)
@@ -114,6 +120,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.db = self.core.db
         self.model = self.core.model
         self.options = options
+        self._task_messages = None
         BuilderWidget.__init__(self, None, _builder_expose={'app': app})
 
     def new(self):
@@ -159,7 +166,29 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.new_episodes_window = None
 
         self.download_status_model = DownloadStatusModel()
-        self.download_queue_manager = download.DownloadQueueManager(self.config, self.download_status_model)
+        # register icon to use for tasks in the ACTIVE state
+        self.download_status_model.set_activity_active_icon(DownloadTask.ACTIVITY, 'go-down')
+        self.download_status_model.set_activity_active_icon(SyncTask.ACTIVITY, 'emblem-synchronizing')
+        self.download_status_model.set_activity_active_icon(SendToTask.ACTIVITY, 'document-save-as')
+        self.download_queue_manager = task.QueueManager(self.config, self.download_status_model)
+        # register messages on task completion
+        self._task_messages = {
+            DownloadTask.ACTIVITY: {
+                'partial_failure_message': _('Could not download some episodes:'),
+                'finished_title': _('Downloads finished'),
+                'failed_title': _('Device synchronization failed'),
+            },
+            SyncTask.ACTIVITY: {
+                'partial_failure_message': _('Could not sync some episodes:'),
+                'finished_title': _('Device synchronization finished'),
+                'failed_title': _('Device synchronization failed'),
+            },
+            SendToTask.ACTIVITY: {
+                'partial_failure_message': _('Could not save some episodes:'),
+                'finished_title': _('Send To finished'),
+                'failed_title': _('Send To failed'),
+            },
+        }
 
         self.config.connect_gtk_spinbutton('max_downloads', self.spinMaxDownloads)
         self.config.connect_gtk_togglebutton('max_downloads_enabled', self.cbMaxDownloads)
@@ -398,7 +427,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         selection.select_all()
                         selected_tasks, _, _, _, _, _ = self.downloads_list_get_selection()
                         selection.unselect_all()
-                        self._for_each_task_set_status(selected_tasks, download.DownloadTask.QUEUED)
+                        self._for_each_task_set_status(selected_tasks, task.Task.QUEUED)
                         self.message_area.hide()
                     resume_all.connect('clicked', on_resume_all)
 
@@ -613,16 +642,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_button_downloads_clicked(self, widget):
         self.downloads_window.show()
-
-    def for_each_episode_set_task_status(self, episodes, status):
-        episode_urls = set(episode.url for episode in episodes)
-        model = self.treeDownloads.get_model()
-        selected_tasks = [(Gtk.TreeRowReference.new(model, row.path), \
-                           model.get_value(row.iter, \
-                           DownloadStatusModel.C_TASK)) for row in model \
-                           if model.get_value(row.iter, DownloadStatusModel.C_TASK).url \
-                           in episode_urls]
-        self._for_each_task_set_status(selected_tasks, status)
 
     def on_treeview_button_pressed(self, treeview, event):
         if event.window != treeview.get_bin_window():
@@ -1145,20 +1164,19 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
                 download_tasks_seen.add(task)
 
-                if (status == download.DownloadTask.DOWNLOADING and
-                        activity == download.DownloadTask.ACTIVITY_DOWNLOAD):
+                if (status == task.ACTIVE and
+                        activity == DownloadTask.ACTIVITY):
                     downloading += 1
                     total_speed += speed
-                elif (status == download.DownloadTask.DOWNLOADING and
-                        activity == download.DownloadTask.ACTIVITY_SYNCHRONIZE):
+                elif status == task.ACTIVE:
                     synchronizing += 1
-                elif status == download.DownloadTask.FAILED:
+                elif status == task.FAILED:
                     failed += 1
-                elif status == download.DownloadTask.DONE:
+                elif status == task.DONE:
                     finished += 1
-                elif status == download.DownloadTask.QUEUED:
+                elif status == task.QUEUED:
                     queued += 1
-                elif status == download.DownloadTask.PAUSED:
+                elif status == task.PAUSED:
                     paused += 1
                 else:
                     others += 1
@@ -1380,88 +1398,63 @@ class gPodder(BuilderWidget, dbus.service.Object):
                            DownloadStatusModel.C_TASK)) for path in paths]
 
         for row_reference, task in selected_tasks:
-            if task.status != download.DownloadTask.QUEUED:
+            if task.status != task.QUEUED:
                 can_force = False
-            if task.status not in (download.DownloadTask.PAUSED, \
-                    download.DownloadTask.FAILED, \
-                    download.DownloadTask.CANCELLED):
+            if task.status not in (task.PAUSED, \
+                    task.FAILED, \
+                    task.CANCELLED):
                 can_queue = False
-            if task.status not in (download.DownloadTask.PAUSED, \
-                    download.DownloadTask.QUEUED, \
-                    download.DownloadTask.DOWNLOADING, \
-                    download.DownloadTask.FAILED):
+            if task.status not in (task.PAUSED, \
+                    task.QUEUED, \
+                    task.ACTIVE, \
+                    task.FAILED):
                 can_cancel = False
-            if task.status not in (download.DownloadTask.QUEUED, \
-                    download.DownloadTask.DOWNLOADING):
+            if task.status not in (task.QUEUED, \
+                    task.ACTIVE):
                 can_pause = False
-            if task.status not in (download.DownloadTask.CANCELLED, \
-                    download.DownloadTask.FAILED, \
-                    download.DownloadTask.DONE):
+            if task.status not in (task.CANCELLED, \
+                    task.FAILED, \
+                    task.DONE):
                 can_remove = False
 
         return selected_tasks, can_queue, can_cancel, can_pause, can_remove, can_force
 
     def downloads_finished(self, download_tasks_seen):
-        # Separate tasks into downloads & syncs
+        def format_task_finished(task):
+            return str(task)
+        def format_task_failed(task):
+            return '%s (%s)' % (task, task.error_message)
+
+        # Separate tasks by activity
         # Since calling notify_as_finished or notify_as_failed clears the flag,
         # need to iterate through downloads & syncs separately, else all sync
         # tasks will have their flags cleared if we do downloads first
+        tasks_by_activity = {}
+        for task in download_tasks_seen:
+            if task.activity not in tasks_by_activity:
+                tasks_by_activity[task.activity] = [task]
+            else:
+                tasks_by_activity[task.activity].append(task)
 
-        def filter_by_activity(activity, tasks):
-            return [task for task in tasks if task.activity == activity]
+        for activity, tasks in tasks_by_activity.items():
+            finished_tasks = [task for task in tasks if task.notify_as_finished()]
+            failed_tasks = [task for task in tasks if task.notify_as_failed()]
 
-        download_tasks = filter_by_activity(download.DownloadTask.ACTIVITY_DOWNLOAD,
-                download_tasks_seen)
+            if finished_tasks and failed_tasks:
+                message = self.format_episode_list(list(map(format_task_finished, finished_tasks)), 5)
+                message += '\n\n<i>%s</i>\n' % self._task_messages[activity]['partial_failure_message']
+                message += self.format_episode_list(list(map(format_task_failed, failed_tasks)), 5)
+                self.show_message(message, self._task_messages[activity]['finished_title'], True)
+            elif finished_tasks:
+                message = self.format_episode_list(list(map(format_task_finished, finished_tasks)))
+                self.show_message(message, self._task_messages[activity]['finished_title'])
+            elif failed_tasks:
+                message = self.format_episode_list(list(map(format_task_finished, finished_tasks)))
+                self.show_message(message, self._task_messages[activity]['failed_title'], True)
 
-        finished_downloads = [str(task)
-                for task in download_tasks if task.notify_as_finished()]
-        failed_downloads = ['%s (%s)' % (task, task.error_message)
-                for task in download_tasks if task.notify_as_failed()]
-
-        sync_tasks = filter_by_activity(download.DownloadTask.ACTIVITY_SYNCHRONIZE,
-                download_tasks_seen)
-
-        finished_syncs = [task for task in sync_tasks if task.notify_as_finished()]
-        failed_syncs = [task for task in sync_tasks if task.notify_as_failed()]
-
-        # Note that 'finished_ / failed_downloads' is a list of strings
-        # Whereas 'finished_ / failed_syncs' is a list of SyncTask objects
-
-        if finished_downloads and failed_downloads:
-            message = self.format_episode_list(finished_downloads, 5)
-            message += '\n\n<i>%s</i>\n' % _('Could not download some episodes:')
-            message += self.format_episode_list(failed_downloads, 5)
-            self.show_message(message, _('Downloads finished'))
-        elif finished_downloads:
-            message = self.format_episode_list(finished_downloads)
-            self.show_message(message, _('Downloads finished'))
-        elif failed_downloads:
-            message = self.format_episode_list(failed_downloads)
-            self.show_message(message, _('Downloads failed'))
-
-        if finished_syncs and failed_syncs:
-            message = self.format_episode_list(list(map((lambda task: str(task)),finished_syncs)), 5)
-            message += '\n\n<i>%s</i>\n' % _('Could not sync some episodes:')
-            message += self.format_episode_list(list(map((lambda task: str(task)),failed_syncs)), 5)
-            self.show_message(message, _('Device synchronization finished'), True)
-        elif finished_syncs:
-            message = self.format_episode_list(list(map((lambda task: str(task)),finished_syncs)))
-            self.show_message(message, _('Device synchronization finished'))
-        elif failed_syncs:
-            message = self.format_episode_list(list(map((lambda task: str(task)),failed_syncs)))
-            self.show_message(message, _('Device synchronization failed'), True)
-
-        # Do post-sync processing if required
-        for task in finished_syncs:
-            if self.config.device_sync.after_sync.mark_episodes_played:
-                logger.info('Marking as played on transfer: %s', task.episode.url)
-                task.episode.mark(is_played=True)
-
-            if self.config.device_sync.after_sync.delete_episodes:
-                logger.info('Removing episode after transfer: %s', task.episode.url)
-                task.episode.delete_from_disk()
-
-            self.sync_ui.device.close()
+            # Do post-sync processing if required
+            for task in finished_tasks:
+                task.post_run()
 
         # Update icon list to show changes, if any
         self.update_episode_list_icons(all=True)
@@ -1502,7 +1495,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         episode_urls = set()
         model = self.treeDownloads.get_model()
         for row_reference, task in tasks:
-            if status == download.DownloadTask.QUEUED:
+            if status == task.QUEUED:
                 # Only queue task when its paused/failed/cancelled (or forced)
                 if task.status in (task.PAUSED, task.FAILED, task.CANCELLED) or force_start:
                     if force_start:
@@ -1510,22 +1503,22 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     else:
                         self.download_queue_manager.queue_task(task)
                     self.enable_download_list_update()
-            elif status == download.DownloadTask.CANCELLED:
+            elif status == task.CANCELLED:
                 # Cancelling a download allowed when downloading/queued
-                if task.status in (task.QUEUED, task.DOWNLOADING):
+                if task.status in (task.QUEUED, task.ACTIVE):
                     task.status = status
                 # Cancelling paused/failed downloads requires a call to .run()
                 elif task.status in (task.PAUSED, task.FAILED):
                     task.status = status
                     # Call run, so the partial file gets deleted
                     task.run()
-            elif status == download.DownloadTask.PAUSED:
+            elif status == task.PAUSED:
                 # Pausing a download only when queued/downloading
-                if task.status in (task.DOWNLOADING, task.QUEUED):
+                if task.status in (task.ACTIVE, task.QUEUED):
                     task.status = status
             elif status is None:
                 # Remove the selected task - cancel downloading/queued tasks
-                if task.status in (task.QUEUED, task.DOWNLOADING):
+                if task.status in (task.QUEUED, task.ACTIVE):
                     task.status = task.CANCELLED
                 model.remove(model.get_iter(row_reference.get_path()))
                 # Remember the URL, so we can tell the UI to update
@@ -1602,11 +1595,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
             menu = Gtk.Menu()
 
             if can_force:
-                menu.append(make_menu_item(_('Start download now'), 'document-save', selected_tasks, download.DownloadTask.QUEUED, force_start=True))
+                menu.append(make_menu_item(_('Start task now'), 'document-save', selected_tasks, task.Task.QUEUED, force_start=True))
             else:
-                menu.append(make_menu_item(_('Download'), 'document-save', selected_tasks, download.DownloadTask.QUEUED, can_queue))
-            menu.append(make_menu_item(_('Cancel'), 'media-playback-stop', selected_tasks, download.DownloadTask.CANCELLED, can_cancel))
-            menu.append(make_menu_item(_('Pause'), 'media-playback-pause', selected_tasks, download.DownloadTask.PAUSED, can_pause))
+                menu.append(make_menu_item(_('Activate'), 'document-save', selected_tasks, task.Task.QUEUED, can_queue))
+            menu.append(make_menu_item(_('Cancel'), 'media-playback-stop', selected_tasks, task.Task.CANCELLED, can_cancel))
+            menu.append(make_menu_item(_('Pause'), 'media-playback-pause', selected_tasks, task.Task.PAUSED, can_pause))
             menu.append(Gtk.SeparatorMenuItem())
             menu.append(make_menu_item(_('Move up'), 'go-up', action=move_selected_items_up))
             menu.append(make_menu_item(_('Move down'), 'go-down', action=move_selected_items_down))
@@ -1717,38 +1710,18 @@ class gPodder(BuilderWidget, dbus.service.Object):
         util.idle_add(self.podcast_list_model.add_cover_by_channel,
                 channel, pixbuf)
 
-    @staticmethod
-    def build_filename(filename, extension):
-        filename = util.sanitize_filename(filename)
-        if not filename.endswith(extension):
-            filename += extension
-        return filename
-
     def save_episodes_as_file(self, episodes):
         PRIVATE_FOLDER_ATTRIBUTE = '_save_episodes_as_file_folder'
         folder = getattr(self, PRIVATE_FOLDER_ATTRIBUTE, None)
         (notCancelled, folder) = self.show_folder_select_dialog(initial_directory=folder)
         setattr(self, PRIVATE_FOLDER_ATTRIBUTE, folder)
 
-        if notCancelled:
-            for episode in episodes:
-                if episode.was_downloaded(and_exists=True):
-                    copy_from = episode.local_filename(create=False)
-                    assert copy_from is not None
-
-                    base, extension = os.path.splitext(copy_from)
-                    filename = self.build_filename(episode.sync_filename(), extension)
-                    copy_to = os.path.join(folder, filename)
-                    try:
-                        shutil.copyfile(copy_from, copy_to)
-                    except (OSError, IOError) as e:
-                        # Remove characters not supported by VFAT (#282)
-                        new_filename = re.sub(r"[\"*/:<>?\\|]", "_", filename)
-                        destination = os.path.join(folder, new_filename)
-                        if (copy_to != destination):
-                            shutil.copyfile(copy_from, destination)
-                        else:
-                            raise
+        if notCancelled and folder is not None: # folder is None if not double-clicking on folder in "Recent"
+            @util.run_in_background
+            def sync_thread_func():
+                st = sendto.SendTo(self.download_status_model, self.download_queue_manager)
+                st.add_send_to(episodes, folder,
+                               done_callback=self.enable_download_list_update)
 
     def copy_episodes_bluetooth(self, episodes):
         episodes_to_copy = [e for e in episodes if e.was_downloaded(and_exists=True)]
@@ -2624,7 +2597,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         Displays a confirmation dialog
         """
 
-        downloading = self.download_status_model.are_downloads_in_progress()
+        downloading = self.download_status_model.are_tasks_in_progress()
 
         if downloading:
             dialog = Gtk.MessageDialog(self.gPodder, Gtk.DialogFlags.MODAL, Gtk.MessageType.QUESTION, Gtk.ButtonsType.NONE)
@@ -2873,7 +2846,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 for task in self.download_tasks_seen:
                     if episode.url == task.url:
                         task_exists = True
-                        if task.status not in (task.DOWNLOADING, task.QUEUED):
+                        if task.status not in (task.ACTIVE, task.QUEUED):
                             if force_start:
                                 self.download_queue_manager.force_start_task(task)
                             else:
@@ -2885,7 +2858,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     continue
 
                 try:
-                    task = download.DownloadTask(episode, self.config)
+                    task = DownloadTask(episode, self.config)
                 except Exception as e:
                     d = {'episode': episode.title, 'message': str(e)}
                     message = _('Download error while downloading %(episode)s: %(message)s')
@@ -2921,7 +2894,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return
 
         for task in tasks:
-            if task.status in (task.QUEUED, task.DOWNLOADING):
+            if task.status in (task.QUEUED, task.ACTIVE):
                 task.status = task.CANCELLED
             elif task.status == task.PAUSED:
                 task.status = task.CANCELLED
@@ -3358,7 +3331,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         selected_tasks = [(Gtk.TreeRowReference.new(model, path), model.get_value(model.get_iter(path), 0)) for path in paths]
 
         for tree_row_reference, task in selected_tasks:
-            if task.status in (task.DOWNLOADING, task.QUEUED):
+            if task.status in (task.ACTIVE, task.QUEUED):
                 task.status = task.PAUSED
             elif task.status in (task.CANCELLED, task.PAUSED, task.FAILED):
                 self.download_queue_manager.queue_task(task)

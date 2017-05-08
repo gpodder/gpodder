@@ -27,8 +27,8 @@
 
 import gpodder
 
+from gpodder import task
 from gpodder import util
-from gpodder import download
 
 from gi.repository import Gtk
 import cgi
@@ -48,15 +48,15 @@ class DownloadStatusModel(Gtk.ListStore):
     def __init__(self):
         Gtk.ListStore.__init__(self, object, str, str, int, str, str)
 
-        self.set_downloading_access = threading.RLock()
+        self.set_active_access = threading.RLock()
 
         # Set up stock icon IDs for tasks
-        self._status_ids = collections.defaultdict(lambda: None)
-        self._status_ids[download.DownloadTask.DOWNLOADING] = 'go-down'
-        self._status_ids[download.DownloadTask.DONE] = Gtk.STOCK_APPLY
-        self._status_ids[download.DownloadTask.FAILED] = 'dialog-error'
-        self._status_ids[download.DownloadTask.CANCELLED] = 'media-playback-stop'
-        self._status_ids[download.DownloadTask.PAUSED] = 'media-playback-pause'
+        self._status_ids = collections.defaultdict(lambda: collections.defaultdict(lambda: None))
+        self._status_ids[task.Task.ACTIVE] = collections.defaultdict(lambda: None)
+        self._status_ids[task.Task.DONE] = collections.defaultdict(lambda: Gtk.STOCK_APPLY)
+        self._status_ids[task.Task.FAILED] = collections.defaultdict(lambda: 'dialog-error')
+        self._status_ids[task.Task.CANCELLED] = collections.defaultdict(lambda: 'media-playback-stop')
+        self._status_ids[task.Task.PAUSED] = collections.defaultdict(lambda: 'media-playback-pause')
 
     def _format_message(self, episode, message, podcast):
         episode = cgi.escape(episode)
@@ -77,7 +77,7 @@ class DownloadStatusModel(Gtk.ListStore):
             status_message = '%s: %s' % (\
                     task.STATUS_MESSAGE[task.status], \
                     task.error_message)
-        elif task.status == task.DOWNLOADING:
+        elif task.status == task.ACTIVE:
             status_message = '%s (%.0f%%, %s/s)' % (\
                     task.STATUS_MESSAGE[task.status], \
                     task.progress*100, \
@@ -108,7 +108,7 @@ class DownloadStatusModel(Gtk.ListStore):
                     status_message, task.episode.channel.title),
                 self.C_PROGRESS, 100.*task.progress, \
                 self.C_PROGRESS_TEXT, progress_message, \
-                self.C_ICON_NAME, self._status_ids[task.status])
+                self.C_ICON_NAME, self._status_ids[task.status][task.activity])
 
     def __add_new_task(self, task):
         iter = self.append()
@@ -121,52 +121,57 @@ class DownloadStatusModel(Gtk.ListStore):
         for row in self:
             task = row[DownloadStatusModel.C_TASK]
             if task is not None:
-                # Pause currently-running (and queued) downloads
-                if task.status in (task.QUEUED, task.DOWNLOADING):
+                # Pause currently-running (and queued) tasks
+                if task.status in (task.QUEUED, task.ACTIVE):
                     task.status = task.PAUSED
 
-                # Delete cancelled and failed downloads
+                # Delete cancelled and failed tasks
                 if task.status in (task.CANCELLED, task.FAILED):
                     task.removed_from_list()
 
-    def are_downloads_in_progress(self):
+    def are_tasks_in_progress(self):
         """
-        Returns True if there are any downloads in the
-        QUEUED or DOWNLOADING status, False otherwise.
+        Returns True if there are any tasks in the
+        QUEUED or ACTIVE status, False otherwise.
         """
         for row in self:
             task = row[DownloadStatusModel.C_TASK]
             if task is not None and \
-                    task.status in (task.DOWNLOADING, \
+                    task.status in (task.ACTIVE, \
                                     task.QUEUED):
                 return True
 
         return False
 
-    def has_work(self):
+    def has_work(self, activity):
         return any(task for task in
                 (row[DownloadStatusModel.C_TASK] for row in self)
-                if task.status == task.QUEUED)
+                if task.status == task.QUEUED and task.activity == activity)
 
-    def get_next(self):
-        with self.set_downloading_access:
+    def get_next(self, activity):
+        with self.set_active_access:
             result = next(task for task in
                     (row[DownloadStatusModel.C_TASK] for row in self)
-                    if task.status == task.QUEUED)
-            self.set_downloading(result)
+                    if task.status == task.QUEUED and task.activity == activity)
+            self.set_active(result)
         return result
 
-    def set_downloading(self, task):
-        with self.set_downloading_access:
-            if task.status is task.DOWNLOADING:
-                # Task was already set as DOWNLOADING by get_next           
+    def set_active(self, task):
+        with self.set_active_access:
+            if task.status is task.ACTIVE:
+                # Task was already set as ACTIVE by get_next           
                 return False
-            task.status = task.DOWNLOADING
+            task.status = task.ACTIVE
             return True
 
+    def set_activity_active_icon(self, activity, active_icon):
+        """ Call this to set active status icon for an activity """
+        self._status_ids[task.Task.ACTIVE][activity] = active_icon
 
 class DownloadTaskMonitor(object):
-    """A helper class that abstracts download events"""
+    """A helper class that abstracts task events
+       @deprecated don't use anymore: it's not used in gPodder and should go away ASAP.
+    """
     def __init__(self, episode, on_can_resume, on_can_pause, on_finished):
         self.episode = episode
         self._status = None
@@ -180,7 +185,7 @@ class DownloadTaskMonitor(object):
                 self._on_finished()
             elif task.status == task.PAUSED:
                 self._on_can_resume()
-            elif task.status in (task.QUEUED, task.DOWNLOADING):
+            elif task.status in (task.QUEUED, task.ACTIVE):
                 self._on_can_pause()
             self._status = task.status
 

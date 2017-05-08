@@ -27,7 +27,7 @@ import gpodder
 
 from gpodder import util
 from gpodder import services
-from gpodder import download
+from gpodder.task import Task, TaskCancelledException
 
 import logging
 logger = logging.getLogger(__name__)
@@ -219,10 +219,10 @@ class Device(services.ObservableService):
             for track in sorted(tracklist, key=lambda e: e.pubdate_prop):
                 if self.cancelled:
                     return False
-    
+
                 # XXX: need to check if track is added properly?
-                sync_task=SyncTask(track)
-    
+                sync_task=SyncTask(track, self._config)
+
                 sync_task.status=sync_task.QUEUED
                 sync_task.device=self
                 # New Task, we must wait on the GTK Loop
@@ -917,27 +917,13 @@ class MTPDevice(Device):
 class SyncCancelledException(Exception): pass
 class SyncFailedException(Exception): pass
 
-class SyncTask(download.DownloadTask):
+class SyncTask(Task):
     # An object representing the synchronization task of an episode
 
     # Possible states this sync task can be in
     STATUS_MESSAGE = (_('Added'), _('Queued'), _('Synchronizing'),
             _('Finished'), _('Failed'), _('Cancelled'), _('Paused'))
-    (INIT, QUEUED, DOWNLOADING, DONE, FAILED, CANCELLED, PAUSED) = list(range(7))
-
-
-    def __str__(self):
-        return self.__episode.title
-
-    def __get_status(self):
-        return self.__status
-
-    def __set_status(self, status):
-        if status != self.__status:
-            self.__status_changed = True
-            self.__status = status
-
-    status = property(fget=__get_status, fset=__set_status)
+    ACTIVITY = "Sync"
 
     def __get_device(self):
         return self.__device
@@ -947,151 +933,46 @@ class SyncTask(download.DownloadTask):
 
     device = property(fget=__get_device, fset=__set_device)
 
-    def __get_status_changed(self):
-        if self.__status_changed:
-            self.__status_changed = False
-            return True
-        else:
-            return False
-
-    status_changed = property(fget=__get_status_changed)
-
-    def __get_activity(self):
-        return self.__activity
-
-    def __set_activity(self, activity):
-        self.__activity = activity
-
-    activity = property(fget=__get_activity, fset=__set_activity)
-
-    def __get_empty_string(self):
-        return ''
-
-    url = property(fget=__get_empty_string)
-    podcast_url = property(fget=__get_empty_string)
-
-    def __get_episode(self):
-        return self.__episode
-
-    episode = property(fget=__get_episode)
-
-    def cancel(self):
-        if self.status in (self.DOWNLOADING, self.QUEUED):
-            self.status = self.CANCELLED
-
-    def removed_from_list(self):
+    def cleanup(self):
         # XXX: Should we delete temporary/incomplete files here?
         pass
 
-    def __init__(self, episode):
-        self.__status = SyncTask.INIT
-        self.__activity = SyncTask.ACTIVITY_SYNCHRONIZE
-        self.__status_changed = True
-        self.__episode = episode
+    def __init__(self, episode, config):
+        super(SyncTask, self).__init__(SyncTask.ACTIVITY, episode)
+        self._config = config
 
-        # Create the target filename and save it in the database
-        self.filename = self.__episode.local_filename(create=False)
-        self.tempname = self.filename + '.partial'
+        self.filename = episode.local_filename(create=False)
+        self.total_size = util.calculate_size(self.filename)
 
-        self.total_size = self.__episode.file_size
-        self.speed = 0.0
-        self.progress = 0.0
-        self.error_message = None
-
-        # Have we already shown this task in a notification?
-        self._notification_shown = False
-
-        # Variables for speed limit and speed calculation
-        self.__start_time = 0
-        self.__start_blocks = 0
-        self.__limit_rate_value = 999
-        self.__limit_rate = 999
-
-        # Callbacks
-        self._progress_updated = lambda x: None
-
-    def notify_as_finished(self):
-        if self.status == SyncTask.DONE:
-            if self._notification_shown:
-                return False
-            else:
-                self._notification_shown = True
-                return True
-
-        return False
-
-    def notify_as_failed(self):
-        if self.status == SyncTask.FAILED:
-            if self._notification_shown:
-                return False
-            else:
-                self._notification_shown = True
-                return True
-
-        return False
-
-    def add_progress_callback(self, callback):
-        self._progress_updated = callback
-
-    def status_updated(self, count, blockSize, totalSize):
-        # We see a different "total size" while downloading,
-        # so correct the total size variable in the thread
-        if totalSize != self.total_size and totalSize > 0:
-            self.total_size = float(totalSize)
-
-        if self.total_size > 0:
-            self.progress = max(0.0, min(1.0, (count*blockSize)/self.total_size))
-            self._progress_updated(self.progress)
-
-        if self.status == SyncTask.CANCELLED:
-            raise SyncCancelledException()
-
-        if self.status == SyncTask.PAUSED:
-            raise SyncCancelledException()
-
-    def recycle(self):
-        self.episode.download_task = None
-
-    def run(self):
-        # Speed calculation (re-)starts here
-        self.__start_time = 0
-        self.__start_blocks = 0
-
-        # If the download has already been cancelled, skip it
-        if self.status == SyncTask.CANCELLED:
-            util.delete_file(self.tempname)
-            self.progress = 0.0
-            self.speed = 0.0
-            return False
-
-        # We only start this download if its status is "downloading"
-        if self.status != SyncTask.DOWNLOADING:
-            return False
-
-        # We are synching this file right now
-        self.status = SyncTask.DOWNLOADING
-        self._notification_shown = False
-
+    def do_run(self):
         try:
             logger.info('Starting SyncTask')
             self.device.add_track(self.episode, reporthook=self.status_updated)
+        except TaskCancelledException as e:
+            raise
         except Exception as e:
             self.status = SyncTask.FAILED
             logger.error('Sync failed: %s', str(e), exc_info=True)
             self.error_message = _('Error: %s') % (str(e),)
 
-        if self.status == SyncTask.DOWNLOADING:
+        if self.status == SyncTask.ACTIVE:
             # Everything went well - we're done
             self.status = SyncTask.DONE
-            if self.total_size <= 0:
-                self.total_size = util.calculate_size(self.filename)
-                logger.info('Total size updated to %d', self.total_size)
             self.progress = 1.0
-            gpodder.user_extensions.on_episode_synced(self.device, self.__episode)
+            gpodder.user_extensions.on_episode_synced(self.device, self.episode)
             return True
-
-        self.speed = 0.0
 
         # We finished, but not successfully (at least not really)
         return False
 
+    def post_run(self):
+        """ code to run in the GUI Thread after task finished """
+        if self._config.device_sync.after_sync.mark_episodes_played:
+            logger.info('Marking as played on transfer: %s', self.url)
+            self.episode.mark(is_played=True)
+
+        if self._config.device_sync.after_sync.delete_episodes:
+            logger.info('Removing episode after transfer: %s', self.url)
+            self.episode.delete_from_disk()
+
+        self.device.close()
