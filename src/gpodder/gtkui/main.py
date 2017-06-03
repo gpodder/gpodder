@@ -1673,7 +1673,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             item.connect('activate', self.on_channel_toggle_lock_activate)
             menu.append(item)
 
-            item = Gtk.ImageMenuItem(_('Remove podcast'))
+            item = Gtk.ImageMenuItem(_('Delete podcast'))
             item.set_image(Gtk.Image.new_from_icon_name('edit-delete', Gtk.IconSize.MENU))
             item.connect( 'activate', self.on_itemRemoveChannel_activate)
             menu.append( item)
@@ -3069,12 +3069,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # We're abusing the Episode Selector for selecting Podcasts here,
         # but it works and looks good, so why not? -- thp
         gPodderEpisodeSelector(self.main_window, \
-                title=_('Remove podcasts'), \
-                instructions=_('Select the podcast you want to remove.'), \
+                title=_('Delete podcasts'), \
+                instructions=_('Select the podcast you want to delete.'), \
                 episodes=self.channels, \
                 columns=columns, \
                 size_attribute=None, \
-                stock_ok_button=_('Remove'), \
+                stock_ok_button=_('Delete'), \
                 callback=self.remove_podcast_list, \
                 _config=self.config)
 
@@ -3083,13 +3083,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return
 
         if len(channels) == 1:
-            title = _('Removing podcast')
-            info = _('Please wait while the podcast is removed')
-            message = _('Do you really want to remove this podcast and its episodes?')
+            title = _('Deleting podcast')
+            info = _('Please wait while the podcast is deleted')
+            message = _('This podcast and all its episodes will be PERMANENTLY DELETED.\r\nAre you sure you want to continue?')
         else:
-            title = _('Removing podcasts')
-            info = _('Please wait while the podcasts are removed')
-            message = _('Do you really want to remove the selected podcasts and their episodes?')
+            title = _('Deleting podcasts')
+            info = _('Please wait while the podcasts are deleted')
+            message = _('These podcasts and all their episodes will be PERMANENTLY DELETED.\r\nAre you sure you want to continue?')
 
         if confirm and not self.show_confirmation(message, title):
             return
