@@ -60,7 +60,6 @@ def main():
     src_dir = os.path.join(prefix, 'src')
     locale_dir = os.path.join(prefix, 'share', 'locale')
     ui_folder = os.path.join(prefix, 'share', 'gpodder', 'ui')
-    credits_file = os.path.join(prefix, 'share', 'gpodder', 'credits.txt')
     images_folder = os.path.join(prefix, 'share', 'gpodder', 'images')
     icon_file = os.path.join(prefix, 'share', 'icons', 'hicolor', 'scalable', 'apps', 'gpodder.svg')
 
@@ -90,7 +89,6 @@ def main():
 
     # Set up paths to folder with GtkBuilder files and gpodder.svg
     gpodder.ui_folders.append(ui_folder)
-    gpodder.credits_file = credits_file
     gpodder.images_folder = images_folder
     gpodder.icon_file = icon_file
 
