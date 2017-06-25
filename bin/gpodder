@@ -112,6 +112,7 @@ def main():
     options, args = parser.parse_args(sys.argv)
 
     gpodder.ui.gtk = True
+    gpodder.ui.python2 = True
 
     gpodder.ui.unity = (os.environ.get('DESKTOP_SESSION', 'unknown').lower() in 
         ('ubuntu', 'ubuntu-2d'))
