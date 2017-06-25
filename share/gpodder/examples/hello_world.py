@@ -37,3 +37,16 @@ class gPodderExtension:
     def on_unload(self):
         logger.info('Extension is being unloaded.')
 
+
+    def on_ui_object_available(self, name, ui_object):
+        """
+        Called by gPodder when ui is ready
+        """
+        if name == 'gpodder-gtk':
+            self.gpodder = ui_object
+
+    def on_create_menu(self):
+        return [("Say Hello", self.say_hello_cb)]
+
+    def say_hello_cb(self):
+        self.gpodder.notification("Hello Extension", "Message", widget=self.gpodder.main_window)

@@ -209,6 +209,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # Set up the first instance of MygPoClient
         self.mygpo_client = my.MygPoClient(self.config)
 
+        self.inject_extensions_menu()
+
         gpodder.user_extensions.on_ui_initialized(self.model,
                 self.extensions_podcast_update_cb,
                 self.extensions_episode_download_cb)
@@ -369,6 +371,27 @@ class gPodder(BuilderWidget, dbus.service.Object):
         action = Gio.SimpleAction.new('updateYoutubeSubscriptions', None)
         action.connect('activate', self.on_update_youtube_subscriptions_activate)
         g.add_action(action)
+
+
+    def inject_extensions_menu(self):
+        def gen_callback(label, callback):
+            return lambda action, param: callback()
+
+        extension_entries = gpodder.user_extensions.on_create_menu()
+        if extension_entries:
+            menubar = self.application.get_menubar()
+            for i in range(0, menubar.get_n_items()):
+                menu = menubar.do_get_item_link(menubar, i, Gio.MENU_LINK_SUBMENU)
+                menuname = menubar.get_item_attribute_value(i, Gio.MENU_ATTRIBUTE_LABEL, None)
+                if menuname is not None and menuname.get_string() == "E_xtras":
+                    for i, (label, callback) in enumerate(extension_entries):
+                        action_id = "ext.action_%d" % i
+                        action = Gio.SimpleAction.new(action_id)
+                        action.connect('activate', gen_callback(label, callback))
+
+                        self.gPodder.add_action(action)
+                        itm = Gio.MenuItem.new(label, "win." + action_id)
+                        menu.append_item(itm)
 
 
     def find_partial_downloads(self):
