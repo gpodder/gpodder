@@ -231,6 +231,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # Set up the first instance of MygPoClient
         self.mygpo_client = my.MygPoClient(self.config)
 
+        self.inject_extensions_menu()
+
         gpodder.user_extensions.on_ui_initialized(self.model,
                 self.extensions_podcast_update_cb,
                 self.extensions_episode_download_cb)
@@ -276,6 +278,24 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if diff > (60*60*24)*self.config.software_update.interval:
                 self.config.software_update.last_check = int(time.time())
                 self.check_for_updates(silent=True)
+
+
+    def inject_extensions_menu(self):
+        def gen_callback(label, callback):
+            return lambda widget: callback()
+
+        extension_entries = gpodder.user_extensions.on_create_menu()
+        if extension_entries:
+            for i, (label, callback) in enumerate(extension_entries):
+                action_id = "ext.action_%d" % i
+                action = gtk.Action(action_id, label, label, None)
+                action.connect('activate', gen_callback(label, callback))
+                self.actiongroup1.add_action(action)
+
+                uimanager = self.uimanager1
+                merge_id = uimanager.new_merge_id()
+                uimanager.add_ui(merge_id, "ui/mainMenu/menuExtras", action_id, action_id, gtk.UI_MANAGER_MENUITEM, False)
+
 
     def find_partial_downloads(self):
         def start_progress_callback(count):
