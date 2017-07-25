@@ -114,6 +114,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.db = self.core.db
         self.model = self.core.model
         self.options = options
+        self.extensions_menu = None
+        self.extensions_actions = []
         BuilderWidget.__init__(self, None, _builder_expose={'app': app})
 
     def new(self):
@@ -372,27 +374,41 @@ class gPodder(BuilderWidget, dbus.service.Object):
         action.connect('activate', self.on_update_youtube_subscriptions_activate)
         g.add_action(action)
 
-
     def inject_extensions_menu(self):
+        """
+        Update Extras/Extensions menu.
+        Called at startup and when en/dis-abling extenstions.
+        """
         def gen_callback(label, callback):
             return lambda action, param: callback()
 
-        extension_entries = gpodder.user_extensions.on_create_menu()
-        if extension_entries:
+        for a in self.extensions_actions:
+            self.gPodder.remove_action(a.get_property('name'))
+        self.extensions_actions = []
+
+        if self.extensions_menu is None:
+            # insert menu section at startup (hides when empty)
+            self.extensions_menu = Gio.Menu.new()
             menubar = self.application.get_menubar()
             for i in range(0, menubar.get_n_items()):
                 menu = menubar.do_get_item_link(menubar, i, Gio.MENU_LINK_SUBMENU)
                 menuname = menubar.get_item_attribute_value(i, Gio.MENU_ATTRIBUTE_LABEL, None)
-                if menuname is not None and menuname.get_string() == "E_xtras":
-                    for i, (label, callback) in enumerate(extension_entries):
-                        action_id = "ext.action_%d" % i
-                        action = Gio.SimpleAction.new(action_id)
-                        action.connect('activate', gen_callback(label, callback))
+                if menuname is not None and menuname.get_string() == 'E_xtras':
+                    menu.append_section(_('Extensions'), self.extensions_menu)
+        else:
+            self.extensions_menu.remove_all()
 
-                        self.gPodder.add_action(action)
-                        itm = Gio.MenuItem.new(label, "win." + action_id)
-                        menu.append_item(itm)
-
+        extension_entries = gpodder.user_extensions.on_create_menu()
+        if extension_entries:
+            # populate menu
+            for i, (label, callback) in enumerate(extension_entries):
+                action_id = 'extensions.action_%d' % i
+                action = Gio.SimpleAction.new(action_id)
+                action.connect('activate', gen_callback(label, callback))
+                self.extensions_actions.append(action)
+                self.gPodder.add_action(action)
+                itm = Gio.MenuItem.new(label, 'win.' + action_id)
+                self.extensions_menu.append_item(itm)
 
     def find_partial_downloads(self):
         def start_progress_callback(count):
@@ -3563,6 +3579,15 @@ class gPodder(BuilderWidget, dbus.service.Object):
                                                                          for url, message in failed_urls]),
                               _('Could not migrate some subscriptions'), important=True)
 
+    def on_extension_enabled(self, extension):
+        extension.on_ui_object_available('gpodder-gtk', self)
+        extension.on_ui_initialized(self.model,
+                self.extensions_podcast_update_cb,
+                self.extensions_episode_download_cb)
+        self.inject_extensions_menu()
+
+    def on_extension_disabled(self, extension):
+        self.inject_extensions_menu()
 
 
 class gPodderApplication(Gtk.Application):
@@ -3721,13 +3746,22 @@ class gPodderApplication(Gtk.Application):
                 parent_window=self.window.main_window, \
                 mygpo_client=self.window.mygpo_client, \
                 on_send_full_subscriptions=self.window.on_send_full_subscriptions, \
-                on_itemExportChannels_activate=self.window.on_itemExportChannels_activate)
+                on_itemExportChannels_activate=self.window.on_itemExportChannels_activate, \
+                on_extension_enabled=self.on_extension_enabled,
+                on_extension_disabled=self.on_extension_disabled)
 
     def on_goto_mygpo(self, action, param):
         self.window.mygpo_client.open_website()
 
     def on_check_for_updates_activate(self, action, param):
         self.window.check_for_updates(silent=False)
+
+    def on_extension_enabled(self, extension):
+        self.window.on_extension_enabled(extension)
+
+    def on_extension_disabled(self, extension):
+        self.window.on_extension_disabled(extension)
+
 
 def main(options=None):
     GObject.set_application_name('gPodder')
