@@ -118,6 +118,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.db = self.core.db
         self.model = self.core.model
         self.options = options
+        self.extensions_merge_ids = []
+        self.extensions_actions = []
         BuilderWidget.__init__(self, None)
 
     def new(self):
@@ -279,10 +281,21 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.config.software_update.last_check = int(time.time())
                 self.check_for_updates(silent=True)
 
-
     def inject_extensions_menu(self):
+        """
+        Update Extras/Extensions menu.
+        Called at startup and when en/dis-abling extenstions.
+        """
         def gen_callback(label, callback):
             return lambda widget: callback()
+
+        for action in self.extensions_actions:
+            self.actiongroup1.remove_action(action)
+        self.extensions_actions = []
+        uimanager = self.uimanager1
+        for merge_id in self.extensions_merge_ids:
+            uimanager.remove_ui(merge_id)
+        self.extensions_merge_ids = []
 
         extension_entries = gpodder.user_extensions.on_create_menu()
         if extension_entries:
@@ -291,11 +304,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 action = gtk.Action(action_id, label, label, None)
                 action.connect('activate', gen_callback(label, callback))
                 self.actiongroup1.add_action(action)
+                self.extensions_actions.append(action)
 
-                uimanager = self.uimanager1
                 merge_id = uimanager.new_merge_id()
                 uimanager.add_ui(merge_id, "ui/mainMenu/menuExtras", action_id, action_id, gtk.UI_MANAGER_MENUITEM, False)
-
+                self.extensions_merge_ids.append(merge_id)
 
     def find_partial_downloads(self):
         def start_progress_callback(count):
@@ -2935,7 +2948,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 parent_window=self.main_window, \
                 mygpo_client=self.mygpo_client, \
                 on_send_full_subscriptions=self.on_send_full_subscriptions, \
-                on_itemExportChannels_activate=self.on_itemExportChannels_activate)
+                on_itemExportChannels_activate=self.on_itemExportChannels_activate, \
+                on_extension_enabled=self.on_extension_enabled, \
+                on_extension_disabled=self.on_extension_disabled)
 
     def on_goto_mygpo(self, widget):
         self.mygpo_client.open_website()
@@ -3523,6 +3538,15 @@ class gPodder(BuilderWidget, dbus.service.Object):
                                                                          for url, message in failed_urls]),
                               _('Could not migrate some subscriptions'), important=True)
 
+    def on_extension_enabled(self, extension):
+        extension.on_ui_object_available('gpodder-gtk', self)
+        extension.on_ui_initialized(self.model,
+                self.extensions_podcast_update_cb,
+                self.extensions_episode_download_cb)
+        self.inject_extensions_menu()
+
+    def on_extension_disabled(self, extension):
+        self.inject_extensions_menu()
 
 def main(options=None):
     gobject.threads_init()

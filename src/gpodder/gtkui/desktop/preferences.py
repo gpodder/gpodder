@@ -409,6 +409,10 @@ class gPodderPreferences(BuilderWidget):
 
         if new_enabled == now_enabled:
             model.set_value(it, self.C_TOGGLE, new_enabled)
+            if now_enabled:
+                self.on_extension_enabled(container.module)
+            else:
+                self.on_extension_disabled(container.module)
         elif container.error is not None:
             self.show_message(container.error.message,
                     _('Extension cannot be activated'), important=True)
