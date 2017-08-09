@@ -265,6 +265,7 @@ def convert_gpodder2_db(old_db, new_db):
                 None,
                 0,
                 row['sync_to_devices'],
+                None,
         )
         new_db.execute("""
         INSERT INTO podcast VALUES (%s)
