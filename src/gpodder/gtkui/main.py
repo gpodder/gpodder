@@ -3580,10 +3580,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
                               _('Could not migrate some subscriptions'), important=True)
 
     def on_extension_enabled(self, extension):
-        extension.on_ui_object_available('gpodder-gtk', self)
-        extension.on_ui_initialized(self.model,
-                self.extensions_podcast_update_cb,
-                self.extensions_episode_download_cb)
+        if getattr(extension, 'on_ui_object_available', None) is not None:
+            extension.on_ui_object_available('gpodder-gtk', self)
+        if getattr(extension, 'on_ui_initialized', None) is not None:
+            extension.on_ui_initialized(self.model,
+                    self.extensions_podcast_update_cb,
+                    self.extensions_episode_download_cb)
         self.inject_extensions_menu()
 
     def on_extension_disabled(self, extension):
