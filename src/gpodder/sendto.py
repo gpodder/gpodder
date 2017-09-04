@@ -114,7 +114,7 @@ class SendToTask(Task):
         if free == -1:
             logger.warn('Cannot determine free disk space on device')
         elif needed > free:
-            d = {'path': self.destination, 'free': util.format_filesize(free), 'need': util.format_filesize(needed)}
+            d = {'path': self.target_folder, 'free': util.format_filesize(free), 'need': util.format_filesize(needed)}
             message =_('Not enough space in %(path)s: %(free)s available, but need at least %(need)s')
             raise SendToFailedException(message % d)
 

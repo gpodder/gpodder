@@ -1449,7 +1449,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 message = self.format_episode_list(list(map(format_task_finished, finished_tasks)))
                 self.show_message(message, self._task_messages[activity]['finished_title'])
             elif failed_tasks:
-                message = self.format_episode_list(list(map(format_task_finished, finished_tasks)))
+                message = self.format_episode_list(list(map(format_task_failed, failed_tasks)))
                 self.show_message(message, self._task_messages[activity]['failed_title'], True)
 
             # Do post-sync processing if required
@@ -1717,11 +1717,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         setattr(self, PRIVATE_FOLDER_ATTRIBUTE, folder)
 
         if notCancelled and folder is not None: # folder is None if not double-clicking on folder in "Recent"
-            @util.run_in_background
-            def sync_thread_func():
-                st = sendto.SendTo(self.download_status_model, self.download_queue_manager)
-                st.add_send_to(episodes, folder,
-                               done_callback=self.enable_download_list_update)
+            st = sendto.SendTo(self.download_status_model, self.download_queue_manager)
+            st.add_send_to(episodes, folder,
+                           done_callback=self.enable_download_list_update)
 
     def copy_episodes_bluetooth(self, episodes):
         episodes_to_copy = [e for e in episodes if e.was_downloaded(and_exists=True)]
