@@ -239,6 +239,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.extensions_podcast_update_cb,
                 self.extensions_episode_download_cb)
 
+        gpodder.user_extensions.on_application_started()
+
         # load list of user applications for audio playback
         self.user_apps_reader = UserAppsReader(['audio', 'video'])
         util.run_in_background(self.user_apps_reader.read)
