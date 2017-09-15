@@ -30,6 +30,6 @@ class gPodderExtension:
         if name == 'gpodder-gtk':
             self.gpodder = ui_object
 
-    def on_ui_initialized(self, model, update_podcast_callback,
-            download_episode_callback):
-        self.gpodder.update_feed_cache()
+    def on_application_started(self):
+        if self.gpodder:
+            self.gpodder.update_feed_cache()
