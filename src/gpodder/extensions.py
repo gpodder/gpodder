@@ -506,6 +506,20 @@ class ExtensionManager(object):
         pass
 
     @call_extensions
+    def on_create_menu(self):
+        """Called when the Extras menu is created
+
+        You can add additional Extras menu entries here. You have to return a
+        list of tuples, where the first item is a label and the second item is a
+        callable that will get no parameter.
+
+        Example return value:
+
+        [('Sync to Smartphone', lambda : ...)]
+        """
+        pass
+
+    @call_extensions
     def on_episodes_context_menu(self, episodes):
         """Called when the episode list context menu is opened
 
@@ -582,3 +596,15 @@ class ExtensionManager(object):
         """
         pass
 
+    @call_extensions
+    def on_application_started(self):
+        """Called when the application started.
+
+        This is for extensions doing stuff at startup that they don't
+        want to do if they have just been enabled.
+        e.g. minimize at startup should not minimize the application when
+        enabled but only on following startups.
+
+        It is called after on_ui_object_available and on_ui_initialized.
+        """
+        pass
