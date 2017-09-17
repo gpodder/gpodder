@@ -18,5 +18,8 @@ class gPodderExtension:
 
     def on_ui_object_available(self, name, ui_object):
         if name == 'gpodder-gtk':
-            ui_object.main_window.iconify()
+            self.ui_object = ui_object
 
+    def on_application_started(self):
+        if self.ui_object:
+            self.ui_object.main_window.iconify()
