@@ -3165,7 +3165,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         util.open_website(gpodder.__url__)
 
     def on_wiki_activate(self, widget, *args):
-        util.open_website('http://gpodder.org/wiki/User_Manual')
+        util.open_website('https://gpodder.github.io/docs/user-manual.html')
 
     def on_check_for_updates_activate(self, widget):
         self.check_for_updates(silent=False)
