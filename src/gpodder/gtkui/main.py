@@ -3741,7 +3741,7 @@ class gPodderApplication(Gtk.Application):
         self.quit()
 
     def on_wiki_activate(self, action, param):
-        util.open_website('http://gpodder.org/wiki/User_Manual')
+        util.open_website('https://gpodder.github.io/docs/user-manual.html')
 
     def on_itemPreferences_activate(self, action, param=None):
         gPodderPreferences(self.window.gPodder, \

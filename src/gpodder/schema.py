@@ -265,6 +265,7 @@ def convert_gpodder2_db(old_db, new_db):
                 None,
                 0,
                 row['sync_to_devices'],
+                None,
         )
         new_db.execute("""
         INSERT INTO podcast VALUES (%s)
@@ -296,10 +297,18 @@ def convert_gpodder2_db(old_db, new_db):
                 row['current_position_updated'],
                 0,
                 None,
+                '',
         )
         new_db.execute("""
         INSERT INTO episode VALUES (%s)
         """ % ', '.join('?'*len(values)), values)
+        # do 6 -> 7 upgrade (description_html)
+        new_db.create_function('is_html', 1, util.is_html)
+        new_db.create_function('remove_html_tags', 1, util.remove_html_tags)
+        new_db.execute("UPDATE episode SET description_html=description WHERE is_html(description)")
+        new_db.execute("UPDATE episode SET description=remove_html_tags(description_html) WHERE is_html(description)")
+        new_db.execute("UPDATE podcast SET http_last_modified=NULL, http_etag=NULL")
+
     old_cur.close()
 
     old_db.close()

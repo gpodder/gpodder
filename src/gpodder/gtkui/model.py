@@ -881,6 +881,8 @@ class PodcastListModel(Gtk.ListStore):
             del self._cover_cache[podcast_url]
 
     def add_cover_by_channel(self, channel, pixbuf):
+        if pixbuf is None:
+            return
         # Remove older images from cache
         self.clear_cover_cache(channel.url)
 

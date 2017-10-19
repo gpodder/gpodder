@@ -150,7 +150,8 @@ class gPodderChannel(BuilderWidget):
     def cover_download_finished(self, channel, pixbuf):
         def set_cover(channel, pixbuf):
             if self.channel == channel:
-                self.imgCover.set_from_pixbuf(self.scale_pixbuf(pixbuf))
+                if pixbuf is not None:
+                    self.imgCover.set_from_pixbuf(self.scale_pixbuf(pixbuf))
                 if self.show_on_cover_load:
                     self.main_window.show()
                     self.show_on_cover_load = False
