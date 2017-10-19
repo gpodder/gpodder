@@ -233,7 +233,7 @@ class ExtensionContainer(object):
         if not filename or not os.path.exists(filename):
             return {}
 
-        extension_py = open(filename).read()
+        extension_py = open(filename, encoding='utf-8').read()
         metadata = dict(re.findall("__([a-z_]+)__ = '([^']+)'", extension_py))
 
         # Support for using gpodder.gettext() as _ to localize text
@@ -289,10 +289,10 @@ class ExtensionContainer(object):
             return
 
         basename, extension = os.path.splitext(os.path.basename(self.filename))
-        fp = open(self.filename, 'r')
+        fp = open(self.filename, 'rb')
         try:
             module_file = imp.load_module(basename, fp, self.filename,
-                    (extension, 'r', imp.PY_SOURCE))
+                    (extension, 'rb', imp.PY_SOURCE))
         finally:
             # Remove the .pyc file if it was created during import
             util.delete_file(self.filename + 'c')
