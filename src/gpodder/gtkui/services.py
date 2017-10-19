@@ -120,11 +120,15 @@ class CoverDownloader(ObservableService):
             pixbuf = gtk.gdk.pixbuf_new_from_file(filename)
         except Exception, e:
             logger.warn('Cannot load cover art', exc_info=True)
-            if filename.startswith(channel.cover_file):
-                logger.info('Deleting broken cover: %s', filename)
-                util.delete_file(filename)
-                filename = get_filename()
+        if pixbuf is None and filename.startswith(channel.cover_file):
+            logger.info('Deleting broken cover: %s', filename)
+            util.delete_file(filename)
+            filename = get_filename()
+            try:
                 pixbuf = gtk.gdk.pixbuf_new_from_file(filename)
+            except Exception as e:
+                logger.warn('Corrupt cover art on server, deleting', exc_info=True)
+                util.delete_file(filename)
 
         if async:
             self.notify('cover-available', channel, pixbuf)
