@@ -36,9 +36,11 @@ import urllib.parse
 try:
     # Python 2
     from rfc822 import mktime_tz
+    from StringIO import StringIO
 except ImportError:
     # Python 3
     from email.utils import mktime_tz
+    from io import StringIO
 
 
 class ExceptionWithData(Exception):
@@ -171,31 +173,39 @@ class Fetcher(object):
             except HTTPError as e:
                 return self._check_statuscode(e, e.geturl())
 
-        if not is_local and stream.headers.get('content-type', '').startswith('text/html'):
-            if autodiscovery:
-                ad = FeedAutodiscovery(url)
+        data = stream
+        if autodiscovery and not is_local and stream.headers.get('content-type', '').startswith('text/html'):
+            # Not very robust attempt to detect encoding: http://stackoverflow.com/a/1495675/1072626
+            charset = stream.headers.get_param('charset')
+            if charset is None:
+                charset = 'utf-8' # utf-8 appears hard-coded elsewhere in this codebase
 
-                # Not very robust attempt to detect encoding: http://stackoverflow.com/a/1495675/1072626
-                charset = stream.headers.get_param('charset')
-                if charset is None:
-                    charset = 'utf-8' # utf-8 appears hard-coded elsewhere in this codebase
+            # We use StringIO in case the stream needs to be read again
+            data = StringIO(stream.read().decode(charset))
+            ad = FeedAutodiscovery(url)
 
-                ad.feed(stream.read().decode(charset))
-                if ad._resolved_url:
-                    try:
-                        self._parse_feed(ad._resolved_url, None, None, False)
-                        return Result(NEW_LOCATION, ad._resolved_url)
-                    except Exception as e:
-                        logger.warn('Feed autodiscovery failed', exc_info=True)
+            ad.feed(data.getvalue())
+            if ad._resolved_url:
+                try:
+                    self._parse_feed(ad._resolved_url, None, None, False)
+                    return Result(NEW_LOCATION, ad._resolved_url)
+                except Exception as e:
+                    logger.warn('Feed autodiscovery failed', exc_info=True)
 
-                    # Second, try to resolve the URL
-                    url = self._resolve_url(url)
-                    if url:
-                        return Result(NEW_LOCATION, url)
+                # Second, try to resolve the URL
+                url = self._resolve_url(url)
+                if url:
+                    return Result(NEW_LOCATION, url)
 
-            raise InvalidFeed('Got HTML document instead')
+            # Reset the stream so podcastparser can give it a go
+            data.seek(0)
 
-        feed = podcastparser.parse(url, stream)
+
+        try:
+            feed = podcastparser.parse(url, data)
+        except ValueError as e:
+            raise InvalidFeed('Could not parse feed: {msg}'.format(msg=e))
+
         if is_local:
             feed['headers'] = {}
             return Result(UPDATED_FEED, feed)

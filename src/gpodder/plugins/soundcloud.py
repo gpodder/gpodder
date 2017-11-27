@@ -30,6 +30,7 @@ from gpodder import util
 
 import json
 
+import logging
 import os
 import time
 
@@ -40,6 +41,9 @@ import urllib.request, urllib.parse, urllib.error
 
 # gPodder's consumer key for the Soundcloud API
 CONSUMER_KEY = 'zrweghtEtnZLpXf3mlm8mQ'
+
+
+logger = logging.getLogger(__name__)
 
 
 def soundcloud_parsedate(s):
@@ -137,9 +141,19 @@ class SoundcloudUser(object):
         try:
             json_url = 'https://api.soundcloud.com/users/%(user)s/%(feed)s.json?filter=downloadable&consumer_key=%(consumer_key)s&limit=200' \
                     % { "user":self.get_user_id(), "feed":feed, "consumer_key": CONSUMER_KEY }
+            logger.debug("loading %s", json_url)
 
-            tracks = (track for track in json.loads(util.urlopen(json_url).read().decode('utf-8')) \
-                    if track['downloadable'])
+            json_tracks = json.loads(util.urlopen(json_url).read().decode('utf-8'))
+            tracks = [track for track in json_tracks if track['downloadable']]
+            total_count = len(tracks) + len([track for track in json_tracks
+                                              if not track['downloadable']])
+
+            if len(tracks) == 0 and total_count > 0:
+                logger.warn("Download of all %i %s of user %s is disabled" %
+                            (total_count, feed, self.username))
+            else:
+                logger.info("%i/%i downloadable tracks for user %s %s feed" %
+                            (len(tracks), total_count, self.username, feed))
 
             for track in tracks:
                 # Prefer stream URL (MP3), fallback to download URL
