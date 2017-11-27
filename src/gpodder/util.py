@@ -29,6 +29,7 @@ This module provides helper and utility functions for gPodder that
 are not tied to any specific part of gPodder.
 
 """
+import json
 
 import gpodder
 
@@ -1772,7 +1773,7 @@ def rename_episode_file(episode, filename):
     episode.db.commit()
 
 
-def get_update_info(url='http://gpodder.org/downloads'):
+def get_update_info():
     """
     Get up to date release information from gpodder.org.
 
@@ -1784,14 +1785,14 @@ def get_update_info(url='http://gpodder.org/downloads'):
     Example result (outdated version, 10 days after release):
         (False, '3.0.5', '2012-02-29', 10)
     """
-    data = urlopen(url).read()
-    id_field_re = re.compile(r'<([a-z]*)[^>]*id="([^"]*)"[^>]*>([^<]*)</\1>')
-    info = dict((m.group(2), m.group(3)) for m in id_field_re.finditer(data))
+    url = 'https://api.github.com/repos/gpodder/gpodder/releases/latest'
+    data = urlopen(url).read().decode('utf-8')
+    info = json.loads(data)
 
-    latest_version = info['latest-version']
-    release_date = info['release-date']
+    latest_version = info.get('tag_name','').replace('gpodder-','')
+    release_date = info['published_at']
 
-    release_parsed = datetime.datetime.strptime(release_date, '%Y-%m-%d')
+    release_parsed = datetime.datetime.strptime(release_date, '%Y-%m-%dT%H:%M:%SZ')
     days_since_release = (datetime.datetime.today() - release_parsed).days
 
     convert = lambda s: tuple(int(x) for x in s.split('.'))
