@@ -315,11 +315,11 @@
           </object>
         </child>
         <child>
-          <object class="GtkAction" id="wiki">
+          <object class="GtkAction" id="help">
             <property name="stock_id">gtk-help</property>
-            <property name="name">wiki</property>
+            <property name="name">help</property>
             <property name="label" translatable="yes">User manual</property>
-            <signal handler="on_wiki_activate" name="activate"/>
+            <signal handler="on_help_activate" name="activate"/>
           </object>
         </child>
         <child>
@@ -388,7 +388,7 @@
           <menuitem action="item_view_hide_boring_podcasts"/>
         </menu>
         <menu action="menuHelp">
-          <menuitem action="wiki"/>
+          <menuitem action="help"/>
           <menuitem action="item_goto_mygpo"/>
           <menuitem action="item_check_for_updates"/>
           <separator/>
