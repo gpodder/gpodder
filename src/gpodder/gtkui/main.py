@@ -2496,8 +2496,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 _('Episode actions from gpodder.net are merged.'), \
                 False, self.get_dialog_parent())
 
-        while Gtk.events_pending():
-            Gtk.main_iteration()
+        Gtk.main_iteration()
 
         self.mygpo_client.process_episode_actions(self.find_episode)
 
