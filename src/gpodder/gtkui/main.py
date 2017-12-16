@@ -3231,13 +3231,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
         {copyright}
         License: {license}
 
-        <a href="{url}">Website</a> · <a href="{donate_url}">Donate</a> · <a href="{bugs_url}">Bug Tracker</a>
+        <a href="{url}">Website</a> · <a href="{bugs_url}">Bug Tracker</a>
         """.format(version=gpodder.__version__,
                    date=gpodder.__date__,
                    relname=gpodder.__relname__,
                    copyright=gpodder.__copyright__,
                    license=gpodder.__license__,
-                   donate_url='http://gpodder.org/donate',
                    bugs_url='https://github.com/gpodder/gpodder/issues',
                    url=cgi.escape(gpodder.__url__)).strip().split('\n')))
 
