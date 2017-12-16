@@ -3707,7 +3707,6 @@ class gPodderApplication(Gtk.Application):
         label.set_alignment(0, 0.5)
         label.set_markup('\n'.join(x.strip() for x in """
         <b>gPodder {version} ({date})</b>
-        <i>"{relname}"</i>
 
         {copyright}
         License: {license}
@@ -3715,7 +3714,6 @@ class gPodderApplication(Gtk.Application):
         <a href="{url}">Website</a> · <a href="{bugs_url}">Bug Tracker</a>
         """.format(version=gpodder.__version__,
                    date=gpodder.__date__,
-                   relname=gpodder.__relname__,
                    copyright=gpodder.__copyright__,
                    license=gpodder.__license__,
                    bugs_url='https://github.com/gpodder/gpodder/issues',
