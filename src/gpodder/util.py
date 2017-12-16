@@ -1483,6 +1483,17 @@ def sanitize_encoding(filename):
     return filename.encode(encoding, 'ignore')
 
 
+def to_unicode(s):
+    """Convert a string or unicode object to unicode
+
+    >>> to_unicode('hello')
+    u'hello'
+    >>> to_unicode(u'world')
+    u'world'
+    """
+    return s if isinstance(s, unicode) else s.decode(encoding, 'ignore')
+
+
 def sanitize_filename(filename, max_length=0, use_ascii=False):
     """
     Generate a sanitized version of a filename that can

@@ -48,12 +48,12 @@ class gPodderExtension:
         basename, ext = os.path.splitext(filename)
 
         new_basename = []
-        new_basename.append(util.sanitize_encoding(title) + ext)
-        if self.config.add_podcast_title:
-            new_basename.insert(0, podcast_title)
+        new_basename.append(util.to_unicode(title) + util.to_unicode(ext))
         if self.config.add_sortdate:
-            new_basename.insert(0, sortdate)
-        new_basename = ' - '.join(new_basename)
+            new_basename.insert(0, util.to_unicode(sortdate))
+        if self.config.add_podcast_title:
+            new_basename.insert(0, util.to_unicode(podcast_title))
+        new_basename = u' - '.join(new_basename)
 
         # On Windows, force ASCII encoding for filenames (bug 1724)
         new_basename = util.sanitize_filename(new_basename,
