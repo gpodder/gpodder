@@ -30,10 +30,10 @@ $(SETUP_OUTPUT): $(SETUP_SCRIPT) $(LAUNCHER_ROOT)/$(GPODDER_EXE) $(LAUNCHER_ROOT
 	$(MAKE) -C $(SOURCE_ROOT) messages
 	if [ ! -f $(ISCC) ]; then \
 	    wget -O innosetup-installer.exe http://www.jrsoftware.org/download.php/is.exe; \
-	    wine innosetup-installer.exe /verysilent; \
+	    xvfb-run wine innosetup-installer.exe /verysilent; \
 	    rm -f innosetup-installer.exe; \
 	fi
-	wine $(ISCC) $<
+	xvfb-run wine $(ISCC) $<
 	$(CHMOD) -x $@
 
 $(LAUNCHER_ROOT)/$(GPODDER_EXE):
