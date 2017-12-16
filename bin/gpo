@@ -747,7 +747,7 @@ class gPodderCli(object):
 
     def _shell(self):
         safe_print(os.linesep.join(x.strip() for x in ("""
-        gPodder %(__version__)s "%(__relname__)s" (%(__date__)s) - %(__url__)s
+        gPodder %(__version__)s (%(__date__)s) - %(__url__)s
         %(__copyright__)s
         License: %(__license__)s
 
