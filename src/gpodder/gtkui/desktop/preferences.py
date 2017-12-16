@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # gPodder - A media aggregator and podcast client
-# Copyright (c) 2005-2016 Thomas Perl and the gPodder Team
+# Copyright (c) 2005-2017 Thomas Perl and the gPodder Team
 #
 # gPodder is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -295,6 +295,9 @@ class gPodderPreferences(BuilderWidget):
         self.set_extension_preferences()
         self.main_window.show()
 
+    def _extensions_select_function(self, selection, model, path, path_currently_selected):
+        return model.get_value(model.get_iter(path), self.C_SHOW_TOGGLE)
+
     def set_extension_preferences(self):
         def search_equal_func(model, column, key, it):
             label = model.get_value(it, self.C_LABEL)
@@ -306,6 +309,9 @@ class gPodderPreferences(BuilderWidget):
 
             return True
         self.treeviewExtensions.set_search_equal_func(search_equal_func)
+
+        selection = self.treeviewExtensions.get_selection()
+        selection.set_select_function(self._extensions_select_function)
 
         toggle_cell = Gtk.CellRendererToggle()
         toggle_cell.connect('toggled', self.on_extensions_cell_toggled)
