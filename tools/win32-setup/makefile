@@ -9,7 +9,8 @@ SED := sed
 CHMOD := chmod
 
 # Simple script that calls ISCC.exe via Wine, and passes arguments
-ISCC ?= iscc
+
+ISCC ?= "$(HOME)/.wine/drive_c/Program Files (x86)/Inno Setup 5/ISCC.exe"
 
 SETUP_SCRIPT := gpodder-setup.iss
 SETUP_SCRIPT_IN := $(SETUP_SCRIPT).in
@@ -27,7 +28,12 @@ $(SETUP_OUTPUT): $(SETUP_SCRIPT) $(LAUNCHER_ROOT)/$(GPODDER_EXE) $(LAUNCHER_ROOT
 	$(PYTHON) ../localdepends.py
 	cp -rpv ../fake-dbus-module/dbus ../../src/
 	$(MAKE) -C $(SOURCE_ROOT) messages
-	$(ISCC) $<
+	if [ ! -f $(ISCC) ]; then \
+	    wget -O innosetup-installer.exe http://www.jrsoftware.org/download.php/is.exe; \
+	    xvfb-run wine innosetup-installer.exe /verysilent; \
+	    rm -f innosetup-installer.exe; \
+	fi
+	xvfb-run wine $(ISCC) $<
 	$(CHMOD) -x $@
 
 $(LAUNCHER_ROOT)/$(GPODDER_EXE):

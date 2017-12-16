@@ -5,8 +5,21 @@ python:
     - "2.7"
 install:
     - sudo apt-get update -q
-    - sudo apt-get install intltool desktop-file-utils
+    - sudo apt-get install intltool desktop-file-utils wine mingw-w64-i686-dev binutils-mingw-w64-i686 gcc-mingw-w64 xvfb
     - pip install coverage minimock
     - python tools/localdepends.py
 script:
     - make releasetest
+    - make -C tools/win32-setup
+    - make -C tools/win32-portable
+deploy:
+    provider: releases
+    api_key:
+        secure: "huPoTQRwhXZVD45JSBnCgtrzofpcotXShBWk9FYH2MOFwXQHRbp2ueaD0rxQxHNBTBXQDnOX+OQMnh99peYlxB1bPAx6LUMBgtesxvsUc3T5m7yZvqXyDBhjIBycYwxG0fBrnxEokaJKQDnZ4S/cKmk766iwhyGr66s+l9UBD/Y="
+    file:
+        - tools/win32-setup/gpodder-*-setup.exe
+        - tools/win32-portable/gpodder-*-win32.zip
+    file_glob: true
+    on:
+        tags: true
+    skip_cleanup: true
