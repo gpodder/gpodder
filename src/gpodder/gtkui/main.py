@@ -3612,8 +3612,8 @@ class gPodderApplication(Gtk.Application):
         action.connect('activate', self.on_quit)
         self.add_action(action)
 
-        action = Gio.SimpleAction.new('wiki', None)
-        action.connect('activate', self.on_wiki_activate)
+        action = Gio.SimpleAction.new('help', None)
+        action.connect('activate', self.on_help_activate)
         self.add_action(action)
 
         action = Gio.SimpleAction.new('preferences', None)
@@ -3740,8 +3740,8 @@ class gPodderApplication(Gtk.Application):
     def on_window_removed(self, *args):
         self.quit()
 
-    def on_wiki_activate(self, action, param):
-        util.open_website('https://gpodder.github.io/docs/user-manual.html')
+    def on_help_activate(self, action, param):
+        util.open_website('https://gpodder.github.io/docs/')
 
     def on_itemPreferences_activate(self, action, param=None):
         gPodderPreferences(self.window.gPodder, \
