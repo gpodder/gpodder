@@ -45,6 +45,8 @@ except ImportError:
     # Python < 2.6
     from cgi import parse_qs
 
+import youtube_dl
+
 # http://en.wikipedia.org/wiki/YouTube#Quality_and_codecs
 # format id, (preferred ids, path(?), description) # video bitrate, audio bitrate
 formats = [
@@ -100,56 +102,10 @@ def get_real_download_url(url, preferred_fmt_ids=None):
     if not preferred_fmt_ids:
         preferred_fmt_ids, _, _ = formats_dict[22] # MP4 720p
 
-    vid = get_youtube_id(url)
-    if vid is not None:
-        page = None
-        url = 'http://www.youtube.com/get_video_info?&el=detailpage&video_id=' + vid
-
-        while page is None:
-            req = util.http_request(url, method='GET')
-            if 'location' in req.msg:
-                url = req.msg['location']
-            else:
-                page = req.read()
-
-        # Try to find the best video format available for this video
-        # (http://forum.videohelp.com/topic336882-1800.html#1912972)
-        def find_urls(page):
-            r4 = re.search('url_encoded_fmt_stream_map=([^&]+)', page)
-            if r4 is not None:
-                fmt_url_map = urllib.unquote(r4.group(1))
-                for fmt_url_encoded in fmt_url_map.split(','):
-                    video_info = parse_qs(fmt_url_encoded)
-                    yield int(video_info['itag'][0]), video_info['url'][0]
-            else:
-                error_info = parse_qs(page)
-                error_message = util.remove_html_tags(error_info['reason'][0])
-                raise YouTubeError('Cannot download video: %s' % error_message)
-
-        fmt_id_url_map = sorted(find_urls(page), reverse=True)
-
-        if not fmt_id_url_map:
-            raise YouTubeError('fmt_url_map not found for video ID "%s"' % vid)
-
-        # Default to the highest fmt_id if we don't find a match below
-        _, url  = fmt_id_url_map[0]
-
-        formats_available = set(fmt_id for fmt_id, url in fmt_id_url_map)
-        fmt_id_url_map = dict(fmt_id_url_map)
-
-        for id in preferred_fmt_ids:
-            id = int(id)
-            if id in formats_available:
-                format = formats_dict.get(id)
-                if format is not None:
-                    _, _, description = format
-                else:
-                    description = 'Unknown'
-
-                logger.info('Found YouTube format: %s (fmt_id=%d)',
-                        description, id)
-                url = fmt_id_url_map[id]
-                break
+    if is_video_link(url):
+        ydl = youtube_dl.YoutubeDL({'outtmpl': u'%(id)s%(ext)s'})
+        result = ydl.extract_info(url, download=False)
+        url = result['requested_formats'][0]['url']
 
     return url
 
