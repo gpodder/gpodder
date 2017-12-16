@@ -5,7 +5,7 @@ python:
     - "2.7"
 install:
     - sudo apt-get update -q
-    - sudo apt-get install intltool desktop-file-utils wine mingw-w64-i686-dev binutils-mingw-w64-i686
+    - sudo apt-get install intltool desktop-file-utils wine mingw-w64-i686-dev binutils-mingw-w64-i686 gcc-mingw-w64
     - pip install coverage minimock
     - python tools/localdepends.py
 script:
