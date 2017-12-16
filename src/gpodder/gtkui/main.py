@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # gPodder - A media aggregator and podcast client
-# Copyright (c) 2005-2016 Thomas Perl and the gPodder Team
+# Copyright (c) 2005-2017 Thomas Perl and the gPodder Team
 #
 # gPodder is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -3226,7 +3226,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         label.set_alignment(0, 0.5)
         label.set_markup('\n'.join(x.strip() for x in """
         <b>gPodder {version} ({date})</b>
-        <i>"{relname}"</i>
 
         {copyright}
         License: {license}
@@ -3234,7 +3233,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         <a href="{url}">Website</a> · <a href="{bugs_url}">Bug Tracker</a>
         """.format(version=gpodder.__version__,
                    date=gpodder.__date__,
-                   relname=gpodder.__relname__,
                    copyright=gpodder.__copyright__,
                    license=gpodder.__license__,
                    bugs_url='https://github.com/gpodder/gpodder/issues',
