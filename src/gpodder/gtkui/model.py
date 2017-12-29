@@ -38,14 +38,15 @@ logger = logging.getLogger(__name__)
 from gpodder.gtkui import draw
 
 import os
-import gtk
-import gobject
+from gi.repository import Gtk
+from gi.repository import GObject
+from gi.repository import GdkPixbuf
 import cgi
 import re
 import time
 
 try:
-    import gio
+    from gi.repository import Gio
     have_gio = True
 except ImportError:
     have_gio = False
@@ -140,15 +141,17 @@ class BackgroundUpdate(object):
         return bool(self.episodes)
 
 
-class EpisodeListModel(gtk.ListStore):
+class EpisodeListModel(Gtk.ListStore):
     C_URL, C_TITLE, C_FILESIZE_TEXT, C_EPISODE, C_STATUS_ICON, \
             C_PUBLISHED_TEXT, C_DESCRIPTION, C_TOOLTIP, \
             C_VIEW_SHOW_UNDELETED, C_VIEW_SHOW_DOWNLOADED, \
             C_VIEW_SHOW_UNPLAYED, C_FILESIZE, C_PUBLISHED, \
             C_TIME, C_TIME_VISIBLE, C_TOTAL_TIME, \
-            C_LOCKED = range(17)
+            C_LOCKED = list(range(17))
 
-    VIEW_ALL, VIEW_UNDELETED, VIEW_DOWNLOADED, VIEW_UNPLAYED = range(4)
+    VIEW_ALL, VIEW_UNDELETED, VIEW_DOWNLOADED, VIEW_UNPLAYED = list(range(4))
+
+    VIEWS = ['VIEW_ALL', 'VIEW_UNDELETED', 'VIEW_DOWNLOADED', 'VIEW_UNPLAYED']
 
     # In which steps the UI is updated for "loading" animations
     _UI_UPDATE_STEP = .03
@@ -157,9 +160,9 @@ class EpisodeListModel(gtk.ListStore):
     PROGRESS_STEPS = 20
 
     def __init__(self, config, on_filter_changed=lambda has_episodes: None):
-        gtk.ListStore.__init__(self, str, str, str, object, \
+        Gtk.ListStore.__init__(self, str, str, str, object, \
                 str, str, str, str, bool, bool, bool, \
-                gobject.TYPE_INT64, gobject.TYPE_INT64, str, bool, gobject.TYPE_INT64, bool)
+                GObject.TYPE_INT64, GObject.TYPE_INT64, str, bool, GObject.TYPE_INT64, bool)
 
         self._config = config
 
@@ -169,7 +172,7 @@ class EpisodeListModel(gtk.ListStore):
 
         # Filter to allow hiding some episodes
         self._filter = self.filter_new()
-        self._sorter = gtk.TreeModelSort(self._filter)
+        self._sorter = Gtk.TreeModelSort(self._filter)
         self._view_mode = self.VIEW_ALL
         self._search_term = None
         self._search_term_eql = None
@@ -182,8 +185,8 @@ class EpisodeListModel(gtk.ListStore):
         self.ICON_VIDEO_FILE = 'video-x-generic'
         self.ICON_IMAGE_FILE = 'image-x-generic'
         self.ICON_GENERIC_FILE = 'text-x-generic'
-        self.ICON_DOWNLOADING = gtk.STOCK_GO_DOWN
-        self.ICON_DELETED = gtk.STOCK_DELETE
+        self.ICON_DOWNLOADING = Gtk.STOCK_GO_DOWN
+        self.ICON_DELETED = Gtk.STOCK_DELETE
 
         self.background_update = None
         self.background_update_tag = None
@@ -201,7 +204,7 @@ class EpisodeListModel(gtk.ListStore):
         else:
             return None
 
-    def _filter_visible_func(self, model, iter):
+    def _filter_visible_func(self, model, iter, misc):
         # If searching is active, set visibility based on search text
         if self._search_term is not None:
             episode = model.get_value(iter, self.C_EPISODE)
@@ -210,7 +213,7 @@ class EpisodeListModel(gtk.ListStore):
 
             try:
                 return self._search_term_eql.match(episode)
-            except Exception, e:
+            except Exception as e:
                 return True
 
         if self._view_mode == self.VIEW_ALL:
@@ -314,10 +317,10 @@ class EpisodeListModel(gtk.ListStore):
 
     def _update_from_episodes(self, episodes, include_description):
         if self.background_update_tag is not None:
-            gobject.source_remove(self.background_update_tag)
+            GObject.source_remove(self.background_update_tag)
 
         self.background_update = BackgroundUpdate(self, episodes, include_description)
-        self.background_update_tag = gobject.idle_add(self._update_background)
+        self.background_update_tag = GObject.idle_add(self._update_background)
 
     def _update_background(self):
         if self.background_update is not None:
@@ -349,7 +352,7 @@ class EpisodeListModel(gtk.ListStore):
     def update_by_filter_iter(self, iter, include_description=False):
         # Convenience function for use by "outside" methods that use iters
         # from the filtered episode list model (i.e. all UI things normally)
-        iter = self._sorter.convert_iter_to_child_iter(None, iter)
+        iter = self._sorter.convert_iter_to_child_iter(iter)
         self.update_by_iter(self._filter.convert_iter_to_child_iter(iter),
                 include_description)
 
@@ -362,7 +365,7 @@ class EpisodeListModel(gtk.ListStore):
         view_show_undeleted = True
         view_show_downloaded = False
         view_show_unplayed = False
-        icon_theme = gtk.icon_theme_get_default()
+        icon_theme = Gtk.IconTheme.get_default()
 
         if episode.downloading:
             tooltip.append('%s %d%%' % (_('Downloading'),
@@ -408,9 +411,9 @@ class EpisodeListModel(gtk.ListStore):
 
                 # Try to find a themed icon for this file
                 if filename is not None and have_gio:
-                    file = gio.File(filename)
+                    file = Gio.File.new_for_path(filename)
                     if file.query_exists():
-                        file_info = file.query_info('*')
+                        file_info = file.query_info('*', Gio.FileQueryInfoFlags.NONE, None)
                         icon = file_info.get_icon()
                         for icon_name in icon.get_names():
                             if icon_theme.has_icon(icon_name):
@@ -504,12 +507,12 @@ class PodcastChannelProxy(object):
         pass
 
 
-class PodcastListModel(gtk.ListStore):
+class PodcastListModel(Gtk.ListStore):
     C_URL, C_TITLE, C_DESCRIPTION, C_PILL, C_CHANNEL, \
             C_COVER, C_ERROR, C_PILL_VISIBLE, \
             C_VIEW_SHOW_UNDELETED, C_VIEW_SHOW_DOWNLOADED, \
             C_VIEW_SHOW_UNPLAYED, C_HAS_EPISODES, C_SEPARATOR, \
-            C_DOWNLOADS, C_COVER_VISIBLE, C_SECTION = range(16)
+            C_DOWNLOADS, C_COVER_VISIBLE, C_SECTION = list(range(16))
 
     SEARCH_COLUMNS = (C_TITLE, C_DESCRIPTION, C_SECTION)
 
@@ -518,8 +521,8 @@ class PodcastListModel(gtk.ListStore):
         return model.get_value(iter, cls.C_SEPARATOR)
 
     def __init__(self, cover_downloader):
-        gtk.ListStore.__init__(self, str, str, str, gtk.gdk.Pixbuf, \
-                object, gtk.gdk.Pixbuf, str, bool, bool, bool, bool, \
+        Gtk.ListStore.__init__(self, str, str, str, GdkPixbuf.Pixbuf, \
+                object, GdkPixbuf.Pixbuf, str, bool, bool, bool, bool, \
                 bool, bool, int, bool, str)
 
         # Filter to allow hiding some episodes
@@ -534,7 +537,7 @@ class PodcastListModel(gtk.ListStore):
 
         self.ICON_DISABLED = 'gtk-media-pause'
 
-    def _filter_visible_func(self, model, iter):
+    def _filter_visible_func(self, model, iter, misc):
         # If searching is active, set visibility based on search text
         if self._search_term is not None:
             if model.get_value(iter, self.C_CHANNEL) == SectionMarker:
@@ -608,14 +611,14 @@ class PodcastListModel(gtk.ListStore):
         if pixbuf.get_width() > self._max_image_side:
             f = float(self._max_image_side)/pixbuf.get_width()
             (width, height) = (int(pixbuf.get_width()*f), int(pixbuf.get_height()*f))
-            pixbuf = pixbuf.scale_simple(width, height, gtk.gdk.INTERP_BILINEAR)
+            pixbuf = pixbuf.scale_simple(width, height, GdkPixbuf.InterpType.BILINEAR)
             changed = True
 
         # Resize if too high
         if pixbuf.get_height() > self._max_image_side:
             f = float(self._max_image_side)/pixbuf.get_height()
             (width, height) = (int(pixbuf.get_width()*f), int(pixbuf.get_height()*f))
-            pixbuf = pixbuf.scale_simple(width, height, gtk.gdk.INTERP_BILINEAR)
+            pixbuf = pixbuf.scale_simple(width, height, GdkPixbuf.InterpType.BILINEAR)
             changed = True
 
         if changed:
@@ -632,7 +635,7 @@ class PodcastListModel(gtk.ListStore):
 
     def _overlay_pixbuf(self, pixbuf, icon):
         try:
-            icon_theme = gtk.icon_theme_get_default()
+            icon_theme = Gtk.IconTheme.get_default()
             emblem = icon_theme.load_icon(icon, self._max_image_side/2, 0)
             (width, height) = (emblem.get_width(), emblem.get_height())
             xpos = pixbuf.get_width() - width
@@ -643,7 +646,7 @@ class PodcastListModel(gtk.ListStore):
                 (width, height) = (emblem.get_width(), emblem.get_height())
                 xpos = pixbuf.get_width() - width
                 ypos = pixbuf.get_height() - height
-            emblem.composite(pixbuf, xpos, ypos, width, height, xpos, ypos, 1, 1, gtk.gdk.INTERP_BILINEAR, 255)
+            emblem.composite(pixbuf, xpos, ypos, width, height, xpos, ypos, 1, 1, GdkPixbuf.InterpType.BILINEAR, 255)
         except:
             pass
 
@@ -654,11 +657,11 @@ class PodcastListModel(gtk.ListStore):
             return None
 
         try:
-            loader = gtk.gdk.PixbufLoader('png')
+            loader = GdkPixbuf.PixbufLoader()
             loader.write(channel.cover_thumb)
             loader.close()
             return loader.get_pixbuf()
-        except Exception, e:
+        except Exception as e:
             logger.warn('Could not load cached cover art for %s', channel.url, exc_info=True)
             channel.cover_thumb = None
             channel.save()
@@ -666,8 +669,11 @@ class PodcastListModel(gtk.ListStore):
 
     def _save_cached_thumb(self, channel, pixbuf):
         bufs = []
-        pixbuf.save_to_callback(lambda buf, data: data.append(buf), 'png', {}, bufs)
-        channel.cover_thumb = buffer(''.join(bufs))
+        def save_callback(buf, length, user_data):
+            user_data.append(buf)
+            return True
+        pixbuf.save_to_callbackv(save_callback, bufs, 'png', [None], [])
+        channel.cover_thumb = bytes(b''.join(bufs))
         channel.save()
 
     def _get_cover_image(self, channel, add_overlay=False):
@@ -799,7 +805,7 @@ class PodcastListModel(gtk.ListStore):
     def iter_is_first_row(self, iter):
         iter = self._filter.convert_iter_to_child_iter(iter)
         path = self.get_path(iter)
-        return (path == (0,))
+        return (path == Gtk.TreePath.new_first())
 
     def update_by_filter_iter(self, iter):
         self.update_by_iter(self._filter.convert_iter_to_child_iter(iter))
@@ -828,8 +834,11 @@ class PodcastListModel(gtk.ListStore):
                     if isinstance(c, GPodcast) and c.section == section]
 
             # Calculate the stats over all podcasts of this section
-            total, deleted, new, downloaded, unplayed = map(sum,
-                    zip(*[c.get_statistics() for c in channels]))
+            if len(channels) is 0:
+                total = deleted = new = downloaded = unplayed = 0
+            else:
+                total, deleted, new, downloaded, unplayed = list(map(sum,
+                        list(zip(*[c.get_statistics() for c in channels]))))
 
             # We could customized the section header here with the list
             # of channels and their stats (i.e. add some "new" indicator)

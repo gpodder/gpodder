@@ -27,7 +27,7 @@ import gpodder
 
 _ = gpodder.gettext
 
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import json
 import os
 
@@ -49,7 +49,7 @@ class DirectoryTag(object):
 
 
 class Provider(object):
-    PROVIDER_SEARCH, PROVIDER_URL, PROVIDER_FILE, PROVIDER_TAGCLOUD, PROVIDER_STATIC = range(5)
+    PROVIDER_SEARCH, PROVIDER_URL, PROVIDER_FILE, PROVIDER_TAGCLOUD, PROVIDER_STATIC = list(range(5))
 
     def __init__(self):
         self.name = ''
@@ -97,7 +97,7 @@ class GPodderNetSearchProvider(Provider):
         self.icon = 'directory-gpodder.png'
 
     def on_search(self, query):
-        return directory_entry_from_mygpo_json('http://gpodder.net/search.json?q=' + urllib.quote(query))
+        return directory_entry_from_mygpo_json('http://gpodder.net/search.json?q=' + urllib.parse.quote(query))
 
 class OpmlWebImportProvider(Provider):
     def __init__(self):
@@ -142,7 +142,7 @@ class GPodderNetTagsProvider(Provider):
         self.icon = 'directory-tags.png'
 
     def on_tag(self, tag):
-        return directory_entry_from_mygpo_json('http://gpodder.net/api/2/tag/%s/50.json' % urllib.quote(tag))
+        return directory_entry_from_mygpo_json('http://gpodder.net/api/2/tag/%s/50.json' % urllib.parse.quote(tag))
 
     def get_tags(self):
         return [DirectoryTag(d['tag'], d['usage']) for d in json.load(util.urlopen('http://gpodder.net/api/2/tags/40.json'))]

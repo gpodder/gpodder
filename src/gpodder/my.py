@@ -49,13 +49,13 @@ MYGPOCLIENT_REQUIRED = '1.4'
 
 if not hasattr(mygpoclient, 'require_version') or \
         not mygpoclient.require_version(MYGPOCLIENT_REQUIRED):
-    print >>sys.stderr, """
+    print("""
     Please upgrade your mygpoclient library.
     See http://thp.io/2010/mygpoclient/
 
     Required version:  %s
     Installed version: %s
-    """ % (MYGPOCLIENT_REQUIRED, mygpoclient.__version__)
+    """ % (MYGPOCLIENT_REQUIRED, mygpoclient.__version__), file=sys.stderr)
     sys.exit(1)
 
 try:
@@ -79,7 +79,7 @@ class SinceValue(object):
     __slots__ = {'host': str, 'device_id': str, 'category': int, 'since': int}
 
     # Possible values for the "category" field
-    PODCASTS, EPISODES = range(2)
+    PODCASTS, EPISODES = list(range(2))
 
     def __init__(self, host, device_id, category, since=0):
         self.host = host
@@ -91,7 +91,7 @@ class SubscribeAction(object):
     __slots__ = {'action_type': int, 'url': str}
 
     # Possible values for the "action_type" field
-    ADD, REMOVE = range(2)
+    ADD, REMOVE = list(range(2))
 
     def __init__(self, action_type, url):
         self.action_type = action_type
@@ -506,7 +506,7 @@ class MygPoClient(object):
                 # handle outside
                 raise
 
-            except Exception, e:
+            except Exception as e:
                 logger.warn('Exception while polling for episodes.', exc_info=True)
 
             # Step 2: Upload Episode actions
@@ -533,7 +533,7 @@ class MygPoClient(object):
             self._config.mygpo.enabled = False
             return False
 
-        except Exception, e:
+        except Exception as e:
             logger.error('Cannot upload episode actions: %s', str(e), exc_info=True)
             return False
 
@@ -598,7 +598,7 @@ class MygPoClient(object):
             self._config.mygpo.enabled = False
             return False
 
-        except Exception, e:
+        except Exception as e:
             logger.error('Cannot upload subscriptions: %s', str(e), exc_info=True)
             return False
 
@@ -615,7 +615,7 @@ class MygPoClient(object):
             self._config.mygpo.enabled = False
             return False
 
-        except Exception, e:
+        except Exception as e:
             logger.error('Cannot update device %s: %s', self.device_id,
                 str(e), exc_info=True)
             return False

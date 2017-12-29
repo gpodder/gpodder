@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 #
@@ -27,7 +27,7 @@
 import sys
 import os
 import re
-import ConfigParser
+import configparser
 import shutil
 
 gpodder_script = sys.argv[0]
@@ -56,25 +56,25 @@ old_config = os.path.expanduser('~/.config/gpodder/gpodder.conf')
 new_config = gpodder.config_file
 
 if not os.path.exists(old_database):
-    print >>sys.stderr, """
+    print("""
     Turns out that you never ran gPodder 2.
     Can't find this required file:
 
        %(old_database)s
-    """ % locals()
+    """ % locals(), file=sys.stderr)
     sys.exit(1)
 
 old_downloads = None
 
 if os.path.exists(old_config):
-    parser = ConfigParser.RawConfigParser()
+    parser = configparser.RawConfigParser()
     parser.read(old_config)
     try:
         old_downloads = parser.get('gpodder-conf-1', 'download_dir')
-    except ConfigParser.NoSectionError:
+    except configparser.NoSectionError:
         # The file is empty / section (gpodder-conf-1) not found
         pass
-    except ConfigParser.NoOptionError:
+    except configparser.NoOptionError:
         # The section is available, but the key (download_dir) is not
         pass
 
@@ -87,22 +87,22 @@ if old_downloads is None:
 new_downloads = gpodder.downloads
 
 if not os.path.exists(old_downloads):
-    print >>sys.stderr, """
+    print("""
     Old download directory does not exist. Creating empty one.
-    """
+    """, file=sys.stderr)
     os.makedirs(old_downloads)
 
 if any(os.path.exists(x) for x in (new_database, new_downloads)):
-    print >>sys.stderr, """
+    print("""
     Existing gPodder 3 user data found.
     To continue, please remove:
 
        %(new_database)s
        %(new_downloads)s
-    """ % locals()
+    """ % locals(), file=sys.stderr)
     sys.exit(1)
 
-print >>sys.stderr, """
+print("""
   Would carry out the following actions:
 
       Move downloads from %(old_downloads)s
@@ -111,21 +111,21 @@ print >>sys.stderr, """
       Convert database from %(old_database)s
                          to %(new_database)s
 
-""" % locals()
+""" % locals(), file=sys.stderr)
 
-result = raw_input('Continue? (Y/n) ')
+result = input('Continue? (Y/n) ')
 
 if result in 'Yy':
     util.make_directory(gpodder.home)
     schema.convert_gpodder2_db(old_database, new_database)
     if not os.path.exists(new_database):
-        print >>sys.stderr, 'Could not convert database.'
+        print('Could not convert database.', file=sys.stderr)
         sys.exit(1)
 
     shutil.move(old_downloads, new_downloads)
     if not os.path.exists(new_downloads):
-        print >>sys.stderr, 'Could not move downloads.'
+        print('Could not move downloads.', file=sys.stderr)
         sys.exit(1)
 
-    print 'Done. Have fun with gPodder 3!'
+    print('Done. Have fun with gPodder 3!')
 

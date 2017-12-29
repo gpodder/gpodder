@@ -23,35 +23,40 @@
 #  Based on code from gpodder.services (thp, 2007-08-24)
 #
 
+
+
 import gpodder
 
 from gpodder import util
 from gpodder import download
 
-import gtk
+from gi.repository import Gtk
 import cgi
 
 import collections
+import threading
 
 _ = gpodder.gettext
 
 
-class DownloadStatusModel(gtk.ListStore):
+class DownloadStatusModel(Gtk.ListStore):
     # Symbolic names for our columns, so we know what we're up to
-    C_TASK, C_NAME, C_URL, C_PROGRESS, C_PROGRESS_TEXT, C_ICON_NAME = range(6)
+    C_TASK, C_NAME, C_URL, C_PROGRESS, C_PROGRESS_TEXT, C_ICON_NAME = list(range(6))
 
     SEARCH_COLUMNS = (C_NAME, C_URL)
 
     def __init__(self):
-        gtk.ListStore.__init__(self, object, str, str, int, str, str)
+        Gtk.ListStore.__init__(self, object, str, str, int, str, str)
+
+        self.set_downloading_access = threading.RLock()
 
         # Set up stock icon IDs for tasks
         self._status_ids = collections.defaultdict(lambda: None)
-        self._status_ids[download.DownloadTask.DOWNLOADING] = gtk.STOCK_GO_DOWN
-        self._status_ids[download.DownloadTask.DONE] = gtk.STOCK_APPLY
-        self._status_ids[download.DownloadTask.FAILED] = gtk.STOCK_STOP
-        self._status_ids[download.DownloadTask.CANCELLED] = gtk.STOCK_CANCEL
-        self._status_ids[download.DownloadTask.PAUSED] = gtk.STOCK_MEDIA_PAUSE
+        self._status_ids[download.DownloadTask.DOWNLOADING] = 'go-down'
+        self._status_ids[download.DownloadTask.DONE] = Gtk.STOCK_APPLY
+        self._status_ids[download.DownloadTask.FAILED] = 'dialog-error'
+        self._status_ids[download.DownloadTask.CANCELLED] = 'media-playback-stop'
+        self._status_ids[download.DownloadTask.PAUSED] = 'media-playback-pause'
 
     def _format_message(self, episode, message, podcast):
         episode = cgi.escape(episode)
@@ -137,6 +142,27 @@ class DownloadStatusModel(gtk.ListStore):
                 return True
 
         return False
+
+    def has_work(self):
+        return any(task for task in
+                (row[DownloadStatusModel.C_TASK] for row in self)
+                if task.status == task.QUEUED)
+
+    def get_next(self):
+        with self.set_downloading_access:
+            result = next(task for task in
+                    (row[DownloadStatusModel.C_TASK] for row in self)
+                    if task.status == task.QUEUED)
+            self.set_downloading(result)
+        return result
+
+    def set_downloading(self, task):
+        with self.set_downloading_access:
+            if task.status is task.DOWNLOADING:
+                # Task was already set as DOWNLOADING by get_next           
+                return False
+            task.status = task.DOWNLOADING
+            return True
 
 
 class DownloadTaskMonitor(object):

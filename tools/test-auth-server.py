@@ -1,10 +1,10 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 # Simple HTTP web server for testing HTTP Authentication (see bug 1539)
 # from our crappy-but-does-the-job department
 # Thomas Perl <thp.io/about>; 2012-01-20
 
-import BaseHTTPServer
+import http.server
 import sys
 import re
 import hashlib
@@ -47,7 +47,7 @@ def mkrss(items=EP_COUNT):
           type="%(EPISODES_MIME)s"
           length="%(SIZE)s"/>
     </item>
-    """ % dict(locals().items()+globals().items())
+    """ % dict(list(locals().items())+list(globals().items()))
         for INDEX, PUBDATE in enumerate(mkpubdates(items)))
 
     return """
@@ -56,13 +56,13 @@ def mkrss(items=EP_COUNT):
     %(ITEMS)s
     </channel>
     </rss>
-    """ % dict(locals().items()+globals().items())
+    """ % dict(list(locals().items())+list(globals().items()))
 
 def mkdata(size=SIZE):
     """Generate dummy data of a given size (in bytes)"""
     return ''.join(chr(32+(i%(127-32))) for i in range(size))
 
-class AuthRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
+class AuthRequestHandler(http.server.BaseHTTPRequestHandler):
     FEEDFILE_PATH = '/%s' % FEEDFILE
     EPISODES_PATH = '/%s' % EPISODES
 
@@ -77,21 +77,21 @@ class AuthRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             auth_data = m.group(1).decode('base64').split(':', 1)
             if len(auth_data) == 2:
                 username, password = auth_data
-                print 'Got username:', username
-                print 'Got password:', password
+                print('Got username:', username)
+                print('Got password:', password)
                 if (username, password) == (USERNAME, PASSWORD):
-                    print 'Valid credentials provided.'
+                    print('Valid credentials provided.')
                     authorized = True
 
         if self.path == self.FEEDFILE_PATH:
-            print 'Feed request.'
+            print('Feed request.')
             is_feed = True
         elif self.path.startswith(self.EPISODES_PATH):
-            print 'Episode request.'
+            print('Episode request.')
             is_episode = True
 
         if not authorized:
-            print 'Not authorized - sending WWW-Authenticate header.'
+            print('Not authorized - sending WWW-Authenticate header.')
             self.send_response(401)
             self.send_header('WWW-Authenticate',
                     'Basic realm="%s"' % sys.argv[0])
@@ -108,12 +108,12 @@ class AuthRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
 
 if __name__ == '__main__':
-    httpd = BaseHTTPServer.HTTPServer((HOST, PORT), AuthRequestHandler)
-    print """
+    httpd = http.server.HTTPServer((HOST, PORT), AuthRequestHandler)
+    print("""
     Feed URL: %(URL)s/%(FEEDFILE)s
     Username: %(USERNAME)s
     Password: %(PASSWORD)s
-    """ % locals()
+    """ % locals())
     while True:
         httpd.handle_request()
 

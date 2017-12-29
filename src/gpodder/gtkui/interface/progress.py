@@ -17,9 +17,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import gtk
-import gobject
-import pango
+from gi.repository import Gtk
+from gi.repository import GObject
+from gi.repository import Pango
 
 import gpodder
 
@@ -45,16 +45,16 @@ class ProgressIndicator(object):
         self._initial_message = None
         self._initial_progress = None
         self._progress_set = False
-        self.source_id = gobject.timeout_add(self.DELAY, self._create_progress)
+        self.source_id = GObject.timeout_add(self.DELAY, self._create_progress)
 
     def _on_delete_event(self, window, event):
         if self.cancellable:
-            self.dialog.response(gtk.RESPONSE_CANCEL)
+            self.dialog.response(Gtk.ResponseType.CANCEL)
         return True
 
     def _create_progress(self):
-        self.dialog = gtk.MessageDialog(self.parent, \
-                0, 0, gtk.BUTTONS_CANCEL, self.subtitle or self.title)
+        self.dialog = Gtk.MessageDialog(self.parent, \
+                0, 0, Gtk.ButtonsType.CANCEL, self.subtitle or self.title)
         self.dialog.set_modal(True)
         self.dialog.connect('delete-event', self._on_delete_event)
         self.dialog.set_title(self.title)
@@ -63,14 +63,15 @@ class ProgressIndicator(object):
         # Avoid selectable text (requires PyGTK >= 2.22)
         if hasattr(self.dialog, 'get_message_area'):
             for label in self.dialog.get_message_area():
-                if isinstance(label, gtk.Label):
+                if isinstance(label, Gtk.Label):
                     label.set_selectable(False)
 
-        self.dialog.set_response_sensitive(gtk.RESPONSE_CANCEL, \
+        self.dialog.set_response_sensitive(Gtk.ResponseType.CANCEL, \
                 self.cancellable)
 
-        self.progressbar = gtk.ProgressBar()
-        self.progressbar.set_ellipsize(pango.ELLIPSIZE_END)
+        self.progressbar = Gtk.ProgressBar()
+        self.progressbar.set_show_text(True)
+        self.progressbar.set_ellipsize(Pango.EllipsizeMode.END)
 
         # If the window is shown after the first update, set the progress
         # info so that when the window appears, data is there already
@@ -84,8 +85,8 @@ class ProgressIndicator(object):
         self.dialog.set_image(self.indicator)
         self.dialog.show_all()
 
-        gobject.source_remove(self.source_id)
-        self.source_id = gobject.timeout_add(self.INTERVAL, self._update_gui)
+        GObject.source_remove(self.source_id)
+        self.source_id = GObject.timeout_add(self.INTERVAL, self._update_gui)
         return False
 
     def _update_gui(self):
@@ -111,5 +112,5 @@ class ProgressIndicator(object):
     def on_finished(self):
         if self.dialog is not None:
             self.dialog.destroy()
-        gobject.source_remove(self.source_id)
+        GObject.source_remove(self.source_id)
 

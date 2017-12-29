@@ -29,9 +29,9 @@ from gpodder import util
 import logging
 logger = logging.getLogger(__name__)
 
-from urllib2 import HTTPError
-from HTMLParser import HTMLParser
-import urlparse
+from urllib.error import HTTPError
+from html.parser import HTMLParser
+import urllib.parse
 
 try:
     # Python 2
@@ -67,7 +67,7 @@ class UnknownStatusCode(ExceptionWithData): pass
 class AuthenticationRequired(Exception): pass
 
 # Successful status codes
-UPDATED_FEED, NEW_LOCATION, NOT_MODIFIED, CUSTOM_FEED = range(4)
+UPDATED_FEED, NEW_LOCATION, NOT_MODIFIED, CUSTOM_FEED = list(range(4))
 
 class Result:
     def __init__(self, status, feed=None):
@@ -88,7 +88,7 @@ class FeedAutodiscovery(HTMLParser):
             is_feed = attrs.get('type', '') in Fetcher.FEED_TYPES
             is_alternate = attrs.get('rel', '') == 'alternate'
             url = attrs.get('href', None)
-            url = urlparse.urljoin(self._base, url)
+            url = urllib.parse.urljoin(self._base, url)
 
             if is_feed and is_alternate and url:
                 logger.info('Feed autodiscovery: %s', url)
@@ -175,10 +175,16 @@ class Fetcher(object):
 
         data = stream
         if autodiscovery and not is_local and stream.headers.get('content-type', '').startswith('text/html'):
+            # Not very robust attempt to detect encoding: http://stackoverflow.com/a/1495675/1072626
+            charset = stream.headers.get_param('charset')
+            if charset is None:
+                charset = 'utf-8' # utf-8 appears hard-coded elsewhere in this codebase
+
             # We use StringIO in case the stream needs to be read again
-            data = StringIO(stream.read())
+            data = StringIO(stream.read().decode(charset))
             ad = FeedAutodiscovery(url)
-            ad.feed(data.read())
+
+            ad.feed(data.getvalue())
             if ad._resolved_url:
                 try:
                     self._parse_feed(ad._resolved_url, None, None, False)
@@ -190,15 +196,16 @@ class Fetcher(object):
                 url = self._resolve_url(url)
                 if url:
                     return Result(NEW_LOCATION, url)
-            
+
             # Reset the stream so podcastparser can give it a go
             data.seek(0)
+
 
         try:
             feed = podcastparser.parse(url, data)
         except ValueError as e:
-            raise InvalidFeed(u'Could not parse feed: {msg}'.format(msg=e))
-        
+            raise InvalidFeed('Could not parse feed: {msg}'.format(msg=e))
+
         if is_local:
             feed['headers'] = {}
             return Result(UPDATED_FEED, feed)

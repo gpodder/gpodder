@@ -58,7 +58,7 @@ class gPodderExtension(object):
     def get_data_from_url(self, url):
         try:
             response = util.urlopen(url).read()
-        except Exception, e:
+        except Exception as e:
             logger.warn("subtitle url returned error %s", e)
             return ''
         return response
@@ -93,7 +93,7 @@ class gPodderExtension(object):
             intro = episode_data.split('introDuration":')[1] \
                                 .split(',')[0] or INTRO_DEFAULT
             intro = int(float(intro)*1000)
-        except (ValueError, IndexError), e:
+        except (ValueError, IndexError) as e:
             logger.info("Couldn't parse introDuration string: %s", intro)
             intro = INTRO_DEFAULT * 1000
         current_filename = episode.local_filename(create=False)
@@ -103,7 +103,7 @@ class gPodderExtension(object):
         try:
             with open(srt_filename, 'w+') as srtFile:
                 srtFile.write(sub.encode("utf-8"))
-        except Exception, e:
+        except Exception as e:
             logger.warn("Can't write srt file: %s",e)
 
     def on_episode_delete(self, episode, filename):

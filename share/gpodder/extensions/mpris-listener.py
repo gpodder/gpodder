@@ -24,8 +24,8 @@ import dbus.service
 import gpodder
 import logging
 import time
-import urllib
-import urlparse
+import urllib.request, urllib.parse, urllib.error
+import urllib.parse
 
 logger = logging.getLogger(__name__)
 _ = gpodder.gettext
@@ -43,7 +43,7 @@ TrackInfo = collections.namedtuple('TrackInfo',
                         ['uri', 'length', 'status', 'pos', 'rate'])
 
 def subsecond_difference(usec1, usec2):
-    return abs(usec1 - usec2) < USECS_IN_SEC
+    return usec1 is not None and usec2 is not None and abs(usec1 - usec2) < USECS_IN_SEC
     
 class CurrentTrackTracker(object):
     '''An instance of this class is responsible for tracking the state of the
@@ -117,7 +117,7 @@ class CurrentTrackTracker(object):
             # If the status *is* playing, and *was* playing, but the position
             # has changed discontinuously, notify a stop for the old position
             if (    cur['status'] == 'Playing'
-                and (not kwargs.has_key('status') or kwargs['status'] == 'Playing')
+                and ('status' not in kwargs or kwargs['status'] == 'Playing')
                 and not subsecond_difference(cur['pos'], kwargs['pos'])
             ):
                 logger.debug('notify Stopped: playback discontinuity:' + 
@@ -125,6 +125,7 @@ class CurrentTrackTracker(object):
                 self.notify_stop()
 
             if (    (kwargs['pos']) == 0
+                and self.pos is not None
                 and self.pos > (self.length - USECS_IN_SEC)
                 and self.pos < (self.length + 2 * USECS_IN_SEC)
             ):
@@ -176,7 +177,7 @@ class CurrentTrackTracker(object):
         ):
             return
         pos = self.pos // USECS_IN_SEC
-        file_uri = urllib.url2pathname(urlparse.urlparse(self.uri).path).encode('utf-8')
+        file_uri = urllib.request.url2pathname(urllib.parse.urlparse(self.uri).path).encode('utf-8')
         total_time = self.length // USECS_IN_SEC
         
         if status == 'Stopped':
@@ -200,8 +201,8 @@ class CurrentTrackTracker(object):
         return '%s: %s at %d/%d (@%f)' % (
             self.uri or 'None',
             self.status or 'None',
-            (self.pos or 0) / USECS_IN_SEC,
-            (self.length or 0) / USECS_IN_SEC,
+            (self.pos or 0) // USECS_IN_SEC,
+            (self.length or 0) // USECS_IN_SEC,
             self.rate or 0)
             
 class MPRISDBusReceiver(object):
@@ -246,23 +247,23 @@ class MPRISDBusReceiver(object):
                        invalidated_properties, path=None):
         if interface_name != self.INTERFACE_MPRIS:
             if interface_name not in self.OTHER_MPRIS_INTERFACES:
-                logger.warn('unexpected interface: %s, props=%r', interface_name, changed_properties.keys())
+                logger.warn('unexpected interface: %s, props=%r', interface_name, list(changed_properties.keys()))
             return
         
         collected_info = {}
 
-        if changed_properties.has_key('PlaybackStatus'):
+        if 'PlaybackStatus' in changed_properties:
             collected_info['status'] = str(changed_properties['PlaybackStatus'])
-        if changed_properties.has_key('Metadata'):
+        if 'Metadata' in changed_properties:
             # on stop there is no xesam:url
-            if changed_properties['Metadata'].has_key('xesam:url'):
+            if 'xesam:url' in changed_properties['Metadata']:
                 collected_info['uri'] = changed_properties['Metadata']['xesam:url']
                 collected_info['length'] = changed_properties['Metadata']['mpris:length']
-        if changed_properties.has_key('Rate'):
+        if 'Rate' in changed_properties:
             collected_info['rate'] = changed_properties['Rate']
         collected_info['pos'] = self.query_position()
 
-        if not collected_info.has_key('status'):
+        if 'status' not in collected_info:
             collected_info['status'] = str(self.query_status())
         logger.debug('collected info: %r', collected_info)
 

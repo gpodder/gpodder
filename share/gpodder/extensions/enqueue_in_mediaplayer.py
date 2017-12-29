@@ -262,7 +262,7 @@ class gPodderExtension:
         self.config = container.config
 
         # Only display media players that can be found at extension load time
-        self.players = [p for p in PLAYERS if p.is_installed()]
+        self.players = [player for player in PLAYERS if player.is_installed()]
         self.resumers = [r for r in RESUMERS if r.is_installed()]
 
     def on_ui_object_available(self, name, ui_object):

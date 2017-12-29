@@ -32,12 +32,7 @@ from gpodder import util
 import logging
 logger = logging.getLogger(__name__)
 
-try:
-    # For Python < 2.6, we use the "simplejson" add-on module
-    import simplejson as json
-except ImportError:
-    # Python 2.6 already ships with a nice "json" module
-    import json
+import json
 
 import re
 
@@ -64,7 +59,7 @@ def get_real_download_url(url, preferred_fileformat=None):
     def get_urls(data_config_url):
         data_config_data = util.urlopen(data_config_url).read().decode('utf-8')
         data_config = json.loads(data_config_data)
-        for fileinfo in data_config['request']['files'].values():
+        for fileinfo in list(data_config['request']['files'].values()):
             if not isinstance(fileinfo, list):
                 continue
 

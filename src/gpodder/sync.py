@@ -85,8 +85,8 @@ if pymtp_available:
                 folder = folder.contents
                 name = self.sep.join([path, folder.name]).lstrip(self.sep)
                 result[name] = folder.folder_id
-                if folder.child:
-                    result.update(self.unfold(folder.child, name))
+                if folder.get_child():
+                    result.update(self.unfold(folder.get_child(), name))
                 folder = folder.sibling
             return result
 
@@ -97,7 +97,7 @@ if pymtp_available:
             while parts:
                 prefix.append(parts[0])
                 tmpath = self.sep.join(prefix)
-                if self.folders.has_key(tmpath):
+                if tmpath in self.folders:
                     folder_id = self.folders[tmpath]
                 else:
                     folder_id = self.create_folder(parts[0], parent=folder_id)
@@ -136,7 +136,7 @@ def get_track_length(filename):
     try:
         mp3file = eyed3.mp3.Mp3AudioFile(filename)
         return int(mp3file.info.time_secs * 1000)
-    except Exception, e:
+    except Exception as e:
         logger.warn('Could not determine length: %s', filename, exc_info=True)
 
     return int(60*60*1000*3) # Default is three hours (to be on the safe side)
@@ -225,15 +225,15 @@ class Device(services.ObservableService):
     
                 sync_task.status=sync_task.QUEUED
                 sync_task.device=self
+                # New Task, we must wait on the GTK Loop
                 self.download_status_model.register_task(sync_task)
-                self.download_queue_manager.add_task(sync_task)
+                # Executes after task has been registered
+                util.idle_add(self.download_queue_manager.queue_task, sync_task)
         else:
             logger.warning("No episodes to sync")
 
         if done_callback:
             done_callback()
-
-        return True
 
     def remove_tracks(self, tracklist):
         for idx, track in enumerate(tracklist):
@@ -379,7 +379,7 @@ class iPodDevice(Device):
             try:
                 released = gpod.itdb_time_mac_to_host(track.time_released)
                 released = util.format_date(released)
-            except ValueError, ve:
+            except ValueError as ve:
                 # timestamp out of range for platform time_t (bug 418)
                 logger.info('Cannot convert track time: %s', ve)
                 released = 0
@@ -502,7 +502,7 @@ class MP3PlayerDevice(Device):
             download_status_model,
             download_queue_manager):
         Device.__init__(self, config)
-        self.destination = util.sanitize_encoding(self._config.device_sync.device_folder)
+        self.destination = self._config.device_sync.device_folder
         self.buffer_size = 1024*1024 # 1 MiB
         self.download_status_model = download_status_model
         self.download_queue_manager = download_queue_manager
@@ -532,11 +532,11 @@ class MP3PlayerDevice(Device):
         else:
             folder = self.destination
 
-        return util.sanitize_encoding(folder)
+        return folder
 
     def get_episode_file_on_device(self, episode):
         # get the local file
-        from_file = util.sanitize_encoding(episode.local_filename(create=False))
+        from_file = episode.local_filename(create=False)
         # get the formated base name
         filename_base = util.sanitize_filename(episode.sync_filename(
             self._config.device_sync.custom_sync_name_enabled,
@@ -554,7 +554,7 @@ class MP3PlayerDevice(Device):
         return to_file
 
     def add_track(self, episode,reporthook=None):
-        self.notify('status', _('Adding %s') % episode.title.decode('utf-8', 'ignore'))
+        self.notify('status', _('Adding %s') % episode.title)
 
         # get the folder on the device
         folder = self.get_episode_folder_on_device(episode)
@@ -564,7 +564,7 @@ class MP3PlayerDevice(Device):
         # local_filename(create=False) must never return None as filename
         assert filename is not None
 
-        from_file = util.sanitize_encoding(filename)
+        from_file = filename
 
         # verify free space
         needed = util.calculate_size(from_file)
@@ -578,7 +578,7 @@ class MP3PlayerDevice(Device):
 
         # get the filename that will be used on the device
         to_file = self.get_episode_file_on_device(episode)
-        to_file = util.sanitize_encoding(os.path.join(folder, to_file))
+        to_file = os.path.join(folder, to_file)
 
         if not os.path.exists(folder):
             try:
@@ -590,7 +590,7 @@ class MP3PlayerDevice(Device):
         if not os.path.exists(to_file):
             logger.info('Copying %s => %s',
                     os.path.basename(from_file),
-                    to_file.decode(util.encoding))
+                    to_file)
             self.copy_file_progress(from_file, to_file, reporthook)
 
         return True
@@ -598,7 +598,7 @@ class MP3PlayerDevice(Device):
     def copy_file_progress(self, from_file, to_file, reporthook=None):
         try:
             out_file = open(to_file, 'wb')
-        except IOError, ioerror:
+        except IOError as ioerror:
             d = {'filename': ioerror.filename, 'message': ioerror.strerror}
             self.errors.append(_('Error opening %(filename)s: %(message)s') % d)
             self.cancel()
@@ -606,7 +606,7 @@ class MP3PlayerDevice(Device):
 
         try:
             in_file = open(from_file, 'rb')
-        except IOError, ioerror:
+        except IOError as ioerror:
             d = {'filename': ioerror.filename, 'message': ioerror.strerror}
             self.errors.append(_('Error opening %(filename)s: %(message)s') % d)
             self.cancel()
@@ -622,7 +622,7 @@ class MP3PlayerDevice(Device):
             bytes_read += len(s)
             try:
                 out_file.write(s)
-            except IOError, ioerror:
+            except IOError as ioerror:
                 self.errors.append(ioerror.strerror)
                 try:
                     out_file.close()
@@ -697,7 +697,7 @@ class MTPDevice(Device):
         self.__model_name = None
         try:
             self.__MTPDevice = MTP()
-        except NameError, e:
+        except NameError as e:
             # pymtp not available / not installed (see bug 924)
             logger.error('pymtp not found: %s', str(e))
             self.__MTPDevice = None
@@ -705,7 +705,7 @@ class MTPDevice(Device):
     def __callback(self, sent, total):
         if self.cancelled:
             return -1
-        percentage = round(float(sent)/float(total)*100)
+        percentage = round(sent/total*100)
         text = ('%i%%' % percentage)
         self.notify('progress', sent, total, text)
 
@@ -722,7 +722,7 @@ class MTPDevice(Device):
         try:
             d = time.gmtime(date)
             return time.strftime("%Y%m%d-%H%M%S.0Z", d)
-        except Exception, exc:
+        except Exception as exc:
             logger.error('ERROR: An error has happend while trying to convert date to an mtp string')
             return None
 
@@ -752,10 +752,10 @@ class MTPDevice(Device):
                         _date -= shift_in_sec
                     else:
                         raise ValueError("Expected + or -")
-                except Exception, exc:
+                except Exception as exc:
                     logger.warning('WARNING: ignoring invalid time zone information for %s (%s)')
             return max( 0, _date )
-        except Exception, exc:
+        except Exception as exc:
             logger.warning('WARNING: the mtp date "%s" can not be parsed against mtp specification (%s)')
             return None
 
@@ -796,7 +796,7 @@ class MTPDevice(Device):
             self.__MTPDevice.connect()
             # build the initial tracks_list
             self.tracks_list = self.get_all_tracks()
-        except Exception, exc:
+        except Exception as exc:
             logger.error('unable to find an MTP device (%s)')
             return False
 
@@ -809,7 +809,7 @@ class MTPDevice(Device):
 
         try:
             self.__MTPDevice.disconnect()
-        except Exception, exc:
+        except Exception as exc:
             logger.error('unable to close %s (%s)', self.get_name())
             return False
 
@@ -876,7 +876,7 @@ class MTPDevice(Device):
 
         try:
             self.__MTPDevice.delete_object(sync_track.mtptrack.item_id)
-        except Exception, exc:
+        except Exception as exc:
             logger.error('unable remove file %s (%s)', sync_track.mtptrack.filename)
 
         logger.info('%s removed', sync_track.mtptrack.title)
@@ -884,7 +884,7 @@ class MTPDevice(Device):
     def get_all_tracks(self):
         try:
             listing = self.__MTPDevice.get_tracklisting(callback=self.__callback)
-        except Exception, exc:
+        except Exception as exc:
             logger.error('unable to get file listing %s (%s)')
 
         tracks = []
@@ -923,7 +923,7 @@ class SyncTask(download.DownloadTask):
     # Possible states this sync task can be in
     STATUS_MESSAGE = (_('Added'), _('Queued'), _('Synchronizing'),
             _('Finished'), _('Failed'), _('Cancelled'), _('Paused'))
-    (INIT, QUEUED, DOWNLOADING, DONE, FAILED, CANCELLED, PAUSED) = range(7)
+    (INIT, QUEUED, DOWNLOADING, DONE, FAILED, CANCELLED, PAUSED) = list(range(7))
 
 
     def __str__(self):
@@ -1040,7 +1040,7 @@ class SyncTask(download.DownloadTask):
             self.total_size = float(totalSize)
 
         if self.total_size > 0:
-            self.progress = max(0.0, min(1.0, float(count*blockSize)/self.total_size))
+            self.progress = max(0.0, min(1.0, (count*blockSize)/self.total_size))
             self._progress_updated(self.progress)
 
         if self.status == SyncTask.CANCELLED:
@@ -1064,8 +1064,8 @@ class SyncTask(download.DownloadTask):
             self.speed = 0.0
             return False
 
-        # We only start this download if its status is "queued"
-        if self.status != SyncTask.QUEUED:
+        # We only start this download if its status is "downloading"
+        if self.status != SyncTask.DOWNLOADING:
             return False
 
         # We are synching this file right now
@@ -1075,7 +1075,7 @@ class SyncTask(download.DownloadTask):
         try:
             logger.info('Starting SyncTask')
             self.device.add_track(self.episode, reporthook=self.status_updated)
-        except Exception, e:
+        except Exception as e:
             self.status = SyncTask.FAILED
             logger.error('Sync failed: %s', str(e), exc_info=True)
             self.error_message = _('Error: %s') % (str(e),)

@@ -21,15 +21,15 @@ class gPodderExtension:
     # into various parts of gPodder.
     def on_load(self):
         logger.info('Extension is being loaded.')
-        print '='*40
-        print 'container:', self.container
-        print 'container.manager:', self.container.manager
-        print 'container.config:', self.container.config
-        print 'container.manager.core:', self.container.manager.core
-        print 'container.manager.core.db:', self.container.manager.core.db
-        print 'container.manager.core.config:', self.container.manager.core.config
-        print 'container.manager.core.model:', self.container.manager.core.model
-        print '='*40
+        print('='*40)
+        print('container:', self.container)
+        print('container.manager:', self.container.manager)
+        print('container.config:', self.container.config)
+        print('container.manager.core:', self.container.manager.core)
+        print('container.manager.core.db:', self.container.manager.core.db)
+        print('container.manager.core.config:', self.container.manager.core.config)
+        print('container.manager.core.model:', self.container.manager.core.model)
+        print('='*40)
 
     # This function will be called when the extension is disabled or
     # when gPodder shuts down. You can use this to destroy/delete any
@@ -49,5 +49,4 @@ class gPodderExtension:
         return [("Say Hello", self.say_hello_cb)]
 
     def say_hello_cb(self):
-        print("HELLO")
         self.gpodder.notification("Hello Extension", "Message", widget=self.gpodder.main_window)

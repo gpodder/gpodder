@@ -17,7 +17,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import gtk
+from gi.repository import Gtk
+from gi.repository import Gdk
+
 import os
 import shutil
 
@@ -33,40 +35,17 @@ from gpodder.gtkui.base import GtkBuilderWidget
 class BuilderWidget(GtkBuilderWidget):
     def __init__(self, parent, **kwargs):
         self._window_iconified = False
-        self._window_visible = False
 
-        GtkBuilderWidget.__init__(self, gpodder.ui_folders, gpodder.textdomain, **kwargs)
+        GtkBuilderWidget.__init__(self, gpodder.ui_folders, gpodder.textdomain, parent, **kwargs)
 
         # Enable support for tracking iconified state
         if hasattr(self, 'on_iconify') and hasattr(self, 'on_uniconify'):
             self.main_window.connect('window-state-event', \
                     self._on_window_state_event_iconified)
 
-        # Enable support for tracking visibility state
-        self.main_window.connect('visibility-notify-event', \
-                    self._on_window_state_event_visibility)
-
-        if parent is not None:
-            self.main_window.set_transient_for(parent)
-
-            if hasattr(self, 'center_on_widget'):
-                (x, y) = parent.get_position()
-                a = self.center_on_widget.allocation
-                (x, y) = (x + a.x, y + a.y)
-                (w, h) = (a.width, a.height)
-                (pw, ph) = self.main_window.get_size()
-                self.main_window.move(x + w/2 - pw/2, y + h/2 - ph/2)
-
-    def _on_window_state_event_visibility(self, widget, event):
-        if event.state & gtk.gdk.VISIBILITY_FULLY_OBSCURED:
-            self._window_visible = False
-        else:
-            self._window_visible = True
-
-        return False
 
     def _on_window_state_event_iconified(self, widget, event):
-        if event.new_window_state & gtk.gdk.WINDOW_STATE_ICONIFIED:
+        if event.new_window_state & Gdk.WindowState.ICONIFIED:
             if not self._window_iconified:
                 self._window_iconified = True
                 self.on_iconify()
@@ -84,12 +63,12 @@ class BuilderWidget(GtkBuilderWidget):
         util.idle_add(self.show_message, message, title, important, widget)
 
     def get_dialog_parent(self):
-        """Return a gtk.Window that should be the parent of dialogs"""
+        """Return a Gtk.Window that should be the parent of dialogs"""
         return self.main_window
 
     def show_message(self, message, title=None, important=False, widget=None):
         if important:
-            dlg = gtk.MessageDialog(self.main_window, gtk.DIALOG_MODAL, gtk.MESSAGE_INFO, gtk.BUTTONS_OK)
+            dlg = Gtk.MessageDialog(self.main_window, Gtk.DialogFlags.MODAL, Gtk.MessageType.INFO, Gtk.ButtonsType.OK)
             if title:
                 dlg.set_title(str(title))
                 dlg.set_markup('<span weight="bold" size="larger">%s</span>\n\n%s' % (title, message))
@@ -101,7 +80,7 @@ class BuilderWidget(GtkBuilderWidget):
             gpodder.user_extensions.on_notification_show(title, message)
 
     def show_confirmation(self, message, title=None):
-        dlg = gtk.MessageDialog(self.main_window, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO)
+        dlg = Gtk.MessageDialog(self.main_window, Gtk.DialogFlags.MODAL, Gtk.MessageType.QUESTION, Gtk.ButtonsType.YES_NO)
         if title:
             dlg.set_title(str(title))
             dlg.set_markup('<span weight="bold" size="larger">%s</span>\n\n%s' % (title, message))
@@ -109,21 +88,20 @@ class BuilderWidget(GtkBuilderWidget):
             dlg.set_markup('<span weight="bold" size="larger">%s</span>' % (message))
         response = dlg.run()
         dlg.destroy()
-        return response == gtk.RESPONSE_YES
+        return response == Gtk.ResponseType.YES
 
     def show_text_edit_dialog(self, title, prompt, text=None, empty=False, \
-            is_url=False, affirmative_text=gtk.STOCK_OK):
-        dialog = gtk.Dialog(title, self.get_dialog_parent(), \
-            gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT)
+            is_url=False, affirmative_text=Gtk.STOCK_OK):
+        dialog = Gtk.Dialog(title, self.get_dialog_parent(), \
+            Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT)
 
-        dialog.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
-        dialog.add_button(affirmative_text, gtk.RESPONSE_OK)
+        dialog.add_button(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL)
+        dialog.add_button(affirmative_text, Gtk.ResponseType.OK)
 
-        dialog.set_has_separator(False)
         dialog.set_default_size(300, -1)
-        dialog.set_default_response(gtk.RESPONSE_OK)
+        dialog.set_default_response(Gtk.ResponseType.OK)
 
-        text_entry = gtk.Entry()
+        text_entry = Gtk.Entry()
         text_entry.set_activates_default(True)
         if text is not None:
             text_entry.set_text(text)
@@ -132,24 +110,24 @@ class BuilderWidget(GtkBuilderWidget):
         if not empty:
             def on_text_changed(editable):
                 can_confirm = (editable.get_text() != '')
-                dialog.set_response_sensitive(gtk.RESPONSE_OK, can_confirm)
+                dialog.set_response_sensitive(Gtk.ResponseType.OK, can_confirm)
             text_entry.connect('changed', on_text_changed)
             if text is None:
-                dialog.set_response_sensitive(gtk.RESPONSE_OK, False)
+                dialog.set_response_sensitive(Gtk.ResponseType.OK, False)
 
-        hbox = gtk.HBox()
+        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
         hbox.set_border_width(10)
         hbox.set_spacing(10)
-        hbox.pack_start(gtk.Label(prompt), False, False)
-        hbox.pack_start(text_entry, True, True)
-        dialog.vbox.pack_start(hbox, True, True)
+        hbox.pack_start(Gtk.Label(prompt, True, True, 0), False, False, 0)
+        hbox.pack_start(text_entry, True, True, 0)
+        dialog.vbox.pack_start(hbox, True, True, 0)
 
         dialog.show_all()
         response = dialog.run()
         result = text_entry.get_text()
         dialog.destroy()
 
-        if response == gtk.RESPONSE_OK:
+        if response == Gtk.ResponseType.OK:
             return result
         else:
             return None
@@ -162,25 +140,25 @@ class BuilderWidget(GtkBuilderWidget):
         if register_text is None:
             register_text = _('New user')
 
-        dialog = gtk.MessageDialog(
+        dialog = Gtk.MessageDialog(
             self.main_window,
-            gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-            gtk.MESSAGE_QUESTION,
-            gtk.BUTTONS_CANCEL)
-        dialog.add_button(_('Login'), gtk.RESPONSE_OK)
-        dialog.set_image(gtk.image_new_from_stock(gtk.STOCK_DIALOG_AUTHENTICATION, gtk.ICON_SIZE_DIALOG))
+            Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
+            Gtk.MessageType.QUESTION,
+            Gtk.ButtonsType.CANCEL)
+        dialog.add_button(_('Login'), Gtk.ResponseType.OK)
+        dialog.set_image(Gtk.Image.new_from_icon_name('dialog-password', Gtk.IconSize.DIALOG))
         dialog.set_title(_('Authentication required'))
         dialog.set_markup('<span weight="bold" size="larger">' + title + '</span>')
         dialog.format_secondary_markup(message)
-        dialog.set_default_response(gtk.RESPONSE_OK)
+        dialog.set_default_response(Gtk.ResponseType.OK)
 
         if register_callback is not None:
-            dialog.add_button(register_text, gtk.RESPONSE_HELP)
+            dialog.add_button(register_text, Gtk.ResponseType.HELP)
 
-        server_entry = gtk.Entry()
+        server_entry = Gtk.Entry()
         server_entry.set_tooltip_text(_('hostname or root URL (e.g. https://gpodder.net)'))
-        username_entry = gtk.Entry()
-        password_entry = gtk.Entry()
+        username_entry = Gtk.Entry()
+        password_entry = Gtk.Entry()
 
         server_entry.connect('activate', lambda w: username_entry.grab_focus())
         username_entry.connect('activate', lambda w: password_entry.grab_focus())
@@ -194,17 +172,17 @@ class BuilderWidget(GtkBuilderWidget):
         if password is not None:
             password_entry.set_text(password)
 
-        table = gtk.Table(3, 2)
+        table = Gtk.Table(3, 2)
         table.set_row_spacings(6)
         table.set_col_spacings(6)
 
-        server_label = gtk.Label()
+        server_label = Gtk.Label()
         server_label.set_markup('<b>' + _('Server') + ':</b>')
 
-        username_label = gtk.Label()
+        username_label = Gtk.Label()
         username_label.set_markup('<b>' + username_prompt + ':</b>')
 
-        password_label = gtk.Label()
+        password_label = Gtk.Label()
         password_label.set_markup('<b>' + _('Password') + ':</b>')
 
         label_entries = [(username_label, username_entry),
@@ -215,7 +193,7 @@ class BuilderWidget(GtkBuilderWidget):
 
         for i, (label, entry) in enumerate(label_entries):
             label.set_alignment(0.0, 0.5)
-            table.attach(label, 0, 1, i, i + 1, gtk.FILL, 0)
+            table.attach(label, 0, 1, i, i + 1, Gtk.AttachOptions.FILL, 0)
             table.attach(entry, 1, 2, i, i + 1)
 
         dialog.vbox.pack_end(table, True, True, 0)
@@ -223,7 +201,7 @@ class BuilderWidget(GtkBuilderWidget):
         username_entry.grab_focus()
         response = dialog.run()
 
-        while response == gtk.RESPONSE_HELP:
+        while response == Gtk.ResponseType.HELP:
             register_callback()
             response = dialog.run()
 
@@ -231,7 +209,7 @@ class BuilderWidget(GtkBuilderWidget):
         root_url = server_entry.get_text()
         username = username_entry.get_text()
         password = password_entry.get_text()
-        success = (response == gtk.RESPONSE_OK)
+        success = (response == Gtk.ResponseType.OK)
 
         dialog.destroy()
 
@@ -240,36 +218,22 @@ class BuilderWidget(GtkBuilderWidget):
         else:
             return (success, (username, password))
 
-    def show_copy_dialog(self, src_filename, dst_filename=None, dst_directory=None, title=_('Select destination')):
-        if dst_filename is None:
-            dst_filename = src_filename
+    def show_folder_select_dialog(self, initial_directory=None, title=_('Select destination')):
+        if initial_directory is None:
+            initial_directory = os.path.expanduser('~')
 
-        if dst_directory is None:
-            dst_directory = os.path.expanduser('~')
-
-        base, extension = os.path.splitext(src_filename)
-
-        if not dst_filename.endswith(extension):
-            dst_filename += extension
-
-        dlg = gtk.FileChooserDialog(title=title, parent=self.main_window, action=gtk.FILE_CHOOSER_ACTION_SAVE)
-        dlg.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
-        dlg.add_button(gtk.STOCK_SAVE, gtk.RESPONSE_OK)
+        dlg = Gtk.FileChooserDialog(title=title, parent=self.main_window, action=Gtk.FileChooserAction.SELECT_FOLDER)
+        dlg.add_button(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL)
+        dlg.add_button(Gtk.STOCK_SAVE, Gtk.ResponseType.OK)
 
         dlg.set_do_overwrite_confirmation(True)
-        dlg.set_current_name(os.path.basename(dst_filename))
-        dlg.set_current_folder(dst_directory)
+        dlg.set_current_folder(initial_directory)
 
         result = False
-        folder = dst_directory
-        if dlg.run() == gtk.RESPONSE_OK:
+        folder = initial_directory
+        if dlg.run() == Gtk.ResponseType.OK:
             result = True
-            dst_filename = dlg.get_filename()
             folder = dlg.get_current_folder()
-            if not dst_filename.endswith(extension):
-                dst_filename += extension
-
-            shutil.copyfile(src_filename, dst_filename)
 
         dlg.destroy()
         return (result, folder)
@@ -282,7 +246,7 @@ class TreeViewHelper(object):
     COLUMNS = '_gpodder_columns'
 
     # Enum for the role attribute
-    ROLE_PODCASTS, ROLE_EPISODES, ROLE_DOWNLOADS = range(3)
+    ROLE_PODCASTS, ROLE_EPISODES, ROLE_DOWNLOADS = list(range(3))
 
     @classmethod
     def set(cls, treeview, role):

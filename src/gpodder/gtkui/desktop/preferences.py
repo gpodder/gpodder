@@ -17,10 +17,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import gtk
-import pango
+from gi.repository import Gtk
+from gi.repository import Gdk
+from gi.repository import Pango
 import cgi
-import urlparse
+import urllib.parse
 
 import logging
 logger = logging.getLogger(__name__)
@@ -40,13 +41,13 @@ from gpodder.gtkui.interface.configeditor import gPodderConfigEditor
 
 from gpodder.gtkui.desktopfile import PlayerListModel
 
-class NewEpisodeActionList(gtk.ListStore):
-    C_CAPTION, C_AUTO_DOWNLOAD = range(2)
+class NewEpisodeActionList(Gtk.ListStore):
+    C_CAPTION, C_AUTO_DOWNLOAD = list(range(2))
 
-    ACTION_NONE, ACTION_ASK, ACTION_MINIMIZED, ACTION_ALWAYS = range(4)
+    ACTION_NONE, ACTION_ASK, ACTION_MINIMIZED, ACTION_ALWAYS = list(range(4))
 
     def __init__(self, config):
-        gtk.ListStore.__init__(self, str, str)
+        Gtk.ListStore.__init__(self, str, str)
         self._config = config
         self.append((_('Do nothing'), 'ignore'))
         self.append((_('Show episode list'), 'show'))
@@ -63,11 +64,11 @@ class NewEpisodeActionList(gtk.ListStore):
     def set_index(self, index):
         self._config.auto_download = self[index][self.C_AUTO_DOWNLOAD]
 
-class DeviceTypeActionList(gtk.ListStore):
-    C_CAPTION, C_DEVICE_TYPE = range(2)
+class DeviceTypeActionList(Gtk.ListStore):
+    C_CAPTION, C_DEVICE_TYPE = list(range(2))
 
     def __init__(self, config):
-        gtk.ListStore.__init__(self, str, str)
+        Gtk.ListStore.__init__(self, str, str)
         self._config = config
         self.append((_('None'), 'none'))
         self.append((_('iPod'), 'ipod'))        
@@ -83,12 +84,12 @@ class DeviceTypeActionList(gtk.ListStore):
         self._config.device_sync.device_type = self[index][self.C_DEVICE_TYPE]
 
 
-class OnSyncActionList(gtk.ListStore):
-    C_CAPTION, C_ON_SYNC_DELETE, C_ON_SYNC_MARK_PLAYED = range(3)
-    ACTION_NONE, ACTION_ASK, ACTION_MINIMIZED, ACTION_ALWAYS = range(4)
+class OnSyncActionList(Gtk.ListStore):
+    C_CAPTION, C_ON_SYNC_DELETE, C_ON_SYNC_MARK_PLAYED = list(range(3))
+    ACTION_NONE, ACTION_ASK, ACTION_MINIMIZED, ACTION_ALWAYS = list(range(4))
 
     def __init__(self, config):
-        gtk.ListStore.__init__(self, str, bool, bool)
+        Gtk.ListStore.__init__(self, str, bool, bool)
         self._config = config
         self.append((_('Do nothing'), False, False))
         self.append((_('Mark as played'), False, True))
@@ -111,11 +112,11 @@ class OnSyncActionList(gtk.ListStore):
 
 
 
-class YouTubeVideoFormatListModel(gtk.ListStore):
-    C_CAPTION, C_ID = range(2)
+class YouTubeVideoFormatListModel(Gtk.ListStore):
+    C_CAPTION, C_ID = list(range(2))
 
     def __init__(self, config):
-        gtk.ListStore.__init__(self, str, int)
+        Gtk.ListStore.__init__(self, str, int)
         self._config = config
         self.custom_fmt_ids = self._config.youtube.preferred_fmt_ids
 
@@ -150,11 +151,11 @@ class YouTubeVideoFormatListModel(gtk.ListStore):
             self._config.youtube.preferred_fmt_ids = self.custom_fmt_ids
 
 
-class VimeoVideoFormatListModel(gtk.ListStore):
-    C_CAPTION, C_ID = range(2)
+class VimeoVideoFormatListModel(Gtk.ListStore):
+    C_CAPTION, C_ID = list(range(2))
 
     def __init__(self, config):
-        gtk.ListStore.__init__(self, str, str)
+        Gtk.ListStore.__init__(self, str, str)
         self._config = config
 
         for fileformat, description in vimeo.FORMATS:
@@ -168,20 +169,20 @@ class VimeoVideoFormatListModel(gtk.ListStore):
 
     def set_index(self, index):
         value = self[index][self.C_ID]
-        if value > 0:
+        if value is not None:
             self._config.vimeo.fileformat = value
 
 
 class gPodderPreferences(BuilderWidget):
-    C_TOGGLE, C_LABEL, C_EXTENSION, C_SHOW_TOGGLE = range(4)
+    C_TOGGLE, C_LABEL, C_EXTENSION, C_SHOW_TOGGLE = list(range(4))
 
     def new(self):
         for cb in (self.combo_audio_player_app, self.combo_video_player_app):
-            cellrenderer = gtk.CellRendererPixbuf()
+            cellrenderer = Gtk.CellRendererPixbuf()
             cb.pack_start(cellrenderer, False)
             cb.add_attribute(cellrenderer, 'pixbuf', PlayerListModel.C_ICON)
-            cellrenderer = gtk.CellRendererText()
-            cellrenderer.set_property('ellipsize', pango.ELLIPSIZE_END)
+            cellrenderer = Gtk.CellRendererText()
+            cellrenderer.set_property('ellipsize', Pango.EllipsizeMode.END)
             cb.pack_start(cellrenderer, True)
             cb.add_attribute(cellrenderer, 'markup', PlayerListModel.C_NAME)
             cb.set_row_separator_func(PlayerListModel.is_separator)
@@ -198,14 +199,14 @@ class gPodderPreferences(BuilderWidget):
 
         self.preferred_youtube_format_model = YouTubeVideoFormatListModel(self._config)
         self.combobox_preferred_youtube_format.set_model(self.preferred_youtube_format_model)
-        cellrenderer = gtk.CellRendererText()
+        cellrenderer = Gtk.CellRendererText()
         self.combobox_preferred_youtube_format.pack_start(cellrenderer, True)
         self.combobox_preferred_youtube_format.add_attribute(cellrenderer, 'text', self.preferred_youtube_format_model.C_CAPTION)
         self.combobox_preferred_youtube_format.set_active(self.preferred_youtube_format_model.get_index())
 
         self.preferred_vimeo_format_model = VimeoVideoFormatListModel(self._config)
         self.combobox_preferred_vimeo_format.set_model(self.preferred_vimeo_format_model)
-        cellrenderer = gtk.CellRendererText()
+        cellrenderer = Gtk.CellRendererText()
         self.combobox_preferred_vimeo_format.pack_start(cellrenderer, True)
         self.combobox_preferred_vimeo_format.add_attribute(cellrenderer, 'text', self.preferred_vimeo_format_model.C_CAPTION)
         self.combobox_preferred_vimeo_format.set_active(self.preferred_vimeo_format_model.get_index())
@@ -217,7 +218,7 @@ class gPodderPreferences(BuilderWidget):
 
         self.update_interval_presets = [0, 10, 30, 60, 2*60, 6*60, 12*60]
         adjustment_update_interval = self.hscale_update_interval.get_adjustment()
-        adjustment_update_interval.upper = len(self.update_interval_presets)-1
+        adjustment_update_interval.set_upper(len(self.update_interval_presets)-1)
         if self._config.auto_update_frequency in self.update_interval_presets:
             index = self.update_interval_presets.index(self._config.auto_update_frequency)
             self.hscale_update_interval.set_value(index)
@@ -226,7 +227,7 @@ class gPodderPreferences(BuilderWidget):
             self.update_interval_presets.append(self._config.auto_update_frequency)
             self.update_interval_presets.sort()
 
-            adjustment_update_interval.upper = len(self.update_interval_presets)-1
+            adjustment_update_interval.set_upper(len(self.update_interval_presets)-1)
             index = self.update_interval_presets.index(self._config.auto_update_frequency)
             self.hscale_update_interval.set_value(index)
 
@@ -234,7 +235,7 @@ class gPodderPreferences(BuilderWidget):
 
         self.auto_download_model = NewEpisodeActionList(self._config)
         self.combo_auto_download.set_model(self.auto_download_model)
-        cellrenderer = gtk.CellRendererText()
+        cellrenderer = Gtk.CellRendererText()
         self.combo_auto_download.pack_start(cellrenderer, True)
         self.combo_auto_download.add_attribute(cellrenderer, 'text', NewEpisodeActionList.C_CAPTION)
         self.combo_auto_download.set_active(self.auto_download_model.get_index())
@@ -243,7 +244,7 @@ class gPodderPreferences(BuilderWidget):
             adjustment_expiration = self.hscale_expiration.get_adjustment()
             if self._config.episode_old_age > adjustment_expiration.get_upper():
                 # Patch the adjustment to include the higher current value
-                adjustment_expiration.upper = self._config.episode_old_age
+                adjustment_expiration.set_upper(self._config.episode_old_age)
 
             self.hscale_expiration.set_value(self._config.episode_old_age)
         else:
@@ -256,7 +257,7 @@ class gPodderPreferences(BuilderWidget):
 
         self.device_type_model = DeviceTypeActionList(self._config)
         self.combobox_device_type.set_model(self.device_type_model)
-        cellrenderer = gtk.CellRendererText()
+        cellrenderer = Gtk.CellRendererText()
         self.combobox_device_type.pack_start(cellrenderer, True)
         self.combobox_device_type.add_attribute(cellrenderer, 'text',
                                                 DeviceTypeActionList.C_CAPTION)
@@ -264,7 +265,7 @@ class gPodderPreferences(BuilderWidget):
 
         self.on_sync_model = OnSyncActionList(self._config)
         self.combobox_on_sync.set_model(self.on_sync_model)
-        cellrenderer = gtk.CellRendererText()
+        cellrenderer = Gtk.CellRendererText()
         self.combobox_on_sync.pack_start(cellrenderer, True)
         self.combobox_on_sync.add_attribute(cellrenderer, 'text', OnSyncActionList.C_CAPTION)
         self.combobox_on_sync.set_active(self.on_sync_model.get_index())
@@ -292,12 +293,16 @@ class gPodderPreferences(BuilderWidget):
 
         # Configure the extensions manager GUI
         self.set_extension_preferences()
+        self.main_window.show()
+
+    def _extensions_select_function(self, selection, model, path, path_currently_selected):
+        return model.get_value(model.get_iter(path), self.C_SHOW_TOGGLE)
 
     def set_extension_preferences(self):
         def search_equal_func(model, column, key, it):
             label = model.get_value(it, self.C_LABEL)
             if key.lower() in label.lower():
-                # from http://www.pygtk.org/docs/pygtk/class-gtktreeview.html:
+                # from http://www.pyGtk.org/docs/pygtk/class-gtktreeview.html:
                 # "func should return False to indicate that the row matches
                 # the search criteria."
                 return False
@@ -305,24 +310,27 @@ class gPodderPreferences(BuilderWidget):
             return True
         self.treeviewExtensions.set_search_equal_func(search_equal_func)
 
-        toggle_cell = gtk.CellRendererToggle()
+        selection = self.treeviewExtensions.get_selection()
+        selection.set_select_function(self._extensions_select_function)
+
+        toggle_cell = Gtk.CellRendererToggle()
         toggle_cell.connect('toggled', self.on_extensions_cell_toggled)
-        toggle_column = gtk.TreeViewColumn('')
+        toggle_column = Gtk.TreeViewColumn('')
         toggle_column.pack_start(toggle_cell, True)
         toggle_column.add_attribute(toggle_cell, 'active', self.C_TOGGLE)
         toggle_column.add_attribute(toggle_cell, 'visible', self.C_SHOW_TOGGLE)
         toggle_column.set_property('min-width', 32)
         self.treeviewExtensions.append_column(toggle_column)
 
-        name_cell = gtk.CellRendererText()
-        name_cell.set_property('ellipsize', pango.ELLIPSIZE_END)
-        extension_column = gtk.TreeViewColumn(_('Name'))
+        name_cell = Gtk.CellRendererText()
+        name_cell.set_property('ellipsize', Pango.EllipsizeMode.END)
+        extension_column = Gtk.TreeViewColumn(_('Name'))
         extension_column.pack_start(name_cell, True)
         extension_column.add_attribute(name_cell, 'markup', self.C_LABEL)
         extension_column.set_expand(True)
         self.treeviewExtensions.append_column(extension_column)
 
-        self.extensions_model = gtk.ListStore(bool, str, object, bool)
+        self.extensions_model = Gtk.ListStore(bool, str, object, bool)
 
         def key_func(pair):
             category, container = pair
@@ -351,7 +359,7 @@ class gPodderPreferences(BuilderWidget):
         if event.window != treeview.get_bin_window():
             return False
 
-        if event.type == gtk.gdk.BUTTON_RELEASE and event.button == 3:
+        if event.type == Gdk.EventType.BUTTON_RELEASE and event.button == 3:
             return self.on_treeview_extension_show_context_menu(treeview, event)
 
         return False
@@ -364,29 +372,30 @@ class gPodderPreferences(BuilderWidget):
         if not container:
             return
 
-        menu = gtk.Menu()
+        menu = Gtk.Menu()
 
         if container.metadata.doc:
-            menu_item = gtk.MenuItem(_('Documentation'))
+            menu_item = Gtk.MenuItem(_('Documentation'))
             menu_item.connect('activate', self.open_weblink,
                 container.metadata.doc)
             menu.append(menu_item)
 
-        menu_item = gtk.MenuItem(_('Extension info'))
+        menu_item = Gtk.MenuItem(_('Extension info'))
         menu_item.connect('activate', self.show_extension_info, model, container)
         menu.append(menu_item)
 
         if container.metadata.payment:
-            menu_item = gtk.MenuItem(_('Support the author'))
+            menu_item = Gtk.MenuItem(_('Support the author'))
             menu_item.connect('activate', self.open_weblink, container.metadata.payment)
             menu.append(menu_item)
 
         menu.show_all()
         if event is None:
             func = TreeViewHelper.make_popup_position_func(treeview)
-            menu.popup(None, None, func, 3, 0)
+            menu.popup(None, None, func, None, 3, Gtk.get_current_event_time())
         else:
-            menu.popup(None, None, None, 3, 0)
+            menu.popup(None, None, None, None, 3, Gtk.get_current_event_time())
+
 
         return True
 
@@ -414,7 +423,11 @@ class gPodderPreferences(BuilderWidget):
             else:
                 self.on_extension_disabled(container.module)
         elif container.error is not None:
-            self.show_message(container.error.message,
+            if hasattr(container.error, 'message'):
+                error_msg = container.error.message
+            else:
+                error_msg = str(container.error)
+            self.show_message(error_msg,
                     _('Extension cannot be activated'), important=True)
             model.set_value(it, self.C_TOGGLE, False)
 
@@ -425,7 +438,7 @@ class gPodderPreferences(BuilderWidget):
         # This is one ugly hack, but it displays the attributes of
         # the metadata object of the container..
         info = '\n'.join('<b>%s:</b> %s' %
-                tuple(map(cgi.escape, map(str, (key, value))))
+                tuple(map(cgi.escape, list(map(str, (key, value)))))
                 for key, value in container.metadata.get_sorted())
 
         self.show_message(info, _('Extension module info'), important=True)
@@ -486,12 +499,19 @@ class gPodderPreferences(BuilderWidget):
 
     def format_update_interval_value(self, scale, value):
         value = int(value)
+        ret = None
         if value == 0:
-            return _('manually')
+            ret = _('manually')
         elif value > 0 and len(self.update_interval_presets) > value:
-            return util.format_seconds_to_hour_min_sec(self.update_interval_presets[value]*60)
+            ret = util.format_seconds_to_hour_min_sec(self.update_interval_presets[value]*60)
         else:
-            return str(value)
+            ret = str(value)
+        # bug in gtk3: value representation (pixels) must be smaller than value for highest value.
+        # this makes sense when formatting e.g. 0 to 1000 where '1000' is the longest
+        # string, but not when '10 minutes' is longer than '12 hours'
+        # so we replace spaces with non breaking spaces otherwise '10 minutes' is displayed as '10'
+        ret = ret.replace(' ', '\xa0')
+        return ret
 
     def on_update_interval_value_changed(self, range):
         value = int(range.get_value())
@@ -626,12 +646,12 @@ class gPodderPreferences(BuilderWidget):
             pass
 
     def on_btn_device_mountpoint_clicked(self, widget):
-        fs = gtk.FileChooserDialog(title=_('Select folder for mount point'),
-                action=gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER)
-        fs.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
-        fs.add_button(gtk.STOCK_OPEN, gtk.RESPONSE_OK)
+        fs = Gtk.FileChooserDialog(title=_('Select folder for mount point'),
+                action=Gtk.FileChooserAction.SELECT_FOLDER)
+        fs.add_button(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL)
+        fs.add_button(Gtk.STOCK_OPEN, Gtk.ResponseType.OK)
         fs.set_current_folder(self.btn_filesystemMountpoint.get_label())
-        if fs.run() == gtk.RESPONSE_OK:
+        if fs.run() == Gtk.ResponseType.OK:
             filename = fs.get_filename()
             if self._config.device_sync.device_type == 'filesystem':
                 self._config.device_sync.device_folder = filename
@@ -643,12 +663,12 @@ class gPodderPreferences(BuilderWidget):
         fs.destroy()
 
     def on_btn_playlist_folder_clicked(self, widget):
-        fs = gtk.FileChooserDialog(title=_('Select folder for playlists'),
-                action=gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER)
-        fs.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
-        fs.add_button(gtk.STOCK_OPEN, gtk.RESPONSE_OK)
+        fs = Gtk.FileChooserDialog(title=_('Select folder for playlists'),
+                action=Gtk.FileChooserAction.SELECT_FOLDER)
+        fs.add_button(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL)
+        fs.add_button(Gtk.STOCK_OPEN, Gtk.ResponseType.OK)
         fs.set_current_folder(self.btn_playlistfolder.get_label())
-        if fs.run() == gtk.RESPONSE_OK:
+        if fs.run() == Gtk.ResponseType.OK:
             filename = util.relpath(self._config.device_sync.device_folder,
                                     fs.get_filename())
             if self._config.device_sync.device_type == 'filesystem':

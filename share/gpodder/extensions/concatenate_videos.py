@@ -8,7 +8,7 @@ import subprocess
 import gpodder
 from gpodder import util
 
-import gtk
+from gi.repository import Gtk
 from gpodder.gtkui.interface.progress import ProgressIndicator
 import os
 
@@ -34,13 +34,13 @@ class gPodderExtension:
             self.gpodder = ui_object
 
     def _get_save_filename(self):
-        dlg = gtk.FileChooserDialog(title=_('Save video'),
+        dlg = Gtk.FileChooserDialog(title=_('Save video'),
                 parent=self.gpodder.get_dialog_parent(),
-                action=gtk.FILE_CHOOSER_ACTION_SAVE)
-        dlg.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
-        dlg.add_button(gtk.STOCK_SAVE, gtk.RESPONSE_OK)
+                action=Gtk.FileChooserAction.SAVE)
+        dlg.add_button(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL)
+        dlg.add_button(Gtk.STOCK_SAVE, Gtk.ResponseType.OK)
 
-        if dlg.run() == gtk.RESPONSE_OK:
+        if dlg.run() == Gtk.ResponseType.OK:
             filename = dlg.get_filename()
             dlg.destroy()
             return filename

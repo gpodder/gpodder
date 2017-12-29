@@ -30,11 +30,11 @@ try:
     # Unused here locally, but we import it to be able to give an early
     # warning about this missing dependency in order to avoid bogus errors.
     import minimock
-except ImportError, e:
-    print >>sys.stderr, """
+except ImportError as e:
+    print("""
     Error: Unit tests require the "minimock" module (python-minimock).
     Please install it before running the unit tests.
-    """
+    """, file=sys.stderr)
     sys.exit(2)
 
 # Main package and test package (for modules in main package)
@@ -73,9 +73,9 @@ try:
     import HTMLTestRunner
     REPORT_FILENAME = 'test_report.html'
     runner = HTMLTestRunner.HTMLTestRunner(stream=open(REPORT_FILENAME, 'w'))
-    print """
+    print("""
     HTML Test Report will be written to %s
-    """ % REPORT_FILENAME
+    """ % REPORT_FILENAME)
 except ImportError:
     runner = unittest.TextTestRunner(verbosity=2)
 
@@ -100,7 +100,7 @@ if __name__ == '__main__':
         cov.report(coverage_modules)
         cov.erase()
     else:
-        print >>sys.stderr, """
+        print("""
         No coverage reporting done (Python module "coverage" is missing)
         Please install the python-coverage package to get coverage reporting.
-        """
+        """, file=sys.stderr)

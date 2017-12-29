@@ -28,12 +28,7 @@ _ = gpodder.gettext
 from gpodder import model
 from gpodder import util
 
-try:
-    # For Python < 2.6, we use the "simplejson" add-on module
-    import simplejson as json
-except ImportError:
-    # Python 2.6 already ships with a nice "json" module
-    import json
+import json
 
 import logging
 import os
@@ -41,7 +36,7 @@ import time
 
 import re
 import email
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 
 # gPodder's consumer key for the Soundcloud API
@@ -58,7 +53,7 @@ def soundcloud_parsedate(s):
     parsed with this function (2009/11/03 13:37:00).
     """
     m = re.match(r'(\d{4})/(\d{2})/(\d{2}) (\d{2}):(\d{2}):(\d{2})', s)
-    return time.mktime([int(x) for x in m.groups()]+[0, 0, -1])
+    return time.mktime(tuple([int(x) for x in m.groups()]+[0, 0, -1]))
 
 def get_param(s, param='filename', header='content-disposition'):
     """Get a parameter from a string of headers
@@ -76,8 +71,8 @@ def get_param(s, param='filename', header='content-disposition'):
             if encoding:
                 value.append(part.decode(encoding))
             else:
-                value.append(unicode(part))
-        return u''.join(value)
+                value.append(str(part))
+        return ''.join(value)
 
     return None
 
@@ -92,7 +87,7 @@ def get_metadata(url):
     headers = track_fp.info()
     filesize = headers['content-length'] or '0'
     filetype = headers['content-type'] or 'application/octet-stream'
-    headers_s = '\n'.join('%s:%s'%(k,v) for k, v in headers.items())
+    headers_s = '\n'.join('%s:%s'%(k,v) for k, v in list(headers.items()))
     filename = get_param(headers_s) or os.path.basename(os.path.dirname(url))
     track_fp.close()
     return filesize, filetype, filename
@@ -121,7 +116,7 @@ class SoundcloudUser(object):
 
         try:
             json_url = 'https://api.soundcloud.com/users/%s.json?consumer_key=%s' % (self.username, CONSUMER_KEY)
-            user_info = json.load(util.urlopen(json_url))
+            user_info = json.loads(util.urlopen(json_url).read().decode('utf-8'))
             self.cache[key] = user_info
         finally:
             self.commit_cache()
@@ -252,5 +247,5 @@ model.register_custom_handler(SoundcloudFeed)
 model.register_custom_handler(SoundcloudFavFeed)
 
 def search_for_user(query):
-    json_url = 'https://api.soundcloud.com/users.json?q=%s&consumer_key=%s' % (urllib.quote(query), CONSUMER_KEY)
-    return json.load(util.urlopen(json_url))
+    json_url = 'https://api.soundcloud.com/users.json?q=%s&consumer_key=%s' % (urllib.parse.quote(query), CONSUMER_KEY)
+    return json.loads(util.urlopen(json_url).read().decode('utf-8'))

@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <menu id="app-menu">
+    <section>
+      <item>
+        <attribute name="action">app.preferences</attribute>
+        <attribute name="label" translatable="yes">Preferences</attribute>
+        <attribute name="accel">&lt;Primary&gt;p</attribute>
+      </item>
+    </section>
+    <section>
+      <item>
+        <attribute name="action">app.gotoMygpo</attribute>
+        <attribute name="label" translatable="yes">Go to gpodder.net</attribute>
+      </item>
+      <item>
+        <attribute name="action">app.checkForUpdates</attribute>
+        <attribute name="label" translatable="yes">Software updates</attribute>
+      </item>
+    </section>
+    <section>
+      <item>
+        <attribute name="label" translatable="yes">Help</attribute>
+        <attribute name="action">app.help</attribute>
+      </item>
+      <item>
+        <attribute name="action">app.about</attribute>
+        <attribute name="label" translatable="yes">About</attribute>
+      </item>
+      <item>
+        <attribute name="action">app.quit</attribute>
+        <attribute name="label" translatable="yes">Quit</attribute>
+          <attribute name="accel">&lt;Primary&gt;q</attribute>
+      </item>
+    </section>
+  </menu>
+  <menu id="menubar">
+    <submenu id="menuPodcasts">
+      <attribute name="label" translatable="yes">Podcasts</attribute>
+      <section>
+        <item>
+          <attribute name="action">win.update</attribute>
+          <attribute name="label" translatable="yes">Check for new episodes</attribute>
+          <attribute name="accel">&lt;Primary&gt;r</attribute>
+        </item>
+        <item>
+          <attribute name="action">win.downloadAllNew</attribute>
+          <attribute name="label" translatable="yes">Download new episodes</attribute>
+          <attribute name="accel">&lt;Primary&gt;n</attribute>
+        </item>
+        <item>
+          <attribute name="action">win.removeOldEpisodes</attribute>
+          <attribute name="label" translatable="yes">Delete episodes</attribute>
+          <attribute name="accel">&lt;Primary&gt;k</attribute>
+        </item>
+      </section>
+    </submenu>
+    <submenu id="menuSubscriptions">
+      <attribute name="label">Subscriptions</attribute>
+      <section>
+        <item>
+          <attribute name="action">win.discover</attribute>
+          <attribute name="label" translatable="yes">Discover new podcasts</attribute>
+          <attribute name="accel">&lt;Primary&gt;f</attribute>
+        </item>
+        <item>
+          <attribute name="action">win.addChannel</attribute>
+          <attribute name="label" translatable="yes">Add podcast via URL</attribute>
+          <attribute name="accel">&lt;Primary&gt;l</attribute>
+        </item>
+        <item>
+          <attribute name="action">win.massUnsubscribe</attribute>
+          <attribute name="label" translatable="yes">Delete podcasts</attribute>
+        </item>
+      </section>
+      <section>
+        <item>
+          <attribute name="action">win.updateChannel</attribute>
+          <attribute name="label" translatable="yes">Update podcast</attribute>
+        </item>
+        <item>
+          <attribute name="action">win.editChannel</attribute>
+          <attribute name="label" translatable="yes">Podcast settings</attribute>
+        </item>
+      </section>
+      <section>
+        <item>
+          <attribute name="action">win.importFromFile</attribute>
+          <attribute name="label" translatable="yes">Import from OPML file</attribute>
+        </item>
+        <item>
+          <attribute name="action">win.exportChannels</attribute>
+          <attribute name="label" translatable="yes">Export to OPML file</attribute>
+        </item>
+      </section>
+    </submenu>
+    <submenu id="menuChannels">
+      <attribute name="label">Episodes</attribute>
+      <section>
+        <item>
+          <attribute name="action">win.play</attribute>
+          <attribute name="label" translatable="yes">Play</attribute>
+          <attribute name="accel">&lt;Shift&gt;Return</attribute>
+        </item>
+        <item>
+          <attribute name="action">win.open</attribute>
+          <attribute name="label" translatable="yes">Open</attribute>
+        </item>
+        <item>
+          <attribute name="action">win.download</attribute>
+          <attribute name="label" translatable="yes">Download</attribute>
+        </item>
+        <item>
+          <attribute name="action">win.cancel</attribute>
+          <attribute name="label" translatable="yes">Cancel</attribute>
+        </item>
+        <item>
+          <attribute name="action">win.delete</attribute>
+          <attribute name="label" translatable="yes">Delete</attribute>
+        </item>
+      </section>
+      <section>
+        <item>
+          <attribute name="action">win.toggleEpisodeNew</attribute>
+          <attribute name="label" translatable="yes">Toggle new status</attribute>
+        </item>
+        <item>
+          <attribute name="action">win.toggleEpisodeLock</attribute>
+          <attribute name="label" translatable="yes">Change delete lock</attribute>
+        </item>
+      </section>
+      <section>
+        <item>
+          <attribute name="action">win.toggleShownotes</attribute>
+          <attribute name="label" translatable="yes">Episode details</attribute>
+        </item>
+      </section>
+    </submenu>
+    <submenu id="menuExtras">
+      <attribute name="label" translatable="yes">E_xtras</attribute>
+      <item>
+        <attribute name="action">win.sync</attribute>
+        <attribute name="label" translatable="yes">Sync to device</attribute>
+        <attribute name="accel">&lt;Primary&gt;s</attribute>
+      </item>
+      <item>
+        <attribute name="action">win.updateYoutubeSubscriptions</attribute>
+        <attribute name="label" translatable="yes">Update YouTube subscriptions</attribute>
+      </item>
+    </submenu>
+    <submenu id="menuView">
+      <attribute name="label">View</attribute>
+      <section>
+        <item>
+          <attribute name="action">win.showToolbar</attribute>
+          <attribute name="label" translatable="yes">Toolbar</attribute>
+          <attribute name="accel">&lt;Primary&gt;t</attribute>
+        </item>
+        <item>
+          <attribute name="action">win.showEpisodeDescription</attribute>
+          <attribute name="label" translatable="yes">Episode descriptions</attribute>
+          <attribute name="accel">&lt;Primary&gt;d</attribute>
+        </item>
+      </section>
+      <section>
+        <item>
+          <attribute name="action">win.viewEpisodes</attribute>
+          <attribute name="label" translatable="yes">All episodes</attribute>
+          <attribute name="target">VIEW_ALL</attribute>
+          <attribute name="accel">&lt;Primary&gt;0</attribute>
+        </item>
+        <item>
+          <attribute name="action">win.viewEpisodes</attribute>
+          <attribute name="label" translatable="yes">Hide deleted episodes</attribute>
+          <attribute name="target">VIEW_UNDELETED</attribute>
+          <attribute name="accel">&lt;Primary&gt;1</attribute>
+        </item>
+        <item>
+          <attribute name="action">win.viewEpisodes</attribute>
+          <attribute name="label" translatable="yes">Downloaded episodes</attribute>
+          <attribute name="target">VIEW_DOWNLOADED</attribute>
+          <attribute name="accel">&lt;Primary&gt;2</attribute>
+        </item>
+        <item>
+          <attribute name="action">win.viewEpisodes</attribute>
+          <attribute name="label" translatable="yes">Unplayed episodes</attribute>
+          <attribute name="target">VIEW_UNPLAYED</attribute>
+          <attribute name="accel">&lt;Primary&gt;3</attribute>
+        </item>
+      </section>
+      <section>
+        <item>
+          <attribute name="action">win.viewHideBoringPodcasts</attribute>
+          <attribute name="label" translatable="yes">Hide podcasts without episodes</attribute>
+        </item>
+      </section>
+      <submenu id="menuViewColumns">
+        <attribute name="label" translatable="yes">Visible columns</attribute>
+      </submenu>
+    </submenu>
+  </menu>
+</interface>
+<!-- :noTabs=true:tabSize=2:indentSize=2: -->

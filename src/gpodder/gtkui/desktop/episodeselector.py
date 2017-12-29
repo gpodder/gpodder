@@ -17,9 +17,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import gtk
-import pango
-import cgi
+from gi.repository import Gtk
+from gi.repository import Pango
 
 import gpodder
 
@@ -66,7 +65,7 @@ class gPodderEpisodeSelector(BuilderWidget):
       - stock_ok_button: (optional) Will replace the "OK" button with
                          another GTK+ stock item to be used for the
                          affirmative button of the dialog (e.g. can 
-                         be gtk.STOCK_DELETE when the episodes to be
+                         be Gtk.STOCK_DELETE when the episodes to be
                          selected will be deleted after closing the 
                          dialog)
       - selection_buttons: (optional) A dictionary with labels as 
@@ -140,25 +139,25 @@ class gPodderEpisodeSelector(BuilderWidget):
 
         if hasattr(self, 'stock_ok_button'):
             if self.stock_ok_button == 'gpodder-download':
-                self.btnOK.set_image(gtk.image_new_from_stock(gtk.STOCK_GO_DOWN, gtk.ICON_SIZE_BUTTON))
+                self.btnOK.set_image(Gtk.Image.new_from_icon_name('go-down', Gtk.IconSize.BUTTON))
                 self.btnOK.set_label(_('Download'))
             else:
                 self.btnOK.set_label(self.stock_ok_button)
                 self.btnOK.set_use_stock(True)
 
         # check/uncheck column
-        toggle_cell = gtk.CellRendererToggle()
+        toggle_cell = Gtk.CellRendererToggle()
         toggle_cell.connect( 'toggled', self.toggle_cell_handler)
-        toggle_column = gtk.TreeViewColumn('', toggle_cell, active=self.COLUMN_TOGGLE)
+        toggle_column = Gtk.TreeViewColumn('', toggle_cell, active=self.COLUMN_TOGGLE)
         toggle_column.set_clickable(True)
         self.treeviewEpisodes.append_column(toggle_column)
         
         next_column = self.COLUMN_ADDITIONAL
         for name, sort_name, sort_type, caption in self.columns:
-            renderer = gtk.CellRendererText()
+            renderer = Gtk.CellRendererText()
             if next_column < self.COLUMN_ADDITIONAL + 1:
-                renderer.set_property('ellipsize', pango.ELLIPSIZE_END)
-            column = gtk.TreeViewColumn(caption, renderer, markup=next_column)
+                renderer.set_property('ellipsize', Pango.EllipsizeMode.END)
+            column = Gtk.TreeViewColumn(caption, renderer, markup=next_column)
             column.set_clickable(False)
             column.set_resizable( True)
             # Only set "expand" on the first column
@@ -173,7 +172,7 @@ class gPodderEpisodeSelector(BuilderWidget):
             
             if sort_name is not None:
                 # add the sort column
-                column = gtk.TreeViewColumn()
+                column = Gtk.TreeViewColumn()
                 column.set_clickable(False)
                 column.set_visible(False)
                 self.treeviewEpisodes.append_column( column)
@@ -185,7 +184,7 @@ class gPodderEpisodeSelector(BuilderWidget):
             column_types.append(str)
             if sort_name is not None:
                 column_types.append(sort_type)
-        self.model = gtk.ListStore( *column_types)
+        self.model = Gtk.ListStore( *column_types)
 
         tooltip = None
         for index, episode in enumerate( self.episodes):
@@ -275,21 +274,21 @@ class gPodderEpisodeSelector(BuilderWidget):
         return False
 
     def treeview_episodes_button_pressed(self, treeview, event=None):
-        if event is None or event.button == 3:
-            menu = gtk.Menu()
+        if event is None or event.triggers_context_menu():
+            menu = Gtk.Menu()
 
             if len(self.selection_buttons):
                 for label in self.selection_buttons:
-                    item = gtk.MenuItem(label)
+                    item = Gtk.MenuItem(label)
                     item.connect('activate', self.custom_selection_button_clicked, label)
                     menu.append(item)
-                menu.append(gtk.SeparatorMenuItem())
+                menu.append(Gtk.SeparatorMenuItem())
 
-            item = gtk.MenuItem(_('Select all'))
+            item = Gtk.MenuItem(_('Select all'))
             item.connect('activate', self.on_btnCheckAll_clicked)
             menu.append(item)
 
-            item = gtk.MenuItem(_('Select none'))
+            item = Gtk.MenuItem(_('Select none'))
             item.connect('activate', self.on_btnCheckNone_clicked)
             menu.append(item)
 
@@ -300,9 +299,9 @@ class gPodderEpisodeSelector(BuilderWidget):
             menu.connect('deactivate', lambda menushell: self.episode_list_allow_tooltips())
             if event is None:
                 func = TreeViewHelper.make_popup_position_func(treeview)
-                menu.popup(None, None, func, 3, 0)
+                menu.popup(None, None, func, None, 3, Gtk.get_current_event_time())
             else:
-                menu.popup(None, None, None, event.button, event.time)
+                menu.popup(None, None, None, None, event.button, event.time)
 
             return True
 
@@ -329,9 +328,9 @@ class gPodderEpisodeSelector(BuilderWidget):
             self.btnOK.set_sensitive(count>0)
             self.btnRemoveAction.set_sensitive(count>0)
             if count > 0:
-                self.btnCancel.set_label(gtk.STOCK_CANCEL)
+                self.btnCancel.set_label(Gtk.STOCK_CANCEL)
             else:
-                self.btnCancel.set_label(gtk.STOCK_CLOSE)
+                self.btnCancel.set_label(Gtk.STOCK_CLOSE)
         else:
             self.btnOK.set_sensitive(False)
             self.btnRemoveAction.set_sensitive(False)

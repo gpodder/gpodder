@@ -29,7 +29,10 @@ def aeKeyword(fourCharCode):
 
 # for the kCoreEventClass, kAEOpenDocuments, ... constants
 # comes with macpython
-from Carbon.AppleEvents import *
+try:
+    from Carbon.AppleEvents import *
+except ImportError:
+    ...
 
 # all this depends on pyObjc (http://pyobjc.sourceforge.net/).
 # There may be a way to achieve something equivalent with only
@@ -78,7 +81,7 @@ try:
                 util.idle_add(self.gp.on_item_import_from_file_activate, None,url)
                 urls.append(str(url))
 
-            print >>sys.stderr,("open Files :",urls)
+            print(("open Files :",urls), file=sys.stderr)
             result = NSAppleEventDescriptor.descriptorWithInt32_(42)
             reply.setParamDescriptor_forKeyword_(result, aeKeyword('----'))
 
@@ -88,7 +91,7 @@ try:
             fileURLData = filelist.data()
             url = buffer(fileURLData.bytes(),0,fileURLData.length())
             url = str(url)
-            print >>sys.stderr,("Subscribe to :"+url)
+            print(("Subscribe to :"+url), file=sys.stderr)
             util.idle_add(self.gp.subscribe_to_url, url)
 
             result = NSAppleEventDescriptor.descriptorWithInt32_(42)
@@ -97,9 +100,9 @@ try:
     # global reference to the handler (mustn't be destroyed)
     handler = gPodderEventHandler.alloc().init()
 except ImportError:
-    print >> sys.stderr, """
+    print("""
     Warning: pyobjc not found. Disabling "Subscribe with" events handling
-    """
+    """, file=sys.stderr)
     handler = None
 
 def register_handlers(gp):

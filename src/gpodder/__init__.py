@@ -20,8 +20,8 @@
 # This metadata block gets parsed by setup.py - use single quotes only
 __tagline__   = 'Media aggregator and podcast client'
 __author__    = 'Thomas Perl <thp@gpodder.org>'
-__version__   = '3.9.5'
-__date__      = '2017-12-16'
+__version__   = '3.9.3'
+__date__      = '2016-12-22'
 __copyright__ = '© 2005-2017 Thomas Perl and the gPodder Team'
 __license__   = 'GNU General Public License, version 3 or later'
 __url__       = 'http://gpodder.org/'
@@ -38,7 +38,7 @@ import locale
 try:
     import podcastparser
 except ImportError:
-    print """
+    print("""
   Error: Module "podcastparser" (python-podcastparser) not found.
          The podcastparser module can be downloaded from
          http://gpodder.org/podcastparser/
@@ -46,15 +46,15 @@ except ImportError:
   From a source checkout, you can download local copies of all
   CLI dependencies for debugging (will be placed into "src/"):
 
-      python tools/localdepends.py
-"""
+      python3 tools/localdepends.py
+""")
     sys.exit(1)
 del podcastparser
 
 try:
     import mygpoclient
 except ImportError:
-    print """
+    print("""
   Error: Module "mygpoclient" (python-mygpoclient) not found.
          The mygpoclient module can be downloaded from
          http://gpodder.org/mygpoclient/
@@ -62,19 +62,19 @@ except ImportError:
   From a source checkout, you can download local copies of all
   CLI dependencies for debugging (will be placed into "src/"):
 
-      python tools/localdepends.py
-"""
+      python3 tools/localdepends.py
+""")
     sys.exit(1)
 del mygpoclient
 
 try:
     import sqlite3
 except ImportError:
-    print """
+    print("""
   Error: Module "sqlite3" not found.
          Build Python with SQLite 3 support or get it from
          http://code.google.com/p/pysqlite/
-"""
+""")
     sys.exit(1)
 del sqlite3
 
@@ -121,18 +121,9 @@ except AttributeError:
     gettext = t.gettext
     ngettext = t.ngettext
 
-if ui.win32:
-    try:
-        # Workaround for bug 650
-        from gtk.glade import bindtextdomain
-        bindtextdomain(textdomain, locale_dir)
-        del bindtextdomain
-    except:
-        # Ignore for missing glade module
-        pass
 del t
 
-# Set up textdomain for gtk.Builder (this accesses the C library functions)
+# Set up textdomain for Gtk.Builder (this accesses the C library functions)
 if hasattr(locale, 'bindtextdomain'):
     locale.bindtextdomain(textdomain, locale_dir)
 
@@ -152,7 +143,7 @@ images_folder = None
 user_extensions = None
 
 # Episode states used in the database
-STATE_NORMAL, STATE_DOWNLOADED, STATE_DELETED = range(3)
+STATE_NORMAL, STATE_DOWNLOADED, STATE_DELETED = list(range(3))
 
 # Paths (gPodder's home folder, config, db, download and data prefix)
 home = None
@@ -193,13 +184,13 @@ default_home = fixup_home(default_home)
 set_home(os.environ.get(ENV_HOME, default_home))
 
 if home != default_home:
-    print >>sys.stderr, 'Storing data in', home, '(GPODDER_HOME is set)'
+    print('Storing data in', home, '(GPODDER_HOME is set)', file=sys.stderr)
 
 if ENV_DOWNLOADS in os.environ:
     # Allow to relocate the downloads folder (pull request 4, bug 466)
     downloads = os.environ[ENV_DOWNLOADS]
-    print >>sys.stderr, 'Storing downloads in %s (%s is set)' % (downloads,
-            ENV_DOWNLOADS)
+    print('Storing downloads in %s (%s is set)' % (downloads,
+            ENV_DOWNLOADS), file=sys.stderr)
 
 # Plugins to load by default
 DEFAULT_PLUGINS = [
@@ -220,5 +211,5 @@ def load_plugins():
     for plugin in PLUGINS:
         try:
             __import__(plugin)
-        except Exception, e:
-            print >>sys.stderr, 'Cannot load plugin: %s (%s)' % (plugin, e)
+        except Exception as e:
+            print('Cannot load plugin: %s (%s)' % (plugin, e), file=sys.stderr)

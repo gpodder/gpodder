@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--*- mode: xml -*-->
 <interface>
+  <!-- interface-requires gtk+ 3.10 -->
   <object class="GtkAdjustment" id="adjustment1">
     <property name="upper">10240</property>
     <property name="lower">0.5</property>
@@ -15,389 +16,8 @@
     <property name="step_increment">1</property>
     <property name="page_size">0</property>
   </object>
-  <object class="GtkUIManager" id="uimanager1">
-    <child>
-      <object class="GtkActionGroup" id="actiongroup1">
-        <child>
-          <object class="GtkAction" id="menuPodcasts">
-            <property name="name">menuPodcasts</property>
-            <property name="label" translatable="yes">_Podcasts</property>
-          </object>
-        </child>
-        <child>
-          <object class="GtkAction" id="itemUpdate">
-            <property name="stock_id">gtk-refresh</property>
-            <property name="name">itemUpdate</property>
-            <property name="label" translatable="yes">Check for new episodes</property>
-            <signal handler="on_itemUpdate_activate" name="activate"/>
-          </object>
-          <accelerator key="R" modifiers="GDK_CONTROL_MASK"/>
-        </child>
-        <child>
-          <object class="GtkAction" id="itemDownloadAllNew">
-            <property name="stock_id">gtk-goto-bottom</property>
-            <property name="name">itemDownloadAllNew</property>
-            <property name="label" translatable="yes">Download new episodes</property>
-            <signal handler="on_itemDownloadAllNew_activate" name="activate"/>
-          </object>
-          <accelerator key="N" modifiers="GDK_CONTROL_MASK"/>
-        </child>
-        <child>
-          <object class="GtkAction" id="itemRemoveOldEpisodes">
-            <property name="stock_id">gtk-delete</property>
-            <property name="name">itemRemoveOldEpisodes</property>
-            <property name="label" translatable="yes">Delete episodes</property>
-            <signal handler="on_itemRemoveOldEpisodes_activate" name="activate"/>
-          </object>
-          <accelerator key="K" modifiers="GDK_CONTROL_MASK"/>
-        </child>
-        <child>
-          <object class="GtkAction" id="itemPreferences">
-            <property name="stock_id">gtk-preferences</property>
-            <property name="name">itemPreferences</property>
-            <property name="label" translatable="yes">Preferences</property>
-            <signal handler="on_itemPreferences_activate" name="activate"/>
-          </object>
-          <accelerator key="P" modifiers="GDK_CONTROL_MASK"/>
-        </child>
-        <child>
-          <object class="GtkAction" id="itemQuit">
-            <property name="stock_id">gtk-quit</property>
-            <property name="name">itemQuit</property>
-            <property name="label" translatable="yes">Quit</property>
-            <signal handler="on_gPodder_delete_event" name="activate"/>
-          </object>
-          <accelerator key="Q" modifiers="GDK_CONTROL_MASK"/>
-        </child>
-        <child>
-          <object class="GtkAction" id="menuSubscriptions">
-            <property name="name">menuSubscriptions</property>
-            <property name="label" translatable="yes">_Subscriptions</property>
-          </object>
-        </child>
-        <child>
-          <object class="GtkAction" id="itemFind">
-            <property name="stock_id">gtk-find</property>
-            <property name="name">itemFind</property>
-            <property name="label" translatable="yes">Discover new podcasts</property>
-            <signal handler="on_itemImportChannels_activate" name="activate"/>
-          </object>
-          <accelerator key="F" modifiers="GDK_CONTROL_MASK"/>
-        </child>
-        <child>
-          <object class="GtkAction" id="itemAddChannel">
-            <property name="stock_id">gtk-add</property>
-            <property name="name">itemAddChannel</property>
-            <property name="label" translatable="yes">Add podcast via URL</property>
-            <signal handler="on_itemAddChannel_activate" name="activate"/>
-          </object>
-          <accelerator key="L" modifiers="GDK_CONTROL_MASK"/>
-        </child>
-        <child>
-          <object class="GtkAction" id="itemEditChannel">
-            <property name="stock_id">gtk-edit</property>
-            <property name="name">itemEditChannel</property>
-            <property name="label" translatable="yes">Podcast settings</property>
-            <signal handler="on_itemEditChannel_activate" name="activate"/>
-          </object>
-        </child>
-        <child>
-          <object class="GtkAction" id="itemRemoveChannel">
-            <property name="stock_id">gtk-remove</property>
-            <property name="name">itemRemoveChannel</property>
-            <property name="label" translatable="yes">Unsubscribe</property>
-            <signal handler="on_itemRemoveChannel_activate" name="activate"/>
-          </object>
-        </child>
-        <child>
-          <object class="GtkAction" id="itemMassUnsubscribe">
-            <property name="stock_id">gtk-remove</property>
-            <property name="label" translatable="yes">Remove podcasts</property>
-            <signal handler="on_itemMassUnsubscribe_activate" name="activate"/>
-          </object>
-        </child>
-        <child>
-          <object class="GtkAction" id="itemUpdateChannel">
-            <property name="stock_id">gtk-refresh</property>
-            <property name="name">itemUpdateChannel</property>
-            <property name="label" translatable="yes">Update podcast</property>
-            <signal handler="on_itemUpdateChannel_activate" name="activate"/>
-          </object>
-        </child>
-        <child>
-          <object class="GtkAction" id="item_import_from_file">
-            <property name="stock_id">gtk-open</property>
-            <property name="name">item_import_from_file</property>
-            <property name="label" translatable="yes">Import from OPML file</property>
-            <signal handler="on_item_import_from_file_activate" name="activate"/>
-          </object>
-        </child>
-        <child>
-          <object class="GtkAction" id="itemExportChannels">
-            <property name="stock_id">gtk-save-as</property>
-            <property name="name">itemExportChannels</property>
-            <property name="label" translatable="yes">Export to OPML file</property>
-            <signal handler="on_itemExportChannels_activate" name="activate"/>
-          </object>
-        </child>
-        <child>
-          <object class="GtkAction" id="item_goto_mygpo">
-            <property name="label" translatable="yes">Go to gpodder.net</property>
-            <signal handler="on_goto_mygpo" name="activate"/>
-          </object>
-        </child>
-        <child>
-          <object class="GtkAction" id="menuChannels">
-            <property name="name">menuChannels</property>
-            <property name="label" translatable="yes">_Episodes</property>
-          </object>
-        </child>
-        <child>
-          <object class="GtkAction" id="itemPlaySelected">
-            <property name="stock_id">gtk-media-play</property>
-            <property name="name">itemPlaySelected</property>
-            <property name="label" translatable="yes">Play</property>
-            <signal handler="on_playback_selected_episodes" name="activate"/>
-          </object>
-          <accelerator key="Return" modifiers="GDK_SHIFT_MASK"/>
-        </child>
-        <child>
-          <object class="GtkAction" id="itemOpenSelected">
-            <property name="stock_id">gtk-open</property>
-            <property name="name">itemOpenSelected</property>
-            <property name="label" translatable="yes">Open</property>
-            <signal handler="on_playback_selected_episodes" name="activate"/>
-          </object>
-        </child>
-        <child>
-          <object class="GtkAction" id="itemDownloadSelected">
-            <property name="stock_id">gtk-goto-bottom</property>
-            <property name="name">itemDownloadSelected</property>
-            <property name="label" translatable="yes">Download</property>
-            <signal handler="on_download_selected_episodes" name="activate"/>
-          </object>
-        </child>
-        <child>
-          <object class="GtkAction" id="item_cancel_download">
-            <property name="stock_id">gtk-stop</property>
-            <property name="name">item_cancel_download</property>
-            <property name="label" translatable="yes">Cancel</property>
-            <signal handler="on_item_cancel_download_activate" name="activate"/>
-          </object>
-        </child>
-        <child>
-          <object class="GtkAction" id="itemDeleteSelected">
-            <property name="stock_id">gtk-delete</property>
-            <property name="name">itemDeleteSelected</property>
-            <property name="label" translatable="yes">Delete</property>
-            <signal handler="on_btnDownloadedDelete_clicked" name="activate"/>
-          </object>
-          <accelerator key="Delete" modifiers="0"/>
-        </child>
-        <child>
-          <object class="GtkAction" id="item_toggle_played">
-            <property name="stock_id">gtk-apply</property>
-            <property name="name">item_toggle_played</property>
-            <property name="label" translatable="yes">Toggle new status</property>
-            <signal handler="on_item_toggle_played_activate" name="activate"/>
-          </object>
-        </child>
-        <child>
-          <object class="GtkAction" id="item_toggle_lock">
-            <property name="stock_id">gtk-dialog-authentication</property>
-            <property name="name">item_toggle_lock</property>
-            <property name="label" translatable="yes">Change delete lock</property>
-            <signal handler="on_item_toggle_lock_activate" name="activate"/>
-          </object>
-        </child>
-        <child>
-          <object class="GtkAction" id="item_episode_details">
-            <property name="stock_id">gtk-info</property>
-            <property name="name">item_episode_details</property>
-            <property name="label" translatable="yes">Episode details</property>
-            <signal handler="on_shownotes_selected_episodes" name="activate"/>
-          </object>
-        </child>
-        <child>
-          <object class="GtkAction" id="menuExtras">
-            <property name="name">menuExtras</property>
-            <property name="label" translatable="yes">E_xtras</property>
-          </object>
-        </child>
-        <child>
-          <object class="GtkAction" id="item_sync">
-            <property name="stock_id">gtk-refresh</property>
-            <property name="name">item_sync</property>
-            <property name="label" translatable="yes">Sync to device</property>
-            <signal handler="on_sync_to_device_activate" name="activate"/>
-          </object>
-          <accelerator key="S" modifiers="GDK_CONTROL_MASK"/>
-        </child>
-        <child>
-          <object class="GtkAction" id="item_update_youtube_subscriptions">
-            <property name="name">item_update_youtube_subscriptions</property>
-            <property name="label" translatable="yes">Update YouTube subscriptions</property>
-            <signal handler="on_update_youtube_subscriptions_activate" name="activate"/>
-          </object>
-        </child>
-        <child>
-          <object class="GtkAction" id="menuView">
-            <property name="name">menuView</property>
-            <property name="label" translatable="yes">_View</property>
-          </object>
-        </child>
-        <child>
-          <object class="GtkToggleAction" id="itemShowToolbar">
-            <property name="active">True</property>
-            <property name="name">itemShowToolbar</property>
-            <property name="label" translatable="yes">Toolbar</property>
-            <signal handler="on_itemShowToolbar_activate" name="activate"/>
-          </object>
-          <accelerator key="T" modifiers="GDK_CONTROL_MASK"/>
-        </child>
-        <child>
-          <object class="GtkToggleAction" id="itemShowDescription">
-            <property name="active">True</property>
-            <property name="name">itemShowDescription</property>
-            <property name="label" translatable="yes">Episode descriptions</property>
-            <signal handler="on_itemShowDescription_activate" name="activate"/>
-          </object>
-          <accelerator key="D" modifiers="GDK_CONTROL_MASK"/>
-        </child>
-        <child>
-          <object class="GtkRadioAction" id="item_view_episodes_all">
-            <property name="name">item_view_episodes_all</property>
-            <property name="label" translatable="yes">All episodes</property>
-            <signal handler="on_item_view_episodes_changed" name="changed"/>
-          </object>
-          <accelerator key="0" modifiers="GDK_CONTROL_MASK"/>
-        </child>
-        <child>
-          <object class="GtkRadioAction" id="item_view_episodes_undeleted">
-            <property name="active">True</property>
-            <property name="group">item_view_episodes_all</property>
-            <property name="name">item_view_episodes_undeleted</property>
-            <property name="label" translatable="yes">Hide deleted episodes</property>
-            <signal handler="on_item_view_episodes_changed" name="changed"/>
-          </object>
-          <accelerator key="1" modifiers="GDK_CONTROL_MASK"/>
-        </child>
-        <child>
-          <object class="GtkRadioAction" id="item_view_episodes_downloaded">
-            <property name="group">item_view_episodes_all</property>
-            <property name="name">item_view_episodes_downloaded</property>
-            <property name="label" translatable="yes">Downloaded episodes</property>
-            <signal handler="on_item_view_episodes_changed" name="changed"/>
-          </object>
-          <accelerator key="2" modifiers="GDK_CONTROL_MASK"/>
-        </child>
-        <child>
-          <object class="GtkRadioAction" id="item_view_episodes_unplayed">
-            <property name="group">item_view_episodes_all</property>
-            <property name="name">item_view_episodes_unplayed</property>
-            <property name="label" translatable="yes">Unplayed episodes</property>
-            <signal handler="on_item_view_episodes_changed" name="changed"/>
-          </object>
-          <accelerator key="3" modifiers="GDK_CONTROL_MASK"/>
-        </child>
-        <child>
-          <object class="GtkToggleAction" id="item_view_hide_boring_podcasts">
-            <property name="active">False</property>
-            <property name="name">item_view_hide_boring_podcasts</property>
-            <property name="label" translatable="yes">Hide podcasts without episodes</property>
-            <signal handler="on_item_view_hide_boring_podcasts_toggled" name="toggled"/>
-          </object>
-        </child>
-        <child>
-          <object class="GtkAction" id="menuHelp">
-            <property name="name">menuHelp</property>
-            <property name="label" translatable="yes">_Help</property>
-          </object>
-        </child>
-        <child>
-          <object class="GtkAction" id="help">
-            <property name="stock_id">gtk-help</property>
-            <property name="name">help</property>
-            <property name="label" translatable="yes">User manual</property>
-            <signal handler="on_help_activate" name="activate"/>
-          </object>
-        </child>
-        <child>
-          <object class="GtkAction" id="item_check_for_updates">
-            <property name="name">item_check_for_updates</property>
-            <property name="label" translatable="yes">Software updates</property>
-            <signal handler="on_check_for_updates_activate" name="activate"/>
-          </object>
-        </child>
-        <child>
-          <object class="GtkAction" id="itemAbout">
-            <property name="stock_id">gtk-about</property>
-            <property name="name">itemAbout</property>
-            <signal handler="on_itemAbout_activate" name="activate"/>
-          </object>
-        </child>
-      </object>
-    </child>
-    <ui>
-      <menubar name="mainMenu">
-        <menu action="menuPodcasts">
-          <menuitem action="itemUpdate"/>
-          <menuitem action="itemDownloadAllNew"/>
-          <menuitem action="itemRemoveOldEpisodes"/>
-          <separator/>
-          <menuitem action="itemPreferences"/>
-          <separator/>
-          <menuitem action="itemQuit"/>
-        </menu>
-        <menu action="menuSubscriptions">
-          <menuitem action="itemFind"/>
-          <menuitem action="itemAddChannel"/>
-          <menuitem action="itemMassUnsubscribe"/>
-          <separator/>
-          <menuitem action="itemUpdateChannel"/>
-          <menuitem action="itemEditChannel"/>
-          <separator/>
-          <menuitem action="item_import_from_file"/>
-          <menuitem action="itemExportChannels"/>
-        </menu>
-        <menu action="menuChannels">
-          <menuitem action="itemPlaySelected"/>
-          <menuitem action="itemOpenSelected"/>
-          <menuitem action="itemDownloadSelected"/>
-          <menuitem action="item_cancel_download"/>
-          <menuitem action="itemDeleteSelected"/>
-          <separator/>
-          <menuitem action="item_toggle_played"/>
-          <menuitem action="item_toggle_lock"/>
-          <separator/>
-          <menuitem action="item_episode_details"/>
-        </menu>
-        <menu action="menuExtras">
-          <menuitem action="item_sync"/>
-          <menuitem action="item_update_youtube_subscriptions"/>
-        </menu>
-        <menu action="menuView">
-          <menuitem action="itemShowToolbar"/>
-          <menuitem action="itemShowDescription"/>
-          <separator/>
-          <menuitem action="item_view_episodes_all"/>
-          <menuitem action="item_view_episodes_undeleted"/>
-          <menuitem action="item_view_episodes_downloaded"/>
-          <menuitem action="item_view_episodes_unplayed"/>
-          <separator/>
-          <menuitem action="item_view_hide_boring_podcasts"/>
-        </menu>
-        <menu action="menuHelp">
-          <menuitem action="help"/>
-          <menuitem action="item_goto_mygpo"/>
-          <menuitem action="item_check_for_updates"/>
-          <separator/>
-          <menuitem action="itemAbout"/>
-        </menu>
-      </menubar>
-    </ui>
-  </object>
-  <object class="GtkWindow" id="gPodder">
+  <object class="GtkApplicationWindow" id="gPodder">
+    <property name="application">app</property>
     <property name="visible">False</property>
     <property name="title">gPodder</property>
     <property name="window_position">GTK_WIN_POS_CENTER</property>
@@ -408,23 +28,11 @@
     <property name="type_hint">GDK_WINDOW_TYPE_HINT_NORMAL</property>
     <property name="focus_on_map">True</property>
     <property name="urgency_hint">False</property>
-    <signal handler="on_gPodder_delete_event" name="delete_event"/>
+    <signal handler="on_gPodder_delete_event" name="delete-event"/>
     <child>
-      <object class="GtkVBox" id="vMain">
+      <object class="GtkGrid" id="vMain">
         <property name="visible">True</property>
-        <property name="homogeneous">False</property>
-        <child>
-          <object class="GtkMenuBar" constructor="uimanager1" id="mainMenu">
-            <property name="visible">True</property>
-            <property name="pack_direction">GTK_PACK_DIRECTION_LTR</property>
-            <property name="child_pack_direction">GTK_PACK_DIRECTION_LTR</property>
-          </object>
-          <packing>
-            <property name="padding">0</property>
-            <property name="expand">False</property>
-            <property name="fill">False</property>
-          </packing>
-        </child>
+        <property name="orientation">vertical</property>
         <child>
           <object class="GtkToolbar" id="toolbar">
             <property name="visible">True</property>
@@ -496,7 +104,7 @@
                 <property name="visible_horizontal">True</property>
                 <property name="visible_vertical">True</property>
                 <property name="is_important">False</property>
-                <signal handler="on_itemPreferences_activate" name="clicked"/>
+                <property name="action-name">app.preferences</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -529,17 +137,14 @@
               </packing>
             </child>
           </object>
-          <packing>
-            <property name="padding">0</property>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-          </packing>
         </child>
         <child>
-          <object class="GtkHBox" id="hboxContainer">
+          <object class="GtkGrid" id="hboxContainer">
             <property name="border_width">5</property>
             <property name="visible">True</property>
-            <property name="homogeneous">False</property>
+            <property name="orientation">horizontal</property>
+            <property name="hexpand">True</property>
+            <property name="vexpand">True</property>
             <child>
               <object class="GtkNotebook" id="wNotebook">
                 <property name="visible">True</property>
@@ -551,21 +156,23 @@
                 <property name="enable_popup">False</property>
                 <signal handler="on_wNotebook_switch_page" name="switch_page"/>
                 <child>
-                  <object class="GtkHPaned" id="channelPaned">
+                  <object class="GtkPaned" id="channelPaned">
                     <property name="border_width">5</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
+                    <property name="orientation">horizontal</property>
                     <child>
-                      <object class="GtkVBox" id="vboxChannelNavigator">
+                      <object class="GtkGrid" id="vboxChannelNavigator">
                         <property name="visible">True</property>
-                        <property name="homogeneous">False</property>
-                        <property name="spacing">5</property>
+                        <property name="row_spacing">5</property>
+                        <property name="orientation">vertical</property>
                         <child>
                           <object class="GtkScrolledWindow" id="scrolledwindow6">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="hscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
                             <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
+                            <property name="vexpand">True</property>                            
                             <property name="shadow_type">GTK_SHADOW_IN</property>
                             <property name="window_placement">GTK_CORNER_TOP_LEFT</property>
                             <child>
@@ -583,21 +190,17 @@
                                 <signal handler="on_treeChannels_row_activated" name="row_activated"/>
                                 <signal handler="on_treeChannels_cursor_changed" name="cursor_changed"/>
                                 <signal handler="on_treeview_query_tooltip" name="query-tooltip"/>
-                                <signal handler="on_treeview_expose_event" name="expose-event"/>
+                                <signal handler="on_treeview_expose_event" name="draw"/>
                                 <signal handler="on_treeview_button_pressed" name="button-press-event"/>
                                 <signal handler="on_treeview_podcasts_button_released" name="button-release-event"/>
                               </object>
                             </child>
                           </object>
-                          <packing>
-                            <property name="padding">0</property>
-                            <property name="expand">True</property>
-                            <property name="fill">True</property>
-                          </packing>
                         </child>
                         <child>
-                          <object class="GtkHBox" id="hbox_search_podcasts">
-                            <property name="spacing">6</property>
+                          <object class="GtkGrid" id="hbox_search_podcasts">
+                            <property name="column_spacing">6</property>
+                            <property name="orientation">horizontal</property>
                             <child>
                               <object class="GtkEntry" id="entry_search_podcasts">
                                 <property name="visible">True</property>
@@ -608,41 +211,34 @@
                               </object>
                             </child>
                           </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">True</property>
-                          </packing>
                         </child>
                         <child>
-                          <object class="GtkVBox" id="vbox42">
+                          <object class="GtkGrid" id="vbox42">
                             <property name="visible">True</property>
-                            <property name="homogeneous">False</property>
+                            <property name="orientation">vertical</property>
                             <child>
                               <object class="GtkButton" id="btnUpdateFeeds">
                                 <property name="label" translatable="yes">Check for new episodes</property>
                                 <property name="can_focus">True</property>
                                 <property name="focus_on_click">True</property>
-                                <signal handler="on_itemUpdate_activate" name="clicked"/>
+                                <property name="action-name">win.update</property>
+                                <property name="hexpand">True</property>
                               </object>
                               <packing>
-                                <property name="padding">0</property>
-                                <property name="expand">True</property>
-                                <property name="fill">True</property>
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkHBox" id="hboxUpdateFeeds">
-                                <property name="homogeneous">False</property>
-                                <property name="spacing">6</property>
+                              <object class="GtkGrid" id="hboxUpdateFeeds">
+                                <property name="column_spacing">6</property>
+                                <property name="orientation">horizontal</property>
                                 <child>
                                   <object class="GtkProgressBar" id="pbFeedUpdate">
+                                    <property name="hexpand">True</property>
                                     <property name="pulse_step">0.10000000149</property>
+                                    <property name="show-text">True</property>
                                     <property name="ellipsize">PANGO_ELLIPSIZE_MIDDLE</property>
                                   </object>
                                   <packing>
-                                    <property name="padding">0</property>
-                                    <property name="expand">True</property>
-                                    <property name="fill">True</property>
                                   </packing>
                                 </child>
                                 <child>
@@ -658,25 +254,12 @@
                                       </object>
                                     </child>
                                   </object>
-                                  <packing>
-                                    <property name="padding">0</property>
-                                    <property name="expand">False</property>
-                                    <property name="fill">False</property>
-                                  </packing>
                                 </child>
                               </object>
                               <packing>
-                                <property name="padding">0</property>
-                                <property name="expand">True</property>
-                                <property name="fill">True</property>
                               </packing>
                             </child>
                           </object>
-                          <packing>
-                            <property name="padding">0</property>
-                            <property name="expand">False</property>
-                            <property name="fill">False</property>
-                          </packing>
                         </child>
                       </object>
                       <packing>
@@ -685,9 +268,10 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkVBox" id="vbox_episode_list">
+                      <object class="GtkGrid" id="vbox_episode_list">
                         <property name="visible">True</property>
-                        <property name="spacing">6</property>
+                        <property name="row_spacing">6</property>
+                        <property name="orientation">vertical</property>
                         <child>
                           <object class="GtkScrolledWindow" id="scrollAvailable">
                             <property name="visible">True</property>
@@ -695,6 +279,8 @@
                             <property name="hscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
                             <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
                             <property name="shadow_type">GTK_SHADOW_IN</property>
+                            <property name="hexpand">True</property>                            
+                            <property name="vexpand">True</property>                            
                             <property name="window_placement">GTK_CORNER_TOP_LEFT</property>
                             <child>
                               <object class="GtkTreeView" id="treeAvailable">
@@ -711,29 +297,22 @@
                                 <property name="hover_expand">False</property>
                                 <signal handler="on_treeAvailable_row_activated" name="row_activated"/>
                                 <signal handler="on_treeview_query_tooltip" name="query-tooltip"/>
-                                <signal handler="on_treeview_expose_event" name="expose-event"/>
+                                <signal handler="on_treeview_expose_event" name="draw"/>
                                 <signal handler="on_treeview_button_pressed" name="button-press-event"/>
                                 <signal handler="on_treeview_episodes_button_released" name="button-release-event"/>
                               </object>
                             </child>
                           </object>
-                          <packing>
-                            <property name="expand">True</property>
-                            <property name="fill">True</property>
-                          </packing>
                         </child>
                         <child>
-                          <object class="GtkHBox" id="hbox_search_episodes">
-                            <property name="spacing">6</property>
+                          <object class="GtkGrid" id="hbox_search_episodes">
+                            <property name="column_spacing">6</property>
+                            <property name="orientation">horizontal</property>
                             <child>
                               <object class="GtkLabel" id="label_search_episodes">
                                 <property name="visible">True</property>
                                 <property name="label" translatable="yes">Filter:</property>
                               </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">True</property>
-                              </packing>
                             </child>
                             <child>
                               <object class="GtkEntry" id="entry_search_episodes">
@@ -745,10 +324,6 @@
                               </object>
                             </child>
                           </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">True</property>
-                          </packing>
                         </child>
                       </object>
                       <packing>
@@ -775,15 +350,16 @@
                   </object>
                 </child>
                 <child>
-                  <object class="GtkVBox" id="vboxDownloadStatusWidgets">
+                  <object class="GtkGrid" id="vboxDownloadStatusWidgets">
                     <property name="border_width">5</property>
                     <property name="visible">True</property>
-                    <property name="homogeneous">False</property>
-                    <property name="spacing">5</property>
+                    <property name="row_spacing">5</property>
+                    <property name="orientation">vertical</property>
                     <child>
                       <object class="GtkScrolledWindow" id="scrolledwindow1">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
+                        <property name="vexpand">True</property>
                         <property name="hscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
                         <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
                         <property name="shadow_type">GTK_SHADOW_IN</property>
@@ -795,32 +371,30 @@
                             <property name="headers_visible">False</property>
                             <property name="rules_hint">False</property>
                             <property name="rubber-banding">True</property>
-                            <property name="reorderable">False</property>
+                            <property name="reorderable">True</property>
                             <property name="enable_search">True</property>
                             <property name="fixed_height_mode">False</property>
                             <property name="hover_selection">False</property>
                             <property name="hover_expand">False</property>
                             <signal handler="on_treeDownloads_row_activated" name="row_activated"/>
-                            <signal handler="on_treeview_expose_event" name="expose-event"/>
+                            <signal handler="on_treeview_expose_event" name="draw"/>
                             <signal handler="on_treeview_button_pressed" name="button-press-event"/>
                             <signal handler="on_treeview_downloads_button_released" name="button-release-event"/>
                           </object>
                         </child>
                       </object>
-                      <packing>
-                        <property name="padding">0</property>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
-                      </packing>
                     </child>
                     <child>
-                      <object class="GtkHBox" id="hboxDownloadSettings">
+                      <object class="GtkGrid" id="hboxDownloadSettings">
+                        <property name="border_width">5</property>
                         <property name="visible">True</property>
-                        <property name="spacing">10</property>
+                        <property name="column_spacing">10</property>
+                        <property name="orientation">horizontal</property>
                         <child>
-                          <object class="GtkHBox" id="hboxDownloadLimit">
+                          <object class="GtkGrid" id="hboxDownloadLimit">
                             <property name="visible">True</property>
-                            <property name="spacing">5</property>
+                            <property name="column_spacing">5</property>
+                            <property name="orientation">horizontal</property>
                             <child>
                               <object class="GtkCheckButton" id="cbLimitDownloads">
                                 <property name="label" translatable="yes">Limit rate to</property>
@@ -830,9 +404,6 @@
                                 <property name="draw_indicator">True</property>
                                 <signal name="toggled" handler="on_cbLimitDownloads_toggled"/>
                               </object>
-                              <packing>
-                                <property name="expand">False</property>
-                              </packing>
                             </child>
                             <child>
                               <object class="GtkSpinButton" id="spinLimitDownloads">
@@ -843,9 +414,6 @@
                                 <property name="digits">1</property>
                                 <property name="adjustment">adjustment1</property>
                               </object>
-                              <packing>
-                                <property name="expand">False</property>
-                              </packing>
                             </child>
                             <child>
                               <object class="GtkLabel" id="labelLimitRate">
@@ -853,27 +421,20 @@
                                 <property name="xalign">0</property>
                                 <property name="label" translatable="yes">KiB/s</property>
                               </object>
-                              <packing>
-                                <property name="expand">False</property>
-                              </packing>
                             </child>
                           </object>
-                          <packing>
-                            <property name="expand">False</property>
-                          </packing>
                         </child>
                         <child>
                           <object class="GtkLabel" id="DownloadSettingsSpacer">
                             <property name="visible">True</property>
+                            <property name="hexpand">True</property>                            
                           </object>
-                          <packing>
-                            <property name="expand">True</property>
-                          </packing>
                         </child>
                         <child>
-                          <object class="GtkHBox" id="hboxDownloadRate">
+                          <object class="GtkGrid" id="hboxDownloadRate">
                             <property name="visible">True</property>
-                            <property name="spacing">5</property>
+                            <property name="column_spacing">5</property>
+                            <property name="orientation">horizontal</property>
                             <child>
                               <object class="GtkCheckButton" id="cbMaxDownloads">
                                 <property name="label" translatable="yes">Limit downloads to</property>
@@ -883,9 +444,6 @@
                                 <property name="draw_indicator">True</property>
                                 <signal name="toggled" handler="on_cbMaxDownloads_toggled"/>
                               </object>
-                              <packing>
-                                <property name="expand">False</property>
-                              </packing>
                             </child>
                             <child>
                               <object class="GtkSpinButton" id="spinMaxDownloads">
@@ -895,21 +453,10 @@
                                 <property name="climb_rate">1</property>
                                 <property name="adjustment">adjustment2</property>
                               </object>
-                              <packing>
-                                <property name="expand">False</property>
-                              </packing>
                             </child>
                           </object>
-                          <packing>
-                            <property name="expand">False</property>
-                          </packing>
                         </child>
                       </object>
-                      <packing>
-                        <property name="padding">0</property>
-                        <property name="expand">False</property>
-                        <property name="fill">False</property>
-                      </packing>
                     </child>
                   </object>
                   <packing>
@@ -930,17 +477,9 @@
                   </object>
                 </child>
               </object>
-              <packing>
-                <property name="padding">0</property>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-              </packing>
             </child>
           </object>
           <packing>
-            <property name="padding">0</property>
-            <property name="expand">True</property>
-            <property name="fill">True</property>
           </packing>
         </child>
       </object>

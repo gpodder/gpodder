@@ -3,10 +3,10 @@
 <interface>
   <object class="GtkDialog" id="gPodderConfigEditor">
     <property name="visible">True</property>
-    <property name="has_separator">False</property>
     <property name="title" translatable="yes">gPodder Configuration Editor</property>
     <property name="window_position">GTK_WIN_POS_CENTER_ON_PARENT</property>
     <property name="modal">True</property>
+    <property name="transient-for">parent_widget</property>
     <property name="default_width">750</property>
     <property name="default_height">450</property>
     <property name="destroy_with_parent">False</property>
@@ -17,19 +17,22 @@
     <property name="urgency_hint">False</property>
     <signal handler="on_gPodderConfigEditor_destroy" name="destroy"/>
     <child internal-child="vbox">
-      <object class="GtkVBox" id="vbox13">
+      <object class="GtkBox" id="vbox13">
         <property name="visible">True</property>
         <property name="homogeneous">False</property>
+        <property name="orientation">vertical</property>
         <child>
-          <object class="GtkVBox" id="vbox_for_episode_selector">
+          <object class="GtkBox" id="vbox_for_episode_selector">
             <property name="border_width">5</property>
             <property name="visible">True</property>
             <property name="spacing">5</property>
+            <property name="orientation">vertical</property>
             <child>
-              <object class="GtkHBox" id="hbox38">
+              <object class="GtkBox" id="hbox38">
                 <property name="visible">True</property>
                 <property name="homogeneous">False</property>
                 <property name="spacing">6</property>
+                <property name="orientation">horizontal</property>
                 <child>
                   <object class="GtkLabel" id="label121">
                     <property name="visible">True</property>
@@ -115,6 +118,11 @@
               </packing>
             </child>
           </object>
+          <packing>
+            <property name="padding">0</property>
+            <property name="expand">True</property>
+            <property name="fill">True</property>
+          </packing>
         </child>
         <child>
           <object class="GtkHButtonBox" id="hbuttonbox2">

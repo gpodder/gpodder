@@ -162,7 +162,7 @@ class Mp3File(AudioFile):
                 encoding = 3, # 3 is for utf-8
                 mime = mimetypes.guess_type(self.cover)[0],
                 type = 3,
-                desc = u'Cover',
+                desc = 'Cover',
                 data = open(self.cover).read()
             )
         )
@@ -257,7 +257,7 @@ class gPodderExtension:
             if self.container.config.auto_embed_coverart:
                 audio.insert_coverart()
 
-        logger.info(u'tagging.on_episode_downloaded(%s/%s)', episode.channel.title, episode.title)
+        logger.info('tagging.on_episode_downloaded(%s/%s)', episode.channel.title, episode.title)
 
     def get_cover(self, podcast):
         downloader = coverart.CoverDownloader()

@@ -30,15 +30,10 @@ from gpodder import util
 import logging
 logger = logging.getLogger(__name__)
 
-try:
-    # For Python < 2.6, we use the "simplejson" add-on module
-    import simplejson as json
-except ImportError:
-    # Python 2.6 already ships with a nice "json" module
-    import json
+import json
 
 import re
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 # This matches the more reliable URL
 ESCAPIST_NUMBER_RE = re.compile(r'http://www.escapistmagazine.com/videos/view/(\d+)', re.IGNORECASE)
@@ -112,6 +107,7 @@ def get_real_cover(url):
     if rss_url is None:
         return None
 
+    # FIXME: can I be sure to decode it as utf-8?
     rss_data = util.urlopen(rss_url).read()
     rss_data_frag = DATA_COVERART_RE.search(rss_data)
 
@@ -124,6 +120,7 @@ def get_escapist_web(video_id):
     if video_id is None:
         return None
 
+    # FIXME: must check if it's utf-8
     web_url = 'http://www.escapistmagazine.com/videos/view/%s' % video_id
     return util.urlopen(web_url).read()
 
@@ -131,7 +128,7 @@ def get_escapist_config_url(data):
     if data is None:
         return None
 
-    query_string = urllib.urlencode(json.loads(data))
+    query_string = urllib.parse.urlencode(json.loads(data))
 
     return 'http://www.escapistmagazine.com/videos/vidconfig.php?%s' % query_string
 
@@ -162,7 +159,7 @@ def get_escapist_real_url(data, config_json):
         result_num.append(num_hashes[idx]^hash_n[idx % len(hash_n)])
 
     # At last, Numbers back into characters
-    result = ''.join([unichr(x) for x in result_num])
+    result = ''.join([chr(x) for x in result_num])
     # A wild JSON appears...
     # You use "Master Ball"...
     escapist_cfg = json.loads(result)

@@ -40,8 +40,8 @@ class Matcher(object):
     def match(self, term):
         try:
             return bool(eval(term, {'__builtins__': None}, self))
-        except Exception, e:
-            print e
+        except Exception as e:
+            print(e)
             return False
 
     def __getitem__(self, k):
@@ -69,7 +69,7 @@ class Matcher(object):
 
         # Nouns (for comparisons)
         if k in ('megabytes', 'mb'):
-            return float(episode.file_size) / (1024*1024)
+            return episode.file_size / (1024*1024)
         elif k == 'title':
             return episode.title
         elif k == 'description':
@@ -79,9 +79,9 @@ class Matcher(object):
         elif k == 'age':
             return episode.age_in_days()
         elif k in ('minutes', 'min'):
-            return float(episode.total_time) / 60
+            return episode.total_time / 60
         elif k in ('remaining', 'rem'):
-            return float(episode.total_time - episode.current_position) / 60
+            return episode.total_time - episode.current_position / 60
 
         raise KeyError(k)
 
@@ -140,8 +140,8 @@ class EQL(object):
         if not self._regex and not self._string:
             try:
                 self._query = compile(query, '<eql-string>', 'eval')
-            except Exception, e:
-                print e
+            except Exception as e:
+                print(e)
                 self._query = None
 
 
@@ -157,7 +157,7 @@ class EQL(object):
         return Matcher(episode).match(self._query)
 
     def filter(self, episodes):
-        return filter(self.match, episodes)
+        return list(filter(self.match, episodes))
 
 
 def UserEQL(query):

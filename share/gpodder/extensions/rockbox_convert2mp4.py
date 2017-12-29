@@ -88,8 +88,8 @@ class gPodderExtension:
         if video_height is None:
             return None
 
-        width_ratio = device_width / video_width
-        height_ratio = device_height / video_height
+        width_ratio = device_width // video_width
+        height_ratio = device_height // video_height
 
         dest_width = device_width
         dest_height = width_ratio * video_height
@@ -133,9 +133,6 @@ class gPodderExtension:
             'height': str(resolution[1]),
             'options': self.container.config.ffmpeg_options
         }
-
-        # Prior to Python 2.7.3, this module (shlex) did not support Unicode input.
-        convert_command = util.sanitize_encoding(convert_command)
 
         process = subprocess.Popen(shlex.split(convert_command),
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)

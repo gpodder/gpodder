@@ -5,17 +5,19 @@
     <property name="default_height">230</property>
     <property name="default_width">340</property>
     <property name="modal">True</property>
+    <property name="transient-for">parent_widget</property>
     <property name="title" translatable="yes">Getting started</property>
-    <property name="has_separator">False</property>
     <child internal-child="vbox">
-      <object class="GtkVBox" id="dialog1-vbox">
+      <object class="GtkBox" id="dialog1-vbox">
         <property name="border_width">2</property>
         <property name="visible">True</property>
+        <property name="orientation">vertical</property>
         <child>
-          <object class="GtkVBox" id="vbox1">
+          <object class="GtkBox" id="vbox1">
             <property name="border_width">12</property>
             <property name="spacing">12</property>
             <property name="visible">True</property>
+            <property name="orientation">vertical</property>
             <child>
               <object class="GtkTable" id="table1">
                 <property name="column_spacing">6</property>
@@ -56,9 +58,10 @@
               </packing>
             </child>
             <child>
-              <object class="GtkVBox" id="vbox_buttons">
+              <object class="GtkBox" id="vbox_buttons">
                 <property name="spacing">6</property>
                 <property name="visible">True</property>
+                <property name="orientation">vertical</property>
                 <child>
                   <object class="GtkButton" id="btnOPML">
                     <property name="is_focus">True</property>

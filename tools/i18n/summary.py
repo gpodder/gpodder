@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # summary.py - Text-based visual translation completeness summary
 # Thomas Perl <thp@gpodder.org>, 2009-01-03
 #
@@ -22,13 +22,13 @@ class Language(object):
         self.untranslated = int(untranslated)
 
     def get_translated_ratio(self):
-        return float(self.translated)/float(self.translated+self.fuzzy+self.untranslated)
+        return self.translated/(self.translated+self.fuzzy+self.untranslated)
 
     def get_fuzzy_ratio(self):
-        return float(self.fuzzy)/float(self.translated+self.fuzzy+self.untranslated)
+        return self.fuzzy/(self.translated+self.fuzzy+self.untranslated)
 
     def get_untranslated_ratio(self):
-        return float(self.untranslated)/float(self.translated+self.fuzzy+self.untranslated)
+        return self.untranslated/(self.translated+self.fuzzy+self.untranslated)
 
     def __cmp__(self, other):
         return cmp(self.get_translated_ratio(), other.get_translated_ratio())
@@ -47,15 +47,15 @@ for filename in glob.glob(os.path.join(po_folder, '*.po')):
     match = re.match(COUNTS_RE, stderr).groups()
     languages.append(Language(language, match[1] or '0', match[3] or '0', match[5] or '0'))
 
-print ''
+print('')
 for language in sorted(languages):
     tc = '#'*(int(math.floor(width*language.get_translated_ratio())))
     fc = '~'*(int(math.floor(width*language.get_fuzzy_ratio())))
     uc = ' '*(width-len(tc)-len(fc))
 
-    print ' %5s [%s%s%s] -- %3.0f %% translated' % (language.language, tc, fc, uc, language.get_translated_ratio()*100)
+    print(' %5s [%s%s%s] -- %3.0f %% translated' % (language.language, tc, fc, uc, language.get_translated_ratio()*100))
 
-print """
+print("""
   Total translations: %s
-""" % (len(languages))
+""" % (len(languages)))
 

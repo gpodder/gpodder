@@ -25,7 +25,7 @@
 #  Based on libwget.py (2005-10-29)
 #
 
-from __future__ import with_statement
+
 
 import logging
 logger = logging.getLogger(__name__)
@@ -38,8 +38,8 @@ import gpodder
 
 import socket
 import threading
-import urllib
-import urlparse
+import urllib.request, urllib.parse, urllib.error
+import urllib.parse
 import shutil
 import os.path
 import os
@@ -66,13 +66,13 @@ def get_header_param(headers, param, header_name):
     """
     value = None
     try:
-        headers_string = ['%s:%s'%(k,v) for k,v in headers.items()]
+        headers_string = ['%s:%s'%(k,v) for k,v in list(headers.items())]
         msg = email.message_from_string('\n'.join(headers_string))
         if header_name in msg:
             raw_value = msg.get_param(param, header=header_name)
             if raw_value is not None:
                 value = email.utils.collapse_rfc2231_value(raw_value)
-    except Exception, e:
+    except Exception as e:
         logger.error('Cannot get %s from %s', param, header_name, exc_info=True)
 
     return value
@@ -188,18 +188,18 @@ class gPodderDownloadHTTPError(Exception):
         self.error_code = error_code
         self.error_message = error_message
 
-class DownloadURLOpener(urllib.FancyURLopener):
+class DownloadURLOpener(urllib.request.FancyURLopener):
     version = gpodder.user_agent
 
     # Sometimes URLs are not escaped correctly - try to fix them
     # (see RFC2396; Section 2.4.3. Excluded US-ASCII Characters)
     # FYI: The omission of "%" in the list is to avoid double escaping!
-    ESCAPE_CHARS = dict((ord(c), u'%%%x'%ord(c)) for c in u' <>#"{}|\\^[]`')
+    ESCAPE_CHARS = dict((ord(c), '%%%x'%ord(c)) for c in ' <>#"{}|\\^[]`')
 
     def __init__( self, channel):
         self.channel = channel
         self._auth_retry_counter = 0
-        urllib.FancyURLopener.__init__(self, None)
+        urllib.request.FancyURLopener.__init__(self, None)
 
     def http_error_default(self, url, fp, errcode, errmsg, headers):
         """
@@ -230,7 +230,7 @@ class DownloadURLOpener(urllib.FancyURLopener):
         fp.close()
         
         # In case the server sent a relative URL, join with original:
-        newurl = urlparse.urljoin(self.type + ":" + url, newurl)
+        newurl = urllib.parse.urljoin(self.type + ":" + url, newurl)
         return self.open(newurl)
     
 # The following is based on Python's urllib.py "URLopener.retrieve"
@@ -266,11 +266,8 @@ class DownloadURLOpener(urllib.FancyURLopener):
             tfp = open(filename, 'wb')
 
         # Fix a problem with bad URLs that are not encoded correctly (bug 549)
-        url = url.decode('ascii', 'ignore')
         url = url.translate(self.ESCAPE_CHARS)
-        url = url.encode('ascii')
 
-        url = urllib.unwrap(urllib.toBytes(url))
         fp = self.open(url, data)
         headers = fp.info()
 
@@ -291,10 +288,10 @@ class DownloadURLOpener(urllib.FancyURLopener):
         bs = 1024*8
         size = -1
         read = current_size
-        blocknum = int(current_size/bs)
+        blocknum = current_size//bs
         if reporthook:
             if "content-length" in headers:
-                size = int(headers.getrawheader("Content-Length"))  + current_size
+                size = int(headers['Content-Length'])  + current_size
             reporthook(blocknum, bs, size)
         while read < size or size == -1:
             if size == -1:
@@ -315,7 +312,7 @@ class DownloadURLOpener(urllib.FancyURLopener):
 
         # raise exception if actual size does not match content-length header
         if size >= 0 and read < size:
-            raise urllib.ContentTooShortError("retrieval incomplete: got only %i out "
+            raise urllib.error.ContentTooShortError("retrieval incomplete: got only %i out "
                                        "of %i bytes" % (read, size), result)
 
         return result
@@ -337,16 +334,10 @@ class DownloadURLOpener(urllib.FancyURLopener):
 
 
 class DownloadQueueWorker(object):
-    def __init__(self, queue, exit_callback, continue_check_callback, minimum_tasks):
+    def __init__(self, queue, exit_callback, continue_check_callback):
         self.queue = queue
         self.exit_callback = exit_callback
         self.continue_check_callback = continue_check_callback
-
-        # The minimum amount of tasks that should be downloaded by this worker
-        # before using the continue_check_callback to determine if it might
-        # continue accepting tasks. This can be used to forcefully start a
-        # download, even if a download limit is in effect.
-        self.minimum_tasks = minimum_tasks
 
     def __repr__(self):
         return threading.current_thread().getName()
@@ -354,28 +345,37 @@ class DownloadQueueWorker(object):
     def run(self):
         logger.info('Starting new thread: %s', self)
         while True:
-            # Check if this thread is allowed to continue accepting tasks
-            # (But only after reducing minimum_tasks to zero - see above)
-            if self.minimum_tasks > 0:
-                self.minimum_tasks -= 1
-            elif not self.continue_check_callback(self):
+            if not self.continue_check_callback(self):
                 return
 
             try:
-                task = self.queue.pop()
+                task = self.queue.get_next()
                 logger.info('%s is processing: %s', self, task)
                 task.run()
                 task.recycle()
-            except IndexError, e:
+            except StopIteration as e:
                 logger.info('No more tasks for %s to carry out.', self)
                 break
         self.exit_callback(self)
 
 
+class ForceDownloadWorker(object):
+    def __init__(self, task):
+        self.task = task
+
+    def __repr__(self):
+        return threading.current_thread().getName()
+
+    def run(self):
+        logger.info('Starting new thread: %s', self)
+        logger.info('%s is processing: %s', self, self.task)
+        self.task.run()
+
+
 class DownloadQueueManager(object):
-    def __init__(self, config):
+    def __init__(self, config, queue):
         self._config = config
-        self.tasks = collections.deque()
+        self.tasks = queue
 
         self.worker_threads_access = threading.RLock()
         self.worker_threads = []
@@ -393,61 +393,37 @@ class DownloadQueueManager(object):
             else:
                 return True
 
-    def spawn_threads(self, force_start=False):
+    def __spawn_threads(self):
         """Spawn new worker threads if necessary
-
-        If force_start is True, forcefully spawn a thread and
-        let it process at least one episodes, even if a download
-        limit is in effect at the moment.
         """
         with self.worker_threads_access:
-            if not len(self.tasks):
+            if not self.tasks.has_work():
                 return
 
-            if force_start or len(self.worker_threads) == 0 or \
+            if len(self.worker_threads) == 0 or \
                     len(self.worker_threads) < self._config.max_downloads or \
                     not self._config.max_downloads_enabled:
                 # We have to create a new thread here, there's work to do
                 logger.info('Starting new worker thread.')
 
-                # The new worker should process at least one task (the one
-                # that we want to forcefully start) if force_start is True.
-                if force_start:
-                    minimum_tasks = 1
-                else:
-                    minimum_tasks = 0
-
                 worker = DownloadQueueWorker(self.tasks, self.__exit_callback,
-                        self.__continue_check_callback, minimum_tasks)
+                        self.__continue_check_callback)
                 self.worker_threads.append(worker)
                 util.run_in_background(worker.run)
 
-    def are_queued_or_active_tasks(self):
-        with self.worker_threads_access:
-            return len(self.worker_threads) > 0
+    def update_max_downloads(self):
+        self.__spawn_threads()
 
-    def add_task(self, task, force_start=False):
-        """Add a new task to the download queue
+    def force_start_task(self, task):
+        if self.tasks.set_downloading(task):
+            worker = ForceDownloadWorker(task)
+            util.run_in_background(worker.run)
 
-        If force_start is True, ignore the download limit
-        and forcefully start the download right away.
+    def queue_task(self, task):
+        """Marks a task as queued
         """
-        if task.status != DownloadTask.INIT:
-            # Remove the task from its current position in the
-            # download queue (if any) to avoid race conditions
-            # where two worker threads download the same file
-            try:
-                self.tasks.remove(task)
-            except ValueError, e:
-                pass
         task.status = DownloadTask.QUEUED
-        if force_start:
-            # Add the task to be taken on next pop
-            self.tasks.append(task)
-        else:
-            # Add the task to the end of the queue
-            self.tasks.appendleft(task)
-        self.spawn_threads(force_start)
+        self.__spawn_threads()
 
 
 class DownloadTask(object):
@@ -526,10 +502,10 @@ class DownloadTask(object):
     # Possible states this download task can be in
     STATUS_MESSAGE = (_('Added'), _('Queued'), _('Downloading'),
             _('Finished'), _('Failed'), _('Cancelled'), _('Paused'))
-    (INIT, QUEUED, DOWNLOADING, DONE, FAILED, CANCELLED, PAUSED) = range(7)
+    (INIT, QUEUED, DOWNLOADING, DONE, FAILED, CANCELLED, PAUSED) = list(range(7))
 
     # Wheter this task represents a file download or a device sync operation
-    ACTIVITY_DOWNLOAD, ACTIVITY_SYNCHRONIZE = range(2)
+    ACTIVITY_DOWNLOAD, ACTIVITY_SYNCHRONIZE = list(range(2))
 
     # Minimum time between progress updates (in seconds)
     MIN_TIME_BETWEEN_UPDATES = 1.
@@ -623,8 +599,8 @@ class DownloadTask(object):
             try:
                 already_downloaded = os.path.getsize(self.tempname)
                 if self.total_size > 0:
-                    self.progress = max(0.0, min(1.0, float(already_downloaded)/self.total_size))
-            except OSError, os_error:
+                    self.progress = max(0.0, min(1.0, already_downloaded/self.total_size))
+            except OSError as os_error:
                 logger.error('Cannot get size for %s', os_error)
         else:
             # "touch self.tempname", so we also get partial
@@ -669,7 +645,7 @@ class DownloadTask(object):
                 self.__episode.save()
 
         if self.total_size > 0:
-            self.progress = max(0.0, min(1.0, float(count*blockSize)/self.total_size))
+            self.progress = max(0.0, min(1.0, count*blockSize/self.total_size))
             if self._progress_updated is not None:
                 diff = time.time() - self._last_progress_updated
                 if diff > self.MIN_TIME_BETWEEN_UPDATES or self.progress == 1.:
@@ -718,7 +694,7 @@ class DownloadTask(object):
             if self._config.limit_rate and speed > self._config.limit_rate_value:
                 # calculate the time that should have passed to reach
                 # the desired download rate and wait if necessary
-                should_have_passed = float((count-self.__start_blocks)*blockSize)/(self._config.limit_rate_value*1024.0)
+                should_have_passed = (count-self.__start_blocks)*blockSize/(self._config.limit_rate_value*1024.0)
                 if should_have_passed > passed:
                     # sleep a maximum of 10 seconds to not cause time-outs
                     delay = min(10.0, float(should_have_passed-passed))
@@ -739,8 +715,8 @@ class DownloadTask(object):
             self.speed = 0.0
             return False
 
-        # We only start this download if its status is "queued"
-        if self.status != DownloadTask.QUEUED:
+        # We only start this download if its status is "downloading"
+        if self.status != DownloadTask.DOWNLOADING:
             return False
 
         # We are downloading this file right now
@@ -753,21 +729,22 @@ class DownloadTask(object):
             url = youtube.get_real_download_url(self.__episode.url, fmt_ids)
             url = vimeo.get_real_download_url(url, self._config.vimeo.fileformat)
             url = escapist_videos.get_real_download_url(url)
-
-            # We should have properly-escaped characters in the URL, but sometimes
-            # this is not true -- take any characters that are not in ASCII and
-            # convert them to UTF-8 and then percent-encode the UTF-8 string data
-            # Example: https://github.com/gpodder/gpodder/issues/232
-            url_chars = []
-            for char in url:
-                if ord(char) <= 31 or ord(char) >= 127:
-                    for char in urllib.quote(char.encode('utf-8')):
-                        url_chars.append(char.decode('utf-8'))
-                else:
-                    url_chars.append(char)
-            url = u''.join(url_chars)
-
             url = url.strip()
+
+            # Properly escapes Unicode characters in the URL path section
+            # TODO: Explore if this should also handle the domain
+            # Based on: http://stackoverflow.com/a/18269491/1072626
+            # In response to issue: https://github.com/gpodder/gpodder/issues/232
+            def iri_to_url(url):
+                url = urllib.parse.urlsplit(url)
+                url = list(url)
+                # First unquote to avoid escaping quoted content
+                url[2] = urllib.parse.unquote(url[2])
+                url[2] = urllib.parse.quote(url[2])
+                url = urllib.parse.urlunsplit(url)
+                return url
+
+            url = iri_to_url(url)
 
             downloader = DownloadURLOpener(self.__episode.channel)
 
@@ -786,18 +763,18 @@ class DownloadTask(object):
                         self.tempname, reporthook=self.status_updated)
                     # If we arrive here, the download was successful
                     break
-                except urllib.ContentTooShortError, ctse:
+                except urllib.error.ContentTooShortError as ctse:
                     if retry < max_retries:
                         logger.info('Content too short: %s - will retry.',
                                 url)
                         continue
                     raise
-                except socket.timeout, tmout:
+                except socket.timeout as tmout:
                     if retry < max_retries:
                         logger.info('Socket timeout: %s - will retry.', url)
                         continue
                     raise
-                except gPodderDownloadHTTPError, http:
+                except gPodderDownloadHTTPError as http:
                     if retry < max_retries and http.error_code in retry_codes:
                         logger.info('HTTP error %d: %s - will retry.',
                                 http.error_code, url)
@@ -871,23 +848,23 @@ class DownloadTask(object):
                 util.delete_file(self.tempname)
                 self.progress = 0.0
                 self.speed = 0.0
-        except urllib.ContentTooShortError, ctse:
+        except urllib.error.ContentTooShortError as ctse:
             self.status = DownloadTask.FAILED
             self.error_message = _('Missing content from server')
-        except IOError, ioe:
+        except IOError as ioe:
             logger.error('%s while downloading "%s": %s', ioe.strerror,
                     self.__episode.title, ioe.filename, exc_info=True)
             self.status = DownloadTask.FAILED
             d = {'error': ioe.strerror, 'filename': ioe.filename}
             self.error_message = _('I/O Error: %(error)s: %(filename)s') % d
-        except gPodderDownloadHTTPError, gdhe:
+        except gPodderDownloadHTTPError as gdhe:
             logger.error('HTTP %s while downloading "%s": %s',
                     gdhe.error_code, self.__episode.title, gdhe.error_message,
                     exc_info=True)
             self.status = DownloadTask.FAILED
             d = {'code': gdhe.error_code, 'message': gdhe.error_message}
             self.error_message = _('HTTP Error %(code)s: %(message)s') % d
-        except Exception, e:
+        except Exception as e:
             self.status = DownloadTask.FAILED
             logger.error('Download failed: %s', str(e), exc_info=True)
             self.error_message = _('Error: %s') % (str(e),)

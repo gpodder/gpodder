@@ -23,8 +23,9 @@
 #
 
 
-import gtk
-import pango
+from gi.repository import Gtk
+from gi.repository import Gdk
+from gi.repository import Pango
 
 import gpodder
 from gpodder import util
@@ -32,13 +33,12 @@ from gpodder import config
 
 _ = gpodder.gettext
 
-class ConfigModel(gtk.ListStore):
+class ConfigModel(Gtk.ListStore):
     C_NAME, C_TYPE_TEXT, C_VALUE_TEXT, C_TYPE, C_EDITABLE, C_FONT_STYLE, \
-            C_IS_BOOLEAN, C_BOOLEAN_VALUE = range(8)
+            C_IS_BOOLEAN, C_BOOLEAN_VALUE = list(range(8))
 
     def __init__(self, config):
-        gtk.ListStore.__init__(self, str, str, str, object, \
-                bool, int, bool, bool)
+        Gtk.ListStore.__init__(self, str, str, str, object, bool, int, bool, bool)
 
         self._config = config
         self._fill_model()
@@ -65,11 +65,11 @@ class ConfigModel(gtk.ListStore):
             value = self._config._lookup(key)
             fieldtype = type(value)
 
-            style = pango.STYLE_NORMAL
+            style = Pango.Style.NORMAL
             #if value == default:
-            #    style = pango.STYLE_NORMAL
+            #    style = Pango.Style.NORMAL
             #else:
-            #    style = pango.STYLE_ITALIC
+            #    style = Pango.Style.ITALIC
 
             self.append((key, self._type_as_string(fieldtype),
                     config.config_value_to_string(value),
@@ -79,11 +79,11 @@ class ConfigModel(gtk.ListStore):
     def _on_update(self, name, old_value, new_value):
         for row in self:
             if row[self.C_NAME] == name:
-                style = pango.STYLE_NORMAL
+                style = Pango.Style.NORMAL
                 #if new_value == self._config.Settings[name]:
-                #    style = pango.STYLE_NORMAL
+                #    style = Pango.Style.NORMAL
                 #else:
-                #    style = pango.STYLE_ITALIC
+                #    style = Pango.Style.ITALIC
                 new_value_text = config.config_value_to_string(new_value)
                 self.set(row.iter, \
                         self.C_VALUE_TEXT, new_value_text,
@@ -139,11 +139,11 @@ class UIConfig(config.Config):
         cfg = getattr(self.ui.gtk.state, config_prefix)
 
         if gpodder.ui.win32:
-            window.set_gravity(gtk.gdk.GRAVITY_STATIC)
+            window.set_gravity(Gdk.GRAVITY_STATIC)
 
         window.resize(cfg.width, cfg.height)
         if cfg.x == -1 or cfg.y == -1:
-            window.set_position(gtk.WIN_POS_CENTER_ON_PARENT)
+            window.set_position(Gtk.WindowPosition.CENTER_ON_PARENT)
         else:
             window.move(cfg.x, cfg.y)
 
@@ -153,8 +153,7 @@ class UIConfig(config.Config):
         def _receive_configure_event(widget, event):
             x_pos, y_pos = event.x, event.y
             width_size, height_size = event.width, event.height
-            maximized = bool(event.window.get_state() & 
-                    gtk.gdk.WINDOW_STATE_MAXIMIZED)
+            maximized = bool(event.window.get_state() & Gdk.WindowState.MAXIMIZED)
             if not self.__ignore_window_events and not maximized:
                 cfg.x = x_pos
                 cfg.y = y_pos
@@ -164,9 +163,10 @@ class UIConfig(config.Config):
         window.connect('configure-event', _receive_configure_event)
 
         def _receive_window_state(widget, event):
-            new_value = bool(event.new_window_state &
-                    gtk.gdk.WINDOW_STATE_MAXIMIZED)
-            cfg.maximized = new_value
+            # ELL: why is it commented out?
+            #new_value = bool(event.new_window_state & Gdk.WindowState.MAXIMIZED)
+            #cfg.maximized = new_value
+            pass
 
         window.connect('window-state-event', _receive_window_state)
 
