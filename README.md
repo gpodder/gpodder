@@ -39,12 +39,12 @@ install local copies of podcastparser and mygpoclient into "src/" from
 PyPI. With this, you get a self-contained gPodder CLI codebase.
 
 
-### GTK3 UI - Additional Dependencies 
+### GTK3 UI - Additional Dependencies
 
 - [PyGObject](https://wiki.gnome.org/PyGObject) 3.22.0 or newer
 
 
-### Optional Dependencies 
+### Optional Dependencies
 
 - Bluetooth file sending: gnome-obex-send or bluetooth-sendto
 - Size detection on Windows: PyWin32
@@ -56,19 +56,19 @@ PyPI. With this, you get a self-contained gPodder CLI codebase.
     (webkit2gtk, webkitgtk4 or gir1.2-webkit2-4.0 packages).
 
 
-### Build Dependencies 
+### Build Dependencies
 
 - help2man
 - intltool
 
 
-### Test Dependencies 
+### Test Dependencies
 
 - python-minimock
 - python-coverage
 - desktop-file-utils
 
-## Testing 
+## Testing
 
 To run tests, use...
 
@@ -140,17 +140,17 @@ download directory directly on a MP3 player or USB disk:
 
     export GPODDER_HOME=/media/usbdisk/gpodder-data/
 
-    
-## OS X Specific Notes 
+
+## OS X Specific Notes
 
 - default GPODDER_HOME="$HOME/Library/Application Support/gPodder"
 - default GPODDER_DOWNLOAD_DIR="$HOME/Library/Application Support/gPodder/download"
 
-These settings may be modified by editing the following file of the .app : 
+These settings may be modified by editing the following file of the .app :
 
     /Applications/gPodder.app/Contents/MacOSX/_launcher
-    
-Add and edit the following lines to alter the launch environment on OS X : 
+
+Add and edit the following lines to alter the launch environment on OS X :
 
     export GPODDER_HOME="$HOME/Library/Application Support/gPodder"
     export GPODDER_DOWNLOAD_DIR="$HOME/Library/Application Support/gPodder/download"
@@ -177,7 +177,7 @@ and the downloads in ~/Podcasts/. If GPODDER_DOWNLOAD_DIR is not set,
 $GPODDER_HOME/Downloads/ will be used if it is set.
 
 
-## Logging 
+## Logging
 
 By default, gPodder writes log files to $GPODDER_HOME/Logs/ and removes
 them after a certain amount of times. To avoid this behavior, you can set
