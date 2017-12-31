@@ -1463,10 +1463,22 @@ def sanitize_filename(filename, max_length=0):
     """
     Generate a sanitized version of a filename; trim filename
     if greater than max_length (0 = no limit).
+
+    >>> sanitize_filename('https://www.host.name/feed')
+    'https___www.host.name_feed'
+    >>> sanitize_filename('Binärgewitter')
+    'Binärgewitter'
+    >>> sanitize_filename('Cool feed (ogg)')
+    'Cool feed (ogg)'
+    >>> sanitize_filename('Cool feed (ogg)', 1)
+    'C'
     """
     if max_length > 0 and len(filename) > max_length:
         logger.info('Limiting file/folder name "%s" to %d characters.', filename, max_length)
         filename = filename[:max_length]
+
+    # see #361 - at least slash must be removed
+    filename = re.sub(r"[\"*/:<>?\\|]", "_", filename)
 
     return filename.strip('.' + string.whitespace)
 
