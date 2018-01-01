@@ -104,6 +104,7 @@ def get_real_download_url(url, preferred_fmt_ids=None):
             else:
                 page = req.read()
 
+        page = page.decode()
         # Try to find the best video format available for this video
         # (http://forum.videohelp.com/topic336882-1800.html#1912972)
         def find_urls(page):
