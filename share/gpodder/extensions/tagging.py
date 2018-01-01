@@ -38,7 +38,11 @@ from mutagen import File
 from mutagen.flac import Picture
 from mutagen.mp3 import MP3
 from mutagen.id3 import ID3, APIC
-from mutagen.mp4 import MP4Cover
+from mutagen.mp4 import MP4Cover, MP4Tags
+
+# workaround for https://github.com/quodlibet/mutagen/issues/334
+# can't add_tags to MP4 when file has no tag
+MP4Tags._padding = 0
 
 _ = gpodder.gettext
 
