@@ -187,7 +187,7 @@ class Exporter(object):
                     logger.error('Not enough free disk space to save channel list to %s', self.filename)
                     return False
             fp = open(self.filename+'.tmp', 'w')
-            fp.write(data)
+            fp.write(data.decode('utf-8'))
             fp.close()
             util.atomic_rename(self.filename+'.tmp', self.filename)
         except:
