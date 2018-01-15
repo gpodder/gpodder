@@ -186,7 +186,7 @@ class Exporter(object):
                 if not gpodder.ui.win32 or available > 0:
                     logger.error('Not enough free disk space to save channel list to %s', self.filename)
                     return False
-            fp = open(self.filename+'.tmp', 'w')
+            fp = open(self.filename+'.tmp', 'wb')
             fp.write(data)
             fp.close()
             util.atomic_rename(self.filename+'.tmp', self.filename)
