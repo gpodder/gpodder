@@ -6,7 +6,8 @@ python:
 install:
     - sudo apt-get update -q
     - sudo apt-get install intltool desktop-file-utils
-    - pip3 install coverage minimock
+    - pip3 install coverage minimock pycodestyle
     - python3 tools/localdepends.py
 script:
+    - pycodestyle share src/gpodder tools *.py
     - make releasetest
