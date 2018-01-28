@@ -6,7 +6,7 @@
             Media aggregator and podcast client
 ___
 
-Copyright  2005-2017 Thomas Perl and the gPodder Team
+Copyright  2005-2018 The gPodder Team
 
 
 ## License
