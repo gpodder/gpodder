@@ -214,15 +214,15 @@ class Device(services.ObservableService):
             if does_not_exist or exclude_played or wrong_type:
                 logger.info('Excluding %s from sync', track.title)
                 tracklist.remove(track)
-        
+
         if tracklist:
             for track in sorted(tracklist, key=lambda e: e.pubdate_prop):
                 if self.cancelled:
                     return False
-    
+
                 # XXX: need to check if track is added properly?
                 sync_task=SyncTask(track)
-    
+
                 sync_task.status=sync_task.QUEUED
                 sync_task.device=self
                 # New Task, we must wait on the GTK Loop

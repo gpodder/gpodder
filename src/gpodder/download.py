@@ -213,26 +213,26 @@ class DownloadURLOpener(urllib.request.FancyURLopener):
         void = fp.read()
         fp.close()
         raise gPodderDownloadHTTPError(url, errcode, errmsg)
-    
+
     def redirect_internal(self, url, fp, errcode, errmsg, headers, data):
         """ This is the exact same function that's included with urllib
             except with "void = fp.read()" commented out. """
-        
+
         if 'location' in headers:
             newurl = headers['location']
         elif 'uri' in headers:
             newurl = headers['uri']
         else:
             return
-        
+
         # This blocks forever(?) with certain servers (see bug #465)
         #void = fp.read()
         fp.close()
-        
+
         # In case the server sent a relative URL, join with original:
         newurl = urllib.parse.urljoin(self.type + ":" + url, newurl)
         return self.open(newurl)
-    
+
 # The following is based on Python's urllib.py "URLopener.retrieve"
 # Also based on http://mail.python.org/pipermail/python-list/2001-October/110069.html
 
@@ -671,7 +671,7 @@ class DownloadTask(object):
                         self.__start_time = now
                         self.__start_blocks = count
                     self.__limit_rate = self._config.limit_rate
-                    
+
                 # Has the rate been changed and are we currently limiting?            
                 if self.__limit_rate_value != self._config.limit_rate_value and self.__limit_rate: 
                     self.__start_time = now
@@ -878,7 +878,7 @@ class DownloadTask(object):
             self.progress = 1.0
             gpodder.user_extensions.on_episode_downloaded(self.__episode)
             return True
-        
+
         self.speed = 0.0
 
         # We finished, but not successfully (at least not really)

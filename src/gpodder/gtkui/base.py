@@ -121,7 +121,7 @@ class GtkBuilderWidget(object):
         """
         Quit processing events.
         The default implementation calls Gtk.main_quit()
-        
+
         Useful for applications that needs a non gtk main loop.
         For example, applications based on gstreamer needs to override
         this method with Gst.main_quit()

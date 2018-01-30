@@ -52,7 +52,7 @@ class gPodderExtension:
 
     def on_episode_downloaded(self, episode):
         self._convert_episode(episode)
-        
+
     def _get_new_extension(self):
         ext = self.config.output_format
         if not ext.startswith('.'):
@@ -63,14 +63,14 @@ class gPodderExtension:
     def _check_source(self, episode):
         if episode.extension() == self._get_new_extension():
             return False
-        
+
         if episode.mime_type in self.MIME_TYPES:
             return True
 
         # Also check file extension (bug 1770)
         if episode.extension() in self.EXT:
             return True
-            
+
         return False
 
     def on_episodes_context_menu(self, episodes):
@@ -95,7 +95,7 @@ class gPodderExtension:
         old_filename = episode.local_filename(create=False)
         filename, old_extension = os.path.splitext(old_filename)
         new_filename = filename + new_extension
-        
+
         cmd = [self.command] + \
             [param % {'old_file': old_filename, 'new_file': new_filename}
                 for param in self.command_param]
@@ -106,7 +106,7 @@ class gPodderExtension:
         if ffmpeg.returncode == 0:            
             util.rename_episode_file(episode, new_filename)
             os.remove(old_filename)
-            
+
             logger.info('Converted video file to %(format)s.' % {'format': self.config.output_format})
             gpodder.user_extensions.on_notification_show(_('File converted'), episode.title)
         else:

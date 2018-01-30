@@ -289,7 +289,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         action = Gio.SimpleAction.new('downloadAllNew', None)
         action.connect('activate', self.on_itemDownloadAllNew_activate)
         g.add_action(action)
-        
+
         action = Gio.SimpleAction.new('removeOldEpisodes', None)
         action.connect('activate', self.on_itemRemoveOldEpisodes_activate)
         g.add_action(action)
@@ -2701,7 +2701,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             Gtk.main_iteration()
 
         self.core.shutdown()
-        
+
         self.application.remove_window(self.gPodder)
 
     def delete_episode_list(self, episodes, confirm=True, skip_locked=True,
@@ -3657,14 +3657,14 @@ class gPodderApplication(Gtk.Application):
                    EpisodeListModel.PROGRESS_STEPS)
            icon_name = 'gpodder-progress-%d' % i
            Gtk.IconTheme.add_builtin_icon(icon_name, pixbuf.get_width(), pixbuf)
-    
+
         Gtk.Window.set_default_icon_name('gpodder')
         #Gtk.AboutDialog.set_url_hook(lambda dlg, link, data: util.open_website(link), None)
-    
+
         try:
            dbus_main_loop = dbus.glib.DBusGMainLoop(set_as_default=True)
            gpodder.dbus_session_bus = dbus.SessionBus(dbus_main_loop)
-    
+
            self.bus_name = dbus.service.BusName(gpodder.dbus_bus_name, bus=gpodder.dbus_session_bus)
         except dbus.exceptions.DBusException as dbe:
            logger.warn('Cannot get "on the bus".', exc_info=True)
@@ -3675,7 +3675,6 @@ class gPodderApplication(Gtk.Application):
            dlg.run()
            dlg.destroy()
            sys.exit(0)
-    
 
     def do_activate(self):
         # We only allow a single window and raise any existing ones
@@ -3683,13 +3682,13 @@ class gPodderApplication(Gtk.Application):
             # Windows are associated with the application
             # when the last one is closed the application shuts down
             self.window = gPodder(self, self.bus_name, core.Core(UIConfig, model_class=Model), self.options)
-        
+
             if gpodder.ui.osx:
                from gpodder.gtkui import macosx
-        
+
                # Handle "subscribe to podcast" events from firefox
                macosx.register_handlers(self.window)
-        
+
         self.window.gPodder.present()
 
 
