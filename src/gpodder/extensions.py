@@ -117,15 +117,15 @@ class ExtensionMetadata(object):
 
         category = metadata.get('category', 'other')
         metadata['category'] = CATEGORY_DICT.get(category, DEFAULT_CATEGORY)
-        
+
         self.__dict__.update(metadata)
-        
+
     def __getattr__(self, name):
         try:
             return self.DEFAULTS[name]
         except KeyError as e:
             raise AttributeError(name, e)
-            
+
     def get_sorted(self):
         kf = lambda x: self.SORTKEYS.get(x[0], 99)
         return sorted([(k, v) for k, v in list(self.__dict__.items())], key=kf)
@@ -162,14 +162,14 @@ class ExtensionMetadata(object):
         uis = [_f for _f in [x.strip() for x in getattr(self, target).split(',')] if _f]
         return any(getattr(gpodder.ui, ui.lower(), False) for ui in uis)
 
-    @property   
+    @property
     def available_for_current_ui(self):
         return self.check_ui('only_for', True)
-    
+
     @property
     def mandatory_in_current_ui(self):
         return self.check_ui('mandatory_in', False)
-        
+
     @property
     def disable_in_current_ui(self):
         return self.check_ui('disable_in', False)
@@ -344,12 +344,12 @@ class ExtensionManager(object):
     def _config_value_changed(self, name, old_value, new_value):
         if name != 'extensions.enabled':
             return
-            
+
         for container in self.containers:
             new_enabled = (container.name in new_value)
             if new_enabled == container.enabled:
                 continue
-                
+
             logger.info('Extension "%s" is now %s', container.name,
                     'enabled' if new_enabled else 'disabled')
             container.set_enabled(new_enabled)

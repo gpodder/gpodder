@@ -85,7 +85,6 @@ class gPodderEpisodeSelector(BuilderWidget):
                            the supplied episode objects that holds
                            the text for the tooltips when hovering
                            over an episode (default is 'description')
-                           
     """
     COLUMN_INDEX = 0
     COLUMN_TOOLTIP = 1
@@ -151,7 +150,7 @@ class gPodderEpisodeSelector(BuilderWidget):
         toggle_column = Gtk.TreeViewColumn('', toggle_cell, active=self.COLUMN_TOGGLE)
         toggle_column.set_clickable(True)
         self.treeviewEpisodes.append_column(toggle_column)
-        
+
         next_column = self.COLUMN_ADDITIONAL
         for name, sort_name, sort_type, caption in self.columns:
             renderer = Gtk.CellRendererText()
@@ -169,7 +168,7 @@ class gPodderEpisodeSelector(BuilderWidget):
                 column.set_sort_column_id(next_column)
             self.treeviewEpisodes.append_column( column)
             next_column += 1
-            
+
             if sort_name is not None:
                 # add the sort column
                 column = Gtk.TreeViewColumn()
@@ -199,7 +198,7 @@ class gPodderEpisodeSelector(BuilderWidget):
                     row.append(None)
                 else:
                     row.append(getattr( episode, name))
-                    
+
                 if sort_name is not None:
                     if not hasattr(episode, sort_name):
                         row.append(None)

@@ -522,7 +522,7 @@ def format_date(timestamp):
        return _('Today')
     elif timestamp_date == yesterday:
        return _('Yesterday')
-   
+
     try:
         diff = int( (time.time() - timestamp)/seconds_in_a_day )
     except:
@@ -626,7 +626,7 @@ def remove_html_tags(html):
     re_listing_tags = re.compile('<li[^>]*>', re.I)
 
     result = html
-    
+
     # Convert common HTML elements to their text equivalent
     result = re_newline_tags.sub('\n', result)
     result = re_listing_tags.sub('\n * ', result)
@@ -640,7 +640,7 @@ def remove_html_tags(html):
 
     # Convert named HTML entities to their unicode character
     result = re_html_entities.sub(lambda x: entitydefs.get(x.group(1),''), result)
-    
+
     # Convert more than two newlines to two newlines
     result = re.sub('([\r\n]{2})([\r\n])+', '\\1', result)
 
@@ -1000,7 +1000,7 @@ def file_type_by_extension(extension):
         filetype, rest = type.split('/', 1)
         if filetype in ('audio', 'video', 'image'):
             return filetype
-    
+
     return None
 
 

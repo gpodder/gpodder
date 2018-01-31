@@ -44,7 +44,7 @@ TrackInfo = collections.namedtuple('TrackInfo',
 
 def subsecond_difference(usec1, usec2):
     return usec1 is not None and usec2 is not None and abs(usec1 - usec2) < USECS_IN_SEC
-    
+
 class CurrentTrackTracker(object):
     '''An instance of this class is responsible for tracking the state of the
     currently playing track -- it's playback status, playing position, etc.
@@ -77,7 +77,7 @@ class CurrentTrackTracker(object):
             self.pos = self.pos + self.rate * (now - self._last_time) * USECS_IN_SEC
         finally:
             self._last_time = now
-        
+
     def update_needed(self, current, updated):
         for field in updated:
             if field == 'pos':
@@ -179,7 +179,7 @@ class CurrentTrackTracker(object):
         pos = self.pos // USECS_IN_SEC
         file_uri = urllib.request.url2pathname(urllib.parse.urlparse(self.uri).path).encode('utf-8')
         total_time = self.length // USECS_IN_SEC
-        
+
         if status == 'Stopped':
             end_position = pos
             start_position = self._notifier.start_position
@@ -204,7 +204,8 @@ class CurrentTrackTracker(object):
             (self.pos or 0) // USECS_IN_SEC,
             (self.length or 0) // USECS_IN_SEC,
             self.rate or 0)
-            
+
+
 class MPRISDBusReceiver(object):
     INTERFACE_PROPS = 'org.freedesktop.DBus.Properties'
     SIGNAL_PROP_CHANGE = 'PropertiesChanged'
@@ -249,7 +250,7 @@ class MPRISDBusReceiver(object):
             if interface_name not in self.OTHER_MPRIS_INTERFACES:
                 logger.warn('unexpected interface: %s, props=%r', interface_name, list(changed_properties.keys()))
             return
-        
+
         collected_info = {}
 
         if 'PlaybackStatus' in changed_properties:
@@ -296,7 +297,8 @@ class gPodderNotifier(dbus.service.Object):
     def PlaybackStopped(self, start_position, end_position, total_time, file_uri):
         logger.info('PlaybackStopped: %s: %d--%d/%d',
             file_uri, start_position, end_position, total_time)
-         
+
+
 # Finally, this is the extension, which just pulls this all together
 class gPodderExtension:
 

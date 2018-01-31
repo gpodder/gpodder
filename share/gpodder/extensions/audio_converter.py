@@ -53,14 +53,14 @@ class gPodderExtension:
 
     def on_episode_downloaded(self, episode):
         self._convert_episode(episode)
-        
+
     def _get_new_extension(self):
         return ('.ogg' if self.config.use_ogg else '.mp3')
 
     def _check_source(self, episode):
         if episode.extension() == self._get_new_extension():
             return False
-            
+
         if episode.mime_type in self.MIME_TYPES:
             return True
 
@@ -106,7 +106,7 @@ class gPodderExtension:
         if ffmpeg.returncode == 0:
             util.rename_episode_file(episode, new_filename)
             os.remove(old_filename)
-            
+
             logger.info('Converted audio file to %(format)s.' % {'format': new_extension})
             gpodder.user_extensions.on_notification_show(_('File converted'), episode.title)
         else:

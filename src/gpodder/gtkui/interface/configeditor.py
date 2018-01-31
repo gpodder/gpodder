@@ -95,7 +95,7 @@ class gPodderConfigEditor(BuilderWidget):
         # Flip the boolean config flag
         if field_type == bool:
             self._config.toggle_flag(field_name)
-    
+
     def on_entryFilter_changed(self, widget):
         self.filter.refilter()
 
