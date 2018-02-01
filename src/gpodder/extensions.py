@@ -382,8 +382,8 @@ class ExtensionManager(object):
 
     def get_extensions(self):
         """Get a list of all loaded extensions and their enabled flag"""
-        return [c for c in self.containers 
-            if c.metadata.available_for_current_ui and 
+        return [c for c in self.containers
+            if c.metadata.available_for_current_ui and
             not c.metadata.mandatory_in_current_ui and
             not c.metadata.disable_in_current_ui]
 

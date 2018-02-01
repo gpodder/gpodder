@@ -103,7 +103,7 @@ class gPodderExtension:
                 stderr=subprocess.PIPE)
         stdout, stderr = ffmpeg.communicate()
 
-        if ffmpeg.returncode == 0:            
+        if ffmpeg.returncode == 0:
             util.rename_episode_file(episode, new_filename)
             os.remove(old_filename)
 

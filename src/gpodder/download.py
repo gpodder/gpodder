@@ -664,16 +664,16 @@ class DownloadTask(object):
         if count % 5 == 0:
             now = time.time()
             if self.__start_time > 0:
-                # Has rate limiting been enabled or disabled?                
-                if self.__limit_rate != self._config.limit_rate: 
-                    # If it has been enabled then reset base time and block count                    
+                # Has rate limiting been enabled or disabled?
+                if self.__limit_rate != self._config.limit_rate:
+                    # If it has been enabled then reset base time and block count
                     if self._config.limit_rate:
                         self.__start_time = now
                         self.__start_blocks = count
                     self.__limit_rate = self._config.limit_rate
 
-                # Has the rate been changed and are we currently limiting?            
-                if self.__limit_rate_value != self._config.limit_rate_value and self.__limit_rate: 
+                # Has the rate been changed and are we currently limiting?
+                if self.__limit_rate_value != self._config.limit_rate_value and self.__limit_rate:
                     self.__start_time = now
                     self.__start_blocks = count
                     self.__limit_rate_value = self._config.limit_rate_value

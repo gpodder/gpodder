@@ -71,7 +71,7 @@ class DeviceTypeActionList(Gtk.ListStore):
         Gtk.ListStore.__init__(self, str, str)
         self._config = config
         self.append((_('None'), 'none'))
-        self.append((_('iPod'), 'ipod'))        
+        self.append((_('iPod'), 'ipod'))
         self.append((_('Filesystem-based'), 'filesystem'))
 
     def get_index(self):
