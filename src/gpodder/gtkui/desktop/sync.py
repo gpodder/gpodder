@@ -192,7 +192,7 @@ class gPodderSyncUI(object):
                 #enable updating of UI
                 self.enable_download_list_update()
 
-                if (self._config.device_sync.device_type=='filesystem' and self._config.device_sync.playlists.create):                 
+                if (self._config.device_sync.device_type=='filesystem' and self._config.device_sync.playlists.create):
                     title = _('Update successful')
                     message = _('The playlist on your MP3 player has been updated.')
                     self.notification(message, title)

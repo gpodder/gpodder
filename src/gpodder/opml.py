@@ -28,9 +28,9 @@
 
 """OPML import and export functionality
 
-This module contains helper classes to import subscriptions 
-from OPML files on the web and to export a list of channel 
-objects to valid OPML 1.1 files that can be used to backup 
+This module contains helper classes to import subscriptions
+from OPML files on the web and to export a list of channel
+objects to valid OPML 1.1 files that can be used to backup
 or distribute gPodder's channel subscriptions.
 """
 
@@ -52,7 +52,7 @@ import gpodder
 class Importer(object):
     """
     Helper class to import an OPML feed from protocols
-    supported by urllib2 (e.g. HTTP) and return a GTK 
+    supported by urllib2 (e.g. HTTP) and return a GTK
     ListStore that can be displayed in the GUI.
 
     This class should support standard OPML feeds and
@@ -63,7 +63,7 @@ class Importer(object):
 
     def __init__( self, url):
         """
-        Parses the OPML feed from the given URL into 
+        Parses the OPML feed from the given URL into
         a local data structure containing channel metadata.
         """
         self.items = []
@@ -121,8 +121,8 @@ class Exporter(object):
 
     def create_node( self, doc, name, content):
         """
-        Creates a simple XML Element node in a document 
-        with tag name "name" and text content "content", 
+        Creates a simple XML Element node in a document
+        with tag name "name" and text content "content",
         as in <name>content</name> and returns the element.
         """
         node = doc.createElement( name)
@@ -143,13 +143,13 @@ class Exporter(object):
 
     def write( self, channels):
         """
-        Creates a XML document containing metadata for each 
-        channel object in the "channels" parameter, which 
+        Creates a XML document containing metadata for each
+        channel object in the "channels" parameter, which
         should be a list of channel objects.
 
         OPML 2.0 specification: http://www.opml.org/spec2
 
-        Returns True on success or False when there was an 
+        Returns True on success or False when there was an
         error writing the file.
         """
         if self.filename is None:
@@ -174,7 +174,7 @@ class Exporter(object):
         try:
             data = doc.toprettyxml(encoding='utf-8', indent='    ', newl=os.linesep)
             # We want to have at least 512 KiB free disk space after
-            # saving the opml data, if this is not possible, don't 
+            # saving the opml data, if this is not possible, don't
             # try to save the new file, but keep the old one so we
             # don't end up with a clobbed, empty opml file.
             FREE_DISK_SPACE_AFTER = 1024*512

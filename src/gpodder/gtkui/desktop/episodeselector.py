@@ -52,30 +52,30 @@ class gPodderEpisodeSelector(BuilderWidget):
                           checked state if no other value is set
                           (default is False)
       - columns: List of (name, sort_name, sort_type, caption) pairs for the
-                 columns, the name is the attribute name of the episode to be 
-                 read from each episode object.  The sort name is the 
+                 columns, the name is the attribute name of the episode to be
+                 read from each episode object.  The sort name is the
                  attribute name of the episode to be used to sort this column.
                  If the sort_name is None it will use the attribute name for
                  sorting.  The sort type is the type of the sort column.
                  The caption attribute is the text that appear as column caption
                  (default is [('title_markup', None, None, 'Episode'),])
       - title: (optional) The title of the window + heading
-      - instructions: (optional) A one-line text describing what the 
+      - instructions: (optional) A one-line text describing what the
                       user should select / what the selection is for
       - stock_ok_button: (optional) Will replace the "OK" button with
                          another GTK+ stock item to be used for the
-                         affirmative button of the dialog (e.g. can 
+                         affirmative button of the dialog (e.g. can
                          be Gtk.STOCK_DELETE when the episodes to be
-                         selected will be deleted after closing the 
+                         selected will be deleted after closing the
                          dialog)
-      - selection_buttons: (optional) A dictionary with labels as 
+      - selection_buttons: (optional) A dictionary with labels as
                            keys and callbacks as values; for each
                            key a button will be generated, and when
                            the button is clicked, the callback will
                            be called for each episode and the return
                            value of the callback (True or False) will
                            be the new selected state of the episode
-      - size_attribute: (optional) The name of an attribute of the 
+      - size_attribute: (optional) The name of an attribute of the
                         supplied episode objects that can be used to
                         calculate the size of an episode; set this to
                         None if no total size calculation should be
@@ -292,7 +292,7 @@ class gPodderEpisodeSelector(BuilderWidget):
             menu.append(item)
 
             menu.show_all()
-            # Disable tooltips while we are showing the menu, so 
+            # Disable tooltips while we are showing the menu, so
             # the tooltip will not appear over the menu
             self.episode_list_can_tooltip = False
             menu.connect('deactivate', lambda menushell: self.episode_list_allow_tooltips())
@@ -318,10 +318,10 @@ class gPodderEpisodeSelector(BuilderWidget):
                     pass
 
             text = []
-            if count == 0: 
+            if count == 0:
                 text.append(_('Nothing selected'))
             text.append(N_('%(count)d episode', '%(count)d episodes', count) % {'count':count})
-            if total_size > 0: 
+            if total_size > 0:
                 text.append(_('size: %s') % util.format_filesize(total_size))
             self.labelTotalSize.set_text(', '.join(text))
             self.btnOK.set_sensitive(count>0)

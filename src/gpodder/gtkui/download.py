@@ -159,7 +159,7 @@ class DownloadStatusModel(Gtk.ListStore):
     def set_downloading(self, task):
         with self.set_downloading_access:
             if task.status is task.DOWNLOADING:
-                # Task was already set as DOWNLOADING by get_next           
+                # Task was already set as DOWNLOADING by get_next
                 return False
             task.status = task.DOWNLOADING
             return True
