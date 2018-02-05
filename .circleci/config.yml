@@ -1,0 +1,28 @@
+# :noTabs=true:mode=yaml:tabSize=2:indentSize=2:
+version: 2
+jobs:
+  release-from-linux:
+    docker:
+      - image: buildpack-deps:trusty
+    environment:
+      - BUNDLE_TAG: base-3.10.0_0
+    shell: /bin/bash --login -o pipefail
+    steps:
+      - checkout
+      - run: git clone --depth 1 --branch master https://github.com/gpodder/gpodder-osx-bundle.git
+      - run: cd gpodder-osx-bundle
+      - run: mkdir _build && cd _build
+      - run: wget "https://github.com/gpodder/gpodder-osx-bundle/releases/download/$BUNDLE_TAG/gPodder-$BUNDLE_TAG.deps.zip"
+      - run: wget "https://github.com/gpodder/gpodder-osx-bundle/releases/download/$BUNDLE_TAG/gPodder-$BUNDLE_TAG.deps.zip.sha256"
+      - run: sha256sum -c "gPodder-$BUNDLE_TAG.deps.zip.sha256"
+      - run: cd ..
+      - run: ./release_on_linux.sh "$CIRCLE_WORKING_DIRECTORY/gpodder-osx-bundle/_build/gPodder-$BUNDLE_TAG.deps.zip" "$CIRCLE_WORKING_DIRECTORY"
+      - run: rm -Rf _build/gPodder.app/ _build/*.deps.zip* _build/gPodder.contents
+      - store_artifacts:
+          path: ~/project/_build
+
+workflows:
+  version: 2
+  build-bundle:
+    jobs:
+      - release-from-linux
