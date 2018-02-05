@@ -10,16 +10,14 @@ jobs:
     steps:
       - checkout
       - run: git clone --depth 1 --branch master https://github.com/gpodder/gpodder-osx-bundle.git
-      - run: cd gpodder-osx-bundle
-      - run: mkdir _build && cd _build
-      - run: wget "https://github.com/gpodder/gpodder-osx-bundle/releases/download/$BUNDLE_TAG/gPodder-$BUNDLE_TAG.deps.zip"
-      - run: wget "https://github.com/gpodder/gpodder-osx-bundle/releases/download/$BUNDLE_TAG/gPodder-$BUNDLE_TAG.deps.zip.sha256"
-      - run: sha256sum -c "gPodder-$BUNDLE_TAG.deps.zip.sha256"
-      - run: cd ..
-      - run: ./release_on_linux.sh "$CIRCLE_WORKING_DIRECTORY/gpodder-osx-bundle/_build/gPodder-$BUNDLE_TAG.deps.zip" "$CIRCLE_WORKING_DIRECTORY"
-      - run: rm -Rf _build/gPodder.app/ _build/*.deps.zip* _build/gPodder.contents
+      - run: cd gpodder-osx-bundle && mkdir _build && cd _build
+      - run: cd gpodder-osx-bundle/_build && wget "https://github.com/gpodder/gpodder-osx-bundle/releases/download/$BUNDLE_TAG/gPodder-$BUNDLE_TAG.deps.zip"
+      - run: cd gpodder-osx-bundle/_build && wget "https://github.com/gpodder/gpodder-osx-bundle/releases/download/$BUNDLE_TAG/gPodder-$BUNDLE_TAG.deps.zip.sha256"
+      - run: cd gpodder-osx-bundle/_build && sha256sum -c "gPodder-$BUNDLE_TAG.deps.zip.sha256"
+      - run: cd gpodder-osx-bundle && ./release_on_linux.sh "$CIRCLE_WORKING_DIRECTORY/gpodder-osx-bundle/_build/gPodder-$BUNDLE_TAG.deps.zip" "$CIRCLE_WORKING_DIRECTORY"
+      - run: rm -Rf gpodder-osx-bundle/_build/gPodder.app/ gpodder-osx-bundle/_build/*.deps.zip* gpodder-osx-bundle/_build/gPodder.contents
       - store_artifacts:
-          path: ~/project/_build
+          path: ~/project/gpodder-osx-bundle/_build
 
 workflows:
   version: 2
