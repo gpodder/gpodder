@@ -3,22 +3,22 @@ version: 2
 jobs:
   release-from-linux:
     docker:
-      - image: buildpack-deps:trusty
+      - image: python:3.6
     environment:
       - BUNDLE_TAG: base-3.10.0_0
     shell: /bin/bash --login -o pipefail
     steps:
       - checkout
-      - run: apt-get update && apt-get install -y intltool unzip xsltproc zip
+      - run: apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y intltool unzip xsltproc zip
       - run: git clone --depth 1 --branch master https://github.com/gpodder/gpodder-osx-bundle.git
       - run: cd gpodder-osx-bundle && mkdir _build && cd _build
       - run: cd gpodder-osx-bundle/_build && wget "https://github.com/gpodder/gpodder-osx-bundle/releases/download/$BUNDLE_TAG/gPodder-$BUNDLE_TAG.deps.zip"
       - run: cd gpodder-osx-bundle/_build && wget "https://github.com/gpodder/gpodder-osx-bundle/releases/download/$BUNDLE_TAG/gPodder-$BUNDLE_TAG.deps.zip.sha256"
       - run: cd gpodder-osx-bundle/_build && sha256sum -c "gPodder-$BUNDLE_TAG.deps.zip.sha256"
-      - run: cd gpodder-osx-bundle && LANG=C.UTF-8 ./release_on_linux.sh "/root/project/gpodder-osx-bundle/_build/gPodder-$BUNDLE_TAG.deps.zip" "/root/project"
+      - run: cd gpodder-osx-bundle && LANG=C.UTF-8 ./release_on_linux.sh "/home/circleci/project/gpodder-osx-bundle/_build/gPodder-$BUNDLE_TAG.deps.zip" "/home/circleci/project"
       - run: rm -Rf gpodder-osx-bundle/_build/gPodder.app/ gpodder-osx-bundle/_build/*.deps.zip* gpodder-osx-bundle/_build/gPodder.contents
       - store_artifacts:
-          path: /root/project/gpodder-osx-bundle/_build
+          path: /home/circleci/project/gpodder-osx-bundle/_build
 
 workflows:
   version: 2
