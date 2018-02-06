@@ -57,7 +57,7 @@ class gPodderChannel(BuilderWidget):
         self.strategy_list = Gtk.ListStore(str, int)
         active_index = 0
         for index, (checked, strategy_id, strategy) in \
-            enumerate(self.channel.get_download_strategies()):
+                enumerate(self.channel.get_download_strategies()):
             self.strategy_list.append([strategy, strategy_id])
             if checked:
                 active_index = index

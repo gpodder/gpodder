@@ -147,7 +147,7 @@ class Mp4File(AudioFile):
             cover_format = MP4Cover.FORMAT_JPEG
 
         data = open(self.cover, 'rb').read()
-        audio.tags['covr'] =  [MP4Cover(data, cover_format)]
+        audio.tags['covr'] = [MP4Cover(data, cover_format)]
         audio.save()
 
 

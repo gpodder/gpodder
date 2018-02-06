@@ -238,7 +238,7 @@ def normalize_feed_url(url):
             break
 
     # Assume HTTP for URLs without scheme
-    if not '://' in url:
+    if '://' not in url:
         url = 'http://' + url
 
     scheme, netloc, path, query, fragment = urllib.parse.urlsplit(url)
@@ -909,7 +909,7 @@ def extension_correct_for_mimetype(extension, mimetype):
       ...
     ValueError: "audio mpeg" is not a mimetype (missing /)
     """
-    if not '/' in mimetype:
+    if '/' not in mimetype:
         raise ValueError('"%s" is not a mimetype (missing /)' % mimetype)
     if not extension.startswith('.'):
         raise ValueError('"%s" is not an extension (missing .)' % extension)
@@ -944,7 +944,7 @@ def filename_from_url(url):
     (filename, extension) = os.path.splitext(os.path.basename( urllib.parse.unquote(path)))
 
     if file_type_by_extension(extension) is not None and not \
-        query.startswith(scheme+'://'):
+            query.startswith(scheme+'://'):
         # We have found a valid extension (audio, video)
         # and the query string doesn't look like a URL
         return ( filename, extension.lower() )

@@ -39,7 +39,7 @@ class ObservableService(object):
 
     def register(self, signal_name, observer):
         if signal_name in self.observers:
-            if not observer in self.observers[signal_name]:
+            if observer not in self.observers[signal_name]:
                 self.observers[signal_name].append(observer)
                 return True
 
