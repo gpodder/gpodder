@@ -275,7 +275,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         action.connect('activate', self.on_item_view_hide_boring_podcasts_toggled)
         g.add_action(action)
 
-        value = EpisodeListModel.VIEWS[self.config.episode_list_view_mode or  EpisodeListModel.VIEW_ALL]
+        value = EpisodeListModel.VIEWS[self.config.episode_list_view_mode or EpisodeListModel.VIEW_ALL]
         action = Gio.SimpleAction.new_stateful(
             'viewEpisodes',  GLib.VariantType.new('s'), GLib.Variant.new_string(value))
         action.connect('activate', self.on_item_view_episodes_changed)
@@ -3603,7 +3603,7 @@ class gPodderApplication(Gtk.Application):
         Gtk.Application.__init__(self, application_id='org.gpodder.gpodder',
                          flags=Gio.ApplicationFlags.FLAGS_NONE)
         self.window = None
-        self.options = options;
+        self.options = options
         self.connect('window-removed', self.on_window_removed)
 
     def create_actions(self):
@@ -3688,10 +3688,10 @@ class gPodderApplication(Gtk.Application):
             self.window = gPodder(self, self.bus_name, core.Core(UIConfig, model_class=Model), self.options)
 
             if gpodder.ui.osx:
-               from gpodder.gtkui import macosx
+                from gpodder.gtkui import macosx
 
-               # Handle "subscribe to podcast" events from firefox
-               macosx.register_handlers(self.window)
+                # Handle "subscribe to podcast" events from firefox
+                macosx.register_handlers(self.window)
 
         self.window.gPodder.present()
 

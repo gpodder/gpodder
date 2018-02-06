@@ -40,15 +40,15 @@ class gPodderDevicePlaylist(object):
         self.playlist_absolute_filename=os.path.join(self.playlist_folder, self.playlist_file)
 
     def build_extinf(self, filename):
-#TO DO: Windows playlists
-#        if self._config.mp3_player_playlist_win_path:
-#            filename = filename.replace('\\', os.sep)
+        #TO DO: Windows playlists
+        #        if self._config.mp3_player_playlist_win_path:
+        #            filename = filename.replace('\\', os.sep)
 
-#        # rebuild the whole filename including the mountpoint
-#        if self._config.device_sync.playlist_absolute_path:
-#            absfile = os.path.join(self.mountpoint,filename)
-#        else: #TODO: Test rel filenames
-#            absfile = util.rel2abs(filename, os.path.dirname(self.playlist_file))
+        #        # rebuild the whole filename including the mountpoint
+        #        if self._config.device_sync.playlist_absolute_path:
+        #            absfile = os.path.join(self.mountpoint,filename)
+        #        else: #TODO: Test rel filenames
+        #            absfile = util.rel2abs(filename, os.path.dirname(self.playlist_file))
 
         # fallback: use the basename of the file
         (title, extension) = os.path.splitext(os.path.basename(filename))

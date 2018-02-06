@@ -334,7 +334,7 @@ class gPodderEpisodeSelector(BuilderWidget):
             self.btnOK.set_sensitive(False)
             self.btnRemoveAction.set_sensitive(False)
             for index, row in enumerate(self.model):
-                if self.model.get_value(row.iter, self.COLUMN_TOGGLE) == True:
+                if self.model.get_value(row.iter, self.COLUMN_TOGGLE) is True:
                     self.btnOK.set_sensitive(True)
                     self.btnRemoveAction.set_sensitive(True)
                     break
@@ -396,7 +396,7 @@ class gPodderEpisodeSelector(BuilderWidget):
         selected_episodes = []
 
         for index, row in enumerate( self.model):
-            if self.model.get_value( row.iter, self.COLUMN_TOGGLE) == True:
+            if self.model.get_value( row.iter, self.COLUMN_TOGGLE) is True:
                 selected_episodes.append( self.episodes[self.model.get_value( row.iter, self.COLUMN_INDEX)])
 
         if remove_episodes:

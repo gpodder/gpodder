@@ -479,7 +479,7 @@ class PodcastChannelProxy(object):
         self._db = db
         self._config = config
         self.channels = channels
-        self.title =  _('All episodes')
+        self.title = _('All episodes')
         self.description = _('from all podcasts')
         #self.parse_error = ''
         self.url = ''
@@ -854,7 +854,7 @@ class PodcastListModel(Gtk.ListStore):
                 self.C_VIEW_SHOW_UNPLAYED, unplayed + new > 0)
 
         if (not isinstance(channel, GPodcast) and
-            not isinstance(channel, PodcastChannelProxy)):
+                not isinstance(channel, PodcastChannelProxy)):
             return
 
         total, deleted, new, downloaded, unplayed = channel.get_statistics()
@@ -869,7 +869,7 @@ class PodcastListModel(Gtk.ListStore):
                 self.C_SECTION, channel.section, \
                 self.C_ERROR, self._format_error(channel), \
                 self.C_PILL, pill_image, \
-                self.C_PILL_VISIBLE, pill_image != None, \
+                self.C_PILL_VISIBLE, pill_image is not None, \
                 self.C_VIEW_SHOW_UNDELETED, total - deleted > 0, \
                 self.C_VIEW_SHOW_DOWNLOADED, downloaded + new > 0, \
                 self.C_VIEW_SHOW_UNPLAYED, unplayed + new > 0, \

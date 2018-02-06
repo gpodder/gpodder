@@ -358,7 +358,7 @@ class iPodDevice(Device):
             if gpod.itdb_filename_on_ipod(track) is None:
                 logger.info('Episode has no file: %s', track.title)
                 # self.remove_track_gpod(track)
-            elif track.playcount > 0  and not track.rating:
+            elif track.playcount > 0 and not track.rating:
                 logger.info('Purging episode: %s', track.title)
                 self.remove_track_gpod(track)
 

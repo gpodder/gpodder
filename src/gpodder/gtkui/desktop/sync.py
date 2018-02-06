@@ -248,7 +248,7 @@ class gPodderSyncUI(object):
                             #episodes were deleted on device
                             #but user decided not to delete them from gpodder
                             #so jump straight to sync
-                            logger.info ('Starting sync - no episodes selected for deletion')
+                            logger.info('Starting sync - no episodes selected for deletion')
                             resume_sync([],[],None)
                         else:
                             #episodes need to be deleted from gpodder
@@ -256,7 +256,7 @@ class gPodderSyncUI(object):
                                 logger.info("Deleting episode %s",
                                                episode_to_delete.title)
 
-                            logger.info ('Will start sync - after deleting episodes')
+                            logger.info('Will start sync - after deleting episodes')
                             self.delete_episode_list(episodes,False,
                                                      True,resume_sync)
 
@@ -279,11 +279,11 @@ class gPodderSyncUI(object):
                         resume_sync([],[],None)
 
                 except IOError as ioe:
-                    title =  _('Error writing playlist files')
+                    title = _('Error writing playlist files')
                     message = _(str(ioe))
                     self.notification(message, title)
             else:
-                logger.info ('Not creating playlists - starting sync')
+                logger.info('Not creating playlists - starting sync')
                 resume_sync([],[],None)
 
         # This function is used to remove files from the device

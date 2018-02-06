@@ -140,8 +140,8 @@ def get_escapist_real_url(data, config_json):
     if config_data is None:
         return None
 
-    ## The data is scrambled, unscramble
-    ## Direct port from 'imsVideos.prototype.processRequest' from the file 'ims_videos.min.js'
+    # The data is scrambled, unscramble
+    # Direct port from 'imsVideos.prototype.processRequest' from the file 'ims_videos.min.js'
 
     one_hash = config_data["hash"]
     # Turn the string into numbers
@@ -156,7 +156,7 @@ def get_escapist_real_url(data, config_json):
     # Bitwise XOR num_hashes and the hash
     result_num = []
     for idx in range(0,len(num_hashes)):
-        result_num.append(num_hashes[idx]^hash_n[idx % len(hash_n)])
+        result_num.append(num_hashes[idx] ^ hash_n[idx % len(hash_n)])
 
     # At last, Numbers back into characters
     result = ''.join([chr(x) for x in result_num])

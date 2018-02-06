@@ -59,8 +59,9 @@ class gPodderExtension:
         if not self.config.context_menu:
             return None
 
-        if 'audio/ogg' not in [e.mime_type for e in episodes
-            if e.mime_type is not None and e.file_exists()]:
+        episode_types = [e.mime_type for e in episodes
+                         if e.mime_type is not None and e.file_exists()]
+        if 'audio/ogg' not in episode_types:
             return None
 
         return [(_('Remove cover art'), self._rm_ogg_covers)]
