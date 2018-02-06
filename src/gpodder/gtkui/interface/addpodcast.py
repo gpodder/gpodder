@@ -49,6 +49,7 @@ class gPodderAddPodcast(BuilderWidget):
             # then from SELECTION (text selected and pasted via
             # middle mouse button).
             clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
+
             def receive_clipboard_text(clipboard, text, second_try):
                 # Heuristic: If there is a space in the clipboard
                 # text, assume it's some arbitrary text, and no URL

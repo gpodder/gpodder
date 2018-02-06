@@ -73,6 +73,7 @@ class TagCloud(Gtk.Layout):
         x, y, max_h = 0, 0, 0
         current_row = []
         pw, ph = self._size
+
         def fixup_row(widgets, x, y, max_h):
             residue = (pw - x)
             x = int(residue//2)
@@ -94,6 +95,7 @@ class TagCloud(Gtk.Layout):
             current_row.append(child)
         fixup_row(current_row, x, y, max_h)
         self.set_size(pw, y+max_h)
+
         def unrelayout():
             self._in_relayout = False
             return False

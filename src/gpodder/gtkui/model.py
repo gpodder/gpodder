@@ -669,6 +669,7 @@ class PodcastListModel(Gtk.ListStore):
 
     def _save_cached_thumb(self, channel, pixbuf):
         bufs = []
+
         def save_callback(buf, length, user_data):
             user_data.append(buf)
             return True
