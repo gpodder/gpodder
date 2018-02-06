@@ -233,7 +233,8 @@ class ExtensionContainer(object):
         if not filename or not os.path.exists(filename):
             return {}
 
-        extension_py = open(filename).read()
+        encoding = util.guess_encoding(filename)
+        extension_py = open(filename, "r", encoding=encoding).read()
         metadata = dict(re.findall("__([a-z_]+)__ = '([^']+)'", extension_py))
 
         # Support for using gpodder.gettext() as _ to localize text
