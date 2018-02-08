@@ -81,6 +81,7 @@ class gPodderFetcher(feedcore.Fetcher):
     def register(cls, handler):
         cls.custom_handlers.append(handler)
 
+
 # The "register" method is exposed here for external usage
 register_custom_handler = gPodderFetcher.register
 

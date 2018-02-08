@@ -33,6 +33,7 @@ class Language(object):
     def __cmp__(self, other):
         return cmp(self.get_translated_ratio(), other.get_translated_ratio())
 
+
 languages = []
 
 COUNTS_RE = '((\d+) translated message[s]?)?(, (\d+) fuzzy translation[s]?)?(, (\d+) untranslated message[s]?)?\.'
@@ -58,4 +59,3 @@ for language in sorted(languages):
 print("""
   Total translations: %s
 """ % (len(languages)))
-

@@ -16,6 +16,7 @@ def gen(percentage):
     pixbuf = draw_cake_pixbuf(percentage)
     return Gtk.Image.new_from_pixbuf(pixbuf)
 
+
 w = Gtk.Window()
 w.connect('destroy', Gtk.main_quit)
 v = Gtk.VBox()
@@ -30,4 +31,3 @@ for y in range(1):
 w.set_default_size(400, 100)
 w.show_all()
 Gtk.main()
-

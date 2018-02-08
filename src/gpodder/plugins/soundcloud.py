@@ -242,6 +242,7 @@ class SoundcloudFavFeed(SoundcloudFeed):
     def get_new_episodes(self, channel, existing_guids):
         return self._get_new_episodes(channel, existing_guids, 'favorites')
 
+
 # Register our URL handlers
 model.register_custom_handler(SoundcloudFeed)
 model.register_custom_handler(SoundcloudFavFeed)
