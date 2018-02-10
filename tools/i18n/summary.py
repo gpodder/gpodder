@@ -59,3 +59,4 @@ for language in sorted(languages):
 print("""
   Total translations: %s
 """ % (len(languages)))
+
