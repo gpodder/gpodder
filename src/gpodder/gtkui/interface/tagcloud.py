@@ -28,6 +28,7 @@ class TagCloud(Gtk.Layout):
                            (GObject.TYPE_STRING,))
     }
 
+
     def __init__(self, min_size=20, max_size=36):
         Gtk.Layout.__init__(self)
         self._min_weight = 0
@@ -99,4 +100,6 @@ class TagCloud(Gtk.Layout):
             return False
         GObject.idle_add(unrelayout)
 
+
 GObject.type_register(TagCloud)
+

@@ -127,6 +127,7 @@ def _sanitize_char(c):
 
     return c.encode('utf-8')
 
+
 SANITIZATION_TABLE = b''.join(map(_sanitize_char, list(map(chr, list(range(256))))))
 del _sanitize_char
 

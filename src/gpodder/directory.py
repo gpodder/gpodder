@@ -171,6 +171,7 @@ class FixedOpmlFileProvider(Provider):
     def on_static(self):
         return directory_entry_from_opml(self.filename)
 
+
 PROVIDERS = [
     GPodderRecommendationsProvider,
     None,

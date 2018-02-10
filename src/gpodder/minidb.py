@@ -186,6 +186,7 @@ class Store(object):
         else:
             return None
 
+
 if __name__ == '__main__':
     class Person(object):
         __slots__ = {'username': str, 'id': int}
