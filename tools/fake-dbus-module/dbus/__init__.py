@@ -11,4 +11,6 @@ class SessionBus(object):
     def name_has_owner(self, *args, **kwargs):
         return False
 
+
 SystemBus = SessionBus
+

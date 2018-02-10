@@ -45,6 +45,7 @@ class TextExtents(object):
         tuple = ctx.text_extents(text)
         (self.x_bearing, self.y_bearing, self.width, self.height, self.x_advance, self.y_advance) = tuple
 
+
 EPISODE_LIST_ICON_SIZE = 16
 
 RRECT_LEFT_SIDE = 1

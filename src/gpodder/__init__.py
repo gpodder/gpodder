@@ -178,6 +178,7 @@ def fixup_home(old_home):
 
     return old_home
 
+
 # Default locations for configuration and data files
 default_home = os.path.expanduser(os.path.join('~', 'gPodder'))
 default_home = fixup_home(default_home)
