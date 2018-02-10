@@ -14,6 +14,7 @@ import subprocess
 
 width = 40
 
+
 class Language(object):
     def __init__(self, language, translated, fuzzy, untranslated):
         self.language = language

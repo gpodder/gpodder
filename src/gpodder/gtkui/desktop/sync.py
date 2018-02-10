@@ -34,6 +34,7 @@ from gpodder.gtkui.desktop.deviceplaylist import gPodderDevicePlaylist
 import logging
 logger = logging.getLogger(__name__)
 
+
 class gPodderSyncUI(object):
     def __init__(self, config, notification, parent_window,
             show_confirmation,
@@ -237,8 +238,6 @@ class gPodderSyncUI(object):
                                             except KeyError as ioe:
                                                 logger.warn('Episode %s, removed from device has already been deleted from gpodder',
                                                             episode_filename)
-
-
                     #delete all episodes from gpodder (will prompt user)
 
                     #not using playlists to delete

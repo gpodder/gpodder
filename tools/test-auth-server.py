@@ -28,12 +28,14 @@ EPISODES_MIME = 'audio/mpeg' # Mime type for the episode files
 EP_COUNT = 7                 # Number of episodes in the feed
 SIZE = 500000                # Size (in bytes) of the episode downloads)
 
+
 def mkpubdates(items):
     """Generate fake pubDates (one each day, recently)"""
     current = datetime.datetime.now() - datetime.timedelta(days=items+3)
     for i in range(items):
         yield current.ctime()
         current += datetime.timedelta(days=1)
+
 
 def mkrss(items=EP_COUNT):
     """Generate a dumm RSS feed with a given number of items"""
@@ -58,9 +60,11 @@ def mkrss(items=EP_COUNT):
     </rss>
     """ % dict(list(locals().items())+list(globals().items()))
 
+
 def mkdata(size=SIZE):
     """Generate dummy data of a given size (in bytes)"""
     return ''.join(chr(32+(i%(127-32))) for i in range(size))
+
 
 class AuthRequestHandler(http.server.BaseHTTPRequestHandler):
     FEEDFILE_PATH = '/%s' % FEEDFILE

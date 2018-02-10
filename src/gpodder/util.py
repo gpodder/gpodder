@@ -338,6 +338,7 @@ def username_password_from_url(url):
 
     return (username, password)
 
+
 def directory_is_writable(path):
     """
     Returns True if the specified directory exists and is writable
@@ -410,6 +411,7 @@ def file_age_in_days(filename):
         return 0
     else:
         return (datetime.datetime.now()-dt).days
+
 
 def file_modification_timestamp(filename):
     """
@@ -1093,6 +1095,7 @@ def format_desktop_command(command, filenames, start_position=None):
 
     return commands
 
+
 def url_strip_authentication(url):
     """
     Strips authentication data from an URL. Returns the URL with
@@ -1202,6 +1205,7 @@ def urlopen(url, headers=None, data=None, timeout=None):
     else:
         return opener.open(request, timeout=timeout)
 
+
 def get_real_url(url):
     """
     Gets the real URL of a file and resolves all redirects.
@@ -1310,6 +1314,7 @@ def format_time(value):
     else:
         return dt.strftime('%H:%M:%S')
 
+
 def parse_time(value):
     """Parse a time string into seconds
 
@@ -1393,6 +1398,7 @@ def format_seconds_to_hour_min_sec(seconds):
     else:
         return result[0]
 
+
 def http_request(url, method='HEAD'):
     (scheme, netloc, path, parms, qry, fragid) = urllib.parse.urlparse(url)
     conn = http.client.HTTPConnection(netloc)
@@ -1429,6 +1435,7 @@ def open_website(url):
     make sure your system is set up correctly.
     """
     run_in_background(lambda: webbrowser.open(url))
+
 
 def convert_bytes(d):
     """
@@ -1575,6 +1582,7 @@ def find_mount_point(directory):
 # matches http:// and ftp:// and mailto://
 protocolPattern = re.compile(r'^\w+://')
 
+
 def isabs(string):
     """
     @return true if string is an absolute path or protocoladdress
@@ -1595,6 +1603,7 @@ def commonpath(l1, l2, common=[]):
     if len(l2) < 1: return (common, l1, l2)
     if l1[0] != l2[0]: return (common, l1, l2)
     return commonpath(l1[1:], l2[1:], common+[l1[0]])
+
 
 def relpath(p1, p2):
     """
@@ -1627,6 +1636,7 @@ def get_hostname():
 
     # Fallback - but can this give us "localhost"?
     return socket.gethostname()
+
 
 def detect_device_type():
     """Device type detection for gpodder.net
@@ -1811,6 +1821,7 @@ def osx_get_active_interfaces():
         if b:
             yield b.group(1)
 
+
 def unix_get_active_interfaces():
     """Get active network interfaces using 'ifconfig'
 
@@ -1880,6 +1891,7 @@ def website_reachable(url):
         pass
 
     return (False, None)
+
 
 def delete_empty_folders(top):
     for root, dirs, files in os.walk(top, topdown=False):

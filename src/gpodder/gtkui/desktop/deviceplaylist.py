@@ -27,6 +27,7 @@ from gpodder import util
 import logging
 logger = logging.getLogger(__name__)
 
+
 class gPodderDevicePlaylist(object):
     def __init__(self, config, playlist_name):
         self._config=config

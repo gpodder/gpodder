@@ -1,5 +1,6 @@
 import dbus.exceptions
 
+
 class SessionBus(object):
     def __init__(self, *args, **kwargs):
         self.fake = True

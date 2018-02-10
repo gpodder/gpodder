@@ -109,6 +109,7 @@ if pymtp_available:
             # logger.info('MTP.mkdir: %s = %u' % (path, folder_id))
             return folder_id
 
+
 def open_device(gui):
     config = gui._config
     device_type = gui._config.device_sync.device_type
@@ -122,6 +123,7 @@ def open_device(gui):
                 gui.download_queue_manager)
 
     return None
+
 
 def get_track_length(filename):
     if util.find_command('mplayer') is not None:
@@ -140,6 +142,7 @@ def get_track_length(filename):
         logger.warn('Could not determine length: %s', filename, exc_info=True)
 
     return int(60*60*1000*3) # Default is three hours (to be on the safe side)
+
 
 class SyncTrack(object):
     """
@@ -265,6 +268,7 @@ class Device(services.ObservableService):
             if track_name == title:
                 return t
         return None
+
 
 class iPodDevice(Device):
     def __init__(self, config,
@@ -691,6 +695,7 @@ class MP3PlayerDevice(Device):
         dotfiles = glob.glob(os.path.join(directory, '.*'))
         return len(files+dotfiles) == 0
 
+
 class MTPDevice(Device):
     def __init__(self, config):
         Device.__init__(self, config)
@@ -914,8 +919,12 @@ class MTPDevice(Device):
         else:
             return 0
 
+
 class SyncCancelledException(Exception): pass
+
+
 class SyncFailedException(Exception): pass
+
 
 class SyncTask(download.DownloadTask):
     # An object representing the synchronization task of an episode
@@ -924,7 +933,6 @@ class SyncTask(download.DownloadTask):
     STATUS_MESSAGE = (_('Added'), _('Queued'), _('Synchronizing'),
             _('Finished'), _('Failed'), _('Cancelled'), _('Paused'))
     (INIT, QUEUED, DOWNLOADING, DONE, FAILED, CANCELLED, PAUSED) = list(range(7))
-
 
     def __str__(self):
         return self.__episode.title

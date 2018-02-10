@@ -93,6 +93,7 @@ def find_partial_downloads(channels, start_progress_callback, progress_callback,
     else:
         clean_up_downloads(True)
 
+
 def get_expired_episodes(channels, config):
     for channel in channels:
         for index, episode in enumerate(channel.get_episodes(gpodder.STATE_DOWNLOADED)):

@@ -26,6 +26,7 @@ DefaultConfig = {
     'download_progress_bar': False, # draw progress bar on icon while downloading?
 }
 
+
 class gPodderExtension:
     def __init__(self, container):
         self.container = container

@@ -22,6 +22,7 @@ import sys
 
 from gpodder import util
 
+
 def aeKeyword(fourCharCode):
     """transform four character code into a long"""
     return struct.unpack('I', fourCharCode)[0]
@@ -104,6 +105,7 @@ except ImportError:
     Warning: pyobjc not found. Disabling "Subscribe with" events handling
     """, file=sys.stderr)
     handler = None
+
 
 def register_handlers(gp):
     """ register the events handlers (and keep a reference to gPodder's instance)"""

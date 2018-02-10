@@ -41,6 +41,7 @@ from gpodder.gtkui.interface.configeditor import gPodderConfigEditor
 
 from gpodder.gtkui.desktopfile import PlayerListModel
 
+
 class NewEpisodeActionList(Gtk.ListStore):
     C_CAPTION, C_AUTO_DOWNLOAD = list(range(2))
 
@@ -63,6 +64,7 @@ class NewEpisodeActionList(Gtk.ListStore):
 
     def set_index(self, index):
         self._config.auto_download = self[index][self.C_AUTO_DOWNLOAD]
+
 
 class DeviceTypeActionList(Gtk.ListStore):
     C_CAPTION, C_DEVICE_TYPE = list(range(2))
@@ -109,7 +111,6 @@ class OnSyncActionList(Gtk.ListStore):
     def set_index(self, index):
         self._config.device_sync.after_sync.delete_episodes = self[index][self.C_ON_SYNC_DELETE]
         self._config.device_sync.after_sync.mark_episodes_played = self[index][self.C_ON_SYNC_MARK_PLAYED]
-
 
 
 class YouTubeVideoFormatListModel(Gtk.ListStore):
@@ -396,7 +397,6 @@ class gPodderPreferences(BuilderWidget):
         else:
             menu.popup(None, None, None, None, 3, Gtk.get_current_event_time())
 
-
         return True
 
     def on_extensions_cell_toggled(self, cell, path):
@@ -602,7 +602,6 @@ class gPodderPreferences(BuilderWidget):
             self.btn_playlistfolder.set_sensitive(False)
             self.btn_playlistfolder.set_label('')
             self.checkbutton_delete_using_playlists.set_sensitive(False)
-
 
     def on_combobox_device_type_changed(self, widget):
         index = self.combobox_device_type.get_active()

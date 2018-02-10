@@ -157,7 +157,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.vpaned)
         paned.add2(self.vpaned)
 
-
         self.new_episodes_window = None
 
         self.download_status_model = DownloadStatusModel()
@@ -260,7 +259,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if diff > (60*60*24)*self.config.software_update.interval:
                 self.config.software_update.last_check = int(time.time())
                 self.check_for_updates(silent=True)
-
 
     def create_actions(self):
         g = self.gPodder
@@ -889,7 +887,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.view_column_actions[index].set_state(GLib.Variant.new_boolean(visible))
         self.treeAvailable.columns_autosize()
 
-
     def on_episode_list_header_clicked(self, button, event):
         if event.button != 3:
             return False
@@ -1232,7 +1229,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     self.download_tasks_seen if task.status_changed]
             episode_urls = [task.url for task in self.download_tasks_seen]
 
-
             if downloading > 0:
                 title.append(N_('downloading %(count)d file', 'downloading %(count)d files', downloading) % {'count':downloading})
 
@@ -1510,7 +1506,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # Update icon list to show changes, if any
         self.update_episode_list_icons(all=True)
         self.update_podcast_list_model()
-
 
     def format_episode_list(self, episode_list, max_episodes=10):
         """
@@ -2417,7 +2412,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.new_episodes_show(episodes, \
                         selected=[e.check_is_new() for e in episodes])
 
-
         @util.run_in_background
         def thread_proc():
             # After the initial sorting and splitting, try all queued podcasts
@@ -2661,7 +2655,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         return True
 
-
     def confirm_quit(self):
         """Called when the GUI wants to close the window
         Displays a confirmation dialog
@@ -2687,7 +2680,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return result == Gtk.ResponseType.CLOSE
         else:
             return True
-
 
     def close_gpodder(self):
         """ clean everything and exit properly
@@ -3631,7 +3623,6 @@ class gPodderApplication(Gtk.Application):
         action.connect('activate', self.on_check_for_updates_activate)
         self.add_action(action)
 
-
     def do_startup(self):
         Gtk.Application.do_startup(self)
 
@@ -3694,7 +3685,6 @@ class gPodderApplication(Gtk.Application):
                 macosx.register_handlers(self.window)
 
         self.window.gPodder.present()
-
 
     def on_about(self, action, param):
         dlg = Gtk.Dialog(_('About gPodder'), self.window.gPodder, \

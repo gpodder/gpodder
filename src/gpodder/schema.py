@@ -116,6 +116,7 @@ UPGRADE_SQL = [
         """),
 ]
 
+
 def initialize_database(db):
     # Create table for podcasts
     db.execute("""
@@ -314,6 +315,7 @@ def convert_gpodder2_db(old_db, new_db):
     old_db.close()
     new_db.commit()
     new_db.close()
+
 
 def check_data(db):
     # All episodes must be assigned to a podcast

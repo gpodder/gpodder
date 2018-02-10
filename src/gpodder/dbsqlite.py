@@ -24,8 +24,6 @@
 # 2010-04-24 Thomas Perl <thp@gpodder.org>
 #
 
-
-
 import gpodder
 _ = gpodder.gettext
 
@@ -41,6 +39,7 @@ from gpodder import util
 
 import threading
 import re
+
 
 class Database(object):
     TABLE_PODCAST = 'podcast'

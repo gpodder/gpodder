@@ -25,6 +25,7 @@ _ = gpodder.gettext
 
 from gpodder.gtkui.interface.common import BuilderWidget
 
+
 class gPodderWelcome(BuilderWidget):
     PADDING = 10
 

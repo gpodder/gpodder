@@ -55,6 +55,7 @@ def soundcloud_parsedate(s):
     m = re.match(r'(\d{4})/(\d{2})/(\d{2}) (\d{2}):(\d{2}):(\d{2})', s)
     return time.mktime(tuple([int(x) for x in m.groups()]+[0, 0, -1]))
 
+
 def get_param(s, param='filename', header='content-disposition'):
     """Get a parameter from a string of headers
 
@@ -75,6 +76,7 @@ def get_param(s, param='filename', header='content-disposition'):
         return ''.join(value)
 
     return None
+
 
 def get_metadata(url):
     """Get file download metadata
@@ -131,7 +133,6 @@ class SoundcloudUser(object):
         user_info = self.get_user_info()
         return user_info.get('id', None)
 
-
     def get_tracks(self, feed):
         """Get a generator of tracks from a SC user
 
@@ -180,6 +181,7 @@ class SoundcloudUser(object):
         finally:
             self.commit_cache()
 
+
 class SoundcloudFeed(object):
     URL_REGEX = re.compile('https?://([a-z]+\.)?soundcloud\.com/([^/]+)$', re.I)
 
@@ -223,9 +225,9 @@ class SoundcloudFeed(object):
 
         return episodes, seen_guids
 
+
 class SoundcloudFavFeed(SoundcloudFeed):
     URL_REGEX = re.compile('https?://([a-z]+\.)?soundcloud\.com/([^/]+)/favorites', re.I)
-
 
     def __init__(self, username):
         super(SoundcloudFavFeed,self).__init__(username)
@@ -246,6 +248,7 @@ class SoundcloudFavFeed(SoundcloudFeed):
 # Register our URL handlers
 model.register_custom_handler(SoundcloudFeed)
 model.register_custom_handler(SoundcloudFavFeed)
+
 
 def search_for_user(query):
     json_url = 'https://api.soundcloud.com/users.json?q=%s&consumer_key=%s' % (urllib.parse.quote(query), CONSUMER_KEY)

@@ -28,6 +28,7 @@ MODULES = [
     ('mygpoclient', r'mygpoclient-[0-9.]+/(mygpoclient/[^/]*\.py)')
 ]
 
+
 def get_tarball_url(modulename):
     url = 'http://pypi.python.org/pypi/' + modulename
     html = urllib.request.urlopen(url).read().decode('utf-8')

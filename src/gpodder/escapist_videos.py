@@ -46,7 +46,9 @@ DATA_CONFIG_RE = re.compile(r'imsVideo\.play\((.*)\)\;\<\/script\>', re.IGNORECA
 # This matches the cover art for an RSS. We shouldn't parse XML with regex.
 DATA_COVERART_RE = re.compile(r'<url>(http:.+\.jpg)</url>')
 
+
 class EscapistError(BaseException): pass
+
 
 def get_real_download_url(url):
     video_id = get_escapist_id(url)
@@ -76,6 +78,7 @@ def get_real_download_url(url):
     else:
         return real_url
 
+
 def get_escapist_id(url):
     result = ESCAPIST_NUMBER_RE.match(url)
     if result is not None:
@@ -87,8 +90,10 @@ def get_escapist_id(url):
 
     return None
 
+
 def is_video_link(url):
     return (get_escapist_id(url) is not None)
+
 
 def get_real_channel_url(url):
     video_id = get_escapist_id(url)
@@ -101,6 +106,7 @@ def get_real_channel_url(url):
     if data_config_frag is None:
         raise EscapistError('Cannot get RSS URL from The Escapist')
     return data_config_frag.group(0)
+
 
 def get_real_cover(url):
     rss_url = get_real_channel_url(url)
@@ -116,6 +122,7 @@ def get_real_cover(url):
 
     return rss_data_frag.group(1)
 
+
 def get_escapist_web(video_id):
     if video_id is None:
         return None
@@ -124,6 +131,7 @@ def get_escapist_web(video_id):
     web_url = 'http://www.escapistmagazine.com/videos/view/%s' % video_id
     return util.urlopen(web_url).read()
 
+
 def get_escapist_config_url(data):
     if data is None:
         return None
@@ -131,6 +139,7 @@ def get_escapist_config_url(data):
     query_string = urllib.parse.urlencode(json.loads(data))
 
     return 'http://www.escapistmagazine.com/videos/vidconfig.php?%s' % query_string
+
 
 def get_escapist_real_url(data, config_json):
     if data is None:

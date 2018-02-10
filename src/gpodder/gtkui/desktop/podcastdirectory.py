@@ -44,6 +44,7 @@ from gpodder.gtkui.interface.common import BuilderWidget
 from gpodder.gtkui.interface.progress import ProgressIndicator
 from gpodder.gtkui.interface.tagcloud import TagCloud
 
+
 class DirectoryPodcastsModel(Gtk.ListStore):
     C_SELECTED, C_MARKUP, C_TITLE, C_URL = list(range(4))
 
@@ -226,7 +227,6 @@ class gPodderPodcastDirectory(BuilderWidget):
             self.sw_tagcloud.show()
         else:
             self.sw_tagcloud.hide()
-
 
     def on_tv_providers_cursor_changed(self, treeview):
         path, column = treeview.get_cursor()

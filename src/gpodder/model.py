@@ -53,6 +53,7 @@ _ = gpodder.gettext
 
 class CustomFeed(feedcore.ExceptionWithData): pass
 
+
 class gPodderFetcher(feedcore.Fetcher):
     """
     This class extends the feedcore Fetcher with the gPodder User-Agent and the
@@ -117,6 +118,7 @@ class PodcastModelObject(object):
             setattr(o, k, v)
 
         return o
+
 
 class PodcastEpisode(PodcastModelObject):
     """holds data for one object in a channel"""
@@ -342,7 +344,6 @@ class PodcastEpisode(PodcastModelObject):
         return util.file_age_to_string(self.age_in_days())
 
     age_prop = property(fget=get_age_string)
-
 
     def one_line_description(self):
         MAX_LINE_LENGTH = 120

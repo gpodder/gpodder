@@ -174,14 +174,19 @@ class ExtensionMetadata(object):
     def disable_in_current_ui(self):
         return self.check_ui('disable_in', False)
 
+
 class MissingDependency(Exception):
     def __init__(self, message, dependency, cause=None):
         Exception.__init__(self, message)
         self.dependency = dependency
         self.cause = cause
 
+
 class MissingModule(MissingDependency): pass
+
+
 class MissingCommand(MissingDependency): pass
+
 
 class ExtensionContainer(object):
     """An extension container wraps one extension module"""

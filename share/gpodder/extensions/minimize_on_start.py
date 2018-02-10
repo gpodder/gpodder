@@ -12,6 +12,7 @@ __description__ = _('Minimizes the gPodder window on startup.')
 __category__ = 'interface'
 __only_for__ = 'gtk'
 
+
 class gPodderExtension:
     def __init__(self, container):
         self.container = container

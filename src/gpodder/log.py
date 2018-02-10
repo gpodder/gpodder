@@ -33,6 +33,7 @@ import traceback
 
 logger = logging.getLogger(__name__)
 
+
 def setup(verbose=True):
     # Configure basic stdout logging
     STDOUT_FMT = '%(created)f [%(name)s] %(levelname)s: %(message)s'

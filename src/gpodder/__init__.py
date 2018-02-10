@@ -82,6 +82,7 @@ del sqlite3
 # The User-Agent string for downloads
 user_agent = 'gPodder/%s (+%s) %s/%s' % (__version__, __url__, platform.system(), platform.release())
 
+
 # Are we running in GUI or console mode?
 class UI(object):
     def __init__(self):
@@ -154,6 +155,7 @@ prefix = None
 
 ENV_HOME, ENV_DOWNLOADS = 'GPODDER_HOME', 'GPODDER_DOWNLOAD_DIR'
 
+
 # Function to set a new gPodder home folder
 def set_home(new_home):
     global home, config_file, database_file, downloads
@@ -163,6 +165,7 @@ def set_home(new_home):
     database_file = os.path.join(home, 'Database')
     if ENV_DOWNLOADS not in os.environ:
         downloads = os.path.join(home, 'Downloads')
+
 
 def fixup_home(old_home):
     if ui.osx:
@@ -197,6 +200,7 @@ if ENV_DOWNLOADS in os.environ:
 DEFAULT_PLUGINS = [
     'gpodder.plugins.soundcloud',
 ]
+
 
 def load_plugins():
     """Load (non-essential) plugin modules

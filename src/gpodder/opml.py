@@ -100,7 +100,6 @@ class Importer(object):
             logger.error('Cannot import OPML from URL: %s', url, exc_info=True)
 
 
-
 class Exporter(object):
     """
     Helper class to export a list of channel objects

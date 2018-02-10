@@ -36,6 +36,7 @@ CONVERT_COMMANDS = {
     '.mp3': 'normalize-mp3',
 }
 
+
 class gPodderExtension:
     MIME_TYPES = ('audio/mpeg', 'audio/ogg', )
     EXT = ('.mp3', '.ogg', )

@@ -12,6 +12,7 @@ from gi.repository import Gtk
 
 from gpodder.gtkui.draw import draw_cake_pixbuf
 
+
 def gen(percentage):
     pixbuf = draw_cake_pixbuf(percentage)
     return Gtk.Image.new_from_pixbuf(pixbuf)

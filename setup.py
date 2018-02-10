@@ -36,6 +36,7 @@ author, email = re.match(r'^(.*) <(.*)>$', metadata['author']).groups()
 
 class MissingFile(BaseException): pass
 
+
 def info(message, item=None):
     print('=>', message, item if item is not None else '')
 

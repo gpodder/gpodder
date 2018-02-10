@@ -23,6 +23,7 @@ __authors__ = 'Thomas Perl <thp@gpodder.org>'
 __category__ = 'interface'
 __only_for__ = 'gtk'
 
+
 class gPodderExtension:
     def __init__(self, container):
         self.container = container

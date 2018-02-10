@@ -33,6 +33,7 @@ from gpodder import config
 
 _ = gpodder.gettext
 
+
 class ConfigModel(Gtk.ListStore):
     C_NAME, C_TYPE_TEXT, C_VALUE_TEXT, C_TYPE, C_EDITABLE, C_FONT_STYLE, \
             C_IS_BOOLEAN, C_BOOLEAN_VALUE = list(range(8))
@@ -93,6 +94,7 @@ class ConfigModel(Gtk.ListStore):
 
     def stop_observing(self):
         self._config.remove_observer(self._on_update)
+
 
 class UIConfig(config.Config):
     def __init__(self, filename='gpodder.conf'):

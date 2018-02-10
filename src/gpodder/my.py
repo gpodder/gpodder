@@ -74,6 +74,7 @@ from mygpoclient import util as mygpoutil
 
 EPISODE_ACTIONS_BATCH_SIZE=100
 
+
 # Database model classes
 class SinceValue(object):
     __slots__ = {'host': str, 'device_id': str, 'category': int, 'since': int}
@@ -86,6 +87,7 @@ class SinceValue(object):
         self.device_id = device_id
         self.category = category
         self.since = since
+
 
 class SubscribeAction(object):
     __slots__ = {'action_type': int, 'url': str}
@@ -122,8 +124,10 @@ class SubscribeAction(object):
 
         raise ValueError('Cannot undo action: %r' % action)
 
+
 # New entity name for "received" actions
 class ReceivedSubscribeAction(SubscribeAction): pass
+
 
 class UpdateDeviceAction(object):
     __slots__ = {'device_id': str, 'caption': str, 'device_type': str}
@@ -132,6 +136,7 @@ class UpdateDeviceAction(object):
         self.device_id = device_id
         self.caption = caption
         self.device_type = device_type
+
 
 class EpisodeAction(object):
     __slots__ = {'podcast_url': str, 'episode_url': str, 'device_id': str,
@@ -149,8 +154,10 @@ class EpisodeAction(object):
         self.position = position
         self.total = total
 
+
 # New entity name for "received" actions
 class ReceivedEpisodeAction(EpisodeAction): pass
+
 
 class RewrittenUrl(object):
     __slots__ = {'old_url': str, 'new_url': str}
@@ -159,7 +166,6 @@ class RewrittenUrl(object):
         self.old_url = old_url
         self.new_url = new_url
 # End Database model classes
-
 
 
 # Helper class for displaying changes in the UI
@@ -644,6 +650,7 @@ class MygPoClient(object):
                 self._config.mygpo.username, \
                 self._config.mygpo.password)
         return url
+
 
 class Directory(object):
     def __init__(self):

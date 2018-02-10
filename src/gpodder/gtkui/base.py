@@ -28,6 +28,7 @@ import tokenize
 
 from gi.repository import Gtk
 
+
 class GtkBuilderWidget(object):
     def __init__(self, ui_folders, textdomain, parent, **kwargs):
         """

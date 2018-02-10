@@ -83,7 +83,6 @@ class gPodderExtension:
             new_filename = "%s.%s" % (basename, ROCKBOX_EXTENSION)
         return os.path.join(dirname, new_filename)
 
-
     def _calc_resolution(self, video_width, video_height, device_width, device_height):
         if video_height is None:
             return None
@@ -99,7 +98,6 @@ class gPodderExtension:
             dest_height = device_height
 
         return (int(round(dest_width)), round(int(dest_height)))
-
 
     def _convert_mp4(self, episode, from_file):
         """Convert MP4 file to rockbox mpg file"""

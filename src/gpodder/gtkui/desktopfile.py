@@ -49,6 +49,7 @@ userappsdirs = [ '/usr/share/applications/', '/usr/local/share/applications/', '
 # the name of the section in the .desktop files
 sect = 'Desktop Entry'
 
+
 class PlayerListModel(Gtk.ListStore):
     C_ICON, C_NAME, C_COMMAND, C_CUSTOM = list(range(4))
 
@@ -79,6 +80,7 @@ class PlayerListModel(Gtk.ListStore):
     @classmethod
     def is_separator(cls, model, iter):
         return model.get_value(iter, cls.C_COMMAND) == ''
+
 
 class UserApplication(object):
     def __init__(self, name, cmd, mime, icon):

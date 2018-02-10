@@ -53,6 +53,7 @@ except ImportError:
 
 # ----------------------------------------------------------
 
+
 class GEpisode(model.PodcastEpisode):
     __slots__ = ()
 
@@ -93,18 +94,23 @@ class GEpisode(model.PodcastEpisode):
                 cgi.escape(downloaded_string), \
                 cgi.escape(self.channel.title))
 
+
 class GPodcast(model.PodcastChannel):
     __slots__ = ()
 
     EpisodeClass = GEpisode
+
 
 class Model(model.Model):
     PodcastClass = GPodcast
 
 # ----------------------------------------------------------
 
+
 # Singleton indicator if a row is a section
 class SeparatorMarker(object): pass
+
+
 class SectionMarker(object): pass
 
 
@@ -196,7 +202,6 @@ class EpisodeListModel(Gtk.ListStore):
             # See https://bugs.kde.org/show_bug.cgi?id=233505 and
             #     http://gpodder.org/bug/553
             self.ICON_DELETED = 'archive-remove'
-
 
     def _format_filesize(self, episode):
         if episode.file_size > 0:
