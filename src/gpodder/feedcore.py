@@ -66,8 +66,10 @@ class UnknownStatusCode(ExceptionWithData): pass
 # Authentication error
 class AuthenticationRequired(Exception): pass
 
+
 # Successful status codes
 UPDATED_FEED, NEW_LOCATION, NOT_MODIFIED, CUSTOM_FEED = list(range(4))
+
 
 class Result:
     def __init__(self, status, feed=None):

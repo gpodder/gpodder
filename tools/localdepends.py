@@ -34,6 +34,7 @@ def get_tarball_url(modulename):
     match = re.search(r'(http[s]?://[^>]*%s-([0-9.]*)(?:\.post\d+)?\.tar\.gz)' % modulename, html)
     return match.group(0) if match is not None else None
 
+
 for module, required_files in MODULES:
     print('Fetching', module, '...', end=' ')
     tarball_url = get_tarball_url(module)
