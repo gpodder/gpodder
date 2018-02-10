@@ -46,6 +46,7 @@ class gPodderExtension:
         menu = Gtk.Menu()
         toggle_visible = Gtk.CheckMenuItem(_('Show main window'))
         toggle_visible.set_active(True)
+
         def on_toggle_visible(menu_item):
             if menu_item.get_active():
                 self.gpodder.main_window.show()
@@ -55,6 +56,7 @@ class gPodderExtension:
         menu.append(toggle_visible)
         menu.append(Gtk.SeparatorMenuItem())
         quit_gpodder = Gtk.MenuItem(_('Quit'))
+
         def on_quit(menu_item):
             self.gpodder.on_gPodder_delete_event(self.gpodder.main_window)
         quit_gpodder.connect('activate', on_quit)

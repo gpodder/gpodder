@@ -41,6 +41,7 @@ def setup(verbose=True):
 
     # Replace except hook with a custom one that logs it as an error
     original_excepthook = sys.excepthook
+
     def on_uncaught_exception(exctype, value, tb):
         message = ''.join(traceback.format_exception(exctype, value, tb))
         logger.error('Uncaught exception: %s', message)

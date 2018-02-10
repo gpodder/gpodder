@@ -434,6 +434,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 def offer_resuming():
                     self.download_episode_list_paused(resumable_episodes)
                     resume_all = Gtk.Button(_('Resume all'))
+
                     def on_resume_all(button):
                         selection = self.treeDownloads.get_selection()
                         selection.select_all()
@@ -775,6 +776,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         # When no podcast is selected, clear the episode list model
         selection = self.treeChannels.get_selection()
+
         def select_function(selection, model, path, path_currently_selected):
             url = model.get_value(model.get_iter(path), PodcastListModel.C_URL)
             return (url != '-')
@@ -1013,6 +1015,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.treeAvailable.enable_model_drag_source(Gdk.ModifierType.BUTTON1_MASK, \
                 (('text/uri-list', 0, 0),), Gdk.DragAction.COPY)
+
         def drag_data_get(tree, context, selection_data, info, timestamp):
             uris = ['file://'+e.local_filename(create=False) \
                     for e in self.get_selected_episodes() \
@@ -2935,6 +2938,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
                 # New Task, we must wait on the GTK Loop
                 self.download_status_model.register_task(task)
+
                 def queue_task(task):
                     if add_paused:
                         task.status = task.PAUSED

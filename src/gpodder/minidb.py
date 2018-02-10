@@ -169,6 +169,7 @@ class Store(object):
                 cur = self.db.execute(sql, list(kwargs.values()))
             except Exception as e:
                 raise
+
             def apply(row):
                 o = class_.__new__(class_)
                 for attr, value in zip(slots, row):
