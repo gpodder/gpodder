@@ -63,6 +63,10 @@ help:
 unittest:
 	LC_ALL=C PYTHONPATH=src/ $(PYTHON) -m gpodder.unittests
 
+lint:
+	pycodestyle src/gpodder share *.py
+
+
 release: distclean
 	$(PYTHON) setup.py sdist
 
@@ -137,7 +141,7 @@ distclean: clean
 
 ##########################################################################
 
-.PHONY: help unittest release releasetest install manpage clean distclean messages headlink
+.PHONY: help unittest release releasetest install manpage clean distclean messages headlink lint
 
 ##########################################################################
 
