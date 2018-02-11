@@ -27,6 +27,7 @@ import gpodder
 import re
 import datetime
 
+
 class Matcher(object):
     """Match implementation for EQL
 
@@ -143,7 +144,6 @@ class EQL(object):
             except Exception as e:
                 print(e)
                 self._query = None
-
 
     def match(self, episode):
         if self._query is None:

@@ -25,6 +25,7 @@ __only_for__ = 'gtk'
 
 SONOS_CAN_PLAY = lambda e: 'audio' in e.file_type()
 
+
 class gPodderExtension:
     def __init__(self, container):
         sd = soco.SonosDiscovery()

@@ -42,6 +42,7 @@ except ImportError:
 
 import threading
 
+
 class Store(object):
     def __init__(self, filename=':memory:'):
         self.db = sqlite.connect(filename, check_same_thread=False)

@@ -30,6 +30,7 @@ DefaultConfig = {
     'context_menu': True, # Show the conversion option in the context menu
 }
 
+
 class gPodderExtension:
     MIME_TYPES = ('audio/x-m4a', 'audio/mp4', 'audio/mp4a-latm', 'audio/ogg', )
     EXT = ('.m4a', '.ogg')

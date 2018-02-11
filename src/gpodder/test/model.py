@@ -27,6 +27,7 @@ import gpodder
 
 from gpodder import model
 
+
 class TestEpisodePublishedProperties(unittest.TestCase):
     PUBLISHED_UNIXTIME = 1360666744
     PUBLISHED_SORT = '2013-02-12'

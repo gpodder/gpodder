@@ -53,6 +53,7 @@
 import gpodder
 import urllib.request, urllib.parse, urllib.error
 
+
 class MediaPlayerDBusReceiver(object):
     INTERFACE = 'org.gpodder.player'
     SIGNAL_STARTED = 'PlaybackStarted'

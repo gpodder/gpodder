@@ -42,6 +42,7 @@ IDI_APPLICATION = 32512
 WM_TASKBARCREATED = win32gui.RegisterWindowMessage('TaskbarCreated')
 WM_TRAYMESSAGE = 1044
 
+
 # based on http://code.activestate.com/recipes/334779/
 class NotifyIcon(object):
     def __init__(self, hwnd):

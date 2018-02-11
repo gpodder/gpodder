@@ -52,16 +52,29 @@ class ExceptionWithData(Exception):
     def __str__(self):
         return '%s: %s' % (self.__class__.__name__, str(self.data))
 
+
 # Temporary errors
 class BadRequest(Exception): pass
+
+
 class InternalServerError(Exception): pass
+
+
 class WifiLogin(ExceptionWithData): pass
+
 
 # Fatal errors
 class Unsubscribe(Exception): pass
+
+
 class NotFound(Exception): pass
+
+
 class InvalidFeed(Exception): pass
+
+
 class UnknownStatusCode(ExceptionWithData): pass
+
 
 # Authentication error
 class AuthenticationRequired(Exception): pass
@@ -201,7 +214,6 @@ class Fetcher(object):
 
             # Reset the stream so podcastparser can give it a go
             data.seek(0)
-
 
         try:
             feed = podcastparser.parse(url, data)

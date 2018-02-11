@@ -51,6 +51,7 @@ EPISODE_LIST_ICON_SIZE = 16
 RRECT_LEFT_SIDE = 1
 RRECT_RIGHT_SIDE = 2
 
+
 def draw_rounded_rectangle(ctx, x, y, w, h, r=10, left_side_width = None, sides_to_draw=0, close=False):
     assert left_side_width is not None
 
@@ -125,6 +126,7 @@ def draw_text_box_centered(ctx, widget, w_width, w_height, text, font_desc=None,
         rounded_rectangle(ctx, w_width/2-width/2, w_height/2+height, int(width*add_progress)+.5, bar_height)
         ctx.fill()
 
+
 def draw_cake(percentage, text=None, emblem=None, size=None):
     # Download percentage bar icon - it turns out the cake is a lie (d'oh!)
     # ..but the inital idea was to have a cake-style indicator, but that
@@ -172,6 +174,7 @@ def draw_cake(percentage, text=None, emblem=None, size=None):
 
     del ctx
     return surface
+
 
 def draw_text_pill(left_text, right_text, x=0, y=0, border=2, radius=14, font_desc=None):
 
@@ -284,6 +287,7 @@ def draw_text_pill(left_text, right_text, x=0, y=0, border=2, radius=14, font_de
 
 def draw_cake_pixbuf(percentage, text=None, emblem=None):
     return cairo_surface_to_pixbuf(draw_cake(percentage, text, emblem))
+
 
 def draw_pill_pixbuf(left_text, right_text):
     return cairo_surface_to_pixbuf(draw_text_pill(left_text, right_text))

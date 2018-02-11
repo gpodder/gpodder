@@ -29,11 +29,13 @@ from gpodder import util
 import dbus
 import dbus.service
 
+
 def safe_str(txt):
     if txt:
         return txt.encode()
     else:
         return ''
+
 
 def safe_first_line(txt):
     txt = safe_str(txt)
@@ -42,6 +44,7 @@ def safe_first_line(txt):
         return ''
     else:
         return lines[0]
+
 
 class DBusPodcastsProxy(dbus.service.Object):
     """ Implements API accessible through D-Bus

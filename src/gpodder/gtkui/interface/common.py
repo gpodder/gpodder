@@ -43,7 +43,6 @@ class BuilderWidget(GtkBuilderWidget):
             self.main_window.connect('window-state-event', \
                     self._on_window_state_event_iconified)
 
-
     def _on_window_state_event_iconified(self, widget, event):
         if event.new_window_state & Gdk.WindowState.ICONIFIED:
             if not self._window_iconified:
@@ -237,6 +236,7 @@ class BuilderWidget(GtkBuilderWidget):
 
         dlg.destroy()
         return (result, folder)
+
 
 class TreeViewHelper(object):
     """Container for gPodder-specific TreeView attributes."""

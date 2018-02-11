@@ -31,6 +31,7 @@ from gi.repository import Pango
 
 import cgi
 
+
 class SimpleMessageArea(Gtk.HBox):
     """A simple, yellow message area. Inspired by gedit.
 

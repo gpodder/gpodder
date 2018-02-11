@@ -9,6 +9,7 @@ __description__ = 'Explain in one sentence what this extension does.'
 __only_for__ = 'gtk, cli'
 __authors__ = 'Thomas Perl <m@thp.io>'
 
+
 class gPodderExtension:
     # The extension will be instantiated the first time it's used
     # You can do some sanity checks here and raise an Exception if
@@ -36,7 +37,6 @@ class gPodderExtension:
     # objects that you created in on_load().
     def on_unload(self):
         logger.info('Extension is being unloaded.')
-
 
     def on_ui_object_available(self, name, ui_object):
         """

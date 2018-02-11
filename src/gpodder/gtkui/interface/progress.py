@@ -27,6 +27,7 @@ _ = gpodder.gettext
 
 from gpodder.gtkui.widgets import SpinningProgressIndicator
 
+
 class ProgressIndicator(object):
     # Delayed time until window is shown (for short operations)
     DELAY = 500

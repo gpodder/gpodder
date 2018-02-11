@@ -30,6 +30,7 @@ from gpodder import util
 from gpodder.gtkui.interface.common import BuilderWidget
 from gpodder.gtkui.interface.common import TreeViewHelper
 
+
 class gPodderEpisodeSelector(BuilderWidget):
     """Episode selection dialog
 

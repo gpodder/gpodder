@@ -22,12 +22,12 @@ from gi.repository import Gtk
 from gi.repository import GObject
 import cgi
 
+
 class TagCloud(Gtk.Layout):
     __gsignals__ = {
             'selected': (GObject.SignalFlags.RUN_LAST, None,
                            (GObject.TYPE_STRING,))
     }
-
 
     def __init__(self, min_size=20, max_size=36):
         Gtk.Layout.__init__(self)

@@ -25,8 +25,6 @@
 #  Based on libwget.py (2005-10-29)
 #
 
-
-
 import logging
 logger = logging.getLogger(__name__)
 
@@ -54,6 +52,7 @@ from email.header import decode_header
 
 _ = gpodder.gettext
 
+
 def get_header_param(headers, param, header_name):
     """Extract a HTTP header parameter from a dict
 
@@ -76,6 +75,7 @@ def get_header_param(headers, param, header_name):
         logger.error('Cannot get %s from %s', param, header_name, exc_info=True)
 
     return value
+
 
 class ContentRange(object):
     # Based on:
@@ -180,13 +180,17 @@ class ContentRange(object):
 
 
 class DownloadCancelledException(Exception): pass
+
+
 class AuthenticationError(Exception): pass
+
 
 class gPodderDownloadHTTPError(Exception):
     def __init__(self, url, error_code, error_message):
         self.url = url
         self.error_code = error_code
         self.error_message = error_message
+
 
 class DownloadURLOpener(urllib.request.FancyURLopener):
     version = gpodder.user_agent
@@ -539,7 +543,6 @@ class DownloadTask(object):
         self.__activity = activity
 
     activity = property(fget=__get_activity, fset=__set_activity)
-
 
     def __get_url(self):
         return self.__episode.url

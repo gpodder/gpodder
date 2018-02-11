@@ -42,8 +42,10 @@ USECS_IN_SEC = 1000000
 TrackInfo = collections.namedtuple('TrackInfo',
                         ['uri', 'length', 'status', 'pos', 'rate'])
 
+
 def subsecond_difference(usec1, usec2):
     return usec1 is not None and usec2 is not None and abs(usec1 - usec2) < USECS_IN_SEC
+
 
 class CurrentTrackTracker(object):
     '''An instance of this class is responsible for tracking the state of the
@@ -283,6 +285,7 @@ class MPRISDBusReceiver(object):
         proxy = self.bus.get_object(self.OBJECT_VLC,self.PATH_MPRIS)
         props = dbus.Interface(proxy, self.INTERFACE_PROPS)
         return props.Get(self.INTERFACE_MPRIS, 'PlaybackStatus')
+
 
 class gPodderNotifier(dbus.service.Object):
     def __init__(self, bus, path):

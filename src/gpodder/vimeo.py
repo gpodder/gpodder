@@ -46,7 +46,9 @@ FILEFORMAT_RANKING = ['270p', '360p', '720p', '1080p']
 
 FORMATS = tuple((x, x) for x in FILEFORMAT_RANKING)
 
+
 class VimeoError(BaseException): pass
+
 
 def get_real_download_url(url, preferred_fileformat=None):
     video_id = get_vimeo_id(url)
@@ -84,6 +86,7 @@ def get_real_download_url(url, preferred_fileformat=None):
 
     return url
 
+
 def get_vimeo_id(url):
     result = MOOGALOOP_RE.match(url)
     if result is not None:
@@ -99,8 +102,10 @@ def get_vimeo_id(url):
 
     return None
 
+
 def is_video_link(url):
     return (get_vimeo_id(url) is not None)
+
 
 def get_real_channel_url(url):
     result = VIMEOCOM_RE.match(url)
@@ -108,6 +113,7 @@ def get_real_channel_url(url):
         return 'http://vimeo.com/%s/videos/rss' % result.group(1)
 
     return url
+
 
 def get_real_cover(url):
     return None

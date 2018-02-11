@@ -88,6 +88,7 @@ def get_fmt_ids(youtube_config):
 
     return fmt_ids
 
+
 def get_real_download_url(url, preferred_fmt_ids=None):
     if not preferred_fmt_ids:
         preferred_fmt_ids, _, _ = formats_dict[22] # MP4 720p
@@ -147,6 +148,7 @@ def get_real_download_url(url, preferred_fmt_ids=None):
 
     return url
 
+
 def get_youtube_id(url):
     r = re.compile('http[s]?://(?:[a-z]+\.)?youtube\.com/v/(.*)\.swf', re.IGNORECASE).match(url)
     if r is not None:
@@ -162,11 +164,14 @@ def get_youtube_id(url):
 
     return for_each_feed_pattern(lambda url, channel: channel, url, None)
 
+
 def is_video_link(url):
     return (get_youtube_id(url) is not None)
 
+
 def is_youtube_guid(guid):
     return guid.startswith('tag:youtube.com,2008:video:')
+
 
 def for_each_feed_pattern(func, url, fallback_result):
     """
@@ -194,6 +199,7 @@ def for_each_feed_pattern(func, url, fallback_result):
 
     return fallback_result
 
+
 def get_real_channel_url(url):
     def return_user_feed(url, channel):
         result = 'https://gdata.youtube.com/feeds/users/{0}/uploads'.format(channel)
@@ -201,6 +207,7 @@ def get_real_channel_url(url):
         return result
 
     return for_each_feed_pattern(return_user_feed, url, url)
+
 
 def get_real_cover(url):
     def return_user_cover(url, channel):
@@ -222,6 +229,7 @@ def get_real_cover(url):
         return None
 
     return for_each_feed_pattern(return_user_cover, url, None)
+
 
 def get_channels_for_user(username, api_key_v3):
     # already a channel ID: return videos.xml.

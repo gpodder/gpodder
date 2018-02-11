@@ -235,6 +235,7 @@ def config_value_to_string(config_value):
     else:
         return str(config_value)
 
+
 def string_to_config_value(new_value, old_value):
     config_type = type(old_value)
 

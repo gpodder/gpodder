@@ -23,8 +23,6 @@
 #  Based on code from gpodder.services (thp, 2007-08-24)
 #
 
-
-
 import gpodder
 
 from gpodder import util
