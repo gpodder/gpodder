@@ -69,4 +69,3 @@ else:
             except:
                 # See http://gpodder.org/bug/966
                 pass
-

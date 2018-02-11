@@ -317,4 +317,3 @@ class gPodderExtension:
     def on_unload(self):
         self.notifier.remove_from_connection(self.session_bus, self.path)
         self.rcvr.stop_receiving()
-

@@ -51,4 +51,3 @@ class TestEpisodePublishedProperties(unittest.TestCase):
 
     def test_pubdate_day(self):
         self.assertEqual(self.episode.pubdate_day, self.PUBLISHED_DAY)
-

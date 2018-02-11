@@ -97,4 +97,3 @@ class gPodderExtension:
                 ogg.save()
         except Exception as e:
             logger.warn('Failed to remove OGG cover: %s', e, exc_info=True)
-

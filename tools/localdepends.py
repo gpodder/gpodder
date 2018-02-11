@@ -63,4 +63,3 @@ for module, required_files in MODULES:
             shutil.move(os.path.join(tmp_dir, name), target_file)
 
 shutil.rmtree(tmp_dir)
-

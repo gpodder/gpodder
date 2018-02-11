@@ -61,5 +61,3 @@ class ObservableService(object):
             return True
 
         return False
-
-

@@ -175,5 +175,3 @@ def UserEQL(query):
         return EQL("'%s'" % query)
     else:
         return EQL(query)
-
-

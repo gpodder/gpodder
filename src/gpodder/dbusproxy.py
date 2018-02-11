@@ -147,4 +147,3 @@ class DBusPodcastsProxy(dbus.service.Object):
     def check_for_updates(self):
         """Check for new episodes or offer subscriptions"""
         self._on_check_for_updates()
-

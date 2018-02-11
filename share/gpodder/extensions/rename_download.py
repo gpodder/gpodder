@@ -66,4 +66,3 @@ class gPodderExtension:
             # Avoid filename collisions
             if not os.path.exists(filename):
                 return filename
-

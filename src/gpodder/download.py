@@ -886,4 +886,3 @@ class DownloadTask(object):
 
         # We finished, but not successfully (at least not really)
         return False
-

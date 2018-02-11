@@ -1102,4 +1102,3 @@ class SyncTask(download.DownloadTask):
 
         # We finished, but not successfully (at least not really)
         return False
-

@@ -103,4 +103,3 @@ else:
     reader.read()
 
     loop.quit()
-

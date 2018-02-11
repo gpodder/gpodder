@@ -207,4 +207,3 @@ setup(
     scripts      = scripts,
     data_files   = data_files,
 )
-

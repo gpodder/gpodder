@@ -99,4 +99,3 @@ class gPodderExtension:
             return None
 
         return [(_('Concatenate videos'), self._concatenate_videos)]
-

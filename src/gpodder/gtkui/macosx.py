@@ -111,4 +111,3 @@ def register_handlers(gp):
     """ register the events handlers (and keep a reference to gPodder's instance)"""
     if handler is not None:
         handler.register(gp)
-

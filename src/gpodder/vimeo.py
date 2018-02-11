@@ -117,4 +117,3 @@ def get_real_channel_url(url):
 
 def get_real_cover(url):
     return None
-

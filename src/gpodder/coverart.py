@@ -119,4 +119,3 @@ class CoverDownloader(object):
 
     def _fallback_filename(self, title):
         return self._default_filename('podcast-%d.png' % (hash(title)%5))
-

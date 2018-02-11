@@ -117,4 +117,3 @@ class gPodderExtension(object):
     def on_unload(self):
         if self.notifier is not None:
             self.notifier.remove()
-

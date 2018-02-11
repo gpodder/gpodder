@@ -104,4 +104,3 @@ class TagCloud(Gtk.Layout):
 
 
 GObject.type_register(TagCloud)
-

@@ -295,4 +295,3 @@ class TreeViewHelper(object):
 
             return (x, y, True)
         return position_func
-

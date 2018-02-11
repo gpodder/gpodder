@@ -40,4 +40,3 @@ class gPodderExtension:
                 logger.info('Syncing cover art for %s', episode.channel.title)
                 # copy and rename art
                 shutil.copy(episode_art, device_art)
-
