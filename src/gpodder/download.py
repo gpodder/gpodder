@@ -436,7 +436,7 @@ class DownloadTask(object):
     You can create a new download task like this:
 
         task = DownloadTask(episode, gpodder.config.Config(CONFIGFILE))
-        task.status = DownloadTask.QUEUED
+        task.status = DownloadTask.DOWNLOADING
         task.run()
 
     While the download is in progress, you can access its properties:
