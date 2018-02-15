@@ -28,7 +28,8 @@ import logging
 import gpodder
 
 from gpodder import util
-from gpodder.gtkui.draw import draw_text_box_centered
+from gpodder.gtkui.draw import draw_text_box_centered, \
+                                get_background_color, get_foreground_color
 
 _ = gpodder.gettext
 
@@ -106,8 +107,10 @@ class gPodderShownotes:
             self.show_pane(selected_episodes)
 
     def on_shownotes_message_expose_event(self, drawingarea, ctx):
-        # paint the background white
-        ctx.set_source_rgba(1, 1, 1)
+        background = get_background_color()
+        if background is None:
+            background = Gdk.RGBA(1, 1, 1, 1)
+        ctx.set_source_rgba(background.red, background.green, background.blue, 1)
         x1, y1, x2, y2 = ctx.clip_extents()
         ctx.rectangle(x1, y1, x2 - x1, y2 - y1)
         ctx.fill()
