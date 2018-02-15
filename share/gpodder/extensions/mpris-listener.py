@@ -308,13 +308,20 @@ class gPodderExtension:
     def __init__(self, container):
         self.container = container
         self.path = '/org/gpodder/player/notifier'
+        self.notifier = None
+        self.rcvr = None
 
     def on_load(self):
-        self.session_bus = gpodder.dbus_session_bus
-        self.notifier = gPodderNotifier(self.session_bus, self.path)
-        self.rcvr = MPRISDBusReceiver(self.session_bus, self.notifier)
+        if gpodder.dbus_session_bus is None:
+            logger.debug("dbus session bus not available, not loading")
+        else:
+            self.session_bus = gpodder.dbus_session_bus
+            self.notifier = gPodderNotifier(self.session_bus, self.path)
+            self.rcvr = MPRISDBusReceiver(self.session_bus, self.notifier)
 
     def on_unload(self):
-        self.notifier.remove_from_connection(self.session_bus, self.path)
-        self.rcvr.stop_receiving()
+        if self.notifier is not None:
+            self.notifier.remove_from_connection(self.session_bus, self.path)
+        if self.rcvr is not None:
+            self.rcvr.stop_receiving()
 
