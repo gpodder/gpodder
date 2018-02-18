@@ -222,15 +222,15 @@ class gPodderShownotesHTML(gPodderShownotes):
             self._base_uri += '/'
         self._loaded = False
 
+        stylesheet = self.get_stylesheet()
         if stylesheet:
-            self.manager.add_style_sheet(self.stylesheet)
+            self.manager.add_style_sheet(stylesheet)
         description_html = episode.description_html
         if description_html:
             # uncomment to prevent background override in html shownotes
             # self.manager.remove_all_style_sheets ()
             self.html_view.load_html(description_html, self._base_uri)
         else:
-            stylesheet = self.get_stylesheet()
             self.html_view.load_plain_text(episode.description)
             # uncomment to show web inspector
             # self.html_view.get_inspector().show()
