@@ -281,4 +281,3 @@ class Database(object):
             cur = self.cursor()
             cur.execute('DELETE FROM %s WHERE podcast_id = ? AND guid = ?' %
                     self.TABLE_EPISODE, (podcast_id, guid))
-

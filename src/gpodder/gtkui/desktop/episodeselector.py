@@ -421,4 +421,3 @@ class gPodderEpisodeSelector(BuilderWidget):
         self.gPodderEpisodeSelector.destroy()
         if self.callback is not None:
             self.callback([])
-

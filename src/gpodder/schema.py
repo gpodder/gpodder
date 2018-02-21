@@ -323,4 +323,3 @@ def check_data(db):
             'WHERE podcast_id NOT IN (SELECT id FROM podcast)')
     if orphan_episodes > 0:
         logger.error('Orphaned episodes found in database')
-

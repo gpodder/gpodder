@@ -129,4 +129,3 @@ class SpinningProgressIndicator(Gtk.Image):
             if self._frame_id >= len(self._frames):
                 self._frame_id = 0
             self.set_from_pixbuf(self._frames[self._frame_id])
-

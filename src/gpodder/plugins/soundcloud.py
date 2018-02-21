@@ -253,4 +253,3 @@ model.register_custom_handler(SoundcloudFavFeed)
 def search_for_user(query):
     json_url = 'https://api.soundcloud.com/users.json?q=%s&consumer_key=%s' % (urllib.parse.quote(query), CONSUMER_KEY)
     return json.loads(util.urlopen(json_url).read().decode('utf-8'))
-

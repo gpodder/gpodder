@@ -108,4 +108,3 @@ class gPodderConfigEditor(BuilderWidget):
 
     def on_gPodderConfigEditor_destroy(self, widget):
         self.model.stop_observing()
-

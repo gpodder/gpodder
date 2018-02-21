@@ -32,4 +32,3 @@ for y in range(1):
 w.set_default_size(400, 100)
 w.show_all()
 Gtk.main()
-

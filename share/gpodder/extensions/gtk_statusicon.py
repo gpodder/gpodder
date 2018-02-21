@@ -122,4 +122,3 @@ class gPodderExtension:
 
         self.status_icon.set_from_pixbuf(icon)
         self.last_progress = progress
-

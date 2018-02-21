@@ -904,4 +904,3 @@ class PodcastListModel(Gtk.ListStore):
             if row[self.C_URL] == channel.url:
                 row[self.C_COVER] = pixbuf
                 break
-

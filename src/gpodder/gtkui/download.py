@@ -181,5 +181,3 @@ class DownloadTaskMonitor(object):
             elif task.status in (task.QUEUED, task.DOWNLOADING):
                 self._on_can_pause()
             self._status = task.status
-
-

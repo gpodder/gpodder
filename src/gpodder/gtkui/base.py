@@ -149,4 +149,3 @@ class GtkBuilderWidget(object):
         after a program is finished by pressing Control-C.
         """
         pass
-

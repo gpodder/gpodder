@@ -219,4 +219,3 @@ class gPodderChannel(BuilderWidget):
 
         self.update_podcast_list_model(selected=True,
                 sections_changed=section_changed)
-

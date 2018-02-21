@@ -14,4 +14,3 @@ class SessionBus(object):
 
 
 SystemBus = SessionBus
-

@@ -3762,4 +3762,3 @@ def main(options=None):
     gp = gPodderApplication(options)
     gp.run()
     sys.exit(0)
-

@@ -112,4 +112,3 @@ class gPodderDevicePlaylist(object):
                 fp.write(filename)
                 fp.write(self.linebreak)
             fp.close()
-

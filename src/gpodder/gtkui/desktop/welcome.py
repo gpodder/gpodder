@@ -40,4 +40,3 @@ class gPodderWelcome(BuilderWidget):
 
     def on_btnCancel_clicked(self, button):
         self.main_window.response(Gtk.ResponseType.CANCEL)
-

@@ -4,4 +4,3 @@ class DBusException(Exception):
 
 class NameExistsException(Exception):
     pass
-
