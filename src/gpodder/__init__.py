@@ -21,7 +21,7 @@
 __tagline__   = 'Media aggregator and podcast client'
 __author__    = 'Thomas Perl <thp@gpodder.org>'
 __version__   = '3.10.1'
-__date__      = '2017-12-29'
+__date__      = '2018-02-19'
 __copyright__ = '© 2005-2018 The gPodder Team'
 __license__   = 'GNU General Public License, version 3 or later'
 __url__       = 'http://gpodder.org/'
