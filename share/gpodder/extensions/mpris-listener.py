@@ -324,4 +324,3 @@ class gPodderExtension:
             self.notifier.remove_from_connection(self.session_bus, self.path)
         if self.rcvr is not None:
             self.rcvr.stop_receiving()
-

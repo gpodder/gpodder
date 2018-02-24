@@ -86,4 +86,3 @@ def setup(verbose=True):
         for name in ('cli', 'gtk') if getattr(gpodder.ui, name, False)))
 
     return True
-

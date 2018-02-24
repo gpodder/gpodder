@@ -195,4 +195,3 @@ class Exporter(object):
             return False
 
         return True
-

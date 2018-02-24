@@ -181,4 +181,3 @@ class gPodderExtension:
                     int(progress * 100), 100)
         else:
             self.taskbar.SetProgressState(self.window_handle, TBPF_NOPROGRESS)
-

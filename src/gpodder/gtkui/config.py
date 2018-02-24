@@ -181,4 +181,3 @@ class UIConfig(config.Config):
             window.show()
         if cfg.maximized:
             window.maximize()
-

@@ -225,4 +225,3 @@ if __name__ == '__main__':
     # A schema update takes place here
     m.save(Person('User %d' % x, x*20, 'user@home.com') for x in range(50))
     print(m.load(Person))
-

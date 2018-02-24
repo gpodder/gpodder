@@ -110,4 +110,3 @@ class gPodderExtension(object):
         srt_filename = self.get_srt_filename(filename)
         if os.path.exists(srt_filename):
             os.remove(srt_filename)
-

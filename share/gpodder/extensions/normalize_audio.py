@@ -105,4 +105,3 @@ class gPodderExtension:
     def convert_episodes(self, episodes):
         for episode in episodes:
             self._convert_episode(episode)
-

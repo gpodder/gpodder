@@ -120,4 +120,3 @@ if __name__ == '__main__':
     """ % locals())
     while True:
         httpd.handle_request()
-

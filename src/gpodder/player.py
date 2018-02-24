@@ -81,4 +81,3 @@ class MediaPlayerDBusReceiver(object):
         if file_uri.startswith('/'):
             file_uri = 'file://' + urllib.parse.quote(file_uri)
         self.on_play_event(start, end, total, file_uri)
-

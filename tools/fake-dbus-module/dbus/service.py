@@ -11,4 +11,3 @@ class BusName(object):
 class Object:
     def __init__(self, *args, **kwargs):
         pass
-

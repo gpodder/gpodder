@@ -225,4 +225,3 @@ class JsonConfig(object):
             if target is None or not isinstance(target, dict):
                 target_dict[attr] = target = {}
             target_dict = target
-

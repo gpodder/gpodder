@@ -390,4 +390,3 @@ class Config(object):
             name = gPodderSettings_LegacySupport[name]
 
         setattr(self.__json_config, name, value)
-

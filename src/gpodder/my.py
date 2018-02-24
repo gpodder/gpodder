@@ -665,4 +665,3 @@ class Directory(object):
         return [(p.title or p.url, p.url)
                 for p in self.client.search_podcasts(query)
                 if p.url]
-

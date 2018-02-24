@@ -34,4 +34,3 @@ interface = dbus.Interface(proxy, gpodder.dbus_interface)
 if not interface.mark_episode_played(filename):
     print('Warning: Could not mark episode as played.', file=sys.stderr)
     sys.exit(2)
-

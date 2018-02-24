@@ -114,4 +114,3 @@ class ProgressIndicator(object):
         if self.dialog is not None:
             self.dialog.destroy()
         GObject.source_remove(self.source_id)
-

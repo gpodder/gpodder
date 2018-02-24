@@ -311,4 +311,3 @@ class gPodderSyncUI(object):
         #  2. Check for free space (in UI thread)
         #  3. Sync the device (in UI thread)
         util.run_in_background(cleanup_episodes)
-

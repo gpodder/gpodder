@@ -216,4 +216,3 @@ class UserAppsReader(object):
             if app.is_mime(mimetype):
                 model.insert_app(app.get_icon(), app.name, app.cmd)
         return model
-

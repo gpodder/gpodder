@@ -71,4 +71,3 @@ class gPodderExtension:
         if name == 'gpodder-gtk':
             self.gpodder = ui_object
             self._rebuild_menu()
-

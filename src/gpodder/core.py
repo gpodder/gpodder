@@ -58,4 +58,3 @@ class Core(object):
 
         # Close the database and store outstanding changes
         self.db.close()
-

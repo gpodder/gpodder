@@ -1261,4 +1261,3 @@ class Model(object):
         Returns a iterable, sorted sequence of the episodes
         """
         return sorted(episodes, key=cls.episode_sort_key, reverse=reverse)
-

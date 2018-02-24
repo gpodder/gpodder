@@ -98,9 +98,6 @@ def rounded_rectangle(ctx, x, y, width, height, radius=4.):
 def draw_text_box_centered(ctx, widget, w_width, w_height, text, font_desc=None, add_progress=None):
     style_context = widget.get_style_context()
     text_color = style_context.get_color(Gtk.StateFlags.PRELIGHT)
-    red, green, blue = text_color.red, text_color.green, text_color.blue
-    text_color = [x/65535. for x in (red, green, blue)]
-    text_color.append(.5)
 
     if font_desc is None:
         font_desc = style_context.get_font(Gtk.StateFlags.NORMAL)
@@ -113,7 +110,7 @@ def draw_text_box_centered(ctx, widget, w_width, w_height, text, font_desc=None,
     width, height = layout.get_pixel_size()
 
     ctx.move_to(w_width/2-width/2, w_height/2-height/2)
-    ctx.set_source_rgba(*text_color)
+    ctx.set_source_rgba(text_color.red, text_color.green, text_color.blue, 0.5)
     PangoCairo.show_layout(ctx, layout)
 
     # Draw an optional progress bar below the text (same width)
@@ -138,15 +135,9 @@ def draw_cake(percentage, text=None, emblem=None, size=None):
     surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, size, size)
     ctx = cairo.Context(surface)
 
-    # ELL: get all black
-    # widget = Gtk.ProgressBar()
-    # style_context = widget.get_style_context()
-    bgc = Gdk.RGBA()  # style_context.get_background_color(Gtk.StateFlags.NORMAL)
-    bgc.parse('white')
-    fgc = Gdk.RGBA()  # style_context.get_background_color(Gtk.StateFlags.SELECTED)
-    fgc.parse('#4a90d9')
-    txc = Gdk.RGBA()  # style_context.get_color(Gtk.StateFlags.NORMAL)
-    txc.parse('#333333')
+    bgc = get_background_color(Gtk.StateFlags.ACTIVE)
+    fgc = get_background_color(Gtk.StateFlags.SELECTED)
+    txc = get_foreground_color(Gtk.StateFlags.NORMAL)
 
     border = 1.5
     height = int(size*.4)
@@ -351,3 +342,36 @@ def progressbar_pixbuf(width, height, percentage):
     ctx.stroke()
 
     return cairo_surface_to_pixbuf(surface)
+
+def get_background_color(state=Gtk.StateFlags.NORMAL, widget=Gtk.TreeView()):
+    """
+    @param state state flag (e.g. Gtk.StateFlags.SELECTED to get selected background)
+    @param widget specific widget to get info from.
+           defaults to TreeView which has all one usually wants.
+    @return background color from theme for widget or from its parents if transparent.
+    """
+    p = widget
+    color = Gdk.RGBA(0, 0, 0, 0)
+    while p is not None and color.alpha == 0:
+        style_context = p.get_style_context()
+        color = style_context.get_background_color(0)
+        p = p.get_parent()
+    return color
+
+
+def get_foreground_color(state=Gtk.StateFlags.NORMAL, widget=Gtk.TreeView()):
+    """
+    @param state state flag (e.g. Gtk.StateFlags.SELECTED to get selected text color)
+    @param widget specific widget to get info from
+           defaults to TreeView which has all one usually wants.
+    @return text color from theme for widget or its parents if transparent
+    """
+    p = widget
+    color = Gdk.RGBA(0, 0, 0, 0)
+    style_context = widget.get_style_context()
+    foreground = style_context.get_color(0)
+    while p is not None and color.alpha == 0:
+        style_context = p.get_style_context()
+        color = style_context.get_color(0)
+        p = p.get_parent()
+    return color

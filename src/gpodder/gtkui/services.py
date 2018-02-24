@@ -135,4 +135,3 @@ class CoverDownloader(ObservableService):
             self.notify('cover-available', channel, pixbuf)
         else:
             return (channel.url, pixbuf)
-
