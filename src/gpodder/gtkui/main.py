@@ -778,7 +778,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         def select_function(selection, model, path, path_currently_selected):
             url = model.get_value(model.get_iter(path), PodcastListModel.C_URL)
             return (url != '-')
-        selection.set_select_function(select_function)#, full=True)
+        selection.set_select_function(select_function)  # full=True)
 
         # Set up type-ahead find for the podcast list
         def on_key_press(treeview, event):
