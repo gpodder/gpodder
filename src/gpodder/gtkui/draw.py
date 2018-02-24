@@ -343,6 +343,7 @@ def progressbar_pixbuf(width, height, percentage):
 
     return cairo_surface_to_pixbuf(surface)
 
+
 def get_background_color(state=Gtk.StateFlags.NORMAL, widget=Gtk.TreeView()):
     """
     @param state state flag (e.g. Gtk.StateFlags.SELECTED to get selected background)
