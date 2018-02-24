@@ -28,7 +28,8 @@ import logging
 import gpodder
 
 from gpodder import util
-from gpodder.gtkui.draw import draw_text_box_centered
+from gpodder.gtkui.draw import draw_text_box_centered, \
+                                get_background_color, get_foreground_color
 
 _ = gpodder.gettext
 
@@ -106,8 +107,10 @@ class gPodderShownotes:
             self.show_pane(selected_episodes)
 
     def on_shownotes_message_expose_event(self, drawingarea, ctx):
-        # paint the background white
-        ctx.set_source_rgba(1, 1, 1)
+        background = get_background_color()
+        if background is None:
+            background = Gdk.RGBA(1, 1, 1, 1)
+        ctx.set_source_rgba(background.red, background.green, background.blue, 1)
         x1, y1, x2, y2 = ctx.clip_extents()
         ctx.rectangle(x1, y1, x2 - x1, y2 - y1)
         ctx.fill()
@@ -175,11 +178,15 @@ class gPodderShownotesText(gPodderShownotes):
 class gPodderShownotesHTML(gPodderShownotes):
     def init(self):
         # basic restrictions
-        settings = WebKit2.Settings()
+        self.stylesheet = None
+        self.manager = WebKit2.UserContentManager()
+        self.html_view = WebKit2.WebView.new_with_user_content_manager(self.manager)
+        settings = self.html_view.get_settings()
         settings.set_enable_java(False)
         settings.set_enable_plugins(False)
         settings.set_enable_javascript(False)
-        self.html_view = WebKit2.WebView.new_with_settings(settings)
+        # uncomment to show web inspector
+        # settings.set_enable_developer_extras(True)
         self.html_view.set_property('expand', True)
         self.html_view.connect('mouse-target-changed', self.on_mouse_over)
         self.html_view.connect('context-menu', self.on_context_menu)
@@ -215,11 +222,18 @@ class gPodderShownotesHTML(gPodderShownotes):
             self._base_uri += '/'
         self._loaded = False
 
+        stylesheet = self.get_stylesheet()
+        if stylesheet:
+            self.manager.add_style_sheet(stylesheet)
         description_html = episode.description_html
         if description_html:
+            # uncomment to prevent background override in html shownotes
+            # self.manager.remove_all_style_sheets ()
             self.html_view.load_html(description_html, self._base_uri)
         else:
             self.html_view.load_plain_text(episode.description)
+            # uncomment to show web inspector
+            # self.html_view.get_inspector().show()
 
     def on_mouse_over(self, webview, hit_test_result, modifiers):
         if hit_test_result.context_is_link():
@@ -290,3 +304,13 @@ class gPodderShownotesHTML(gPodderShownotes):
 
     def set_status(self, text):
         self.status.set_label(text or " ")
+
+    def get_stylesheet(self):
+        if self.stylesheet is None:
+            foreground = get_foreground_color()
+            background = get_background_color(Gtk.StateFlags.ACTIVE)
+            if background is not None:
+                style = "html { background: %s; color: %s;}" % \
+                            (background.to_string(), foreground.to_string())
+                self.stylesheet = WebKit2.UserStyleSheet(style, 0, 1, None, None)
+        return self.stylesheet
