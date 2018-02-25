@@ -150,7 +150,7 @@ class DownloadStatusModel(Gtk.ListStore):
         with self.set_downloading_access:
             result = next(task for task in
                     (row[DownloadStatusModel.C_TASK] for row in self)
-                    if task.status == task.QUEUED)
+                    if task is not None and task.status == task.QUEUED)
             self.set_downloading(result)
         return result
 
