@@ -522,9 +522,9 @@ def format_date(timestamp):
         return None
 
     if timestamp_date == today:
-       return _('Today')
+        return _('Today')
     elif timestamp_date == yesterday:
-       return _('Yesterday')
+        return _('Yesterday')
 
     try:
         diff = int( (time.time() - timestamp)/seconds_in_a_day )

@@ -2143,9 +2143,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
             can_delete = not can_cancel
 
         if open_instead_of_play:
-           self.toolPlay.set_stock_id(Gtk.STOCK_OPEN)
+            self.toolPlay.set_stock_id(Gtk.STOCK_OPEN)
         else:
-           self.toolPlay.set_stock_id(Gtk.STOCK_MEDIA_PLAY)
+            self.toolPlay.set_stock_id(Gtk.STOCK_MEDIA_PLAY)
         self.toolPlay.set_sensitive(can_play)
         self.toolDownload.set_sensitive(can_download)
         self.toolCancel.set_sensitive(can_cancel)
@@ -3041,7 +3041,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def apply_podcast_list_hide_boring(self):
         if self.config.podcast_list_hide_boring:
-           self.podcast_list_model.set_view_mode(self.config.episode_list_view_mode)
+            self.podcast_list_model.set_view_mode(self.config.episode_list_view_mode)
         else:
             self.podcast_list_model.set_view_mode(-1)
 
@@ -3316,9 +3316,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             # Dirty hack to check for "All episodes" (see gpodder.gtkui.model)
             if getattr(self.active_channel, 'ALL_EPISODES_PROXY', False):
-               self.edit_channel_action.set_enabled(False)
+                self.edit_channel_action.set_enabled(False)
             else:
-               self.edit_channel_action.set_enabled(True)
+                self.edit_channel_action.set_enabled(True)
         else:
             self.active_channel = None
             self.edit_channel_action.set_enabled(False)
@@ -3648,28 +3648,28 @@ class gPodderApplication(Gtk.Application):
         self.set_app_menu(builder.get_object('app-menu'))
 
         for i in range(EpisodeListModel.PROGRESS_STEPS + 1):
-           pixbuf = draw_cake_pixbuf(i /
+            pixbuf = draw_cake_pixbuf(i /
                    EpisodeListModel.PROGRESS_STEPS)
-           icon_name = 'gpodder-progress-%d' % i
-           Gtk.IconTheme.add_builtin_icon(icon_name, pixbuf.get_width(), pixbuf)
+            icon_name = 'gpodder-progress-%d' % i
+            Gtk.IconTheme.add_builtin_icon(icon_name, pixbuf.get_width(), pixbuf)
 
         Gtk.Window.set_default_icon_name('gpodder')
         #Gtk.AboutDialog.set_url_hook(lambda dlg, link, data: util.open_website(link), None)
 
         try:
-           dbus_main_loop = dbus.glib.DBusGMainLoop(set_as_default=True)
-           gpodder.dbus_session_bus = dbus.SessionBus(dbus_main_loop)
+            dbus_main_loop = dbus.glib.DBusGMainLoop(set_as_default=True)
+            gpodder.dbus_session_bus = dbus.SessionBus(dbus_main_loop)
 
-           self.bus_name = dbus.service.BusName(gpodder.dbus_bus_name, bus=gpodder.dbus_session_bus)
+            self.bus_name = dbus.service.BusName(gpodder.dbus_bus_name, bus=gpodder.dbus_session_bus)
         except dbus.exceptions.DBusException as dbe:
-           logger.warn('Cannot get "on the bus".', exc_info=True)
-           dlg = Gtk.MessageDialog(None, Gtk.DialogFlags.MODAL, Gtk.MessageType.ERROR, \
+            logger.warn('Cannot get "on the bus".', exc_info=True)
+            dlg = Gtk.MessageDialog(None, Gtk.DialogFlags.MODAL, Gtk.MessageType.ERROR, \
                    Gtk.ButtonsType.CLOSE, _('Cannot start gPodder'))
-           dlg.format_secondary_markup(_('D-Bus error: %s') % (str(dbe),))
-           dlg.set_title('gPodder')
-           dlg.run()
-           dlg.destroy()
-           sys.exit(0)
+            dlg.format_secondary_markup(_('D-Bus error: %s') % (str(dbe),))
+            dlg.set_title('gPodder')
+            dlg.run()
+            dlg.destroy()
+            sys.exit(0)
 
     def do_activate(self):
         # We only allow a single window and raise any existing ones
