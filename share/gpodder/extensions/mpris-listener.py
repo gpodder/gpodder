@@ -118,19 +118,18 @@ class CurrentTrackTracker(object):
             # If the position is being updated, and the current status was Playing
             # If the status *is* playing, and *was* playing, but the position
             # has changed discontinuously, notify a stop for the old position
-            if (    cur['status'] == 'Playing'
-                and ('status' not in kwargs or kwargs['status'] == 'Playing')
-                and not subsecond_difference(cur['pos'], kwargs['pos'])
+            if (cur['status'] == 'Playing' and
+                ('status' not in kwargs or kwargs['status'] == 'Playing') and not
+                subsecond_difference(cur['pos'], kwargs['pos'])
             ):
                 logger.debug('notify Stopped: playback discontinuity:' +
                               'calc: %f observed: %f', cur['pos'], kwargs['pos'])
                 self.notify_stop()
 
-            if (    (kwargs['pos']) == 0
-                and self.pos is not None
-                and self.pos > (self.length - USECS_IN_SEC)
-                and self.pos < (self.length + 2 * USECS_IN_SEC)
-            ):
+            if ((kwargs['pos']) == 0 and
+                    self.pos is not None and
+                    (self.length - USECS_IN_SEC) >
+                    self.pos < (self.length + 2 * USECS_IN_SEC)):
                 logger.debug('fixing for position 0 (calculated pos: %f/%f [%f])',
                              self.pos / USECS_IN_SEC, self.length / USECS_IN_SEC,
                              (self.pos/USECS_IN_SEC)-(self.length/USECS_IN_SEC))
@@ -171,12 +170,11 @@ class CurrentTrackTracker(object):
         self.notify('Playing')
 
     def notify(self, status):
-        if (   self.uri is None
-            or self.pos is None
-            or self.status is None
-            or self.length is None
-            or self.length <= 0
-        ):
+        if (self.uri is None or
+                self.pos is None or
+                self.status is None or
+                self.length is None or
+                self.length <= 0):
             return
         pos = self.pos // USECS_IN_SEC
         file_uri = urllib.request.url2pathname(urllib.parse.urlparse(self.uri).path).encode('utf-8')
