@@ -53,7 +53,7 @@ def soundcloud_parsedate(s):
     parsed with this function (2009/11/03 13:37:00).
     """
     m = re.match(r'(\d{4})/(\d{2})/(\d{2}) (\d{2}):(\d{2}):(\d{2})', s)
-    return time.mktime(tuple([int(x) for x in m.groups()]+[0, 0, -1]))
+    return time.mktime(tuple([int(x) for x in m.groups()] + [0, 0, -1]))
 
 
 def get_param(s, param='filename', header='content-disposition'):
@@ -170,7 +170,7 @@ class SoundcloudUser(object):
 
                 yield {
                     'title': track.get('title', track.get('permalink')) or _('Unknown track'),
-                    'link': track.get('permalink_url') or 'https://soundcloud.com/'+self.username,
+                    'link': track.get('permalink_url') or 'https://soundcloud.com/' + self.username,
                     'description': track.get('description') or _('No description available'),
                     'url': url,
                     'file_size': int(filesize),

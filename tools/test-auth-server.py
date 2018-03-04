@@ -31,7 +31,7 @@ SIZE = 500000                # Size (in bytes) of the episode downloads)
 
 def mkpubdates(items):
     """Generate fake pubDates (one each day, recently)"""
-    current = datetime.datetime.now() - datetime.timedelta(days=items+3)
+    current = datetime.datetime.now() - datetime.timedelta(days=items + 3)
     for i in range(items):
         yield current.ctime()
         current += datetime.timedelta(days=1)
@@ -49,7 +49,7 @@ def mkrss(items=EP_COUNT):
           type="%(EPISODES_MIME)s"
           length="%(SIZE)s"/>
     </item>
-    """ % dict(list(locals().items())+list(globals().items()))
+    """ % dict(list(locals().items()) + list(globals().items()))
         for INDEX, PUBDATE in enumerate(mkpubdates(items)))
 
     return """
@@ -58,12 +58,12 @@ def mkrss(items=EP_COUNT):
     %(ITEMS)s
     </channel>
     </rss>
-    """ % dict(list(locals().items())+list(globals().items()))
+    """ % dict(list(locals().items()) + list(globals().items()))
 
 
 def mkdata(size=SIZE):
     """Generate dummy data of a given size (in bytes)"""
-    return ''.join(chr(32+(i%(127-32))) for i in range(size))
+    return ''.join(chr(32 + (i % (127 - 32))) for i in range(size))
 
 
 class AuthRequestHandler(http.server.BaseHTTPRequestHandler):
