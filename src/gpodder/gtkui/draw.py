@@ -245,33 +245,33 @@ def draw_text_pill(left_text, right_text, x=0, y=0, border=2, radius=14, font_de
         PangoCairo.show_layout(ctx, layout_left)
 
     if right_text is not None:
-       draw_rounded_rectangle(ctx, x, y, rect_width, rect_height, radius, left_side_width, RRECT_RIGHT_SIDE, left_text is None)
-       linear = cairo.LinearGradient(x+left_side_width, y, x+left_side_width+right_side_width/2, y+rect_height)
-       linear.add_color_stop_rgba(0, .2, .2, .2, .9)
-       linear.add_color_stop_rgba(.4, .2, .2, .2, .8)
-       linear.add_color_stop_rgba(.6, .2, .2, .2, .6)
-       linear.add_color_stop_rgba(.9, .2, .2, .2, .7)
-       linear.add_color_stop_rgba(1, .2, .2, .2, .5)
-       ctx.set_source(linear)
-       ctx.fill()
-       xpos, ypos, width, height = x, y+1, rect_width-1, rect_height-2
-       if left_text is None:
-           xpos, width = x+1, rect_width-2
-       draw_rounded_rectangle(ctx, xpos, ypos, width, height, radius, left_side_width, RRECT_RIGHT_SIDE, left_text is None)
-       ctx.set_source_rgba(1., 1., 1., .3)
-       ctx.set_line_width(1)
-       ctx.stroke()
-       draw_rounded_rectangle(ctx, x, y, rect_width, rect_height, radius, left_side_width, RRECT_RIGHT_SIDE, left_text is None)
-       ctx.set_source_rgba(.1, .1, .1, .6)
-       ctx.set_line_width(1)
-       ctx.stroke()
+        draw_rounded_rectangle(ctx, x, y, rect_width, rect_height, radius, left_side_width, RRECT_RIGHT_SIDE, left_text is None)
+        linear = cairo.LinearGradient(x+left_side_width, y, x+left_side_width+right_side_width/2, y+rect_height)
+        linear.add_color_stop_rgba(0, .2, .2, .2, .9)
+        linear.add_color_stop_rgba(.4, .2, .2, .2, .8)
+        linear.add_color_stop_rgba(.6, .2, .2, .2, .6)
+        linear.add_color_stop_rgba(.9, .2, .2, .2, .7)
+        linear.add_color_stop_rgba(1, .2, .2, .2, .5)
+        ctx.set_source(linear)
+        ctx.fill()
+        xpos, ypos, width, height = x, y+1, rect_width-1, rect_height-2
+        if left_text is None:
+            xpos, width = x+1, rect_width-2
+        draw_rounded_rectangle(ctx, xpos, ypos, width, height, radius, left_side_width, RRECT_RIGHT_SIDE, left_text is None)
+        ctx.set_source_rgba(1., 1., 1., .3)
+        ctx.set_line_width(1)
+        ctx.stroke()
+        draw_rounded_rectangle(ctx, x, y, rect_width, rect_height, radius, left_side_width, RRECT_RIGHT_SIDE, left_text is None)
+        ctx.set_source_rgba(.1, .1, .1, .6)
+        ctx.set_line_width(1)
+        ctx.stroke()
 
-       ctx.move_to(x+left_side_width+x_border, y+1+border)
-       ctx.set_source_rgba( 0, 0, 0, 1)
-       PangoCairo.show_layout(ctx, layout_right)
-       ctx.move_to(x-1+left_side_width+x_border, y+border)
-       ctx.set_source_rgba( 1, 1, 1, 1)
-       PangoCairo.show_layout(ctx, layout_right)
+        ctx.move_to(x+left_side_width+x_border, y+1+border)
+        ctx.set_source_rgba( 0, 0, 0, 1)
+        PangoCairo.show_layout(ctx, layout_right)
+        ctx.move_to(x-1+left_side_width+x_border, y+border)
+        ctx.set_source_rgba( 1, 1, 1, 1)
+        PangoCairo.show_layout(ctx, layout_right)
 
     return surface
 
