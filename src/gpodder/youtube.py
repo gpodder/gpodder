@@ -127,7 +127,7 @@ def get_real_download_url(url, preferred_fmt_ids=None):
             raise YouTubeError('fmt_url_map not found for video ID "%s"' % vid)
 
         # Default to the highest fmt_id if we don't find a match below
-        _, url  = fmt_id_url_map[0]
+        _, url = fmt_id_url_map[0]
 
         formats_available = set(fmt_id for fmt_id, url in fmt_id_url_map)
         fmt_id_url_map = dict(fmt_id_url_map)

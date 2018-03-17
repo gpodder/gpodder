@@ -295,7 +295,7 @@ class DownloadURLOpener(urllib.request.FancyURLopener):
         blocknum = current_size//bs
         if reporthook:
             if "content-length" in headers:
-                size = int(headers['Content-Length'])  + current_size
+                size = int(headers['Content-Length']) + current_size
             reporthook(blocknum, bs, size)
         while read < size or size == -1:
             if size == -1:

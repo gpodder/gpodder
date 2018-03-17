@@ -193,17 +193,17 @@ except MissingFile as mf:
 
 
 setup(
-    name         = 'gpodder',
-    version      = metadata['version'],
-    description  = metadata['tagline'],
-    license      = metadata['license'],
-    url          = metadata['url'],
+    name='gpodder',
+    version=metadata['version'],
+    description=metadata['tagline'],
+    license=metadata['license'],
+    url=metadata['url'],
 
-    author       = author,
-    author_email = email,
+    author=author,
+    author_email=email,
 
-    package_dir  = {'': 'src'},
-    packages     = packages,
-    scripts      = scripts,
-    data_files   = data_files,
+    package_dir={'': 'src'},
+    packages=packages,
+    scripts=scripts,
+    data_files=data_files,
 )
