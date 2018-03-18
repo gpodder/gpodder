@@ -54,7 +54,7 @@ class gPodderExtension:
         """ Play or enqueue selected episodes """
 
         urls = [episode.url for episode in episodes if SONOS_CAN_PLAY(episode)]
-        logger.info('Streaming to Sonos %s: %s'%(speaker_ip, ', '.join(urls)))
+        logger.info('Streaming to Sonos %s: %s' % (speaker_ip, ', '.join(urls)))
 
         controller = soco.SoCo(speaker_ip)
 

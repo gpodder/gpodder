@@ -86,7 +86,7 @@ class Store(object):
                         slot))
             else:
                 self.db.execute('CREATE TABLE %s (%s)' % (table,
-                        ', '.join('%s TEXT'%s for s in slots)))
+                        ', '.join('%s TEXT' % s for s in slots)))
 
     def convert(self, v):
         if isinstance(v, str):
@@ -157,7 +157,7 @@ class Store(object):
 
             values = [self.convert(getattr(o, slot)) for slot in slots]
             self.db.execute('DELETE FROM %s WHERE %s' % (table,
-                ' AND '.join('%s=?'%s for s in slots)), values)
+                ' AND '.join('%s=?' % s for s in slots)), values)
 
     def load(self, class_, **kwargs):
         with self.lock:
