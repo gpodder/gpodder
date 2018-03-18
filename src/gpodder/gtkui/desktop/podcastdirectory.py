@@ -126,7 +126,7 @@ class gPodderPodcastDirectory(BuilderWidget):
 
     def download_opml_file(self, filename):
         self.providers_model.add_provider(directory.FixedOpmlFileProvider(filename))
-        self.tv_providers.set_cursor(len(self.providers_model)-1)
+        self.tv_providers.set_cursor(len(self.providers_model) - 1)
 
     def setup_podcasts_treeview(self):
         column = Gtk.TreeViewColumn('')

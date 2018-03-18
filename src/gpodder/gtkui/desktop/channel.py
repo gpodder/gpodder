@@ -93,7 +93,7 @@ class gPodderChannel(BuilderWidget):
         self.imgCover.drag_dest_set(flags, targets, actions)
         self.imgCover.connect('drag_data_received', self.drag_data_received)
         border = 6
-        self.imgCover.set_size_request(*((self.MAX_SIZE+border*2,)*2))
+        self.imgCover.set_size_request(* ((self.MAX_SIZE + border * 2,) * 2))
         self.imgCoverEventBox.connect('button-press-event',
                 self.on_cover_popup_menu)
 
@@ -108,7 +108,7 @@ class gPodderChannel(BuilderWidget):
                     return
 
             self.section_list.append([text])
-            self.combo_section.set_active(len(self.section_list)-1)
+            self.combo_section.set_active(len(self.section_list) - 1)
 
     def on_cover_popup_menu(self, widget, event):
         if not event.triggers_context_menu():
@@ -180,14 +180,14 @@ class gPodderChannel(BuilderWidget):
 
         # Resize if width is too large
         if pixbuf.get_width() > self.MAX_SIZE:
-            f = float(self.MAX_SIZE)/pixbuf.get_width()
-            (width, height) = (int(pixbuf.get_width()*f), int(pixbuf.get_height()*f))
+            f = float(self.MAX_SIZE) / pixbuf.get_width()
+            (width, height) = (int(pixbuf.get_width() * f), int(pixbuf.get_height() * f))
             pixbuf = pixbuf.scale_simple(width, height, GdkPixbuf.InterpType.BILINEAR)
 
         # Resize if height is too large
         if pixbuf.get_height() > self.MAX_SIZE:
-            f = float(self.MAX_SIZE)/pixbuf.get_height()
-            (width, height) = (int(pixbuf.get_width()*f), int(pixbuf.get_height()*f))
+            f = float(self.MAX_SIZE) / pixbuf.get_height()
+            (width, height) = (int(pixbuf.get_width() * f), int(pixbuf.get_height() * f))
             pixbuf = pixbuf.scale_simple(width, height, GdkPixbuf.InterpType.BILINEAR)
 
         return pixbuf
