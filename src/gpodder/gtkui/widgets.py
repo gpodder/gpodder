@@ -111,9 +111,9 @@ class SpinningProgressIndicator(Gtk.Image):
             width, height = icon.get_width(), icon.get_height()
             if width < size or height < size:
                 size = min(width, height)
-            for row in range(height//size):
-                for column in range(width//size):
-                    frame = icon.subpixbuf(column*size, row*size, size, size)
+            for row in range(height // size):
+                for column in range(width // size):
+                    frame = icon.subpixbuf(column * size, row * size, size, size)
                     self._frames.append(frame)
             # Remove the first frame (the "idle" icon)
             if self._frames:
