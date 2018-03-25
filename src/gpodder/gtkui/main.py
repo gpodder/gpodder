@@ -1797,7 +1797,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 filename = episode.local_filename(create=False)
                 assert filename is not None
                 (base, ext) = os.path.splitext(filename)
-                destfile = self.build_fileName(episode.sync_filename(), ext)
+                destfile = self.build_filename(episode.sync_filename(), ext)
                 destfile = os.path.join(tempfile.gettempdir(), destfile)
 
                 try:
