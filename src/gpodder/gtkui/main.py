@@ -2671,7 +2671,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             message = _('You are downloading episodes. You can resume downloads the next time you start gPodder. Do you want to quit now?')
 
             dialog.set_title(title)
-            dialog.set_markup('<span weight="bold" size="larger">%s</span>\n\n%s'%(title, message))
+            dialog.set_markup('<span weight="bold" size="larger">%s</span>\n\n%s' % (title, message))
 
             quit_button.grab_focus()
             result = dialog.run()
