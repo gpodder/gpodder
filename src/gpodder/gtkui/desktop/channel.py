@@ -93,7 +93,8 @@ class gPodderChannel(BuilderWidget):
         self.imgCover.drag_dest_set(flags, targets, actions)
         self.imgCover.connect('drag_data_received', self.drag_data_received)
         border = 6
-        self.imgCover.set_size_request(* ((self.MAX_SIZE + border * 2,) * 2))
+        size = self.MAX_SIZE + border * 2
+        self.imgCover.set_size_request(size, size)
         self.imgCoverEventBox.connect('button-press-event',
                 self.on_cover_popup_menu)
 
