@@ -122,10 +122,10 @@ class gPodderEpisodeSelector(BuilderWidget):
             self.selected_default = False
 
         if not hasattr( self, 'selected'):
-            self.selected = [self.selected_default]*len(self.episodes)
+            self.selected = [self.selected_default] * len(self.episodes)
 
         if len(self.selected) < len(self.episodes):
-            self.selected += [self.selected_default]*(len(self.episodes)-len(self.selected))
+            self.selected += [self.selected_default] * (len(self.episodes) - len(self.selected))
 
         if not hasattr( self, 'columns'):
             self.columns = (('title_markup', None, None, _('Episode')),)
@@ -164,7 +164,7 @@ class gPodderEpisodeSelector(BuilderWidget):
             if next_column < self.COLUMN_ADDITIONAL + 1:
                 column.set_expand(True)
             if sort_name is not None:
-                column.set_sort_column_id(next_column+1)
+                column.set_sort_column_id(next_column + 1)
             else:
                 column.set_sort_column_id(next_column)
             self.treeviewEpisodes.append_column( column)
@@ -242,7 +242,7 @@ class gPodderEpisodeSelector(BuilderWidget):
         (x_bin, y_bin) = treeview.get_bin_window().get_position()
         y -= x_bin
         y -= y_bin
-        (path, column, rx, ry) = treeview.get_path_at_pos(x, y) or (None,)*4
+        (path, column, rx, ry) = treeview.get_path_at_pos(x, y) or (None,) * 4
 
         if not self.episode_list_can_tooltip or column != treeview.get_columns()[1]:
             self.last_tooltip_episode = None
@@ -264,7 +264,7 @@ class gPodderEpisodeSelector(BuilderWidget):
             description = util.convert_bytes(description)
             if description is not None:
                 if len(description) > 400:
-                    description = description[:398]+'[...]'
+                    description = description[:398] + '[...]'
                 tooltip.set_text(description)
                 return True
             else:
