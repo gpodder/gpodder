@@ -78,13 +78,13 @@ class DownloadStatusModel(Gtk.ListStore):
         elif task.status == task.DOWNLOADING:
             status_message = '%s (%.0f%%, %s/s)' % (\
                     task.STATUS_MESSAGE[task.status], \
-                    task.progress*100, \
+                    task.progress * 100, \
                     util.format_filesize(task.speed))
         else:
             status_message = task.STATUS_MESSAGE[task.status]
 
         if task.progress > 0 and task.progress < 1:
-            current = util.format_filesize(task.progress*task.total_size, digits=1)
+            current = util.format_filesize(task.progress * task.total_size, digits=1)
             total = util.format_filesize(task.total_size, digits=1)
 
             # Remove unit from current if same as in total
@@ -104,7 +104,7 @@ class DownloadStatusModel(Gtk.ListStore):
         self.set(iter,
                 self.C_NAME, self._format_message(task.episode.title,
                     status_message, task.episode.channel.title),
-                self.C_PROGRESS, 100.*task.progress, \
+                self.C_PROGRESS, 100. * task.progress, \
                 self.C_PROGRESS_TEXT, progress_message, \
                 self.C_ICON_NAME, self._status_ids[task.status])
 

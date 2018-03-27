@@ -75,7 +75,7 @@ class PlayerListModel(Gtk.ListStore):
         else:
             self.append((None, name, value, True))
 
-        return len(self)-1
+        return len(self) - 1
 
     @classmethod
     def is_separator(cls, model, iter):
@@ -105,7 +105,7 @@ class UserApplication(object):
                 return theme.load_icon(icon_name, 24, 0)
 
     def is_mime(self, mimetype):
-        return self.mime.find(mimetype+'/') != -1
+        return self.mime.find(mimetype + '/') != -1
 
 
 WIN32_APP_REG_KEYS = [
@@ -153,10 +153,10 @@ class UserAppsReader(object):
         self.__has_read = False
         self.__finished = threading.Event()
         self.__has_sep = False
-        self.apps.append(UserApplication(_('Default application'), 'default', ';'.join((mime+'/*' for mime in self.mimetypes)), Gtk.STOCK_OPEN))
+        self.apps.append(UserApplication(_('Default application'), 'default', ';'.join((mime + '/*' for mime in self.mimetypes)), Gtk.STOCK_OPEN))
 
     def add_separator(self):
-        self.apps.append(UserApplication('', '', ';'.join((mime+'/*' for mime in self.mimetypes)), ''))
+        self.apps.append(UserApplication('', '', ';'.join((mime + '/*' for mime in self.mimetypes)), ''))
         self.__has_sep = True
 
     def read( self):
@@ -197,7 +197,7 @@ class UserAppsReader(object):
             # Find out if we need it by comparing mime types
             app_mime = parser.get(sect, 'MimeType')
             for needed_type in self.mimetypes:
-                if app_mime.find(needed_type+'/') != -1:
+                if app_mime.find(needed_type + '/') != -1:
                     app_name = parser.get(sect, 'Name')
                     app_cmd = parser.get(sect, 'Exec')
                     app_icon = parser.get(sect, 'Icon')

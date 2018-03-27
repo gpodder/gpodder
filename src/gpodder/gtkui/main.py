@@ -256,7 +256,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         elif self.config.software_update.check_on_startup:
             # Check for software updates from gpodder.org
             diff = time.time() - self.config.software_update.last_check
-            if diff > (60*60*24)*self.config.software_update.interval:
+            if diff > (60 * 60 * 24) * self.config.software_update.interval:
                 self.config.software_update.last_check = int(time.time())
                 self.check_for_updates(silent=True)
 
@@ -797,7 +797,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
                 path = model.get_path(it)
                 while True:
-                    path = (path[0]+step,)
+                    path = (path[0] + step,)
 
                     if path[0] < 0:
                         # Valid paths must have a value >= 0
@@ -1014,7 +1014,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 (('text/uri-list', 0, 0),), Gdk.DragAction.COPY)
 
         def drag_data_get(tree, context, selection_data, info, timestamp):
-            uris = ['file://'+e.local_filename(create=False) \
+            uris = ['file://' + e.local_filename(create=False) \
                     for e in self.get_selected_episodes() \
                     if e.was_downloaded(and_exists=True)]
             uris.append('') # for the trailing '\r\n'
@@ -1182,7 +1182,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     monitor.task_updated(task)
 
                 total_size += size
-                done_size += size*progress
+                done_size += size * progress
 
                 download_tasks_seen.add(task)
 
@@ -1211,14 +1211,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if downloading + failed + queued + synchronizing > 0:
                 s = []
                 if downloading > 0:
-                    s.append(N_('%(count)d active', '%(count)d active', downloading) % {'count':downloading})
+                    s.append(N_('%(count)d active', '%(count)d active', downloading) % {'count': downloading})
                 if synchronizing > 0:
-                    s.append(N_('%(count)d active', '%(count)d active', synchronizing) % {'count':synchronizing})
+                    s.append(N_('%(count)d active', '%(count)d active', synchronizing) % {'count': synchronizing})
                 if failed > 0:
-                    s.append(N_('%(count)d failed', '%(count)d failed', failed) % {'count':failed})
+                    s.append(N_('%(count)d failed', '%(count)d failed', failed) % {'count': failed})
                 if queued > 0:
-                    s.append(N_('%(count)d queued', '%(count)d queued', queued) % {'count':queued})
-                text.append(' (' + ', '.join(s)+')')
+                    s.append(N_('%(count)d queued', '%(count)d queued', queued) % {'count': queued})
+                text.append(' (' + ', '.join(s) + ')')
             self.labelDownloads.set_text(''.join(text))
 
             title = [self.default_title]
@@ -1233,10 +1233,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 title.append(N_('downloading %(count)d file', 'downloading %(count)d files', downloading) % {'count':downloading})
 
                 if total_size > 0:
-                    percentage = 100.0*done_size/total_size
+                    percentage = 100.0 * done_size / total_size
                 else:
                     percentage = 0.0
-                self.set_download_progress(percentage/100)
+                self.set_download_progress(percentage / 100)
                 total_speed = util.format_filesize(total_speed)
                 title[1] += ' (%d%%, %s/s)' % (percentage, total_speed)
             if synchronizing > 0:
@@ -1296,7 +1296,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         (x_bin, y_bin) = treeview.get_bin_window().get_position()
         y -= x_bin
         y -= y_bin
-        (path, column, rx, ry) = treeview.get_path_at_pos( x, y) or (None,)*4
+        (path, column, rx, ry) = treeview.get_path_at_pos( x, y) or (None,) * 4
 
         if not getattr(treeview, TreeViewHelper.CAN_TOOLTIP) or x > 50 or (column is not None and column != treeview.get_columns()[0]):
             setattr(treeview, TreeViewHelper.LAST_TOOLTIP, None)
@@ -1352,7 +1352,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 else:
                     pos = channel.description.find('\n\n')
                     if pos == -1 or pos > 500:
-                        description = channel.description[:498]+'[...]'
+                        description = channel.description[:498] + '[...]'
                     else:
                         description = channel.description[:pos]
 
@@ -1380,7 +1380,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return selection.get_selected_rows()
 
         x, y = int(event.x), int(event.y)
-        path, column, rx, ry = treeview.get_path_at_pos(x, y) or (None,)*4
+        path, column, rx, ry = treeview.get_path_at_pos(x, y) or (None,) * 4
 
         selection = treeview.get_selection()
         model, paths = selection.get_selected_rows()
@@ -1414,7 +1414,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             selection = self.treeDownloads.get_selection()
             model, paths = selection.get_selected_rows()
 
-        can_queue, can_cancel, can_pause, can_remove, can_force = (True,)*5
+        can_queue, can_cancel, can_pause, can_remove, can_force = (True,) * 5
         selected_tasks = [(Gtk.TreeRowReference.new(model, path), \
                            model.get_value(model.get_iter(path), \
                            DownloadStatusModel.C_TASK)) for path in paths]
@@ -1524,7 +1524,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             # so it may be cut correctly on UTF-8 char boundaries
             title = util.convert_bytes(title)
             if len(title) > MAX_TITLE_LENGTH:
-                middle = (MAX_TITLE_LENGTH//2)-2
+                middle = (MAX_TITLE_LENGTH // 2) - 2
                 title = '%s...%s' % (title[0:middle], title[-middle:])
             result.append(cgi.escape(title))
             result.append('\n')
@@ -1614,7 +1614,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 selection = self.treeDownloads.get_selection()
                 model, selected_paths = selection.get_selected_rows()
                 for path in selected_paths:
-                    index_above = path[0]-1
+                    index_above = path[0] - 1
                     if index_above < 0:
                         return
                     task = model.get_value(
@@ -1628,7 +1628,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 selection = self.treeDownloads.get_selection()
                 model, selected_paths = selection.get_selected_rows()
                 for path in reversed(selected_paths):
-                    index_below = path[0]+1
+                    index_below = path[0] + 1
                     if index_below >= len(model):
                         return
                     task = model.get_value(
@@ -1797,7 +1797,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 filename = episode.local_filename(create=False)
                 assert filename is not None
                 (base, ext) = os.path.splitext(filename)
-                destfile = self.build_fileName(episode.sync_filename(), ext)
+                destfile = self.build_filename(episode.sync_filename(), ext)
                 destfile = os.path.join(tempfile.gettempdir(), destfile)
 
                 try:
@@ -2104,8 +2104,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.toolCancel.set_sensitive(True)
             return (False, False, False, False, False, False)
 
-        ( can_play, can_download, can_cancel, can_delete ) = (False,)*4
-        ( is_played, is_locked ) = (False,)*2
+        ( can_play, can_download, can_cancel, can_delete ) = (False,) * 4
+        ( is_played, is_locked ) = (False,) * 2
 
         open_instead_of_play = False
 
@@ -2418,7 +2418,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             length = len(queued)
             for index, url in enumerate(queued):
                 title = title_for_url.get(url)
-                progress.on_progress(float(index)/float(length))
+                progress.on_progress(float(index) / float(length))
                 progress.on_message(title or url)
                 try:
                     # The URL is valid and does not exist already - subscribe!
@@ -2558,7 +2558,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     break
 
                 def indicate_updating_podcast(channel):
-                    d = {'podcast': channel.title, 'position': updated+1, 'total': count}
+                    d = {'podcast': channel.title, 'position': updated + 1, 'total': count}
                     progression = _('Updating %(podcast)s (%(position)d/%(total)d)') % d
                     self.pbFeedUpdate.set_text(progression)
 
@@ -2586,7 +2586,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         logger.debug('Updated channel is active, updating UI')
                         self.update_episode_list_model()
 
-                    self.pbFeedUpdate.set_fraction(float(updated+1)/float(count))
+                    self.pbFeedUpdate.set_fraction(float(updated + 1) / float(count))
 
                 util.idle_add(update_progress, channel)
 
@@ -2671,7 +2671,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             message = _('You are downloading episodes. You can resume downloads the next time you start gPodder. Do you want to quit now?')
 
             dialog.set_title(title)
-            dialog.set_markup('<span weight="bold" size="larger">%s</span>\n\n%s'%(title, message))
+            dialog.set_markup('<span weight="bold" size="larger">%s</span>\n\n%s' % (title, message))
 
             quit_button.grab_focus()
             result = dialog.run()
@@ -2741,7 +2741,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             episodes_status_update = []
             for idx, episode in enumerate(episodes):
-                progress.on_progress(idx/len(episodes))
+                progress.on_progress(idx / len(episodes))
                 if not episode.archive or not skip_locked:
                     progress.on_message(episode.title)
                     episode.delete_from_disk()
@@ -2987,7 +2987,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         if selected is None:
             # Select all by default
-            selected = [True]*len(episodes)
+            selected = [True] * len(episodes)
 
         self.new_episodes_window = gPodderEpisodeSelector(self.main_window, \
                 title=_('New episodes available'), \
@@ -3146,7 +3146,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             for idx, channel in enumerate(channels):
                 # Update the UI for correct status messages
-                progress.on_progress(idx/len(channels))
+                progress.on_progress(idx / len(channels))
                 progress.on_message(channel.title)
 
                 # Delete downloaded episodes
@@ -3164,14 +3164,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     else:
                         position = -1
 
-                    if position == len(self.channels)-1:
+                    if position == len(self.channels) - 1:
                         # this is the last podcast, so select the URL
                         # of the item before this one (i.e. the "new last")
-                        select_url = self.channels[position-1].url
+                        select_url = self.channels[position - 1].url
                     else:
                         # there is a podcast after the deleted one, so
                         # we simply select the one that comes after it
-                        select_url = self.channels[position+1].url
+                        select_url = self.channels[position + 1].url
 
                 # Remove the channel and clean the database entries
                 channel.delete()
@@ -3195,7 +3195,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         filter = Gtk.FileFilter()
         filter.add_pattern('*.opml')
         filter.add_pattern('*.xml')
-        filter.set_name(_('OPML files')+' (*.opml, *.xml)')
+        filter.set_name(_('OPML files') + ' (*.opml, *.xml)')
         return filter
 
     def on_item_import_from_file_activate(self, action, filename=None):
@@ -3367,7 +3367,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         if self.config.auto_update_feeds and \
                 self.config.auto_update_frequency:
-            interval = 60*1000*self.config.auto_update_frequency
+            interval = 60 * 1000 * self.config.auto_update_frequency
             logger.debug('Setting up auto update timer with interval %d.',
                     self.config.auto_update_frequency)
             self._auto_update_timer_source_id = GObject.timeout_add(\

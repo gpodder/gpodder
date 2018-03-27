@@ -65,7 +65,7 @@ def get_header_param(headers, param, header_name):
     """
     value = None
     try:
-        headers_string = ['%s:%s'%(k,v) for k,v in list(headers.items())]
+        headers_string = ['%s:%s' % (k, v) for k, v in list(headers.items())]
         msg = email.message_from_string('\n'.join(headers_string))
         if header_name in msg:
             raw_value = msg.get_param(param, header=header_name)
@@ -198,7 +198,7 @@ class DownloadURLOpener(urllib.request.FancyURLopener):
     # Sometimes URLs are not escaped correctly - try to fix them
     # (see RFC2396; Section 2.4.3. Excluded US-ASCII Characters)
     # FYI: The omission of "%" in the list is to avoid double escaping!
-    ESCAPE_CHARS = dict((ord(c), '%%%x'%ord(c)) for c in ' <>#"{}|\\^[]`')
+    ESCAPE_CHARS = dict((ord(c), '%%%x' % ord(c)) for c in ' <>#"{}|\\^[]`')
 
     def __init__( self, channel):
         self.channel = channel
@@ -734,20 +734,7 @@ class DownloadTask(object):
             url = escapist_videos.get_real_download_url(url)
             url = url.strip()
 
-            # Properly escapes Unicode characters in the URL path section
-            # TODO: Explore if this should also handle the domain
-            # Based on: http://stackoverflow.com/a/18269491/1072626
-            # In response to issue: https://github.com/gpodder/gpodder/issues/232
-            def iri_to_url(url):
-                url = urllib.parse.urlsplit(url)
-                url = list(url)
-                # First unquote to avoid escaping quoted content
-                url[2] = urllib.parse.unquote(url[2])
-                url[2] = urllib.parse.quote(url[2])
-                url = urllib.parse.urlunsplit(url)
-                return url
-
-            url = iri_to_url(url)
+            url = util.iri_to_url(url)
 
             downloader = DownloadURLOpener(self.__episode.channel)
 

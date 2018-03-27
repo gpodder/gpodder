@@ -1378,11 +1378,11 @@ def format_seconds_to_hour_min_sec(seconds):
 
     seconds = int(seconds)
 
-    hours = seconds//3600
-    seconds = seconds%3600
+    hours = seconds // 3600
+    seconds = seconds % 3600
 
-    minutes = seconds//60
-    seconds = seconds%60
+    minutes = seconds // 60
+    seconds = seconds % 60
 
     if hours:
         result.append(N_('%(count)d hour', '%(count)d hours', hours) % {'count':hours})
@@ -1931,3 +1931,28 @@ def guess_encoding(filename):
             snd = f.readline()
             encoding = re_encoding(snd)
     return encoding
+
+
+def iri_to_url(url):
+    """
+    Properly escapes Unicode characters in the URL path section
+    TODO: Explore if this should also handle the domain
+    Based on: http://stackoverflow.com/a/18269491/1072626
+    In response to issue: https://github.com/gpodder/gpodder/issues/232
+
+    >>> iri_to_url('http://www.valpskott.se/Valpcast/MP3/Valpcast%20-%20Existentiella%20frÃ¥gor.mp3')
+    'http://www.valpskott.se/Valpcast/MP3/Valpcast%20-%20Existentiella%20fr%C3%83%C2%A5gor.mp3'
+
+    See https://github.com/gpodder/gpodder/issues/399
+    >>> iri_to_url('//dts.podtrac.com/redirect.mp3/http://myhost/myepisode.mp3')
+    '//dts.podtrac.com/redirect.mp3/http://myhost/myepisode.mp3'
+    """
+    url = urllib.parse.urlsplit(url)
+    url = list(url)
+    # First unquote to avoid escaping quoted content
+    url[2] = urllib.parse.unquote(url[2])
+    # extend safe with all allowed chars in path segment of URL, cf pchar rule
+    # in https://tools.ietf.org/html/rfc3986#appendix-A
+    url[2] = urllib.parse.quote(url[2], safe="/-._~!$&'()*+,;=:@")
+    url = urllib.parse.urlunsplit(url)
+    return url

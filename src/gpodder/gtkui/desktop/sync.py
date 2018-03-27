@@ -270,7 +270,7 @@ class gPodderSyncUI(object):
                             title = _('Episodes have been deleted on device'),
                             instructions = 'Select the episodes you want to delete:',
                             episodes = episodes_to_delete,
-                            selected = [True,]*len(episodes_to_delete), columns = columns,
+                            selected = [True,] * len(episodes_to_delete), columns = columns,
                             callback = auto_delete_callback,
                             _config=self._config)
                     else:

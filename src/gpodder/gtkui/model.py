@@ -68,8 +68,8 @@ class GEpisode(model.PodcastEpisode):
             length_str = '%s; ' % util.format_filesize(self.file_size)
         else:
             length_str = ''
-        return ('<b>%s</b>\n<small>%s'+_('released %s')+ \
-                '; '+_('from %s')+'</small>') % (\
+        return ('<b>%s</b>\n<small>%s' + _('released %s') + \
+                '; ' + _('from %s') + '</small>') % (\
                 cgi.escape(re.sub('\s+', ' ', self.title)), \
                 cgi.escape(length_str), \
                 cgi.escape(self.pubdate_prop), \
@@ -86,8 +86,8 @@ class GEpisode(model.PodcastEpisode):
         downloaded_string = self.get_age_string()
         if not downloaded_string:
             downloaded_string = _('today')
-        return ('<b>%s</b>\n<small>%s; %s; '+_('downloaded %s')+ \
-                '; '+_('from %s')+'</small>') % (\
+        return ('<b>%s</b>\n<small>%s; %s; ' + _('downloaded %s')+ \
+                '; ' + _('from %s') + '</small>') % (\
                 cgi.escape(self.title), \
                 cgi.escape(util.format_filesize(self.file_size)), \
                 cgi.escape(played_string), \
@@ -374,9 +374,9 @@ class EpisodeListModel(Gtk.ListStore):
 
         if episode.downloading:
             tooltip.append('%s %d%%' % (_('Downloading'),
-                int(episode.download_task.progress*100)))
+                int(episode.download_task.progress * 100)))
 
-            index = int(self.PROGRESS_STEPS*episode.download_task.progress)
+            index = int(self.PROGRESS_STEPS * episode.download_task.progress)
             status_icon = 'gpodder-progress-%d' % index
 
             view_show_downloaded = True
@@ -446,7 +446,8 @@ class EpisodeListModel(Gtk.ListStore):
                         tooltip.append(_('deletion prevented'))
 
                 if episode.total_time > 0 and episode.current_position:
-                    tooltip.append('%d%%' % (100.*float(episode.current_position)/float(episode.total_time),))
+                    tooltip.append('%d%%' % (100. * float(episode.current_position)
+                                             / float(episode.total_time),))
 
         if episode.total_time:
             total_time = util.format_time(episode.total_time)
@@ -614,15 +615,15 @@ class PodcastListModel(Gtk.ListStore):
 
         # Resize if too wide
         if pixbuf.get_width() > self._max_image_side:
-            f = float(self._max_image_side)/pixbuf.get_width()
-            (width, height) = (int(pixbuf.get_width()*f), int(pixbuf.get_height()*f))
+            f = float(self._max_image_side) / pixbuf.get_width()
+            (width, height) = (int(pixbuf.get_width() * f), int(pixbuf.get_height() * f))
             pixbuf = pixbuf.scale_simple(width, height, GdkPixbuf.InterpType.BILINEAR)
             changed = True
 
         # Resize if too high
         if pixbuf.get_height() > self._max_image_side:
-            f = float(self._max_image_side)/pixbuf.get_height()
-            (width, height) = (int(pixbuf.get_width()*f), int(pixbuf.get_height()*f))
+            f = float(self._max_image_side) / pixbuf.get_height()
+            (width, height) = (int(pixbuf.get_width() * f), int(pixbuf.get_height() * f))
             pixbuf = pixbuf.scale_simple(width, height, GdkPixbuf.InterpType.BILINEAR)
             changed = True
 
@@ -641,7 +642,7 @@ class PodcastListModel(Gtk.ListStore):
     def _overlay_pixbuf(self, pixbuf, icon):
         try:
             icon_theme = Gtk.IconTheme.get_default()
-            emblem = icon_theme.load_icon(icon, self._max_image_side/2, 0)
+            emblem = icon_theme.load_icon(icon, self._max_image_side / 2, 0)
             (width, height) = (emblem.get_width(), emblem.get_height())
             xpos = pixbuf.get_width() - width
             ypos = pixbuf.get_height() - height
@@ -720,7 +721,7 @@ class PodcastListModel(Gtk.ListStore):
             d.append('</span>')
 
         if description_markup.strip():
-            return ''.join(d+['\n', '<small>', description_markup, '</small>'])
+            return ''.join(d + ['\n', '<small>', description_markup, '</small>'])
         else:
             return ''.join(d)
 

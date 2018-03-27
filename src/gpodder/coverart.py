@@ -118,4 +118,4 @@ class CoverDownloader(object):
         return os.path.join(gpodder.images_folder, basename)
 
     def _fallback_filename(self, title):
-        return self._default_filename('podcast-%d.png' % (hash(title)%5))
+        return self._default_filename('podcast-%d.png' % (hash(title) % 5))

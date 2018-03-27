@@ -73,7 +73,7 @@ try:
             urls = []
             filelist = event.paramDescriptorForKeyword_(aeKeyword(keyDirectObject))
             numberOfItems = filelist.numberOfItems()
-            for i in range(1,numberOfItems+1):
+            for i in range(1, numberOfItems + 1):
                 fileAliasDesc = filelist.descriptorAtIndex_(i)
                 fileURLDesc = fileAliasDesc.coerceToDescriptorType_(aeKeyword(typeFileURL))
                 fileURLData = fileURLDesc.data()
@@ -92,7 +92,7 @@ try:
             fileURLData = filelist.data()
             url = buffer(fileURLData.bytes(),0,fileURLData.length())
             url = str(url)
-            print(("Subscribe to :"+url), file=sys.stderr)
+            print(("Subscribe to :" + url), file=sys.stderr)
             util.idle_add(self.gp.subscribe_to_url, url)
 
             result = NSAppleEventDescriptor.descriptorWithInt32_(42)
