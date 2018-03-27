@@ -251,7 +251,7 @@ class PodcastEpisode(PodcastModelObject):
         for postfix in (' - ', ': '):
             prefix = self.parent.title + postfix
             if (self.title.startswith(prefix) and
-                    len(self.title)-len(prefix) > LEFTOVER_MIN):
+                    len(self.title) - len(prefix) > LEFTOVER_MIN):
                 return self.title[len(prefix):]
 
         regex_patterns = [
@@ -272,12 +272,12 @@ class PodcastEpisode(PodcastModelObject):
         if (
                 not self.parent._common_prefix and
                 re.match('^#\d+: ', self.title) and
-                len(self.title)-1 > LEFTOVER_MIN):
+                len(self.title) - 1 > LEFTOVER_MIN):
             return self.title[1:]
 
         if (self.parent._common_prefix is not None and
                 self.title.startswith(self.parent._common_prefix) and
-                len(self.title)-len(self.parent._common_prefix) > LEFTOVER_MIN):
+                len(self.title) - len(self.parent._common_prefix) > LEFTOVER_MIN):
             return self.title[len(self.parent._common_prefix):]
 
         return self.title
@@ -618,7 +618,7 @@ class PodcastEpisode(PodcastModelObject):
         """
         return self.current_position > 0 and self.total_time > 0 and \
                 (self.current_position + 10 >= self.total_time or \
-                 self.current_position >= self.total_time*.99)
+                 self.current_position >= self.total_time * .99)
 
     def get_play_info_string(self, duration_only=False):
         duration = util.format_time(self.total_time)
@@ -655,7 +655,7 @@ class PodcastChannel(PodcastModelObject):
     ]
 
     MAX_FOLDERNAME_LENGTH = 60
-    SECONDS_PER_WEEK = 7*24*60*60
+    SECONDS_PER_WEEK = 7 * 24 * 60 * 60
     EpisodeClass = PodcastEpisode
 
     feed_fetcher = gPodderFetcher()
@@ -756,7 +756,7 @@ class PodcastChannel(PodcastModelObject):
                 glob.glob(os.path.join(self.save_dir, '*')) \
                 if not filename.endswith('.partial'))
 
-        ignore_files = ['folder'+ext for ext in
+        ignore_files = ['folder' + ext for ext in
                 coverart.CoverDownloader.EXTENSIONS]
 
         external_files = existing_files.difference(list(known_files) +
@@ -1144,7 +1144,7 @@ class PodcastChannel(PodcastModelObject):
         # The common prefix must end with a space - otherwise it's not
         # on a word boundary, and we might end up chopping off too much
         if prefix and prefix[-1] != ' ':
-            prefix = prefix[:prefix.rfind(' ')+1]
+            prefix = prefix[:prefix.rfind(' ') + 1]
 
         self._common_prefix = prefix
 

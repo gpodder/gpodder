@@ -129,7 +129,7 @@ def get_track_length(filename):
     if util.find_command('mplayer') is not None:
         try:
             mplayer_output = os.popen('mplayer -msglevel all=-1 -identify -vo null -ao null -frames 0 "%s" 2>/dev/null' % filename).read()
-            return int(float(mplayer_output[mplayer_output.index('ID_LENGTH'):].splitlines()[0][10:])*1000)
+            return int(float(mplayer_output[mplayer_output.index('ID_LENGTH'):].splitlines()[0][10:]) * 1000)
         except:
             pass
     else:
@@ -141,7 +141,7 @@ def get_track_length(filename):
     except Exception as e:
         logger.warn('Could not determine length: %s', filename, exc_info=True)
 
-    return int(60*60*1000*3) # Default is three hours (to be on the safe side)
+    return int(60 * 60 * 1000 * 3) # Default is three hours (to be on the safe side)
 
 
 class SyncTrack(object):
@@ -284,7 +284,7 @@ class iPodDevice(Device):
 
     def get_free_space(self):
         # Reserve 10 MiB for iTunesDB writing (to be on the safe side)
-        RESERVED_FOR_ITDB = 1024*1024*10
+        RESERVED_FOR_ITDB = 1024 * 1024 * 10
         result = util.get_free_disk_space(self.mountpoint)
         if result == -1:
             # Can't get free disk space
@@ -507,7 +507,7 @@ class MP3PlayerDevice(Device):
             download_queue_manager):
         Device.__init__(self, config)
         self.destination = self._config.device_sync.device_folder
-        self.buffer_size = 1024*1024 # 1 MiB
+        self.buffer_size = 1024 * 1024 # 1 MiB
         self.download_status_model = download_status_model
         self.download_queue_manager = download_queue_manager
 
@@ -693,7 +693,7 @@ class MP3PlayerDevice(Device):
     def directory_is_empty(self, directory):
         files = glob.glob(os.path.join(directory, '*'))
         dotfiles = glob.glob(os.path.join(directory, '.*'))
-        return len(files+dotfiles) == 0
+        return len(files + dotfiles) == 0
 
 
 class MTPDevice(Device):
@@ -710,7 +710,7 @@ class MTPDevice(Device):
     def __callback(self, sent, total):
         if self.cancelled:
             return -1
-        percentage = round(sent/total*100)
+        percentage = round(sent / total * 100)
         text = ('%i%%' % percentage)
         self.notify('progress', sent, total, text)
 
@@ -1048,7 +1048,7 @@ class SyncTask(download.DownloadTask):
             self.total_size = float(totalSize)
 
         if self.total_size > 0:
-            self.progress = max(0.0, min(1.0, (count*blockSize)/self.total_size))
+            self.progress = max(0.0, min(1.0, (count * blockSize) / self.total_size))
             self._progress_updated(self.progress)
 
         if self.status == SyncTask.CANCELLED:
