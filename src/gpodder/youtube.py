@@ -20,9 +20,7 @@
 #  Justin Forest <justin.forest@gmail.com> 2008-10-13
 #
 
-
 import gpodder
-
 from gpodder import util
 
 import os.path
@@ -73,8 +71,8 @@ formats_dict = dict(formats)
 V3_API_ENDPOINT = 'https://www.googleapis.com/youtube/v3'
 CHANNEL_VIDEOS_XML = 'https://www.youtube.com/feeds/videos.xml'
 
-
-class YouTubeError(Exception): pass
+class YouTubeError(Exception):
+    pass
 
 
 def get_fmt_ids(youtube_config):
@@ -262,3 +260,45 @@ def resolve_v3_url(url, api_key_v3):
                 return new_urls[0]
 
     return url
+
+
+def parse_youtube_url(url):
+    """
+    Youtube Channel Links are parsed into youtube feed links
+    >>> parse_youtube_url("https://www.youtube.com/channel/CHANNEL_ID")
+    'https://www.youtube.com/feeds/videos.xml?channel_id=CHANNEL_ID'
+
+    Youtube User Links are parsed into youtube feed links
+    >>> parse_youtube_url("https://www.youtube.com/user/USERNAME")
+    'https://www.youtube.com/feeds/videos.xml?user=USERNAME'
+
+    Youtube Playlist Links are parsed into youtube feed links
+    >>> parse_youtube_url("https://www.youtube.com/playlist?list=PLAYLIST_ID")
+    'https://www.youtube.com/feeds/videos.xml?playlist_id=PLAYLIST_ID'
+
+    @param url: the path to the channel, user or playlist
+    @return: the feed url if successful or the given url if not
+    """
+    scheme, netloc, path, query, fragment = urllib.parse.urlsplit(url)
+    print(scheme, " ", netloc, " ", path, " ", query, " ", fragment)
+
+    if 'youtube.com' in netloc and ('/user/' in path or '/channel/' in path or 'list=' in query):
+
+        if path.startswith('/user/'):
+            user_id = path.split('/')[2]
+            query = 'user={user_id}'.format(user_id=user_id)
+
+        if path.startswith('/channel/'):
+            channel_id = path.split('/')[2]
+            query = 'channel_id={channel_id}'.format(channel_id=channel_id)
+
+        if 'list=' in query:
+            playlist_query = [query_value for query_value in query.split("&") if 'list=' in query_value][0]
+            playlist_id = playlist_query.strip("list=")
+            query = 'playlist_id={playlist_id}'.format(playlist_id=playlist_id)
+
+        path = '/feeds/videos.xml'
+
+        return urllib.parse.urlunsplit((scheme, netloc, path, query, fragment))
+    else:
+        return url

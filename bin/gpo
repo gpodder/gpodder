@@ -291,7 +291,8 @@ class gPodderCli(object):
             return None
 
         # Check if it's a YouTube feed, and if we have an API key, auto-resolve the channel
-        url = youtube.resolve_v3_url(url, self._config.youtube.api_key_v3)
+        #url = youtube.resolve_v3_url(url, self._config.youtube.api_key_v3)
+        url = youtube.parse_youtube_url(url)
 
         # Subscribe to new podcast
         if create:
