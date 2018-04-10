@@ -248,20 +248,6 @@ def get_channels_for_user(username, api_key_v3):
     return ['{0}?channel_id={1}'.format(CHANNEL_VIDEOS_XML, item['id']) for item in data['items']]
 
 
-def resolve_v3_url(url, api_key_v3):
-    # Check if it's a YouTube feed, and if we have an API key, auto-resolve the channel
-    if url and api_key_v3:
-        _, user = for_each_feed_pattern(lambda url, channel: (url, channel), url, (None, None))
-        if user is not None:
-            logger.info('Getting channels for YouTube user %s', user)
-            new_urls = get_channels_for_user(user, api_key_v3)
-            logger.debug('YouTube channels retrieved: %r', new_urls)
-            if len(new_urls) == 1:
-                return new_urls[0]
-
-    return url
-
-
 def parse_youtube_url(url):
     """
     Youtube Channel Links are parsed into youtube feed links
@@ -279,10 +265,12 @@ def parse_youtube_url(url):
     @param url: the path to the channel, user or playlist
     @return: the feed url if successful or the given url if not
     """
+
     scheme, netloc, path, query, fragment = urllib.parse.urlsplit(url)
-    print(scheme, " ", netloc, " ", path, " ", query, " ", fragment)
+    logger.debug("Analyzing URL: {}".format(" ".join([scheme, netloc, path, query, fragment])))
 
     if 'youtube.com' in netloc and ('/user/' in path or '/channel/' in path or 'list=' in query):
+        logger.debug("Valid Youtube URL detected. Parsing...")
 
         if path.startswith('/user/'):
             user_id = path.split('/')[2]
@@ -299,6 +287,8 @@ def parse_youtube_url(url):
 
         path = '/feeds/videos.xml'
 
-        return urllib.parse.urlunsplit((scheme, netloc, path, query, fragment))
+        new_url = urllib.parse.urlunsplit((scheme, netloc, path, query, fragment))
+        logger.debug("New Youtube URL: {}".format(new_url))
+        return new_url
     else:
         return url
