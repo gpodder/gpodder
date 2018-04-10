@@ -291,4 +291,5 @@ def parse_youtube_url(url):
         logger.debug("New Youtube URL: {}".format(new_url))
         return new_url
     else:
+        logger.debug("Not a valid Youtube URL: {}".format(url))
         return url
