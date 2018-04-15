@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # Extension script to stream podcasts to Sonos speakers
-# Requirements: gPodder 3.x and the soco module (https://pypi.python.org/pypi/soco)
+# Requirements: gPodder 3.x and the soco module >= 0.7 (https://pypi.python.org/pypi/soco)
 # (c) 2013-01-19 Stefan Kögl <stefan@skoegl.net>
 # Released under the same license terms as gPodder itself.
 
@@ -28,14 +28,11 @@ SONOS_CAN_PLAY = lambda e: 'audio' in e.file_type()
 
 class gPodderExtension:
     def __init__(self, container):
-        sd = soco.SonosDiscovery()
-        speaker_ips = sd.get_speaker_ips()
-
-        logger.info('Found Sonos speakers: %s' % ', '.join(speaker_ips))
+        speakers = soco.discover()
+        logger.info('Found Sonos speakers: %s' % ', '.join(speakers))
 
         self.speakers = {}
-        for speaker_ip in speaker_ips:
-            controller = soco.SoCo(speaker_ip)
+        for controller in speakers:
 
             try:
                 info = controller.get_speaker_info()
