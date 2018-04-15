@@ -80,7 +80,7 @@ class gPodderChannel(BuilderWidget):
 
         # Hide the website button if we don't have a valid URL
         if not self.channel.link:
-            self.btn_website.hide_all()
+            self.btn_website.hide()
 
         b = Gtk.TextBuffer()
         b.set_text( self.channel.description)
