@@ -68,7 +68,7 @@ def setup(verbose=True):
         old_logfiles = glob.glob(os.path.join(logging_directory, '*-*-*.log'))
         for old_logfile in old_logfiles:
             st = os.stat(old_logfile)
-            if time.time() - st.st_mtime > 60*60*24*LOG_KEEP_DAYS:
+            if time.time() - st.st_mtime > 60 * 60 * 24 * LOG_KEEP_DAYS:
                 logger.info('Purging old logfile: %s', old_logfile)
                 try:
                     os.remove(old_logfile)

@@ -520,7 +520,7 @@ class MygPoClient(object):
             # Uploads are done in batches; uploading can resume if only parts
             # be uploaded; avoids empty uploads as well
             for lower in range(0, len(actions), EPISODE_ACTIONS_BATCH_SIZE):
-                batch = actions[lower:lower+EPISODE_ACTIONS_BATCH_SIZE]
+                batch = actions[lower:(lower + EPISODE_ACTIONS_BATCH_SIZE)]
 
                 # Convert actions to the mygpoclient format for uploading
                 episode_actions = [convert_to_api(a) for a in batch]

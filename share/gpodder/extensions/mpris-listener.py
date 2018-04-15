@@ -132,7 +132,7 @@ class CurrentTrackTracker(object):
                     self.pos < (self.length + 2 * USECS_IN_SEC)):
                 logger.debug('fixing for position 0 (calculated pos: %f/%f [%f])',
                              self.pos / USECS_IN_SEC, self.length / USECS_IN_SEC,
-                             (self.pos/USECS_IN_SEC)-(self.length/USECS_IN_SEC))
+                             (self.pos / USECS_IN_SEC) - (self.length / USECS_IN_SEC))
                 self.pos = self.length
                 kwargs.pop('pos') # remove 'pos' even though we're not using it
             else:
@@ -140,7 +140,7 @@ class CurrentTrackTracker(object):
                     logger.debug("%r %r", self.pos, self.length)
                     logger.debug('not fixing for position 0 (calculated pos: %f/%f [%f])',
                                  self.pos / USECS_IN_SEC, self.length / USECS_IN_SEC,
-                                 (self.pos/USECS_IN_SEC)-(self.length/USECS_IN_SEC))
+                                 (self.pos / USECS_IN_SEC) - (self.length / USECS_IN_SEC))
                 self.pos = kwargs.pop('pos')
 
         if 'status' in kwargs:

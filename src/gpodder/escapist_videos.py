@@ -156,7 +156,7 @@ def get_escapist_real_url(data, config_json):
     # Turn the string into numbers
     hash_n = [ ord(x) for x in one_hash ]
     # Split the data into 2char strings
-    hex_hashes = [ data[x:x+2] for x in range(0,len(data),2) ]
+    hex_hashes = [ data[x:(x + 2)] for x in range(0,len(data),2) ]
     # Turn the strings into numbers, considering the hex value
     num_hashes = [ int(h, 16) for h in hex_hashes ]
     # Characters again, from the value

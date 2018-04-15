@@ -209,7 +209,7 @@ class Database(object):
                         for name in columns]
 
                 if o.id is None:
-                    qmarks = ', '.join('?'*len(columns))
+                    qmarks = ', '.join('?' * len(columns))
                     sql = 'INSERT INTO %s (%s) VALUES (%s)' % (table, ', '.join(columns), qmarks)
                     cur.execute(sql, values)
                     o.id = cur.lastrowid

@@ -70,7 +70,7 @@ class Matcher(object):
 
         # Nouns (for comparisons)
         if k in ('megabytes', 'mb'):
-            return episode.file_size / (1024*1024)
+            return episode.file_size / (1024 * 1024)
         elif k == 'title':
             return episode.title
         elif k == 'description':

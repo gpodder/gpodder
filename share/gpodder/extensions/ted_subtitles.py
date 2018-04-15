@@ -92,7 +92,7 @@ class gPodderExtension(object):
             intro = episode_data
             intro = episode_data.split('introDuration":')[1] \
                                 .split(',')[0] or INTRO_DEFAULT
-            intro = int(float(intro)*1000)
+            intro = int(float(intro) * 1000)
         except (ValueError, IndexError) as e:
             logger.info("Couldn't parse introDuration string: %s", intro)
             intro = INTRO_DEFAULT * 1000

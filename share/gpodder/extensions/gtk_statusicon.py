@@ -113,7 +113,7 @@ class gPodderExtension:
             return
 
         # Only update in 3-percent-steps to save some resources
-        if abs(progress-self.last_progress) < 0.03 and progress > self.last_progress:
+        if abs(progress - self.last_progress) < 0.03 and progress > self.last_progress:
             return
 
         icon = self.get_icon_pixbuf().copy()
