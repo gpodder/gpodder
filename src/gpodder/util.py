@@ -410,7 +410,7 @@ def file_age_in_days(filename):
     if dt is None:
         return 0
     else:
-        return (datetime.datetime.now()-dt).days
+        return (datetime.datetime.now() - dt).days
 
 
 def file_modification_timestamp(filename):
@@ -508,7 +508,7 @@ def format_date(timestamp):
     if timestamp is None:
         return None
 
-    seconds_in_a_day = 60*60*24
+    seconds_in_a_day = 60 * 60 * 24
 
     today = time.localtime()[:3]
     yesterday = time.localtime(time.time() - seconds_in_a_day)[:3]
@@ -527,7 +527,7 @@ def format_date(timestamp):
         return _('Yesterday')
 
     try:
-        diff = int( (time.time() - timestamp)/seconds_in_a_day )
+        diff = int( (time.time() - timestamp) / seconds_in_a_day )
     except:
         logger.warn('Cannot convert "%s" to date.', timestamp, exc_info=True)
         return None
@@ -584,7 +584,7 @@ def format_filesize(bytesize, use_si_units=False, digits=2):
             used_value = bytesize / float(value)
             used_unit = unit
 
-    return ('%.'+str(digits)+'f %s') % (used_value, used_unit)
+    return ('%.' + str(digits) + 'f %s') % (used_value, used_unit)
 
 
 def delete_file(filename):
@@ -884,7 +884,7 @@ def mimetype_from_extension(extension):
         return _MIME_TYPES_EXT[extension]
 
     # Need to prepend something to the extension, so guess_type works
-    type, encoding = mimetypes.guess_type('file'+extension)
+    type, encoding = mimetypes.guess_type('file' + extension)
 
     return type or ''
 
@@ -922,9 +922,9 @@ def extension_correct_for_mimetype(extension, mimetype):
 
     # Create a "default" extension from the mimetype, e.g. "application/ogg"
     # becomes ".ogg", "audio/mpeg" becomes ".mpeg", etc...
-    default = ['.'+mimetype.split('/')[-1]]
+    default = ['.' + mimetype.split('/')[-1]]
 
-    return extension in default+mimetypes.guess_all_extensions(mimetype)
+    return extension in default + mimetypes.guess_all_extensions(mimetype)
 
 
 def filename_from_url(url):
@@ -947,7 +947,7 @@ def filename_from_url(url):
     (filename, extension) = os.path.splitext(os.path.basename( urllib.parse.unquote(path)))
 
     if file_type_by_extension(extension) is not None and not \
-            query.startswith(scheme+'://'):
+            query.startswith(scheme + '://'):
         # We have found a valid extension (audio, video)
         # and the query string doesn't look like a URL
         return ( filename, extension.lower() )
@@ -997,7 +997,7 @@ def file_type_by_extension(extension):
         return _MIME_TYPES_EXT[extension].split('/')[0]
 
     # Need to prepend something to the extension, so guess_type works
-    type, encoding = mimetypes.guess_type('file'+extension)
+    type, encoding = mimetypes.guess_type('file' + extension)
 
     if type is not None and '/' in type:
         filetype, rest = type.split('/', 1)
@@ -1082,7 +1082,7 @@ def format_desktop_command(command, filenames, start_position=None):
     for fieldcode in ('%U', '%F', '%u', '%f'):
         if fieldcode in command:
             command_before = command[:command.index(fieldcode)]
-            command_after = command[command.index(fieldcode)+1:]
+            command_after = command[command.index(fieldcode) + 1:]
             multiple_arguments = fieldcode in ('%U', '%F')
             break
 
@@ -1091,7 +1091,7 @@ def format_desktop_command(command, filenames, start_position=None):
 
     commands = []
     for filename in filenames:
-        commands.append(command_before+[filename]+command_after)
+        commands.append(command_before + [filename] + command_after)
 
     return commands
 
@@ -1394,7 +1394,7 @@ def format_seconds_to_hour_min_sec(seconds):
         result.append(N_('%(count)d second', '%(count)d seconds', seconds) % {'count':seconds})
 
     if len(result) > 1:
-        return (' '+_('and')+' ').join((', '.join(result[:-1]), result[-1]))
+        return (' ' +_('and') + ' ').join((', '.join(result[:-1]), result[-1]))
     else:
         return result[0]
 
@@ -1602,7 +1602,7 @@ def commonpath(l1, l2, common=[]):
     if len(l1) < 1: return (common, l1, l2)
     if len(l2) < 1: return (common, l1, l2)
     if l1[0] != l2[0]: return (common, l1, l2)
-    return commonpath(l1[1:], l2[1:], common+[l1[0]])
+    return commonpath(l1[1:], l2[1:], common + [l1[0]])
 
 
 def relpath(p1, p2):
@@ -1615,7 +1615,7 @@ def relpath(p1, p2):
     (common,l1,l2) = commonpath(pathsplit(p1), pathsplit(p2))
     p = []
     if len(l1) > 0:
-        p = [ ('..'+os.sep) * len(l1) ]
+        p = [ ('..' + os.sep) * len(l1) ]
     p = p + l2
     if len(p) is 0:
         return "."
@@ -1675,7 +1675,7 @@ def write_m3u_playlist(m3u_filename, episodes, extm3u=True):
     for episode in episodes:
         if not extm3u:
             # Episode objects are strings that contain file names
-            f.write(episode+'\n')
+            f.write(episode + '\n')
             continue
 
         if episode.was_downloaded(and_exists=True):
@@ -1683,9 +1683,9 @@ def write_m3u_playlist(m3u_filename, episodes, extm3u=True):
             assert filename is not None
 
             if os.path.dirname(filename).startswith(os.path.dirname(m3u_filename)):
-                filename = filename[len(os.path.dirname(m3u_filename)+os.sep):]
-            f.write('#EXTINF:0,'+episode.playlist_title()+'\n')
-            f.write(filename+'\n')
+                filename = filename[len(os.path.dirname(m3u_filename) + os.sep):]
+            f.write('#EXTINF:0,' + episode.playlist_title() + '\n')
+            f.write(filename + '\n')
 
     f.close()
 
@@ -1694,7 +1694,7 @@ def generate_names(filename):
     basename, ext = os.path.splitext(filename)
     for i in itertools.count():
         if i:
-            yield '%s (%d)%s' % (basename, i+1, ext)
+            yield '%s (%d)%s' % (basename, i + 1, ext)
         else:
             yield filename
 

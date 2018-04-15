@@ -118,7 +118,7 @@ class Store(object):
                 used = [s for s in slots if getattr(child, s, None) is not None]
                 values = [self.convert(getattr(child, slot)) for slot in used]
                 self.db.execute('INSERT INTO %s (%s) VALUES (%s)' % (table,
-                    ', '.join(used), ', '.join('?'*len(used))), values)
+                    ', '.join(used), ', '.join('?' * len(used))), values)
             return
 
         with self.lock:
@@ -127,7 +127,7 @@ class Store(object):
 
             values = [self.convert(getattr(o, slot)) for slot in slots]
             self.db.execute('INSERT INTO %s (%s) VALUES (%s)' % (table,
-                ', '.join(slots), ', '.join('?'*len(slots))), values)
+                ', '.join(slots), ', '.join('?' * len(slots))), values)
 
     def delete(self, class_, **kwargs):
         with self.lock:
@@ -201,7 +201,7 @@ if __name__ == '__main__':
             return '<Person "%s" (%d)>' % (self.username, self.id)
 
     m = Store()
-    m.save(Person('User %d' % x, x*20) for x in range(50))
+    m.save(Person('User %d' % x, x * 20) for x in range(50))
 
     p = m.get(Person, id=200)
     print(p)
@@ -209,7 +209,7 @@ if __name__ == '__main__':
     p = m.get(Person, id=200)
 
     # Remove some persons again (deletion by value!)
-    m.remove(Person('User %d' % x, x*20) for x in range(40))
+    m.remove(Person('User %d' % x, x * 20) for x in range(40))
 
     class Person(object):
         __slots__ = {'username': str, 'id': int, 'mail': str}
@@ -223,5 +223,5 @@ if __name__ == '__main__':
             return '<Person "%s" (%s)>' % (self.username, self.mail)
 
     # A schema update takes place here
-    m.save(Person('User %d' % x, x*20, 'user@home.com') for x in range(50))
+    m.save(Person('User %d' % x, x * 20, 'user@home.com') for x in range(50))
     print(m.load(Person))
