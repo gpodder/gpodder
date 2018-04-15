@@ -446,8 +446,8 @@ class EpisodeListModel(Gtk.ListStore):
                         tooltip.append(_('deletion prevented'))
 
                 if episode.total_time > 0 and episode.current_position:
-                    tooltip.append('%d%%' % (100. * float(episode.current_position)
-                                             / float(episode.total_time),))
+                    tooltip.append('%d%%' % (100. * float(episode.current_position) /
+                                             float(episode.total_time),))
 
         if episode.total_time:
             total_time = util.format_time(episode.total_time)
