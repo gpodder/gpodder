@@ -70,7 +70,7 @@ class CoverDownloader(object):
         # If allowed to download files, do so here
         if download:
             # YouTube-specific cover art image resolver
-            youtube_cover_url = youtube.get_real_cover(feed_url)
+            youtube_cover_url = youtube.get_cover(feed_url)
             if youtube_cover_url is not None:
                 cover_url = youtube_cover_url
 

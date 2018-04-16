@@ -20,20 +20,15 @@
 #  Justin Forest <justin.forest@gmail.com> 2008-10-13
 #
 
-import gpodder
+from urllib.parse import parse_qs
 from gpodder import util
-
-import os.path
-
+from html.parser import HTMLParser
+import json
+import re
+import urllib
+import xml.etree.ElementTree
 import logging
 logger = logging.getLogger(__name__)
-
-import json
-
-import re
-import urllib.request, urllib.parse, urllib.error
-
-from urllib.parse import parse_qs
 
 # http://en.wikipedia.org/wiki/YouTube#Quality_and_codecs
 # format id, (preferred ids, path(?), description) # video bitrate, audio bitrate
@@ -71,6 +66,7 @@ formats_dict = dict(formats)
 V3_API_ENDPOINT = 'https://www.googleapis.com/youtube/v3'
 CHANNEL_VIDEOS_XML = 'https://www.youtube.com/feeds/videos.xml'
 
+
 class YouTubeError(Exception):
     pass
 
@@ -89,7 +85,7 @@ def get_fmt_ids(youtube_config):
 
 def get_real_download_url(url, preferred_fmt_ids=None):
     if not preferred_fmt_ids:
-        preferred_fmt_ids, _, _ = formats_dict[22] # MP4 720p
+        preferred_fmt_ids, _, _ = formats_dict[22]  # MP4 720p
 
     vid = get_youtube_id(url)
     if vid is not None:
@@ -207,26 +203,43 @@ def get_real_channel_url(url):
     return for_each_feed_pattern(return_user_feed, url, url)
 
 
-def get_real_cover(url):
-    def return_user_cover(url, channel):
-        try:
-            api_url = 'https://www.youtube.com/channel/{0}'.format(channel)
-            data = util.urlopen(api_url).read().decode('utf-8')
+def get_cover(url):
+    class YouTubeHTMLCoverParser(HTMLParser):
+        """This custom html parser searches for the youtube channel thumbnail/avatar"""
+        def __init__(self):
+            super().__init__()
+            self.url = ""
+
+        def handle_starttag(self, tag, attributes):
+            attribute_dict = {attribute[0]: attribute[1] for attribute in attributes}
+
             # Look for 900x900px image first.
-            m = re.search('<link rel="image_src"[^>]* href=[\'"]([^\'"]+)[\'"][^>]*>', data)
-            if m is None:
-                # Fallback to image that may only be 100x100px.
-                m = re.search('<img class="channel-header-profile-image"[^>]* src=[\'"]([^\'"]+)[\'"][^>]*>', data)
-            if m is not None:
-                logger.debug('YouTube userpic for %s is: %s', url, m.group(1))
-                return m.group(1)
+            if tag == 'link' \
+                    and 'rel' in attribute_dict \
+                    and attribute_dict['rel'] == 'image_src':
+                self.url = attribute_dict['href']
+
+            # Fallback to image that may only be 100x100px.
+            elif tag == 'img' \
+                    and 'class' in attribute_dict \
+                    and attribute_dict['class'] == "channel-header-profile-image":
+                self.url = attribute_dict['src']
+
+    if 'youtube.com' in url:
+        try:
+            raw_xml_data = util.urlopen(url).read().decode('utf-8')
+            xml_data = xml.etree.ElementTree.fromstring(raw_xml_data)
+            channel_id = xml_data.find("{http://www.youtube.com/xml/schemas/2015}channelId").text
+            channel_url = 'https://www.youtube.com/channel/{}'.format(channel_id)
+            html_data = util.urlopen(channel_url).read().decode('utf-8')
+            parser = YouTubeHTMLCoverParser()
+            parser.feed(html_data)
+            if parser.url:
+                logger.debug('Youtube cover art for {} is: {}'.format(url, parser.url))
+                return parser.url
+
         except Exception as e:
-            logger.warn('Could not retrieve cover art', exc_info=True)
-            return None
-
-        return None
-
-    return for_each_feed_pattern(return_user_cover, url, None)
+            logger.warning('Could not retrieve cover art', exc_info=True)
 
 
 def get_channels_for_user(username, api_key_v3):
