@@ -204,28 +204,29 @@ def get_real_channel_url(url):
 
 
 def get_cover(url):
-    class YouTubeHTMLCoverParser(HTMLParser):
-        """This custom html parser searches for the youtube channel thumbnail/avatar"""
-        def __init__(self):
-            super().__init__()
-            self.url = ""
-
-        def handle_starttag(self, tag, attributes):
-            attribute_dict = {attribute[0]: attribute[1] for attribute in attributes}
-
-            # Look for 900x900px image first.
-            if tag == 'link' \
-                    and 'rel' in attribute_dict \
-                    and attribute_dict['rel'] == 'image_src':
-                self.url = attribute_dict['href']
-
-            # Fallback to image that may only be 100x100px.
-            elif tag == 'img' \
-                    and 'class' in attribute_dict \
-                    and attribute_dict['class'] == "channel-header-profile-image":
-                self.url = attribute_dict['src']
-
     if 'youtube.com' in url:
+
+        class YouTubeHTMLCoverParser(HTMLParser):
+            """This custom html parser searches for the youtube channel thumbnail/avatar"""
+            def __init__(self):
+                super().__init__()
+                self.url = ""
+
+            def handle_starttag(self, tag, attributes):
+                attribute_dict = {attribute[0]: attribute[1] for attribute in attributes}
+
+                # Look for 900x900px image first.
+                if tag == 'link' \
+                        and 'rel' in attribute_dict \
+                        and attribute_dict['rel'] == 'image_src':
+                    self.url = attribute_dict['href']
+
+                # Fallback to image that may only be 100x100px.
+                elif tag == 'img' \
+                        and 'class' in attribute_dict \
+                        and attribute_dict['class'] == "channel-header-profile-image":
+                    self.url = attribute_dict['src']
+
         try:
             raw_xml_data = util.urlopen(url).read().decode('utf-8')
             xml_data = xml.etree.ElementTree.fromstring(raw_xml_data)
