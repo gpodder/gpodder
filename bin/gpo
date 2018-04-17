@@ -47,11 +47,9 @@
 
   - Episode management -
 
-    download [URL]             Download new episodes (all or only from URL)
-    downloadguid URL GUID      Download single episode
+    download [URL] [GUID]      Download new episodes (all or only from URL) or single GUID
     pending [URL]              List new episodes (all or only from URL)
-    episodes [URL]             List episodes (all or only from URL)
-    episodesguid URL           List episodes with GUIDs
+    episodes [URL] [SHOWGUID]  List episodes with or without GUIDs (all or only from URL)
 
   - Configuration -
 
@@ -438,7 +436,8 @@ class gPodderCli(object):
 
         return True
 
-    def _episodes(self, url=None, show_guid=False):
+    @FirstArgumentIsPodcastURL
+    def episodes(self, url=None, show_guid=False):
         output = []
         for podcast in self._model.get_podcasts():
             podcast_printed = False
@@ -452,14 +451,6 @@ class gPodderCli(object):
 
         self._pager('\n'.join(output))
         return True
-
-    @FirstArgumentIsPodcastURL
-    def episodes(self, url=None):
-      return self._episodes(url, False)
-
-    @FirstArgumentIsPodcastURL
-    def episodesguid(self, url):
-      return self._episodes(url, True)
 
     def list(self):
         for podcast in self._model.get_podcasts():
@@ -527,12 +518,12 @@ class gPodderCli(object):
             task.run()
 
     @FirstArgumentIsPodcastURL
-    def download(self, url=None):
+    def download(self, url=None, guid=None):
         episodes = []
         for podcast in self._model.get_podcasts():
             if url is None or podcast.url == url:
                 for episode in podcast.get_all_episodes():
-                    if self.is_episode_new(episode):
+                    if (not guid and self.is_episode_new(episode)) or (guid and episode.guid == guid):
                         episodes.append(episode)
 
         if self._config.downloads.chronological_order:
@@ -548,25 +539,6 @@ class gPodderCli(object):
 
         util.delete_empty_folders(gpodder.downloads)
         print(len(episodes), 'episodes downloaded.')
-        return True
-
-    @FirstArgumentIsPodcastURL
-    def downloadguid(self, url, guid):
-        podcast = self.get_podcast(url)
-
-        if podcast is None:
-            self._error(_('You are not subscribed to %s.') % url)
-        else:
-          episode_found = False
-          for podcast in self._model.get_podcasts():
-              if podcast.url == url:
-                  for episode in podcast.get_all_episodes():
-                      if episode.guid == guid:
-                          episode_found = True
-                          self._download_episode(episode)
-                          print(_('Episode with GUID %s downloaded.') % guid)
-          if not episode_found:
-            self._error(_('Episode with GUID %(guid)s not found in podcast %(url)s.') % { guid: guid, url: url })
         return True
 
     @FirstArgumentIsPodcastURL
