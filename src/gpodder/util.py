@@ -1394,7 +1394,7 @@ def format_seconds_to_hour_min_sec(seconds):
         result.append(N_('%(count)d second', '%(count)d seconds', seconds) % {'count':seconds})
 
     if len(result) > 1:
-        return (' ' +_('and') + ' ').join((', '.join(result[:-1]), result[-1]))
+        return (' ' + _('and') + ' ').join((', '.join(result[:-1]), result[-1]))
     else:
         return result[0]
 

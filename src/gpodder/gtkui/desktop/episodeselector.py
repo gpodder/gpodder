@@ -325,8 +325,8 @@ class gPodderEpisodeSelector(BuilderWidget):
             if total_size > 0:
                 text.append(_('size: %s') % util.format_filesize(total_size))
             self.labelTotalSize.set_text(', '.join(text))
-            self.btnOK.set_sensitive(count>0)
-            self.btnRemoveAction.set_sensitive(count>0)
+            self.btnOK.set_sensitive(count > 0)
+            self.btnRemoveAction.set_sensitive(count > 0)
             if count > 0:
                 self.btnCancel.set_label(Gtk.STOCK_CANCEL)
             else:

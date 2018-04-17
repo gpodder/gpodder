@@ -72,7 +72,7 @@ from mygpoclient import public
 
 from mygpoclient import util as mygpoutil
 
-EPISODE_ACTIONS_BATCH_SIZE=100
+EPISODE_ACTIONS_BATCH_SIZE = 100
 
 
 # Database model classes

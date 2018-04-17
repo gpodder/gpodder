@@ -581,12 +581,12 @@ class gPodderPreferences(BuilderWidget):
 
     def on_checkbutton_create_playlists_toggled(self, widget,device_type_changed=False):
         if not widget.get_active():
-            self._config.device_sync.playlists.create=False
+            self._config.device_sync.playlists.create = False
             self.toggle_playlist_interface(False)
             #need to read value of checkbutton from interface,
             #rather than value of parameter
         else:
-            self._config.device_sync.playlists.create=True
+            self._config.device_sync.playlists.create = True
             self.toggle_playlist_interface(True)
 
     def toggle_playlist_interface(self, enabled):

@@ -53,12 +53,12 @@ class gPodderSyncUI(object):
         self.show_confirmation = show_confirmation
 
         self.show_preferences = show_preferences
-        self.channels=channels
+        self.channels = channels
         self.download_status_model = download_status_model
         self.download_queue_manager = download_queue_manager
         self.enable_download_list_update = enable_download_list_update
         self.commit_changes_to_database = commit_changes_to_database
-        self.delete_episode_list=delete_episode_list
+        self.delete_episode_list = delete_episode_list
 
     def _filter_sync_episodes(self, channels, only_downloaded=False):
         """Return a list of episodes for device synchronization
@@ -176,24 +176,24 @@ class gPodderSyncUI(object):
                 self.commit_changes_to_database()
                 for current_channel in self.channels:
                     #only sync those channels marked for syncing
-                    if (self._config.device_sync.device_type=='filesystem' and current_channel.sync_to_mp3_player and self._config.device_sync.playlists.create):
+                    if (self._config.device_sync.device_type == 'filesystem' and current_channel.sync_to_mp3_player and self._config.device_sync.playlists.create):
 
                         #get playlist object
-                        playlist=gPodderDevicePlaylist(self._config,
+                        playlist = gPodderDevicePlaylist(self._config,
                                                        current_channel.title)
                         #need to refresh episode list so that
                         #deleted episodes aren't included in playlists
-                        episodes_for_playlist=sorted(current_channel.get_episodes(gpodder.STATE_DOWNLOADED),
+                        episodes_for_playlist = sorted(current_channel.get_episodes(gpodder.STATE_DOWNLOADED),
                                                      key=lambda ep: ep.published)
                         #don't add played episodes to playlist if skip_played_episodes is True
                         if self._config.device_sync.skip_played_episodes:
-                            episodes_for_playlist=[ep for ep in episodes_for_playlist if ep.is_new]
+                            episodes_for_playlist = [ep for ep in episodes_for_playlist if ep.is_new]
                         playlist.write_m3u(episodes_for_playlist)
 
                 #enable updating of UI
                 self.enable_download_list_update()
 
-                if (self._config.device_sync.device_type=='filesystem' and self._config.device_sync.playlists.create):
+                if (self._config.device_sync.device_type == 'filesystem' and self._config.device_sync.playlists.create):
                     title = _('Update successful')
                     message = _('The playlist on your MP3 player has been updated.')
                     self.notification(message, title)
@@ -208,20 +208,20 @@ class gPodderSyncUI(object):
 
             if self._config.device_sync.playlists.create:
                 try:
-                    episodes_to_delete=[]
+                    episodes_to_delete = []
                     if self._config.device_sync.playlists.two_way_sync:
                         for current_channel in self.channels:
                             #only include channels that are included in the sync
                             if current_channel.sync_to_mp3_player:
                                 #get playlist object
-                                playlist=gPodderDevicePlaylist(self._config, current_channel.title)
+                                playlist = gPodderDevicePlaylist(self._config, current_channel.title)
                                 #get episodes to be written to playlist
-                                episodes_for_playlist=sorted(current_channel.get_episodes(gpodder.STATE_DOWNLOADED),
-                                                             key=lambda ep: ep.published)
-                                episode_keys=list(map(playlist.get_absolute_filename_for_playlist,
-                                                 episodes_for_playlist))
+                                episodes_for_playlist = sorted(current_channel.get_episodes(gpodder.STATE_DOWNLOADED),
+                                                               key=lambda ep: ep.published)
+                                episode_keys = list(map(playlist.get_absolute_filename_for_playlist,
+                                                        episodes_for_playlist))
 
-                                episode_dict=dict(list(zip(episode_keys, episodes_for_playlist)))
+                                episode_dict = dict(list(zip(episode_keys, episodes_for_playlist)))
 
                                 #then get episodes in playlist (if it exists) already on device
                                 episodes_in_playlists = playlist.read_m3u()

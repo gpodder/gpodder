@@ -347,7 +347,7 @@ def progressbar_pixbuf(width, height, percentage):
     ctx.fill()
 
     # Border
-    ctx.rectangle(padding- .5, padding - .5, bar_width + 1, bar_height + 1)
+    ctx.rectangle(padding - .5, padding - .5, bar_width + 1, bar_height + 1)
     ctx.set_source_rgba(* COLOR_BORDER)
     ctx.set_line_width(1.)
     ctx.stroke()
