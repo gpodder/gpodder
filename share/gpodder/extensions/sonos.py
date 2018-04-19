@@ -55,6 +55,8 @@ class gPodderExtension:
         logger.info('Streaming to Sonos %s: %s' % (speaker_ip, ', '.join(urls)))
 
         controller = soco.SoCo(speaker_ip)
+        # If there was previously a group, nuke it
+        controller.unjoin()
 
         # enqueue and play
         for episode in episodes:
