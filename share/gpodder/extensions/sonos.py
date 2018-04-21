@@ -25,6 +25,7 @@ __only_for__ = 'gtk'
 
 SONOS_CAN_PLAY = lambda e: 'audio' in e.file_type()
 
+
 class gPodderExtension:
     def __init__(self, container):
         speakers = soco.discover()
@@ -45,13 +46,13 @@ class gPodderExtension:
 
             # devices that do not have a name are probably bridges
             if name:
-                self.speakers[speaker.uid] = speaker
+                self.speakers[uid] = speaker
 
     def _stream_to_speaker(self, speaker_uid, episodes):
         """ Play or enqueue selected episodes """
 
         urls = [episode.url for episode in episodes if SONOS_CAN_PLAY(episode)]
-        logger.info('Streaming to Sonos %s: %s'%(self.speakers[speaker_uid].ip_address, ', '.join(urls)))
+        logger.info('Streaming to Sonos %s: %s' % (self.speakers[speaker_uid].ip_address, ', '.join(urls)))
 
         controller = self.speakers[speaker_uid].group.coordinator
 
