@@ -32,31 +32,29 @@ class gPodderExtension:
         logger.info('Found Sonos speakers: %s' % ', '.join(name.player_name for name in speakers))
 
         self.speakers = {}
-        for controller in speakers:
+        for speaker in speakers:
 
             try:
-                info = controller.get_speaker_info()
+                info = speaker.get_speaker_info()
 
             except requests.ConnectionError as ce:
                 # ignore speakers we can't connect to
                 continue
 
             name = info.get('zone_name', None)
+            uid = speaker.uid
 
             # devices that do not have a name are probably bridges
             if name:
-                self.speakers[speaker_ip] = name
-                speaker_ip = controller.ip_address
+                self.speakers[uid] = speaker
 
-    def _stream_to_speaker(self, speaker_ip, episodes):
+    def _stream_to_speaker(self, speaker_uid, episodes):
         """ Play or enqueue selected episodes """
 
         urls = [episode.url for episode in episodes if SONOS_CAN_PLAY(episode)]
-        logger.info('Streaming to Sonos %s: %s' % (speaker_ip, ', '.join(urls)))
+        logger.info('Streaming to Sonos %s: %s' % (self.speakers[speaker_uid].ip_address, ', '.join(urls)))
 
-        controller = soco.SoCo(speaker_ip)
-        # If there was previously a group, nuke it
-        controller.unjoin()
+        controller = self.speakers[speaker_uid].group.coordinator
 
         # enqueue and play
         for episode in episodes:
@@ -73,10 +71,15 @@ class gPodderExtension:
             return []
 
         menu_entries = []
-        for speaker_ip, name in self.speakers.items():
-            callback = partial(self._stream_to_speaker, speaker_ip)
+        for uid in self.speakers.iterkeys():
+            callback = partial(self._stream_to_speaker, uid)
 
+            controller = self.speakers[uid]
+            is_grouped = ' (Grouped)' if len(controller.group.members) > 1 else ''
+            name = controller.group.label + is_grouped
             item = ('/'.join((_('Stream to Sonos'), name)), callback)
             menu_entries.append(item)
 
-        return menu_entries
+        # Remove any duplicate group names. I doubt Sonos allows duplicate speaker names,
+        # but we do initially get duplicated group names with the loop above
+        return list(dict(menu_entries).items())
