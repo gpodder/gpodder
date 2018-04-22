@@ -239,7 +239,7 @@ def get_cover(url):
                 logger.debug('Youtube cover art for {} is: {}'.format(url, parser.url))
                 return parser.url
 
-        except Exception as e:
+        except Exception:
             logger.warning('Could not retrieve cover art', exc_info=True)
 
 
