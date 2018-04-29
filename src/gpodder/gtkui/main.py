@@ -170,6 +170,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # When the amount of maximum downloads changes, notify the queue manager
         changed_cb = lambda spinbutton: self.download_queue_manager.update_max_downloads()
         self.spinMaxDownloads.connect('value-changed', changed_cb)
+        self.cbMaxDownloads.connect('toggled', changed_cb)
 
         # Keep a reference to the last add podcast dialog instance
         self._add_podcast_dialog = None

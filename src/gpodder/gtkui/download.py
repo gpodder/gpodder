@@ -142,17 +142,21 @@ class DownloadStatusModel(Gtk.ListStore):
         return False
 
     def has_work(self):
-        return any(task for task in
-                (row[DownloadStatusModel.C_TASK] for row in self)
-                if task.status == task.QUEUED)
+        return any(self._work_gen())
+
+    def available_work_count(self):
+        return len(list(self._work_gen()))
 
     def get_next(self):
         with self.set_downloading_access:
-            result = next(task for task in
-                    (row[DownloadStatusModel.C_TASK] for row in self)
-                    if task.status == task.QUEUED)
+            result = next(self._work_gen())
             self.set_downloading(result)
         return result
+
+    def _work_gen(self):
+        return (task for task in
+                    (row[DownloadStatusModel.C_TASK] for row in self)
+                    if task.status == task.QUEUED)
 
     def set_downloading(self, task):
         with self.set_downloading_access:
