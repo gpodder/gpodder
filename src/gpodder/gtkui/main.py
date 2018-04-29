@@ -2305,8 +2305,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         for input_title, input_url in podcasts:
             url = util.normalize_feed_url(input_url)
 
-            # Check if it's a YouTube feed, and if we have an API key, auto-resolve the channel
-            url = youtube.resolve_v3_url(url, self.config.youtube.api_key_v3)
+            # Check if it's a YouTube channel, user, or playlist and resolves it to its feed if that's the case
+            url = youtube.parse_youtube_url(url)
 
             if url is None:
                 # Fail this one because the URL is not valid
