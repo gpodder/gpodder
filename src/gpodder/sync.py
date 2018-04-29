@@ -224,10 +224,10 @@ class Device(services.ObservableService):
                     return False
 
                 # XXX: need to check if track is added properly?
-                sync_task=SyncTask(track)
+                sync_task = SyncTask(track)
 
-                sync_task.status=sync_task.QUEUED
-                sync_task.device=self
+                sync_task.status = sync_task.QUEUED
+                sync_task.device = self
                 # New Task, we must wait on the GTK Loop
                 self.download_status_model.register_task(sync_task)
                 # Executes after task has been registered
@@ -415,7 +415,7 @@ class iPodDevice(Device):
     def add_track(self, episode,reporthook=None):
         self.notify('status', _('Adding %s') % episode.title)
         tracklist = gpod.sw_get_playlist_tracks(self.podcasts_playlist)
-        podcasturls=[track.podcasturl for track in tracklist]
+        podcasturls = [track.podcasturl for track in tracklist]
 
         if episode.url in podcasturls:
             # Mark as played on iPod if played locally (and set podcast flags)
@@ -431,7 +431,7 @@ class iPodDevice(Device):
         if util.calculate_size(original_filename) > self.get_free_space():
             logger.error('Not enough space on %s, sync aborted...', self.mountpoint)
             d = {'episode': episode.title, 'mountpoint': self.mountpoint}
-            message =_('Error copying %(episode)s: Not enough free space on %(mountpoint)s')
+            message = _('Error copying %(episode)s: Not enough free space on %(mountpoint)s')
             self.errors.append(message % d)
             self.cancelled = True
             return False
@@ -577,7 +577,7 @@ class MP3PlayerDevice(Device):
             logger.warn('Cannot determine free disk space on device')
         elif needed > free:
             d = {'path': self.destination, 'free': util.format_filesize(free), 'need': util.format_filesize(needed)}
-            message =_('Not enough space in %(path)s: %(free)s available, but need at least %(need)s')
+            message = _('Not enough space in %(path)s: %(free)s available, but need at least %(need)s')
             raise SyncFailedException(message % d)
 
         # get the filename that will be used on the device
@@ -744,10 +744,10 @@ class MTPDevice(Device):
             mtp = mtp.replace(" ", "0") # replace blank with 0 to fix some invalid string
             d = time.strptime(mtp[:8] + mtp[9:13],"%Y%m%d%H%M%S")
             _date = calendar.timegm(d)
-            if len(mtp)==20:
+            if len(mtp) == 20:
                 # TIME ZONE SHIFTING: the string contains a hour/min shift relative to a time zone
                 try:
-                    shift_direction=mtp[15]
+                    shift_direction = mtp[15]
                     hour_shift = int(mtp[16:18])
                     minute_shift = int(mtp[18:20])
                     shift_in_sec = hour_shift * 3600 + minute_shift * 60
@@ -895,7 +895,7 @@ class MTPDevice(Device):
         tracks = []
         for track in listing:
             title = track.title
-            if not title or title=="": title=track.filename
+            if not title or title == "": title = track.filename
             if len(title) > 50: title = title[0:49] + '...'
             artist = track.artist
             if artist and len(artist) > 50: artist = artist[0:49] + '...'

@@ -86,7 +86,7 @@ class GEpisode(model.PodcastEpisode):
         downloaded_string = self.get_age_string()
         if not downloaded_string:
             downloaded_string = _('today')
-        return ('<b>%s</b>\n<small>%s; %s; ' + _('downloaded %s')+ \
+        return ('<b>%s</b>\n<small>%s; %s; ' + _('downloaded %s') + \
                 '; ' + _('from %s') + '</small>') % (\
                 cgi.escape(self.title), \
                 cgi.escape(util.format_filesize(self.file_size)), \

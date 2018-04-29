@@ -1082,7 +1082,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return False
 
         width = treeview.get_allocated_width()
-        height= treeview.get_allocated_height()
+        height = treeview.get_allocated_height()
 
         if role == TreeViewHelper.ROLE_EPISODES:
             if self.config.episode_list_view_mode != EpisodeListModel.VIEW_ALL:
@@ -1243,7 +1243,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 title.append(N_('synchronizing %(count)d file', 'synchronizing %(count)d files', synchronizing) % {'count':synchronizing})
             if queued > 0:
                 title.append(N_('%(queued)d task queued', '%(queued)d tasks queued', queued) % {'queued':queued})
-            if (downloading + synchronizing + queued)==0:
+            if (downloading + synchronizing + queued) == 0:
                 self.set_download_progress(1.)
                 self.downloads_finished(self.download_tasks_seen)
                 gpodder.user_extensions.on_all_episodes_downloaded()

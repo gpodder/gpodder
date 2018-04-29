@@ -30,15 +30,15 @@ logger = logging.getLogger(__name__)
 
 class gPodderDevicePlaylist(object):
     def __init__(self, config, playlist_name):
-        self._config=config
+        self._config = config
         self.linebreak = '\r\n'
-        self.playlist_file=util.sanitize_filename(playlist_name + '.m3u')
+        self.playlist_file = util.sanitize_filename(playlist_name + '.m3u')
         self.playlist_folder = os.path.join(self._config.device_sync.device_folder, self._config.device_sync.playlists.folder)
         self.mountpoint = util.find_mount_point(self.playlist_folder)
         if self.mountpoint == '/':
             self.mountpoint = self.playlist_folder
             logger.warning('MP3 player resides on / - using %s as MP3 player root', self.mountpoint)
-        self.playlist_absolute_filename=os.path.join(self.playlist_folder, self.playlist_file)
+        self.playlist_absolute_filename = os.path.join(self.playlist_folder, self.playlist_file)
 
     def build_extinf(self, filename):
         #TO DO: Windows playlists
