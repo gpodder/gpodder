@@ -37,7 +37,7 @@ class gPodderExtension:
     EXT = ('.mp4', '.m4v', '.flv', )
     CMD = {'avconv': ['-i', '%(old_file)s', '-codec', 'copy', '%(new_file)s'],
            'ffmpeg': ['-i', '%(old_file)s', '-codec', 'copy', '%(new_file)s']
-          }
+           }
 
     def __init__(self, container):
         self.container = container

@@ -119,9 +119,8 @@ class CurrentTrackTracker(object):
             # If the status *is* playing, and *was* playing, but the position
             # has changed discontinuously, notify a stop for the old position
             if (cur['status'] == 'Playing' and
-                ('status' not in kwargs or kwargs['status'] == 'Playing') and not
-                subsecond_difference(cur['pos'], kwargs['pos'])
-            ):
+                    ('status' not in kwargs or kwargs['status'] == 'Playing') and not
+                    subsecond_difference(cur['pos'], kwargs['pos'])):
                 logger.debug('notify Stopped: playback discontinuity:' +
                               'calc: %f observed: %f', cur['pos'], kwargs['pos'])
                 self.notify_stop()
@@ -213,10 +212,9 @@ class MPRISDBusReceiver(object):
     INTERFACE_MPRIS = 'org.mpris.MediaPlayer2.Player'
     SIGNAL_SEEKED = 'Seeked'
     OBJECT_VLC = 'org.mpris.MediaPlayer2.vlc'
-    OTHER_MPRIS_INTERFACES = [ 'org.mpris.MediaPlayer2',
-                               'org.mpris.MediaPlayer2.TrackList',
-                               'org.mpris.MediaPlayer2.Playlists'
-    ]
+    OTHER_MPRIS_INTERFACES = ['org.mpris.MediaPlayer2',
+                              'org.mpris.MediaPlayer2.TrackList',
+                              'org.mpris.MediaPlayer2.Playlists']
 
     def __init__(self, bus, notifier):
         self.bus = bus
