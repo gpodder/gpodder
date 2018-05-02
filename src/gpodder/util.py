@@ -83,9 +83,9 @@ except ImportError:
 
 if gpodder.ui.win32:
     try:
-        import win32file
+        import gpodder.utilwin32ctypes as win32file
     except ImportError:
-        logger.warn('Running on Win32 but win32api/win32file not installed.')
+        logger.warn('Running on Win32 but utilwin32ctypes can\'t be loaded.')
         win32file = None
 
 _ = gpodder.gettext
@@ -452,9 +452,9 @@ def is_system_file(filename):
     """
     if gpodder.ui.win32 and win32file is not None:
         result = win32file.GetFileAttributes(filename)
-        #-1 is returned by GetFileAttributes when an error occurs
+        #-1 / 0xffffffff is returned by GetFileAttributes when an error occurs
         #0x4 is the FILE_ATTRIBUTE_SYSTEM constant
-        return result != -1 and result & 0x4 != 0
+        return result != -1 and result != 0xffffffff and result & 0x4 != 0
     else:
         return False
 
