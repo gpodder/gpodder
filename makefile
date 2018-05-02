@@ -88,6 +88,9 @@ $(GPODDER_SERVICE_FILE): $(GPODDER_SERVICE_FILE_IN)
 install: messages $(GPODDER_SERVICE_FILE) $(DESKTOP_FILES)
 	$(PYTHON) setup.py install --root=$(DESTDIR) --prefix=$(PREFIX) --optimize=1
 
+install-win: messages $(GPODDER_SERVICE_FILE) $(DESKTOP_FILES)
+	$(PYTHON) setup.py install
+
 ##########################################################################
 ifdef VERSION
 revbump:

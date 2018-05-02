@@ -141,7 +141,7 @@ class UIConfig(config.Config):
         cfg = getattr(self.ui.gtk.state, config_prefix)
 
         if gpodder.ui.win32:
-            window.set_gravity(Gdk.GRAVITY_STATIC)
+            window.set_gravity(Gdk.Gravity.STATIC)
 
         window.resize(cfg.width, cfg.height)
         if cfg.x == -1 or cfg.y == -1:
