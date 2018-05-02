@@ -208,6 +208,7 @@ function cleanup_after {
     rm -Rf "${MINGW_ROOT}"/share/doc
     rm -Rf "${MINGW_ROOT}"/share/man
     rm -Rf "${MINGW_ROOT}"/share/info
+	# FIXME: don't we need it for icons?
     rm -Rf "${MINGW_ROOT}"/share/mime
     rm -Rf "${MINGW_ROOT}"/share/gettext
     rm -Rf "${MINGW_ROOT}"/share/libtool
@@ -291,12 +292,11 @@ function cleanup_after {
 }
 
 function build_installer {
-	# TODO: this is nice way to embed version info in the program
     BUILDPY=$(echo "${MINGW_ROOT}"/lib/python3.*/site-packages/gpodder)/build_info.py
-    # cp "${REPO_CLONE}"/gpodder/build_info.py "$BUILDPY"
-    # echo 'BUILD_TYPE = u"windows"' >> "$BUILDPY"
-    # echo "BUILD_VERSION = $BUILD_VERSION" >> "$BUILDPY"
-    # (cd "$REPO_CLONE" && echo "BUILD_INFO = u\"$(git rev-parse --short HEAD)\"" >> "$BUILDPY")
+    cp "${REPO_CLONE}"/src/gpodder/build_info.py "$BUILDPY"
+    echo 'BUILD_TYPE = u"windows"' >> "$BUILDPY"
+    echo "BUILD_VERSION = $BUILD_VERSION" >> "$BUILDPY"
+    (cd "$REPO_CLONE" && echo "BUILD_INFO = u\"$(git rev-parse --short HEAD)\"" >> "$BUILDPY")
     (cd $(dirname "$BUILDPY") && build_compileall -d "" -q -f -l .)
     rm -f "$BUILDPY"
 
@@ -308,11 +308,10 @@ function build_installer {
 
 function build_portable_installer {
     BUILDPY=$(echo "${MINGW_ROOT}"/lib/python3.*/site-packages/gpodder)/build_info.py
-	# TODO: this is nice way to embed version info in the program
-    # cp "${REPO_CLONE}"/gpodder/build_info.py "$BUILDPY"
-    # echo 'BUILD_TYPE = u"windows"' >> "$BUILDPY"
-    # echo "BUILD_VERSION = $BUILD_VERSION" >> "$BUILDPY"
-    # (cd "$REPO_CLONE" && echo "BUILD_INFO = u\"$(git rev-parse --short HEAD)\"" >> "$BUILDPY")
+    cp "${REPO_CLONE}"/src/gpodder/build_info.py "$BUILDPY"
+    echo 'BUILD_TYPE = u"windows"' >> "$BUILDPY"
+    echo "BUILD_VERSION = $BUILD_VERSION" >> "$BUILDPY"
+    (cd "$REPO_CLONE" && echo "BUILD_INFO = u\"$(git rev-parse --short HEAD)\"" >> "$BUILDPY")
     (cd $(dirname "$BUILDPY") && build_compileall -d "" -q -f -l .)
     rm -f "$BUILDPY"
 

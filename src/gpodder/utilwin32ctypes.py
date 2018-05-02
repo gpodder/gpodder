@@ -19,24 +19,66 @@
 #
 
 import ctypes
-from ctypes import c_ulonglong
-from ctypes.wintypes import (BOOL, DWORD, LPCWSTR, PULARGE_INTEGER)
+from ctypes import c_ulonglong, HRESULT, Structure
+from ctypes.wintypes import (BOOL, BYTE, DWORD, HANDLE, LPCWSTR, MAX_PATH, PULARGE_INTEGER, WORD)
+from uuid import UUID
 
 from  win32ctypes.core.ctypes._common import byreference
 from  win32ctypes.core.ctypes._util import check_zero, function_factory
 
-# Use a local copy of the kernel32 dll.
+
+# Use a local copy of dlls.
 kernel32 = ctypes.WinDLL('kernel32')
+shell32 = ctypes.WinDLL('shell32')
+ole32 = ctypes.WinDLL('ole32')
+
+
+# https://msdn.microsoft.com/en-us/library/windows/desktop/aa373931%28v=vs.85%29.aspx
+class GUID(ctypes.Structure):
+
+    _fields_ = [
+        ("Data1", DWORD),
+        ("Data2", WORD),
+        ("Data3", WORD),
+        ("Data4", BYTE * 8),
+    ]
+
+    def __init__(self, uuidstr=None):
+        uuid = UUID(uuidstr)
+        Structure.__init__(self)
+        self.Data1, self.Data2, self.Data3, self.Data4[0], self.Data4[1], rest = uuid.fields
+        for i in range(2, 8):
+            self.Data4[i] = rest>>(8-i-1)*8 & 0xff
+
+
+REFKNOWNFOLDERID = ctypes.POINTER(GUID)
+
+
+S_OK = HRESULT(0).value
+
+CoTaskMemFree = function_factory(
+    ole32.CoTaskMemFree,
+    [ctypes.c_void_p],
+    None)
+
 
 _BaseGetDiskFreeSpaceEx = function_factory(
     kernel32.GetDiskFreeSpaceExW,
     [LPCWSTR, PULARGE_INTEGER, PULARGE_INTEGER, PULARGE_INTEGER],
     BOOL, check_zero)
 
+
 _BaseGetFileAttributes = function_factory(
     kernel32.GetFileAttributesW,
     [LPCWSTR],
     DWORD)
+
+
+_BaseSHGetKnownFolderPath = function_factory(
+    shell32.SHGetKnownFolderPath,
+    [REFKNOWNFOLDERID, DWORD, HANDLE, ctypes.POINTER(ctypes.c_wchar_p)],
+    HRESULT)
+
 
 def GetDiskFreeSpaceEx(lpDirectoryName):
     lp_dirname = LPCWSTR(lpDirectoryName)
@@ -49,6 +91,53 @@ def GetDiskFreeSpaceEx(lpDirectoryName):
     totalNumberOfFreeBytes = lpTotalNumberOfFreeBytes.value
     return (freeBytesAvailable, totalNumberOfBytes, totalNumberOfFreeBytes)
 
+
 def GetFileAttributes(lpFileName):
     lp_filename = LPCWSTR(lpFileName)
     return _BaseGetFileAttributes(lp_filename)
+
+
+def SHGetKnownFolderPath(rfid, dwFlags):
+    out_buf = ctypes.c_wchar_p()
+    try:
+        ret = _BaseSHGetKnownFolderPath(byreference(rfid), dwFlags, None, byreference(out_buf))
+    except WindowsError:
+        return None
+    if ret != S_OK:
+        return None
+    res = out_buf.value
+    CoTaskMemFree(out_buf)
+    return res
+
+
+# https://msdn.microsoft.com/en-us/library/dd378447(v=vs.85).aspx
+class KNOWN_FOLDER_FLAG:
+  KF_FLAG_DEFAULT                           = 0x00000000
+  KF_FLAG_SIMPLE_IDLIST                     = 0x00000100
+  KF_FLAG_NOT_PARENT_RELATIVE               = 0x00000200
+  KF_FLAG_DEFAULT_PATH                      = 0x00000400
+  KF_FLAG_INIT                              = 0x00000800
+  KF_FLAG_NO_ALIAS                          = 0x00001000
+  KF_FLAG_DONT_UNEXPAND                     = 0x00002000
+  KF_FLAG_DONT_VERIFY                       = 0x00004000
+  KF_FLAG_CREATE                            = 0x00008000
+  KF_FLAG_NO_PACKAGE_REDIRECTION            = 0x00010000
+  KF_FLAG_NO_APPCONTAINER_REDIRECTION       = 0x00010000
+  KF_FLAG_FORCE_PACKAGE_REDIRECTION         = 0x00020000
+  KF_FLAG_FORCE_APPCONTAINER_REDIRECTION    = 0x00020000
+  KF_FLAG_RETURN_FILTER_REDIRECTION_TARGET  = 0x00040000
+  KF_FLAG_FORCE_APP_DATA_REDIRECTION        = 0x00080000
+  KF_FLAG_ALIAS_ONLY                        = 0x80000000
+
+
+# https://msdn.microsoft.com/en-us/library/dd378457(v=vs.85).aspx
+class KNOWNFOLDERID:
+     FOLDERID_Documents  = GUID("{FDD39AD0-238F-46AF-ADB4-6C85480369C7}")
+
+
+def get_documents_folder():
+    flags = KNOWN_FOLDER_FLAG.KF_FLAG_DEFAULT | \
+                KNOWN_FOLDER_FLAG.KF_FLAG_DONT_UNEXPAND | \
+                KNOWN_FOLDER_FLAG.KF_FLAG_CREATE | \
+                KNOWN_FOLDER_FLAG.KF_FLAG_DONT_VERIFY
+    return SHGetKnownFolderPath(KNOWNFOLDERID.FOLDERID_Documents, flags)

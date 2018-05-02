@@ -34,6 +34,8 @@ import platform
 import gettext
 import locale
 
+from gpodder.build_info import BUILD_TYPE
+
 # Check if real hard dependencies are available
 try:
     import podcastparser
@@ -168,10 +170,22 @@ def set_home(new_home):
 
 
 def fixup_home(old_home):
-    if ui.osx:
-        new_home = os.path.expanduser(os.path.join('~', 'Library',
-            'Application Support', 'gPodder'))
-
+    if ui.osx or ui.win32:
+        if ui.osx:
+            new_home = os.path.expanduser(os.path.join('~', 'Library',
+                'Application Support', 'gPodder'))
+        elif BUILD_TYPE == 'windows-portable':
+            new_home = os.path.normpath(os.path.join(os.path.dirname(sys.executable), "..", "..", "config"))
+        else: # ui.win32, not portable buildq
+            # XXX: use registy key like in old launcher?
+            # HKEY_CURRENT_USER\\Software\\gpodder.org\\gPodder"
+            # https://github.com/gpodder/gpodder/blob/old/gtk2/tools/win32-launcher/folderselector.c
+            try:
+                from gpodder.utilwin32ctypes import get_documents_folder
+                new_home = os.path.join(get_documents_folder(), "gPodder")
+            except Exception as e:
+                print("E: can't get user's Documents folder: %s" % e)
+                new_home = old_home
         # Users who do not have the old home directory, or who have it but also
         # have the new home directory (to cater to situations where the user
         # might for some reason or the other have a ~/gPodder/ directory) get
