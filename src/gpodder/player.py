@@ -50,8 +50,11 @@
 #
 
 
+import urllib.error
+import urllib.parse
+import urllib.request
+
 import gpodder
-import urllib.request, urllib.parse, urllib.error
 
 
 class MediaPlayerDBusReceiver(object):

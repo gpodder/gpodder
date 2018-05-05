@@ -19,13 +19,16 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import collections
-import dbus
-import dbus.service
-import gpodder
 import logging
 import time
-import urllib.request, urllib.parse, urllib.error
+import urllib.error
 import urllib.parse
+import urllib.request
+
+import dbus
+import dbus.service
+
+import gpodder
 
 logger = logging.getLogger(__name__)
 _ = gpodder.gettext
