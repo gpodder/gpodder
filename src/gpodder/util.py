@@ -55,13 +55,13 @@ import gzip
 import datetime
 import threading
 
-import urllib.parse
-import urllib.request, urllib.parse, urllib.error
-import urllib.request, urllib.error, urllib.parse
 import http.client
 import webbrowser
 import mimetypes
 import itertools
+import urllib.error
+import urllib.parse
+import urllib.request
 
 import io
 import xml.dom.minidom

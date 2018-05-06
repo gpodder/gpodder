@@ -33,7 +33,9 @@ logger = logging.getLogger(__name__)
 import json
 
 import re
-import urllib.request, urllib.parse, urllib.error
+import urllib.error
+import urllib.parse
+import urllib.request
 
 # This matches the more reliable URL
 ESCAPIST_NUMBER_RE = re.compile(r'http://www.escapistmagazine.com/videos/view/(\d+)', re.IGNORECASE)

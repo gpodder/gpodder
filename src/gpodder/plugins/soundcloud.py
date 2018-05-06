@@ -21,22 +21,20 @@
 # Soundcloud.com API client module for gPodder
 # Thomas Perl <thp@gpodder.org>; 2009-11-03
 
-import gpodder
-
-_ = gpodder.gettext
-
-from gpodder import model
-from gpodder import util
-
+import email
 import json
-
 import logging
 import os
-import time
-
 import re
-import email
-import urllib.request, urllib.parse, urllib.error
+import time
+import urllib.error
+import urllib.parse
+import urllib.request
+
+import gpodder
+from gpodder import model, util
+
+_ = gpodder.gettext
 
 
 # gPodder's consumer key for the Soundcloud API

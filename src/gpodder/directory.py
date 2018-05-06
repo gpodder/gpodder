@@ -27,9 +27,11 @@ import gpodder
 
 _ = gpodder.gettext
 
-import urllib.request, urllib.parse, urllib.error
 import json
 import os
+import urllib.error
+import urllib.parse
+import urllib.request
 
 from gpodder import opml
 from gpodder import util

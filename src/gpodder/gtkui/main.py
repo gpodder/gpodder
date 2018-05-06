@@ -38,7 +38,9 @@ import time
 import threading
 import tempfile
 import collections
-import urllib.request, urllib.parse, urllib.error
+import urllib.error
+import urllib.parse
+import urllib.request
 import cgi
 
 

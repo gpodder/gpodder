@@ -36,8 +36,6 @@ import gpodder
 
 import socket
 import threading
-import urllib.request, urllib.parse, urllib.error
-import urllib.parse
 import shutil
 import os.path
 import os
@@ -46,6 +44,9 @@ import collections
 
 import mimetypes
 import email
+import urllib.error
+import urllib.parse
+import urllib.request
 
 from email.header import decode_header
 

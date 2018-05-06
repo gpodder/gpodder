@@ -8,14 +8,16 @@
 # Thomas Perl <thp.io/about>; 2012-02-11
 #
 
-import urllib.request, urllib.error, urllib.parse
-import re
-import sys
 import io
-import tarfile
 import os
+import re
 import shutil
+import sys
+import tarfile
 import tempfile
+import urllib.error
+import urllib.parse
+import urllib.request
 
 sys.stdout = sys.stderr
 
