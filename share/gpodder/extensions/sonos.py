@@ -23,7 +23,8 @@ __category__ = 'interface'
 __only_for__ = 'gtk'
 
 
-SONOS_CAN_PLAY = lambda e: 'audio' in e.file_type()
+def SONOS_CAN_PLAY(e):
+    return 'audio' in e.file_type()
 
 
 class gPodderExtension:
