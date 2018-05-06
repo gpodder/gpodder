@@ -141,3 +141,19 @@ def get_documents_folder():
                 KNOWN_FOLDER_FLAG.KF_FLAG_CREATE | \
                 KNOWN_FOLDER_FLAG.KF_FLAG_DONT_VERIFY
     return SHGetKnownFolderPath(KNOWNFOLDERID.FOLDERID_Documents, flags)
+
+
+def get_reg_current_user_string_value(subkey, value_name):
+    import winreg
+    try:
+        my_key = winreg.OpenKeyEx(winreg.HKEY_CURRENT_USER, subkey)
+    except FileNotFoundError:
+        return None
+    try:
+        value, type_ = winreg.QueryValueEx(my_key, value_name)
+        if type_ == winreg.REG_SZ:
+            return value
+        else:
+            raise WindowsError("Unexpected type for value %s in registry: %i" % (valueName, type_))
+    except FileNotFoundError:
+        return None
