@@ -1,13 +1,13 @@
 ==============================
-Quod Libet / Ex Falso Portable
+gPodder Portable
 ==============================
 
 Content
 -------
 
-* 'config' contains all user configuration and the song database
+* 'config' contains all user configuration, the database and download directory
 * 'data' contains the program
-* The links, quodlibet and exfalso, point to data/bin/<name>.exe
+* The links, gpodder and gpo, point to data/bin/<name>.exe
 
 
 How to update to a newer version?
