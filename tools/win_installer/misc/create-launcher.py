@@ -87,7 +87,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     return template % launch_code
 
 
-def get_resouce_code(filename, file_version, file_desc, icon_path,
+def get_resource_code(filename, file_version, file_desc, icon_path,
                      product_name, product_version, company_name):
 
     template = """\
@@ -150,7 +150,7 @@ def build_launcher(out_path, icon_path, file_desc, product_name, product_version
             h.write(get_launcher_code(entry_point))
         shutil.copyfile(src_ico, "launcher.ico")
         with open("launcher.rc", "w") as h:
-            h.write(get_resouce_code(
+            h.write(get_resource_code(
                 os.path.basename(target), file_version, file_desc,
                 "launcher.ico", product_name, product_version, company_name))
 

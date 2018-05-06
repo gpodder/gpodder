@@ -177,23 +177,23 @@ def fixup_home(old_home):
         elif BUILD_TYPE == 'windows-portable':
             new_home = os.path.normpath(os.path.join(os.path.dirname(sys.executable), "..", "..", "config"))
             old_home = new_home # force to config directory
-            print("D: windows-portable build; forcing home to config directory %s" % new_home)
+            print("D: windows-portable build; forcing home to config directory %s" % new_home, file=sys.stderr)
         else: # ui.win32, not portable build
             from gpodder.utilwin32ctypes import get_documents_folder, get_reg_current_user_string_value
             try:
                 # from old launcher, see
                 # https://github.com/gpodder/gpodder/blob/old/gtk2/tools/win32-launcher/folderselector.c
                 new_home = get_reg_current_user_string_value("Software\\gpodder.org\\gPodder", "GPODDER_HOME")
-                print("D: windows build; registry home = %s" % new_home)
+                print("D: windows build; registry home = %s" % new_home, file=sys.stderr)
             except Exception as e:
-                print("E: can't get GPODDER_HOME from registry: %s" % e)
+                print("E: can't get GPODDER_HOME from registry: %s" % e, file=sys.stderr)
                 new_home = None
             if new_home is None:
                 try:
                     new_home = os.path.join(get_documents_folder(), "gPodder")
-                    print("D: windows build; documents home = %s" % new_home)
+                    print("D: windows build; documents home = %s" % new_home, file=sys.stderr)
                 except Exception as e:
-                    print("E: can't get user's Documents folder: %s" % e)
+                    print("E: can't get user's Documents folder: %s" % e, file=sys.stderr)
                     new_home = old_home
 
         # Users who do not have the old home directory, or who have it but also
