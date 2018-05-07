@@ -48,6 +48,7 @@
   - Episode management -
 
     download [URL] [GUID]      Download new episodes (all or only from URL) or single GUID
+    delete [URL] [GUID]        Delete from feed at URL an episode with given GUID
     pending [URL]              List new episodes (all or only from URL)
     episodes [--guid] [URL]    List episodes with or without GUIDs (all or only from URL)
 
@@ -557,6 +558,29 @@ class gPodderCli(object):
 
         util.delete_empty_folders(gpodder.downloads)
         print(len(episodes), 'episodes downloaded.')
+        return True
+
+    @FirstArgumentIsPodcastURL
+    def delete(self, url, guid):
+        podcast = self.get_podcast(url)
+        episode_to_delete = None
+
+        if podcast is None:
+            self._error(_('You are not subscribed to %s.') % url)
+        else:
+            for episode in podcast.get_all_episodes():
+                if (episode.guid == guid):
+                    episode_to_delete = episode
+
+            if not episode_to_delete:
+                self._error(_('No episode with the specified GUID found.'))
+            else:
+                if episode_to_delete.state != gpodder.STATE_DELETED:
+                    episode_to_delete.delete_from_disk()
+                    self._info(_('Deleted episode "%s".') % episode_to_delete.title)
+                else:
+                    self._error(_('Episode has already been deleted.'))
+
         return True
 
     @FirstArgumentIsPodcastURL
