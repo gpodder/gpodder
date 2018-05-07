@@ -23,8 +23,8 @@ from ctypes import c_ulonglong, HRESULT, Structure
 from ctypes.wintypes import (BOOL, BYTE, DWORD, HANDLE, LPCWSTR, MAX_PATH, PULARGE_INTEGER, WORD)
 from uuid import UUID
 
-from  win32ctypes.core.ctypes._common import byreference
-from  win32ctypes.core.ctypes._util import check_zero, function_factory
+from win32ctypes.core.ctypes._common import byreference
+from win32ctypes.core.ctypes._util import check_zero, function_factory
 
 
 # Use a local copy of dlls.
@@ -48,7 +48,7 @@ class GUID(ctypes.Structure):
         Structure.__init__(self)
         self.Data1, self.Data2, self.Data3, self.Data4[0], self.Data4[1], rest = uuid.fields
         for i in range(2, 8):
-            self.Data4[i] = rest>>(8-i-1)*8 & 0xff
+            self.Data4[i] = rest >> (8 - i - 1) * 8 & 0xff
 
 
 REFKNOWNFOLDERID = ctypes.POINTER(GUID)
@@ -112,27 +112,27 @@ def SHGetKnownFolderPath(rfid, dwFlags):
 
 # https://msdn.microsoft.com/en-us/library/dd378447(v=vs.85).aspx
 class KNOWN_FOLDER_FLAG:
-  KF_FLAG_DEFAULT                           = 0x00000000
-  KF_FLAG_SIMPLE_IDLIST                     = 0x00000100
-  KF_FLAG_NOT_PARENT_RELATIVE               = 0x00000200
-  KF_FLAG_DEFAULT_PATH                      = 0x00000400
-  KF_FLAG_INIT                              = 0x00000800
-  KF_FLAG_NO_ALIAS                          = 0x00001000
-  KF_FLAG_DONT_UNEXPAND                     = 0x00002000
-  KF_FLAG_DONT_VERIFY                       = 0x00004000
-  KF_FLAG_CREATE                            = 0x00008000
-  KF_FLAG_NO_PACKAGE_REDIRECTION            = 0x00010000
-  KF_FLAG_NO_APPCONTAINER_REDIRECTION       = 0x00010000
-  KF_FLAG_FORCE_PACKAGE_REDIRECTION         = 0x00020000
-  KF_FLAG_FORCE_APPCONTAINER_REDIRECTION    = 0x00020000
-  KF_FLAG_RETURN_FILTER_REDIRECTION_TARGET  = 0x00040000
-  KF_FLAG_FORCE_APP_DATA_REDIRECTION        = 0x00080000
-  KF_FLAG_ALIAS_ONLY                        = 0x80000000
+    KF_FLAG_DEFAULT = 0x00000000
+    KF_FLAG_SIMPLE_IDLIST = 0x00000100
+    KF_FLAG_NOT_PARENT_RELATIVE = 0x00000200
+    KF_FLAG_DEFAULT_PATH = 0x00000400
+    KF_FLAG_INIT = 0x00000800
+    KF_FLAG_NO_ALIAS = 0x00001000
+    KF_FLAG_DONT_UNEXPAND = 0x00002000
+    KF_FLAG_DONT_VERIFY = 0x00004000
+    KF_FLAG_CREATE = 0x00008000
+    KF_FLAG_NO_PACKAGE_REDIRECTION = 0x00010000
+    KF_FLAG_NO_APPCONTAINER_REDIRECTION = 0x00010000
+    KF_FLAG_FORCE_PACKAGE_REDIRECTION = 0x00020000
+    KF_FLAG_FORCE_APPCONTAINER_REDIRECTION = 0x00020000
+    KF_FLAG_RETURN_FILTER_REDIRECTION_TARGET = 0x00040000
+    KF_FLAG_FORCE_APP_DATA_REDIRECTION = 0x00080000
+    KF_FLAG_ALIAS_ONLY = 0x80000000
 
 
 # https://msdn.microsoft.com/en-us/library/dd378457(v=vs.85).aspx
 class KNOWNFOLDERID:
-     FOLDERID_Documents  = GUID("{FDD39AD0-238F-46AF-ADB4-6C85480369C7}")
+    FOLDERID_Documents = GUID("{FDD39AD0-238F-46AF-ADB4-6C85480369C7}")
 
 
 def get_documents_folder():
