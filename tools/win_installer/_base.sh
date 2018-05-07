@@ -143,9 +143,12 @@ function install_gpodder {
 	mkdir -p "${BUILD_ROOT}"/"${MINGW}"/etc/gtk-3.0
 	cp "${MISC}"/gtk3.0_settings.ini "${BUILD_ROOT}"/"${MINGW}"/etc/gtk-3.0/settings.ini
 	
-	# install bin/gpodder bin/gpo
-	cp ${REPO_CLONE}/bin/gpo "${BUILD_ROOT}"/"${MINGW}"/lib/python3.6/site-packages/gpodder/gpo_launch.py
-	cp ${REPO_CLONE}/bin/gpodder "${BUILD_ROOT}"/"${MINGW}"/lib/python3.6/site-packages/gpodder/gpodder_launch.py
+	# install bin/gpodder bin/gpo to a separate package, to be run before gpodder/__init__.py
+	gpodder_launch_dir="${BUILD_ROOT}"/"${MINGW}"/lib/python3.6/site-packages/gpodder_launch
+	mkdir -p "${gpodder_launch_dir}"
+	touch "${gpodder_launch_dir}"/__init__.py
+	cp ${REPO_CLONE}/bin/gpo "${gpodder_launch_dir}"/gpo.py
+	cp ${REPO_CLONE}/bin/gpodder "${gpodder_launch_dir}"/gpodder.py
 
     build_compileall -d "" -f -q "$(cygpath -w "${MINGW_ROOT}")"
 }

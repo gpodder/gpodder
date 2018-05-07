@@ -173,17 +173,17 @@ def main():
     build_launcher(
         os.path.join(target, "gpodder.exe"),
         os.path.join(misc, "gpodder.ico"), "gPodder", "gPodder",
-        version, company_name, "gpodder.gpodder_launch:main", True)
+        version, company_name, "gpodder_launch.gpodder:main", True)
 
     build_launcher(
         os.path.join(target, "gpodder-cmd.exe"),
         os.path.join(misc, "gpodder.ico"), "gPodder", "gPodder",
-        version, company_name, "gpodder.gpodder_launch:main", False)
+        version, company_name, "gpodder_launch.gpodder:main", False)
 
     build_launcher(
         os.path.join(target, "gpo.exe"),
         os.path.join(misc, "gpo.ico"), "gPodder CLI", "gpo",
-        version, company_name, "gpodder.gpo_launch:main", False)
+        version, company_name, "gpodder_launch.gpo:main", False)
 
 
 if __name__ == "__main__":
