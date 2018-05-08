@@ -86,7 +86,7 @@ class ConfigModel(Gtk.ListStore):
                 #else:
                 #    style = Pango.Style.ITALIC
                 new_value_text = config.config_value_to_string(new_value)
-                self.set(row.iter, \
+                self.set(row.iter,
                         self.C_VALUE_TEXT, new_value_text,
                         self.C_BOOLEAN_VALUE, bool(new_value),
                         self.C_FONT_STYLE, style)

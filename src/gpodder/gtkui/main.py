@@ -589,14 +589,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         def ask():
             # We're abusing the Episode Selector again ;) -- thp
-            gPodderEpisodeSelector(self.main_window, \
-                    title=_('Confirm changes from gpodder.net'), \
-                    instructions=_('Select the actions you want to carry out.'), \
-                    episodes=changes, \
-                    columns=columns, \
-                    size_attribute=None, \
-                    stock_ok_button=Gtk.STOCK_APPLY, \
-                    callback=execute_podcast_actions, \
+            gPodderEpisodeSelector(self.main_window,
+                    title=_('Confirm changes from gpodder.net'),
+                    instructions=_('Select the actions you want to carry out.'),
+                    episodes=changes,
+                    columns=columns,
+                    size_attribute=None,
+                    stock_ok_button=Gtk.STOCK_APPLY,
+                    callback=execute_podcast_actions,
                     _config=self.config)
 
         # There are some actions that need the user's attention
@@ -631,8 +631,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_send_full_subscriptions(self):
         # Send the full subscription list to the gpodder.net client
         # (this will overwrite the subscription list on the server)
-        indicator = ProgressIndicator(_('Uploading subscriptions'), \
-                _('Your subscriptions are being uploaded to the server.'), \
+        indicator = ProgressIndicator(_('Uploading subscriptions'),
+                _('Your subscriptions are being uploaded to the server.'),
                 False, self.get_dialog_parent())
 
         try:
@@ -643,8 +643,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 message = str(e)
                 if not message:
                     message = e.__class__.__name__
-                self.show_message(message, \
-                        _('Error while uploading'), \
+                self.show_message(message,
+                        _('Error while uploading'),
                         important=True)
             util.idle_add(show_error, e)
 
@@ -659,10 +659,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def for_each_episode_set_task_status(self, episodes, status):
         episode_urls = set(episode.url for episode in episodes)
         model = self.treeDownloads.get_model()
-        selected_tasks = [(Gtk.TreeRowReference.new(model, row.path), \
-                           model.get_value(row.iter, \
-                           DownloadStatusModel.C_TASK)) for row in model \
-                           if model.get_value(row.iter, DownloadStatusModel.C_TASK).url \
+        selected_tasks = [(Gtk.TreeRowReference.new(model, row.path),
+                           model.get_value(row.iter,
+                           DownloadStatusModel.C_TASK)) for row in model
+                           if model.get_value(row.iter, DownloadStatusModel.C_TASK).url
                            in episode_urls]
         self._for_each_task_set_status(selected_tasks, status)
 
@@ -1012,12 +1012,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.treeAvailable.connect('popup-menu', self.treeview_available_show_context_menu)
 
-        self.treeAvailable.enable_model_drag_source(Gdk.ModifierType.BUTTON1_MASK, \
+        self.treeAvailable.enable_model_drag_source(Gdk.ModifierType.BUTTON1_MASK,
                 (('text/uri-list', 0, 0),), Gdk.DragAction.COPY)
 
         def drag_data_get(tree, context, selection_data, info, timestamp):
-            uris = ['file://' + e.local_filename(create=False) \
-                    for e in self.get_selected_episodes() \
+            uris = ['file://' + e.local_filename(create=False)
+                    for e in self.get_selected_episodes()
                     if e.was_downloaded(and_exists=True)]
             uris.append('') # for the trailing '\r\n'
             selection_data.set(selection_data.target, 8, '\r\n'.join(uris))
@@ -1045,7 +1045,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         cell = Gtk.CellRendererPixbuf()
         cell.set_property('stock-size', Gtk.IconSize.BUTTON)
         column.pack_start(cell, False)
-        column.add_attribute(cell, 'icon-name', \
+        column.add_attribute(cell, 'icon-name',
                 DownloadStatusModel.C_ICON_NAME)
 
         cell = Gtk.CellRendererText()
@@ -1061,7 +1061,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         cell.set_property('yalign', .5)
         cell.set_property('ypad', 6)
         column = Gtk.TreeViewColumn(_('Progress'), cell,
-                value=DownloadStatusModel.C_PROGRESS, \
+                value=DownloadStatusModel.C_PROGRESS,
                 text=DownloadStatusModel.C_PROGRESS_TEXT)
         column.set_sizing(Gtk.TreeViewColumnSizing.AUTOSIZE)
         column.set_expand(False)
@@ -1387,13 +1387,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
         selection = treeview.get_selection()
         model, paths = selection.get_selected_rows()
 
-        if path is None or (path not in paths and \
+        if path is None or (path not in paths and
                 event.button == 3):
             # We have right-clicked, but not into the selection,
             # assume we don't want to operate on the selection
             paths = []
 
-        if path is not None and not paths and \
+        if path is not None and not paths and
                 event.button == 3:
             # No selection or clicked outside selection;
             # select the single item where we clicked
@@ -1417,27 +1417,27 @@ class gPodder(BuilderWidget, dbus.service.Object):
             model, paths = selection.get_selected_rows()
 
         can_queue, can_cancel, can_pause, can_remove, can_force = (True,) * 5
-        selected_tasks = [(Gtk.TreeRowReference.new(model, path), \
-                           model.get_value(model.get_iter(path), \
+        selected_tasks = [(Gtk.TreeRowReference.new(model, path),
+                           model.get_value(model.get_iter(path),
                            DownloadStatusModel.C_TASK)) for path in paths]
 
         for row_reference, task in selected_tasks:
             if task.status != download.DownloadTask.QUEUED:
                 can_force = False
-            if task.status not in (download.DownloadTask.PAUSED, \
-                    download.DownloadTask.FAILED, \
+            if task.status not in (download.DownloadTask.PAUSED,
+                    download.DownloadTask.FAILED,
                     download.DownloadTask.CANCELLED):
                 can_queue = False
-            if task.status not in (download.DownloadTask.PAUSED, \
-                    download.DownloadTask.QUEUED, \
-                    download.DownloadTask.DOWNLOADING, \
+            if task.status not in (download.DownloadTask.PAUSED,
+                    download.DownloadTask.QUEUED,
+                    download.DownloadTask.DOWNLOADING,
                     download.DownloadTask.FAILED):
                 can_cancel = False
-            if task.status not in (download.DownloadTask.QUEUED, \
+            if task.status not in (download.DownloadTask.QUEUED,
                     download.DownloadTask.DOWNLOADING):
                 can_pause = False
-            if task.status not in (download.DownloadTask.CANCELLED, \
-                    download.DownloadTask.FAILED, \
+            if task.status not in (download.DownloadTask.CANCELLED,
+                    download.DownloadTask.FAILED,
                     download.DownloadTask.DONE):
                 can_remove = False
 
@@ -2050,7 +2050,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         logger.error('Exception in D-Bus call: %s', str(err))
 
                         # Fallback: use the command line client
-                        for command in util.format_desktop_command('panucci', \
+                        for command in util.format_desktop_command('panucci',
                                 [filename]):
                             logger.info('Executing: %s', repr(command))
                             subprocess.Popen(command)
@@ -2058,7 +2058,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     on_error = lambda err: error_handler(filename, err)
 
                     # This method only exists in Panucci > 0.9 ('new Panucci')
-                    i.playback_from(filename, resume_position, \
+                    i.playback_from(filename, resume_position,
                             reply_handler=on_reply, error_handler=on_error)
 
                     continue # This file was handled by the D-Bus call
@@ -2089,14 +2089,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def playback_episodes(self, episodes):
         # We need to create a list, because we run through it more than once
-        episodes = list(Model.sort_episodes_by_pubdate(e for e in episodes if \
+        episodes = list(Model.sort_episodes_by_pubdate(e for e in episodes if
                e.was_downloaded(and_exists=True) or self.streaming_possible()))
 
         try:
             self.playback_episodes_for_real(episodes)
         except Exception as e:
             logger.error('Error in playback!', exc_info=True)
-            self.show_message(_('Please check your media player settings in the preferences dialog.'), \
+            self.show_message(_('Please check your media player settings in the preferences dialog.'),
                     _('Error opening player'))
 
         self.episode_list_status_changed(episodes)
@@ -2328,8 +2328,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         error_messages = {}
         redirections = {}
 
-        progress = ProgressIndicator(_('Adding podcasts'), \
-                _('Please wait while episode information is downloaded.'), \
+        progress = ProgressIndicator(_('Adding podcasts'),
+                _('Please wait while episode information is downloaded.'),
                 parent=self.get_dialog_parent())
 
         def on_after_update():
@@ -2373,7 +2373,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if failed:
                 title = _('Could not add some podcasts')
                 message = _('Some podcasts could not be added to your list:') \
-                     + '\n\n' + '\n'.join(cgi.escape('%s: %s' % (url, \
+                     + '\n\n' + '\n'.join(cgi.escape('%s: %s' % (url,
                         error_messages.get(url, _('Unknown')))) for url in failed)
                 self.show_message(message, title, important=True)
 
@@ -2409,9 +2409,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     episodes.extend(podcast.get_all_episodes())
 
             if episodes:
-                episodes = list(Model.sort_episodes_by_pubdate(episodes, \
+                episodes = list(Model.sort_episodes_by_pubdate(episodes,
                         reverse=True))
-                self.new_episodes_show(episodes, \
+                self.new_episodes_show(episodes,
                         selected=[e.check_is_new() for e in episodes])
 
         @util.run_in_background
@@ -2424,8 +2424,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 progress.on_message(title or url)
                 try:
                     # The URL is valid and does not exist already - subscribe!
-                    channel = self.model.load_podcast(url=url, create=True, \
-                            authentication_tokens=auth_tokens.get(url, None), \
+                    channel = self.model.load_podcast(url=url, create=True,
+                            authentication_tokens=auth_tokens.get(url, None),
                             max_episodes=self.config.max_episodes_per_feed)
 
                     try:
@@ -2491,8 +2491,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         the server to the local database and update the
         status of the affected episodes as necessary.
         """
-        indicator = ProgressIndicator(_('Merging episode actions'), \
-                _('Episode actions from gpodder.net are merged.'), \
+        indicator = ProgressIndicator(_('Merging episode actions'),
+                _('Episode actions from gpodder.net are merged.'),
                 False, self.get_dialog_parent())
 
         Gtk.main_iteration()
@@ -2722,8 +2722,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if confirm and not self.show_confirmation(message, title):
             return False
 
-        progress = ProgressIndicator(_('Deleting episodes'), \
-                _('Please wait while episodes are deleted'), \
+        progress = ProgressIndicator(_('Deleting episodes'),
+                _('Please wait while episodes are deleted'),
                 parent=self.get_dialog_parent())
 
         def finish_deletion(episode_urls, channel_urls):
@@ -2799,9 +2799,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         selected = [not e.is_new or not e.file_exists() for e in episodes]
 
-        gPodderEpisodeSelector(self.main_window, title = _('Delete episodes'), instructions = instructions, \
-                                episodes = episodes, selected = selected, columns = columns, \
-                                stock_ok_button = 'edit-delete', callback = self.delete_episode_list, \
+        gPodderEpisodeSelector(self.main_window, title = _('Delete episodes'), instructions = instructions,
+                                episodes = episodes, selected = selected, columns = columns,
+                                stock_ok_button = 'edit-delete', callback = self.delete_episode_list,
                                 selection_buttons = selection_buttons, _config=self.config)
 
     def on_selected_episodes_status_changed(self):
@@ -2991,23 +2991,23 @@ class gPodder(BuilderWidget, dbus.service.Object):
             # Select all by default
             selected = [True] * len(episodes)
 
-        self.new_episodes_window = gPodderEpisodeSelector(self.main_window, \
-                title=_('New episodes available'), \
-                instructions=instructions, \
-                episodes=episodes, \
-                columns=columns, \
-                selected=selected, \
-                stock_ok_button = 'gpodder-download', \
-                callback=download_episodes_callback, \
-                remove_callback=lambda e: e.mark_old(), \
-                remove_action=_('Mark as old'), \
-                remove_finished=self.episode_new_status_changed, \
-                _config=self.config, \
+        self.new_episodes_window = gPodderEpisodeSelector(self.main_window,
+                title=_('New episodes available'),
+                instructions=instructions,
+                episodes=episodes,
+                columns=columns,
+                selected=selected,
+                stock_ok_button = 'gpodder-download',
+                callback=download_episodes_callback,
+                remove_callback=lambda e: e.mark_old(),
+                remove_action=_('Mark as old'),
+                remove_finished=self.episode_new_status_changed,
+                _config=self.config,
                 show_notification=False)
 
     def on_itemDownloadAllNew_activate(self, action, param):
         if not self.offer_new_episodes():
-            self.show_message(_('Please check for new episodes later.'), \
+            self.show_message(_('Please check for new episodes later.'),
                     _('No new episodes available'))
 
     def get_new_episodes(self, channels=None):
@@ -3049,7 +3049,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_download_subscriptions_from_mygpo(self, action=None):
         def after_login():
-            title = _('Subscriptions on %(server)s') \
+            title = _('Subscriptions on %(server)s')
                     % {'server': self.config.mygpo.server}
             dir = gPodderPodcastDirectory(self.gPodder,
                                            _config=self.config,
@@ -3081,7 +3081,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         util.idle_add(after_login)
 
     def on_itemAddChannel_activate(self, action=None, param=None):
-        self._add_podcast_dialog = gPodderAddPodcast(self.gPodder, \
+        self._add_podcast_dialog = gPodderAddPodcast(self.gPodder,
                 add_podcast_list=self.add_podcast_list)
 
     def on_itemEditChannel_activate(self, action, param=None):
@@ -3106,14 +3106,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         # We're abusing the Episode Selector for selecting Podcasts here,
         # but it works and looks good, so why not? -- thp
-        gPodderEpisodeSelector(self.main_window, \
-                title=_('Delete podcasts'), \
-                instructions=_('Select the podcast you want to delete.'), \
-                episodes=self.channels, \
-                columns=columns, \
-                size_attribute=None, \
-                stock_ok_button=_('Delete'), \
-                callback=self.remove_podcast_list, \
+        gPodderEpisodeSelector(self.main_window,
+                title=_('Delete podcasts'),
+                instructions=_('Select the podcast you want to delete.'),
+                episodes=self.channels,
+                columns=columns,
+                size_attribute=None,
+                stock_ok_button=_('Delete'),
+                callback=self.remove_podcast_list,
                 _config=self.config)
 
     def remove_podcast_list(self, channels, confirm=True):
@@ -3215,8 +3215,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             dlg.destroy()
 
         if filename is not None:
-            dir = gPodderPodcastDirectory(self.gPodder, _config=self.config, \
-                    custom_title=_('Import podcasts from OPML file'), \
+            dir = gPodderPodcastDirectory(self.gPodder, _config=self.config,
+                    custom_title=_('Import podcasts from OPML file'),
                     add_podcast_list=self.add_podcast_list,
                     hide_url_entry=True)
             dir.download_opml_file(filename)
@@ -3332,7 +3332,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def get_podcast_urls_from_selected_episodes(self):
         """Get a set of podcast URLs based on the selected episodes"""
-        return set(episode.channel.url for episode in \
+        return set(episode.channel.url for episode in
                 self.get_selected_episodes())
 
     def get_selected_episodes(self):
@@ -3367,12 +3367,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
             GObject.source_remove(self._auto_update_timer_source_id)
             self._auto_update_timer_source_id = None
 
-        if self.config.auto_update_feeds and \
+        if self.config.auto_update_feeds and
                 self.config.auto_update_frequency:
             interval = 60 * 1000 * self.config.auto_update_frequency
             logger.debug('Setting up auto update timer with interval %d.',
                     self.config.auto_update_frequency)
-            self._auto_update_timer_source_id = GObject.timeout_add(\
+            self._auto_update_timer_source_id = GObject.timeout_add(
                     interval, self._on_auto_update_timer)
 
     def _on_auto_update_timer(self):
@@ -3413,14 +3413,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if self.wNotebook.get_current_page() == 0:
             selection = self.treeAvailable.get_selection()
             (model, paths) = selection.get_selected_rows()
-            urls = [model.get_value(model.get_iter(path), \
+            urls = [model.get_value(model.get_iter(path),
                     self.episode_list_model.C_URL) for path in paths]
-            selected_tasks = [task for task in self.download_tasks_seen \
+            selected_tasks = [task for task in self.download_tasks_seen
                     if task.url in urls]
         else:
             selection = self.treeDownloads.get_selection()
             (model, paths) = selection.get_selected_rows()
-            selected_tasks = [model.get_value(model.get_iter(path), \
+            selected_tasks = [model.get_value(model.get_iter(path),
                     self.download_status_model.C_TASK) for path in paths]
         self.cancel_task_list(selected_tasks)
 
@@ -3665,7 +3665,7 @@ class gPodderApplication(Gtk.Application):
             self.bus_name = dbus.service.BusName(gpodder.dbus_bus_name, bus=gpodder.dbus_session_bus)
         except dbus.exceptions.DBusException as dbe:
             logger.warn('Cannot get "on the bus".', exc_info=True)
-            dlg = Gtk.MessageDialog(None, Gtk.DialogFlags.MODAL, Gtk.MessageType.ERROR, \
+            dlg = Gtk.MessageDialog(None, Gtk.DialogFlags.MODAL, Gtk.MessageType.ERROR,
                    Gtk.ButtonsType.CLOSE, _('Cannot start gPodder'))
             dlg.format_secondary_markup(_('D-Bus error: %s') % (str(dbe),))
             dlg.set_title('gPodder')
@@ -3689,7 +3689,7 @@ class gPodderApplication(Gtk.Application):
         self.window.gPodder.present()
 
     def on_about(self, action, param):
-        dlg = Gtk.Dialog(_('About gPodder'), self.window.gPodder, \
+        dlg = Gtk.Dialog(_('About gPodder'), self.window.gPodder,
                 Gtk.DialogFlags.MODAL)
         dlg.add_button(Gtk.STOCK_CLOSE, Gtk.ResponseType.OK).show()
         dlg.set_resizable(False)
@@ -3735,13 +3735,13 @@ class gPodderApplication(Gtk.Application):
         util.open_website('https://gpodder.github.io/docs/')
 
     def on_itemPreferences_activate(self, action, param=None):
-        gPodderPreferences(self.window.gPodder, \
-                _config=self.window.config, \
-                user_apps_reader=self.window.user_apps_reader, \
-                parent_window=self.window.main_window, \
-                mygpo_client=self.window.mygpo_client, \
-                on_send_full_subscriptions=self.window.on_send_full_subscriptions, \
-                on_itemExportChannels_activate=self.window.on_itemExportChannels_activate, \
+        gPodderPreferences(self.window.gPodder,
+                _config=self.window.config,
+                user_apps_reader=self.window.user_apps_reader,
+                parent_window=self.window.main_window,
+                mygpo_client=self.window.mygpo_client,
+                on_send_full_subscriptions=self.window.on_send_full_subscriptions,
+                on_itemExportChannels_activate=self.window.on_itemExportChannels_activate,
                 on_extension_enabled=self.on_extension_enabled,
                 on_extension_disabled=self.on_extension_disabled)
 

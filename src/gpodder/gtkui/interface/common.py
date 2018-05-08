@@ -40,7 +40,7 @@ class BuilderWidget(GtkBuilderWidget):
 
         # Enable support for tracking iconified state
         if hasattr(self, 'on_iconify') and hasattr(self, 'on_uniconify'):
-            self.main_window.connect('window-state-event', \
+            self.main_window.connect('window-state-event',
                     self._on_window_state_event_iconified)
 
     def _on_window_state_event_iconified(self, widget, event):
@@ -89,9 +89,9 @@ class BuilderWidget(GtkBuilderWidget):
         dlg.destroy()
         return response == Gtk.ResponseType.YES
 
-    def show_text_edit_dialog(self, title, prompt, text=None, empty=False, \
+    def show_text_edit_dialog(self, title, prompt, text=None, empty=False,
             is_url=False, affirmative_text=Gtk.STOCK_OK):
-        dialog = Gtk.Dialog(title, self.get_dialog_parent(), \
+        dialog = Gtk.Dialog(title, self.get_dialog_parent(),
             Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT)
 
         dialog.add_button(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL)

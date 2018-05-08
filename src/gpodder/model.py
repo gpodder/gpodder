@@ -138,7 +138,7 @@ class PodcastEpisode(PodcastModelObject):
     is_locked = property(fget=_deprecated, fset=_deprecated)
 
     def has_website_link(self):
-        return bool(self.link) and (self.link != self.url or \
+        return bool(self.link) and (self.link != self.url or
                 youtube.is_video_link(self.link))
 
     @classmethod
@@ -336,7 +336,7 @@ class PodcastEpisode(PodcastModelObject):
         self.save()
 
     def age_in_days(self):
-        return util.file_age_in_days(self.local_filename(create=False, \
+        return util.file_age_in_days(self.local_filename(create=False,
                 check_only=True))
 
     age_int_prop = property(fget=age_in_days)
@@ -576,8 +576,8 @@ class PodcastEpisode(PodcastModelObject):
         value is the canonical representation of this episode
         in playlists (for example, M3U playlists).
         """
-        return '%s - %s (%s)' % (self.channel.title, \
-                self.title, \
+        return '%s - %s (%s)' % (self.channel.title,
+                self.title,
                 self.cute_pubdate())
 
     def cute_pubdate(self):
@@ -616,8 +616,8 @@ class PodcastEpisode(PodcastModelObject):
         current position is greater than 99 percent of the
         total time or inside the last 10 seconds of a track.
         """
-        return self.current_position > 0 and self.total_time > 0 and \
-                (self.current_position + 10 >= self.total_time or \
+        return self.current_position > 0 and self.total_time > 0 and
+                (self.current_position + 10 >= self.total_time or
                  self.current_position >= self.total_time * .99)
 
     def get_play_info_string(self, duration_only=False):
@@ -752,8 +752,8 @@ class PodcastChannel(PodcastModelObject):
 
                 known_files.add(filename)
 
-        existing_files = set(filename for filename in \
-                glob.glob(os.path.join(self.save_dir, '*')) \
+        existing_files = set(filename for filename in
+                glob.glob(os.path.join(self.save_dir, '*'))
                 if not filename.endswith('.partial'))
 
         ignore_files = ['folder' + ext for ext in
@@ -779,7 +779,7 @@ class PodcastChannel(PodcastModelObject):
                 continue
 
             for episode in all_episodes:
-                wanted_filename = episode.local_filename(create=True, \
+                wanted_filename = episode.local_filename(create=True,
                         return_wanted_filename=True)
                 if basename == wanted_filename:
                     logger.info('Importing external download: %s', filename)

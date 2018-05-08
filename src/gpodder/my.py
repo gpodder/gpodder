@@ -47,7 +47,7 @@ mygpoclient.user_agent += ' ' + gpodder.user_agent
 # 2013-02-08: We should update this to 1.7 once we use the new features
 MYGPOCLIENT_REQUIRED = '1.4'
 
-if not hasattr(mygpoclient, 'require_version') or \
+if not hasattr(mygpoclient, 'require_version') or
         not mygpoclient.require_version(MYGPOCLIENT_REQUIRED):
     print("""
     Please upgrade your mygpoclient library.
@@ -474,17 +474,17 @@ class MygPoClient(object):
         def convert_to_api(action):
             dt = datetime.datetime.utcfromtimestamp(action.timestamp)
             action_ts = mygpoutil.datetime_to_iso8601(dt)
-            return api.EpisodeAction(action.podcast_url, \
-                    action.episode_url, action.action, \
-                    action.device_id, action_ts, \
+            return api.EpisodeAction(action.podcast_url,
+                    action.episode_url, action.action,
+                    action.device_id, action_ts,
                     action.started, action.position, action.total)
 
         def convert_from_api(action):
             dt = mygpoutil.iso8601_to_datetime(action.timestamp)
             action_ts = calendar.timegm(dt.timetuple())
-            return ReceivedEpisodeAction(action.podcast, \
-                    action.episode, action.device, \
-                    action.action, action_ts, \
+            return ReceivedEpisodeAction(action.podcast,
+                    action.episode, action.device,
+                    action.action, action_ts,
                     action.started, action.position, action.total)
 
         try:
@@ -547,8 +547,8 @@ class MygPoClient(object):
         logger.debug('Starting subscription sync.')
         try:
             # Load the "since" value from the database
-            since_o = self._store.get(SinceValue, host=self.host, \
-                                                  device_id=self.device_id, \
+            since_o = self._store.get(SinceValue, host=self.host,
+                                                  device_id=self.device_id,
                                                   category=SinceValue.PODCASTS)
 
             # Use a default since object for the first-time case
@@ -611,7 +611,7 @@ class MygPoClient(object):
     def update_device(self, action):
         try:
             logger.debug('Uploading device settings...')
-            self._client.update_device_settings(action.device_id, \
+            self._client.update_device_settings(action.device_id,
                     action.caption, action.device_type)
             logger.debug('Device settings uploaded.')
             return True
@@ -646,8 +646,8 @@ class MygPoClient(object):
 
     def get_download_user_subscriptions_url(self):
         OPML_URL = self._client.locator.subscriptions_uri()
-        url = util.url_add_authentication(OPML_URL, \
-                self._config.mygpo.username, \
+        url = util.url_add_authentication(OPML_URL,
+                self._config.mygpo.username,
                 self._config.mygpo.password)
         return url
 
