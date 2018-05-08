@@ -616,9 +616,9 @@ class PodcastEpisode(PodcastModelObject):
         current position is greater than 99 percent of the
         total time or inside the last 10 seconds of a track.
         """
-        return self.current_position > 0 and self.total_time > 0 and
-                (self.current_position + 10 >= self.total_time or
-                 self.current_position >= self.total_time * .99)
+        return (self.current_position > 0 and self.total_time > 0 and
+                 (self.current_position + 10 >= self.total_time or
+                 self.current_position >= self.total_time * .99))
 
     def get_play_info_string(self, duration_only=False):
         duration = util.format_time(self.total_time)
