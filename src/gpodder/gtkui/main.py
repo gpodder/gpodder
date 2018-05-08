@@ -1393,8 +1393,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             # assume we don't want to operate on the selection
             paths = []
 
-        if path is not None and not paths and
-                event.button == 3:
+        if (path is not None and not paths and
+                event.button == 3):
             # No selection or clicked outside selection;
             # select the single item where we clicked
             treeview.grab_focus()
@@ -3049,7 +3049,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_download_subscriptions_from_mygpo(self, action=None):
         def after_login():
-            title = _('Subscriptions on %(server)s')
+            title = _('Subscriptions on %(server)s') \
                     % {'server': self.config.mygpo.server}
             dir = gPodderPodcastDirectory(self.gPodder,
                                            _config=self.config,
@@ -3367,8 +3367,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             GObject.source_remove(self._auto_update_timer_source_id)
             self._auto_update_timer_source_id = None
 
-        if self.config.auto_update_feeds and
-                self.config.auto_update_frequency:
+        if (self.config.auto_update_feeds and
+                self.config.auto_update_frequency):
             interval = 60 * 1000 * self.config.auto_update_frequency
             logger.debug('Setting up auto update timer with interval %d.',
                     self.config.auto_update_frequency)

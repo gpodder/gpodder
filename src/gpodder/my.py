@@ -47,8 +47,8 @@ mygpoclient.user_agent += ' ' + gpodder.user_agent
 # 2013-02-08: We should update this to 1.7 once we use the new features
 MYGPOCLIENT_REQUIRED = '1.4'
 
-if not hasattr(mygpoclient, 'require_version') or
-        not mygpoclient.require_version(MYGPOCLIENT_REQUIRED):
+if (not hasattr(mygpoclient, 'require_version')
+        or not mygpoclient.require_version(MYGPOCLIENT_REQUIRED)):
     print("""
     Please upgrade your mygpoclient library.
     See http://thp.io/2010/mygpoclient/
@@ -143,7 +143,7 @@ class EpisodeAction(object):
                  'action': str, 'timestamp': int,
                  'started': int, 'position': int, 'total': int}
 
-    def __init__(self, podcast_url, episode_url, device_id, \
+    def __init__(self, podcast_url, episode_url, device_id,
             action, timestamp, started, position, total):
         self.podcast_url = podcast_url
         self.episode_url = episode_url
@@ -212,8 +212,8 @@ class MygPoClient(object):
         self._store.remove(self._store.load(UpdateDeviceAction))
 
         # Insert our new update action
-        action = UpdateDeviceAction(self.device_id, \
-                self._config.mygpo.device.caption, \
+        action = UpdateDeviceAction(self.device_id,
+                self._config.mygpo.device.caption,
                 self._config.mygpo.device.type)
         self._store.save(action)
 
@@ -343,13 +343,13 @@ class MygPoClient(object):
             raise Exception('Webservice access not enabled')
 
     def _convert_played_episode(self, episode, start, end, total):
-        return EpisodeAction(episode.channel.url, \
-                episode.url, self.device_id, 'play', \
+        return EpisodeAction(episode.channel.url,
+                episode.url, self.device_id, 'play',
                 int(time.time()), start, end, total)
 
     def _convert_episode(self, episode, action):
-        return EpisodeAction(episode.channel.url, \
-                episode.url, self.device_id, action, \
+        return EpisodeAction(episode.channel.url,
+                episode.url, self.device_id, action,
                 int(time.time()), None, None, None)
 
     def on_delete(self, episodes):
@@ -489,8 +489,8 @@ class MygPoClient(object):
 
         try:
             # Load the "since" value from the database
-            since_o = self._store.get(SinceValue, host=self.host, \
-                                                  device_id=self.device_id, \
+            since_o = self._store.get(SinceValue, host=self.host,
+                                                  device_id=self.device_id,
                                                   category=SinceValue.EPISODES)
 
             # Use a default since object for the first-time case
