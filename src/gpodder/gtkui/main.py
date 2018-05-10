@@ -1019,8 +1019,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             uris = ['file://' + e.local_filename(create=False) \
                     for e in self.get_selected_episodes() \
                     if e.was_downloaded(and_exists=True)]
-            uris.append('') # for the trailing '\r\n'
-            selection_data.set(selection_data.target, 8, '\r\n'.join(uris))
+            selection_data.set_uris(uris)
         self.treeAvailable.connect('drag-data-get', drag_data_get)
 
         selection = self.treeAvailable.get_selection()
