@@ -18,7 +18,6 @@
 # along with elib.intl. If not, see <http://www.gnu.org/licenses/>.
 
 
-
 '''
 This code is adapted from the elib.intl module available on GitHub at
 https://github.com/dieterv/elib.intl, commit 49d5797 on 1 Sep 2017.
