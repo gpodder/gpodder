@@ -58,6 +58,6 @@ Updating an Existing Installer
 We directly follow msys2 upstream so building the installer two weeks later
 might result in newer versions of dependencies being used. To reduce the risk
 of stable release breakage you can use an existing installer and just install
-a newer Quod Libet version into it and then repack it.
+a newer gPodder version into it and then repack it.
 
 ``./rebuild.sh gpodder-3.10.2-installer.exe [git-tag]``
