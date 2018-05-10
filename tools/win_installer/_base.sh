@@ -44,11 +44,11 @@ function build_pacman {
 }
 
 function build_pip {
-    "${BUILD_ROOT}"/"${MINGW}"/bin/python3.exe -m pip "$@"
+    "${MINGW_ROOT}"/bin/python3.exe -m pip "$@"
 }
 
 function build_python {
-    "${BUILD_ROOT}"/"${MINGW}"/bin/python3.exe "$@"
+    "${MINGW_ROOT}"/bin/python3.exe "$@"
 }
 
 function build_compileall {
@@ -120,7 +120,7 @@ function install_gpodder {
 
     (cd "${REPO_CLONE}" && git checkout "$1") || exit 1
 
-    (cd "${REPO_CLONE}" && PYTHON="${BUILD_ROOT}"/"${MINGW}"/bin/python3.exe mingw32-make install-win)
+    (cd "${REPO_CLONE}" && PYTHON="${MINGW_ROOT}"/bin/python3.exe mingw32-make install-win)
 
     GPO_VERSION=$(MSYSTEM= build_python -c \
         "import gpodder; import sys; sys.stdout.write(gpodder.__version__)")
@@ -137,14 +137,14 @@ function install_gpodder {
         "${GPO_VERSION}" "${MINGW_ROOT}"/bin
 
 	# install fake dbus
-	rsync -arv --delete "${REPO_CLONE}"/tools/fake-dbus-module/dbus "${BUILD_ROOT}"/"${MINGW}"/lib/python3.6/site-packages/
+	rsync -arv --delete "${REPO_CLONE}"/tools/fake-dbus-module/dbus "${MINGW_ROOT}"/lib/python3.6/site-packages/
 	
 	# install gtk3 settings for a proper font
-	mkdir -p "${BUILD_ROOT}"/"${MINGW}"/etc/gtk-3.0
-	cp "${MISC}"/gtk3.0_settings.ini "${BUILD_ROOT}"/"${MINGW}"/etc/gtk-3.0/settings.ini
+	mkdir -p "${MINGW_ROOT}"/etc/gtk-3.0
+	cp "${MISC}"/gtk3.0_settings.ini "${MINGW_ROOT}"/etc/gtk-3.0/settings.ini
 	
 	# install bin/gpodder bin/gpo to a separate package, to be run before gpodder/__init__.py
-	gpodder_launch_dir="${BUILD_ROOT}"/"${MINGW}"/lib/python3.6/site-packages/gpodder_launch
+	gpodder_launch_dir="${MINGW_ROOT}"/lib/python3.6/site-packages/gpodder_launch
 	mkdir -p "${gpodder_launch_dir}"
 	touch "${gpodder_launch_dir}"/__init__.py
 	cp ${REPO_CLONE}/bin/gpo "${gpodder_launch_dir}"/gpo.py
