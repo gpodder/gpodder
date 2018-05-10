@@ -129,6 +129,9 @@ del t
 # Set up textdomain for Gtk.Builder (this accesses the C library functions)
 if hasattr(locale, 'bindtextdomain'):
     locale.bindtextdomain(textdomain, locale_dir)
+elif ui.win32:
+    from gpodder.utilwin32locale import install
+    install(textdomain, locale_dir)
 
 del locale_dir
 
