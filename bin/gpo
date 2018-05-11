@@ -52,6 +52,10 @@
     pending [URL]              List new episodes (all or only from URL)
     episodes [--guid] [URL]    List episodes with or without GUIDs (all or only from URL)
 
+  - Synchronization -
+
+    sync                       Sync podcasts to device
+
   - Configuration -
 
     set [key] [value]          List one (all) keys or set to a new value
@@ -130,6 +134,7 @@ log.setup(verbose)
 
 from gpodder import core
 from gpodder import download
+from gpodder import sync
 from gpodder import my
 from gpodder import opml
 from gpodder import util
@@ -137,6 +142,7 @@ from gpodder import youtube
 from gpodder import model
 from gpodder import common
 from gpodder.config import config_value_to_string
+from gpodder.gtkui.desktop.deviceplaylist import gPodderDevicePlaylist
 
 def incolor(color_id, s):
     if have_ansi and cli._config.ui.cli.colors:
@@ -173,6 +179,13 @@ class gPodderCli(object):
         self._config = self.core.config
         self._model = self.core.model
 
+        from gpodder.gtkui.download import DownloadStatusModel
+        
+        self.download_status_model = DownloadStatusModel()
+        self.download_queue_manager = download.DownloadQueueManager(self._config, self.download_status_model)
+        #self.download_queue_manager = download.DownloadQueueManager(self._config, None)
+        self.download_list_update_enabled = False
+        
         self._current_action = ''
         self._commands = dict((name.rstrip('_'), func)
             for name, func in inspect.getmembers(self)
@@ -536,6 +549,278 @@ class gPodderCli(object):
             task.status = download.DownloadTask.DOWNLOADING
             task.run()
 
+    def enable_download_list_update(self):
+        return
+
+    def _filter_sync_episodes(self, channels, only_downloaded=False):
+        """Return a list of episodes for device synchronization
+
+        If only_downloaded is True, this will skip episodes that
+        have not been downloaded yet and podcasts that are marked
+        as "Do not synchronize to my device".
+        """
+        episodes = []
+        for channel in channels:
+            if only_downloaded or not channel.sync_to_mp3_player:
+                logger.info('Skipping channel: %s', channel.title)
+                continue
+
+            for episode in channel.get_all_episodes():
+                if (episode.was_downloaded(and_exists=True) or
+                    not only_downloaded):
+                    episodes.append(episode)
+                    
+        return episodes
+
+    def delete_episode_list(self,episodes,confirm=True,skip_locked=True,
+                            callback=None):
+        if not episodes:
+            return False
+
+        if skip_locked:
+            episodes_locked = [e for e in episodes if e.archive]            
+            episodes = [e for e in episodes if not e.archive]
+
+        if not episodes:
+            message = _('The selected episodes are locked. Please unlock the episodes that you want to delete before trying to delete them.')
+            print ('{}'.format(message))
+            for episode in episodes_locked:
+                self._start_action(_('Locked(archived) episode: %(episode)s') % {
+                    'episode': episode.title})
+                self._finish_action(skip=True)
+            return False
+
+        for idx, episode in enumerate(episodes):
+            if not episode.archive or not skip_locked:
+                self._start_action(_('Deleting episode: %(episode)s') % {
+                    'episode': episode.title})
+                episode.delete_from_disk()
+                self._finish_action(success=True)
+                
+        # Episodes have been deleted - persist the database
+        self._db.commit()
+
+        return True
+        
+        
+    def sync(self):
+        device = sync.open_device(self)
+
+        if device is None:
+            print ("No device configured")
+            self._finish_action(False)
+            return False
+
+        if not device.open():
+            print ("Cannot open device")
+            self._finish_action(False)
+            return False
+        else:
+            # Only set if device is configured and opened successfully
+            self.device = device
+
+        self.channels = self._model.get_podcasts()
+        episodes = None
+        
+        if episodes is None:
+            force_played = False
+            episodes = self._filter_sync_episodes(self.channels)
+
+        def check_free_space():
+            # "Will we add this episode to the device?"
+            def will_add(episode):
+                # If already on-device, it won't take up any space
+                if device.episode_on_device(episode):
+                    return False
+
+                # Might not be synced if it's played already
+                if (not force_played and
+                        self._config.device_sync.skip_played_episodes):
+                    return False
+
+                # In all other cases, we expect the episode to be
+                # synchronized to the device, so "answer" positive
+                return True
+
+            # "What is the file size of this episode?"
+            def file_size(episode):
+                filename = episode.local_filename(create=False)
+                if filename is None:
+                    return 0
+                return util.calculate_size(str(filename))
+
+            # Calculate total size of sync and free space on device
+            total_size = sum(file_size(e) for e in episodes if will_add(e))
+            free_space = max(device.get_free_space(), 0)
+
+            if total_size > free_space:
+                message = 'Not enough space left on device'
+                print ('{}'.format(message))
+                device.cancel()
+                device.close()
+                return False
+
+            #enable updating of UI
+            self.enable_download_list_update()
+
+            #Update device playlists
+            #General approach is as follows:
+
+            #When a episode is downloaded and synched, it is added to the
+            #standard playlist for that podcast which is then written to
+            #the device.
+
+            #After the user has played that episode on their device, they
+            #can delete that episode from their device.
+
+            #At the next sync, gPodder will then compare the standard
+            #podcast-specific playlists on the device (as written by
+            #gPodder during the last sync), with the episodes on the
+            #device.If there is an episode referenced in the playlist
+            #that is no longer on the device, gPodder will assume that
+            #the episode has already been synced and subsequently deleted
+            #from the device, and will hence mark that episode as deleted
+            #in gPodder. If there are no playlists, nothing is deleted.
+
+            #At the next sync, the playlists will be refreshed based on
+            #the downloaded, undeleted episodes in gPodder, and the
+            #cycle begins again...
+
+            def resume_sync(episode_urls, channel_urls,progress):
+                if progress is not None:
+                    progress.on_finished()
+
+                #rest of sync process should continue here
+                self._db.commit()
+                for current_channel in self.channels:
+                    #only sync those channels marked for syncing
+                    if (self._config.device_sync.device_type=='filesystem' and current_channel.sync_to_mp3_player and self._config.device_sync.playlists.create):
+                        
+                        #get playlist object
+                        playlist=gPodderDevicePlaylist(self._config,
+                                                       current_channel.title)
+                        #need to refresh episode list so that
+                        #deleted episodes aren't included in playlists
+                        episodes_for_playlist=sorted(current_channel.get_episodes(gpodder.STATE_DOWNLOADED),
+                                                     key=lambda ep: ep.published)
+                        #don't add played episodes to playlist if skip_played_episodes is True                       
+                        if self._config.device_sync.skip_played_episodes:
+                            episodes_for_playlist=[ep for ep in episodes_for_playlist if ep.is_new]
+                        playlist.write_m3u(episodes_for_playlist)
+
+                #enable updating of UI
+                self.enable_download_list_update()
+            
+                if (self._config.device_sync.device_type=='filesystem' and self._config.device_sync.playlists.create):
+                    message = _('The playlist on your MP3 player has been successfully updated')
+                    print ('{}'.format(message))
+
+                # Finally start the synchronization process
+                self._start_action(_('Syncing {} podcast episodes'.format(len(episodes))))
+                device.add_sync_tasks(episodes, force_played=force_played,
+                                      done_callback=self.enable_download_list_update)
+                self._finish_action(success=True)
+                
+                return
+
+            if self._config.device_sync.playlists.create:
+                try:
+                    episodes_to_delete=[]
+                    if self._config.device_sync.playlists.two_way_sync:
+                        for current_channel in self.channels:
+                            #only include channels that are included in the sync
+                            if current_channel.sync_to_mp3_player:
+                                #get playlist object
+                                playlist=gPodderDevicePlaylist(self._config, current_channel.title)
+                                #get episodes to be written to playlist
+                                episodes_for_playlist=sorted(current_channel.get_episodes(gpodder.STATE_DOWNLOADED),
+                                                             key=lambda ep: ep.published)
+                                episode_keys=list(map(playlist.get_absolute_filename_for_playlist,
+                                                 episodes_for_playlist))
+
+                                episode_dict=dict(list(zip(episode_keys, episodes_for_playlist)))
+
+                                #then get episodes in playlist (if it exists) already on device
+                                episodes_in_playlists = playlist.read_m3u()
+                                #if playlist doesn't exist (yet) episodes_in_playlist will be empty
+                                if episodes_in_playlists:
+                                    for episode_filename in episodes_in_playlists:
+
+                                        if not(os.path.exists(os.path.join(playlist.mountpoint,
+                                                                           episode_filename))):
+                                            #episode was synced but no longer on device
+                                            #i.e. must have been deleted by user, so delete from gpodder
+                                            try:
+                                                episodes_to_delete.append(episode_dict[episode_filename])
+                                            except KeyError as ioe:
+                                                logger.warn('Episode %s, removed from device has already been deleted from gpodder',
+                                                            episode_filename)
+                    #delete all episodes from gpodder (will prompt user)
+
+                    #not using playlists to delete
+                    def auto_delete_callback(episodes):
+
+                        if not episodes:
+                            #episodes were deleted on device
+                            #but user decided not to delete them from gpodder
+                            #so jump straight to sync
+                            logger.info('Starting sync - no episodes selected for deletion')
+                            resume_sync([],[],None)
+                        else:
+                            #episodes need to be deleted from gpodder
+                            for episode_to_delete in episodes:
+                                logger.info("Deleting episode %s",
+                                               episode_to_delete.title)
+
+                            logger.info('Will start sync - after deleting episodes')
+                            self.delete_episode_list(episodes,confirm=False,
+                                                     skip_locked=True)
+                            resume_sync([],[],None)
+                            
+                        return
+
+                    if episodes_to_delete:
+                        # Implicit delete of episodes deleted on device
+                        auto_delete_callback(episodes_to_delete)
+                    else:
+                        logger.warning("Starting sync - no episodes to delete")
+                        resume_sync([],[],None)
+
+                except IOError as ioe:
+                    title = 'Error writing playlist files'
+                    message = str(ioe)
+                    print ('{}: {}'.format(title,message))
+            else:
+                logger.info('Not creating playlists - starting sync')
+                resume_sync([],[],None)
+
+        # This function is used to remove files from the device
+        def cleanup_episodes():
+            # 'skip_played_episodes' must be used or else all the
+            # played tracks will be copied then immediately deleted
+            if (self._config.device_sync.delete_played_episodes and
+                    self._config.device_sync.skip_played_episodes):
+                all_episodes = self._filter_sync_episodes(channels,
+                        only_downloaded=False)
+                for local_episode in all_episodes:
+                    episode = device.episode_on_device(local_episode)
+                    if episode is None:
+                        continue
+
+                    if local_episode.state == gpodder.STATE_DELETED:
+                        logger.info('Removing episode from device: %s',
+                                episode.title)
+                        device.remove_track(episode)
+
+            # When this is done, start the callback in the UI code
+            check_free_space()
+
+        # This will run the following chain of actions:
+        #  1. Remove old episodes (in worker thread)
+        #  2. Check for free space (in UI thread)
+        #  3. Sync the device (in UI thread)
+        cleanup_episodes()
+    
     @FirstArgumentIsPodcastURL
     def download(self, url=None, guid=None):
         episodes = []
