@@ -32,6 +32,8 @@ function main {
     install_gpodder "$GIT_TAG"
 	echo ">>>> cleanup_after <<<<"
     cleanup_after
+	echo ">>>> dump_packages <<<<"
+	dump_packages
 	echo ">>>> build_installer <<<<"
     build_installer
 	echo ">>>> build_portable_installer <<<<"

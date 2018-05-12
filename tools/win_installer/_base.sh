@@ -79,6 +79,15 @@ function extract_installer {
     rm -rf "$MINGW_ROOT"/'$PLUGINSDIR' "$MINGW_ROOT"/*.txt "$MINGW_ROOT"/*.nsi
 }
 
+PIP_REQUIREMENTS="\
+podcastparser==0.6.3
+mygpoclient==1.8
+pywin32-ctypes==0.1.2
+html5lib==1.0.1
+webencodings==0.5.1
+six==1.11.0
+"
+
 function install_deps {
 
     # We don't use the fontconfig backend, and this skips the lengthy
@@ -93,14 +102,6 @@ function install_deps {
         mingw-w64-"${ARCH}"-python3-pip \
 		mingw-w64-"${ARCH}"-make
 
-    PIP_REQUIREMENTS="\
-podcastparser==0.6.3
-mygpoclient==1.8
-pywin32-ctypes==0.1.2
-html5lib==1.0.1
-webencodings==0.5.1
-six==1.11.0 
-"
     build_pacman -S --noconfirm mingw-w64-"${ARCH}"-python3-setuptools
 
     build_pip install --no-deps --no-binary ":all:" --upgrade \
@@ -293,6 +294,98 @@ function cleanup_after {
     build_python "${MISC}/depcheck.py" --delete
 
     find "${MINGW_ROOT}" -type d -empty -delete
+}
+
+function dump_packages {
+	DUMPFILE="${MINGW_ROOT}/contents.txt"
+	pkg=""
+	rm -f "$DUMPFILE"
+	(
+		unset PKGVERSIONS
+		declare -A PKGVERSIONS
+		while read pkg version; do
+			PKGVERSIONS[$pkg]="$version"
+		done < <(build_pacman -Q)
+		# REGFILES is a hash of file -> package name to check for unregistered files in the end
+		unset REGFILES
+		declare -A REGFILES
+		echo "msys2 packages:"
+		# first handle all files registered with pacman
+		while read _pkg file; do
+			realfile=""
+			if [[ "$file" == "${MINGW_ROOT}"* ]]; then
+				if [ -f "$file" ]; then
+					realfile="$file"
+				elif [[ "$file" == *".py" ]] && [ -f "${file}c" ]; then
+					realfile="${file}c"
+				fi
+			fi
+			if [ -n "$realfile" ]; then
+				if [ "$_pkg" != "$pkg" ]; then
+					pkg="$_pkg"
+					echo "$pkg ${PKGVERSIONS[$pkg]}"
+				fi
+				echo "    ${realfile#${MINGW_ROOT}}"
+				REGFILES["$realfile"]="$pkg"
+			fi
+		done < <(build_pacman -Ql)
+		echo "==================="
+		# then handle all python packages (with an installed-files.txt)
+		echo "Python packages:"
+		for p in ${PIP_REQUIREMENTS}; do
+			pkg=${p%==*}
+			version=${p#*==}
+			echo "$pkg $version"
+			# pywin32-ctypes doesn't provide an egg-info/installed-files.txt
+			if [ "$pkg" == "pywin32-ctypes" ]; then
+				while read file; do
+					if [ ! ${REGFILES[$file]+_} ]; then
+						echo "    $file"
+						REGFILES["$file"]="$pkg"
+					fi
+				done < <(find "${MINGW_ROOT}" -type f -a \( -path '*/site-packages/pywin32_ctypes*' -o -path '*/site-packages/win32ctypes/*' \))
+			else
+				# other python deps provide an installed-files.txt, so simply go through them
+				egg="${MINGW_ROOT}/lib/python3.6/site-packages/${pkg}-${version}-py3.6.egg-info"
+				if [ -f "$egg/installed-files.txt" ]; then
+					while read file; do
+						realfile=""
+						tryfile="$egg/$file"
+						if [ -f "$tryfile" ]; then
+							realfile=$(realpath "$tryfile")
+						# we precompiled all python modules
+						elif [[ "$tryfile" == *.py ]] && [ -f "${tryfile}c" ]; then
+							realfile=$(realpath "${tryfile}c")
+						fi
+						# this file (or compiled module) belongs to this python package
+						if [ -n "$realfile" ]; then
+							echo "    $realfile"
+							REGFILES["$realfile"]="$pkg"
+						fi
+					# installed-files.txt is not listed in itself, so add it manually
+					done < <(echo installed-files.txt; tr -d '\r' < "$egg/installed-files.txt")
+				fi
+			fi
+		done
+		echo "==================="
+		echo gPodder
+		# every file with gpodder in the path belongs to us!
+		while read relfile; do
+			file="${MINGW_ROOT}/${relfile#./}"
+			if [ ! ${REGFILES[$file]+_} ]; then
+				echo "    $file"
+				REGFILES["$file"]="gpodder"
+			fi
+		done < <(cd "${MINGW_ROOT}" && find . -type f -a \( -path '*gpodder*' -o -path '*/site-packages/dbus/*' -o -name gpo.exe \))
+		echo "==================="
+		echo "Unregistered files:"
+		# a few generated files
+		while read file; do
+		if [ ! ${REGFILES[$file]+_} ]; then
+			echo "    $file"
+		fi
+		done < <(find "${MINGW_ROOT}" -type f)
+	) > "$DUMPFILE"
 }
 
 function build_installer {
