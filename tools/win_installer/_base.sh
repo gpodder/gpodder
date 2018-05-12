@@ -256,6 +256,14 @@ function cleanup_after {
     rm -Rf "${MINGW_ROOT}"/lib/ruby
     rm -Rf "${MINGW_ROOT}"/lib/engines
 
+    # remove all tcl/tk libs
+    rm -Rf "${MINGW_ROOT}"/lib/dde*
+    rm -Rf "${MINGW_ROOT}"/lib/itcl*
+    rm -Rf "${MINGW_ROOT}"/lib/reg*
+    rm -Rf "${MINGW_ROOT}"/lib/tcl*
+    rm -Rf "${MINGW_ROOT}"/lib/tdbc*
+    rm -Rf "${MINGW_ROOT}"/lib/tk*
+
     rm -f "${MINGW_ROOT}"/bin/libharfbuzz-icu-0.dll
     rm -Rf "${MINGW_ROOT}"/lib/python2.*
 
