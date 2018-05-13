@@ -127,7 +127,10 @@ class ExtensionMetadata(object):
             raise AttributeError(name, e)
 
     def get_sorted(self):
-        kf = lambda x: self.SORTKEYS.get(x[0], 99)
+
+        def kf(x):
+            return self.SORTKEYS.get(x[0], 99)
+
         return sorted([(k, v) for k, v in list(self.__dict__.items())], key=kf)
 
     def check_ui(self, target, default):

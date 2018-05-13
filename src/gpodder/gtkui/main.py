@@ -170,7 +170,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.config.connect_gtk_togglebutton('limit_rate', self.cbLimitDownloads)
 
         # When the amount of maximum downloads changes, notify the queue manager
-        changed_cb = lambda spinbutton: self.download_queue_manager.update_max_downloads()
+        def changed_cb(spinbutton):
+            return self.download_queue_manager.update_max_downloads()
+
         self.spinMaxDownloads.connect('value-changed', changed_cb)
 
         # Keep a reference to the last add podcast dialog instance
@@ -473,8 +475,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         # By default, assume we can't pre-select any channel
         # but can match episodes simply via the download URL
-        is_channel = lambda c: True
-        is_episode = lambda e: e.url == uri
+
+        def is_channel(c):
+            return True
+
+        def is_episode(e):
+            return e.url == uri
 
         if uri.startswith(prefix):
             # File is on the local filesystem in the download folder
@@ -489,8 +495,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             foldername, filename = file_parts
 
-            is_channel = lambda c: c.download_folder == foldername
-            is_episode = lambda e: e.download_filename == filename
+            def is_channel(c):
+                return c.download_folder == foldername
+
+            def is_episode(e):
+                return e.download_filename == filename
 
         # Deep search through channels and episodes for a match
         for channel in filter(is_channel, self.channels):
@@ -2054,7 +2063,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                             logger.info('Executing: %s', repr(command))
                             subprocess.Popen(command)
 
-                    on_error = lambda err: error_handler(filename, err)
+                    def on_error(err):
+                        return error_handler(filename, err)
 
                     # This method only exists in Panucci > 0.9 ('new Panucci')
                     i.playback_from(filename, resume_position, \
@@ -2194,8 +2204,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
         selection = self.treeChannels.get_selection()
         model, iter = selection.get_selected()
 
-        is_section = lambda r: r[PodcastListModel.C_URL] == '-'
-        is_separator = lambda r: r[PodcastListModel.C_SEPARATOR]
+        def is_section(r):
+            return r[PodcastListModel.C_URL] == '-'
+
+        def is_separator(r):
+            return r[PodcastListModel.C_SEPARATOR]
+
         sections_active = any(is_section(x) for x in self.podcast_list_model)
 
         if self.config.podcast_list_view_all:
@@ -2211,7 +2225,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         # Filter items in the list model that are not podcasts, so we get the
         # correct podcast list count (ignore section headers and separators)
-        is_not_podcast = lambda r: is_section(r) or is_separator(r)
+
+        def is_not_podcast(r):
+            return is_section(r) or is_separator(r)
+
         list_model_length -= len(list(filter(is_not_podcast, self.podcast_list_model)))
 
         if selected and not force_update:
