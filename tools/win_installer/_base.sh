@@ -264,6 +264,10 @@ function cleanup_after {
     rm -Rf "${MINGW_ROOT}"/lib/tdbc*
     rm -Rf "${MINGW_ROOT}"/lib/tk*
 
+    # remove terminfo database (not used, even by gpo)
+    rm -Rf "${MINGW_ROOT}"/lib/terminfo
+    rm -Rf "${MINGW_ROOT}"/share/terminfo
+
     rm -f "${MINGW_ROOT}"/bin/libharfbuzz-icu-0.dll
     rm -Rf "${MINGW_ROOT}"/lib/python2.*
 
