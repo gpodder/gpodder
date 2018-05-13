@@ -109,10 +109,24 @@ class UIConfig(config.Config):
             setattr(self, name, editable.get_chars(0, -1))
         editable.connect('changed', _editable_changed)
 
-    def connect_gtk_spinbutton(self, name, spinbutton):
+    def connect_gtk_spinbutton(self, name, spinbutton, forced_upper=None):
+        """
+        bind a Gtk.SpinButton to a configuration entry.
+
+        It's now possible to specify an upper value (forced_upper).
+        It's not done automatically (always look for name + '_max') because it's
+        used only once. If it becomes commonplace, better make it automatic.
+
+        :param str name: configuration key (e.g. 'max_downloads' or 'limit.downloads.concurrent')
+        :param Gtk.SpinButton spinbutton: button to bind to config
+        :param float forced_upper: forced upper limit on spinbutton.
+                                   Overrides value in .ui to be consistent with code
+        """
         current_value = getattr(self, name)
 
         adjustment = spinbutton.get_adjustment()
+        if forced_upper is not None:
+            adjustment.set_upper(forced_upper)
         if current_value > adjustment.get_upper():
             adjustment.set_upper(current_value)
 

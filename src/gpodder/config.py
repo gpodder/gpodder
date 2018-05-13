@@ -65,6 +65,7 @@ defaults = {
         'downloads': {
             'enabled': True,
             'concurrent': 1,
+            'concurrent_max': 16,
         },
         'episodes': 200, # max episodes per feed
     },

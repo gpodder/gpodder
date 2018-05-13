@@ -164,7 +164,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.download_status_model = DownloadStatusModel()
         self.download_queue_manager = download.DownloadQueueManager(self.config, self.download_status_model)
 
-        self.config.connect_gtk_spinbutton('max_downloads', self.spinMaxDownloads)
+        self.config.connect_gtk_spinbutton('limit.downloads.concurrent', self.spinMaxDownloads,
+                                            self.config.limit.downloads.concurrent_max)
         self.config.connect_gtk_togglebutton('max_downloads_enabled', self.cbMaxDownloads)
         self.config.connect_gtk_spinbutton('limit_rate_value', self.spinLimitDownloads)
         self.config.connect_gtk_togglebutton('limit_rate', self.cbLimitDownloads)
@@ -174,6 +175,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return self.download_queue_manager.update_max_downloads()
 
         self.spinMaxDownloads.connect('value-changed', changed_cb)
+        self.cbMaxDownloads.connect('toggled', changed_cb)
 
         # Keep a reference to the last add podcast dialog instance
         self._add_podcast_dialog = None
