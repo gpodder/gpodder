@@ -72,13 +72,13 @@ class DownloadStatusModel(Gtk.ListStore):
                     self.C_URL, task.url)
 
         if task.status == task.FAILED:
-            status_message = '%s: %s' % (\
-                    task.STATUS_MESSAGE[task.status], \
+            status_message = '%s: %s' % (
+                    task.STATUS_MESSAGE[task.status],
                     task.error_message)
         elif task.status == task.DOWNLOADING:
-            status_message = '%s (%.0f%%, %s/s)' % (\
-                    task.STATUS_MESSAGE[task.status], \
-                    task.progress * 100, \
+            status_message = '%s (%.0f%%, %s/s)' % (
+                    task.STATUS_MESSAGE[task.status],
+                    task.progress * 100,
                     util.format_filesize(task.speed))
         else:
             status_message = task.STATUS_MESSAGE[task.status]
@@ -96,7 +96,7 @@ class DownloadStatusModel(Gtk.ListStore):
 
             progress_message = ' / '.join((current, total))
         elif task.total_size > 0:
-            progress_message = util.format_filesize(task.total_size, \
+            progress_message = util.format_filesize(task.total_size,
                     digits=1)
         else:
             progress_message = ('unknown size')
@@ -104,8 +104,8 @@ class DownloadStatusModel(Gtk.ListStore):
         self.set(iter,
                 self.C_NAME, self._format_message(task.episode.title,
                     status_message, task.episode.channel.title),
-                self.C_PROGRESS, 100. * task.progress, \
-                self.C_PROGRESS_TEXT, progress_message, \
+                self.C_PROGRESS, 100. * task.progress,
+                self.C_PROGRESS_TEXT, progress_message,
                 self.C_ICON_NAME, self._status_ids[task.status])
 
     def __add_new_task(self, task):
@@ -135,7 +135,7 @@ class DownloadStatusModel(Gtk.ListStore):
         for row in self:
             task = row[DownloadStatusModel.C_TASK]
             if task is not None and \
-                    task.status in (task.DOWNLOADING, \
+                    task.status in (task.DOWNLOADING,
                                     task.QUEUED):
                 return True
 

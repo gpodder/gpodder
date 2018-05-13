@@ -816,7 +816,7 @@ class DownloadTask(object):
             if disposition_filename is not None and disposition_filename != '':
                 # The server specifies a download filename - try to use it
                 disposition_filename = os.path.basename(disposition_filename)
-                self.filename = self.__episode.local_filename(create=True, \
+                self.filename = self.__episode.local_filename(create=True,
                         force_update=True, template=disposition_filename)
                 new_mimetype, encoding = mimetypes.guess_type(self.filename)
                 if new_mimetype is not None:

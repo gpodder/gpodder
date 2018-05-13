@@ -478,8 +478,8 @@ class gPodderPreferences(BuilderWidget):
         self.preferred_vimeo_format_model.set_index(index)
 
     def on_button_audio_player_clicked(self, widget):
-        result = self.show_text_edit_dialog(_('Configure audio player'), \
-                _('Command:'), \
+        result = self.show_text_edit_dialog(_('Configure audio player'),
+                _('Command:'),
                 self._config.player)
 
         if result:
@@ -488,8 +488,8 @@ class gPodderPreferences(BuilderWidget):
             self.combo_audio_player_app.set_active(index)
 
     def on_button_video_player_clicked(self, widget):
-        result = self.show_text_edit_dialog(_('Configure video player'), \
-                _('Command:'), \
+        result = self.show_text_edit_dialog(_('Configure video player'),
+                _('Command:'),
                 self._config.videoplayer)
 
         if result:
