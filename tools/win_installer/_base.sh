@@ -115,9 +115,12 @@ function install_gpodder {
     [ -z "$1" ] && (echo "Missing arg"; exit 1)
 
     rm -Rf "${REPO_CLONE}"
-	# FIXME: restore correct clone
-#    git clone "${DIR}"/../.. "${REPO_CLONE}"
-	rsync -rvt "${DIR}"/../.. "${REPO_CLONE}"
+	if [ "$2" == "rsync" ]; then
+	    # development mode when not everything is committed
+	    rsync -rvt "${DIR}"/../.. "${REPO_CLONE}"
+    else
+        git clone "${DIR}"/../.. "${REPO_CLONE}"
+    fi
 
     (cd "${REPO_CLONE}" && git checkout "$1") || exit 1
 
@@ -213,7 +216,6 @@ function cleanup_after {
     rm -Rf "${MINGW_ROOT}"/share/doc
     rm -Rf "${MINGW_ROOT}"/share/man
     rm -Rf "${MINGW_ROOT}"/share/info
-	# FIXME: don't we need it for icons?
     rm -Rf "${MINGW_ROOT}"/share/mime
     rm -Rf "${MINGW_ROOT}"/share/gettext
     rm -Rf "${MINGW_ROOT}"/share/libtool
