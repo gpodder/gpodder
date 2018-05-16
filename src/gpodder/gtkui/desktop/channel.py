@@ -86,7 +86,7 @@ class gPodderChannel(BuilderWidget):
         b.set_text( self.channel.description)
         self.channel_description.set_buffer( b)
 
-        #Add Drag and Drop Support
+        # Add Drag and Drop Support
         flags = Gtk.DestDefaults.ALL
         targets = [Gtk.TargetEntry.new('text/uri-list', 0, 2), Gtk.TargetEntry.new('text/plain', 0, 4)]
         actions = Gdk.DragAction.DEFAULT | Gdk.DragAction.COPY

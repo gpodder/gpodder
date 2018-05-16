@@ -88,5 +88,5 @@ class gPodderAddPodcast(BuilderWidget):
         url = self.entry_url.get_text()
         self.on_btn_close_clicked(widget)
         if self.add_podcast_list is not None:
-            title = None # FIXME: Add title GUI element
+            title = None  # FIXME: Add title GUI element
             self.add_podcast_list([(title, url)])

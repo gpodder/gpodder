@@ -41,7 +41,7 @@ class gPodderDevicePlaylist(object):
         self.playlist_absolute_filename = os.path.join(self.playlist_folder, self.playlist_file)
 
     def build_extinf(self, filename):
-        #TO DO: Windows playlists
+        # TODO: Windows playlists
         #        if self._config.mp3_player_playlist_win_path:
         #            filename = filename.replace('\\', os.sep)
 

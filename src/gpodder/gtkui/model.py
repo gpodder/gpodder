@@ -487,7 +487,7 @@ class PodcastChannelProxy(object):
         self.channels = channels
         self.title = _('All episodes')
         self.description = _('from all podcasts')
-        #self.parse_error = ''
+        # self.parse_error = ''
         self.url = ''
         self.section = ''
         self.id = None
@@ -726,10 +726,10 @@ class PodcastListModel(Gtk.ListStore):
             return ''.join(d)
 
     def _format_error(self, channel):
-        #if channel.parse_error:
-        #    return str(channel.parse_error)
-        #else:
-        #    return None
+        # if channel.parse_error:
+        #     return str(channel.parse_error)
+        # else:
+        #     return None
         return None
 
     def set_channels(self, db, config, channels):

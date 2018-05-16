@@ -1034,18 +1034,18 @@ class PodcastChannel(PodcastModelObject):
 
             self.save()
         except Exception as e:
-            # "Not really" errors
-            #feedcore.AuthenticationRequired
-            # Temporary errors
-            #feedcore.Offline
-            #feedcore.BadRequest
-            #feedcore.InternalServerError
-            #feedcore.WifiLogin
-            # Permanent errors
-            #feedcore.Unsubscribe
-            #feedcore.NotFound
-            #feedcore.InvalidFeed
-            #feedcore.UnknownStatusCode
+            #  "Not really" errors
+            # feedcore.AuthenticationRequired
+            #  Temporary errors
+            # feedcore.Offline
+            # feedcore.BadRequest
+            # feedcore.InternalServerError
+            # feedcore.WifiLogin
+            #  Permanent errors
+            # feedcore.Unsubscribe
+            # feedcore.NotFound
+            # feedcore.InvalidFeed
+            # feedcore.UnknownStatusCode
             gpodder.user_extensions.on_podcast_update_failed(self, e)
             raise
 

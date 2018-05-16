@@ -55,7 +55,7 @@ class GtkBuilderWidget(object):
             for (key, value) in list(self._builder_expose.items()):
                 self.builder.expose_object(key, value)
 
-        #print >>sys.stderr, 'Creating new from file', self.__class__.__name__
+        # print >>sys.stderr, 'Creating new from file', self.__class__.__name__
 
         ui_file = '%s.ui' % self.__class__.__name__.lower()
 
