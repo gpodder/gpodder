@@ -193,7 +193,7 @@ class Fetcher(object):
             # Not very robust attempt to detect encoding: http://stackoverflow.com/a/1495675/1072626
             charset = stream.headers.get_param('charset')
             if charset is None:
-                charset = 'utf-8' # utf-8 appears hard-coded elsewhere in this codebase
+                charset = 'utf-8'  # utf-8 appears hard-coded elsewhere in this codebase
 
             # We use StringIO in case the stream needs to be read again
             data = StringIO(stream.read().decode(charset))

@@ -163,7 +163,7 @@ class Mp3File(AudioFile):
 
         audio.tags.add(
             APIC(
-                encoding = 3, # 3 is for utf-8
+                encoding = 3,  # 3 is for utf-8
                 mime = mimetypes.guess_type(self.cover)[0],
                 type = 3,
                 desc = 'Cover',

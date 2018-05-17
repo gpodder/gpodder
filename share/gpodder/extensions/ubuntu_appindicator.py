@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 
 DefaultConfig = {
-    'visible': True, # Set to False if you don't want to show the appindicator
+    'visible': True,  # Set to False if you don't want to show the appindicator
 }
 
 

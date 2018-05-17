@@ -26,8 +26,8 @@ __category__ = 'post-download'
 
 
 DefaultConfig = {
-    'use_ogg': False, # Set to True to convert to .ogg (otherwise .mp3)
-    'context_menu': True, # Show the conversion option in the context menu
+    'use_ogg': False,  # Set to True to convert to .ogg (otherwise .mp3)
+    'context_menu': True,  # Show the conversion option in the context menu
 }
 
 

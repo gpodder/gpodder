@@ -105,7 +105,7 @@ class CurrentTrackTracker(object):
 
         uri = kwargs.pop('uri', None)
         if uri is not None:
-            length = kwargs.pop('length') # don't know how to handle uri with no length
+            length = kwargs.pop('length')  # don't know how to handle uri with no length
             if uri != cur['uri']:
                 # if this is a new uri, and the previous state was 'Playing',
                 # notify that the previous track has stopped before updating to
@@ -136,7 +136,7 @@ class CurrentTrackTracker(object):
                              self.pos / USECS_IN_SEC, self.length / USECS_IN_SEC,
                              (self.pos / USECS_IN_SEC) - (self.length / USECS_IN_SEC))
                 self.pos = self.length
-                kwargs.pop('pos') # remove 'pos' even though we're not using it
+                kwargs.pop('pos')  # remove 'pos' even though we're not using it
             else:
                 if self.pos is not None:
                     logger.debug("%r %r", self.pos, self.length)
