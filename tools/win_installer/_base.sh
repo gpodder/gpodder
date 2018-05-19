@@ -86,6 +86,7 @@ pywin32-ctypes==0.1.2
 html5lib==1.0.1
 webencodings==0.5.1
 six==1.11.0
+certifi==2018.4.16
 "
 
 function install_deps {
@@ -107,8 +108,13 @@ function install_deps {
     build_pip install --no-deps --no-binary ":all:" --upgrade \
         --force-reinstall $(echo "$PIP_REQUIREMENTS" | tr ["\\n"] [" "])
 
-    build_pacman --noconfirm -Rdds mingw-w64-"${ARCH}"-python3-pip || true
+    # replace ca-certificates with certifi's
+    build_pacman --noconfirm -Rdds mingw-w64-"${ARCH}"-ca-certificates || true
+    mkdir -p ${MINGW_ROOT}/ssl
+    cp -v ${MINGW_ROOT}/lib/python3.6/site-packages/certifi/cacert.pem ${MINGW_ROOT}/ssl/cert.pem
+    build_pip uninstall -y certifi
 
+    build_pacman --noconfirm -Rdds mingw-w64-"${ARCH}"-python3-pip || true
 }
 
 function install_gpodder {
@@ -249,6 +255,9 @@ function cleanup_after {
     find "${MINGW_ROOT}"/share/glib-2.0 -type f ! \
         -name "*.compiled" -exec rm -f {} \;
 
+    # unused configuration example
+    rm -Rf "${MINGW_ROOT}"/ssl/openssl.cnf
+
     rm -Rf "${MINGW_ROOT}"/lib/cmake
     rm -Rf "${MINGW_ROOT}"/lib/gettext
     rm -Rf "${MINGW_ROOT}"/lib/gtk-3.0
@@ -358,6 +367,13 @@ function dump_packages {
 						REGFILES["$file"]="$pkg"
 					fi
 				done < <(find "${MINGW_ROOT}" -type f -a \( -path '*/site-packages/pywin32_ctypes*' -o -path '*/site-packages/win32ctypes/*' \))
+			elif [ "$pkg" == "certifi" ]; then
+				while read file; do
+					if [ ! ${REGFILES[$file]+_} ]; then
+						echo "    $file"
+						REGFILES["$file"]="$pkg"
+					fi
+				done < <(find "${MINGW_ROOT}/ssl" -type f -path '*/ssl/cert.pem')
 			else
 				# other python deps provide an installed-files.txt, so simply go through them
 				egg="${MINGW_ROOT}/lib/python3.6/site-packages/${pkg}-${version}-py3.6.egg-info"
@@ -400,6 +416,8 @@ function dump_packages {
 		fi
 		done < <(find "${MINGW_ROOT}" -type f)
 	) > "$DUMPFILE"
+    unix2dos "${DUMPFILE}"
+    cp "${DUMPFILE}" "$DIR/gpodder-$GPO_VERSION_DESC-contents.txt"
 }
 
 function build_installer {
