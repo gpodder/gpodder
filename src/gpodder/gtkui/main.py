@@ -2170,10 +2170,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.delete_action.set_enabled(can_delete)
         self.toggle_episode_new_action.set_enabled(can_play)
         self.toggle_episode_lock_action.set_enabled(can_play)
-        # XXX: how to hide menu items?
-        # TODO: try .set_sensitive(false) to gray-out
-        # self.itemOpenSelected.set_visible(open_instead_of_play)
-        # self.itemPlaySelected.set_visible(not open_instead_of_play)
 
         return (can_play, can_download, can_cancel, can_delete, open_instead_of_play)
 
