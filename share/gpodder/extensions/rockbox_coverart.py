@@ -17,7 +17,7 @@ __only_for__ = 'gtk, cli'
 __authors__ = 'Alex Mayer <magictrick4906@aim.com>'
 
 DefaultConfig = {
-    "art_name_on_device": "cover.jpg" # The file name that will be used on the device for cover art
+    "art_name_on_device": "cover.jpg"  # The file name that will be used on the device for cover art
 }
 
 

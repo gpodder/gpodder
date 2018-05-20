@@ -54,7 +54,7 @@ class DBusPodcastsProxy(dbus.service.Object):
     for parameter and return values.
     """
 
-    #DBusPodcastsProxy(lambda: self.channels, self.on_itemUpdate_activate(), self.playback_episodes, self.download_episode_list, bus_name)
+    # DBusPodcastsProxy(lambda: self.channels, self.on_itemUpdate_activate(), self.playback_episodes, self.download_episode_list, bus_name)
     def __init__(self, get_podcast_list,
             check_for_updates, playback_episodes,
             download_episodes, episode_from_uri,

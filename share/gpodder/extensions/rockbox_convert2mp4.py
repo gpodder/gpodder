@@ -4,8 +4,8 @@
 # To use, copy it as a Python script into ~/.config/gpodder/extensions/rockbox_mp4_convert.py
 # See the module "gpodder.extensions" for a description of when each extension
 # gets called and what the parameters of each extension are.
-#Based on Rename files after download based on the episode title
-#And patch in Bug https://bugs.gpodder.org/show_bug.cgi?id=1263
+# Based on Rename files after download based on the episode title
+# And patch in Bug https://bugs.gpodder.org/show_bug.cgi?id=1263
 # Copyright (c) 2011-04-06 Guy Sheffer <guysoft at gmail.com>
 # Copyright (c) 2011-04-04 Thomas Perl <thp.io>
 # Licensed under the same terms as gPodder itself

@@ -67,10 +67,10 @@ class ConfigModel(Gtk.ListStore):
             fieldtype = type(value)
 
             style = Pango.Style.NORMAL
-            #if value == default:
-            #    style = Pango.Style.NORMAL
-            #else:
-            #    style = Pango.Style.ITALIC
+            # if value == default:
+            #     style = Pango.Style.NORMAL
+            # else:
+            #     style = Pango.Style.ITALIC
 
             self.append((key, self._type_as_string(fieldtype),
                     config.config_value_to_string(value),
@@ -81,10 +81,10 @@ class ConfigModel(Gtk.ListStore):
         for row in self:
             if row[self.C_NAME] == name:
                 style = Pango.Style.NORMAL
-                #if new_value == self._config.Settings[name]:
-                #    style = Pango.Style.NORMAL
-                #else:
-                #    style = Pango.Style.ITALIC
+                # if new_value == self._config.Settings[name]:
+                #     style = Pango.Style.NORMAL
+                # else:
+                #     style = Pango.Style.ITALIC
                 new_value_text = config.config_value_to_string(new_value)
                 self.set(row.iter,
                         self.C_VALUE_TEXT, new_value_text,
@@ -180,8 +180,8 @@ class UIConfig(config.Config):
 
         def _receive_window_state(widget, event):
             # ELL: why is it commented out?
-            #new_value = bool(event.new_window_state & Gdk.WindowState.MAXIMIZED)
-            #cfg.maximized = new_value
+            # new_value = bool(event.new_window_state & Gdk.WindowState.MAXIMIZED)
+            # cfg.maximized = new_value
             pass
 
         window.connect('window-state-event', _receive_window_state)

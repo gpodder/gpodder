@@ -27,7 +27,7 @@ __category__ = 'post-download'
 
 
 DefaultConfig = {
-    'context_menu': True, # Show action in the episode list context menu
+    'context_menu': True,  # Show action in the episode list context menu
 }
 
 # a tuple of (extension, command)

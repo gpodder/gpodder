@@ -188,10 +188,10 @@ PROVIDERS = [
     None,
     GPodderNetSearchProvider,
     GPodderNetToplistProvider,
-    #GPodderNetTagsProvider,
+    # GPodderNetTagsProvider,
     None,
     OpmlWebImportProvider,
-    #OpmlFileImportProvider,
+    # OpmlFileImportProvider,
     None,
     SoundcloudSearchProvider,
 ]

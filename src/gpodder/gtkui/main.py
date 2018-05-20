@@ -2072,7 +2072,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     i.playback_from(filename, resume_position,
                             reply_handler=on_reply, error_handler=on_error)
 
-                    continue # This file was handled by the D-Bus call
+                    continue  # This file was handled by the D-Bus call
                 except Exception as e:
                     logger.error('Calling Panucci using D-Bus', exc_info=True)
 
@@ -2171,8 +2171,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.toggle_episode_new_action.set_enabled(can_play)
         self.toggle_episode_lock_action.set_enabled(can_play)
         # XXX: how to hide menu items?
-        #self.itemOpenSelected.set_visible(open_instead_of_play)
-        #self.itemPlaySelected.set_visible(not open_instead_of_play)
+        # TODO: try .set_sensitive(false) to gray-out
+        # self.itemOpenSelected.set_visible(open_instead_of_play)
+        # self.itemPlaySelected.set_visible(not open_instead_of_play)
 
         return (can_play, can_download, can_cancel, can_delete, open_instead_of_play)
 
@@ -2657,7 +2658,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         if (show_new_episodes_dialog and
                                 self.config.auto_download == 'show'):
                             self.new_episodes_show(episodes, notification=True)
-                        else: # !show_new_episodes_dialog or auto_download == 'ignore'
+                        else:  # !show_new_episodes_dialog or auto_download == 'ignore'
                             message = N_('%(count)d new episode available', '%(count)d new episodes available', count) % {'count':count}
                             self.pbFeedUpdate.set_text(message)
 
@@ -3674,7 +3675,7 @@ class gPodderApplication(Gtk.Application):
             Gtk.IconTheme.add_builtin_icon(icon_name, pixbuf.get_width(), pixbuf)
 
         Gtk.Window.set_default_icon_name('gpodder')
-        #Gtk.AboutDialog.set_url_hook(lambda dlg, link, data: util.open_website(link), None)
+        # Gtk.AboutDialog.set_url_hook(lambda dlg, link, data: util.open_website(link), None)
 
         try:
             dbus_main_loop = dbus.glib.DBusGMainLoop(set_as_default=True)

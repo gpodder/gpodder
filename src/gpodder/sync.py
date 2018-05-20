@@ -48,12 +48,12 @@ except:
     gpod_available = False
     logger.warning('Could not find gpod')
 
-#pymtp_available = True
-#try:
-#    import gpodder.gpopymtp as pymtp
-#except:
-#    pymtp_available = False
-#    logger.warning('Could not load gpopymtp (libmtp not installed?).')
+# pymtp_available = True
+# try:
+#     import gpodder.gpopymtp as pymtp
+# except:
+#     pymtp_available = False
+#     logger.warning('Could not load gpopymtp (libmtp not installed?).')
 
 try:
     import eyed3.mp3
@@ -141,7 +141,8 @@ def get_track_length(filename):
     except Exception as e:
         logger.warn('Could not determine length: %s', filename, exc_info=True)
 
-    return int(60 * 60 * 1000 * 3) # Default is three hours (to be on the safe side)
+    return int(60 * 60 * 1000 * 3)
+    # Default is three hours (to be on the safe side)
 
 
 class SyncTrack(object):
@@ -507,7 +508,7 @@ class MP3PlayerDevice(Device):
             download_queue_manager):
         Device.__init__(self, config)
         self.destination = self._config.device_sync.device_folder
-        self.buffer_size = 1024 * 1024 # 1 MiB
+        self.buffer_size = 1024 * 1024  # 1 MiB
         self.download_status_model = download_status_model
         self.download_queue_manager = download_queue_manager
 
@@ -741,7 +742,8 @@ class MTPDevice(Device):
             return None
 
         try:
-            mtp = mtp.replace(" ", "0") # replace blank with 0 to fix some invalid string
+            mtp = mtp.replace(" ", "0")
+            # replace blank with 0 to fix some invalid string
             d = time.strptime(mtp[:8] + mtp[9:13],"%Y%m%d%H%M%S")
             _date = calendar.timegm(d)
             if len(mtp) == 20:
@@ -784,7 +786,8 @@ class MTPDevice(Device):
         if self.__MTPDevice is None:
             return _('MTP device')
 
-        self.__model_name = self.__MTPDevice.get_devicename() # actually libmtp.Get_Friendlyname
+        self.__model_name = self.__MTPDevice.get_devicename()
+        # actually libmtp.Get_Friendlyname
         if not self.__model_name or self.__model_name == "?????":
             self.__model_name = self.__MTPDevice.get_modelname()
         if not self.__model_name:
@@ -903,8 +906,8 @@ class MTPDevice(Device):
             age_in_days = 0
             date = self.__mtp_to_date(track.date)
             if not date:
-                modified = track.date # not a valid mtp date. Display what mtp gave anyway
-                modified_sort = -1 # no idea how to sort invalid date
+                modified = track.date  # not a valid mtp date. Display what mtp gave anyway
+                modified_sort = -1  # no idea how to sort invalid date
             else:
                 modified = util.format_date(date)
                 modified_sort = date

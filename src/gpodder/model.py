@@ -1007,7 +1007,7 @@ class PodcastChannel(PodcastModelObject):
         # max_episodes_per_feed items added to the feed between updates.
         # The benefit is that it prevents old episodes from apearing as new
         # in certain situations (see bug #340).
-        self.db.purge(max_episodes, self.id) # TODO: Remove from self.children!
+        self.db.purge(max_episodes, self.id)  # TODO: Remove from self.children!
 
         # Sort episodes by pubdate, descending
         self.children.sort(key=lambda e: e.published, reverse=True)
@@ -1034,18 +1034,18 @@ class PodcastChannel(PodcastModelObject):
 
             self.save()
         except Exception as e:
-            # "Not really" errors
-            #feedcore.AuthenticationRequired
-            # Temporary errors
-            #feedcore.Offline
-            #feedcore.BadRequest
-            #feedcore.InternalServerError
-            #feedcore.WifiLogin
-            # Permanent errors
-            #feedcore.Unsubscribe
-            #feedcore.NotFound
-            #feedcore.InvalidFeed
-            #feedcore.UnknownStatusCode
+            #  "Not really" errors
+            # feedcore.AuthenticationRequired
+            #  Temporary errors
+            # feedcore.Offline
+            # feedcore.BadRequest
+            # feedcore.InternalServerError
+            # feedcore.WifiLogin
+            #  Permanent errors
+            # feedcore.Unsubscribe
+            # feedcore.NotFound
+            # feedcore.InvalidFeed
+            # feedcore.UnknownStatusCode
             gpodder.user_extensions.on_podcast_update_failed(self, e)
             raise
 

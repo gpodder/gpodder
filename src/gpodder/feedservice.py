@@ -66,8 +66,8 @@ def update_using_feedservice(podcasts):
         podcast.link = feed.get('link', podcast.link)
         podcast.description = feed.get('description', podcast.description)
         podcast.cover_url = feed.get('logo', podcast.cover_url)
-        #podcast.http_etag = feed.get('http_etag', podcast.http_etag)
-        #podcast.http_last_modified = feed.get('http_last_modified', \
+        # podcast.http_etag = feed.get('http_etag', podcast.http_etag)
+        # podcast.http_last_modified = feed.get('http_last_modified', \
         #        podcast.http_last_modified)
         podcast.save()
 

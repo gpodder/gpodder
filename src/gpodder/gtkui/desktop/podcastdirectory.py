@@ -152,7 +152,7 @@ class gPodderPodcastDirectory(BuilderWidget):
         column.pack_start(cell, False)
         column.add_attribute(cell, 'pixbuf', DirectoryProvidersModel.C_ICON)
         cell = Gtk.CellRendererText()
-        #cell.set_property('ellipsize', Pango.EllipsizeMode.END)
+        # cell.set_property('ellipsize', Pango.EllipsizeMode.END)
         column.pack_start(cell, True)
         column.add_attribute(cell, 'text', DirectoryProvidersModel.C_TEXT)
         column.add_attribute(cell, 'weight', DirectoryProvidersModel.C_WEIGHT)

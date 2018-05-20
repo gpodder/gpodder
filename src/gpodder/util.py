@@ -452,8 +452,8 @@ def is_system_file(filename):
     """
     if gpodder.ui.win32 and win32file is not None:
         result = win32file.GetFileAttributes(filename)
-        #-1 is returned by GetFileAttributes when an error occurs
-        #0x4 is the FILE_ATTRIBUTE_SYSTEM constant
+        # -1 is returned by GetFileAttributes when an error occurs
+        # 0x4 is the FILE_ATTRIBUTE_SYSTEM constant
         return result != -1 and result & 0x4 != 0
     else:
         return False

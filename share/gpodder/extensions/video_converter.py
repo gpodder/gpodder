@@ -27,8 +27,8 @@ __payment__ = 'https://flattr.com/submit/auto?user_id=BerndSch&url=http://wiki.g
 __category__ = 'post-download'
 
 DefaultConfig = {
-    'output_format': 'mp4', # At the moment we support/test only mp4, m4v and avi
-    'context_menu': True, # Show the conversion option in the context menu
+    'output_format': 'mp4',  # At the moment we support/test only mp4, m4v and avi
+    'context_menu': True,  # Show the conversion option in the context menu
 }
 
 

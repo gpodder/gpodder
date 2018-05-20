@@ -231,7 +231,7 @@ class DownloadURLOpener(urllib.request.FancyURLopener):
             return
 
         # This blocks forever(?) with certain servers (see bug #465)
-        #void = fp.read()
+        # void = fp.read()
         fp.close()
 
         # In case the server sent a relative URL, join with original:
@@ -259,7 +259,7 @@ class DownloadURLOpener(urllib.request.FancyURLopener):
             try:
                 current_size = os.path.getsize(filename)
                 tfp = open(filename, 'ab')
-                #If the file exists, then only download the remainder
+                # If the file exists, then only download the remainder
                 if current_size > 0:
                     self.addheader('Range', 'bytes=%s-' % (current_size))
             except:
