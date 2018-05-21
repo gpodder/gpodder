@@ -52,7 +52,8 @@ RRECT_LEFT_SIDE = 1
 RRECT_RIGHT_SIDE = 2
 
 
-def draw_rounded_rectangle(ctx, x, y, w, h, r=10, left_side_width = None, sides_to_draw=0, close=False):
+def draw_rounded_rectangle(ctx, x, y, w, h, r=10, left_side_width=None,
+                           sides_to_draw=0, close=False):
     assert left_side_width is not None
 
     x = int(x)

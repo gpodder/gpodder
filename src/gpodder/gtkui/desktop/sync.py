@@ -267,12 +267,14 @@ class gPodderSyncUI(object):
                             ('markup_delete_episodes', None, None, _('Episode')),
                         )
 
-                        gPodderEpisodeSelector(self.parent_window,
-                            title = _('Episodes have been deleted on device'),
-                            instructions = 'Select the episodes you want to delete:',
-                            episodes = episodes_to_delete,
-                            selected = [True,] * len(episodes_to_delete), columns = columns,
-                            callback = auto_delete_callback,
+                        gPodderEpisodeSelector(
+                            self.parent_window,
+                            title=_('Episodes have been deleted on device'),
+                            instructions='Select the episodes you want to delete:',
+                            episodes=episodes_to_delete,
+                            selected=[True,] * len(episodes_to_delete),
+                            columns=columns,
+                            callback=auto_delete_callback,
                             _config=self._config)
                     else:
                         logger.warning("Starting sync - no episodes to delete")
