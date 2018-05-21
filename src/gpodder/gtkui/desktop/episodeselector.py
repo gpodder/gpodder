@@ -92,9 +92,9 @@ class gPodderEpisodeSelector(BuilderWidget):
     COLUMN_TOGGLE = 2
     COLUMN_ADDITIONAL = 3
 
-    def new( self):
+    def new(self):
         self._config.connect_gtk_window(self.gPodderEpisodeSelector, 'episode_selector', True)
-        if not hasattr( self, 'callback'):
+        if not hasattr(self, 'callback'):
             self.callback = None
 
         if not hasattr(self, 'remove_callback'):
@@ -106,35 +106,35 @@ class gPodderEpisodeSelector(BuilderWidget):
         if not hasattr(self, 'remove_finished'):
             self.remove_finished = None
 
-        if not hasattr( self, 'episodes'):
+        if not hasattr(self, 'episodes'):
             self.episodes = []
 
-        if not hasattr( self, 'size_attribute'):
+        if not hasattr(self, 'size_attribute'):
             self.size_attribute = 'file_size'
 
         if not hasattr(self, 'tooltip_attribute'):
             self.tooltip_attribute = 'description'
 
-        if not hasattr( self, 'selection_buttons'):
+        if not hasattr(self, 'selection_buttons'):
             self.selection_buttons = {}
 
-        if not hasattr( self, 'selected_default'):
+        if not hasattr(self, 'selected_default'):
             self.selected_default = False
 
-        if not hasattr( self, 'selected'):
+        if not hasattr(self, 'selected'):
             self.selected = [self.selected_default] * len(self.episodes)
 
         if len(self.selected) < len(self.episodes):
             self.selected += [self.selected_default] * (len(self.episodes) - len(self.selected))
 
-        if not hasattr( self, 'columns'):
+        if not hasattr(self, 'columns'):
             self.columns = (('title_markup', None, None, _('Episode')),)
 
         if hasattr(self, 'title'):
             self.gPodderEpisodeSelector.set_title(self.title)
 
-        if hasattr( self, 'instructions'):
-            self.labelInstructions.set_text( self.instructions)
+        if hasattr(self, 'instructions'):
+            self.labelInstructions.set_text(self.instructions)
             self.labelInstructions.show_all()
 
         if hasattr(self, 'stock_ok_button'):
@@ -147,7 +147,7 @@ class gPodderEpisodeSelector(BuilderWidget):
 
         # check/uncheck column
         toggle_cell = Gtk.CellRendererToggle()
-        toggle_cell.connect( 'toggled', self.toggle_cell_handler)
+        toggle_cell.connect('toggled', self.toggle_cell_handler)
         toggle_column = Gtk.TreeViewColumn('', toggle_cell, active=self.COLUMN_TOGGLE)
         toggle_column.set_clickable(True)
         self.treeviewEpisodes.append_column(toggle_column)
@@ -159,7 +159,7 @@ class gPodderEpisodeSelector(BuilderWidget):
                 renderer.set_property('ellipsize', Pango.EllipsizeMode.END)
             column = Gtk.TreeViewColumn(caption, renderer, markup=next_column)
             column.set_clickable(False)
-            column.set_resizable( True)
+            column.set_resizable(True)
             # Only set "expand" on the first column
             if next_column < self.COLUMN_ADDITIONAL + 1:
                 column.set_expand(True)
@@ -167,7 +167,7 @@ class gPodderEpisodeSelector(BuilderWidget):
                 column.set_sort_column_id(next_column + 1)
             else:
                 column.set_sort_column_id(next_column)
-            self.treeviewEpisodes.append_column( column)
+            self.treeviewEpisodes.append_column(column)
             next_column += 1
 
             if sort_name is not None:
@@ -175,37 +175,37 @@ class gPodderEpisodeSelector(BuilderWidget):
                 column = Gtk.TreeViewColumn()
                 column.set_clickable(False)
                 column.set_visible(False)
-                self.treeviewEpisodes.append_column( column)
+                self.treeviewEpisodes.append_column(column)
                 next_column += 1
 
-        column_types = [ int, str, bool ]
+        column_types = [int, str, bool]
         # add string column type plus sort column type if it exists
         for name, sort_name, sort_type, caption in self.columns:
             column_types.append(str)
             if sort_name is not None:
                 column_types.append(sort_type)
-        self.model = Gtk.ListStore( *column_types)
+        self.model = Gtk.ListStore(*column_types)
 
         tooltip = None
-        for index, episode in enumerate( self.episodes):
+        for index, episode in enumerate(self.episodes):
             if self.tooltip_attribute is not None:
                 try:
                     tooltip = getattr(episode, self.tooltip_attribute)
                 except:
                     tooltip = None
-            row = [ index, tooltip, self.selected[index] ]
+            row = [index, tooltip, self.selected[index]]
             for name, sort_name, sort_type, caption in self.columns:
                 if not hasattr(episode, name):
                     row.append(None)
                 else:
-                    row.append(getattr( episode, name))
+                    row.append(getattr(episode, name))
 
                 if sort_name is not None:
                     if not hasattr(episode, sort_name):
                         row.append(None)
                     else:
-                        row.append(getattr( episode, sort_name))
-            self.model.append( row)
+                        row.append(getattr(episode, sort_name))
+            self.model.append(row)
 
         if self.remove_callback is not None:
             self.btnRemoveAction.show()
@@ -223,8 +223,8 @@ class gPodderEpisodeSelector(BuilderWidget):
 
         self.treeviewEpisodes.connect('button-press-event', self.treeview_episodes_button_pressed)
         self.treeviewEpisodes.connect('popup-menu', self.treeview_episodes_button_pressed)
-        self.treeviewEpisodes.set_rules_hint( True)
-        self.treeviewEpisodes.set_model( self.model)
+        self.treeviewEpisodes.set_rules_hint(True)
+        self.treeviewEpisodes.set_model(self.model)
         self.treeviewEpisodes.columns_autosize()
 
         # Focus the toggle column for Tab-focusing (bug 503)
@@ -308,12 +308,12 @@ class gPodderEpisodeSelector(BuilderWidget):
     def episode_list_allow_tooltips(self):
         self.episode_list_can_tooltip = True
 
-    def calculate_total_size( self):
+    def calculate_total_size(self):
         if self.size_attribute is not None:
             (total_size, count) = (0, 0)
             for episode in self.get_selected_episodes():
                 try:
-                    total_size += int(getattr( episode, self.size_attribute))
+                    total_size += int(getattr(episode, self.size_attribute))
                     count += 1
                 except:
                     pass
@@ -341,7 +341,7 @@ class gPodderEpisodeSelector(BuilderWidget):
                     break
             self.labelTotalSize.set_text('')
 
-    def toggle_cell_handler( self, cell, path):
+    def toggle_cell_handler(self, cell, path):
         model = self.treeviewEpisodes.get_model()
         model[path][self.COLUMN_TOGGLE] = not model[path][self.COLUMN_TOGGLE]
 
@@ -350,21 +350,21 @@ class gPodderEpisodeSelector(BuilderWidget):
     def custom_selection_button_clicked(self, button, label):
         callback = self.selection_buttons[label]
 
-        for index, row in enumerate( self.model):
-            new_value = callback( self.episodes[index])
-            self.model.set_value( row.iter, self.COLUMN_TOGGLE, new_value)
+        for index, row in enumerate(self.model):
+            new_value = callback(self.episodes[index])
+            self.model.set_value(row.iter, self.COLUMN_TOGGLE, new_value)
 
         self.calculate_total_size()
 
-    def on_btnCheckAll_clicked( self, widget):
+    def on_btnCheckAll_clicked(self, widget):
         for row in self.model:
-            self.model.set_value( row.iter, self.COLUMN_TOGGLE, True)
+            self.model.set_value(row.iter, self.COLUMN_TOGGLE, True)
 
         self.calculate_total_size()
 
-    def on_btnCheckNone_clicked( self, widget):
+    def on_btnCheckNone_clicked(self, widget):
         for row in self.model:
-            self.model.set_value( row.iter, self.COLUMN_TOGGLE, False)
+            self.model.set_value(row.iter, self.COLUMN_TOGGLE, False)
 
         self.calculate_total_size()
 
@@ -393,12 +393,13 @@ class gPodderEpisodeSelector(BuilderWidget):
 
         self.calculate_total_size()
 
-    def get_selected_episodes( self, remove_episodes=False):
+    def get_selected_episodes(self, remove_episodes=False):
         selected_episodes = []
 
-        for index, row in enumerate( self.model):
-            if self.model.get_value( row.iter, self.COLUMN_TOGGLE) is True:
-                selected_episodes.append( self.episodes[self.model.get_value( row.iter, self.COLUMN_INDEX)])
+        for index, row in enumerate(self.model):
+            if self.model.get_value(row.iter, self.COLUMN_TOGGLE) is True:
+                selected_episodes.append(self.episodes[self.model.get_value(
+                    row.iter, self.COLUMN_INDEX)])
 
         if remove_episodes:
             for episode in selected_episodes:
@@ -412,12 +413,12 @@ class gPodderEpisodeSelector(BuilderWidget):
 
         return selected_episodes
 
-    def on_btnOK_clicked( self, widget):
+    def on_btnOK_clicked(self, widget):
         self.gPodderEpisodeSelector.destroy()
         if self.callback is not None:
-            self.callback( self.get_selected_episodes())
+            self.callback(self.get_selected_episodes())
 
-    def on_btnCancel_clicked( self, widget):
+    def on_btnCancel_clicked(self, widget):
         self.gPodderEpisodeSelector.destroy()
         if self.callback is not None:
             self.callback([])
