@@ -281,7 +281,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         value = EpisodeListModel.VIEWS[self.config.episode_list_view_mode or EpisodeListModel.VIEW_ALL]
         action = Gio.SimpleAction.new_stateful(
-            'viewEpisodes',  GLib.VariantType.new('s'), GLib.Variant.new_string(value))
+            'viewEpisodes', GLib.VariantType.new('s'),
+            GLib.Variant.new_string(value))
         action.connect('activate', self.on_item_view_episodes_changed)
         g.add_action(action)
 
@@ -3455,7 +3456,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # Allow tab switching with Ctrl + PgUp/PgDown/Tab
         if event.get_state() & Gdk.ModifierType.CONTROL_MASK:
             current_page = self.wNotebook.get_current_page()
-            if event.keyval in (Gdk.KEY_Page_Up,  Gdk.KEY_ISO_Left_Tab):
+            if event.keyval in (Gdk.KEY_Page_Up, Gdk.KEY_ISO_Left_Tab):
                 if current_page == 0:
                     current_page = self.wNotebook.get_n_pages()
                 self.wNotebook.set_current_page(current_page - 1)
