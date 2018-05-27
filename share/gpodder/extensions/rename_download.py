@@ -21,8 +21,8 @@ __payment__ = 'https://flattr.com/submit/auto?user_id=BerndSch&url=http://wiki.g
 __category__ = 'post-download'
 
 DefaultConfig = {
-    'add_sortdate': False, # Add the sortdate as prefix
-    'add_podcast_title': False, # Add the podcast title as prefix
+    'add_sortdate': False,  # Add the sortdate as prefix
+    'add_podcast_title': False,  # Add the podcast title as prefix
 }
 
 

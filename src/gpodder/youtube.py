@@ -276,10 +276,14 @@ def parse_youtube_url(url):
     >>> parse_youtube_url("https://www.youtube.com/playlist?list=PLAYLIST_ID")
     'https://www.youtube.com/feeds/videos.xml?playlist_id=PLAYLIST_ID'
 
+    >>> parse_youtube_url(None)
+    None
+
     @param url: the path to the channel, user or playlist
     @return: the feed url if successful or the given url if not
     """
-
+    if url is None:
+        return url
     scheme, netloc, path, query, fragment = urllib.parse.urlsplit(url)
     logger.debug("Analyzing URL: {}".format(" ".join([scheme, netloc, path, query, fragment])))
 

@@ -36,8 +36,6 @@ import gpodder
 
 import socket
 import threading
-import urllib.request, urllib.parse, urllib.error
-import urllib.parse
 import shutil
 import os.path
 import os
@@ -46,6 +44,9 @@ import collections
 
 import mimetypes
 import email
+import urllib.error
+import urllib.parse
+import urllib.request
 
 from email.header import decode_header
 
@@ -230,7 +231,7 @@ class DownloadURLOpener(urllib.request.FancyURLopener):
             return
 
         # This blocks forever(?) with certain servers (see bug #465)
-        #void = fp.read()
+        # void = fp.read()
         fp.close()
 
         # In case the server sent a relative URL, join with original:
@@ -258,7 +259,7 @@ class DownloadURLOpener(urllib.request.FancyURLopener):
             try:
                 current_size = os.path.getsize(filename)
                 tfp = open(filename, 'ab')
-                #If the file exists, then only download the remainder
+                # If the file exists, then only download the remainder
                 if current_size > 0:
                     self.addheader('Range', 'bytes=%s-' % (current_size))
             except:
@@ -401,12 +402,15 @@ class DownloadQueueManager(object):
         """Spawn new worker threads if necessary
         """
         with self.worker_threads_access:
-            if not self.tasks.has_work():
-                return
-
-            if len(self.worker_threads) == 0 or \
-                    len(self.worker_threads) < self._config.max_downloads or \
-                    not self._config.max_downloads_enabled:
+            work_count = self.tasks.available_work_count()
+            if self._config.max_downloads_enabled:
+                # always allow at least 1 download
+                max_downloads = max(int(self._config.max_downloads), 1)
+                spawn_limit = max_downloads - len(self.worker_threads)
+            else:
+                spawn_limit = self._config.limit.downloads.concurrent_max
+            logger.info('%r tasks to do, can start at most %r threads', work_count, spawn_limit)
+            for i in range(0, min(work_count, spawn_limit)):
                 # We have to create a new thread here, there's work to do
                 logger.info('Starting new worker thread.')
 
@@ -803,19 +807,12 @@ class DownloadTask(object):
             # Look at the Content-disposition header; use if if available
             disposition_filename = get_header_param(headers, 'filename', 'content-disposition')
 
-            if disposition_filename is not None:
-                try:
-                    disposition_filename.decode('ascii')
-                except:
-                    logger.warn('Content-disposition header contains non-ASCII characters - ignoring')
-                    disposition_filename = None
-
             # Some servers do send the content-disposition header, but provide
             # an empty filename, resulting in an empty string here (bug 1440)
             if disposition_filename is not None and disposition_filename != '':
                 # The server specifies a download filename - try to use it
                 disposition_filename = os.path.basename(disposition_filename)
-                self.filename = self.__episode.local_filename(create=True, \
+                self.filename = self.__episode.local_filename(create=True,
                         force_update=True, template=disposition_filename)
                 new_mimetype, encoding = mimetypes.guess_type(self.filename)
                 if new_mimetype is not None:

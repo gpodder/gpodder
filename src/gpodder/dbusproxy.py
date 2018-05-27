@@ -54,18 +54,18 @@ class DBusPodcastsProxy(dbus.service.Object):
     for parameter and return values.
     """
 
-    #DBusPodcastsProxy(lambda: self.channels, self.on_itemUpdate_activate(), self.playback_episodes, self.download_episode_list, bus_name)
-    def __init__(self, get_podcast_list, \
-            check_for_updates, playback_episodes, \
-            download_episodes, episode_from_uri, \
+    # DBusPodcastsProxy(lambda: self.channels, self.on_itemUpdate_activate(), self.playback_episodes, self.download_episode_list, bus_name)
+    def __init__(self, get_podcast_list,
+            check_for_updates, playback_episodes,
+            download_episodes, episode_from_uri,
             bus_name):
         self._get_podcasts = get_podcast_list
         self._on_check_for_updates = check_for_updates
         self._playback_episodes = playback_episodes
         self._download_episodes = download_episodes
         self._episode_from_uri = episode_from_uri
-        dbus.service.Object.__init__(self, \
-                object_path=gpodder.dbus_podcasts_object_path, \
+        dbus.service.Object.__init__(self,
+                object_path=gpodder.dbus_podcasts_object_path,
                 bus_name=bus_name)
 
     def _get_episode_refs(self, urls):

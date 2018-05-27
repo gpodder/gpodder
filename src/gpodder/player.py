@@ -50,8 +50,11 @@
 #
 
 
+import urllib.error
+import urllib.parse
+import urllib.request
+
 import gpodder
-import urllib.request, urllib.parse, urllib.error
 
 
 class MediaPlayerDBusReceiver(object):
@@ -63,15 +66,15 @@ class MediaPlayerDBusReceiver(object):
         self.on_play_event = on_play_event
 
         self.bus = gpodder.dbus_session_bus
-        self.bus.add_signal_receiver(self.on_playback_started, \
-                                     self.SIGNAL_STARTED, \
-                                     self.INTERFACE, \
-                                     None, \
+        self.bus.add_signal_receiver(self.on_playback_started,
+                                     self.SIGNAL_STARTED,
+                                     self.INTERFACE,
+                                     None,
                                      None)
-        self.bus.add_signal_receiver(self.on_playback_stopped, \
-                                     self.SIGNAL_STOPPED, \
-                                     self.INTERFACE, \
-                                     None, \
+        self.bus.add_signal_receiver(self.on_playback_stopped,
+                                     self.SIGNAL_STOPPED,
+                                     self.INTERFACE,
+                                     None,
                                      None)
 
     def on_playback_started(self, position, file_uri):

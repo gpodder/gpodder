@@ -60,25 +60,26 @@ defaults = {
     'limit': {
         'bandwidth': {
             'enabled': False,
-            'kbps': 500.0, # maximum kB/s per download
+            'kbps': 500.0,  # maximum kB/s per download
         },
         'downloads': {
             'enabled': True,
             'concurrent': 1,
+            'concurrent_max': 16,
         },
-        'episodes': 200, # max episodes per feed
+        'episodes': 200,  # max episodes per feed
     },
 
     # Behavior of downloads
     'downloads': {
-        'chronological_order': True, # download older episodes first
+        'chronological_order': True,  # download older episodes first
     },
 
     # Automatic feed updates, download removal and retry on download timeout
     'auto': {
         'update': {
             'enabled': False,
-            'frequency': 20, # minutes
+            'frequency': 20,  # minutes
         },
 
         'cleanup': {
@@ -88,14 +89,14 @@ defaults = {
             'unfinished': True,
         },
 
-        'retries': 3, # number of retries when downloads time out
+        'retries': 3,  # number of retries when downloads time out
     },
 
     # Software updates from gpodder.org
     'software_update': {
-        'check_on_startup': True, # check for updates on start
-        'last_check': 0, # unix timestamp of last update check
-        'interval': 5, # interval (in days) to check for updates
+        'check_on_startup': True,  # check for updates on start
+        'last_check': 0,  # unix timestamp of last update check
+        'interval': 5,  # interval (in days) to check for updates
     },
 
     'ui': {
@@ -128,7 +129,7 @@ defaults = {
             },
 
             'toolbar': False,
-            'new_episodes': 'show', # ignore, show, queue, download
+            'new_episodes': 'show',  # ignore, show, queue, download
             'live_search_delay': 200,
 
             'podcast_list': {
@@ -141,7 +142,7 @@ defaults = {
             'episode_list': {
                 'descriptions': True,
                 'view_mode': 1,
-                'columns': int('110', 2), # bitfield of visible columns
+                'columns': int('110', 2),  # bitfield of visible columns
             },
 
             'download_list': {
@@ -154,7 +155,7 @@ defaults = {
 
     # Synchronization with portable devices (MP3 players, etc..)
     'device_sync': {
-        'device_type': 'none', # Possible values: 'none', 'filesystem', 'ipod'
+        'device_type': 'none',  # Possible values: 'none', 'filesystem', 'ipod'
         'device_folder': '/media',
 
         'one_folder_per_podcast': True,
@@ -181,13 +182,13 @@ defaults = {
     },
 
     'youtube': {
-        'preferred_fmt_id': 18, # default fmt_id (see fallbacks in youtube.py)
-        'preferred_fmt_ids': [], # for advanced uses (custom fallback sequence)
-        'api_key_v3': '', # API key, register for one at https://developers.google.com/youtube/v3/
+        'preferred_fmt_id': 18,  # default fmt_id (see fallbacks in youtube.py)
+        'preferred_fmt_ids': [],  # for advanced uses (custom fallback sequence)
+        'api_key_v3': '',  # API key, register for one at https://developers.google.com/youtube/v3/
     },
 
     'vimeo': {
-        'fileformat': '720p', # preferred file format (see vimeo.py)
+        'fileformat': '720p',  # preferred file format (see vimeo.py)
     },
 
     'extensions': {

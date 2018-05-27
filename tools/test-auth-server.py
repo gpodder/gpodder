@@ -20,13 +20,13 @@ GUID = hashlib.sha1(open(__file__).read()).hexdigest()
 
 URL = 'http://%(HOST)s:%(PORT)s' % locals()
 
-FEEDNAME = sys.argv[0]       # The title of the RSS feed
-FEEDFILE = 'feed.rss'        # The "filename" of the feed on the server
-EPISODES = 'episode'         # Base name for the episode files
-EPISODES_EXT = '.mp3'        # Extension for the episode files
-EPISODES_MIME = 'audio/mpeg' # Mime type for the episode files
-EP_COUNT = 7                 # Number of episodes in the feed
-SIZE = 500000                # Size (in bytes) of the episode downloads)
+FEEDNAME = sys.argv[0]        # The title of the RSS feed
+FEEDFILE = 'feed.rss'         # The "filename" of the feed on the server
+EPISODES = 'episode'          # Base name for the episode files
+EPISODES_EXT = '.mp3'         # Extension for the episode files
+EPISODES_MIME = 'audio/mpeg'  # Mime type for the episode files
+EP_COUNT = 7                  # Number of episodes in the feed
+SIZE = 500000                 # Size (in bytes) of the episode downloads)
 
 
 def mkpubdates(items):

@@ -60,7 +60,7 @@ class NewEpisodeActionList(Gtk.ListStore):
             if self._config.auto_download == row[self.C_AUTO_DOWNLOAD]:
                 return index
 
-        return 1 # Some sane default
+        return 1  # Some sane default
 
     def set_index(self, index):
         self._config.auto_download = self[index][self.C_AUTO_DOWNLOAD]
@@ -80,7 +80,7 @@ class DeviceTypeActionList(Gtk.ListStore):
         for index, row in enumerate(self):
             if self._config.device_sync.device_type == row[self.C_DEVICE_TYPE]:
                 return index
-        return 0 # Some sane default
+        return 0  # Some sane default
 
     def set_index(self, index):
         self._config.device_sync.device_type = self[index][self.C_DEVICE_TYPE]
@@ -106,7 +106,7 @@ class OnSyncActionList(Gtk.ListStore):
                     row[self.C_ON_SYNC_MARK_PLAYED] and not
                     self._config.device_sync.after_sync.delete_episodes):
                 return index
-        return 0 # Some sane default
+        return 0  # Some sane default
 
     def set_index(self, index):
         self._config.device_sync.after_sync.delete_episodes = self[index][self.C_ON_SYNC_DELETE]
@@ -478,8 +478,8 @@ class gPodderPreferences(BuilderWidget):
         self.preferred_vimeo_format_model.set_index(index)
 
     def on_button_audio_player_clicked(self, widget):
-        result = self.show_text_edit_dialog(_('Configure audio player'), \
-                _('Command:'), \
+        result = self.show_text_edit_dialog(_('Configure audio player'),
+                _('Command:'),
                 self._config.player)
 
         if result:
@@ -488,8 +488,8 @@ class gPodderPreferences(BuilderWidget):
             self.combo_audio_player_app.set_active(index)
 
     def on_button_video_player_clicked(self, widget):
-        result = self.show_text_edit_dialog(_('Configure video player'), \
-                _('Command:'), \
+        result = self.show_text_edit_dialog(_('Configure video player'),
+                _('Command:'),
                 self._config.videoplayer)
 
         if result:
@@ -583,8 +583,8 @@ class gPodderPreferences(BuilderWidget):
         if not widget.get_active():
             self._config.device_sync.playlists.create = False
             self.toggle_playlist_interface(False)
-            #need to read value of checkbutton from interface,
-            #rather than value of parameter
+            # need to read value of checkbutton from interface,
+            # rather than value of parameter
         else:
             self._config.device_sync.playlists.create = True
             self.toggle_playlist_interface(True)

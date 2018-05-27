@@ -27,7 +27,7 @@ import dbus
 import gpodder
 
 session_bus = dbus.SessionBus()
-proxy = session_bus.get_object(gpodder.dbus_bus_name, \
+proxy = session_bus.get_object(gpodder.dbus_bus_name,
                                gpodder.dbus_gui_object_path)
 interface = dbus.Interface(proxy, gpodder.dbus_interface)
 

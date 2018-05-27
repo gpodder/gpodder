@@ -23,7 +23,7 @@ import os.path
 from gpodder.gtkui import draw
 
 DefaultConfig = {
-    'download_progress_bar': False, # draw progress bar on icon while downloading?
+    'download_progress_bar': False,  # draw progress bar on icon while downloading?
 }
 
 
@@ -108,7 +108,7 @@ class gPodderExtension:
             return
 
         if progress == 1:
-            self.set_icon() # no progress bar
+            self.set_icon()  # no progress bar
             self.last_progress = progress
             return
 

@@ -43,7 +43,7 @@ __category__ = 'post-download'
 
 
 DefaultConfig = {
-    'context_menu': True, # Show item in context menu
+    'context_menu': True,  # Show item in context menu
 }
 
 

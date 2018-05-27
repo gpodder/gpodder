@@ -19,13 +19,16 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import collections
-import dbus
-import dbus.service
-import gpodder
 import logging
 import time
-import urllib.request, urllib.parse, urllib.error
+import urllib.error
 import urllib.parse
+import urllib.request
+
+import dbus
+import dbus.service
+
+import gpodder
 
 logger = logging.getLogger(__name__)
 _ = gpodder.gettext
@@ -102,7 +105,7 @@ class CurrentTrackTracker(object):
 
         uri = kwargs.pop('uri', None)
         if uri is not None:
-            length = kwargs.pop('length') # don't know how to handle uri with no length
+            length = kwargs.pop('length')  # don't know how to handle uri with no length
             if uri != cur['uri']:
                 # if this is a new uri, and the previous state was 'Playing',
                 # notify that the previous track has stopped before updating to
@@ -119,9 +122,8 @@ class CurrentTrackTracker(object):
             # If the status *is* playing, and *was* playing, but the position
             # has changed discontinuously, notify a stop for the old position
             if (cur['status'] == 'Playing' and
-                ('status' not in kwargs or kwargs['status'] == 'Playing') and not
-                subsecond_difference(cur['pos'], kwargs['pos'])
-            ):
+                    ('status' not in kwargs or kwargs['status'] == 'Playing') and not
+                    subsecond_difference(cur['pos'], kwargs['pos'])):
                 logger.debug('notify Stopped: playback discontinuity:' +
                               'calc: %f observed: %f', cur['pos'], kwargs['pos'])
                 self.notify_stop()
@@ -134,7 +136,7 @@ class CurrentTrackTracker(object):
                              self.pos / USECS_IN_SEC, self.length / USECS_IN_SEC,
                              (self.pos / USECS_IN_SEC) - (self.length / USECS_IN_SEC))
                 self.pos = self.length
-                kwargs.pop('pos') # remove 'pos' even though we're not using it
+                kwargs.pop('pos')  # remove 'pos' even though we're not using it
             else:
                 if self.pos is not None:
                     logger.debug("%r %r", self.pos, self.length)
@@ -213,10 +215,9 @@ class MPRISDBusReceiver(object):
     INTERFACE_MPRIS = 'org.mpris.MediaPlayer2.Player'
     SIGNAL_SEEKED = 'Seeked'
     OBJECT_VLC = 'org.mpris.MediaPlayer2.vlc'
-    OTHER_MPRIS_INTERFACES = [ 'org.mpris.MediaPlayer2',
-                               'org.mpris.MediaPlayer2.TrackList',
-                               'org.mpris.MediaPlayer2.Playlists'
-    ]
+    OTHER_MPRIS_INTERFACES = ['org.mpris.MediaPlayer2',
+                              'org.mpris.MediaPlayer2.TrackList',
+                              'org.mpris.MediaPlayer2.Playlists']
 
     def __init__(self, bus, notifier):
         self.bus = bus

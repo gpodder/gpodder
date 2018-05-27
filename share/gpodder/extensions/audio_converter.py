@@ -26,8 +26,8 @@ __category__ = 'post-download'
 
 
 DefaultConfig = {
-    'use_ogg': False, # Set to True to convert to .ogg (otherwise .mp3)
-    'context_menu': True, # Show the conversion option in the context menu
+    'use_ogg': False,  # Set to True to convert to .ogg (otherwise .mp3)
+    'context_menu': True,  # Show the conversion option in the context menu
 }
 
 
@@ -36,11 +36,11 @@ class gPodderExtension:
     EXT = ('.m4a', '.ogg')
     CMD = {'avconv': {'.mp3': ['-i', '%(old_file)s', '-q:a', '2', '-id3v2_version', '3', '-write_id3v1', '1', '%(new_file)s'],
                       '.ogg': ['-i', '%(old_file)s', '-q:a', '2', '%(new_file)s']
-                     },
+                      },
            'ffmpeg': {'.mp3': ['-i', '%(old_file)s', '-q:a', '2', '-id3v2_version', '3', '-write_id3v1', '1', '%(new_file)s'],
                       '.ogg': ['-i', '%(old_file)s', '-q:a', '2', '%(new_file)s']
-                     }
-          }
+                      }
+           }
 
     def __init__(self, container):
         self.container = container

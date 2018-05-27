@@ -55,13 +55,13 @@ import gzip
 import datetime
 import threading
 
-import urllib.parse
-import urllib.request, urllib.parse, urllib.error
-import urllib.request, urllib.error, urllib.parse
 import http.client
 import webbrowser
 import mimetypes
 import itertools
+import urllib.error
+import urllib.parse
+import urllib.request
 
 import io
 import xml.dom.minidom
@@ -452,8 +452,8 @@ def is_system_file(filename):
     """
     if gpodder.ui.win32 and win32file is not None:
         result = win32file.GetFileAttributes(filename)
-        #-1 / 0xffffffff is returned by GetFileAttributes when an error occurs
-        #0x4 is the FILE_ATTRIBUTE_SYSTEM constant
+        # -1 / 0xffffffff is returned by GetFileAttributes when an error occurs
+        # 0x4 is the FILE_ATTRIBUTE_SYSTEM constant
         return result != -1 and result != 0xffffffff and result & 0x4 != 0
     else:
         return False
@@ -1610,7 +1610,8 @@ def relpath(p1, p2):
     Finds relative path from p1 to p2
     Source: http://code.activestate.com/recipes/208993/
     """
-    pathsplit = lambda s: s.split(os.path.sep)
+    def pathsplit(s):
+        return s.split(os.path.sep)
 
     (common,l1,l2) = commonpath(pathsplit(p1), pathsplit(p2))
     p = []
@@ -1779,7 +1780,9 @@ def get_update_info():
     release_parsed = datetime.datetime.strptime(release_date, '%Y-%m-%dT%H:%M:%SZ')
     days_since_release = (datetime.datetime.today() - release_parsed).days
 
-    convert = lambda s: tuple(int(x) for x in s.split('.'))
+    def convert(s):
+        return tuple(int(x) for x in s.split('.'))
+
     up_to_date = (convert(gpodder.__version__) >= convert(latest_version))
 
     return up_to_date, latest_version, release_date, days_since_release

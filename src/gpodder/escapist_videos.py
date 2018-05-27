@@ -33,7 +33,9 @@ logger = logging.getLogger(__name__)
 import json
 
 import re
-import urllib.request, urllib.parse, urllib.error
+import urllib.error
+import urllib.parse
+import urllib.request
 
 # This matches the more reliable URL
 ESCAPIST_NUMBER_RE = re.compile(r'http://www.escapistmagazine.com/videos/view/(\d+)', re.IGNORECASE)
@@ -68,7 +70,7 @@ def get_real_download_url(url):
 
     data_config_data = util.urlopen(data_config_url).read().decode('utf-8')
 
-    #TODO: This second argument should get a real name
+    # TODO: This second argument should get a real name
     real_url = get_escapist_real_url(data_config_data, data_config_frag.group(1))
 
     if real_url is None:
@@ -174,5 +176,5 @@ def get_escapist_real_url(data, config_json):
     escapist_cfg = json.loads(result)
     # It's super effective!
 
-    #TODO: There's a way to choose different video types, for now just pick MP4@480p
+    # TODO: There's a way to choose different video types, for now just pick MP4@480p
     return escapist_cfg["files"]["videos"][2]["src"]
