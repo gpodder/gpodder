@@ -4,6 +4,7 @@ environment:
       MSYSTEM: MINGW32
 
 build_script:
+  - set
   - set PATH=C:\msys64\%MSYSTEM%\bin;C:\msys64\usr\bin;%PATH%
   - set CHERE_INVOKING=yes
   - bash -lc "pacman --noconfirm --ask 20 -Suy"
