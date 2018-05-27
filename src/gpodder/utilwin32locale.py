@@ -99,7 +99,7 @@ def _localefromlcid(lcid):
                1026:    'bg',  # Bulgarian
                1109:    'my',  # Burmese
                0x0403:    'ca',  # Catalan
-               1116:    'chr', # Cherokee - United States
+               1116:    'chr',  # Cherokee - United States
                # we have only one zh_CN.po translation. Applying to all.
                2052:    'zh_CN',  # Chinese - People's Republic of China
                4100:    'zh_CN',  # Chinese - Singapore
@@ -114,7 +114,7 @@ def _localefromlcid(lcid):
                1125:    'dv',  # Divehi
                1043:    'nl',  # Dutch - Netherlands
                0x0813:    'nl',  # Dutch - Belgium
-               1126:    'bin', # Edo
+               1126:    'bin',  # Edo
                1033:    'en',  # English - United States
                2057:    'en',  # English - United Kingdom
                3081:    'en',  # English - Australia
@@ -136,7 +136,7 @@ def _localefromlcid(lcid):
                1061:    'et',  # Estonian
                1080:    'fo',  # Faroese
                0x0429:    'fa_IR',  # Persian - Iran
-               1124:    'fil', # Filipino
+               1124:    'fil',  # Filipino
                0x040B:    'fi',  # Finnish
                0x040C:    'fr',  # French - France
                2060:    'fr',  # French - Belgium
@@ -170,7 +170,7 @@ def _localefromlcid(lcid):
                1140:    'gn',  # Guarani - Paraguay
                1095:    'gu',  # Gujarati
                1128:    'ha',  # Hausa - Nigeria
-               1141:    'haw', # Hawaiian - United States
+               1141:    'haw',  # Hawaiian - United States
                0x040D:    'he',  # Hebrew
                1081:    'hi',  # Hindi
                0x040E:    'hu',  # Hungarian
@@ -188,7 +188,7 @@ def _localefromlcid(lcid):
                1120:    'ks',  # Kashmiri (Arabic)
                0x043F:    'kk',  # Kazakh
                1107:    'km',  # Khmer
-               1111:    'kok', # Konkani
+               1111:    'kok',  # Konkani
                0x0412:    'ko_KR',  # Korean
                1088:    'ky',  # Kyrgyz (Cyrillic)
                1108:    'lo',  # Lao
@@ -199,7 +199,7 @@ def _localefromlcid(lcid):
                2110:    'ms',  # Malay - Brunei Darussalam
                1100:    'ml',  # Malayalam
                1082:    'mt',  # Maltese
-               1112:    'mni', # Manipuri
+               1112:    'mni',  # Manipuri
                1153:    'mi',  # Maori - New Zealand
                1102:    'mr',  # Marathi
                1104:    'mn',  # Mongolian (Cyrillic)
@@ -210,7 +210,7 @@ def _localefromlcid(lcid):
                0x0814:    'nn',  # Norwegian (Nynorsk)
                1096:    'or',  # Oriya
                1138:    'om',  # Oromo
-               1145:    'pap', # Papiamentu
+               1145:    'pap',  # Papiamentu
                1123:    'ps',  # Pashto
                0x0415:    'pl',  # Polish
                0x0416:    'pt_BR',  # Portuguese - Brazil
@@ -227,7 +227,7 @@ def _localefromlcid(lcid):
                2073:    'ru',  # Russian - Moldava
                1083:    'se',  # Sami (Lappish)
                1103:    'sa',  # Sanskrit
-               1132:    'nso', # Sepedi
+               1132:    'nso',  # Sepedi
                3098:    'sr',  # Serbian (Cyrillic)
                2074:    'sr',  # Serbian (Latin)
                1113:    'sd',  # Sindhi - India
@@ -236,7 +236,7 @@ def _localefromlcid(lcid):
                1051:    'sk',  # Slovak
                1060:    'sl',  # Slovenian
                1143:    'so',  # Somali
-               1070:    'wen', # Sorbian
+               1070:    'wen',  # Sorbian
                0x0C0A:    'es',  # Spanish - Spain (Modern Sort)
                0x040A:    'es',  # Spanish - Spain (Traditional Sort)
                11274:   'es',  # Spanish - Argentina
@@ -263,7 +263,7 @@ def _localefromlcid(lcid):
                1089:    'sw',  # Swahili
                0x041D:    'sv',  # Swedish
                2077:    'sv',  # Swedish - Finland
-               1114:    'syr', # Syriac
+               1114:    'syr',  # Syriac
                1064:    'tg',  # Tajik
                1119:    None,  # TODO: Tamazight (Arabic)
                2143:    None,  # TODO: Tamazight (Latin)

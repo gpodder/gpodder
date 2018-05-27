@@ -179,9 +179,9 @@ def fixup_home(old_home):
                 'Application Support', 'gPodder'))
         elif BUILD_TYPE == 'windows-portable':
             new_home = os.path.normpath(os.path.join(os.path.dirname(sys.executable), "..", "..", "config"))
-            old_home = new_home # force to config directory
+            old_home = new_home  # force to config directory
             print("D: windows-portable build; forcing home to config directory %s" % new_home, file=sys.stderr)
-        else: # ui.win32, not portable build
+        else:  # ui.win32, not portable build
             from gpodder.utilwin32ctypes import get_documents_folder, get_reg_current_user_string_value
             try:
                 # from old launcher, see
