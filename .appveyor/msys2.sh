@@ -30,4 +30,4 @@ export MSYS2_FC_CACHE_SKIP=1
 #pip3 install feedparser musicbrainzngs mutagen pycodestyle pyflakes
 
 cd tools/win_installer
-MSYSTEM=MINGW32 ./build.sh
+MSYSTEM=MINGW32 bash -xe ./build.sh
