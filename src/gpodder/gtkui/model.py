@@ -415,7 +415,8 @@ class EpisodeListModel(Gtk.ListStore):
                     status_icon = self.ICON_GENERIC_FILE
 
                 # Try to find a themed icon for this file
-                if filename is not None and have_gio:
+                # doesn't work on win32 (opus files are showed as text)
+                if filename is not None and have_gio and not gpodder.ui.win32:
                     file = Gio.File.new_for_path(filename)
                     if file.query_exists():
                         file_info = file.query_info('*', Gio.FileQueryInfoFlags.NONE, None)

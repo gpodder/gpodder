@@ -896,7 +896,8 @@ def stylize(s):
     s = re.sub(r'  - .*', lambda m: ingreen(m.group(0)), s)
     return s
 
-if __name__ == '__main__':
+def main():
+    global logger, cli
     logger = logging.getLogger(__name__)
     cli = gPodderCli()
     args = sys.argv[1:]
@@ -909,3 +910,5 @@ if __name__ == '__main__':
     else:
         print(__doc__, end='')
 
+if __name__ == '__main__':
+    main()

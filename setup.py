@@ -27,6 +27,12 @@ from distutils.core import setup
 
 installing = ('install' in sys.argv and '--help' not in sys.argv)
 
+# distutils depends on setup.py beeing executed from the same dir.
+# Most of our custom commands work either way, but this makes
+# it work in all cases.
+os.chdir(os.path.dirname(os.path.realpath(__file__)))
+
+
 # Read the metadata from gPodder's __init__ module (doesn't need importing)
 main_module = open('src/gpodder/__init__.py', 'r', encoding='utf-8').read()
 metadata = dict(re.findall("__([a-z_]+)__\s*=\s*'([^']+)'", main_module))
@@ -188,7 +194,7 @@ except MissingFile as mf:
 
     If you want to install, use "make install" instead of using
     setup.py directly. See the README file for more information.
-    """ % mf.message, file=sys.stderr)
+    """ % mf, file=sys.stderr)
     sys.exit(1)
 
 
