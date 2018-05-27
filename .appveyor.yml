@@ -1,3 +1,10 @@
+branches:
+  only:
+    - master
+
+# Start builds on tags only
+# skip_non_tags: true
+
 environment:
   matrix:
     - MSYS2_ARCH: i686
