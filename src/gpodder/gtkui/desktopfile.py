@@ -44,7 +44,9 @@ import logging
 logger = logging.getLogger(__name__)
 
 # where are the .desktop files located?
-userappsdirs = [ '/usr/share/applications/', '/usr/local/share/applications/', '/usr/share/applications/kde/' ]
+userappsdirs = ['/usr/share/applications/',
+                '/usr/local/share/applications/',
+                '/usr/share/applications/kde/']
 
 # the name of the section in the .desktop files
 sect = 'Desktop Entry'
@@ -153,13 +155,18 @@ class UserAppsReader(object):
         self.__has_read = False
         self.__finished = threading.Event()
         self.__has_sep = False
-        self.apps.append(UserApplication(_('Default application'), 'default', ';'.join((mime + '/*' for mime in self.mimetypes)), Gtk.STOCK_OPEN))
+        self.apps.append(UserApplication(
+            _('Default application'), 'default',
+            ';'.join((mime + '/*' for mime in self.mimetypes)),
+            Gtk.STOCK_OPEN))
 
     def add_separator(self):
-        self.apps.append(UserApplication('', '', ';'.join((mime + '/*' for mime in self.mimetypes)), ''))
+        self.apps.append(UserApplication(
+            '', '',
+            ';'.join((mime + '/*' for mime in self.mimetypes)), ''))
         self.__has_sep = True
 
-    def read( self):
+    def read(self):
         if self.__has_read:
             return
 
@@ -169,17 +176,19 @@ class UserAppsReader(object):
             for caption, types, hkey in WIN32_APP_REG_KEYS:
                 try:
                     cmdline = win32_read_registry_key(hkey)
-                    self.apps.append(UserApplication(caption, cmdline, ';'.join(typ + '/*' for typ in types), None))
+                    self.apps.append(UserApplication(
+                        caption, cmdline,
+                        ';'.join(typ + '/*' for typ in types), None))
                 except Exception as e:
                     logger.warn('Parse HKEY error: %s (%s)', hkey, e)
 
         for dir in userappsdirs:
-            if os.path.exists( dir):
+            if os.path.exists(dir):
                 for file in glob.glob(os.path.join(dir, '*.desktop')):
-                    self.parse_and_append( file)
+                    self.parse_and_append(file)
         self.__finished.set()
 
-    def parse_and_append( self, filename):
+    def parse_and_append(self, filename):
         try:
             parser = RawConfigParser()
             parser.read([filename])

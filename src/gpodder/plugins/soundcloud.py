@@ -139,7 +139,7 @@ class SoundcloudUser(object):
         global CONSUMER_KEY
         try:
             json_url = 'https://api.soundcloud.com/users/%(user)s/%(feed)s.json?filter=downloadable&consumer_key=%(consumer_key)s&limit=200' \
-                    % { "user":self.get_user_id(), "feed":feed, "consumer_key": CONSUMER_KEY }
+                    % {"user":self.get_user_id(), "feed":feed, "consumer_key": CONSUMER_KEY}
             logger.debug("loading %s", json_url)
 
             json_tracks = json.loads(util.urlopen(json_url).read().decode('utf-8'))
@@ -158,7 +158,7 @@ class SoundcloudUser(object):
                 # Prefer stream URL (MP3), fallback to download URL
                 url = track.get('stream_url', track['download_url']) + \
                     '?consumer_key=%(consumer_key)s' \
-                    % { 'consumer_key': CONSUMER_KEY }
+                    % {'consumer_key': CONSUMER_KEY}
                 if url not in self.cache:
                     try:
                         self.cache[url] = get_metadata(url)

@@ -61,7 +61,7 @@ class Importer(object):
 
     VALID_TYPES = ('rss', 'link')
 
-    def __init__( self, url):
+    def __init__(self, url):
         """
         Parses the OPML feed from the given URL into
         a local data structure containing channel metadata.
@@ -90,10 +90,10 @@ class Importer(object):
                     if channel['description'] == channel['title']:
                         channel['description'] = channel['url']
 
-                    for attr in ( 'url', 'title', 'description' ):
+                    for attr in ('url', 'title', 'description'):
                         channel[attr] = channel[attr].strip()
 
-                    self.items.append( channel)
+                    self.items.append(channel)
             if not len(self.items):
                 logger.info('OPML import finished, but no items found: %s', url)
         except:
@@ -110,37 +110,37 @@ class Exporter(object):
 
     FEED_TYPE = 'rss'
 
-    def __init__( self, filename):
+    def __init__(self, filename):
         if filename is None:
             self.filename = None
-        elif filename.endswith( '.opml') or filename.endswith( '.xml'):
+        elif filename.endswith('.opml') or filename.endswith('.xml'):
             self.filename = filename
         else:
-            self.filename = '%s.opml' % ( filename, )
+            self.filename = '%s.opml' % (filename, )
 
-    def create_node( self, doc, name, content):
+    def create_node(self, doc, name, content):
         """
         Creates a simple XML Element node in a document
         with tag name "name" and text content "content",
         as in <name>content</name> and returns the element.
         """
-        node = doc.createElement( name)
-        node.appendChild( doc.createTextNode( content))
+        node = doc.createElement(name)
+        node.appendChild(doc.createTextNode(content))
         return node
 
-    def create_outline( self, doc, channel):
+    def create_outline(self, doc, channel):
         """
         Creates a OPML outline as XML Element node in a
         document for the supplied channel.
         """
-        outline = doc.createElement( 'outline')
-        outline.setAttribute( 'title', channel.title)
-        outline.setAttribute( 'text', channel.description)
-        outline.setAttribute( 'xmlUrl', channel.url)
-        outline.setAttribute( 'type', self.FEED_TYPE)
+        outline = doc.createElement('outline')
+        outline.setAttribute('title', channel.title)
+        outline.setAttribute('text', channel.description)
+        outline.setAttribute('xmlUrl', channel.url)
+        outline.setAttribute('type', self.FEED_TYPE)
         return outline
 
-    def write( self, channels):
+    def write(self, channels):
         """
         Creates a XML document containing metadata for each
         channel object in the "channels" parameter, which
@@ -160,15 +160,15 @@ class Exporter(object):
         opml.setAttribute('version', '2.0')
         doc.appendChild(opml)
 
-        head = doc.createElement( 'head')
-        head.appendChild( self.create_node( doc, 'title', 'gPodder subscriptions'))
-        head.appendChild( self.create_node( doc, 'dateCreated', formatdate(localtime=True)))
-        opml.appendChild( head)
+        head = doc.createElement('head')
+        head.appendChild(self.create_node(doc, 'title', 'gPodder subscriptions'))
+        head.appendChild(self.create_node(doc, 'dateCreated', formatdate(localtime=True)))
+        opml.appendChild(head)
 
-        body = doc.createElement( 'body')
+        body = doc.createElement('body')
         for channel in channels:
-            body.appendChild( self.create_outline( doc, channel))
-        opml.appendChild( body)
+            body.appendChild(self.create_outline(doc, channel))
+        opml.appendChild(body)
 
         try:
             data = doc.toprettyxml(encoding='utf-8', indent='    ', newl=os.linesep)
