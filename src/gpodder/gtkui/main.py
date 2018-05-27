@@ -2814,10 +2814,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         selected = [not e.is_new or not e.file_exists() for e in episodes]
 
-        gPodderEpisodeSelector(self.main_window, title = _('Delete episodes'), instructions = instructions,
-                                episodes = episodes, selected = selected, columns = columns,
-                                stock_ok_button = 'edit-delete', callback = self.delete_episode_list,
-                                selection_buttons = selection_buttons, _config=self.config)
+        gPodderEpisodeSelector(
+            self.main_window, title=_('Delete episodes'),
+            instructions=instructions,
+            episodes=episodes, selected=selected, columns=columns,
+            stock_ok_button='edit-delete', callback=self.delete_episode_list,
+            selection_buttons=selection_buttons, _config=self.config)
 
     def on_selected_episodes_status_changed(self):
         # The order of the updates here is important! When "All episodes" is
@@ -3012,7 +3014,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 episodes=episodes,
                 columns=columns,
                 selected=selected,
-                stock_ok_button = 'gpodder-download',
+                stock_ok_button='gpodder-download',
                 callback=download_episodes_callback,
                 remove_callback=lambda e: e.mark_old(),
                 remove_action=_('Mark as old'),

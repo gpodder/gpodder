@@ -43,7 +43,7 @@ po_folder = os.path.join(os.path.dirname(__file__), '..', '..', 'po')
 for filename in glob.glob(os.path.join(po_folder, '*.po')):
     language, _ = os.path.splitext(os.path.basename(filename))
     msgfmt = subprocess.Popen(['msgfmt', '--statistics', filename],
-            stderr = subprocess.PIPE)
+            stderr=subprocess.PIPE)
     _, stderr = msgfmt.communicate()
 
     match = re.match(COUNTS_RE, stderr).groups()
