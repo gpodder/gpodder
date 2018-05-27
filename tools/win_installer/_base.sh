@@ -33,7 +33,9 @@ function set_build_root {
     MINGW_ROOT="${BUILD_ROOT}/${MINGW}"
 }
 
-if [ -d "/home/IEUser" ]; then
+if [ "$APPVEYOR" == "True" ]; then
+	set_build_root "$HOME/_gpodder_build_root"
+elif [ -d "/home/IEUser" ]; then
 	set_build_root "/home/IEUser/_gpodder_build_root"
 else
 	set_build_root "${DIR}/_build_root"
