@@ -10,4 +10,9 @@ build_script:
   - bash -lc "pacman --noconfirm --ask 20 -Suy"
   - bash -lc "bash .appveyor/msys2.sh"
 
+artifacts:
+  - tools/win_installer/gpodder-*-contents.txt
+  - tools/win_installer/gpodder-*-installer.exe
+  - tools/win_installer/gpodder-*-portable.exe
+
 deploy: off
