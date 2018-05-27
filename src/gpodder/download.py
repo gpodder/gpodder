@@ -201,7 +201,7 @@ class DownloadURLOpener(urllib.request.FancyURLopener):
     # FYI: The omission of "%" in the list is to avoid double escaping!
     ESCAPE_CHARS = dict((ord(c), '%%%x' % ord(c)) for c in ' <>#"{}|\\^[]`')
 
-    def __init__( self, channel):
+    def __init__(self, channel):
         self.channel = channel
         self._auth_retry_counter = 0
         urllib.request.FancyURLopener.__init__(self, None)
@@ -324,7 +324,7 @@ class DownloadURLOpener(urllib.request.FancyURLopener):
 
 # end code based on urllib.py
 
-    def prompt_user_passwd( self, host, realm):
+    def prompt_user_passwd(self, host, realm):
         # Keep track of authentication attempts, fail after the third one
         self._auth_retry_counter += 1
         if self._auth_retry_counter > 3:
@@ -333,7 +333,7 @@ class DownloadURLOpener(urllib.request.FancyURLopener):
         if self.channel.auth_username or self.channel.auth_password:
             logger.debug('Authenticating as "%s" to "%s" for realm "%s".',
                     self.channel.auth_username, host, realm)
-            return ( self.channel.auth_username, self.channel.auth_password )
+            return (self.channel.auth_username, self.channel.auth_password)
 
         return (None, None)
 

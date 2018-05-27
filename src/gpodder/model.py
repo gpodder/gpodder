@@ -554,8 +554,8 @@ class PodcastEpisode(PodcastModelObject):
         return util.file_type_by_extension(self.extension())
 
     @property
-    def basename( self):
-        return os.path.splitext( os.path.basename( self.url))[0]
+    def basename(self):
+        return os.path.splitext(os.path.basename(self.url))[0]
 
     @property
     def pubtime(self):

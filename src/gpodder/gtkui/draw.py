@@ -243,10 +243,10 @@ def draw_text_pill(left_text, right_text, x=0, y=0, border=2, radius=14, font_de
         ctx.stroke()
 
         ctx.move_to(x + x_border, y + 1 + border)
-        ctx.set_source_rgba( 0, 0, 0, 1)
+        ctx.set_source_rgba(0, 0, 0, 1)
         PangoCairo.show_layout(ctx, layout_left)
         ctx.move_to(x - 1 + x_border, y + border)
-        ctx.set_source_rgba( 1, 1, 1, 1)
+        ctx.set_source_rgba(1, 1, 1, 1)
         PangoCairo.show_layout(ctx, layout_left)
 
     if right_text is not None:
@@ -276,10 +276,10 @@ def draw_text_pill(left_text, right_text, x=0, y=0, border=2, radius=14, font_de
         ctx.stroke()
 
         ctx.move_to(x + left_side_width + x_border, y + 1 + border)
-        ctx.set_source_rgba( 0, 0, 0, 1)
+        ctx.set_source_rgba(0, 0, 0, 1)
         PangoCairo.show_layout(ctx, layout_right)
         ctx.move_to(x - 1 + left_side_width + x_border, y + border)
-        ctx.set_source_rgba( 1, 1, 1, 1)
+        ctx.set_source_rgba(1, 1, 1, 1)
         PangoCairo.show_layout(ctx, layout_right)
 
     return surface

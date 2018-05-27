@@ -635,7 +635,7 @@ class MP3PlayerDevice(Device):
                     pass
                 try:
                     logger.info('Trying to remove partially copied file: %s' % to_file)
-                    os.unlink( to_file)
+                    os.unlink(to_file)
                     logger.info('Yeah! Unlinked %s at least..' % to_file)
                 except:
                     logger.error('Error while trying to unlink %s. OH MY!' % to_file)
@@ -761,7 +761,7 @@ class MTPDevice(Device):
                         raise ValueError("Expected + or -")
                 except Exception as exc:
                     logger.warning('WARNING: ignoring invalid time zone information for %s (%s)')
-            return max( 0, _date )
+            return max(0, _date)
         except Exception as exc:
             logger.warning('WARNING: the mtp date "%s" can not be parsed against mtp specification (%s)')
             return None

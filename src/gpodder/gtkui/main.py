@@ -279,9 +279,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
         action.connect('activate', self.on_item_view_hide_boring_podcasts_toggled)
         g.add_action(action)
 
-        value = EpisodeListModel.VIEWS[self.config.episode_list_view_mode or EpisodeListModel.VIEW_ALL]
+        value = EpisodeListModel.VIEWS[
+            self.config.episode_list_view_mode or EpisodeListModel.VIEW_ALL]
         action = Gio.SimpleAction.new_stateful(
-            'viewEpisodes',  GLib.VariantType.new('s'), GLib.Variant.new_string(value))
+            'viewEpisodes', GLib.VariantType.new('s'),
+            GLib.Variant.new_string(value))
         action.connect('activate', self.on_item_view_episodes_changed)
         g.add_action(action)
 
@@ -1308,7 +1310,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         (x_bin, y_bin) = treeview.get_bin_window().get_position()
         y -= x_bin
         y -= y_bin
-        (path, column, rx, ry) = treeview.get_path_at_pos( x, y) or (None,) * 4
+        (path, column, rx, ry) = treeview.get_path_at_pos(x, y) or (None,) * 4
 
         if not getattr(treeview, TreeViewHelper.CAN_TOOLTIP) or x > 50 or (column is not None and column != treeview.get_columns()[0]):
             setattr(treeview, TreeViewHelper.LAST_TOOLTIP, None)
@@ -1702,7 +1704,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if event is None or event.button == 3:
             menu = Gtk.Menu()
 
-            item = Gtk.ImageMenuItem( _('Update podcast'))
+            item = Gtk.ImageMenuItem(_('Update podcast'))
             item.set_image(Gtk.Image.new_from_icon_name('view-refresh', Gtk.IconSize.MENU))
             item.set_action_name('win.updateChannel')
             menu.append(item)
@@ -1726,8 +1728,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             item = Gtk.ImageMenuItem(_('Delete podcast'))
             item.set_image(Gtk.Image.new_from_icon_name('edit-delete', Gtk.IconSize.MENU))
-            item.connect( 'activate', self.on_itemRemoveChannel_activate)
-            menu.append( item)
+            item.connect('activate', self.on_itemRemoveChannel_activate)
+            menu.append(item)
 
             result = gpodder.user_extensions.on_channel_context_menu(self.active_channel)
             if result:
@@ -1947,13 +1949,16 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if downloaded:
                 item = Gtk.CheckMenuItem(_('Archive'))
                 item.set_active(any_locked)
-                item.connect('activate', lambda w: self.on_item_toggle_lock_activate( w, False, not any_locked))
+                item.connect('activate',
+                             lambda w: self.on_item_toggle_lock_activate(
+                                 w, False, not any_locked))
                 menu.append(item)
 
             menu.append(Gtk.SeparatorMenuItem())
             # Single item, add episode information menu item
             item = Gtk.ImageMenuItem(_('Episode details'))
-            item.set_image(Gtk.Image.new_from_icon_name( 'dialog-information', Gtk.IconSize.MENU))
+            item.set_image(Gtk.Image.new_from_icon_name('dialog-information',
+                                                        Gtk.IconSize.MENU))
             item.set_action_name('win.toggleShownotes')
             menu.append(item)
 
@@ -2117,8 +2122,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.toolCancel.set_sensitive(True)
             return (False, False, False, False, False, False)
 
-        ( can_play, can_download, can_cancel, can_delete ) = (False,) * 4
-        ( is_played, is_locked ) = (False,) * 2
+        (can_play, can_download, can_cancel, can_delete) = (False,) * 4
+        (is_played, is_locked) = (False,) * 2
 
         open_instead_of_play = False
 
@@ -2870,7 +2875,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if self.active_channel is None:
             title = _('No podcast selected')
             message = _('Please select a podcast in the podcasts list to update.')
-            self.show_message( message, title, widget=self.treeChannels)
+            self.show_message(message, title, widget=self.treeChannels)
             return
 
         # Dirty hack to check for "All episodes" (see gpodder.gtkui.model)
@@ -3105,7 +3110,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if self.active_channel is None:
             title = _('No podcast selected')
             message = _('Please select a podcast in the podcasts list to edit.')
-            self.show_message( message, title, widget=self.treeChannels)
+            self.show_message(message, title, widget=self.treeChannels)
             return
 
         gPodderChannel(self.main_window,
@@ -3205,7 +3210,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if self.active_channel is None:
             title = _('No podcast selected')
             message = _('Please select a podcast in the podcasts list to remove.')
-            self.show_message( message, title, widget=self.treeChannels)
+            self.show_message(message, title, widget=self.treeChannels)
             return
 
         self.remove_podcast_list([self.active_channel])
@@ -3241,11 +3246,15 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_itemExportChannels_activate(self, widget, *args):
         if not self.channels:
             title = _('Nothing to export')
-            message = _('Your list of podcast subscriptions is empty. Please subscribe to some podcasts first before trying to export your subscription list.')
+            message = _('Your list of podcast subscriptions is empty. '
+                        'Please subscribe to some podcasts first before '
+                        'trying to export your subscription list.')
             self.show_message(message, title, widget=self.treeChannels)
             return
 
-        dlg = Gtk.FileChooserDialog(title=_('Export to OPML'), parent=self.gPodder, action=Gtk.FileChooserAction.SAVE)
+        dlg = Gtk.FileChooserDialog(title=_('Export to OPML'),
+                                    parent=self.gPodder,
+                                    action=Gtk.FileChooserAction.SAVE)
         dlg.add_button(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL)
         dlg.add_button(Gtk.STOCK_SAVE, Gtk.ResponseType.OK)
         dlg.set_filter(self.get_opml_filter())
@@ -3253,13 +3262,19 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if response == Gtk.ResponseType.OK:
             filename = dlg.get_filename()
             dlg.destroy()
-            exporter = opml.Exporter( filename)
+            exporter = opml.Exporter(filename)
             if filename is not None and exporter.write(self.channels):
                 count = len(self.channels)
-                title = N_('%(count)d subscription exported', '%(count)d subscriptions exported', count) % {'count':count}
-                self.show_message(_('Your podcast list has been successfully exported.'), title, widget=self.treeChannels)
+                title = N_('%(count)d subscription exported',
+                           '%(count)d subscriptions exported',
+                           count) % {'count':count}
+                self.show_message(_('Your podcast list has been successfully '
+                                    'exported.'),
+                                  title, widget=self.treeChannels)
             else:
-                self.show_message( _('Could not export OPML to file. Please check your permissions.'), _('OPML export failed'), important=True)
+                self.show_message(_('Could not export OPML to file. '
+                                    'Please check your permissions.'),
+                                  _('OPML export failed'), important=True)
         else:
             dlg.destroy()
 
@@ -3324,7 +3339,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.treeChannels.set_cursor(path)
 
     def on_treeChannels_cursor_changed(self, widget, *args):
-        ( model, iter ) = self.treeChannels.get_selection().get_selected()
+        (model, iter) = self.treeChannels.get_selection().get_selected()
 
         if model is not None and iter is not None:
             old_active_channel = self.active_channel
@@ -3345,7 +3360,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.update_episode_list_model()
 
     def on_btnEditChannel_clicked(self, widget, *args):
-        self.on_itemEditChannel_activate( widget, args)
+        self.on_itemEditChannel_activate(widget, args)
 
     def get_podcast_urls_from_selected_episodes(self):
         """Get a set of podcast URLs based on the selected episodes"""
