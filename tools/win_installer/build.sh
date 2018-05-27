@@ -15,7 +15,7 @@ function main {
     [[ -d "${BUILD_ROOT}" ]] && (echo "${BUILD_ROOT} already exists"; exit 1)
 
     # started from the wrong env -> switch
-    if [ "$(echo \"$MSYSTEM\" | tr '[A-Z]' '[a-z]')" != "$MINGW" ]; then
+    if [ -n "$MSYSTEM" ] && [ $(echo "$MSYSTEM" | tr '[A-Z]' '[a-z]') != "$MINGW" ]; then
         echo ">>>>> MSYSTEM=${MSYSTEM} - SWITCHING TO ${MINGW} <<<<"
         "/${MINGW}.exe" "$0"
         echo ">>>>> DONE WITH ${MINGW} ?? <<<<"
