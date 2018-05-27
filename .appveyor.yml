@@ -1,0 +1,25 @@
+branches:
+  only:
+    - master
+
+# Start builds on tags only
+# skip_non_tags: true
+
+environment:
+  matrix:
+    - MSYS2_ARCH: i686
+      MSYSTEM: MINGW32
+
+build_script:
+  - set
+  - set PATH=C:\msys64\%MSYSTEM%\bin;C:\msys64\usr\bin;%PATH%
+  - set CHERE_INVOKING=yes
+  - bash -lc "pacman --noconfirm --ask 20 -Suy"
+  - bash -lc "bash .appveyor/msys2.sh"
+
+artifacts:
+  - path: tools/win_installer/gpodder-*-contents.txt
+  - path: tools/win_installer/gpodder-*-installer.exe
+  - path: tools/win_installer/gpodder-*-portable.exe
+
+deploy: off
