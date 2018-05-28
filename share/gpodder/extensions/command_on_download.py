@@ -64,7 +64,7 @@ class gPodderExtension:
         env = os.environ.copy()
         env.update(info)
 
-        proc = subprocess.Popen(command, shell=True, env=env)
+        proc = subprocess.Popen(command, shell=True, env=env, close_fds=True)
         proc.wait()
         if proc.returncode == 0:
             logger.info("%s succeeded", command)

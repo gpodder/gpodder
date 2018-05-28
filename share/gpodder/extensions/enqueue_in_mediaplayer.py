@@ -78,7 +78,7 @@ class Win32Player(Player):
 
     def open_files(self, filenames):
         for cmd in util.format_desktop_command(self.command, filenames):
-            subprocess.Popen(cmd)
+            subprocess.Popen(cmd, close_fds=True)
 
 
 class MPRISResumer(FreeDesktopPlayer):

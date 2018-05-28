@@ -1,9 +1,9 @@
 
-# Use a logger for debug output - this will be managed by gPodder
+# Use a logger for debug output - this will be managed by gPodder.
 import logging
 logger = logging.getLogger(__name__)
 
-# Provide some metadata that will be displayed in the gPodder GUI
+# Provide some metadata that will be displayed in the gPodder GUI.
 __title__ = 'Hello World Extension'
 __description__ = 'Explain in one sentence what this extension does.'
 __only_for__ = 'gtk, cli'
@@ -11,9 +11,9 @@ __authors__ = 'Thomas Perl <m@thp.io>'
 
 
 class gPodderExtension:
-    # The extension will be instantiated the first time it's used
+    # The extension will be instantiated the first time it's used.
     # You can do some sanity checks here and raise an Exception if
-    # you want to prevent the extension from being loaded..
+    # you want to prevent the extension from being loaded.
     def __init__(self, container):
         self.container = container
 
@@ -40,7 +40,7 @@ class gPodderExtension:
 
     def on_ui_object_available(self, name, ui_object):
         """
-        Called by gPodder when ui is ready
+        Called by gPodder when ui is ready.
         """
         if name == 'gpodder-gtk':
             self.gpodder = ui_object
@@ -50,3 +50,24 @@ class gPodderExtension:
 
     def say_hello_cb(self):
         self.gpodder.notification("Hello Extension", "Message", widget=self.gpodder.main_window)
+
+
+# Concurrency Warning
+#
+# When using subprocess.Popen() to spawn a long-lived external command,
+# such as ffmpeg, be sure to include the "close_fds=True" argument.
+#
+# https://docs.python.org/3/library/subprocess.html#subprocess.Popen
+#
+# This is expecially important for extensions responding to
+# on_episode_downloaded(), which runs whenever a download finishes.
+#
+# Otherwise that process will inherit ALL file descriptors gPodder
+# happens to have open at the moment (like other active downloads).
+# Those files will remain 'in-use' until that process exits, a race
+# condition which prevents gPodder from renaming or deleting them.
+#
+# Caveat: On Windows, you cannot set close_fds to true and also
+# redirect the standard handles (stdin, stdout or stderr). To collect
+# output/errors from long-lived external commands, it may be necessary
+# to create a (temp) log file and read it afterward.

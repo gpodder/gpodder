@@ -1291,7 +1291,7 @@ def bluetooth_send_file(filename):
 
     if command_line is not None:
         command_line.append(filename)
-        return (subprocess.Popen(command_line).wait() == 0)
+        return (subprocess.Popen(command_line, close_fds=True).wait() == 0)
     else:
         logger.error('Cannot send file. Please install "bluetooth-sendto" or "gnome-obex-send".')
         return False
@@ -1420,9 +1420,9 @@ def gui_open(filename):
         if gpodder.ui.win32:
             os.startfile(filename)
         elif gpodder.ui.osx:
-            subprocess.Popen(['open', filename])
+            subprocess.Popen(['open', filename], close_fds=True)
         else:
-            subprocess.Popen(['xdg-open', filename])
+            subprocess.Popen(['xdg-open', filename], close_fds=True)
         return True
     except:
         logger.error('Cannot open file/folder: "%s"', filename, exc_info=True)
