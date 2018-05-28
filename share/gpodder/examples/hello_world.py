@@ -52,7 +52,7 @@ class gPodderExtension:
         self.gpodder.notification("Hello Extension", "Message", widget=self.gpodder.main_window)
 
 
-# Concurrency Warning
+# Concurrency Warning: use gpodder.util.Popen() instead of subprocess.Popen()
 #
 # When using subprocess.Popen() to spawn a long-lived external command,
 # such as ffmpeg, be sure to include the "close_fds=True" argument.
@@ -65,9 +65,10 @@ class gPodderExtension:
 # Otherwise that process will inherit ALL file descriptors gPodder
 # happens to have open at the moment (like other active downloads).
 # Those files will remain 'in-use' until that process exits, a race
-# condition which prevents gPodder from renaming or deleting them.
+# condition which prevents gPodder from renaming or deleting them on Windows.
 #
 # Caveat: On Windows, you cannot set close_fds to true and also
 # redirect the standard handles (stdin, stdout or stderr). To collect
 # output/errors from long-lived external commands, it may be necessary
 # to create a (temp) log file and read it afterward.
+#

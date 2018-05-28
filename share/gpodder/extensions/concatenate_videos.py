@@ -70,8 +70,9 @@ class gPodderExtension:
                 }, False, self.gpodder.get_dialog_parent())
 
         def convert():
-            ffmpeg = subprocess.Popen(['ffmpeg', '-f', 'concat', '-nostdin', '-y',
-                '-i', list_filename, '-c', 'copy', out_filename], close_fds=True)
+            ffmpeg = util.Popen(['ffmpeg', '-f', 'concat', '-nostdin', '-y',
+                                 '-i', list_filename, '-c', 'copy', out_filename],
+                                close_fds=True)
             result = ffmpeg.wait()
             util.delete_file(list_filename)
             util.idle_add(lambda: indicator.on_finished())

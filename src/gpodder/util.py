@@ -1291,7 +1291,7 @@ def bluetooth_send_file(filename):
 
     if command_line is not None:
         command_line.append(filename)
-        return (subprocess.Popen(command_line, close_fds=True).wait() == 0)
+        return (Popen(command_line, close_fds=True).wait() == 0)
     else:
         logger.error('Cannot send file. Please install "bluetooth-sendto" or "gnome-obex-send".')
         return False
@@ -1420,9 +1420,9 @@ def gui_open(filename):
         if gpodder.ui.win32:
             os.startfile(filename)
         elif gpodder.ui.osx:
-            subprocess.Popen(['open', filename], close_fds=True)
+            Popen(['open', filename], close_fds=True)
         else:
-            subprocess.Popen(['xdg-open', filename], close_fds=True)
+            Popen(['xdg-open', filename], close_fds=True)
         return True
     except:
         logger.error('Cannot open file/folder: "%s"', filename, exc_info=True)
@@ -1804,7 +1804,7 @@ def linux_get_active_interfaces():
     empty list if the device is offline. The loopback
     interface is not included.
     """
-    process = subprocess.Popen(['ip', 'link'], stdout=subprocess.PIPE)
+    process = Popen(['ip', 'link'], close_fds=True, stdout=subprocess.PIPE)
     data, _ = process.communicate()
     for interface, _ in re.findall(r'\d+: ([^:]+):.*state (UP|UNKNOWN)', data.decode(locale.getpreferredencoding())):
         if interface != 'lo':
@@ -1818,7 +1818,7 @@ def osx_get_active_interfaces():
     empty list if the device is offline. The loopback
     interface is not included.
     """
-    process = subprocess.Popen(['ifconfig'], stdout=subprocess.PIPE)
+    process = Popen(['ifconfig'], close_fds=True, stdout=subprocess.PIPE)
     stdout, _ = process.communicate()
     for i in re.split('\n(?!\t)', stdout.decode('utf-8'), re.MULTILINE):
         b = re.match('(\\w+):.*status: (active|associated)$', i, re.MULTILINE | re.DOTALL)
@@ -1833,7 +1833,7 @@ def unix_get_active_interfaces():
     empty list if the device is offline. The loopback
     interface is not included.
     """
-    process = subprocess.Popen(['ifconfig'], stdout=subprocess.PIPE)
+    process = Popen(['ifconfig'], close_fds=True, stdout=subprocess.PIPE)
     stdout, _ = process.communicate()
     for i in re.split('\n(?!\t)', stdout.decode(locale.getpreferredencoding()), re.MULTILINE):
         b = re.match('(\\w+):.*status: (active|associated)$', i, re.MULTILINE | re.DOTALL)
@@ -1960,3 +1960,93 @@ def iri_to_url(url):
     url[2] = urllib.parse.quote(url[2], safe="/-._~!$&'()*+,;=:@")
     url = urllib.parse.urlunsplit(url)
     return url
+
+
+class Popen(subprocess.Popen):
+
+    """A Popen process that tries not to leak file descriptors.
+
+    This is a drop-in replacement for subprocess.Popen(), which takes the same
+    arguments.
+
+    'close_fds' will default to True, if omitted. This stops the process from
+    inheriting ALL of gPodder's file descriptors, which would keep them
+    'in-use'. That is of particular concern whenever the download queue is
+    active and interacting with the filesystem in the background.
+
+    On Windows however, redirection cannot coexist with 'close_fds=True'.
+    Specifying both will raise a ValueError. A message will appear in the log.
+
+    For communication with short-lived Windows commands, setting 'close_fds'
+    to False may be a tolerable risk. Otherwise as a last resort, sending
+    output to temp files to read afterward might work (probably involving
+    'shell=True').
+
+    See https://github.com/gpodder/gpodder/issues/420
+    """
+
+    def __init__(self, *args, **kwargs):
+        self.__logged_returncode = False
+
+        if 'close_fds' not in kwargs:
+            kwargs['close_fds'] = True
+
+        try:
+            super(Popen, self).__init__(*args, **kwargs)  #Python 2 syntax
+
+        except (ValueError) as e:
+            if gpodder.ui.win32 and kwargs['close_fds']:
+                if [(k, v) for (k, v) in kwargs.items() if k in ('stdin', 'stdout', 'stderr') and v]:
+                    logger = logging.getLogger(__name__)
+                    logger.error('util.Popen(close_fds=True) is incompatible with stream redirection on Windows.')
+                    logger.error('With close_fds=False, the process keeps all currently open files locked. It might be tolerable for short-lived commands. Or use temp files.')
+
+            raise e
+
+    @classmethod
+    def testPopen():
+        # Commands that will complain on stderr.
+        if gpodder.ui.win32:
+            cmd = ['findstr.exe', '/!']
+            cmd_pipe = ['findstr', 'hello']
+        else:
+            cmd = ['cat', '--helpp']
+            cmd_pipe = ['grep', 'hello']
+
+        logger.info('Test #1: Implicit close_fds=True, with no redirection')
+        logger.info('No race condition.')
+        logger.info('Streams left in the console.')
+        logger.info('Typical spawn and forget. Might as well wait().')
+        p = Popen(cmd)
+        out, err = p.communicate()
+        print("- - stderr - -\n{}\n- - -    - - -\n".format(err))
+
+        logger.info('Test #2: Explicit close_fds=False, with redirection.')
+        logger.info('This has a race condition, but communicate() always returns streams.')
+        p = Popen(cmd, close_fds=False, stderr=subprocess.PIPE, universal_newlines=True)
+        out, err = p.communicate()
+        print("- - stderr - -\n{}\n- - -    - - -\n".format(err))
+
+        try:
+            logger.info('Test #3: Implicit close_fds=True, with attempted redirection.')
+            logger.info('No race condition.')
+            logger.info('On Windows, this will raise ValueError.')
+            logger.info('Other platforms will have readable streams returned.')
+            p = Popen(cmd, stderr=subprocess.PIPE, universal_newlines=True)
+            out, err = p.communicate()
+            print("- - stderr - -\n{}\n- - -    - - -\n".format(err))
+
+        except (ValueError) as e:
+            print("- - Caught - -\n{}: {}\n- - -    - - -\n".format(e.__class__.__name__, e))
+
+        try:
+            logger.info('Test #4: Implicit close_fds=True, given input.')
+            p = Popen(cmd_pipe, stdin=subprocess.PIPE)
+            out, err = p.communicate(input=b'hello world')
+            print("NEVER REACHED ON WINDOWS")
+            print("- - stderr - -\n{}\n- - -    - - -\n".format(err))
+
+        except (ValueError) as e:
+            print("- - Caught - -\n{}: {}\n- - -    - - -\n".format(e.__class__.__name__, e))
+
+        logger.info('Log spam only occurs if returncode is non-zero or if explaining the Windows redirection error.')
