@@ -3470,7 +3470,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # Allow tab switching with Ctrl + PgUp/PgDown/Tab
         if event.get_state() & Gdk.ModifierType.CONTROL_MASK:
             current_page = self.wNotebook.get_current_page()
-            if event.keyval in (Gdk.KEY_Page_Up,  Gdk.KEY_ISO_Left_Tab):
+            if event.keyval in (Gdk.KEY_Page_Up, Gdk.KEY_ISO_Left_Tab):
                 if current_page == 0:
                     current_page = self.wNotebook.get_n_pages()
                 self.wNotebook.set_current_page(current_page - 1)
