@@ -159,17 +159,17 @@ _MIME_TYPES = dict((k, v) for v, k in _MIME_TYPE_LIST)
 _MIME_TYPES_EXT = dict(_MIME_TYPE_LIST)
 
 
-def make_directory( path):
+def make_directory(path):
     """
     Tries to create a directory if it does not exist already.
     Returns True if the directory exists after the function
     call, False otherwise.
     """
-    if os.path.isdir( path):
+    if os.path.isdir(path):
         return True
 
     try:
-        os.makedirs( path)
+        os.makedirs(path)
     except:
         logger.warn('Could not create directory: %s', path)
         return False
@@ -347,7 +347,7 @@ def directory_is_writable(path):
     return os.path.isdir(path) and os.access(path, os.W_OK)
 
 
-def calculate_size( path):
+def calculate_size(path):
     """
     Tries to calculate the size of a directory, including any
     subdirectories found. The returned value might not be
@@ -357,14 +357,14 @@ def calculate_size( path):
     if path is None:
         return 0
 
-    if os.path.dirname( path) == '/':
+    if os.path.dirname(path) == '/':
         return 0
 
-    if os.path.isfile( path):
-        return os.path.getsize( path)
+    if os.path.isfile(path):
+        return os.path.getsize(path)
 
-    if os.path.isdir( path) and not os.path.islink( path):
-        sum = os.path.getsize( path)
+    if os.path.isdir(path) and not os.path.islink(path):
+        sum = os.path.getsize(path)
 
         try:
             for item in os.listdir(path):
@@ -527,7 +527,7 @@ def format_date(timestamp):
         return _('Yesterday')
 
     try:
-        diff = int( (time.time() - timestamp) / seconds_in_a_day )
+        diff = int((time.time() - timestamp) / seconds_in_a_day)
     except:
         logger.warn('Cannot convert "%s" to date.', timestamp, exc_info=True)
         return None
@@ -553,19 +553,19 @@ def format_filesize(bytesize, use_si_units=False, digits=2):
     has a negative value.
     """
     si_units = (
-            ( 'kB', 10**3 ),
-            ( 'MB', 10**6 ),
-            ( 'GB', 10**9 ),
+            ('kB', 10**3),
+            ('MB', 10**6),
+            ('GB', 10**9),
     )
 
     binary_units = (
-            ( 'KiB', 2**10 ),
-            ( 'MiB', 2**20 ),
-            ( 'GiB', 2**30 ),
+            ('KiB', 2**10),
+            ('MiB', 2**20),
+            ('GiB', 2**30),
     )
 
     try:
-        bytesize = float( bytesize)
+        bytesize = float(bytesize)
     except:
         return _('(unknown)')
 
@@ -577,9 +577,9 @@ def format_filesize(bytesize, use_si_units=False, digits=2):
     else:
         units = binary_units
 
-    ( used_unit, used_value ) = ( 'B', bytesize )
+    (used_unit, used_value) = ('B', bytesize)
 
-    for ( unit, value ) in units:
+    for (unit, value) in units:
         if bytesize >= value:
             used_value = bytesize / float(value)
             used_unit = unit
@@ -944,13 +944,14 @@ def filename_from_url(url):
     http://s/redirect.mp4?http://serv2/test.mp4 => ("test", ".mp4")
     """
     (scheme, netloc, path, para, query, fragid) = urllib.parse.urlparse(url)
-    (filename, extension) = os.path.splitext(os.path.basename( urllib.parse.unquote(path)))
+    (filename, extension) = os.path.splitext(
+        os.path.basename(urllib.parse.unquote(path)))
 
     if file_type_by_extension(extension) is not None and not \
             query.startswith(scheme + '://'):
         # We have found a valid extension (audio, video)
         # and the query string doesn't look like a URL
-        return ( filename, extension.lower() )
+        return (filename, extension.lower())
 
     # If the query string looks like a possible URL, try that first
     if len(query.strip()) > 0 and query.find('/') != -1:
@@ -961,7 +962,7 @@ def filename_from_url(url):
             return os.path.splitext(os.path.basename(query_url))
 
     # No exact match found, simply return the original filename & extension
-    return ( filename, extension.lower() )
+    return (filename, extension.lower())
 
 
 def file_type_by_extension(extension):
@@ -1007,7 +1008,7 @@ def file_type_by_extension(extension):
     return None
 
 
-def get_first_line( s):
+def get_first_line(s):
     """
     Returns only the first line of a string, stripped so
     that it doesn't have whitespace before or after.
@@ -1616,7 +1617,7 @@ def relpath(p1, p2):
     (common,l1,l2) = commonpath(pathsplit(p1), pathsplit(p2))
     p = []
     if len(l1) > 0:
-        p = [ ('..' + os.sep) * len(l1) ]
+        p = [('..' + os.sep) * len(l1)]
     p = p + l2
     if len(p) is 0:
         return "."
