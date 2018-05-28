@@ -8,6 +8,8 @@ import logging
 import os
 import subprocess
 
+from gpodder import util
+
 logger = logging.getLogger(__name__)
 
 __title__ = 'Run a Command on Download'
@@ -64,7 +66,7 @@ class gPodderExtension:
         env = os.environ.copy()
         env.update(info)
 
-        proc = subprocess.Popen(command, shell=True, env=env)
+        proc = util.Popen(command, shell=True, env=env, close_fds=True)
         proc.wait()
         if proc.returncode == 0:
             logger.info("%s succeeded", command)

@@ -2068,7 +2068,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         for command in util.format_desktop_command('panucci',
                                 [filename]):
                             logger.info('Executing: %s', repr(command))
-                            subprocess.Popen(command)
+                            util.Popen(command, close_fds=True)
 
                     def on_error(err):
                         return error_handler(filename, err)
@@ -2094,7 +2094,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         for group in groups:
             for command in util.format_desktop_command(group, groups[group], resume_position):
                 logger.debug('Executing: %s', repr(command))
-                subprocess.Popen(command)
+                util.Popen(command, close_fds=True)
 
         # Persist episode status changes to the database
         self.db.commit()

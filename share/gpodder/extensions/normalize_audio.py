@@ -91,9 +91,14 @@ class gPodderExtension:
 
         cmd = [CONVERT_COMMANDS.get(extension, 'normalize-audio'), filename]
 
-        p = subprocess.Popen(cmd, stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE)
-        stdout, stderr = p.communicate()
+        if gpodder.ui.win32:
+            p = util.Popen(cmd)
+            p.wait()
+            stdout, stderr = ("<unavailable>",) * 2
+        else:
+            p = util.Popen(cmd, stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE)
+            stdout, stderr = p.communicate()
 
         if p.returncode == 0:
             logger.info('normalize-audio processing successful.')

@@ -132,9 +132,14 @@ class gPodderExtension:
             'options': self.container.config.ffmpeg_options
         }
 
-        process = subprocess.Popen(shlex.split(convert_command),
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        stdout, stderr = process.communicate()
+        if gpodder.ui.win32:
+            p = util.Popen(shlex.split(convert_command))
+            p.wait()
+            stdout, stderr = ("<unavailable>",) * 2
+        else:
+            process = util.Popen(shlex.split(convert_command),
+                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            stdout, stderr = process.communicate()
         if process.returncode != 0:
             logger.error(stderr)
             return None

@@ -4,6 +4,7 @@
 # Thomas Perl <thp@gpodder.org>; 2012-02-06
 
 import gpodder
+from gpodder import util
 
 _ = gpodder.gettext
 
@@ -40,8 +41,8 @@ if __name__ != '__main__':
         def on_load(self):
             logger.info('Starting Ubuntu Unity Integration.')
             os.environ['PYTHONPATH'] = os.pathsep.join(sys.path)
-            self.process = subprocess.Popen(['python', __file__],
-                    stdin=subprocess.PIPE)
+            self.process = util.Popen(['python', __file__],
+                                             stdin=subprocess.PIPE)
 
         def on_unload(self):
             logger.info('Killing process...')

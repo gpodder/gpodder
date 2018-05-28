@@ -99,9 +99,15 @@ class gPodderExtension:
         cmd = [self.command] + \
             [param % {'old_file': old_filename, 'new_file': new_filename}
                 for param in self.command_param]
-        ffmpeg = subprocess.Popen(cmd, stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE)
-        stdout, stderr = ffmpeg.communicate()
+
+        if gpodder.ui.win32:
+            ffmpeg = util.Popen(cmd)
+            ffmpeg.wait()
+            stdout, stderr = ("<unavailable>",) * 2
+        else:
+            ffmpeg = util.Popen(cmd, stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE)
+            stdout, stderr = ffmpeg.communicate()
 
         if ffmpeg.returncode == 0:
             util.rename_episode_file(episode, new_filename)
