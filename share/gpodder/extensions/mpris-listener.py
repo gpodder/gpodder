@@ -276,12 +276,12 @@ class MPRISDBusReceiver(object):
         self.cur.update(pos=position)
 
     def query_position(self):
-        proxy = self.bus.get_object(self.OBJECT_VLC,self.PATH_MPRIS)
+        proxy = self.bus.get_object(self.OBJECT_VLC, self.PATH_MPRIS)
         props = dbus.Interface(proxy, self.INTERFACE_PROPS)
         return props.Get(self.INTERFACE_MPRIS, 'Position')
 
     def query_status(self):
-        proxy = self.bus.get_object(self.OBJECT_VLC,self.PATH_MPRIS)
+        proxy = self.bus.get_object(self.OBJECT_VLC, self.PATH_MPRIS)
         props = dbus.Interface(proxy, self.INTERFACE_PROPS)
         return props.Get(self.INTERFACE_MPRIS, 'PlaybackStatus')
 

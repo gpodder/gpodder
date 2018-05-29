@@ -424,7 +424,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     _('Loading incomplete downloads'),
                     _('Some episodes have not finished downloading in a previous session.'),
                     False, self.get_dialog_parent())
-            self.partial_downloads_indicator.on_message(N_('%(count)d partial file', '%(count)d partial files', count) % {'count':count})
+            self.partial_downloads_indicator.on_message(N_(
+                '%(count)d partial file', '%(count)d partial files',
+                count) % {'count': count})
 
             util.idle_add(self.wNotebook.set_current_page, 1)
 
@@ -1244,7 +1246,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
             episode_urls = [task.url for task in self.download_tasks_seen]
 
             if downloading > 0:
-                title.append(N_('downloading %(count)d file', 'downloading %(count)d files', downloading) % {'count':downloading})
+                title.append(N_('downloading %(count)d file',
+                                'downloading %(count)d files',
+                                downloading) % {'count': downloading})
 
                 if total_size > 0:
                     percentage = 100.0 * done_size / total_size
@@ -1254,9 +1258,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 total_speed = util.format_filesize(total_speed)
                 title[1] += ' (%d%%, %s/s)' % (percentage, total_speed)
             if synchronizing > 0:
-                title.append(N_('synchronizing %(count)d file', 'synchronizing %(count)d files', synchronizing) % {'count':synchronizing})
+                title.append(N_('synchronizing %(count)d file',
+                                'synchronizing %(count)d files',
+                                synchronizing) % {'count': synchronizing})
             if queued > 0:
-                title.append(N_('%(queued)d task queued', '%(queued)d tasks queued', queued) % {'queued':queued})
+                title.append(N_('%(queued)d task queued',
+                                '%(queued)d tasks queued',
+                                queued) % {'queued': queued})
             if (downloading + synchronizing + queued) == 0:
                 self.set_download_progress(1.)
                 self.downloads_finished(self.download_tasks_seen)
@@ -1494,15 +1502,19 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.show_message(message, _('Downloads failed'))
 
         if finished_syncs and failed_syncs:
-            message = self.format_episode_list(list(map((lambda task: str(task)),finished_syncs)), 5)
+            message = self.format_episode_list(list(map((
+                lambda task: str(task)), finished_syncs)), 5)
             message += '\n\n<i>%s</i>\n' % _('Could not sync some episodes:')
-            message += self.format_episode_list(list(map((lambda task: str(task)),failed_syncs)), 5)
+            message += self.format_episode_list(list(map((
+                lambda task: str(task)), failed_syncs)), 5)
             self.show_message(message, _('Device synchronization finished'), True)
         elif finished_syncs:
-            message = self.format_episode_list(list(map((lambda task: str(task)),finished_syncs)))
+            message = self.format_episode_list(list(map((
+                lambda task: str(task)), finished_syncs)))
             self.show_message(message, _('Device synchronization finished'))
         elif failed_syncs:
-            message = self.format_episode_list(list(map((lambda task: str(task)),failed_syncs)))
+            message = self.format_episode_list(list(map((
+                lambda task: str(task)), failed_syncs)))
             self.show_message(message, _('Device synchronization failed'), True)
 
         # Do post-sync processing if required
@@ -1546,7 +1558,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         more_episodes = len(episode_list) - max_episodes
         if more_episodes > 0:
             result.append('(...')
-            result.append(N_('%(count)d more episode', '%(count)d more episodes', more_episodes) % {'count':more_episodes})
+            result.append(N_('%(count)d more episode',
+                             '%(count)d more episodes',
+                             more_episodes) % {'count': more_episodes})
             result.append('...)')
 
         return (''.join(result)).strip()
@@ -2567,7 +2581,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.btnUpdateFeeds.hide()
 
         count = len(channels)
-        text = N_('Updating %(count)d feed...', 'Updating %(count)d feeds...', count) % {'count':count}
+        text = N_('Updating %(count)d feed...', 'Updating %(count)d feeds...',
+                  count) % {'count': count}
 
         self.pbFeedUpdate.set_text(text)
         self.pbFeedUpdate.set_fraction(0)
@@ -2649,18 +2664,25 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
                     if self.config.auto_download == 'download':
                         self.download_episode_list(episodes)
-                        title = N_('Downloading %(count)d new episode.', 'Downloading %(count)d new episodes.', count) % {'count':count}
+                        title = N_('Downloading %(count)d new episode.',
+                                   'Downloading %(count)d new episodes.',
+                                   count) % {'count': count}
                         self.show_message(title, _('New episodes available'))
                     elif self.config.auto_download == 'queue':
                         self.download_episode_list_paused(episodes)
-                        title = N_('%(count)d new episode added to download list.', '%(count)d new episodes added to download list.', count) % {'count':count}
+                        title = N_(
+                            '%(count)d new episode added to download list.',
+                            '%(count)d new episodes added to download list.',
+                            count) % {'count': count}
                         self.show_message(title, _('New episodes available'))
                     else:
                         if (show_new_episodes_dialog and
                                 self.config.auto_download == 'show'):
                             self.new_episodes_show(episodes, notification=True)
                         else:  # !show_new_episodes_dialog or auto_download == 'ignore'
-                            message = N_('%(count)d new episode available', '%(count)d new episodes available', count) % {'count':count}
+                            message = N_('%(count)d new episode available',
+                                         '%(count)d new episodes available',
+                                         count) % {'count': count}
                             self.pbFeedUpdate.set_text(message)
 
                     self.show_update_feeds_buttons()
@@ -2736,7 +2758,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 return False
 
         count = len(episodes)
-        title = N_('Delete %(count)d episode?', 'Delete %(count)d episodes?', count) % {'count':count}
+        title = N_('Delete %(count)d episode?', 'Delete %(count)d episodes?',
+                   count) % {'count': count}
         message = _('Deleting episodes removes downloaded files.')
 
         if confirm and not self.show_confirmation(message, title):
@@ -2800,7 +2823,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         selection_buttons = {
                 _('Select played'): lambda episode: not episode.is_new,
                 _('Select finished'): lambda episode: episode.is_finished(),
-                msg_older_than % {'count':self.config.episode_old_age}: lambda episode: episode.age_in_days() > self.config.episode_old_age,
+                msg_older_than % {'count': self.config.episode_old_age}: lambda episode: episode.age_in_days() > self.config.episode_old_age,
         }
 
         instructions = _('Select the episodes you want to delete:')
@@ -3267,7 +3290,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 count = len(self.channels)
                 title = N_('%(count)d subscription exported',
                            '%(count)d subscriptions exported',
-                           count) % {'count':count}
+                           count) % {'count': count}
                 self.show_message(_('Your podcast list has been successfully '
                                     'exported.'),
                                   title, widget=self.treeChannels)

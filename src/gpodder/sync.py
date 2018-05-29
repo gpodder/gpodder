@@ -207,7 +207,7 @@ class Device(services.ObservableService):
             logger.warning('Not syncing disks. Unmount your device before unplugging.')
         return True
 
-    def add_sync_tasks(self,tracklist, force_played=False, done_callback=None):
+    def add_sync_tasks(self, tracklist, force_played=False, done_callback=None):
         for track in list(tracklist):
             # Filter tracks that are not meant to be synchronized
             does_not_exist = not track.was_downloaded(and_exists=True)
@@ -413,7 +413,7 @@ class iPodDevice(Device):
         gpod.itdb_track_unlink(track)
         util.delete_file(filename)
 
-    def add_track(self, episode,reporthook=None):
+    def add_track(self, episode, reporthook=None):
         self.notify('status', _('Adding %s') % episode.title)
         tracklist = gpod.sw_get_playlist_tracks(self.podcasts_playlist)
         podcasturls = [track.podcasturl for track in tracklist]
@@ -558,7 +558,7 @@ class MP3PlayerDevice(Device):
 
         return to_file
 
-    def add_track(self, episode,reporthook=None):
+    def add_track(self, episode, reporthook=None):
         self.notify('status', _('Adding %s') % episode.title)
 
         # get the folder on the device
@@ -744,7 +744,7 @@ class MTPDevice(Device):
         try:
             mtp = mtp.replace(" ", "0")
             # replace blank with 0 to fix some invalid string
-            d = time.strptime(mtp[:8] + mtp[9:13],"%Y%m%d%H%M%S")
+            d = time.strptime(mtp[:8] + mtp[9:13], "%Y%m%d%H%M%S")
             _date = calendar.timegm(d)
             if len(mtp) == 20:
                 # TIME ZONE SHIFTING: the string contains a hour/min shift relative to a time zone

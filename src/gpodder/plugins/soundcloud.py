@@ -138,8 +138,12 @@ class SoundcloudUser(object):
         track it can find for its user."""
         global CONSUMER_KEY
         try:
-            json_url = 'https://api.soundcloud.com/users/%(user)s/%(feed)s.json?filter=downloadable&consumer_key=%(consumer_key)s&limit=200' \
-                    % {"user":self.get_user_id(), "feed":feed, "consumer_key": CONSUMER_KEY}
+            json_url = 'https://api.soundcloud.com/users/%(user)s/%(feed)s.' \
+                       'json?filter=downloadable&consumer_key=%' \
+                       '(consumer_key)s&limit=200' \
+                    % {"user": self.get_user_id(),
+                       "feed": feed,
+                       "consumer_key": CONSUMER_KEY}
             logger.debug("loading %s", json_url)
 
             json_tracks = json.loads(util.urlopen(json_url).read().decode('utf-8'))
@@ -228,7 +232,7 @@ class SoundcloudFavFeed(SoundcloudFeed):
     URL_REGEX = re.compile('https?://([a-z]+\.)?soundcloud\.com/([^/]+)/favorites', re.I)
 
     def __init__(self, username):
-        super(SoundcloudFavFeed,self).__init__(username)
+        super(SoundcloudFavFeed, self).__init__(username)
 
     def get_title(self):
         return _('%s\'s favorites on Soundcloud') % self.username

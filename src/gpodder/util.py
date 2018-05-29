@@ -443,7 +443,7 @@ def file_age_to_string(days):
     if days < 1:
         return ''
     else:
-        return N_('%(count)d day ago', '%(count)d days ago', days) % {'count':days}
+        return N_('%(count)d day ago', '%(count)d days ago', days) % {'count': days}
 
 
 def is_system_file(filename):
@@ -642,7 +642,7 @@ def remove_html_tags(html):
     result = re_unicode_entities.sub(lambda x: chr(int(x.group(1))), result)
 
     # Convert named HTML entities to their unicode character
-    result = re_html_entities.sub(lambda x: entitydefs.get(x.group(1),''), result)
+    result = re_html_entities.sub(lambda x: entitydefs.get(x.group(1), ''), result)
 
     # Convert more than two newlines to two newlines
     result = re.sub('([\r\n]{2})([\r\n])+', '\\1', result)
@@ -1373,7 +1373,8 @@ def format_seconds_to_hour_min_sec(seconds):
     """
 
     if seconds < 1:
-        return N_('%(count)d second', '%(count)d seconds', seconds) % {'count':seconds}
+        return N_('%(count)d second', '%(count)d seconds',
+                  seconds) % {'count': seconds}
 
     result = []
 
@@ -1386,13 +1387,16 @@ def format_seconds_to_hour_min_sec(seconds):
     seconds = seconds % 60
 
     if hours:
-        result.append(N_('%(count)d hour', '%(count)d hours', hours) % {'count':hours})
+        result.append(N_('%(count)d hour', '%(count)d hours',
+                         hours) % {'count': hours})
 
     if minutes:
-        result.append(N_('%(count)d minute', '%(count)d minutes', minutes) % {'count':minutes})
+        result.append(N_('%(count)d minute', '%(count)d minutes',
+                         minutes) % {'count': minutes})
 
     if seconds:
-        result.append(N_('%(count)d second', '%(count)d seconds', seconds) % {'count':seconds})
+        result.append(N_('%(count)d second', '%(count)d seconds',
+                         seconds) % {'count': seconds})
 
     if len(result) > 1:
         return (' ' + _('and') + ' ').join((', '.join(result[:-1]), result[-1]))
@@ -1614,7 +1618,7 @@ def relpath(p1, p2):
     def pathsplit(s):
         return s.split(os.path.sep)
 
-    (common,l1,l2) = commonpath(pathsplit(p1), pathsplit(p2))
+    (common, l1, l2) = commonpath(pathsplit(p1), pathsplit(p2))
     p = []
     if len(l1) > 0:
         p = [('..' + os.sep) * len(l1)]
@@ -1775,7 +1779,7 @@ def get_update_info():
     data = urlopen(url).read().decode('utf-8')
     info = json.loads(data)
 
-    latest_version = info.get('tag_name','').replace('gpodder-','')
+    latest_version = info.get('tag_name', '').replace('gpodder-', '')
     release_date = info['published_at']
 
     release_parsed = datetime.datetime.strptime(release_date, '%Y-%m-%dT%H:%M:%SZ')
@@ -1992,7 +1996,7 @@ class Popen(subprocess.Popen):
             kwargs['close_fds'] = True
 
         try:
-            super(Popen, self).__init__(*args, **kwargs)  #Python 2 syntax
+            super(Popen, self).__init__(*args, **kwargs)  # Python 2 syntax
 
         except (ValueError) as e:
             if gpodder.ui.win32 and kwargs['close_fds']:
