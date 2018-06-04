@@ -2005,7 +2005,7 @@ class Popen(subprocess.Popen):
 
     @classmethod
     def testPopen():
-        # Commands that will complain on stderr.
+        # Problematic commands (write to stderr or read from stdin).
         if gpodder.ui.win32:
             cmd = ['findstr.exe', '/!']
             cmd_pipe = ['findstr', 'hello']
