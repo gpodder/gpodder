@@ -1992,7 +1992,7 @@ class Popen(subprocess.Popen):
             kwargs['close_fds'] = True
 
         try:
-            super(Popen, self).__init__(*args, **kwargs)  #Python 2 syntax
+            super(Popen, self).__init__(*args, **kwargs)  # Python 2 syntax
 
         except (ValueError) as e:
             if gpodder.ui.win32 and kwargs['close_fds']:
