@@ -71,4 +71,3 @@ class gPodderExtension:
 # redirect the standard handles (stdin, stdout or stderr). To collect
 # output/errors from long-lived external commands, it may be necessary
 # to create a (temp) log file and read it afterward.
-#

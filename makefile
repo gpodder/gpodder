@@ -97,7 +97,7 @@ revbump:
 	LC_ALL=C sed -i "s/\(__version__\s*=\s*'\).*'/\1$(VERSION)'/" src/gpodder/__init__.py
 	LC_ALL=C sed -i "s/\(__date__\s*=\s*'\).*'/\1$(shell date "+%Y-%m-%d")'/" src/gpodder/__init__.py
 	LC_ALL=C sed -i "s/\(__copyright__\s*=.*2005-\)[0-9]*\(.*\)/\1$(shell date "+%Y")\2/" src/gpodder/__init__.py
-	$(MAKE) messages manpage
+	$(MAKE) messages manpages
 else
 revbump:
 	@echo "Usage: make revbump VERSION=x.y.z"
