@@ -101,11 +101,6 @@ class gPodderDevicePlaylist(object):
             fp = open(os.path.join(self.playlist_folder, self.playlist_file), 'w')
             fp.write('#EXTM3U%s' % self.linebreak)
             for current_episode in episodes:
-                filename_base = util.sanitize_filename(current_episode.sync_filename(
-                    self._config.device_sync.custom_sync_name_enabled,
-                    self._config.device_sync.custom_sync_name),
-                    self._config.device_sync.max_filename_length)
-                filename = filename_base + os.path.splitext(current_episode.local_filename(create=False))[1].lower()
                 filename = self.get_filename_for_playlist(current_episode)
                 fp.write(self.build_extinf(filename))
                 filename = self.get_absolute_filename_for_playlist(current_episode)
