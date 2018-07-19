@@ -23,6 +23,7 @@ import gpodder
 _ = gpodder.gettext
 
 from gpodder import util
+from gpodder.sync import episode_filename_on_device, episode_foldername_on_device
 
 import logging
 logger = logging.getLogger(__name__)
@@ -32,7 +33,7 @@ class gPodderDevicePlaylist(object):
     def __init__(self, config, playlist_name):
         self._config = config
         self.linebreak = '\r\n'
-        self.playlist_file = util.sanitize_filename(playlist_name + '.m3u')
+        self.playlist_file = util.sanitize_filename(playlist_name, self._config.device_sync.max_filename_length) + '.m3u'
         self.playlist_folder = os.path.join(self._config.device_sync.device_folder, self._config.device_sync.playlists.folder)
         self.mountpoint = util.find_mount_point(self.playlist_folder)
         if self.mountpoint == '/':
@@ -72,20 +73,16 @@ class gPodderDevicePlaylist(object):
         """
         get the filename for the given episode for the playlist
         """
-        filename_base = util.sanitize_filename(episode.sync_filename(
-            self._config.device_sync.custom_sync_name_enabled,
-            self._config.device_sync.custom_sync_name),
-            self._config.device_sync.max_filename_length)
-        filename = filename_base + os.path.splitext(episode.local_filename(create=False))[1].lower()
-        return filename
+        return episode_filename_on_device(self._config, episode)
 
     def get_absolute_filename_for_playlist(self, episode):
         """
         get the filename including full path for the given episode for the playlist
         """
         filename = self.get_filename_for_playlist(episode)
-        if self._config.device_sync.one_folder_per_podcast:
-            filename = os.path.join(util.sanitize_filename(episode.channel.title), filename)
+        foldername = episode_foldername_on_device(self._config, episode)
+        if foldername:
+            filename = os.path.join(foldername, filename)
         if self._config.device_sync.playlist.absolute_path:
             filename = os.path.join(util.relpath(self.mountpoint, self._config.device_sync.device_folder), filename)
         return filename

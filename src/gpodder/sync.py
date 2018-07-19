@@ -145,6 +145,46 @@ def get_track_length(filename):
     # Default is three hours (to be on the safe side)
 
 
+def episode_filename_on_device(config, episode):
+    """
+    :param gpodder.config.Config config: configuration (for sync options)
+    :param gpodder.model.PodcastEpisode episode: episode to get filename for
+    :return str: basename minus extension to use to save episode on device
+    """
+    # get the local file
+    from_file = episode.local_filename(create=False)
+    # get the formated base name
+    filename_base = util.sanitize_filename(episode.sync_filename(
+        config.device_sync.custom_sync_name_enabled,
+        config.device_sync.custom_sync_name),
+        config.device_sync.max_filename_length)
+    # add the file extension
+    to_file = filename_base + os.path.splitext(from_file)[1].lower()
+
+    # dirty workaround: on bad (empty) episode titles,
+    # we simply use the from_file basename
+    # (please, podcast authors, FIX YOUR RSS FEEDS!)
+    if os.path.splitext(to_file)[0] == '':
+        to_file = os.path.basename(from_file)
+    return to_file
+
+
+def episode_foldername_on_device(config, episode):
+    """
+    :param gpodder.config.Config config: configuration (for sync options)
+    :param gpodder.model.PodcastEpisode episode: episode to get folder name for
+    :return str: folder name to save episode to on device
+    """
+    if config.device_sync.one_folder_per_podcast:
+        # Add channel title as subfolder
+        folder = episode.channel.title
+        # Clean up the folder name for use on limited devices
+        folder = util.sanitize_filename(folder, config.device_sync.max_filename_length)
+    else:
+        folder = None
+    return folder
+
+
 class SyncTrack(object):
     """
     This represents a track that is on a device. You need
@@ -527,12 +567,8 @@ class MP3PlayerDevice(Device):
         return False
 
     def get_episode_folder_on_device(self, episode):
-        if self._config.device_sync.one_folder_per_podcast:
-            # Add channel title as subfolder
-            folder = episode.channel.title
-            # Clean up the folder name for use on limited devices
-            folder = util.sanitize_filename(folder,
-                self._config.device_sync.max_filename_length)
+        folder = episode_foldername_on_device(self._config, episode)
+        if folder:
             folder = os.path.join(self.destination, folder)
         else:
             folder = self.destination
@@ -540,23 +576,7 @@ class MP3PlayerDevice(Device):
         return folder
 
     def get_episode_file_on_device(self, episode):
-        # get the local file
-        from_file = episode.local_filename(create=False)
-        # get the formated base name
-        filename_base = util.sanitize_filename(episode.sync_filename(
-            self._config.device_sync.custom_sync_name_enabled,
-            self._config.device_sync.custom_sync_name),
-            self._config.device_sync.max_filename_length)
-        # add the file extension
-        to_file = filename_base + os.path.splitext(from_file)[1].lower()
-
-        # dirty workaround: on bad (empty) episode titles,
-        # we simply use the from_file basename
-        # (please, podcast authors, FIX YOUR RSS FEEDS!)
-        if os.path.splitext(to_file)[0] == '':
-            to_file = os.path.basename(from_file)
-
-        return to_file
+        return episode_filename_on_device(self._config, episode)
 
     def add_track(self, episode,reporthook=None):
         self.notify('status', _('Adding %s') % episode.title)

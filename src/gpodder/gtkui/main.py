@@ -60,6 +60,7 @@ from gpodder import my
 from gpodder import youtube
 from gpodder import player
 from gpodder import common
+from gpodder.model import PodcastEpisode
 
 import logging
 logger = logging.getLogger(__name__)
@@ -1772,7 +1773,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     @staticmethod
     def build_filename(filename, extension):
-        filename = util.sanitize_filename(filename)
+        filename = util.sanitize_filename(filename, PodcastEpisode.MAX_FILENAME_LENGTH)
         if not filename.endswith(extension):
             filename += extension
         return filename

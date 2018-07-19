@@ -7,6 +7,7 @@ import os
 
 import gpodder
 from gpodder import util
+from gpodder.model import PodcastEpisode
 
 import logging
 logger = logging.getLogger(__name__)
@@ -46,18 +47,21 @@ class gPodderExtension:
         dirname = os.path.dirname(current_filename)
         filename = os.path.basename(current_filename)
         basename, ext = os.path.splitext(filename)
+        ext = utils.sanitize_filename(ext, PodcastEpisode.MAX_FILENAME_LENGTH)
 
         new_basename = []
-        new_basename.append(title + ext)
+        new_basename.append(title)
         if self.config.add_podcast_title:
             new_basename.insert(0, podcast_title)
         if self.config.add_sortdate:
             new_basename.insert(0, sortdate)
         new_basename = ' - '.join(new_basename)
 
-        # On Windows, force ASCII encoding for filenames (bug 1724)
-        new_basename = util.sanitize_filename(new_basename)
-        new_filename = os.path.join(dirname, new_basename)
+        # Remove unwanted characters and shorten filename (#494)
+        new_basename = util.sanitize_filename(new_basename, PodcastEpisode.MAX_FILENAME_LENGTH)
+        # add extension after sanitization, to keep it even if filename is longer than limit
+        # (it's unlikely that new_basename + ext is longer than is allowed on platform).
+        new_filename = os.path.join(dirname, new_basename + ext)
 
         if new_filename == current_filename:
             return current_filename

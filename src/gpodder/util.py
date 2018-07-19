@@ -1468,16 +1468,16 @@ def convert_bytes(d):
     return d
 
 
-def sanitize_filename(filename, max_length=0):
+def sanitize_filename(filename, max_length):
     """
     Generate a sanitized version of a filename; trim filename
     if greater than max_length (0 = no limit).
 
-    >>> sanitize_filename('https://www.host.name/feed')
+    >>> sanitize_filename('https://www.host.name/feed', 0)
     'https___www.host.name_feed'
-    >>> sanitize_filename('Binärgewitter')
+    >>> sanitize_filename('Binärgewitter', 0)
     'Binärgewitter'
-    >>> sanitize_filename('Cool feed (ogg)')
+    >>> sanitize_filename('Cool feed (ogg)', 0)
     'Cool feed (ogg)'
     >>> sanitize_filename('Cool feed (ogg)', 1)
     'C'

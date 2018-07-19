@@ -162,7 +162,7 @@ defaults = {
         'skip_played_episodes': True,
         'delete_played_episodes': False,
 
-        'max_filename_length': 999,
+        'max_filename_length': 120,
 
         'custom_sync_name': '{episode.sortdate}_{episode.title}',
         'custom_sync_name_enabled': False,
