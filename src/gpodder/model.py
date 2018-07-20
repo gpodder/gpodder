@@ -475,7 +475,7 @@ class PodcastEpisode(PodcastModelObject):
             if not fn_template or fn_template.startswith('redirect.'):
                 logger.error('Report this feed: Podcast %s, episode %s',
                         self.channel.url, self.url)
-                fn_template = hashlib.md5(self.url).hexdigest()
+                fn_template = hashlib.md5(self.url.encode('utf-8')).hexdigest()
 
             # Find a unique filename for this episode
             wanted_filename = self.find_unique_file_name(fn_template, ext)
