@@ -1262,3 +1262,15 @@ class Model(object):
         Returns a iterable, sorted sequence of the episodes
         """
         return sorted(episodes, key=cls.episode_sort_key, reverse=reverse)
+
+
+def check_root_folder_path():
+    root = gpodder.home
+    if gpodder.ui.win32:
+        longest = len(root) \
+            + 1 + PodcastChannel.MAX_FOLDERNAME_LENGTH \
+            + 1 + PodcastEpisode.MAX_FILENAME_LENGTH + 5  # eg. .opus
+        if longest > 260:
+            return _("Warning: path to gPodder home (%(root)s) is very long and can result in failure to download files.\n" % {"root": root}) \
+                + _("You're advised to set it to a shorter path.")
+    return None

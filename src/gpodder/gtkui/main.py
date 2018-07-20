@@ -60,7 +60,7 @@ from gpodder import my
 from gpodder import youtube
 from gpodder import player
 from gpodder import common
-from gpodder.model import PodcastEpisode
+from gpodder.model import check_root_folder_path, PodcastEpisode
 
 import logging
 logger = logging.getLogger(__name__)
@@ -3705,6 +3705,7 @@ class gPodderApplication(Gtk.Application):
             dlg.run()
             dlg.destroy()
             sys.exit(0)
+        util.idle_add(self.check_root_folder_path_gui)
 
     def do_activate(self):
         # We only allow a single window and raise any existing ones
@@ -3789,6 +3790,16 @@ class gPodderApplication(Gtk.Application):
 
     def on_extension_disabled(self, extension):
         self.window.on_extension_disabled(extension)
+
+    @staticmethod
+    def check_root_folder_path_gui():
+        msg = check_root_folder_path()
+        if msg:
+            dlg = Gtk.MessageDialog(None, Gtk.DialogFlags.MODAL, Gtk.MessageType.WARNING,
+                Gtk.ButtonsType.CLOSE, msg)
+            dlg.set_title(_('Path to gPodder home is too long'))
+            dlg.run()
+            dlg.destroy()
 
 
 def main(options=None):

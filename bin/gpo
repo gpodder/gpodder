@@ -900,6 +900,9 @@ def main():
     global logger, cli
     logger = logging.getLogger(__name__)
     cli = gPodderCli()
+    msg = model.check_root_folder_path()
+    if msg:
+        print(msg, file=sys.stderr)
     args = sys.argv[1:]
     if args:
         is_single_command = True
