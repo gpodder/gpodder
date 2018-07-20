@@ -166,7 +166,7 @@ def get_escapist_real_url(data, config_json):
 
     # Bitwise XOR num_hashes and the hash
     result_num = []
-    for idx in range(0,len(num_hashes)):
+    for idx in range(0, len(num_hashes)):
         result_num.append(num_hashes[idx] ^ hash_n[idx % len(hash_n)])
 
     # At last, Numbers back into characters

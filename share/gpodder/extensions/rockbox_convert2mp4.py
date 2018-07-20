@@ -36,7 +36,7 @@ DefaultConfig = {
 }
 
 ROCKBOX_EXTENSION = "mpg"
-EXTENTIONS_TO_CONVERT = ['.mp4',"." + ROCKBOX_EXTENSION]
+EXTENTIONS_TO_CONVERT = ['.mp4', "." + ROCKBOX_EXTENSION]
 FFMPEG_CMD = 'ffmpeg -y -i "%(from)s" -s %(width)sx%(height)s %(options)s "%(to)s"'
 
 

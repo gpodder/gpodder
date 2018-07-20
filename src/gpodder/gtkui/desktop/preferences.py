@@ -342,7 +342,8 @@ class gPodderPreferences(BuilderWidget):
                 yield (container.metadata.category, container)
 
         old_category = None
-        for category, container in sorted(convert(gpodder.user_extensions.get_extensions()), key=key_func):
+        for category, container in sorted(convert(
+                gpodder.user_extensions.get_extensions()), key=key_func):
             if old_category != category:
                 label = '<span weight="bold">%s</span>' % cgi.escape(category)
                 self.extensions_model.append((None, label, None, False))
@@ -527,7 +528,8 @@ class gPodderPreferences(BuilderWidget):
         if value == 0:
             return _('manually')
         else:
-            return N_('after %(count)d day', 'after %(count)d days', value) % {'count':value}
+            return N_('after %(count)d day', 'after %(count)d days',
+                      value) % {'count': value}
 
     def on_expiration_value_changed(self, range):
         value = int(range.get_value())
@@ -579,7 +581,8 @@ class gPodderPreferences(BuilderWidget):
         index = self.combobox_on_sync.get_active()
         self.on_sync_model.set_index(index)
 
-    def on_checkbutton_create_playlists_toggled(self, widget,device_type_changed=False):
+    def on_checkbutton_create_playlists_toggled(
+            self, widget, device_type_changed=False):
         if not widget.get_active():
             self._config.device_sync.playlists.create = False
             self.toggle_playlist_interface(False)

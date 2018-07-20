@@ -77,12 +77,12 @@ try:
                 fileAliasDesc = filelist.descriptorAtIndex_(i)
                 fileURLDesc = fileAliasDesc.coerceToDescriptorType_(aeKeyword(typeFileURL))
                 fileURLData = fileURLDesc.data()
-                url = buffer(fileURLData.bytes(),0,fileURLData.length())
+                url = buffer(fileURLData.bytes(), 0, fileURLData.length())
                 url = str(url)
-                util.idle_add(self.gp.on_item_import_from_file_activate, None,url)
+                util.idle_add(self.gp.on_item_import_from_file_activate, None, url)
                 urls.append(str(url))
 
-            print(("open Files :",urls), file=sys.stderr)
+            print(("open Files :", urls), file=sys.stderr)
             result = NSAppleEventDescriptor.descriptorWithInt32_(42)
             reply.setParamDescriptor_forKeyword_(result, aeKeyword('----'))
 
@@ -90,7 +90,7 @@ try:
             """ handles a 'Subscribe to...' event"""
             filelist = event.paramDescriptorForKeyword_(aeKeyword(keyDirectObject))
             fileURLData = filelist.data()
-            url = buffer(fileURLData.bytes(),0,fileURLData.length())
+            url = buffer(fileURLData.bytes(), 0, fileURLData.length())
             url = str(url)
             print(("Subscribe to :" + url), file=sys.stderr)
             util.idle_add(self.gp.subscribe_to_url, url)

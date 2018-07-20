@@ -221,7 +221,8 @@ def draw_text_pill(left_text, right_text, x=0, y=0, border=2, radius=14, font_de
     rect_width = left_side_width + right_side_width
     rect_height = text_height + border * 2
     if left_text is not None:
-        draw_rounded_rectangle(ctx,x,y,rect_width,rect_height,radius, left_side_width, RRECT_LEFT_SIDE, right_text is None)
+        draw_rounded_rectangle(ctx, x, y, rect_width, rect_height, radius,
+                               left_side_width, RRECT_LEFT_SIDE, right_text is None)
         linear = cairo.LinearGradient(x, y, x + left_side_width / 2, y + rect_height / 2)
         linear.add_color_stop_rgba(0, .8, .8, .8, .5)
         linear.add_color_stop_rgba(.4, .8, .8, .8, .7)
@@ -237,7 +238,8 @@ def draw_text_pill(left_text, right_text, x=0, y=0, border=2, radius=14, font_de
         ctx.set_source_rgba(1., 1., 1., .3)
         ctx.set_line_width(1)
         ctx.stroke()
-        draw_rounded_rectangle(ctx,x,y,rect_width,rect_height,radius, left_side_width, RRECT_LEFT_SIDE, right_text is None)
+        draw_rounded_rectangle(ctx, x, y, rect_width, rect_height, radius,
+                               left_side_width, RRECT_LEFT_SIDE, right_text is None)
         ctx.set_source_rgba(.2, .2, .2, .6)
         ctx.set_line_width(1)
         ctx.stroke()
