@@ -113,25 +113,22 @@ ui.freedesktop = not ui.win32 and not ui.osx
 # Use   _ = gpodder.gettext   in modules to enable string translations
 textdomain = 'gpodder'
 locale_dir = gettext.bindtextdomain(textdomain)
+
+if ui.win32:
+    # this must be done prior to gettext.translation to set the locale (see #484)
+    from gpodder.utilwin32locale import install
+    install(textdomain, locale_dir)
+
 t = gettext.translation(textdomain, locale_dir, fallback=True)
 
-try:
-    # Python 2
-    gettext = t.ugettext
-    ngettext = t.ungettext
-except AttributeError:
-    # Python 3
-    gettext = t.gettext
-    ngettext = t.ngettext
+gettext = t.gettext
+ngettext = t.ngettext
 
 del t
 
 # Set up textdomain for Gtk.Builder (this accesses the C library functions)
 if hasattr(locale, 'bindtextdomain'):
     locale.bindtextdomain(textdomain, locale_dir)
-elif ui.win32:
-    from gpodder.utilwin32locale import install
-    install(textdomain, locale_dir)
 
 del locale_dir
 
