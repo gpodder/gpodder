@@ -260,6 +260,7 @@ class Config(object):
         self.__observers = []
 
         self.load()
+        self.migrate_defaults()
 
         # If there is no configuration file, we create one here (bug 1511)
         if not os.path.exists(self.__filename):
@@ -391,3 +392,10 @@ class Config(object):
             name = gPodderSettings_LegacySupport[name]
 
         setattr(self.__json_config, name, value)
+
+    def migrate_defaults(self):
+        """ change default values in config """
+        if self.device_sync.max_filename_length == 999:
+            logger.debug("setting config.device_sync.max_filename_length=120"
+                         " (999 is bad for NTFS and ext{2-4})")
+            self.device_sync.max_filename_length = 120
