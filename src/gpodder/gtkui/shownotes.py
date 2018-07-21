@@ -57,16 +57,19 @@ class gPodderShownotes:
         self.shownotes_pane = shownotes_pane
 
         self.scrolled_window = Gtk.ScrolledWindow()
+        # main_component is the scrolled_window, except for gPodderShownotesText
+        # where it's an overlay, to show hyperlink targets
+        self.main_component = self.scrolled_window
         self.scrolled_window.set_shadow_type(Gtk.ShadowType.IN)
         self.scrolled_window.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
         self.scrolled_window.add(self.init())
-        self.scrolled_window.show_all()
+        self.main_component.show_all()
 
         self.da_message = Gtk.DrawingArea()
         self.da_message.set_property('expand', True)
         self.da_message.connect('draw', self.on_shownotes_message_expose_event)
         self.shownotes_pane.add(self.da_message)
-        self.shownotes_pane.add(self.scrolled_window)
+        self.shownotes_pane.add(self.main_component)
 
         self.set_complain_about_selection(True)
         self.hide_pane()
@@ -135,6 +138,22 @@ class gPodderShownotesText(gPodderShownotes):
         self.text_buffer.create_tag('subheading', scale=1.5)
         self.text_buffer.create_tag('hyperlink', foreground="#0000FF", underline=Pango.Underline.SINGLE)
         self.text_view.set_buffer(self.text_buffer)
+        self.text_view.connect('motion-notify-event', self.on_hover_hyperlink)
+        self.overlay = Gtk.Overlay()
+        self.overlay.add(self.scrolled_window)
+        self.hyperlink_target = Gtk.Label()
+        self.hyperlink_target.set_alignment(0.,1.)
+        # need an EventBox for an opaque background behind the label
+        box = Gtk.EventBox()
+        box.add(self.hyperlink_target)
+        box.override_background_color(Gtk.StateFlags.NORMAL, get_background_color())
+        box.set_hexpand(False)
+        box.set_vexpand(False)
+        box.set_valign(Gtk.Align.END)
+        box.set_halign(Gtk.Align.START)
+        self.overlay.add_overlay(box)
+        self.overlay.set_overlay_pass_through(box, True)
+        self.main_component = self.overlay
         return self.text_view
 
     def update(self, heading, subheading, episode):
@@ -167,13 +186,33 @@ class gPodderShownotesText(gPodderShownotes):
 
         return False
 
+    def hyperlink_at_pos(self, pos):
+        """
+        :param int pos: offset in text buffer
+        :return str: hyperlink target at pos if any or None
+        """
+        return next((url for start, end, url in self.hyperlinks if start < pos < end), None)
+
     def activate_links(self):
         if self.text_buffer.get_selection_bounds() == ():
             pos = self.text_buffer.props.cursor_position
-            target = next((url for start, end, url in self.hyperlinks if start < pos < end), None)
+            target = self.hyperlink_at_pos(pos)
             if target is not None:
                 util.open_website(target)
 
+    def on_hover_hyperlink(self, textview, e):
+        x, y = textview.window_to_buffer_coords(Gtk.TextWindowType.TEXT, e.x, e.y)
+        w = self.text_view.get_window(Gtk.TextWindowType.TEXT)
+        success, it = textview.get_iter_at_location(x, y)
+        if success:
+            pos = it.get_offset()
+            target = self.hyperlink_at_pos(pos)
+            if target:
+                self.hyperlink_target.set_text(target)
+                w.set_cursor(Gdk.Cursor.new_from_name(w.get_display(), 'pointer'))
+                return
+        self.hyperlink_target.set_text('')
+        w.set_cursor(None)
 
 class gPodderShownotesHTML(gPodderShownotes):
     def init(self):
