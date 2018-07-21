@@ -1040,7 +1040,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         selection = self.treeAvailable.get_selection()
         selection.set_mode(Gtk.SelectionMode.MULTIPLE)
-        selection.connect('changed', self.on_episode_list_selection_changed)
+        self.selection_handler_id = selection.connect('changed', self.on_episode_list_selection_changed)
 
     def on_episode_list_selection_changed(self, selection):
         # Update the toolbar buttons
@@ -2311,7 +2311,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.treeAvailable.scroll_to_point(0, 0)
 
             descriptions = self.config.episode_list_descriptions
-            self.episode_list_model.replace_from_channel(self.active_channel, descriptions)
+            with self.treeAvailable.get_selection().handler_block(self.selection_handler_id):
+                # have to block the on_episode_list_selection_changed handler because
+                # when selecting any channel from All Episodes, on_episode_list_selection_changed
+                # is called once per episode (4k time in my case), causing episode shownotes
+                # to be updated as many time, resulting in UI freeze for 10 seconds.
+                self.episode_list_model.replace_from_channel(self.active_channel, descriptions)
         else:
             self.episode_list_model.clear()
 
