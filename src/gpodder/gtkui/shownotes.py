@@ -163,7 +163,7 @@ class gPodderShownotesText(gPodderShownotes):
         self.text_buffer.insert_at_cursor('\n')
         self.text_buffer.insert_with_tags_by_name(self.text_buffer.get_end_iter(), subheading, 'subheading')
         self.text_buffer.insert_at_cursor('\n\n')
-        for target, text in util.extract_hyperlinked_text(episode.description):
+        for target, text in util.extract_hyperlinked_text(episode.description_html or episode.description):
             hyperlinks.append((self.text_buffer.get_char_count(), target))
             if target:
                 self.text_buffer.insert_with_tags_by_name(
