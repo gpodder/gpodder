@@ -142,7 +142,7 @@ class gPodderShownotesText(gPodderShownotes):
         self.overlay = Gtk.Overlay()
         self.overlay.add(self.scrolled_window)
         self.hyperlink_target = Gtk.Label()
-        self.hyperlink_target.set_alignment(0.,1.)
+        self.hyperlink_target.set_alignment(0., 1.)
         # need an EventBox for an opaque background behind the label
         box = Gtk.EventBox()
         box.add(self.hyperlink_target)
@@ -213,6 +213,7 @@ class gPodderShownotesText(gPodderShownotes):
                 return
         self.hyperlink_target.set_text('')
         w.set_cursor(None)
+
 
 class gPodderShownotesHTML(gPodderShownotes):
     def init(self):
