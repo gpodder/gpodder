@@ -9,5 +9,5 @@ install:
     - pip3 install coverage minimock pycodestyle
     - python3 tools/localdepends.py
 script:
-    - pycodestyle share src/gpodder tools *.py
+    - pycodestyle share src/gpodder tools bin/* *.py
     - make releasetest

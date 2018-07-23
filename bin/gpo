@@ -65,7 +65,6 @@
 """
 
 
-
 import sys
 import collections
 import os
@@ -138,6 +137,7 @@ from gpodder import model
 from gpodder import common
 from gpodder.config import config_value_to_string
 
+
 def incolor(color_id, s):
     if have_ansi and cli._config.ui.cli.colors:
         return '\033[9%dm%s\033[0m' % (color_id, s)
@@ -148,10 +148,12 @@ def incolor(color_id, s):
 inred, ingreen, inyellow, inblue = (functools.partial(incolor, x)
         for x in range(1, 5))
 
+
 def FirstArgumentIsPodcastURL(function):
     """Decorator for functions that take a podcast URL as first arg"""
     setattr(function, '_first_arg_is_podcast', True)
     return function
+
 
 def get_terminal_size():
     if None in (termios, fcntl, struct):
@@ -162,6 +164,7 @@ def get_terminal_size():
     x = fcntl.ioctl(stdout, termios.TIOCGWINSZ, s)
     rows, cols, xp, yp = struct.unpack('HHHH', x)
     return rows, cols
+
 
 class gPodderCli(object):
     COLUMNS = 80
@@ -210,10 +213,12 @@ class gPodderCli(object):
 
         # Generator for all prefixes of a given string (longest first)
         # e.g. ['gpodder', 'gpodde', 'gpodd', 'gpod', 'gpo', 'gp', 'g']
-        mkprefixes = lambda n: (n[:x] for x in range(len(n), 0, -1))
+        def mkprefixes(n):
+            return (n[:x] for x in range(len(n), 0, -1))
 
         # Return True if the given prefix is unique in "names"
-        is_unique = lambda p: len([n for n in names if n.startswith(p)]) == 1
+        def is_unique(p):
+            return len([n for n in names if n.startswith(p)]) == 1
 
         for name in names:
             is_still_unique = True
@@ -240,26 +245,26 @@ class gPodderCli(object):
 
     def _start_action(self, msg, *args):
         line = util.convert_bytes(msg % args)
-        if len(line) > self.COLUMNS-7:
-            line = line[:self.COLUMNS-7-3] + '...'
+        if len(line) > self.COLUMNS - 7:
+            line = line[:self.COLUMNS - 7 - 3] + '...'
         else:
-            line = line + (' '*(self.COLUMNS-7-len(line)))
+            line = line + (' ' * (self.COLUMNS - 7 - len(line)))
         self._current_action = line
         print(self._current_action, end='')
 
     def _update_action(self, progress):
         if have_ansi:
-            progress = '%3.0f%%' % (progress*100.,)
-            result = '['+inblue(progress)+']'
+            progress = '%3.0f%%' % (progress * 100.,)
+            result = '[' + inblue(progress) + ']'
             print('\r' + self._current_action + result, end='')
 
     def _finish_action(self, success=True, skip=False):
         if skip:
-            result = '['+inyellow('SKIP')+']'
+            result = '[' + inyellow('SKIP') + ']'
         elif success:
-            result = '['+ingreen('DONE')+']'
+            result = '[' + ingreen('DONE') + ']'
         else:
-            result = '['+inred('FAIL')+']'
+            result = '[' + inred('FAIL') + ']'
 
         if have_ansi:
             print('\r' + self._current_action + result)
@@ -406,7 +411,7 @@ class gPodderCli(object):
 
             return '   '
 
-        episodes = ('%3d.%s %s %s' % (i+1, ((' %s' % e.guid) if show_guid else ''), status_str(e), e.title)
+        episodes = ('%3d.%s %s %s' % (i + 1, ((' %s' % e.guid) if show_guid else ''), status_str(e), e.title)
                 for i, e in enumerate(podcast.get_all_episodes()))
         return episodes
 
@@ -687,7 +692,7 @@ class gPodderCli(object):
 
         def show_list():
             self._pager('\n'.join('%3d: %s\n     %s' %
-                (index+1, title, url if title != url else '')
+                (index + 1, title, url if title != url else '')
                 for index, (title, url) in enumerate(results)))
 
         show_list()
@@ -713,7 +718,7 @@ class gPodderCli(object):
                 self._error(_('Invalid value.'))
                 continue
 
-            title, url = results[index-1]
+            title, url = results[index - 1]
             self._info(_('Adding %s...') % title)
             self.subscribe(url)
             if not multiple:
@@ -812,11 +817,11 @@ class gPodderCli(object):
 
     def _checkargs(self, func, command_line):
         args, varargs, keywords, defaults = inspect.getargspec(func)
-        args.pop(0) # Remove "self" from args
+        args.pop(0)  # Remove "self" from args
         defaults = defaults or ()
-        minarg, maxarg = len(args)-len(defaults), len(args)
+        minarg, maxarg = len(args) - len(defaults), len(args)
 
-        if len(command_line) < minarg or (len(command_line) > maxarg and \
+        if len(command_line) < minarg or (len(command_line) > maxarg and
                 varargs is None):
             self._error('Wrong argument count for %s.' % func.__name__)
             return False
@@ -830,7 +835,6 @@ class gPodderCli(object):
             return urls[count]
 
         return None
-
 
     def _tab_completion(self, text, count):
         """Tab completion function for readline"""
@@ -856,7 +860,6 @@ class gPodderCli(object):
                     return self._tab_completion_podcast(text, count)
 
         return None
-
 
     def _parse_single(self, command_line):
         try:
@@ -896,6 +899,7 @@ def stylize(s):
     s = re.sub(r'  - .*', lambda m: ingreen(m.group(0)), s)
     return s
 
+
 def main():
     global logger, cli
     logger = logging.getLogger(__name__)
@@ -912,6 +916,7 @@ def main():
         cli._shell()
     else:
         print(__doc__, end='')
+
 
 if __name__ == '__main__':
     main()
