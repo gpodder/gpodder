@@ -50,6 +50,7 @@ except ImportError:
 
 from optparse import OptionParser
 
+
 def main():
     # Paths to important files
     gpodder_script = sys.argv[0]
@@ -92,10 +93,10 @@ def main():
     gpodder.images_folder = images_folder
     gpodder.icon_file = icon_file
 
-    s_usage = 'usage: %%prog [options]\n\n%s' % ( __doc__.strip() )
-    s_version = '%%prog %s' % ( gpodder.__version__ )
+    s_usage = 'usage: %%prog [options]\n\n%s' % (__doc__.strip())
+    s_version = '%%prog %s' % (gpodder.__version__)
 
-    parser = OptionParser( usage = s_usage, version = s_version)
+    parser = OptionParser(usage=s_usage, version=s_version)
 
     parser.add_option("-v", "--verbose",
                       action="store_true", dest="verbose", default=False,
@@ -114,7 +115,7 @@ def main():
     gpodder.ui.gtk = True
     gpodder.ui.python3 = True
 
-    gpodder.ui.unity = (os.environ.get('DESKTOP_SESSION', 'unknown').lower() in 
+    gpodder.ui.unity = (os.environ.get('DESKTOP_SESSION', 'unknown').lower() in
         ('ubuntu', 'ubuntu-2d'))
 
     from gpodder import log
@@ -154,6 +155,6 @@ def main():
     else:
         logger.error('No GUI selected.')
 
+
 if __name__ == '__main__':
     main()
-
