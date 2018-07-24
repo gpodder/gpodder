@@ -30,9 +30,6 @@ import re
 import shutil
 import sys
 
-import gpodder
-from gpodder import schema, util
-
 gpodder_script = sys.argv[0]
 gpodder_script = os.path.realpath(gpodder_script)
 gpodder_dir = os.path.join(os.path.dirname(gpodder_script), '..')
@@ -44,8 +41,11 @@ if os.path.exists(os.path.join(src_dir, 'gpodder', '__init__.py')):
     # Run gPodder from local source folder (not installed)
     sys.path.insert(0, src_dir)
 
+import gpodder  # isort:skip
+
 gpodder.prefix = prefix
 
+from gpodder import schema, util  # isort:skip
 
 old_database = os.path.expanduser('~/.config/gpodder/database.sqlite')
 new_database = gpodder.database_file
