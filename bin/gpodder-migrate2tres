@@ -44,9 +44,7 @@ if os.path.exists(os.path.join(src_dir, 'gpodder', '__init__.py')):
     # Run gPodder from local source folder (not installed)
     sys.path.insert(0, src_dir)
 
-
 gpodder.prefix = prefix
-
 
 
 old_database = os.path.expanduser('~/.config/gpodder/database.sqlite')
