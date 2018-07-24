@@ -23,19 +23,19 @@
 #
 
 
-import gpodder
-
-from gpodder import util
-
-import logging
-logger = logging.getLogger(__name__)
-
 import json
-
+import logging
 import re
 import urllib.error
 import urllib.parse
 import urllib.request
+
+import gpodder
+from gpodder import util
+
+logger = logging.getLogger(__name__)
+
+
 
 # This matches the more reliable URL
 ESCAPIST_NUMBER_RE = re.compile(r'http://www.escapistmagazine.com/videos/view/(\d+)', re.IGNORECASE)

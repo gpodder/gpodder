@@ -12,8 +12,8 @@
 #
 # Thomas Perl <thp@gpodder.org>; 2009-09-09
 
-import sys
 import os
+import sys
 
 if len(sys.argv) != 2:
     print("""

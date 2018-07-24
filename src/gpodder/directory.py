@@ -23,18 +23,18 @@
 # Thomas Perl <thp@gpodder.org>; 2014-10-22
 #
 
-import gpodder
-
-_ = gpodder.gettext
-
 import json
 import os
 import urllib.error
 import urllib.parse
 import urllib.request
 
-from gpodder import opml
-from gpodder import util
+import gpodder
+from gpodder import opml, util
+
+_ = gpodder.gettext
+
+
 
 
 class DirectoryEntry(object):

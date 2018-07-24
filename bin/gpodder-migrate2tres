@@ -24,11 +24,14 @@
 # by Thomas Perl <thp@gpodder.org>; 2011-04-28
 
 
-import sys
+import configparser
 import os
 import re
-import configparser
 import shutil
+import sys
+
+import gpodder
+from gpodder import schema, util
 
 gpodder_script = sys.argv[0]
 gpodder_script = os.path.realpath(gpodder_script)
@@ -41,13 +44,10 @@ if os.path.exists(os.path.join(src_dir, 'gpodder', '__init__.py')):
     # Run gPodder from local source folder (not installed)
     sys.path.insert(0, src_dir)
 
-import gpodder
 
 gpodder.prefix = prefix
 
 
-from gpodder import schema
-from gpodder import util
 
 old_database = os.path.expanduser('~/.config/gpodder/database.sqlite')
 new_database = gpodder.database_file

@@ -23,18 +23,19 @@
 #
 
 
+import json
+import logging
+import re
+
 import gpodder
+from gpodder import util
 
 _ = gpodder.gettext
 
-from gpodder import util
 
-import logging
 logger = logging.getLogger(__name__)
 
-import json
 
-import re
 
 VIMEOCOM_RE = re.compile(r'http[s]?://vimeo\.com/(channels/[^/]+|\d+)$', re.IGNORECASE)
 VIMEOCOM_VIDEO_RE = re.compile(r'http[s]?://vimeo.com/channels/(?:[^/])+/(\d+)$', re.IGNORECASE)

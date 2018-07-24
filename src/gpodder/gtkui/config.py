@@ -23,13 +23,10 @@
 #
 
 
-from gi.repository import Gtk
-from gi.repository import Gdk
-from gi.repository import Pango
+from gi.repository import Gdk, Gtk, Pango
 
 import gpodder
-from gpodder import util
-from gpodder import config
+from gpodder import config, util
 
 _ = gpodder.gettext
 

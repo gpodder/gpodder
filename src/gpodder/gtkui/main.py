@@ -17,86 +17,72 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+import cgi
+import collections
+import glob
+import logging
 import os
 import platform
-import gi
-gi.require_version('Gtk', '3.0')
-from gi.repository import Gio
-from gi.repository import GLib
-from gi.repository import Gtk
-from gi.repository import Gdk
-from gi.repository import GdkPixbuf
-from gi.repository import GObject
-from gi.repository import Pango
 import random
 import re
-import sys
 import shutil
 import subprocess
-import glob
-import time
-import threading
+import sys
 import tempfile
-import collections
+import threading
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
-import cgi
-
-
-import gpodder
 
 import dbus
-import dbus.service
-import dbus.mainloop
 import dbus.glib
+import dbus.mainloop
+import dbus.service
+import gi
+from gi.repository import Gdk, GdkPixbuf, Gio, GLib, GObject, Gtk, Pango
 
-from gpodder import core
-from gpodder import feedcore
-from gpodder import util
-from gpodder import opml
-from gpodder import download
-from gpodder import my
-from gpodder import youtube
-from gpodder import player
-from gpodder import common
-from gpodder.model import check_root_folder_path, PodcastEpisode
+import gpodder
+from gpodder import (common, core, download, extensions, feedcore, my, opml,
+                     player, util, youtube)
+from gpodder.dbusproxy import DBusPodcastsProxy
+from gpodder.gtkui import shownotes
+from gpodder.gtkui.config import UIConfig
+from gpodder.gtkui.desktop.channel import gPodderChannel
+from gpodder.gtkui.desktop.episodeselector import gPodderEpisodeSelector
+from gpodder.gtkui.desktop.podcastdirectory import gPodderPodcastDirectory
+from gpodder.gtkui.desktop.preferences import gPodderPreferences
+from gpodder.gtkui.desktop.sync import gPodderSyncUI
+from gpodder.gtkui.desktop.welcome import gPodderWelcome
+from gpodder.gtkui.desktopfile import UserAppsReader
+from gpodder.gtkui.download import DownloadStatusModel
+from gpodder.gtkui.draw import (EPISODE_LIST_ICON_SIZE, draw_cake_pixbuf,
+                                draw_text_box_centered)
+from gpodder.gtkui.interface.addpodcast import gPodderAddPodcast
+from gpodder.gtkui.interface.common import BuilderWidget, TreeViewHelper
+from gpodder.gtkui.interface.progress import ProgressIndicator
+from gpodder.gtkui.model import EpisodeListModel, Model, PodcastListModel
+from gpodder.gtkui.services import CoverDownloader
+from gpodder.gtkui.widgets import SimpleMessageArea
+from gpodder.model import PodcastEpisode, check_root_folder_path
 
-import logging
+gi.require_version('Gtk', '3.0')
+
+
+
+
+
 logger = logging.getLogger(__name__)
 
 _ = gpodder.gettext
 N_ = gpodder.ngettext
 
-from gpodder.gtkui.model import Model
-from gpodder.gtkui.model import PodcastListModel
-from gpodder.gtkui.model import EpisodeListModel
-from gpodder.gtkui.config import UIConfig
-from gpodder.gtkui.services import CoverDownloader
-from gpodder.gtkui.widgets import SimpleMessageArea
-from gpodder.gtkui.desktopfile import UserAppsReader
 
-from gpodder.gtkui.draw import draw_text_box_centered, draw_cake_pixbuf
-from gpodder.gtkui.draw import EPISODE_LIST_ICON_SIZE
 
-from gpodder.gtkui.interface.common import BuilderWidget
-from gpodder.gtkui.interface.common import TreeViewHelper
-from gpodder.gtkui.interface.addpodcast import gPodderAddPodcast
 
-from gpodder.gtkui.download import DownloadStatusModel
 
-from gpodder.gtkui.desktop.welcome import gPodderWelcome
-from gpodder.gtkui.desktop.channel import gPodderChannel
-from gpodder.gtkui.desktop.preferences import gPodderPreferences
-from gpodder.gtkui.desktop.episodeselector import gPodderEpisodeSelector
-from gpodder.gtkui.desktop.podcastdirectory import gPodderPodcastDirectory
-from gpodder.gtkui.interface.progress import ProgressIndicator
 
-from gpodder.gtkui.desktop.sync import gPodderSyncUI
-from gpodder.gtkui import shownotes
 
-from gpodder.dbusproxy import DBusPodcastsProxy
-from gpodder import extensions
 
 
 class gPodder(BuilderWidget, dbus.service.Object):

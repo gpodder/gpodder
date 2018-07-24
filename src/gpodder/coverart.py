@@ -23,16 +23,17 @@
 #
 
 
+import logging
+import os
+
 import gpodder
+from gpodder import util, youtube
+
 _ = gpodder.gettext
 
-import logging
 logger = logging.getLogger(__name__)
 
-from gpodder import util
-from gpodder import youtube
 
-import os
 
 
 class CoverDownloader(object):

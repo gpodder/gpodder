@@ -1,6 +1,7 @@
 
 # Use a logger for debug output - this will be managed by gPodder.
 import logging
+
 logger = logging.getLogger(__name__)
 
 # Provide some metadata that will be displayed in the gPodder GUI.

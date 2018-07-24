@@ -23,27 +23,24 @@
 #  Based on code from libpodcasts.py (thp, 2005-10-29)
 #
 
+import cgi
+import logging
+import os
+import re
+import time
+
+from gi.repository import GdkPixbuf, GObject, Gtk
+
 import gpodder
+from gpodder import coverart, model, query, util
+from gpodder.gtkui import draw
 
 _ = gpodder.gettext
 
-from gpodder import util
-from gpodder import model
-from gpodder import query
-from gpodder import coverart
 
-import logging
 logger = logging.getLogger(__name__)
 
-from gpodder.gtkui import draw
 
-import os
-from gi.repository import Gtk
-from gi.repository import GObject
-from gi.repository import GdkPixbuf
-import cgi
-import re
-import time
 
 try:
     from gi.repository import Gio

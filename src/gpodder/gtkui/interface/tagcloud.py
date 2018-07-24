@@ -18,9 +18,9 @@
 #
 
 
-from gi.repository import Gtk
-from gi.repository import GObject
 import cgi
+
+from gi.repository import GObject, Gtk
 
 
 class TagCloud(Gtk.Layout):

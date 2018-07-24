@@ -26,15 +26,13 @@ Soundcloud and Vimeo) and automatically download new content.
 This is the gPodder GUI. See gpo(1) for the command-line interface.
 """
 
-import sys
+import gettext
+import logging
 import os
 import os.path
 import platform
-import logging
-
-import gettext
-
 import subprocess
+import sys
 
 logger = logging.getLogger(__name__)
 

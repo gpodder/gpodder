@@ -29,44 +29,45 @@ This module provides helper and utility functions for gPodder that
 are not tied to any specific part of gPodder.
 
 """
+import collections
+import datetime
+import glob
+import gzip
+import http.client
+import io
+import itertools
 import json
-
-import gpodder
-
+import locale
 import logging
-logger = logging.getLogger(__name__)
-
+import mimetypes
 import os
 import os.path
 import platform
-import glob
-import stat
+import re
 import shlex
 import shutil
 import socket
-import sys
+import stat
 import string
-
-import re
 import subprocess
-from html.entities import entitydefs
-import time
-import gzip
-import datetime
+import sys
 import threading
-
-import http.client
-import webbrowser
-import mimetypes
-import itertools
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
-
-import io
+import webbrowser
 import xml.dom.minidom
+from html.entities import entitydefs
 
-import collections
+import gpodder
+
+logger = logging.getLogger(__name__)
+
+
+
+
+
 
 if sys.hexversion < 0x03000000:
     from html.parser import HTMLParser
@@ -92,7 +93,6 @@ _ = gpodder.gettext
 N_ = gpodder.ngettext
 
 
-import locale
 try:
     locale.setlocale(locale.LC_ALL, '')
 except Exception as e:

@@ -35,18 +35,20 @@ or distribute gPodder's channel subscriptions.
 """
 
 import logging
-logger = logging.getLogger(__name__)
+import os
+import os.path
+import shutil
+import xml.dom.minidom
+from email.utils import formatdate
 
+import gpodder
 from gpodder import util
 
-import xml.dom.minidom
+logger = logging.getLogger(__name__)
 
-import os.path
-import os
-import shutil
 
-from email.utils import formatdate
-import gpodder
+
+
 
 
 class Importer(object):

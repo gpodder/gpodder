@@ -4,9 +4,14 @@
 # Thomas Perl <thp@gpodder.org>; 2012-07-31
 #
 
-import gpodder
-
 import logging
+import os.path
+
+from gi.repository import Gtk
+
+import gpodder
+from gpodder.gtkui import draw
+
 logger = logging.getLogger(__name__)
 
 _ = gpodder.gettext
@@ -17,10 +22,7 @@ __category__ = 'desktop-integration'
 __only_for__ = 'gtk'
 __disable_in__ = 'unity,win32,python3'
 
-from gi.repository import Gtk
-import os.path
 
-from gpodder.gtkui import draw
 
 DefaultConfig = {
     'download_progress_bar': False,  # draw progress bar on icon while downloading?

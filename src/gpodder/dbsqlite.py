@@ -24,21 +24,22 @@
 # 2010-04-24 Thomas Perl <thp@gpodder.org>
 #
 
-import gpodder
-_ = gpodder.gettext
-
+import logging
+import re
 import sys
-
+import threading
 from sqlite3 import dbapi2 as sqlite
 
-import logging
+import gpodder
+from gpodder import schema, util
+
+_ = gpodder.gettext
+
+
+
 logger = logging.getLogger(__name__)
 
-from gpodder import schema
-from gpodder import util
 
-import threading
-import re
 
 
 class Database(object):

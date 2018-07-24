@@ -25,10 +25,10 @@
 #
 
 import gpodder
+from gpodder import util
 
 _ = gpodder.gettext
 
-from gpodder import util
 
 
 class ObservableService(object):

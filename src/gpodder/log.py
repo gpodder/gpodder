@@ -22,14 +22,14 @@
 # Based on an initial draft by Neal Walfield
 
 
-import gpodder
-
 import glob
 import logging
 import os
 import sys
 import time
 import traceback
+
+import gpodder
 
 logger = logging.getLogger(__name__)
 

@@ -17,15 +17,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from gi.repository import Gtk
-from gi.repository import GObject
-from gi.repository import Pango
+from gi.repository import GObject, Gtk, Pango
 
 import gpodder
+from gpodder.gtkui.widgets import SpinningProgressIndicator
 
 _ = gpodder.gettext
 
-from gpodder.gtkui.widgets import SpinningProgressIndicator
 
 
 class ProgressIndicator(object):

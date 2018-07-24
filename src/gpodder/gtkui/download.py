@@ -23,16 +23,14 @@
 #  Based on code from gpodder.services (thp, 2007-08-24)
 #
 
-import gpodder
-
-from gpodder import util
-from gpodder import download
-
-from gi.repository import Gtk
 import cgi
-
 import collections
 import threading
+
+from gi.repository import Gtk
+
+import gpodder
+from gpodder import download, util
 
 _ = gpodder.gettext
 

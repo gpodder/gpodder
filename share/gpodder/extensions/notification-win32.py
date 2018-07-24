@@ -44,16 +44,18 @@ __mandatory_in__ = 'win32'
 __only_for__ = 'win32'
 
 import functools
+import logging
 import os
 import os.path
 
 import gi
-gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
 import gpodder
 
-import logging
+gi.require_version('Gtk', '3.0')
+
+
 
 logger = logging.getLogger(__name__)
 

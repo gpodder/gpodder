@@ -6,11 +6,14 @@
 #           Thomas Perl <thp.io/about>; 2009-09-13
 
 import sys
-sys.path.insert(0, 'src')
 
 from gi.repository import Gtk
 
 from gpodder.gtkui.draw import draw_cake_pixbuf
+
+sys.path.insert(0, 'src')
+
+
 
 
 def gen(percentage):

@@ -65,20 +65,25 @@
 """
 
 
-import sys
 import collections
-import os
-import re
-import inspect
-import functools
 import contextlib
+import functools
+import inspect
+import logging
+import os
+import pydoc
+import re
+import shlex
+import sys
+
+import gpodder
+from gpodder import common, core, download, log, model, my, opml, util, youtube
+from gpodder.config import config_value_to_string
+
 try:
     import readline
 except ImportError:
     readline = None
-import shlex
-import pydoc
-import logging
 
 try:
     import termios
@@ -110,7 +115,6 @@ if os.path.exists(os.path.join(src_dir, 'gpodder', '__init__.py')):
     # Run gPodder from local source folder (not installed)
     sys.path.insert(0, src_dir)
 
-import gpodder
 _ = gpodder.gettext
 N_ = gpodder.ngettext
 
@@ -124,18 +128,8 @@ have_ansi = sys.stdout.isatty() and not gpodder.ui.win32
 interactive_console = sys.stdin.isatty() and sys.stdout.isatty()
 is_single_command = False
 
-from gpodder import log
 log.setup(verbose)
 
-from gpodder import core
-from gpodder import download
-from gpodder import my
-from gpodder import opml
-from gpodder import util
-from gpodder import youtube
-from gpodder import model
-from gpodder import common
-from gpodder.config import config_value_to_string
 
 
 def incolor(color_id, s):

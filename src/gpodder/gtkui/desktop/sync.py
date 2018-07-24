@@ -21,17 +21,17 @@
 # Thomas Perl <thp@gpodder.org>; 2009-09-05 (based on code from gui.py)
 # Ported to gPodder 3 by Joseph Wickremasinghe in June 2012
 
+import logging
 import os
+
 import gpodder
+from gpodder import sync, util
+from gpodder.gtkui.desktop.deviceplaylist import gPodderDevicePlaylist
+from gpodder.gtkui.desktop.episodeselector import gPodderEpisodeSelector
 
 _ = gpodder.gettext
 
-from gpodder import util
-from gpodder import sync
 
-from gpodder.gtkui.desktop.episodeselector import gPodderEpisodeSelector
-from gpodder.gtkui.desktop.deviceplaylist import gPodderDevicePlaylist
-import logging
 logger = logging.getLogger(__name__)
 
 

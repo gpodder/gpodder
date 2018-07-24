@@ -23,16 +23,17 @@
 # based on libipodsync.py (2006-04-05 Thomas Perl)
 # Ported to gPodder 3 by Joseph Wickremasinghe in June 2012
 
-import gpodder
-
-from gpodder import util
-from gpodder import services
-from gpodder import download
-
+import calendar
+import glob
 import logging
+import os.path
+import time
+
+import gpodder
+from gpodder import download, services, util
+
 logger = logging.getLogger(__name__)
 
-import calendar
 
 _ = gpodder.gettext
 
@@ -60,9 +61,6 @@ try:
 except:
     logger.warning('Could not find eyed3.mp3')
 
-import os.path
-import glob
-import time
 
 if pymtp_available:
     class MTP(pymtp.MTP):
