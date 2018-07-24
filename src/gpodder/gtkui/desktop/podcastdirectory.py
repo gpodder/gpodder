@@ -41,8 +41,6 @@ _ = gpodder.gettext
 logger = logging.getLogger(__name__)
 
 
-
-
 class DirectoryPodcastsModel(Gtk.ListStore):
     C_SELECTED, C_MARKUP, C_TITLE, C_URL = list(range(4))
 

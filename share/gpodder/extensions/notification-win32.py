@@ -55,8 +55,6 @@ import gpodder
 
 gi.require_version('Gtk', '3.0')
 
-
-
 logger = logging.getLogger(__name__)
 
 

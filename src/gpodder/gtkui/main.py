@@ -68,21 +68,10 @@ from gpodder.model import PodcastEpisode, check_root_folder_path
 
 gi.require_version('Gtk', '3.0')
 
-
-
-
-
 logger = logging.getLogger(__name__)
 
 _ = gpodder.gettext
 N_ = gpodder.ngettext
-
-
-
-
-
-
-
 
 
 class gPodder(BuilderWidget, dbus.service.Object):

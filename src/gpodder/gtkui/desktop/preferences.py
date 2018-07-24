@@ -31,12 +31,8 @@ from gpodder.gtkui.interface.configeditor import gPodderConfigEditor
 
 logger = logging.getLogger(__name__)
 
-
 _ = gpodder.gettext
 N_ = gpodder.ngettext
-
-
-
 
 
 class NewEpisodeActionList(Gtk.ListStore):

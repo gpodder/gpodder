@@ -26,8 +26,6 @@ from gpodder.gtkui.interface.common import BuilderWidget
 _ = gpodder.gettext
 
 
-
-
 class gPodderChannel(BuilderWidget):
     MAX_SIZE = 120
 

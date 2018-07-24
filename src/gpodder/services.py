@@ -30,7 +30,6 @@ from gpodder import util
 _ = gpodder.gettext
 
 
-
 class ObservableService(object):
     def __init__(self, signal_names=[]):
         self.observers = {}

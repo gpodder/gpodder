@@ -33,10 +33,7 @@ from gpodder.services import ObservableService
 
 _ = gpodder.gettext
 
-
 logger = logging.getLogger(__name__)
-
-
 
 
 class CoverDownloader(ObservableService):

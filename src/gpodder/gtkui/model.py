@@ -37,9 +37,7 @@ from gpodder.gtkui import draw
 
 _ = gpodder.gettext
 
-
 logger = logging.getLogger(__name__)
-
 
 
 try:

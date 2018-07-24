@@ -15,6 +15,10 @@
 import os
 import sys
 
+import dbus
+
+import gpodder
+
 if len(sys.argv) != 2:
     print("""
     Usage: %s /path/to/episode.mp3
@@ -23,8 +27,6 @@ if len(sys.argv) != 2:
 
 filename = os.path.abspath(sys.argv[1])
 
-import dbus
-import gpodder
 
 session_bus = dbus.SessionBus()
 proxy = session_bus.get_object(gpodder.dbus_bus_name,

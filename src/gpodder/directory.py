@@ -35,8 +35,6 @@ from gpodder import opml, util
 _ = gpodder.gettext
 
 
-
-
 class DirectoryEntry(object):
     def __init__(self, title, url, image=None, subscribers=-1, description=None):
         self.title = title

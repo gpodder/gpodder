@@ -10,5 +10,4 @@ install:
     - python3 tools/localdepends.py
 script:
     - pycodestyle share src/gpodder tools bin/* *.py
-    - isort -c -rc
     - make releasetest

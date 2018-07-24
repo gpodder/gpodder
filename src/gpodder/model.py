@@ -42,8 +42,6 @@ from gpodder import (coverart, escapist_videos, feedcore, schema, util, vimeo,
 
 logger = logging.getLogger(__name__)
 
-
-
 _ = gpodder.gettext
 
 

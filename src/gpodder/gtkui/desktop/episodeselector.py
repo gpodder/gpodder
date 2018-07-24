@@ -27,8 +27,6 @@ _ = gpodder.gettext
 N_ = gpodder.ngettext
 
 
-
-
 class gPodderEpisodeSelector(BuilderWidget):
     """Episode selection dialog
 

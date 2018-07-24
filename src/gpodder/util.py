@@ -65,10 +65,6 @@ import gpodder
 logger = logging.getLogger(__name__)
 
 
-
-
-
-
 if sys.hexversion < 0x03000000:
     from html.parser import HTMLParser
     from html.entities import name2codepoint

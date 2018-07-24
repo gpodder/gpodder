@@ -34,8 +34,6 @@ _ = gpodder.gettext
 logger = logging.getLogger(__name__)
 
 
-
-
 class CoverDownloader(object):
     # File name extension dict, lists supported cover art extensions
     # Values: functions that check if some data is of that file type

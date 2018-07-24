@@ -16,8 +16,6 @@ _ = gpodder.gettext
 
 logger = logging.getLogger(__name__)
 
-
-
 __title__ = _('Stream to Sonos')
 __description__ = _('Stream podcasts to Sonos speakers')
 __authors__ = 'Stefan Kögl <stefan@skoegl.net>'

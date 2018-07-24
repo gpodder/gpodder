@@ -28,8 +28,6 @@ from gpodder.gtkui.interface.common import BuilderWidget
 _ = gpodder.gettext
 
 
-
-
 class gPodderConfigEditor(BuilderWidget):
     def new(self):
         name_column = Gtk.TreeViewColumn(_('Setting'))

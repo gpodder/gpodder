@@ -32,9 +32,7 @@ from gpodder import util
 
 _ = gpodder.gettext
 
-
 logger = logging.getLogger(__name__)
-
 
 
 VIMEOCOM_RE = re.compile(r'http[s]?://vimeo\.com/(channels/[^/]+|\d+)$', re.IGNORECASE)

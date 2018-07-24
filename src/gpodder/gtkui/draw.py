@@ -35,9 +35,6 @@ import gpodder
 gi.require_version('PangoCairo', '1.0')
 
 
-
-
-
 class TextExtents(object):
     def __init__(self, ctx, text):
         tuple = ctx.text_extents(text)

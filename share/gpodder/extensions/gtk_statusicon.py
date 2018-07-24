@@ -22,8 +22,6 @@ __category__ = 'desktop-integration'
 __only_for__ = 'gtk'
 __disable_in__ = 'unity,win32,python3'
 
-
-
 DefaultConfig = {
     'download_progress_bar': False,  # draw progress bar on icon while downloading?
 }

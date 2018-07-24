@@ -29,8 +29,6 @@ from gpodder.gtkui.base import GtkBuilderWidget
 _ = gpodder.gettext
 
 
-
-
 class BuilderWidget(GtkBuilderWidget):
     def __init__(self, parent, **kwargs):
         self._window_iconified = False

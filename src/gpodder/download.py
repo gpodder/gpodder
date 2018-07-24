@@ -45,11 +45,6 @@ from gpodder import escapist_videos, util, vimeo, youtube
 
 logger = logging.getLogger(__name__)
 
-
-
-
-
-
 _ = gpodder.gettext
 
 

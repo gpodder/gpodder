@@ -26,8 +26,6 @@ from gpodder.gtkui.interface.common import BuilderWidget
 _ = gpodder.gettext
 
 
-
-
 class gPodderAddPodcast(BuilderWidget):
     def new(self):
         if not hasattr(self, 'add_podcast_list'):

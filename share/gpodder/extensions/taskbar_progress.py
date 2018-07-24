@@ -38,8 +38,6 @@ __authors__ = 'Sean Munkel <seanmunkel@gmail.com>'
 __category__ = 'desktop-integration'
 __only_for__ = 'win32'
 
-
-
 logger = logging.getLogger(__name__)
 
 WSTRING = c_wchar_p

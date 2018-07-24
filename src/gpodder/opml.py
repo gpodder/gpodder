@@ -47,10 +47,6 @@ from gpodder import util
 logger = logging.getLogger(__name__)
 
 
-
-
-
-
 class Importer(object):
     """
     Helper class to import an OPML feed from protocols

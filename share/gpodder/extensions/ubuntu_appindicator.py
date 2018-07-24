@@ -20,9 +20,6 @@ __only_for__ = 'gtk'
 __mandatory_in__ = 'unity'
 __disable_in__ = 'win32'
 
-
-
-
 logger = logging.getLogger(__name__)
 
 

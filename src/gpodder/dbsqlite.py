@@ -35,11 +35,7 @@ from gpodder import schema, util
 
 _ = gpodder.gettext
 
-
-
 logger = logging.getLogger(__name__)
-
-
 
 
 class Database(object):

@@ -36,6 +36,8 @@ import gpodder
 # Append gPodder's user agent to mygpoclient's user agent
 import mygpoclient
 from gpodder import minidb, util
+from mygpoclient import api, public
+from mygpoclient import util as mygpoutil
 
 _ = gpodder.gettext
 
@@ -67,11 +69,6 @@ except ImportError:
     # mygpoclient, we use an object that can never be raised/caught
     MissingCredentials = object()
 
-
-from mygpoclient import api
-from mygpoclient import public
-
-from mygpoclient import util as mygpoutil
 
 EPISODE_ACTIONS_BATCH_SIZE = 100
 
