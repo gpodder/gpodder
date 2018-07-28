@@ -65,11 +65,53 @@ def get_launcher_code(entry_point):
 #include "Python.h"
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include <tchar.h>
+
+#define BUFSIZE 32768
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                     PWSTR lpCmdLine, int nCmdShow)
 {
     int result;
+
+    DWORD retval = 0;
+    BOOL success;
+    WCHAR buffer[BUFSIZE] = {0};
+    WCHAR* lppPart[1] = {NULL};
+
+    retval = GetFullPathNameW(__wargv[0], BUFSIZE, buffer, lppPart);
+
+    if (retval == 0)
+    {
+        // It's bad, but can be ignored
+        printf ("GetFullPathName failed (%%d)\\n", GetLastError());
+    }
+    else if (retval < BUFSIZE)
+    {
+        if (lppPart != NULL && *lppPart != 0)
+        {
+            lppPart[0][-1] = 0;
+            printf("Calling SetDllDirectoryW(%%ls)\\n", buffer);
+            success = SetDllDirectoryW(buffer);
+            if (success)
+            {
+                printf("Successfully SetDllDirectoryW\\n");
+            }
+            else
+            {
+                printf ("SetDllDirectoryW failed (%%d)\\n", GetLastError());
+            }
+        }
+        else
+        {
+            printf ("E: GetFullPathName didn't return filename\\n");
+        }
+    }
+    else
+    {
+        printf ("GetFullPathName buffer too small (required %%d)\\n", retval);
+        return -1; // this shouldn't happen
+    }
 
     Py_NoUserSiteDirectory = 1;
     Py_IgnoreEnvironmentFlag = 1;
