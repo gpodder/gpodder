@@ -27,12 +27,12 @@ import io
 import math
 
 import cairo
-import gi
-from gi.repository import Gdk, GdkPixbuf, Gtk, Pango, PangoCairo
 
 import gpodder
 
-gi.require_version('PangoCairo', '1.0')
+import gi  # isort:skip
+gi.require_version('PangoCairo', '1.0')  # isort:skip
+from gi.repository import Gdk, GdkPixbuf, Gtk, Pango, PangoCairo  # isort:skip
 
 
 class TextExtents(object):

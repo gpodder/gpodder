@@ -39,8 +39,6 @@ import dbus
 import dbus.glib
 import dbus.mainloop
 import dbus.service
-import gi
-from gi.repository import Gdk, GdkPixbuf, Gio, GLib, GObject, Gtk, Pango
 
 import gpodder
 from gpodder import (common, core, download, extensions, feedcore, my, opml,
@@ -66,7 +64,10 @@ from gpodder.gtkui.services import CoverDownloader
 from gpodder.gtkui.widgets import SimpleMessageArea
 from gpodder.model import PodcastEpisode, check_root_folder_path
 
-gi.require_version('Gtk', '3.0')
+import gi  # isort:skip
+gi.require_version('Gtk', '3.0')  # isort:skip
+from gi.repository import Gdk, GdkPixbuf, Gio, GLib, GObject, Gtk, Pango  # isort:skip
+
 
 logger = logging.getLogger(__name__)
 
