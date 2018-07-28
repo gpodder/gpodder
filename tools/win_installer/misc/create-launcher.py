@@ -55,6 +55,7 @@ def build_exe(source_path, resource_path, is_gui, out_path):
     args.append("-municode")
     args.extend(["-o", out_path, source_path, resource_path])
     args.extend(get_build_args())
+    print("Compiling launcher: %r", args)
     subprocess.check_call(args)
 
 

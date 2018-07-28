@@ -166,6 +166,9 @@ function install_gpodder {
 	cp ${REPO_CLONE}/bin/gpodder "${gpodder_launch_dir}"/gpodder.py
 
     build_compileall -d "" -f -q "$(cygpath -w "${MINGW_ROOT}")"
+
+    # copy gpodder.ico for notification-win32
+    cp ${REPO_CLONE}/tools/win_installer/misc/gpodder.ico "${MINGW_ROOT}"/bin
 }
 
 function cleanup_before {
