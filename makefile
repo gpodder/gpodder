@@ -64,7 +64,7 @@ unittest:
 	LC_ALL=C PYTHONPATH=src/ $(PYTHON) -m gpodder.unittests
 
 lint:
-	pycodestyle src/gpodder share *.py
+	pycodestyle share src/gpodder tools bin/* *.py
 
 
 release: distclean
