@@ -58,8 +58,10 @@ function build_compileall {
 }
 
 function install_pre_deps {
+	# install python3 here to ensure same version
     pacman -S --needed --noconfirm p7zip git dos2unix rsync \
-        mingw-w64-"${ARCH}"-nsis wget intltool mingw-w64-"${ARCH}"-toolchain
+        mingw-w64-"${ARCH}"-nsis wget intltool mingw-w64-"${ARCH}"-toolchain \
+        mingw-w64-"${ARCH}"-python3
 }
 
 function create_root {
@@ -146,7 +148,8 @@ function install_gpodder {
     fi
 
     # Create launchers
-    build_python "${MISC}"/create-launcher.py \
+    echo "python3 is $(which python3) version is $(python3 --version)"
+    python3 "${MISC}"/create-launcher.py \
         "${GPO_VERSION}" "${MINGW_ROOT}"/bin
 
 	# install fake dbus
