@@ -43,13 +43,11 @@ __category__ = 'desktop-integration'
 __mandatory_in__ = 'win32'
 __only_for__ = 'win32'
 
-import functools
 import os
 import os.path
-
-import gi
-gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk
+import subprocess
+import sys
+import tempfile
 
 import gpodder
 
@@ -60,18 +58,45 @@ logger = logging.getLogger(__name__)
 
 class gPodderExtension(object):
     def __init__(self, *args):
-        self._window = None
-
-    def on_ui_object_available(self, name, ui_object):
-        if name == 'gpodder-gtk':
-            self._window = ui_object.main_window
+        gpodder_script = sys.argv[0]
+        gpodder_script = os.path.realpath(gpodder_script)
+        self._icon = os.path.join(os.path.dirname(gpodder_script), "gpodder.ico")
 
     def on_notification_show(self, title, message):
-        if self._window:
-            dialog = Gtk.MessageDialog(self._window, 0, Gtk.MessageType.INFO,
-                Gtk.ButtonsType.NONE, title)
-            dialog.format_secondary_text(message)
-            dialog.show()
+        script = """
+try {
+    [System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms")
+    $o = New-Object System.Windows.Forms.NotifyIcon
+
+    $o.Icon = "%s"
+    $o.BalloonTipIcon = "None"
+    $o.BalloonTipText = @"
+%s
+"@
+    $o.BalloonTipTitle = @"
+%s
+"@
+
+    $o.Visible = $True
+    $o.ShowBalloonTip(10000)
+} catch {
+    write-host "Caught an exception:"
+    write-host "Exception Type: $($_.Exception.GetType().FullName)"
+    write-host "Exception Message: $($_.Exception.Message)"
+    exit 1
+}
+""" % (self._icon, message, title)
+        fh, path = tempfile.mkstemp(suffix=".ps1")
+        with open(fh, "w", encoding="utf_8_sig") as f:
+            f.write(script)
+        try:
+            subprocess.run(["powershell.exe", "-windowstyle", "hidden",  "-NoLogo", path], check=True,
+                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            os.remove(path)  # XXX: otherwise keep it for debugging
+        except subprocess.CalledProcessError as e:
+            logger.error("Error in on_notification_show(title=%r, message=%r):\n"
+                         "\t%r exit code %i\n\tstdout=%s\n\tstderr=%s",
+                         title, message, e.cmd, e.returncode, e.stdout, e.stderr)
 
     def on_unload(self):
-        self._window = None
+        pass
