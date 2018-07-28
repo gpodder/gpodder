@@ -402,7 +402,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             for i in range(0, menubar.get_n_items()):
                 menu = menubar.do_get_item_link(menubar, i, Gio.MENU_LINK_SUBMENU)
                 menuname = menubar.get_item_attribute_value(i, Gio.MENU_ATTRIBUTE_LABEL, None)
-                if menuname is not None and menuname.get_string() == 'E_xtras':
+                if menuname is not None and menuname.get_string() == _('E_xtras'):
                     menu.append_section(_('Extensions'), self.extensions_menu)
         else:
             self.extensions_menu.remove_all()
