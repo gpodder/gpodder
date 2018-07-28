@@ -146,7 +146,7 @@ function install_gpodder {
     fi
 
     # Create launchers
-    python3 "${MISC}"/create-launcher.py \
+    build_python "${MISC}"/create-launcher.py \
         "${GPO_VERSION}" "${MINGW_ROOT}"/bin
 
 	# install fake dbus
