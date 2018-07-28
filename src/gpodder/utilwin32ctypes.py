@@ -19,11 +19,10 @@
 #
 
 import ctypes
-from ctypes import c_ulonglong, HRESULT, Structure
+from ctypes import byref, c_ulonglong, HRESULT, Structure
 from ctypes.wintypes import (BOOL, BYTE, DWORD, HANDLE, LPCWSTR, MAX_PATH, PULARGE_INTEGER, WORD)
 from uuid import UUID
 
-from win32ctypes.core.ctypes._common import byreference
 from win32ctypes.core.ctypes._util import check_zero, function_factory
 
 
@@ -85,7 +84,7 @@ def GetDiskFreeSpaceEx(lpDirectoryName):
     lpFreeBytesAvailable = c_ulonglong(0)
     lpTotalNumberOfBytes = c_ulonglong(0)
     lpTotalNumberOfFreeBytes = c_ulonglong(0)
-    _BaseGetDiskFreeSpaceEx(lp_dirname, byreference(lpFreeBytesAvailable), byreference(lpTotalNumberOfBytes), byreference(lpTotalNumberOfFreeBytes))
+    _BaseGetDiskFreeSpaceEx(lp_dirname, byref(lpFreeBytesAvailable), byref(lpTotalNumberOfBytes), byref(lpTotalNumberOfFreeBytes))
     freeBytesAvailable = lpFreeBytesAvailable.value
     totalNumberOfBytes = lpTotalNumberOfBytes.value
     totalNumberOfFreeBytes = lpTotalNumberOfFreeBytes.value
@@ -100,7 +99,7 @@ def GetFileAttributes(lpFileName):
 def SHGetKnownFolderPath(rfid, dwFlags):
     out_buf = ctypes.c_wchar_p()
     try:
-        ret = _BaseSHGetKnownFolderPath(byreference(rfid), dwFlags, None, byreference(out_buf))
+        ret = _BaseSHGetKnownFolderPath(byref(rfid), dwFlags, None, byref(out_buf))
     except WindowsError:
         return None
     if ret != S_OK:
