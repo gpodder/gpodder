@@ -10,3 +10,5 @@ else
 	echo "$src checksum KO: got $checksum"
 	exit 1
 fi
+
+unzip notifu-src-1.6.1.zip
