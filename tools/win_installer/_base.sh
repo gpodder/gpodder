@@ -113,7 +113,8 @@ function install_deps {
     # replace ca-certificates with certifi's
     build_pacman --noconfirm -Rdds mingw-w64-"${ARCH}"-ca-certificates || true
     mkdir -p ${MINGW_ROOT}/ssl
-    cp -v ${MINGW_ROOT}/lib/python3.6/site-packages/certifi/cacert.pem ${MINGW_ROOT}/ssl/cert.pem
+    site_packages=$(build_python -c  'import sys;print(next(c for c in sys.path if "site-packages" in c))')
+    cp -v ${site_packages}/certifi/cacert.pem ${MINGW_ROOT}/ssl/cert.pem
     build_pip uninstall -y certifi
 
     build_pacman --noconfirm -Rdds mingw-w64-"${ARCH}"-python3-pip || true
@@ -149,14 +150,16 @@ function install_gpodder {
         "${GPO_VERSION}" "${MINGW_ROOT}"/bin
 
 	# install fake dbus
-	rsync -arv --delete "${REPO_CLONE}"/tools/fake-dbus-module/dbus "${MINGW_ROOT}"/lib/python3.6/site-packages/
+    site_packages=$(build_python -c  'import sys;print(next(c for c in sys.path if "site-packages" in c))')
+    site_packages_unix=$(echo "/$site_packages" | sed -e 's/\\/\//g' -e 's/://')
+    rsync -arv --delete "${REPO_CLONE}"/tools/fake-dbus-module/dbus "${site_packages_unix}/"
 	
 	# install gtk3 settings for a proper font
 	mkdir -p "${MINGW_ROOT}"/etc/gtk-3.0
 	cp "${MISC}"/gtk3.0_settings.ini "${MINGW_ROOT}"/etc/gtk-3.0/settings.ini
 	
 	# install bin/gpodder bin/gpo to a separate package, to be run before gpodder/__init__.py
-	gpodder_launch_dir="${MINGW_ROOT}"/lib/python3.6/site-packages/gpodder_launch
+	gpodder_launch_dir="${site_packages_unix}"/gpodder_launch
 	mkdir -p "${gpodder_launch_dir}"
 	touch "${gpodder_launch_dir}"/__init__.py
 	cp ${REPO_CLONE}/bin/gpo "${gpodder_launch_dir}"/gpo.py
