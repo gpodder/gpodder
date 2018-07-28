@@ -14,6 +14,10 @@ build_script:
   - set
   - set PATH=C:\msys64\%MSYSTEM%\bin;C:\msys64\usr\bin;%PATH%
   - set CHERE_INVOKING=yes
+  - wget https://www.paralint.com/projects/notifu/dl/notifu-src-1.6.1.zip
+  - unzip notifu-src-1.6.1.zip
+  - MSBuild.exe .\notifu.sln /p:Configuration=Debug /p:Platform=WIN32
+  - copy Debug/notifu.exe tools/win_installer/misc
   - bash -lc "pacman --noconfirm --ask 20 -Suy"
   - bash -lc "bash .appveyor/msys2.sh"
 
