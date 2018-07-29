@@ -9,8 +9,8 @@ msgstr ""
 "Project-Id-Version: gPodder\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-06-12 21:10+0200\n"
-"PO-Revision-Date: 2015-05-24 19:53+0100\n"
-"Last-Translator: Thomas Perl <m@thp.io>\n"
+"PO-Revision-Date: 2018-07-29 22:50+0200\n"
+"Last-Translator: TZocker\n"
 "Language-Team: German (http://www.transifex.com/projects/p/gpodder/language/"
 "de/)\n"
 "Language: de\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 1.5.4\n"
+"X-Generator: Poedit 2.1.1\n"
 
 #: src/gpodder/config.py:55
 #, python-format
@@ -123,6 +123,8 @@ msgstr "MP3-Player geöffnet"
 msgid ""
 "Not enough space in %(path)s: %(free)s available, but need at least %(need)s"
 msgstr ""
+"Nicht genügend Speicher in %(path)s: %(free)s verfügbar, es werden mindesten "
+"%(need)s benötigt"
 
 #: src/gpodder/sync.py:608 src/gpodder/sync.py:616
 #, python-format
@@ -536,11 +538,11 @@ msgstr "Pause"
 
 #: src/gpodder/gtkui/main.py:1664
 msgid "Move up"
-msgstr ""
+msgstr "Nach oben"
 
 #: src/gpodder/gtkui/main.py:1665
 msgid "Move down"
-msgstr ""
+msgstr "Nach unten"
 
 #: src/gpodder/gtkui/main.py:1667
 msgid "Remove from list"
@@ -563,9 +565,8 @@ msgid "Archive"
 msgstr "Archivieren"
 
 #: src/gpodder/gtkui/main.py:1729
-#, fuzzy
 msgid "Delete podcast"
-msgstr "Episoden löschen"
+msgstr "Podcast löschen"
 
 #: src/gpodder/gtkui/main.py:1744 share/gpodder/ui/gtk/menus.ui.h:16
 msgid "Podcast settings"
@@ -715,9 +716,9 @@ msgstr[0] "Aktualisiere %(count)d Feed..."
 msgstr[1] "Aktualisiere %(count)d Feeds..."
 
 #: src/gpodder/gtkui/main.py:2584
-#, fuzzy, python-format
+#, python-format
 msgid "Updating %(podcast)s (%(position)d/%(total)d)"
-msgstr "%(podcast)s aktualisiert (%(position)d/%(total)d)"
+msgstr "Aktualisiert %(podcast)s (%(position)d/%(total)d)"
 
 #: src/gpodder/gtkui/main.py:2594
 #, python-format
@@ -864,9 +865,9 @@ msgid "No new episodes available"
 msgstr "Keine neuen Episoden verfügbar"
 
 #: src/gpodder/gtkui/main.py:3074
-#, fuzzy, python-format
+#, python-format
 msgid "Subscriptions on %(server)s"
-msgstr "Abonnements auf gpodder.net"
+msgstr "Abonnements auf %(server)s"
 
 #: src/gpodder/gtkui/main.py:3085
 msgid "Login to gpodder.net"
@@ -885,12 +886,10 @@ msgid "Podcast"
 msgstr "Podcast"
 
 #: src/gpodder/gtkui/main.py:3132 share/gpodder/ui/gtk/menus.ui.h:14
-#, fuzzy
 msgid "Delete podcasts"
-msgstr "Podcasts entfernen"
+msgstr "Podcasts löschen"
 
 #: src/gpodder/gtkui/main.py:3133
-#, fuzzy
 msgid "Select the podcast you want to delete."
 msgstr "Wählen Sie die Podcasts, die Sie löschen wollen."
 
@@ -899,9 +898,8 @@ msgid "Delete"
 msgstr "Löschen"
 
 #: src/gpodder/gtkui/main.py:3146
-#, fuzzy
 msgid "Deleting podcast"
-msgstr "Lösche Episoden"
+msgstr "Lösche Podcast"
 
 #: src/gpodder/gtkui/main.py:3147
 #, fuzzy
@@ -913,22 +911,24 @@ msgid ""
 "This podcast and all its episodes will be PERMANENTLY DELETED.\r\n"
 "Are you sure you want to continue?"
 msgstr ""
+"Dieser Podcast und alle seine Episoden werden permanent gelöscht.\n"
+"Sind Sie sicher, dass Sie weitermachen wollen?"
 
 #: src/gpodder/gtkui/main.py:3150
-#, fuzzy
 msgid "Deleting podcasts"
-msgstr "Podcasts werden entfernt"
+msgstr "Podcasts werden gelöscht"
 
 #: src/gpodder/gtkui/main.py:3151
-#, fuzzy
 msgid "Please wait while the podcasts are deleted"
-msgstr "Bitte warten - Podcasts werden entfernt"
+msgstr "Bitte warten - Podcasts werden gelöscht"
 
 #: src/gpodder/gtkui/main.py:3152
 msgid ""
 "These podcasts and all their episodes will be PERMANENTLY DELETED.\r\n"
 "Are you sure you want to continue?"
 msgstr ""
+"Dieser Podcast und alle ihre Episoden werden permanent gelöscht.\n"
+"Sind Sie sicher, dass Sie weitermachen wollen?"
 
 #: src/gpodder/gtkui/main.py:3212
 msgid "Please select a podcast in the podcasts list to remove."
@@ -985,13 +985,12 @@ msgid "OPML export failed"
 msgstr "OPML-Export fehlgeschlagen"
 
 #: src/gpodder/gtkui/main.py:3301
-#, fuzzy
 msgid "Could not check for updates"
-msgstr "Einige Podcasts konnten nicht hinzugefügt werden"
+msgstr "Es könnte nicht nach Updates gesucht werden"
 
 #: src/gpodder/gtkui/main.py:3302
 msgid "Please try again later."
-msgstr ""
+msgstr "Bitte versuchen Sie es später erneut."
 
 #: src/gpodder/gtkui/main.py:3307
 msgid "No updates available"
@@ -1096,11 +1095,11 @@ msgstr "Bitte eine Episode auswählen"
 
 #: src/gpodder/gtkui/shownotes.py:268
 msgid "Open shownotes in web browser"
-msgstr ""
+msgstr "Öffnet Infotext im Webbrowser"
 
 #: src/gpodder/gtkui/shownotes.py:274
 msgid "Open link in web browser"
-msgstr ""
+msgstr "Öffnet Link im Webbrowser"
 
 #: src/gpodder/gtkui/config.py:51
 msgid "Integer"
@@ -1230,11 +1229,11 @@ msgstr "Authentifizierung benötigt"
 
 #: src/gpodder/gtkui/interface/common.py:158
 msgid "hostname or root URL (e.g. https://gpodder.net)"
-msgstr ""
+msgstr "Hostname oder Stamm-URL (z.B. https://gpodder.net)"
 
 #: src/gpodder/gtkui/interface/common.py:179
 msgid "Server"
-msgstr ""
+msgstr "Server"
 
 #: src/gpodder/gtkui/interface/common.py:185
 msgid "Password"
@@ -1435,7 +1434,7 @@ msgstr "Öffnen"
 
 #: src/gpodder/gtkui/desktop/channel.py:124
 msgid "_Refresh"
-msgstr ""
+msgstr "Aktualisierung"
 
 #: src/gpodder/gtkui/desktop/channel.py:137
 msgid "Select new podcast cover artwork"
@@ -1452,7 +1451,7 @@ msgstr "Drag und Drop"
 
 #: src/gpodder/gtkui/desktop/channel.py:181
 msgid "You can only drop local files and http:// URLs here."
-msgstr "Sie können nur lokale Dateien und http://-URLs hier her ziehen."
+msgstr "Sie können nur lokale Dateien und http:// URLs hier her ziehen."
 
 #: src/gpodder/gtkui/desktop/sync.py:83
 msgid "No device configured"
@@ -1897,13 +1896,12 @@ msgid "Software updates"
 msgstr "Software-Updates"
 
 #: share/gpodder/ui/gtk/menus.ui.h:4
-#, fuzzy
 msgid "Help"
-msgstr "_Hilfe"
+msgstr "Hilfe"
 
 #: share/gpodder/ui/gtk/menus.ui.h:5
 msgid "About"
-msgstr ""
+msgstr "Über"
 
 #: share/gpodder/ui/gtk/menus.ui.h:7
 #, fuzzy
@@ -1915,9 +1913,8 @@ msgid "Download new episodes"
 msgstr "Neue Episoden herunterladen"
 
 #: share/gpodder/ui/gtk/menus.ui.h:11
-#, fuzzy
 msgid "_Subscriptions"
-msgstr "Keine Abonnements"
+msgstr "Abonnements"
 
 #: share/gpodder/ui/gtk/menus.ui.h:12
 msgid "Discover new podcasts"
@@ -1936,9 +1933,8 @@ msgid "Export to OPML file"
 msgstr "Zu OPML-Datei exportieren"
 
 #: share/gpodder/ui/gtk/menus.ui.h:19
-#, fuzzy
 msgid "_Episodes"
-msgstr "Episode"
+msgstr "Episoden"
 
 #: share/gpodder/ui/gtk/menus.ui.h:21
 msgid "Open"
@@ -1966,7 +1962,7 @@ msgstr "YouTube-Abonnements aktualisieren"
 
 #: share/gpodder/ui/gtk/menus.ui.h:31
 msgid "_View"
-msgstr ""
+msgstr "Ansicht"
 
 #: share/gpodder/ui/gtk/menus.ui.h:32
 msgid "Toolbar"
@@ -2010,7 +2006,7 @@ msgstr "\"Alle Episoden\" in Podcast-Liste"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:5
 msgid "Use sections for podcast list"
-msgstr "Sektionen in Podcast-Liste verwenden"
+msgstr "Sektionen in der Podcast-Liste verwenden"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:7
 msgid "Preferred YouTube format:"
@@ -2030,7 +2026,7 @@ msgstr "Abonnements und Aktionen synchronisieren"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:13
 msgid "Server:"
-msgstr ""
+msgstr "Server:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:16
 msgid "Replace list on server with local subscriptions"
@@ -2185,9 +2181,8 @@ msgid "Unsubscribed from %s."
 msgstr "Abonnement von %s gelöscht."
 
 #: bin/gpo:450
-#, fuzzy
 msgid "Invalid command."
-msgstr "Ungültiger Wert."
+msgstr "Ungültiger Befehl."
 
 #: bin/gpo:455
 #, fuzzy, python-format
@@ -2216,17 +2211,16 @@ msgstr "Überspringe %(podcast)s"
 
 #: bin/gpo:576
 msgid "No episode with the specified GUID found."
-msgstr ""
+msgstr "Keine Episoden mit der angegebenen GUID konnte gefunden werden"
 
 #: bin/gpo:580
-#, fuzzy, python-format
+#, python-format
 msgid "Deleted episode \"%s\"."
-msgstr "Episoden löschen"
+msgstr "Episode \"%s\" gelöscht."
 
 #: bin/gpo:582
-#, fuzzy
 msgid "Episode has already been deleted."
-msgstr "Episoden wurden am Gerät gelöscht"
+msgstr "Episode wurden bereits gelöscht."
 
 #: bin/gpo:597
 #, python-format
