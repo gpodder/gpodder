@@ -26,8 +26,9 @@
 import logging
 import os
 
-import gpodder
 from mutagen.oggvorbis import OggVorbis
+
+import gpodder
 
 logger = logging.getLogger(__name__)
 
