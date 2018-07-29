@@ -20,8 +20,7 @@
 # Notification implementation for Windows
 # Sean Munkel; 2012-12-29
 """
-Notification implementation for Windows.
-Current state (2018/05/01 ELL):
+Current state (2018/07/29 ELL):
  - I can't get pywin32 to work in msys2 (the platform used for this python3/gtk3 installer)
    so existing code using COM doesn't work.
  - Gio.Notification is not implemented on windows yet.
@@ -29,12 +28,12 @@ Current state (2018/05/01 ELL):
  - Gtk.StatusIcon with a context works but is deprecated. Showing a balloon using set_tooltip_markup
    doesn't work.
    See https://github.com/afiskon/py-gtk-example
- - in-app notifications using an overlay are pleasing to the eye, but don't solve the problem
-   see https://stackoverflow.com/questions/45431512/gtk-in-app-notifications-api-referece
  - hexchat have implemented a solid c++ solution.
    See https://github.com/hexchat/hexchat/tree/master/src/fe-gtk/notifications
-I've chosen to implement a cheap workaround using gtk.MessageDialog because
-Gio.Notification will likely be implemented in 6 months-1 year
+I've chosen to implement notifications by calling a PowerShell script invoking
+Windows Toast Notification API or Balloon Notification as fallback.
+It's tested on Win7 32bit and Win10 64bit VMs from modern.ie
+So we have a working solution until Gio.Notification is implemented on Windows.
 """
 __title__ = 'Notification Bubbles for Windows'
 __description__ = 'Display notification bubbles for different events.'
@@ -64,39 +63,90 @@ class gPodderExtension(object):
 
     def on_notification_show(self, title, message):
         script = """
-try {
-    [System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms")
-    $o = New-Object System.Windows.Forms.NotifyIcon
-
-    $o.Icon = "%s"
-    $o.BalloonTipIcon = "None"
-    $o.BalloonTipText = @"
-%s
+try {{
+    if ([Environment]::OSVersion.Version -ge (new-object 'Version' 10,0,10240)) {{
+        # use Windows 10 Toast notification
+        [Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] | Out-Null
+        [Windows.UI.Notifications.ToastNotification, Windows.UI.Notifications, ContentType = WindowsRuntime] | Out-Null
+        [Windows.Data.Xml.Dom.XmlDocument, Windows.Data.Xml.Dom.XmlDocument, ContentType = WindowsRuntime] | Out-Null
+        # Need a real AppID (see https://stackoverflow.com/q/46814858)
+        # use gPodder app id if it's the installed, otherwise use PowerShell's AppID
+        try {{
+            $gpo_appid = Get-StartApps -Name "gpodder"
+        }} catch {{
+            write-host "Get-StartApps not available"
+            $gpo_appid = $null
+        }}
+        if ($gpo_appid -ne $null) {{
+            $APP_ID = $gpo_appid[0].AppID
+        }} else {{
+            $APP_ID = '{{1AC14E77-02E7-4E5D-B744-2EB1AE5198B7}}\\WindowsPowerShell\\v1.0\\powershell.exe'
+        }}
+        $template = @"
+<toast activationType="protocol" launch="" duration="long">
+    <visual>
+        <binding template="ToastGeneric">
+            <image placement="appLogoOverride" src="{icon}" />
+            <text><![CDATA[{title}]]></text>
+            <text><![CDATA[{message}]]></text>
+        </binding>
+    </visual>
+    <audio silent="true" />
+</toast>
 "@
-    $o.BalloonTipTitle = @"
-%s
+        $xml = New-Object Windows.Data.Xml.Dom.XmlDocument
+        $xml.LoadXml($template)
+        $toast = New-Object Windows.UI.Notifications.ToastNotification $xml
+        [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier($APP_ID).Show($toast)
+    }} else {{
+        # use older Baloon notification when not on Windows 10
+        [System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms")
+        $o = New-Object System.Windows.Forms.NotifyIcon
+
+        $o.Icon = "{icon}"
+        $o.BalloonTipIcon = "None"
+        $o.BalloonTipText = @"
+{message}
+"@
+        $o.BalloonTipTitle = @"
+{title}
 "@
 
     $o.Visible = $True
     $o.ShowBalloonTip(10000)
-} catch {
+    }}
+}} catch {{
     write-host "Caught an exception:"
     write-host "Exception Type: $($_.Exception.GetType().FullName)"
     write-host "Exception Message: $($_.Exception.Message)"
     exit 1
-}
-""" % (self._icon, message, title)
+}}
+""".format(icon=self._icon, message=message, title=title)
         fh, path = tempfile.mkstemp(suffix=".ps1")
         with open(fh, "w", encoding="utf_8_sig") as f:
             f.write(script)
         try:
-            subprocess.run(["powershell.exe", "-windowstyle", "hidden",  "-NoLogo", path], check=True,
-                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            # hide powershell command window using startupinfo
+            startupinfo = subprocess.STARTUPINFO()
+            startupinfo.dwFlags = subprocess.CREATE_NEW_CONSOLE | subprocess.STARTF_USESHOWWINDOW
+            startupinfo.wShowWindow = subprocess.SW_HIDE
+            # to run 64bit powershell on Win10 64bit when running from 32bit gPodder
+            # (we need 64bit powershell on Win10 otherwise Get-StartApps is not available)
+            powershell = r"{}\sysnative\WindowsPowerShell\v1.0\powershell.exe".format(os.environ["SystemRoot"])
+            if not os.path.exists(powershell):
+                powershell = "powershell.exe"
+            subprocess.run([powershell,
+                            "-ExecutionPolicy", "Bypass", "-File", path], check=True,
+                            stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                            startupinfo=startupinfo)
             os.remove(path)  # XXX: otherwise keep it for debugging
         except subprocess.CalledProcessError as e:
             logger.error("Error in on_notification_show(title=%r, message=%r):\n"
                          "\t%r exit code %i\n\tstdout=%s\n\tstderr=%s",
                          title, message, e.cmd, e.returncode, e.stdout, e.stderr)
+        except FileNotFoundError:
+            logger.error("Error in on_notification_show(title=%r, message=%r): %s not found",
+                         title, message, powershell)
 
     def on_unload(self):
         pass
