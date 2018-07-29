@@ -21,14 +21,13 @@
 # Thomas Perl <thp@gpodder.org>; 2012-08-16
 
 
-import gpodder
-
-from gpodder import util
-
 import glob
+import logging
 import os
 
-import logging
+import gpodder
+from gpodder import util
+
 logger = logging.getLogger(__name__)
 
 

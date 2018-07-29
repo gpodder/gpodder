@@ -24,29 +24,23 @@
 #  Based on libpodcasts.py (thp, 2005-10-29)
 #
 
-import gpodder
-from gpodder import util
-from gpodder import feedcore
-from gpodder import youtube
-from gpodder import vimeo
-from gpodder import escapist_videos
-from gpodder import schema
-from gpodder import coverart
-
+import collections
+import datetime
+import glob
+import hashlib
 import logging
-logger = logging.getLogger(__name__)
-
 import os
 import re
-import glob
 import shutil
-import time
-import datetime
-
-import hashlib
-import podcastparser
-import collections
 import string
+import time
+
+import gpodder
+import podcastparser
+from gpodder import (coverart, escapist_videos, feedcore, schema, util, vimeo,
+                     youtube)
+
+logger = logging.getLogger(__name__)
 
 _ = gpodder.gettext
 

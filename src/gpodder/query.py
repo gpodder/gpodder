@@ -22,10 +22,10 @@
 #  gpodder.query - Episode Query Language (EQL) implementation (2010-11-29)
 #
 
-import gpodder
-
-import re
 import datetime
+import re
+
+import gpodder
 
 
 class Matcher(object):

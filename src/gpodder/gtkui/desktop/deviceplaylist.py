@@ -17,15 +17,17 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+import logging
 import os
+
 import gpodder
+from gpodder import util
+from gpodder.sync import (episode_filename_on_device,
+                          episode_foldername_on_device)
 
 _ = gpodder.gettext
 
-from gpodder import util
-from gpodder.sync import episode_filename_on_device, episode_foldername_on_device
 
-import logging
 logger = logging.getLogger(__name__)
 
 

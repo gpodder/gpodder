@@ -19,12 +19,12 @@
 #
 
 import ctypes
-from ctypes import byref, c_ulonglong, HRESULT, Structure
-from ctypes.wintypes import (BOOL, BYTE, DWORD, HANDLE, LPCWSTR, MAX_PATH, PULARGE_INTEGER, WORD)
+from ctypes import HRESULT, Structure, byref, c_ulonglong
+from ctypes.wintypes import (BOOL, BYTE, DWORD, HANDLE, LPCWSTR, MAX_PATH,
+                             PULARGE_INTEGER, WORD)
 from uuid import UUID
 
 from win32ctypes.core.ctypes._util import check_zero, function_factory
-
 
 # Use a local copy of dlls.
 kernel32 = ctypes.WinDLL('kernel32')

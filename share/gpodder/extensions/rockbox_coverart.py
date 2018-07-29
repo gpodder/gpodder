@@ -3,11 +3,11 @@
 # (c) 2014-04-10 Alex Mayer <magictrick4906@aim.com>
 # Released under the same license terms as gPodder itself.
 
+# Use a logger for debug output - this will be managed by gPodder
+import logging
 import os
 import shutil
 
-# Use a logger for debug output - this will be managed by gPodder
-import logging
 logger = logging.getLogger(__name__)
 
 # Provide some metadata that will be displayed in the gPodder GUI

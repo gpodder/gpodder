@@ -3,6 +3,11 @@
 # Ubuntu Unity Launcher Integration
 # Thomas Perl <thp@gpodder.org>; 2012-02-06
 
+import logging
+import os
+import subprocess
+import sys
+
 import gpodder
 from gpodder import util
 
@@ -23,10 +28,6 @@ __disable_in__ = 'win32'
 # this and still expose the same "interface' (LauncherEntry and its methods)
 # to our callers.
 
-import os
-import subprocess
-import sys
-import logging
 
 if __name__ != '__main__':
     logger = logging.getLogger(__name__)

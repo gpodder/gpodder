@@ -6,13 +6,13 @@
 # (c) 2011-11-23 Bernd Schlapsi <brot@gmx.info>
 # Released under the same license terms as gPodder itself.
 
+import logging
 import os
 import subprocess
 
 import gpodder
 from gpodder import util
 
-import logging
 logger = logging.getLogger(__name__)
 
 _ = gpodder.gettext

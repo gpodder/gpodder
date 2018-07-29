@@ -65,6 +65,7 @@ unittest:
 
 lint:
 	pycodestyle share src/gpodder tools bin/* *.py
+	isort -rc -c share src/gpodder tools bin/* *.py
 
 
 release: distclean

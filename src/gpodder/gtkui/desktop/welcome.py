@@ -20,10 +20,9 @@
 from gi.repository import Gtk
 
 import gpodder
+from gpodder.gtkui.interface.common import BuilderWidget
 
 _ = gpodder.gettext
-
-from gpodder.gtkui.interface.common import BuilderWidget
 
 
 class gPodderWelcome(BuilderWidget):

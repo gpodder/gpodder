@@ -26,9 +26,10 @@ __only_for__ = 'gtk'
 __mandatory_in__ = 'gtk'
 __disable_in__ = 'win32'
 
+import logging
+
 import gpodder
 
-import logging
 logger = logging.getLogger(__name__)
 
 try:

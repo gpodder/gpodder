@@ -6,15 +6,13 @@
 # (c) 2011-08-05 Thomas Perl <thp.io/about>
 # Released under the same license terms as gPodder itself.
 
+import logging
 import os
 import subprocess
 
 import gpodder
+from gpodder import util, youtube
 
-from gpodder import util
-from gpodder import youtube
-
-import logging
 logger = logging.getLogger(__name__)
 
 _ = gpodder.gettext

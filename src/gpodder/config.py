@@ -24,15 +24,14 @@
 #
 
 
-import gpodder
-from gpodder import util
-from gpodder import jsonconfig
-
 import atexit
+import logging
 import os
 import shutil
 import time
-import logging
+
+import gpodder
+from gpodder import jsonconfig, util
 
 _ = gpodder.gettext
 

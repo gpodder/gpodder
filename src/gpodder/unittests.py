@@ -23,8 +23,8 @@
 
 
 import doctest
-import unittest
 import sys
+import unittest
 
 try:
     # Unused here locally, but we import it to be able to give an early

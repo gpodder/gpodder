@@ -16,20 +16,16 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-from urllib.parse import urlparse
-
-from gi.repository import Gtk
-from gi.repository import Gdk
-from gi.repository import Pango
-
 import html
 import logging
+from urllib.parse import urlparse
+
+from gi.repository import Gdk, Gtk, Pango
 
 import gpodder
-
 from gpodder import util
-from gpodder.gtkui.draw import draw_text_box_centered, \
-                                get_background_color, get_foreground_color
+from gpodder.gtkui.draw import (draw_text_box_centered, get_background_color,
+                                get_foreground_color)
 
 _ = gpodder.gettext
 

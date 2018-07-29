@@ -24,7 +24,6 @@
 import unittest
 
 import gpodder
-
 from gpodder import model
 
 

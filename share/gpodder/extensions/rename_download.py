@@ -3,13 +3,13 @@
 # Copyright (c) 2011-04-04 Thomas Perl <thp.io>
 # Licensed under the same terms as gPodder itself
 
+import logging
 import os
 
 import gpodder
 from gpodder import util
 from gpodder.model import PodcastEpisode
 
-import logging
 logger = logging.getLogger(__name__)
 
 _ = gpodder.gettext

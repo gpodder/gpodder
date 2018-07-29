@@ -22,16 +22,16 @@
 # Thomas Perl <thp@gpodder.org>; 2009-06-11
 #
 
-import podcastparser
+import logging
+import urllib.parse
+from html.parser import HTMLParser
+from urllib.error import HTTPError
 
+import podcastparser
 from gpodder import util
 
-import logging
 logger = logging.getLogger(__name__)
 
-from urllib.error import HTTPError
-from html.parser import HTMLParser
-import urllib.parse
 
 try:
     # Python 2
