@@ -45,13 +45,11 @@ __version__ = '0.0.3'
 __docformat__ = 'restructuredtext'
 
 
+import gettext
+import locale
 import os
 import sys
-import locale
-import gettext
-
 from logging import getLogger
-
 
 logger = getLogger(__name__)
 

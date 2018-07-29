@@ -4,9 +4,10 @@
 # (c) 2012-10-13 Bernd Schlapsi <brot@gmx.info>
 # Released under the same license terms as gPodder itself.
 
+import logging
+
 import gpodder
 
-import logging
 logger = logging.getLogger(__name__)
 
 _ = gpodder.gettext

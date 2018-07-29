@@ -10,15 +10,15 @@
 # Copyright (c) 2011-04-04 Thomas Perl <thp.io>
 # Licensed under the same terms as gPodder itself
 
-import kaa.metadata
+import logging
 import os
 import shlex
 import subprocess
 
 import gpodder
+import kaa.metadata
 from gpodder import util
 
-import logging
 logger = logging.getLogger(__name__)
 
 _ = gpodder.gettext

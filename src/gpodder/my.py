@@ -24,24 +24,27 @@
 #  Thomas Perl <thp@gpodder.org>; 2010-01-19
 #
 
-import gpodder
-_ = gpodder.gettext
-
 import atexit
-import datetime
 import calendar
+import datetime
+import logging
 import os
 import sys
 import time
 
-import logging
-logger = logging.getLogger(__name__)
-
-from gpodder import util
-from gpodder import minidb
-
+import gpodder
 # Append gPodder's user agent to mygpoclient's user agent
 import mygpoclient
+from gpodder import minidb, util
+from mygpoclient import api, public
+from mygpoclient import util as mygpoutil
+
+_ = gpodder.gettext
+
+
+logger = logging.getLogger(__name__)
+
+
 mygpoclient.user_agent += ' ' + gpodder.user_agent
 
 # 2013-02-08: We should update this to 1.7 once we use the new features
@@ -66,11 +69,6 @@ except ImportError:
     # mygpoclient, we use an object that can never be raised/caught
     MissingCredentials = object()
 
-
-from mygpoclient import api
-from mygpoclient import public
-
-from mygpoclient import util as mygpoutil
 
 EPISODE_ACTIONS_BATCH_SIZE = 100
 

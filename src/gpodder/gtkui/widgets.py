@@ -24,12 +24,9 @@
 #  Thomas Perl <thp@gpodder.org> 2009-03-31
 #
 
-from gi.repository import Gdk
-from gi.repository import Gtk
-from gi.repository import GObject
-from gi.repository import Pango
-
 import cgi
+
+from gi.repository import Gdk, GObject, Gtk, Pango
 
 
 class SimpleMessageArea(Gtk.HBox):

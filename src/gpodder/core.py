@@ -22,12 +22,7 @@
 
 
 import gpodder
-
-from gpodder import util
-from gpodder import config
-from gpodder import dbsqlite
-from gpodder import extensions
-from gpodder import model
+from gpodder import config, dbsqlite, extensions, model, util
 
 
 class Core(object):

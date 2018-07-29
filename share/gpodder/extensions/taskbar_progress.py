@@ -20,7 +20,14 @@
 # Windows 7 taskbar progress
 # Sean Munkel; 2013-01-05
 
+import functools
+import logging
+from ctypes import (HRESULT, POINTER, Structure, alignment, c_int, c_uint,
+                    c_ulong, c_ulonglong, c_ushort, c_wchar_p, sizeof)
+from ctypes.wintypes import tagRECT
+
 import gpodder
+from comtypes import COMMETHOD, GUID, IUnknown, client, wireHWND
 
 _ = gpodder.gettext
 
@@ -31,15 +38,6 @@ __authors__ = 'Sean Munkel <seanmunkel@gmail.com>'
 __category__ = 'desktop-integration'
 __only_for__ = 'win32'
 
-
-from ctypes import (c_ushort, c_int, c_uint, c_ulong, c_ulonglong,
-                    c_wchar_p, alignment, sizeof, Structure, POINTER)
-from comtypes import IUnknown, GUID, COMMETHOD, wireHWND, client
-from ctypes import HRESULT
-from ctypes.wintypes import tagRECT
-import functools
-
-import logging
 logger = logging.getLogger(__name__)
 
 WSTRING = c_wchar_p

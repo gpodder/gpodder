@@ -24,25 +24,21 @@
 #
 
 
-from gi.repository import Gtk
-from gi.repository import GdkPixbuf
-from gi.repository import Pango
 import cgi
+import logging
 import os
 
+from gi.repository import GdkPixbuf, Gtk, Pango
+
 import gpodder
-
-_ = gpodder.gettext
-
-import logging
-logger = logging.getLogger(__name__)
-
-from gpodder import util
-from gpodder import directory
-
+from gpodder import directory, util
 from gpodder.gtkui.interface.common import BuilderWidget
 from gpodder.gtkui.interface.progress import ProgressIndicator
 from gpodder.gtkui.interface.tagcloud import TagCloud
+
+_ = gpodder.gettext
+
+logger = logging.getLogger(__name__)
 
 
 class DirectoryPodcastsModel(Gtk.ListStore):

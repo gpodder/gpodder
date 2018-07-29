@@ -5,12 +5,12 @@
 # Usage: make statistics | python summary.py
 #
 
-import sys
-import re
-import math
 import glob
+import math
 import os
+import re
 import subprocess
+import sys
 
 width = 40
 

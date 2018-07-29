@@ -23,14 +23,14 @@
 # The reason for this script is that my media player (MEIZU SL6)
 # couldn't handle ogg files with included coverart
 
+import logging
 import os
 
 import gpodder
+from mutagen.oggvorbis import OggVorbis
 
-import logging
 logger = logging.getLogger(__name__)
 
-from mutagen.oggvorbis import OggVorbis
 
 _ = gpodder.gettext
 

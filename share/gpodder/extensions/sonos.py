@@ -4,17 +4,17 @@
 # (c) 2013-01-19 Stefan Kögl <stefan@skoegl.net>
 # Released under the same license terms as gPodder itself.
 
+import logging
 from functools import partial
 
-import gpodder
-_ = gpodder.gettext
-
-import logging
-logger = logging.getLogger(__name__)
-
-import soco
 import requests
 
+import gpodder
+import soco
+
+_ = gpodder.gettext
+
+logger = logging.getLogger(__name__)
 
 __title__ = _('Stream to Sonos')
 __description__ = _('Stream podcasts to Sonos speakers')

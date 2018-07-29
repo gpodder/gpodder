@@ -1,15 +1,16 @@
 # -*- coding: utf-8 -*-
 # vi:si:et:sw=4:sts=4:ts=4
-import os
 import json
 import logging
+import os
 import re
-
 from datetime import timedelta
-logger = logging.getLogger(__name__)
 
 import gpodder
 from gpodder import util
+
+logger = logging.getLogger(__name__)
+
 
 _ = gpodder.gettext
 

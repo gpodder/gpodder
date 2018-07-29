@@ -12,14 +12,14 @@ Deletes unneeded DLLs and checks DLL dependencies.
 Execute with the build python, will figure out the rest.
 """
 
-import subprocess
 import os
+import subprocess
 import sys
 from multiprocessing import Process, Queue
 
-import gi
-gi.require_version("GIRepository", "2.0")
-from gi.repository import GIRepository
+import gi  # isort:skip
+gi.require_version("GIRepository", "2.0")  # isort:skip
+from gi.repository import GIRepository  # isort:skip
 
 
 def _get_shared_libraries(q, namespace, version):

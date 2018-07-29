@@ -17,16 +17,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from gi.repository import Gtk
-from gi.repository import Gdk
+from gi.repository import Gdk, Gtk
 
 import gpodder
-
-_ = gpodder.gettext
-
+from gpodder import util
 from gpodder.gtkui.interface.common import BuilderWidget
 
-from gpodder import util
+_ = gpodder.gettext
 
 
 class gPodderAddPodcast(BuilderWidget):

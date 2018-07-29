@@ -21,9 +21,8 @@ Based on SimpleGladeApp.py Copyright (C) 2004 Sandino Flores Moreno
 # USA
 
 import os
-import sys
 import re
-
+import sys
 import tokenize
 
 from gi.repository import Gtk

@@ -22,12 +22,11 @@
 # Based on a patch by Iwan van der Kleijn <iwanvanderkleyn@gmail.com>
 # See also: http://gpodder.org/bug/699
 
-import gpodder
-
-from gpodder import util
-
 import dbus
 import dbus.service
+
+import gpodder
+from gpodder import util
 
 
 def safe_str(txt):

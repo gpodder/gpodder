@@ -17,18 +17,14 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from gi.repository import Gtk
-from gi.repository import Pango
+from gi.repository import Gtk, Pango
 
 import gpodder
+from gpodder import util
+from gpodder.gtkui.interface.common import BuilderWidget, TreeViewHelper
 
 _ = gpodder.gettext
 N_ = gpodder.ngettext
-
-from gpodder import util
-
-from gpodder.gtkui.interface.common import BuilderWidget
-from gpodder.gtkui.interface.common import TreeViewHelper
 
 
 class gPodderEpisodeSelector(BuilderWidget):

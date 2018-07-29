@@ -29,25 +29,25 @@ their parameters.
 For an example extension see share/gpodder/examples/extensions.py
 """
 
+import functools
 import glob
 import imp
 import inspect
 import json
+import logging
 import os
-import functools
+import re
 import shlex
 import subprocess
 import sys
-import re
 from datetime import datetime
 
 import gpodder
+from gpodder import util
 
 _ = gpodder.gettext
 
-from gpodder import util
 
-import logging
 logger = logging.getLogger(__name__)
 
 

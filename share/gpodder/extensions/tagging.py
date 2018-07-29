@@ -25,20 +25,20 @@
 
 import base64
 import datetime
+import logging
 import mimetypes
 import os
 
 import gpodder
 from gpodder import coverart
-
-import logging
-logger = logging.getLogger(__name__)
-
 from mutagen import File
 from mutagen.flac import Picture
+from mutagen.id3 import APIC, ID3
 from mutagen.mp3 import MP3
-from mutagen.id3 import ID3, APIC
 from mutagen.mp4 import MP4Cover, MP4Tags
+
+logger = logging.getLogger(__name__)
+
 
 # workaround for https://github.com/quodlibet/mutagen/issues/334
 # can't add_tags to MP4 when file has no tag

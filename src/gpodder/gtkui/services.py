@@ -23,19 +23,17 @@
 #
 
 
-import gpodder
-_ = gpodder.gettext
+import logging
 
+from gi.repository import GdkPixbuf, Gtk
+
+import gpodder
+from gpodder import coverart, util
 from gpodder.services import ObservableService
 
-import logging
+_ = gpodder.gettext
+
 logger = logging.getLogger(__name__)
-
-from gpodder import util
-from gpodder import coverart
-
-from gi.repository import Gtk
-from gi.repository import GdkPixbuf
 
 
 class CoverDownloader(ObservableService):

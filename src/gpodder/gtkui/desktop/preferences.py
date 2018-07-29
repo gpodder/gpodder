@@ -17,29 +17,22 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from gi.repository import Gtk
-from gi.repository import Gdk
-from gi.repository import Pango
 import cgi
+import logging
 import urllib.parse
 
-import logging
-logger = logging.getLogger(__name__)
+from gi.repository import Gdk, Gtk, Pango
 
 import gpodder
+from gpodder import util, vimeo, youtube
+from gpodder.gtkui.desktopfile import PlayerListModel
+from gpodder.gtkui.interface.common import BuilderWidget, TreeViewHelper
+from gpodder.gtkui.interface.configeditor import gPodderConfigEditor
+
+logger = logging.getLogger(__name__)
 
 _ = gpodder.gettext
 N_ = gpodder.ngettext
-
-from gpodder import util
-from gpodder import youtube
-from gpodder import vimeo
-
-from gpodder.gtkui.interface.common import BuilderWidget
-from gpodder.gtkui.interface.common import TreeViewHelper
-from gpodder.gtkui.interface.configeditor import gPodderConfigEditor
-
-from gpodder.gtkui.desktopfile import PlayerListModel
 
 
 class NewEpisodeActionList(Gtk.ListStore):

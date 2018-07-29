@@ -20,15 +20,15 @@
 # gpodder.schema - Database schema update and migration facility
 # Thomas Perl <thp@gpodder.org>; 2011-02-01
 
+import logging
+import shutil
+import time
 from sqlite3 import dbapi2 as sqlite
 
-import time
-import shutil
+from gpodder import util
 
-import logging
 logger = logging.getLogger(__name__)
 
-from gpodder import util
 
 EpisodeColumns = (
     'podcast_id',

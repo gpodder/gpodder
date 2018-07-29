@@ -20,14 +20,16 @@
 #  Justin Forest <justin.forest@gmail.com> 2008-10-13
 #
 
-from urllib.parse import parse_qs
-from gpodder import util
-from html.parser import HTMLParser
 import json
+import logging
 import re
 import urllib
 import xml.etree.ElementTree
-import logging
+from html.parser import HTMLParser
+from urllib.parse import parse_qs
+
+from gpodder import util
+
 logger = logging.getLogger(__name__)
 
 # http://en.wikipedia.org/wiki/YouTube#Quality_and_codecs

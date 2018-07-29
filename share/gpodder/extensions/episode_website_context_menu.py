@@ -3,10 +3,11 @@
 # (c) 2014-10-20 Thomas Perl <thp.io/about>
 # Released under the same license terms as gPodder itself.
 
+import logging
+
 import gpodder
 from gpodder import util
 
-import logging
 logger = logging.getLogger(__name__)
 
 _ = gpodder.gettext

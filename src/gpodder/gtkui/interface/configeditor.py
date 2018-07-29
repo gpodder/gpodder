@@ -17,16 +17,15 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from gi.repository import Gtk
 import cgi
 
+from gi.repository import Gtk
+
 import gpodder
+from gpodder.gtkui.config import ConfigModel
+from gpodder.gtkui.interface.common import BuilderWidget
 
 _ = gpodder.gettext
-
-from gpodder.gtkui.config import ConfigModel
-
-from gpodder.gtkui.interface.common import BuilderWidget
 
 
 class gPodderConfigEditor(BuilderWidget):

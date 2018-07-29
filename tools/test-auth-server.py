@@ -4,11 +4,11 @@
 # from our crappy-but-does-the-job department
 # Thomas Perl <thp.io/about>; 2012-01-20
 
-import http.server
-import sys
-import re
-import hashlib
 import datetime
+import hashlib
+import http.server
+import re
+import sys
 
 USERNAME = 'user@example.com'    # Username used for HTTP Authentication
 PASSWORD = 'secret'              # Password used for HTTP Authentication

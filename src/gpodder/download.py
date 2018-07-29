@@ -25,31 +25,25 @@
 #  Based on libwget.py (2005-10-29)
 #
 
+import collections
+import email
 import logging
-logger = logging.getLogger(__name__)
-
-from gpodder import util
-from gpodder import youtube
-from gpodder import vimeo
-from gpodder import escapist_videos
-import gpodder
-
+import mimetypes
+import os
+import os.path
+import shutil
 import socket
 import threading
-import shutil
-import os.path
-import os
 import time
-import collections
-
-import mimetypes
-import email
 import urllib.error
 import urllib.parse
 import urllib.request
-
 from email.header import decode_header
 
+import gpodder
+from gpodder import escapist_videos, util, vimeo, youtube
+
+logger = logging.getLogger(__name__)
 
 _ = gpodder.gettext
 

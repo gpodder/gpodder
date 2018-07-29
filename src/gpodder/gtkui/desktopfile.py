@@ -25,22 +25,19 @@
 #
 
 import glob
-import re
+import logging
 import os
 import os.path
+import re
 import threading
-
 from configparser import RawConfigParser
 
-from gi.repository import GObject
-from gi.repository import GdkPixbuf
-from gi.repository import Gtk
+from gi.repository import GdkPixbuf, GObject, Gtk
 
 import gpodder
 
 _ = gpodder.gettext
 
-import logging
 logger = logging.getLogger(__name__)
 
 # where are the .desktop files located?

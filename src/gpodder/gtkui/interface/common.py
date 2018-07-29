@@ -17,19 +17,16 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from gi.repository import Gtk
-from gi.repository import Gdk
-
 import os
 import shutil
 
+from gi.repository import Gdk, Gtk
+
 import gpodder
+from gpodder import util
+from gpodder.gtkui.base import GtkBuilderWidget
 
 _ = gpodder.gettext
-
-from gpodder import util
-
-from gpodder.gtkui.base import GtkBuilderWidget
 
 
 class BuilderWidget(GtkBuilderWidget):

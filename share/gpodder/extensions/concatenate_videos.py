@@ -3,16 +3,16 @@
 # 2014-05-03 Thomas Perl <thp.io/about>
 # Released under the same license terms as gPodder itself.
 
+import logging
+import os
 import subprocess
+
+from gi.repository import Gtk
 
 import gpodder
 from gpodder import util
-
-from gi.repository import Gtk
 from gpodder.gtkui.interface.progress import ProgressIndicator
-import os
 
-import logging
 logger = logging.getLogger(__name__)
 
 _ = gpodder.gettext
