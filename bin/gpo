@@ -112,6 +112,9 @@ if os.path.exists(os.path.join(src_dir, 'gpodder', '__init__.py')):
     sys.path.insert(0, src_dir)
 
 import gpodder  # isort:skip
+from gpodder import common, core, download, log, model, my, opml, util, youtube  # isort:skip
+from gpodder.config import config_value_to_string  # isort:skip
+
 _ = gpodder.gettext
 N_ = gpodder.ngettext
 
@@ -125,10 +128,7 @@ have_ansi = sys.stdout.isatty() and not gpodder.ui.win32
 interactive_console = sys.stdin.isatty() and sys.stdout.isatty()
 is_single_command = False
 
-gpodder.log.setup(verbose)
-
-from gpodder import common, core, download, model, my, opml, util, youtube  # isort:skip
-from gpodder.config import config_value_to_string  # isort:skip
+log.setup(verbose)
 
 
 def incolor(color_id, s):
