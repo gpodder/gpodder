@@ -29,14 +29,13 @@ import logging
 import mimetypes
 import os
 
+import gpodder
+from gpodder import coverart
 from mutagen import File
 from mutagen.flac import Picture
 from mutagen.id3 import APIC, ID3
 from mutagen.mp3 import MP3
 from mutagen.mp4 import MP4Cover, MP4Tags
-
-import gpodder
-from gpodder import coverart
 
 logger = logging.getLogger(__name__)
 
