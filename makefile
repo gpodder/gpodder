@@ -63,9 +63,10 @@ help:
 unittest:
 	LC_ALL=C PYTHONPATH=src/ $(PYTHON) -m gpodder.unittests
 
+ISORTOPTS := -rc -c share src/gpodder tools bin/* *.py
 lint:
 	pycodestyle share src/gpodder tools bin/* *.py
-	isort -rc -c share src/gpodder tools bin/* *.py
+	isort -q $(ISORTOPTS) || isort -vb $(ISORTOPTS)
 
 
 release: distclean
