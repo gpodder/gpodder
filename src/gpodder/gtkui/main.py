@@ -3744,13 +3744,15 @@ class gPodderApplication(Gtk.Application):
         {copyright}
         License: {license}
 
-        <a href="{url}">Website</a> · <a href="{bugs_url}">Bug Tracker</a>
+        <a href="{url}">{tr_website}</a> · <a href="{bugs_url}">{tr_bugtracker}</a>
         """.format(version=gpodder.__version__,
                    date=gpodder.__date__,
                    copyright=gpodder.__copyright__,
                    license=gpodder.__license__,
                    bugs_url='https://github.com/gpodder/gpodder/issues',
-                   url=cgi.escape(gpodder.__url__)).strip().split('\n')))
+                   url=cgi.escape(gpodder.__url__),
+                   tr_website=_('Website'),
+                   tr_bugtracker=_('Bug Tracker')).strip().split('\n')))
 
         vb.pack_start(label, False, False, 0)
         bg.pack_start(vb, False, False, 0)

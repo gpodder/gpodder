@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gPodder\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-08-01 08:16+0200\n"
+"POT-Creation-Date: 2018-08-02 22:41+0200\n"
 "PO-Revision-Date: 2018-02-25 20:35+0100\n"
 "Last-Translator: Balázs Meskó <mesko.balazs@fsf.hu>\n"
 "Language-Team: Hungarian\n"
@@ -534,6 +534,7 @@ msgid "Start download now"
 msgstr "Letöltés indítása most"
 
 #: src/gpodder/gtkui/main.py:1651 src/gpodder/gtkui/main.py:1883
+#: src/gpodder/gtkui/desktop/podcastdirectory.py:192
 #: src/gpodder/gtkui/desktop/episodeselector.py:139
 #: share/gpodder/ui/gtk/gpodder.ui.h:1 share/gpodder/ui/gtk/menus.ui.h:22
 msgid "Download"
@@ -1088,25 +1089,34 @@ msgstr "D-Bus hiba: %s"
 msgid "About gPodder"
 msgstr "A gPodder névjegye"
 
-#: src/gpodder/gtkui/main.py:3804
+#: src/gpodder/gtkui/main.py:3754
+#, fuzzy
+msgid "Website"
+msgstr "Webhely:"
+
+#: src/gpodder/gtkui/main.py:3755
+msgid "Bug Tracker"
+msgstr ""
+
+#: src/gpodder/gtkui/main.py:3806
 msgid "Path to gPodder home is too long"
 msgstr ""
 
-#: src/gpodder/gtkui/shownotes.py:87 src/gpodder/gtkui/model.py:67
+#: src/gpodder/gtkui/shownotes.py:90 src/gpodder/gtkui/model.py:67
 #: src/gpodder/gtkui/model.py:85 src/gpodder/gtkui/model.py:284
 #, python-format
 msgid "from %s"
 msgstr "innen: %s"
 
-#: src/gpodder/gtkui/shownotes.py:118
+#: src/gpodder/gtkui/shownotes.py:121
 msgid "Please select an episode"
 msgstr "Válasszon epizódot"
 
-#: src/gpodder/gtkui/shownotes.py:304
+#: src/gpodder/gtkui/shownotes.py:307
 msgid "Open shownotes in web browser"
 msgstr "Műsorjegyzetek megnyitása böngészőben"
 
-#: src/gpodder/gtkui/shownotes.py:310
+#: src/gpodder/gtkui/shownotes.py:313
 msgid "Open link in web browser"
 msgstr "Hivatkozás megnyitása böngészőben"
 
@@ -1382,6 +1392,31 @@ msgstr "Válasszon mappát csatolási pontnak"
 msgid "Select folder for playlists"
 msgstr "Válasszon mappát a lejátszólistákhoz"
 
+#: src/gpodder/gtkui/desktop/podcastdirectory.py:188
+#, fuzzy
+msgid "Search:"
+msgstr "Keresés erre:"
+
+#: src/gpodder/gtkui/desktop/podcastdirectory.py:189
+#, fuzzy
+msgid "Search"
+msgstr "Keresés erre:"
+
+#: src/gpodder/gtkui/desktop/podcastdirectory.py:191
+#: share/gpodder/ui/gtk/gpodderaddpodcast.ui.h:2
+msgid "URL:"
+msgstr "URL:"
+
+#: src/gpodder/gtkui/desktop/podcastdirectory.py:194
+#, fuzzy
+msgid "Filename:"
+msgstr "Felhasználónév:"
+
+#: src/gpodder/gtkui/desktop/podcastdirectory.py:195
+#: share/gpodder/ui/gtk/menus.ui.h:21
+msgid "Open"
+msgstr "Megnyitás"
+
 #: src/gpodder/gtkui/desktop/podcastdirectory.py:236
 msgid "Loading podcasts"
 msgstr "Podcastok betöltése"
@@ -1578,6 +1613,14 @@ msgstr "Főablak megjelenítése"
 msgid "Quit"
 msgstr "Kilépés"
 
+#: share/gpodder/extensions/rockbox_coverart.py:18
+msgid "Rockbox Cover Art Sync"
+msgstr ""
+
+#: share/gpodder/extensions/rockbox_coverart.py:19
+msgid "Copy Cover Art To Rockboxed Media Player"
+msgstr ""
+
 #: share/gpodder/extensions/taskbar_progress.py:35
 msgid "Show download progress on the taskbar"
 msgstr "Letöltési előrehaladásának megjelenítése a tálcán"
@@ -1593,6 +1636,14 @@ msgstr "Epizódok átnevezése letöltés után"
 #: share/gpodder/extensions/rename_download.py:18
 msgid "Rename episodes to \"<Episode Title>.<ext>\" on download"
 msgstr "Epizód átnevezése letöltéskor erre: „<Epizódcím>.<kiterjesztés>”"
+
+#: share/gpodder/extensions/command_on_download.py:18
+msgid "Run a Command on Download"
+msgstr ""
+
+#: share/gpodder/extensions/command_on_download.py:19
+msgid "Run the `extensions.command_on_download.command` on download"
+msgstr ""
 
 #: share/gpodder/extensions/video_converter.py:20
 msgid "Convert video files"
@@ -1644,6 +1695,14 @@ msgstr "Sorbaállítás itt:"
 #: share/gpodder/extensions/enqueue_in_mediaplayer.py:96
 msgid "Resume in"
 msgstr "Folytatás itt:"
+
+#: share/gpodder/extensions/notification-win32.py:54
+msgid "Notification Bubbles for Windows"
+msgstr ""
+
+#: share/gpodder/extensions/notification-win32.py:55
+msgid "Display notification bubbles for different events."
+msgstr ""
 
 #: share/gpodder/extensions/update_feeds_on_startup.py:15
 msgid "Search for new episodes on startup"
@@ -1762,10 +1821,6 @@ msgstr "Letöltési folyamat megjelenítése az Ubuntu tálcaikonon."
 #: share/gpodder/ui/gtk/gpodderaddpodcast.ui.h:1
 msgid "Add a new podcast"
 msgstr "Új podcast hozzáadása"
-
-#: share/gpodder/ui/gtk/gpodderaddpodcast.ui.h:2
-msgid "URL:"
-msgstr "URL:"
 
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:1
 msgid "gPodder Podcast Editor"
@@ -1941,10 +1996,6 @@ msgstr "Exportálás OPML fájlba"
 #, fuzzy
 msgid "_Episodes"
 msgstr "Epizód"
-
-#: share/gpodder/ui/gtk/menus.ui.h:21
-msgid "Open"
-msgstr "Megnyitás"
 
 #: share/gpodder/ui/gtk/menus.ui.h:25
 msgid "Toggle new status"

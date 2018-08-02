@@ -185,14 +185,14 @@ class gPodderPodcastDirectory(BuilderWidget):
         self.current_provider = provider
 
         if provider.kind == directory.Provider.PROVIDER_SEARCH:
-            self.lb_search.set_text('Search:')
-            self.bt_search.set_label('Search')
+            self.lb_search.set_text(_('Search:'))
+            self.bt_search.set_label(_('Search'))
         elif provider.kind == directory.Provider.PROVIDER_URL:
-            self.lb_search.set_text('URL:')
-            self.bt_search.set_label('Download')
+            self.lb_search.set_text(_('URL:'))
+            self.bt_search.set_label(_('Download'))
         elif provider.kind == directory.Provider.PROVIDER_FILE:
-            self.lb_search.set_text('Filename:')
-            self.bt_search.set_label('Open')
+            self.lb_search.set_text(_('Filename:'))
+            self.bt_search.set_label(_('Open'))
         elif provider.kind == directory.Provider.PROVIDER_TAGCLOUD:
             self.tag_cloud.clear_tags()
 

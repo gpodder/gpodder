@@ -8,11 +8,15 @@ import logging
 import os
 import shutil
 
+import gpodder
+
 logger = logging.getLogger(__name__)
+_ = gpodder.gettext
+
 
 # Provide some metadata that will be displayed in the gPodder GUI
-__title__ = 'Rockbox Cover Art Sync'
-__description__ = 'Copy Cover Art To Rockboxed Media Player'
+__title__ = _('Rockbox Cover Art Sync')
+__description__ = _('Copy Cover Art To Rockboxed Media Player')
 __only_for__ = 'gtk, cli'
 __authors__ = 'Alex Mayer <magictrick4906@aim.com>'
 

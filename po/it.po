@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gPodder\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-08-01 08:16+0200\n"
+"POT-Creation-Date: 2018-08-02 22:41+0200\n"
 "PO-Revision-Date: 2013-04-23 17:31+0100\n"
 "Last-Translator: Maurizio Ballo <xmaurizio.13@hotmail.com>\n"
 "Language-Team: Italian (http://www.transifex.com/projects/p/gpodder/language/"
@@ -544,6 +544,7 @@ msgid "Start download now"
 msgstr "Avvia download ora"
 
 #: src/gpodder/gtkui/main.py:1651 src/gpodder/gtkui/main.py:1883
+#: src/gpodder/gtkui/desktop/podcastdirectory.py:192
 #: src/gpodder/gtkui/desktop/episodeselector.py:139
 #: share/gpodder/ui/gtk/gpodder.ui.h:1 share/gpodder/ui/gtk/menus.ui.h:22
 msgid "Download"
@@ -1112,26 +1113,35 @@ msgstr "Errore D-Bus: %s"
 msgid "About gPodder"
 msgstr "Info su gPodder"
 
-#: src/gpodder/gtkui/main.py:3804
+#: src/gpodder/gtkui/main.py:3754
+#, fuzzy
+msgid "Website"
+msgstr "Sito Web:"
+
+#: src/gpodder/gtkui/main.py:3755
+msgid "Bug Tracker"
+msgstr ""
+
+#: src/gpodder/gtkui/main.py:3806
 msgid "Path to gPodder home is too long"
 msgstr ""
 
-#: src/gpodder/gtkui/shownotes.py:87 src/gpodder/gtkui/model.py:67
+#: src/gpodder/gtkui/shownotes.py:90 src/gpodder/gtkui/model.py:67
 #: src/gpodder/gtkui/model.py:85 src/gpodder/gtkui/model.py:284
 #, python-format
 msgid "from %s"
 msgstr "da %s"
 
-#: src/gpodder/gtkui/shownotes.py:118
+#: src/gpodder/gtkui/shownotes.py:121
 #, fuzzy
 msgid "Please select an episode"
 msgstr "Seleziona episodi"
 
-#: src/gpodder/gtkui/shownotes.py:304
+#: src/gpodder/gtkui/shownotes.py:307
 msgid "Open shownotes in web browser"
 msgstr ""
 
-#: src/gpodder/gtkui/shownotes.py:310
+#: src/gpodder/gtkui/shownotes.py:313
 msgid "Open link in web browser"
 msgstr ""
 
@@ -1409,6 +1419,31 @@ msgstr "Seleziona una cartella per il montaggio"
 msgid "Select folder for playlists"
 msgstr "Seleziona cartella per le playlist"
 
+#: src/gpodder/gtkui/desktop/podcastdirectory.py:188
+#, fuzzy
+msgid "Search:"
+msgstr "Cerca:"
+
+#: src/gpodder/gtkui/desktop/podcastdirectory.py:189
+#, fuzzy
+msgid "Search"
+msgstr "Cerca:"
+
+#: src/gpodder/gtkui/desktop/podcastdirectory.py:191
+#: share/gpodder/ui/gtk/gpodderaddpodcast.ui.h:2
+msgid "URL:"
+msgstr "Indirizzo:"
+
+#: src/gpodder/gtkui/desktop/podcastdirectory.py:194
+#, fuzzy
+msgid "Filename:"
+msgstr "Nome utente:"
+
+#: src/gpodder/gtkui/desktop/podcastdirectory.py:195
+#: share/gpodder/ui/gtk/menus.ui.h:21
+msgid "Open"
+msgstr "Apri"
+
 #: src/gpodder/gtkui/desktop/podcastdirectory.py:236
 #, fuzzy
 msgid "Loading podcasts"
@@ -1608,6 +1643,14 @@ msgstr "Mostra finestra principale"
 msgid "Quit"
 msgstr "Esci"
 
+#: share/gpodder/extensions/rockbox_coverart.py:18
+msgid "Rockbox Cover Art Sync"
+msgstr ""
+
+#: share/gpodder/extensions/rockbox_coverart.py:19
+msgid "Copy Cover Art To Rockboxed Media Player"
+msgstr ""
+
 #: share/gpodder/extensions/taskbar_progress.py:35
 msgid "Show download progress on the taskbar"
 msgstr "Mostra progresso dei download nella barra"
@@ -1624,6 +1667,14 @@ msgstr "Rinomina episodi dopo il download"
 msgid "Rename episodes to \"<Episode Title>.<ext>\" on download"
 msgstr ""
 "Rinomina episodi in \"<Titolo Episodio>.<estensione>\" dopo il download"
+
+#: share/gpodder/extensions/command_on_download.py:18
+msgid "Run a Command on Download"
+msgstr ""
+
+#: share/gpodder/extensions/command_on_download.py:19
+msgid "Run the `extensions.command_on_download.command` on download"
+msgstr ""
 
 #: share/gpodder/extensions/video_converter.py:20
 msgid "Convert video files"
@@ -1677,6 +1728,14 @@ msgstr "Accoda a"
 #, fuzzy
 msgid "Resume in"
 msgstr "Ripristina tutti"
+
+#: share/gpodder/extensions/notification-win32.py:54
+msgid "Notification Bubbles for Windows"
+msgstr ""
+
+#: share/gpodder/extensions/notification-win32.py:55
+msgid "Display notification bubbles for different events."
+msgstr ""
 
 #: share/gpodder/extensions/update_feeds_on_startup.py:15
 msgid "Search for new episodes on startup"
@@ -1803,10 +1862,6 @@ msgstr "Mostra progresso dei download nell'icona."
 #: share/gpodder/ui/gtk/gpodderaddpodcast.ui.h:1
 msgid "Add a new podcast"
 msgstr "Aggiung un nuovo podcast"
-
-#: share/gpodder/ui/gtk/gpodderaddpodcast.ui.h:2
-msgid "URL:"
-msgstr "Indirizzo:"
 
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:1
 msgid "gPodder Podcast Editor"
@@ -1983,10 +2038,6 @@ msgstr "Esporta su file OPML"
 #, fuzzy
 msgid "_Episodes"
 msgstr "Episodio"
-
-#: share/gpodder/ui/gtk/menus.ui.h:21
-msgid "Open"
-msgstr "Apri"
 
 #: share/gpodder/ui/gtk/menus.ui.h:25
 msgid "Toggle new status"

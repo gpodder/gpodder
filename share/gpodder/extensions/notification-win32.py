@@ -35,13 +35,6 @@ Windows Toast Notification API or Balloon Notification as fallback.
 It's tested on Win7 32bit and Win10 64bit VMs from modern.ie
 So we have a working solution until Gio.Notification is implemented on Windows.
 """
-__title__ = 'Notification Bubbles for Windows'
-__description__ = 'Display notification bubbles for different events.'
-__authors__ = 'Sean Munkel <SeanMunkel@gmail.com>'
-__category__ = 'desktop-integration'
-__mandatory_in__ = 'win32'
-__only_for__ = 'win32'
-
 import os
 import os.path
 import subprocess
@@ -56,6 +49,14 @@ from gi.repository import Gtk  # isort:skip
 
 
 logger = logging.getLogger(__name__)
+_ = gpodder.gettext
+
+__title__ = _('Notification Bubbles for Windows')
+__description__ = _('Display notification bubbles for different events.')
+__authors__ = 'Sean Munkel <SeanMunkel@gmail.com>'
+__category__ = 'desktop-integration'
+__mandatory_in__ = 'win32'
+__only_for__ = 'win32'
 
 
 class gPodderExtension(object):
