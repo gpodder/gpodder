@@ -20,12 +20,16 @@ import html
 import logging
 from urllib.parse import urlparse
 
-from gi.repository import Gdk, Gtk, Pango
-
 import gpodder
 from gpodder import util
 from gpodder.gtkui.draw import (draw_text_box_centered, get_background_color,
                                 get_foreground_color)
+
+import gi  # isort:skip
+gi.require_version('Gdk', '3.0')  # isort:skip
+gi.require_version('Gtk', '3.0')  # isort:skip
+from gi.repository import Gdk, Gtk, Pango  # isort:skip
+
 
 _ = gpodder.gettext
 
@@ -33,7 +37,6 @@ logger = logging.getLogger(__name__)
 
 has_webkit2 = False
 try:
-    import gi
     gi.require_version('WebKit2', '4.0')
     from gi.repository import WebKit2
     has_webkit2 = True
