@@ -98,14 +98,14 @@ class AuthRequestHandler(http.server.BaseHTTPRequestHandler):
             print('Not authorized - sending WWW-Authenticate header.')
             self.send_response(401)
             self.send_header('WWW-Authenticate',
-                    'Basic realm="%s"' % sys.argv[0])
+                             'Basic realm="%s"' % sys.argv[0])
             self.end_headers()
             self.wfile.close()
             return
 
         self.send_response(200)
         self.send_header('Content-type',
-                'application/xml' if is_feed else 'audio/mpeg')
+                         'application/xml' if is_feed else 'audio/mpeg')
         self.end_headers()
         self.wfile.write(mkrss() if is_feed else mkdata())
         self.wfile.close()

@@ -30,7 +30,7 @@ def build_resource(rc_path, out_path):
     subprocess.check_call(
         ["windres", "-O", "coff", "-F",
          "pe-x86-64" if is_64bit() else "pe-i386", rc_path,
-        "-o", out_path])
+         "-o", out_path])
 
 
 def get_build_args():
@@ -131,7 +131,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
 
 def get_resource_code(filename, file_version, file_desc, icon_path,
-                     product_name, product_version, company_name):
+                      product_name, product_version, company_name):
 
     template = """\
 1 ICON "%(icon_path)s"

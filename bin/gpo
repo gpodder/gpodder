@@ -138,8 +138,7 @@ def incolor(color_id, s):
 
 
 # ANSI Colors: red = 1, green = 2, yellow = 3, blue = 4
-inred, ingreen, inyellow, inblue = (functools.partial(incolor, x)
-        for x in range(1, 5))
+inred, ingreen, inyellow, inblue = (functools.partial(incolor, x) for x in range(1, 5))
 
 
 def FirstArgumentIsPodcastURL(function):
@@ -170,15 +169,17 @@ class gPodderCli(object):
         self._model = self.core.model
 
         self._current_action = ''
-        self._commands = dict((name.rstrip('_'), func)
+        self._commands = dict(
+            (name.rstrip('_'), func)
             for name, func in inspect.getmembers(self)
             if inspect.ismethod(func) and not name.startswith('_'))
         self._prefixes, self._expansions = self._build_prefixes_expansions()
         self._prefixes.update({'?': 'help'})
         self._valid_commands = sorted(self._prefixes.values())
-        gpodder.user_extensions.on_ui_initialized(self.core.model,
-                self._extensions_podcast_update_cb,
-                self._extensions_episode_download_cb)
+        gpodder.user_extensions.on_ui_initialized(
+            self.core.model,
+            self._extensions_podcast_update_cb,
+            self._extensions_episode_download_cb)
 
     @contextlib.contextmanager
     def _action(self, msg, *args):
@@ -294,8 +295,8 @@ class gPodderCli(object):
 
         # Subscribe to new podcast
         if create:
-            return self._model.load_podcast(url, create=True,
-                    max_episodes=self._config.max_episodes_per_feed)
+            return self._model.load_podcast(
+                url, create=True, max_episodes=self._config.max_episodes_per_feed)
 
         # Load existing podcast
         for podcast in self._model.get_podcasts():
@@ -404,8 +405,10 @@ class gPodderCli(object):
 
             return '   '
 
-        episodes = ('%3d.%s %s %s' % (i + 1, ((' %s' % e.guid) if show_guid else ''), status_str(e), e.title)
-                for i, e in enumerate(podcast.get_all_episodes()))
+        episodes = ('%3d.%s %s %s' % (i + 1, ((' %s' % e.guid) if
+                                              show_guid else ''),
+                                      status_str(e), e.title)
+                    for i, e in enumerate(podcast.get_all_episodes()))
         return episodes
 
     @FirstArgumentIsPodcastURL
@@ -475,7 +478,7 @@ class gPodderCli(object):
                 print('#', ingreen(podcast.title))
             else:
                 print('#', inred(podcast.title),
-                        '-', _('Updates disabled'))
+                      '-', _('Updates disabled'))
 
             print(podcast.url)
 
@@ -487,7 +490,7 @@ class gPodderCli(object):
 
     def _pending_message(self, count):
         return N_('%(count)d new episode', '%(count)d new episodes',
-                count) % {'count': count}
+                  count) % {'count': count}
 
     @FirstArgumentIsPodcastURL
     def update(self, url=None):
@@ -684,8 +687,8 @@ class gPodderCli(object):
             return
 
         def show_list():
-            self._pager('\n'.join('%3d: %s\n     %s' %
-                (index + 1, title, url if title != url else '')
+            self._pager('\n'.join(
+                '%3d: %s\n     %s' % (index + 1, title, url if title != url else '')
                 for index, (title, url) in enumerate(results)))
 
         show_list()
@@ -729,10 +732,8 @@ class gPodderCli(object):
             else:
                 new_url = result
                 self._error(_('Changed URL from %(old_url)s to %(new_url)s.') %
-                {
-                    'old_url': old_url,
-                    'new_url': new_url,
-                })
+                            {'old_url': old_url,
+                             'new_url': new_url, })
         return True
 
     def help(self):
@@ -787,7 +788,7 @@ class gPodderCli(object):
                 args = shlex.split(line)
             except ValueError as value_error:
                 self._error(_('Syntax error: %(error)s') %
-                        {'error': value_error})
+                            {'error': value_error})
                 continue
 
             try:
@@ -815,7 +816,7 @@ class gPodderCli(object):
         minarg, maxarg = len(args) - len(defaults), len(args)
 
         if len(command_line) < minarg or (len(command_line) > maxarg and
-                varargs is None):
+                                          varargs is None):
             self._error('Wrong argument count for %s.' % func.__name__)
             return False
 
