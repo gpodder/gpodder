@@ -2579,6 +2579,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 def indicate_updating_podcast(channel):
                     d = {'podcast': channel.title, 'position': updated + 1, 'total': count}
                     progression = _('Updating %(podcast)s (%(position)d/%(total)d)') % d
+                    logger.info(progression)
                     self.pbFeedUpdate.set_text(progression)
 
                 try:
