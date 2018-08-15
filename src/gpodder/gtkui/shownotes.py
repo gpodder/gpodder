@@ -55,6 +55,15 @@ class gPodderShownotes:
     def __init__(self, shownotes_pane):
         self.shownotes_pane = shownotes_pane
 
+        self.text_view = Gtk.TextView()
+        self.text_view.set_wrap_mode(Gtk.WrapMode.WORD_CHAR)
+        self.text_view.set_border_width(10)
+        self.text_view.set_editable(False)
+        self.text_buffer = Gtk.TextBuffer()
+        self.text_buffer.create_tag('heading', scale=1.6, weight=Pango.Weight.BOLD)
+        self.text_buffer.create_tag('subheading', scale=1.3)
+        self.text_view.set_buffer(self.text_buffer)
+
         self.scrolled_window = Gtk.ScrolledWindow()
         # main_component is the scrolled_window, except for gPodderShownotesText
         # where it's an overlay, to show hyperlink targets
@@ -125,18 +134,10 @@ class gPodderShownotes:
 
 class gPodderShownotesText(gPodderShownotes):
     def init(self):
-        self.text_view = Gtk.TextView()
         self.text_view.set_property('expand', True)
-        self.text_view.set_wrap_mode(Gtk.WrapMode.WORD_CHAR)
-        self.text_view.set_border_width(10)
-        self.text_view.set_editable(False)
         self.text_view.connect('button-release-event', self.on_button_release)
         self.text_view.connect('key-press-event', self.on_key_press)
-        self.text_buffer = Gtk.TextBuffer()
-        self.text_buffer.create_tag('heading', scale=2, weight=Pango.Weight.BOLD)
-        self.text_buffer.create_tag('subheading', scale=1.5)
         self.text_buffer.create_tag('hyperlink', foreground="#0000FF", underline=Pango.Underline.SINGLE)
-        self.text_view.set_buffer(self.text_buffer)
         self.text_view.connect('motion-notify-event', self.on_hover_hyperlink)
         self.overlay = Gtk.Overlay()
         self.overlay.add(self.scrolled_window)
@@ -230,25 +231,23 @@ class gPodderShownotesHTML(gPodderShownotes):
         self.html_view.connect('mouse-target-changed', self.on_mouse_over)
         self.html_view.connect('context-menu', self.on_context_menu)
         self.html_view.connect('decide-policy', self.on_decide_policy)
-        self.header = Gtk.Label.new()
-        self.header.set_halign(Gtk.Align.START)
-        self.header.set_valign(Gtk.Align.START)
-        self.header.set_property('margin', 10)
-        self.header.set_selectable(True)
+        # give the vertical space to the html view!
+        self.text_view.set_property('hexpand', True)
         self.status = Gtk.Label.new()
         self.status.set_halign(Gtk.Align.START)
         self.status.set_valign(Gtk.Align.END)
         self.set_status(None)
         grid = Gtk.Grid()
-        grid.attach(self.header, 0, 0, 1, 1)
+        grid.attach(self.text_view, 0, 0, 1, 1)
         grid.attach(self.html_view, 0, 1, 1, 1)
         grid.attach(self.status, 0, 2, 1, 1)
         return grid
 
     def update(self, heading, subheading, episode):
-        tmpl = '<span size="x-large" font_weight="bold">%s</span>\n' \
-              + '<span size="medium">%s</span>'
-        self.header.set_markup(tmpl % (html.escape(heading), html.escape(subheading)))
+        self.text_buffer.set_text('')
+        self.text_buffer.insert_with_tags_by_name(self.text_buffer.get_end_iter(), heading, 'heading')
+        self.text_buffer.insert_at_cursor('\n')
+        self.text_buffer.insert_with_tags_by_name(self.text_buffer.get_end_iter(), subheading, 'subheading')
 
         if episode.has_website_link:
             self._base_uri = episode.link
