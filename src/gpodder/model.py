@@ -649,6 +649,7 @@ class PodcastChannel(PodcastModelObject):
     ]
 
     MAX_FOLDERNAME_LENGTH = 60
+    SECONDS_PER_DAY = 24 * 60 * 60
     SECONDS_PER_WEEK = 7 * 24 * 60 * 60
     EpisodeClass = PodcastEpisode
 
@@ -936,6 +937,12 @@ class PodcastChannel(PodcastModelObject):
 
         # Get most recent published of all episodes
         last_published = self.db.get_last_published(self) or 0
+        # fix for #516 an episode was marked published one month in the future (typo in month number)
+        # causing every new episode to be marked old
+        tomorrow = datetime.datetime.now().timestamp() + self.SECONDS_PER_DAY
+        if last_published > tomorrow:
+            logger.debug('Episode published in the future for podcast %s', self.title)
+            last_published = tomorrow
 
         # Keep track of episode GUIDs currently seen in the feed
         seen_guids = set()
