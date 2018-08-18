@@ -405,8 +405,10 @@ class gPodderCli(object):
 
             return '   '
 
-        episodes = ('%3d.%s %s %s' % (i + 1, ((' %s' % e.guid) if
-                                              show_guid else ''),
+        def guid_str(episode):
+            return ((' %s' % episode.guid) if show_guid else '')
+
+        episodes = ('%3d.%s %s %s' % (i + 1, guid_str(e),
                                       status_str(e), e.title)
                     for i, e in enumerate(podcast.get_all_episodes()))
         return episodes
@@ -815,8 +817,8 @@ class gPodderCli(object):
         defaults = defaults or ()
         minarg, maxarg = len(args) - len(defaults), len(args)
 
-        if len(command_line) < minarg or (len(command_line) > maxarg and
-                                          varargs is None):
+        if (len(command_line) < minarg or
+                (len(command_line) > maxarg and varargs is None)):
             self._error('Wrong argument count for %s.' % func.__name__)
             return False
 

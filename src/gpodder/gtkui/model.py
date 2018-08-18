@@ -161,9 +161,10 @@ class EpisodeListModel(Gtk.ListStore):
     PROGRESS_STEPS = 20
 
     def __init__(self, config, on_filter_changed=lambda has_episodes: None):
-        Gtk.ListStore.__init__(self, str, str, str, object,
-                str, str, str, str, bool, bool, bool,
-                GObject.TYPE_INT64, GObject.TYPE_INT64, str, bool, GObject.TYPE_INT64, bool)
+        Gtk.ListStore.__init__(self, str, str, str, object, str, str, str,
+                               str, bool, bool, bool, GObject.TYPE_INT64,
+                               GObject.TYPE_INT64, str, bool,
+                               GObject.TYPE_INT64, bool)
 
         self._config = config
 
@@ -848,7 +849,8 @@ class PodcastListModel(Gtk.ListStore):
             description = '<span size="16000"> </span><b>%s</b>' % (
                     cgi.escape(section))
 
-            self.set(iter,
+            self.set(
+                iter,
                 self.C_DESCRIPTION, description,
                 self.C_SECTION, section,
                 self.C_VIEW_SHOW_UNDELETED, total - deleted > 0,
