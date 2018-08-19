@@ -113,7 +113,7 @@ def main():
     gpodder.ui.python3 = True
 
     gpodder.ui.unity = (os.environ.get('DESKTOP_SESSION', 'unknown').lower() in
-        ('ubuntu', 'ubuntu-2d'))
+                        ('ubuntu', 'ubuntu-2d'))
 
     from gpodder import log
     log.setup(options.verbose)
@@ -126,13 +126,14 @@ def main():
         # such an instance doesn't exist as it *will* create a new instance
         if session_bus.name_has_owner(gpodder.dbus_bus_name):
             try:
-                remote_object = session_bus.get_object(gpodder.dbus_bus_name,
-                        gpodder.dbus_gui_object_path)
+                remote_object = session_bus.get_object(
+                    gpodder.dbus_bus_name,
+                    gpodder.dbus_gui_object_path)
 
                 # An instance of GUI is already running
                 logger.info('Activating existing instance via D-Bus.')
                 remote_object.show_gui_window(
-                        dbus_interface=gpodder.dbus_interface)
+                    dbus_interface=gpodder.dbus_interface)
 
                 if options.subscribe:
                     remote_object.subscribe_to_url(options.subscribe)
