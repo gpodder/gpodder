@@ -8,10 +8,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gPodder\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-08-02 22:34+0200\n"
+"POT-Creation-Date: 2018-08-02 22:41+0200\n"
 "PO-Revision-Date: 2018-08-04 11:11+0200\n"
 "Last-Translator: TZocker\n"
-"Language-Team: German (http://www.transifex.com/projects/p/gpodder/language/de/)\n"
+"Language-Team: German (http://www.transifex.com/projects/p/gpodder/language/"
+"de/)\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -105,7 +106,9 @@ msgstr "Füge %s hinzu"
 #: src/gpodder/sync.py:473
 #, python-format
 msgid "Error copying %(episode)s: Not enough free space on %(mountpoint)s"
-msgstr "Fehler beim Kopieren von %(episode)s: Nicht genügend freier Speicher auf %(mountpoint)s"
+msgstr ""
+"Fehler beim Kopieren von %(episode)s: Nicht genügend freier Speicher auf "
+"%(mountpoint)s"
 
 #: src/gpodder/sync.py:558
 msgid "Opening MP3 player"
@@ -117,8 +120,11 @@ msgstr "MP3-Player geöffnet"
 
 #: src/gpodder/sync.py:599
 #, python-format
-msgid "Not enough space in %(path)s: %(free)s available, but need at least %(need)s"
-msgstr "Nicht genügend Speicher in %(path)s: %(free)s verfügbar, es werden mindesten %(need)s benötigt"
+msgid ""
+"Not enough space in %(path)s: %(free)s available, but need at least %(need)s"
+msgstr ""
+"Nicht genügend Speicher in %(path)s: %(free)s verfügbar, es werden mindesten "
+"%(need)s benötigt"
 
 #: src/gpodder/sync.py:626 src/gpodder/sync.py:634
 #, python-format
@@ -271,9 +277,13 @@ msgid "Audio"
 msgstr "Audio"
 
 #: src/gpodder/model.py:1268
-#, python-format
-msgid "Warning: path to gPodder home (%(root)s) is very long and can result in failure to download files./n"
-msgstr "Warnung: Der Pfad zum gPodder Homeverzeichnis (%(root)s) ist sehr lang und kann dazu führen, dass Dateien nicht heruntergeladen werden können./n"
+#, fuzzy, python-format
+msgid ""
+"Warning: path to gPodder home (%(root)s) is very long and can result in "
+"failure to download files.\n"
+msgstr ""
+"Warnung: Der Pfad zum gPodder Homeverzeichnis (%(root)s) ist sehr lang und "
+"kann dazu führen, dass Dateien nicht heruntergeladen werden können./n"
 
 #: src/gpodder/model.py:1269
 msgid "You're advised to set it to a shorter path."
@@ -348,7 +358,8 @@ msgstr "Lade unvollständige Downloads"
 
 #: src/gpodder/gtkui/main.py:402
 msgid "Some episodes have not finished downloading in a previous session."
-msgstr "Einige Episoden wurden das letzte Mal nicht vollständig heruntergeladen."
+msgstr ""
+"Einige Episoden wurden das letzte Mal nicht vollständig heruntergeladen."
 
 #: src/gpodder/gtkui/main.py:405
 #, python-format
@@ -528,6 +539,7 @@ msgid "Start download now"
 msgstr "Sofort herunterladen"
 
 #: src/gpodder/gtkui/main.py:1651 src/gpodder/gtkui/main.py:1883
+#: src/gpodder/gtkui/desktop/podcastdirectory.py:192
 #: src/gpodder/gtkui/desktop/episodeselector.py:139
 #: share/gpodder/ui/gtk/gpodder.ui.h:1 share/gpodder/ui/gtk/menus.ui.h:22
 msgid "Download"
@@ -774,16 +786,24 @@ msgid "Quit gPodder"
 msgstr "\"gPodder\" beenden"
 
 #: src/gpodder/gtkui/main.py:2697
-msgid "You are downloading episodes. You can resume downloads the next time you start gPodder. Do you want to quit now?"
-msgstr "Sie laden momentan Episoden herunter. Sie können den Download beimnächsten Start von gPodder fortsetzen. Wollen Sie gPodder jetzt beenden?"
+msgid ""
+"You are downloading episodes. You can resume downloads the next time you "
+"start gPodder. Do you want to quit now?"
+msgstr ""
+"Sie laden momentan Episoden herunter. Sie können den Download beimnächsten "
+"Start von gPodder fortsetzen. Wollen Sie gPodder jetzt beenden?"
 
 #: src/gpodder/gtkui/main.py:2737
 msgid "Episodes are locked"
 msgstr "Episoden sind geschützt"
 
 #: src/gpodder/gtkui/main.py:2738
-msgid "The selected episodes are locked. Please unlock the episodes that you want to delete before trying to delete them."
-msgstr "Die gewählten Episoden sind geschützt. Bitte heben Sie den Schutz für die Episoden, die Sie löschen wollen auf, bevor Sie versuchen, sie zu löschen."
+msgid ""
+"The selected episodes are locked. Please unlock the episodes that you want "
+"to delete before trying to delete them."
+msgstr ""
+"Die gewählten Episoden sind geschützt. Bitte heben Sie den Schutz für die "
+"Episoden, die Sie löschen wollen auf, bevor Sie versuchen, sie zu löschen."
 
 #: src/gpodder/gtkui/main.py:2743
 #, python-format
@@ -928,7 +948,8 @@ msgstr ""
 
 #: src/gpodder/gtkui/main.py:3217
 msgid "Please select a podcast in the podcasts list to remove."
-msgstr "Bitte einen Podcast in der Podcast-Liste auswählen, um ihn zu entfernen."
+msgstr ""
+"Bitte einen Podcast in der Podcast-Liste auswählen, um ihn zu entfernen."
 
 #: src/gpodder/gtkui/main.py:3227
 msgid "OPML files"
@@ -947,8 +968,12 @@ msgid "Nothing to export"
 msgstr "Nichts zu exportieren"
 
 #: src/gpodder/gtkui/main.py:3254
-msgid "Your list of podcast subscriptions is empty. Please subscribe to some podcasts first before trying to export your subscription list."
-msgstr "Ihre Podcast-Abonnement-Liste ist leer. Bitte abonnieren Sie zuerst Podcasts, bevor Sie versuchen, die Abonnement-Liste zu exportieren."
+msgid ""
+"Your list of podcast subscriptions is empty. Please subscribe to some "
+"podcasts first before trying to export your subscription list."
+msgstr ""
+"Ihre Podcast-Abonnement-Liste ist leer. Bitte abonnieren Sie zuerst "
+"Podcasts, bevor Sie versuchen, die Abonnement-Liste zu exportieren."
 
 #: src/gpodder/gtkui/main.py:3260
 msgid "Export to OPML"
@@ -967,7 +992,9 @@ msgstr "Ihre Podcast-Liste wurde erfolgreich exportiert."
 
 #: src/gpodder/gtkui/main.py:3280
 msgid "Could not export OPML to file. Please check your permissions."
-msgstr "Konnte OPML nicht als Datei exportieren. Bitte überprüfen Sie Ihre Berechtigungen."
+msgstr ""
+"Konnte OPML nicht als Datei exportieren. Bitte überprüfen Sie Ihre "
+"Berechtigungen."
 
 #: src/gpodder/gtkui/main.py:3282
 msgid "OPML export failed"
@@ -1014,7 +1041,9 @@ msgstr "Die neueste Version von gpodder.org laden?"
 
 #: src/gpodder/gtkui/main.py:3571
 msgid "Please register a YouTube API key and set it in the preferences."
-msgstr "Bitte einen YouTube-API-Key registrieren und in den Einstellungen konfigurieren."
+msgstr ""
+"Bitte einen YouTube-API-Key registrieren und in den Einstellungen "
+"konfigurieren."
 
 #: src/gpodder/gtkui/main.py:3572
 msgid "Would you like to set up an API key now?"
@@ -1083,7 +1112,7 @@ msgstr "Bugtracker"
 msgid "Path to gPodder home is too long"
 msgstr "Der Pfad zum gPodder Homeverzeichnis ist zu lang"
 
-#: src/gpodder/gtkui/shownotes.py:87 src/gpodder/gtkui/model.py:67
+#: src/gpodder/gtkui/shownotes.py:90 src/gpodder/gtkui/model.py:67
 #: src/gpodder/gtkui/model.py:85 src/gpodder/gtkui/model.py:284
 #, python-format
 msgid "from %s"
@@ -1258,7 +1287,8 @@ msgstr "Gesetzt auf"
 #: src/gpodder/gtkui/interface/configeditor.py:82
 #, python-format
 msgid "Cannot set %(field)s to %(value)s. Needed data type: %(datatype)s"
-msgstr "Kann %(field)s nicht auf %(value)s ändern. Benötigter Datentyp: %(datatype)s"
+msgstr ""
+"Kann %(field)s nicht auf %(value)s ändern. Benötigter Datentyp: %(datatype)s"
 
 #: src/gpodder/gtkui/interface/configeditor.py:86
 msgid "Error setting option"
@@ -1360,8 +1390,12 @@ msgid "Replace subscription list on server"
 msgstr "Abonnement-Liste am Server ersetzen"
 
 #: src/gpodder/gtkui/desktop/preferences.py:565
-msgid "Remote podcasts that have not been added locally will be removed on the server. Continue?"
-msgstr "Podcasts am Server, die lokal nicht hinzugefügt werden, werden am Server entfernt. Fortfahren?"
+msgid ""
+"Remote podcasts that have not been added locally will be removed on the "
+"server. Continue?"
+msgstr ""
+"Podcasts am Server, die lokal nicht hinzugefügt werden, werden am Server "
+"entfernt. Fortfahren?"
 
 #: src/gpodder/gtkui/desktop/preferences.py:644
 msgid "Select folder for mount point"
@@ -1620,7 +1654,9 @@ msgstr "Einen Befehl nach dem Download ausführen"
 
 #: share/gpodder/extensions/command_on_download.py:19
 msgid "Run a predefined external command upon download completion."
-msgstr "Führen Sie nach Abschluss des Downloads einen vordefinierten externen Befehl aus"
+msgstr ""
+"Führen Sie nach Abschluss des Downloads einen vordefinierten externen Befehl "
+"aus"
 
 #: share/gpodder/extensions/video_converter.py:20
 msgid "Convert video files"
@@ -1658,8 +1694,12 @@ msgid "Enqueue/Resume in media players"
 msgstr "In Wiedergabeliste einreihen/fortsetzen"
 
 #: share/gpodder/extensions/enqueue_in_mediaplayer.py:17
-msgid "Add a context menu item for enqueueing/resuming playback of episodes in installed media players"
-msgstr "Fügt einen Kontext-Menü-Eintrag hinzu, um Episoden in die Wiedergabeliste einzureihen/fortzusetzen"
+msgid ""
+"Add a context menu item for enqueueing/resuming playback of episodes in "
+"installed media players"
+msgstr ""
+"Fügt einen Kontext-Menü-Eintrag hinzu, um Episoden in die Wiedergabeliste "
+"einzureihen/fortzusetzen"
 
 #: share/gpodder/extensions/enqueue_in_mediaplayer.py:35
 msgid "Enqueue in"
@@ -1712,7 +1752,8 @@ msgstr "Videos verketten"
 
 #: share/gpodder/extensions/concatenate_videos.py:21
 msgid "Add a context menu item for concatenating multiple videos"
-msgstr "Fügt einen Kontext-Menü-Eintrag ein, um mehrere Videos zu einem zu verketten"
+msgstr ""
+"Fügt einen Kontext-Menü-Eintrag ein, um mehrere Videos zu einem zu verketten"
 
 #: share/gpodder/extensions/concatenate_videos.py:38
 msgid "Save video"
@@ -1769,7 +1810,8 @@ msgstr "\"Webseite öffnen\" im Kontext-Menü"
 
 #: share/gpodder/extensions/episode_website_context_menu.py:16
 msgid "Add a context menu item for opening the website of an episode"
-msgstr "Fügt einen Eintrag ins Kontext-Menü für das Öffnen der Episoden-Webseite ein"
+msgstr ""
+"Fügt einen Eintrag ins Kontext-Menü für das Öffnen der Episoden-Webseite ein"
 
 #: share/gpodder/extensions/episode_website_context_menu.py:31
 msgid "Open website"
