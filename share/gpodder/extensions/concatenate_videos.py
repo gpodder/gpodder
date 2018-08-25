@@ -65,9 +65,9 @@ class gPodderExtension:
                 for episode in episodes))
 
         indicator = ProgressIndicator(_('Concatenating video files'),
-                _('Writing %(filename)s') % {
-                    'filename': os.path.basename(out_filename)
-                }, False, self.gpodder.get_dialog_parent())
+                                      _('Writing %(filename)s') % {
+                                          'filename': os.path.basename(out_filename)},
+                                      False, self.gpodder.get_dialog_parent())
 
         def convert():
             ffmpeg = util.Popen(['ffmpeg', '-f', 'concat', '-nostdin', '-y',

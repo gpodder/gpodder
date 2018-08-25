@@ -142,7 +142,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.download_queue_manager = download.DownloadQueueManager(self.config, self.download_status_model)
 
         self.config.connect_gtk_spinbutton('limit.downloads.concurrent', self.spinMaxDownloads,
-                                            self.config.limit.downloads.concurrent_max)
+                                           self.config.limit.downloads.concurrent_max)
         self.config.connect_gtk_togglebutton('max_downloads_enabled', self.cbMaxDownloads)
         self.config.connect_gtk_spinbutton('limit_rate_value', self.spinLimitDownloads)
         self.config.connect_gtk_togglebutton('limit_rate', self.cbLimitDownloads)
@@ -651,11 +651,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def for_each_episode_set_task_status(self, episodes, status):
         episode_urls = set(episode.url for episode in episodes)
         model = self.treeDownloads.get_model()
-        selected_tasks = [(Gtk.TreeRowReference.new(model, row.path),
-                           model.get_value(row.iter,
-                           DownloadStatusModel.C_TASK)) for row in model
-                           if model.get_value(row.iter, DownloadStatusModel.C_TASK).url
-                           in episode_urls]
+        selected_tasks = [(
+            Gtk.TreeRowReference.new(model, row.path),
+            model.get_value(
+                row.iter,
+                DownloadStatusModel.C_TASK)) for row in model
+                if model.get_value(
+                row.iter, DownloadStatusModel.C_TASK).url in episode_urls]
         self._for_each_task_set_status(selected_tasks, status)
 
     def on_treeview_button_pressed(self, treeview, event):
@@ -2354,7 +2356,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if existing:
                 title = _('Existing subscriptions skipped')
                 message = _('You are already subscribed to these podcasts:') \
-                     + '\n\n' + '\n'.join(cgi.escape(url) for url in existing)
+                    + '\n\n' + '\n'.join(cgi.escape(url) for url in existing)
                 self.show_message(message, title, widget=self.treeChannels)
 
             # Report subscriptions that require authentication
@@ -2378,7 +2380,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             for url in redirections:
                 title = _('Website redirection detected')
                 message = _('The URL %(url)s redirects to %(target)s.') \
-                        + '\n\n' + _('Do you want to visit the website now?')
+                    + '\n\n' + _('Do you want to visit the website now?')
                 message = message % {'url': url, 'target': redirections[url]}
                 if self.show_confirmation(message, title):
                     util.open_website(url)
@@ -2389,8 +2391,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if failed:
                 title = _('Could not add some podcasts')
                 message = _('Some podcasts could not be added to your list:') \
-                     + '\n\n' + '\n'.join(cgi.escape('%s: %s' % (url,
-                        error_messages.get(url, _('Unknown')))) for url in failed)
+                    + '\n\n' + '\n'.join(
+                        cgi.escape('%s: %s' % (
+                            url, error_messages.get(url, _('Unknown')))) for url in failed)
                 self.show_message(message, title, important=True)
 
             # Upload subscription changes to gpodder.net
@@ -3080,10 +3083,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
             title = _('Subscriptions on %(server)s') \
                     % {'server': self.config.mygpo.server}
             dir = gPodderPodcastDirectory(self.gPodder,
-                                           _config=self.config,
-                                           custom_title=title,
-                                           add_podcast_list=self.add_podcast_list,
-                                           hide_url_entry=True)
+                                          _config=self.config,
+                                          custom_title=title,
+                                          add_podcast_list=self.add_podcast_list,
+                                          hide_url_entry=True)
 
             url = self.mygpo_client.get_download_user_subscriptions_url()
             dir.download_opml_file(url)

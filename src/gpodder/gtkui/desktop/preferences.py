@@ -116,7 +116,7 @@ class YouTubeVideoFormatListModel(Gtk.ListStore):
 
         if self._config.youtube.preferred_fmt_ids:
             caption = _('Custom (%(format_ids)s)') % {
-                    'format_ids': ', '.join(str(x) for x in self.custom_fmt_ids),
+                'format_ids': ', '.join(str(x) for x in self.custom_fmt_ids),
             }
             self.append((caption, -1))
 
@@ -432,8 +432,8 @@ class gPodderPreferences(BuilderWidget):
         # This is one ugly hack, but it displays the attributes of
         # the metadata object of the container..
         info = '\n'.join('<b>%s:</b> %s' %
-                tuple(map(cgi.escape, list(map(str, (key, value)))))
-                for key, value in container.metadata.get_sorted())
+                         tuple(map(cgi.escape, list(map(str, (key, value)))))
+                         for key, value in container.metadata.get_sorted())
 
         self.show_message(info, _('Extension module info'), important=True)
 
@@ -473,8 +473,8 @@ class gPodderPreferences(BuilderWidget):
 
     def on_button_audio_player_clicked(self, widget):
         result = self.show_text_edit_dialog(_('Configure audio player'),
-                _('Command:'),
-                self._config.player)
+                                            _('Command:'),
+                                            self._config.player)
 
         if result:
             self._config.player = result
@@ -483,8 +483,8 @@ class gPodderPreferences(BuilderWidget):
 
     def on_button_video_player_clicked(self, widget):
         result = self.show_text_edit_dialog(_('Configure video player'),
-                _('Command:'),
-                self._config.videoplayer)
+                                            _('Command:'),
+                                            self._config.videoplayer)
 
         if result:
             self._config.videoplayer = result
