@@ -125,7 +125,7 @@ class CurrentTrackTracker(object):
                     ('status' not in kwargs or kwargs['status'] == 'Playing') and not
                     subsecond_difference(cur['pos'], kwargs['pos'])):
                 logger.debug('notify Stopped: playback discontinuity:' +
-                              'calc: %f observed: %f', cur['pos'], kwargs['pos'])
+                             'calc: %f observed: %f', cur['pos'], kwargs['pos'])
                 self.notify_stop()
 
             if ((kwargs['pos']) == 0 and

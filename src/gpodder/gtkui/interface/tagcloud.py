@@ -26,7 +26,7 @@ from gi.repository import GObject, Gtk
 class TagCloud(Gtk.Layout):
     __gsignals__ = {
             'selected': (GObject.SignalFlags.RUN_LAST, None,
-                           (GObject.TYPE_STRING,))
+                         (GObject.TYPE_STRING,))
     }
 
     def __init__(self, min_size=20, max_size=36):
