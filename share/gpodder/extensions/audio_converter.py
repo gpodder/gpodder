@@ -26,20 +26,20 @@ __category__ = 'post-download'
 
 
 DefaultConfig = {
-    'use_opus':False,  #Set to True to convert to .opus 
-    'use_ogg': False,  # Set to True to convert to .ogg 
+    'use_opus': False,  # Set to True to convert to .opus
+    'use_ogg': False,  # Set to True to convert to .ogg
     'context_menu': True,  # Show the conversion option in the context menu
 }
 
 
 class gPodderExtension:
     MIME_TYPES = ('audio/x-m4a', 'audio/mp4', 'audio/mp4a-latm', 'audio/ogg', 'audio/opus')
-    EXT = ('.m4a', '.ogg','.opus')
+    EXT = ('.m4a', '.ogg', '.opus')
     CMD = {'avconv': {'.mp3': ['-i', '%(old_file)s', '-q:a', '2', '-id3v2_version', '3', '-write_id3v1', '1', '%(new_file)s'],
-                      '.ogg': ['-i', '%(old_file)s', '-q:a', '2', '%(new_file)s'],'.opus':['-i','%(old_file)s','-q:a','2','%(new_file)s']
-                      }
+                      '.ogg': ['-i', '%(old_file)s', '-q:a', '2', '%(new_file)s'], '.opus': ['-i', '%(old_file)s', '-q:a', '2', '%(new_file)s']
+                      },
            'ffmpeg': {'.mp3': ['-i', '%(old_file)s', '-q:a', '2', '-id3v2_version', '3', '-write_id3v1', '1', '%(new_file)s'],
-                      '.ogg': ['-i', '%(old_file)s', '-q:a', '2', '%(new_file)s'],'.opus':['-i','%(old_file)s','-q:a','2','%(new_file)s']
+                      '.ogg': ['-i', '%(old_file)s', '-q:a', '2', '%(new_file)s'], '.opus': ['-i', '%(old_file)s', '-q:a', '2', '%(new_file)s']
                       }
            }
 
@@ -58,10 +58,11 @@ class gPodderExtension:
 
     def _get_new_extension(self):
         if self.config.use_ogg:
-            extension='.ogg'
+            extension = '.ogg'
         elif self.config.use_opus:
-            extension='.opus'
-        else extension='.mp3'
+            extension = '.opus'
+        else:
+            extension = '.mp3'
         return extension
 
     def _check_source(self, episode):
@@ -86,13 +87,14 @@ class gPodderExtension:
 
         if not any(self._check_source(episode) for episode in episodes):
             return None
-            
+
         if self.config.use_ogg:
-            target_format='OGG'
+            target_format = 'OGG'
         elif self.config.use_opus:
-            target_format='OPUS'
-        else target_format='MP3'
-        
+            target_format = 'OPUS'
+        else:
+            target_format = 'MP3'
+
         menu_item = _('Convert to %(format)s') % {'format': target_format}
 
         return [(menu_item, self._convert_episodes)]
