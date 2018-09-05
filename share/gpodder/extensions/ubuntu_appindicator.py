@@ -3,6 +3,11 @@
 # Ubuntu AppIndicator Icon
 # Thomas Perl <thp@gpodder.org>; 2012-02-24
 
+import logging
+
+from gi.repository import AppIndicator3 as appindicator
+from gi.repository import Gtk
+
 import gpodder
 
 _ = gpodder.gettext
@@ -16,10 +21,7 @@ __mandatory_in__ = 'unity'
 __disable_in__ = 'win32'
 
 
-from gi.repository import AppIndicator3 as appindicator
-from gi.repository import Gtk
 
-import logging
 
 logger = logging.getLogger(__name__)
 
