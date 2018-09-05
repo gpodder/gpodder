@@ -21,8 +21,6 @@ __mandatory_in__ = 'unity'
 __disable_in__ = 'win32'
 
 
-
-
 logger = logging.getLogger(__name__)
 
 
