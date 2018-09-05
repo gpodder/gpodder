@@ -5,9 +5,9 @@
 
 import logging
 
+from gi.repository import AppIndicator3 as appindicator
 from gi.repository import Gtk
 
-import appindicator
 import gpodder
 
 _ = gpodder.gettext
@@ -19,6 +19,7 @@ __category__ = 'desktop-integration'
 __only_for__ = 'gtk'
 __mandatory_in__ = 'unity'
 __disable_in__ = 'win32'
+
 
 logger = logging.getLogger(__name__)
 
@@ -37,9 +38,9 @@ class gPodderExtension:
 
     def on_load(self):
         if self.config.visible:
-            self.indicator = appindicator.Indicator('gpodder', 'gpodder',
-                    appindicator.CATEGORY_APPLICATION_STATUS)
-            self.indicator.set_status(appindicator.STATUS_ACTIVE)
+            self.indicator = appindicator.Indicator.new('gpodder', 'gpodder',
+                    appindicator.IndicatorCategory.APPLICATION_STATUS)
+            self.indicator.set_status(appindicator.IndicatorStatus.ACTIVE)
 
     def _rebuild_menu(self):
         menu = Gtk.Menu()
