@@ -1998,8 +1998,11 @@ class Popen(subprocess.Popen):
             if gpodder.ui.win32 and kwargs['close_fds']:
                 if [(k, v) for (k, v) in kwargs.items() if k in ('stdin', 'stdout', 'stderr') and v]:
                     logger = logging.getLogger(__name__)
-                    logger.error('util.Popen(close_fds=True) is incompatible with stream redirection on Windows.')
-                    logger.error('With close_fds=False, the process keeps all currently open files locked. It might be tolerable for short-lived commands. Or use temp files.')
+                    logger.error('util.Popen(close_fds=True) is incompatible with'
+                                 ' stream redirection on Windows.')
+                    logger.error('With close_fds=False, the process keeps all '
+                                 'currently open files locked. It might be tolerable '
+                                 'for short-lived commands. Or use temp files.')
 
             raise e
 

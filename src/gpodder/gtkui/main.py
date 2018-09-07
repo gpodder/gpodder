@@ -1267,7 +1267,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return self.download_list_update_enabled
         except Exception as e:
             logger.error('Exception happened while updating download list.', exc_info=True)
-            self.show_message('%s\n\n%s' % (_('Please report this problem and restart gPodder:'), str(e)), _('Unhandled exception'), important=True)
+            self.show_message('%s\n\n%s' % (_('Please report this problem and restart gPodder:'),
+                                            str(e)), _('Unhandled exception'), important=True)
             # We return False here, so the update loop won't be called again,
             # that's why we require the restart of gPodder in the message.
             return False
@@ -1648,16 +1649,31 @@ class gPodder(BuilderWidget, dbus.service.Object):
             menu = Gtk.Menu()
 
             if can_force:
-                menu.append(make_menu_item(_('Start download now'), 'document-save', selected_tasks, download.DownloadTask.QUEUED, force_start=True))
+                menu.append(make_menu_item(_('Start download now'), 'document-save',
+                                           selected_tasks,
+                                           download.DownloadTask.QUEUED,
+                                           force_start=True))
             else:
-                menu.append(make_menu_item(_('Download'), 'document-save', selected_tasks, download.DownloadTask.QUEUED, can_queue))
-            menu.append(make_menu_item(_('Cancel'), 'media-playback-stop', selected_tasks, download.DownloadTask.CANCELLED, can_cancel))
-            menu.append(make_menu_item(_('Pause'), 'media-playback-pause', selected_tasks, download.DownloadTask.PAUSED, can_pause))
+                menu.append(make_menu_item(_('Download'), 'document-save',
+                                           selected_tasks,
+                                           download.DownloadTask.QUEUED,
+                                           can_queue))
+
+            menu.append(make_menu_item(_('Cancel'), 'media-playback-stop',
+                                       selected_tasks,
+                                       download.DownloadTask.CANCELLED,
+                                       can_cancel))
+            menu.append(make_menu_item(_('Pause'), 'media-playback-pause',
+                                       selected_tasks,
+                                       download.DownloadTask.PAUSED, can_pause))
             menu.append(Gtk.SeparatorMenuItem())
-            menu.append(make_menu_item(_('Move up'), 'go-up', action=move_selected_items_up))
-            menu.append(make_menu_item(_('Move down'), 'go-down', action=move_selected_items_down))
+            menu.append(make_menu_item(_('Move up'), 'go-up',
+                                       action=move_selected_items_up))
+            menu.append(make_menu_item(_('Move down'), 'go-down',
+                                       action=move_selected_items_down))
             menu.append(Gtk.SeparatorMenuItem())
-            menu.append(make_menu_item(_('Remove from list'), 'list-remove', selected_tasks, sensitive=can_remove))
+            menu.append(make_menu_item(_('Remove from list'), 'list-remove',
+                                       selected_tasks, sensitive=can_remove))
 
             menu.attach_to_widget(treeview)
             menu.show_all()
