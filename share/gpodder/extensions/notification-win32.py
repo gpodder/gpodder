@@ -35,6 +35,7 @@ Windows Toast Notification API or Balloon Notification as fallback.
 It's tested on Win7 32bit and Win10 64bit VMs from modern.ie
 So we have a working solution until Gio.Notification is implemented on Windows.
 """
+import logging
 import os
 import os.path
 import subprocess
