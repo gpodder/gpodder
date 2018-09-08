@@ -3,7 +3,8 @@ version: 2
 jobs:
   release-from-linux:
     docker:
-      - image: python:3.7
+      # important: must be same as mac bundle's python
+      - image: python:3.6
     environment:
       - BUNDLE_TAG: base-3.10.4_0
     shell: /bin/bash --login -o pipefail
