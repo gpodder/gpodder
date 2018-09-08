@@ -3,9 +3,9 @@ version: 2
 jobs:
   release-from-linux:
     docker:
-      - image: python:3.6
+      - image: python:3.7
     environment:
-      - BUNDLE_TAG: base-3.10.3_3
+      - BUNDLE_TAG: base-3.10.4_0
     shell: /bin/bash --login -o pipefail
     steps:
       - checkout
