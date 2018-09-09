@@ -306,7 +306,11 @@ def cairo_surface_to_pixbuf(s):
         # load. This happens in PyCairo < 1.1.6, see:
         # http://webcvs.cairographics.org/pycairo/NEWS?view=markup
         # Thanks to Chris Arnold for reporting this bug
-        bio.write('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A\n/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9cMEQkqIyxn3RkAAAAZdEVYdENv\nbW1lbnQAQ3JlYXRlZCB3aXRoIEdJTVBXgQ4XAAAADUlEQVQI12NgYGBgAAAABQABXvMqOgAAAABJ\nRU5ErkJggg==\n'.decode('base64'))
+        bio.write('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAAXNSR0IArs4'
+                  'c6QAAAAZiS0dEAP8A\n/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAA'
+                  'AAd0SU1FB9cMEQkqIyxn3RkAAAAZdEVYdENv\nbW1lbnQAQ3JlYXRlZCB3a'
+                  'XRoIEdJTVBXgQ4XAAAADUlEQVQI12NgYGBgAAAABQABXvMqOgAAAABJ\nRU'
+                  '5ErkJggg==\n'.decode('base64'))
 
     pbl = GdkPixbuf.PixbufLoader()
     pbl.write(bio.getvalue())

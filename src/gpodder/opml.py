@@ -80,9 +80,18 @@ class Importer(object):
 
                 if outline.getAttribute('xmlUrl') or outline.getAttribute('url'):
                     channel = {
-                        'url': outline.getAttribute('xmlUrl') or outline.getAttribute('url'),
-                        'title': outline.getAttribute('title') or outline.getAttribute('text') or outline.getAttribute('xmlUrl') or outline.getAttribute('url'),
-                        'description': outline.getAttribute('text') or outline.getAttribute('xmlUrl') or outline.getAttribute('url'),
+                        'url':
+                            outline.getAttribute('xmlUrl')
+                            or outline.getAttribute('url'),
+                        'title':
+                            outline.getAttribute('title')
+                            or outline.getAttribute('text')
+                            or outline.getAttribute('xmlUrl')
+                            or outline.getAttribute('url'),
+                        'description':
+                            outline.getAttribute('text')
+                            or outline.getAttribute('xmlUrl')
+                            or outline.getAttribute('url'),
                     }
 
                     if channel['description'] == channel['title']:

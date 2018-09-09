@@ -177,7 +177,9 @@ class gPodderSyncUI(object):
                 self.commit_changes_to_database()
                 for current_channel in self.channels:
                     # only sync those channels marked for syncing
-                    if (self._config.device_sync.device_type == 'filesystem' and current_channel.sync_to_mp3_player and self._config.device_sync.playlists.create):
+                    if (self._config.device_sync.device_type == 'filesystem'
+                            and current_channel.sync_to_mp3_player
+                            and self._config.device_sync.playlists.create):
 
                         # get playlist object
                         playlist = gPodderDevicePlaylist(self._config,
