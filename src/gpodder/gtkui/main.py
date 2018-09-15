@@ -2755,7 +2755,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             if not episodes:
                 title = _('Episodes are locked')
-                message = _('The selected episodes are locked. Please unlock the episodes that you want to delete before trying to delete them.')
+                message = _(
+                    'The selected episodes are locked. Please unlock the '
+                    'episodes that you want to delete before trying '
+                    'to delete them.')
                 self.notification(message, title, widget=self.treeAvailable)
                 return False
 

@@ -3,17 +3,15 @@
 Prepare release and upload Windows and macOS artifacts
 """
 import argparse
-import difflib
-import glob
 import hashlib
 import os
-import sys
 import re
+import sys
 
-from github3 import login
-from jinja2 import Template
 import magic
 import requests
+from github3 import login
+from jinja2 import Template
 
 
 def debug_requests():
@@ -93,6 +91,7 @@ def checksums():
                 bloc = f.read(4096)
         ret[os.path.basename(archive)] = dict(md5=m.hexdigest(), sha256=s.hexdigest())
     return ret
+
 
 def get_contributors(tag, previous_tag):
     """
