@@ -7,7 +7,7 @@
 import logging
 import os.path
 
-from gi.repository import Gtk
+from gi.repository import Gtk, GdkPixbuf
 
 import gpodder
 from gpodder.gtkui import draw
@@ -20,7 +20,7 @@ __title__ = _('Gtk Status Icon')
 __description__ = _('Show a status icon for Gtk-based Desktops.')
 __category__ = 'desktop-integration'
 __only_for__ = 'gtk'
-__disable_in__ = 'unity,win32,python3'
+__disable_in__ = 'unity,win32'
 
 DefaultConfig = {
     'download_progress_bar': False,  # draw progress bar on icon while downloading?
@@ -50,7 +50,7 @@ class gPodderExtension:
                 self.icon_name = 'stock_mic'
 
         if self.status_icon is None:
-            self.status_icon = Gtk.status_icon_new_from_icon_name(self.icon_name)
+            self.status_icon = Gtk.StatusIcon.new_from_icon_name(self.icon_name)
             return
 
         # If current mode matches desired mode, nothing to do.
