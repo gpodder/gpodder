@@ -12,7 +12,7 @@ import re
 
 from github3 import login
 from jinja2 import Template
-import magic 
+import magic
 import requests
 
 
