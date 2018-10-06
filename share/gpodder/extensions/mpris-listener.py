@@ -179,7 +179,11 @@ class CurrentTrackTracker(object):
                 self.length <= 0):
             return
         pos = self.pos // USECS_IN_SEC
-        file_uri = urllib.request.url2pathname(urllib.parse.urlparse(self.uri).path).encode('utf-8')
+        parsed_url = urllib.parse.urlparse(self.uri)
+        if (not parsed_url.scheme) or parsed_url.scheme == 'file':
+            file_uri = urllib.request.url2pathname(urllib.parse.urlparse(self.uri).path).encode('utf-8')
+        else:
+            file_uri = self.uri
         total_time = self.length // USECS_IN_SEC
 
         if status == 'Stopped':
