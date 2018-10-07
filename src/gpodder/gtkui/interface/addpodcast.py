@@ -35,7 +35,7 @@ class gPodderAddPodcast(BuilderWidget):
         if hasattr(self, 'custom_title'):
             self.gPodderAddPodcast.set_title(self.custom_title)
         if hasattr(self, 'preset_url'):
-            self.entry_url.set_text(self.preset_url)
+            self.entry_url.set_text(self.preset_url).strip()
         self.entry_url.connect('activate', self.on_entry_url_activate)
         self.gPodderAddPodcast.show()
 
@@ -48,6 +48,45 @@ class gPodderAddPodcast(BuilderWidget):
             clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
 
             def receive_clipboard_text(clipboard, text, second_try):
+                # Heuristic: If there is a space in the clipboard
+                # text, assume it's some arbitrary text, and no URL
+                if text is not None and ' ' not in text:
+                    url = util.normalize_feed_url(text).strip()
+                    if url is not None:
+                        self.entry_url.set_text(url)
+                        self.entry_url.set_position(-1)
+                        return
+
+                if not second_try:
+                    clipboard = Gtk.Clipboard.get(Gdk.SELECTION_PRIMARY)
+                    clipboard.request_text(receive_clipboard_text, True)
+            clipboard.request_text(receive_clipboard_text, False)
+
+    def on_btn_close_clicked(self, widget):
+        self.gPodderAddPodcast.destroy()
+
+    def on_btn_paste_clicked(self, widget):
+        clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
+        clipboard.request_text(self.receive_clipboard_text)
+
+    def receive_clipboard_text(self, clipboard, text, data=None):
+        if text is not None:
+            self.entry_url.set_text(text).strip()
+        else:
+            self.show_message(_('Nothing to paste.'), _('Clipboard is empty'))
+
+    def on_entry_url_changed(self, widget):
+        self.btn_add.set_sensitive(self.entry_url.get_text().strip() != '')
+
+    def on_entry_url_activate(self, widget):
+        self.on_btn_add_clicked(widget)
+
+    def on_btn_add_clicked(self, widget):
+        url = self.entry_url.get_text().strip()
+        self.on_btn_close_clicked(widget)
+        if self.add_podcast_list is not None:
+            title = None  # FIXME: Add title GUI element
+            self.add_podcast_list([(title, url)])
                 # Heuristic: If there is a space in the clipboard
                 # text, assume it's some arbitrary text, and no URL
                 if text is not None and ' ' not in text:
