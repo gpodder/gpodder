@@ -168,7 +168,7 @@ class Mp3File(AudioFile):
                 mime=mimetypes.guess_type(self.cover)[0],
                 type=3,
                 desc='Cover',
-                data=open(self.cover,'rb').read()
+                data=open(self.cover, 'rb').read()
             )
         )
         audio.save()
