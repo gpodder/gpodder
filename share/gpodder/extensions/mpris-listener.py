@@ -131,9 +131,9 @@ class CurrentTrackTracker(object):
             if ((kwargs['pos']) == 0 and
                     self.pos is not None and
                     self.length is not None and
-                    (self.length - USECS_IN_SEC) >
+                    (self.length - USECS_IN_SEC) < self.pos and
                     self.pos < (self.length + 2 * USECS_IN_SEC)):
-                logger.debug('fixing for position 0 (calculated pos: %f/%f [%f])',
+                logger.debug('pos=0 end of stream (calculated pos: %f/%f [%f])',
                              self.pos / USECS_IN_SEC, self.length / USECS_IN_SEC,
                              (self.pos / USECS_IN_SEC) - (self.length / USECS_IN_SEC))
                 self.pos = self.length
@@ -141,7 +141,7 @@ class CurrentTrackTracker(object):
             else:
                 if self.pos is not None and self.length is not None:
                     logger.debug("%r %r", self.pos, self.length)
-                    logger.debug('not fixing for position 0 (calculated pos: %f/%f [%f])',
+                    logger.debug('pos=0 not end of stream (calculated pos: %f/%f [%f])',
                                  self.pos / USECS_IN_SEC, self.length / USECS_IN_SEC,
                                  (self.pos / USECS_IN_SEC) - (self.length / USECS_IN_SEC))
                 self.pos = kwargs.pop('pos')
