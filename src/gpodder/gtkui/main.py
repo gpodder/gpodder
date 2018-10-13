@@ -48,6 +48,7 @@ from gpodder.gtkui import shownotes
 from gpodder.gtkui.config import UIConfig
 from gpodder.gtkui.desktop.channel import gPodderChannel
 from gpodder.gtkui.desktop.episodeselector import gPodderEpisodeSelector
+from gpodder.gtkui.desktop.exportlocal import gPodderExportToLocalFolder
 from gpodder.gtkui.desktop.podcastdirectory import gPodderPodcastDirectory
 from gpodder.gtkui.desktop.preferences import gPodderPreferences
 from gpodder.gtkui.desktop.sync import gPodderSyncUI
@@ -1787,30 +1788,56 @@ class gPodder(BuilderWidget, dbus.service.Object):
         return filename
 
     def save_episodes_as_file(self, episodes):
+        def do_save_episode(copy_from, copy_to):
+            try:
+                shutil.copyfile(copy_from, copy_to)
+            except (OSError, IOError) as e:
+                logger.warn('Error copying from %s to %s: %r', copy_from, copy_to, e, exc_info=True)
+                folder, filename = os.path.split(copy_to)
+                # Remove characters not supported by VFAT (#282)
+                new_filename = re.sub(r"[\"*/:<>?\\|]", "_", filename)
+                destination = os.path.join(folder, new_filename)
+                if (copy_to != destination):
+                    shutil.copyfile(copy_from, destination)
+                else:
+                    raise
+
         PRIVATE_FOLDER_ATTRIBUTE = '_save_episodes_as_file_folder'
         folder = getattr(self, PRIVATE_FOLDER_ATTRIBUTE, None)
-        (notCancelled, folder) = self.show_folder_select_dialog(initial_directory=folder)
-        setattr(self, PRIVATE_FOLDER_ATTRIBUTE, folder)
+        allRemainingDefault = False
+        remaining = len(episodes)
+        dialog = gPodderExportToLocalFolder(self.main_window,
+                                            _config=self.config)
+        for episode in episodes:
+            remaining -= 1
+            if episode.was_downloaded(and_exists=True):
+                copy_from = episode.local_filename(create=False)
+                assert copy_from is not None
 
-        if notCancelled:
-            for episode in episodes:
-                if episode.was_downloaded(and_exists=True):
-                    copy_from = episode.local_filename(create=False)
-                    assert copy_from is not None
+                base, extension = os.path.splitext(copy_from)
+                filename = self.build_filename(episode.sync_filename(), extension)
 
-                    base, extension = os.path.splitext(copy_from)
-                    filename = self.build_filename(episode.sync_filename(), extension)
-                    copy_to = os.path.join(folder, filename)
-                    try:
-                        shutil.copyfile(copy_from, copy_to)
-                    except (OSError, IOError) as e:
-                        # Remove characters not supported by VFAT (#282)
-                        new_filename = re.sub(r"[\"*/:<>?\\|]", "_", filename)
-                        destination = os.path.join(folder, new_filename)
-                        if (copy_to != destination):
-                            shutil.copyfile(copy_from, destination)
+                try:
+                    if allRemainingDefault:
+                        do_save_episode(copy_from, os.path.join(folder, filename))
+                    else:
+                        (notCancelled, folder, dest_path, allRemainingDefault) = dialog.save_as(folder, filename, remaining)
+                        if notCancelled:
+                            do_save_episode(copy_from, dest_path)
                         else:
-                            raise
+                            break
+                except (OSError, IOError) as e:
+                    if remaining:
+                        msg = _('Error saving to local folder: %(error)r.\n'
+                                'Would you like to continue?') % dict(error=e)
+                        if not self.show_confirmation(msg, _('Error saving to local folder')):
+                            logger.warn("Save to Local Folder cancelled following error")
+                            break
+                    else:
+                        self.notification(_('Error saving to local folder: %(error)r') % dict(error=e),
+                                          _('Error saving to local folder'), important=True)
+
+        setattr(self, PRIVATE_FOLDER_ATTRIBUTE, folder)
 
     def copy_episodes_bluetooth(self, episodes):
         episodes_to_copy = [e for e in episodes if e.was_downloaded(and_exists=True)]

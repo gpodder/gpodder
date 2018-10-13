@@ -125,6 +125,11 @@ defaults = {
                     'height': 400,
                     'x': -1, 'y': -1, 'maximized': False,
                 },
+                'export_to_local_folder': {
+                    'width': 500,
+                    'height': 400,
+                    'x': -1, 'y': -1, 'maximized': False,
+                }
             },
 
             'toolbar': False,
