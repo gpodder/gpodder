@@ -7,7 +7,7 @@
 import logging
 import os.path
 
-from gi.repository import Gtk, GdkPixbuf
+from gi.repository import GdkPixbuf, Gtk
 
 import gpodder
 from gpodder.gtkui import draw
