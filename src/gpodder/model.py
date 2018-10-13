@@ -1272,6 +1272,7 @@ def check_root_folder_path():
             + 1 + PodcastChannel.MAX_FOLDERNAME_LENGTH \
             + 1 + PodcastEpisode.MAX_FILENAME_LENGTH + 5  # eg. .opus
         if longest > 260:
-            return _("Warning: path to gPodder home (%(root)s) is very long and can result in failure to download files.\n" % {"root": root}) \
+            return _("Warning: path to gPodder home (%(root)s) is very long "
+                     "and can result in failure to download files.\n" % {"root": root}) \
                 + _("You're advised to set it to a shorter path.")
     return None
