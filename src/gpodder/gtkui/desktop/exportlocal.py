@@ -34,6 +34,7 @@ class gPodderExportToLocalFolder(BuilderWidget):
         self._config.connect_gtk_window(self.gPodderExportToLocalFolder,
                                         'export_to_local_folder', True)
         self._ok = False
+        self.gPodderExportToLocalFolder.hide()
 
     def on_btnOK_clicked(self, widget):
         self._ok = True
