@@ -26,8 +26,7 @@ import os
 
 import gpodder
 from gpodder import sync, util
-from gpodder.gtkui.desktop.deviceplaylist import gPodderDevicePlaylist
-from gpodder.gtkui.desktop.episodeselector import gPodderEpisodeSelector
+from gpodder.deviceplaylist import gPodderDevicePlaylist
 
 _ = gpodder.gettext
 
@@ -44,7 +43,8 @@ class gPodderSyncUI(object):
                  download_queue_manager,
                  enable_download_list_update,
                  commit_changes_to_database,
-                 delete_episode_list):
+                 delete_episode_list,
+                 select_episodes_to_delete):
         self.device = None
 
         self._config = config
@@ -59,6 +59,7 @@ class gPodderSyncUI(object):
         self.enable_download_list_update = enable_download_list_update
         self.commit_changes_to_database = commit_changes_to_database
         self.delete_episode_list = delete_episode_list
+        self.select_episodes_to_delete = select_episodes_to_delete
 
     def _filter_sync_episodes(self, channels, only_downloaded=False):
         """Return a list of episodes for device synchronization
@@ -90,7 +91,7 @@ class gPodderSyncUI(object):
         message = _('Please check the settings in the preferences dialog.')
         self.notification(message, title, important=True)
 
-    def on_synchronize_episodes(self, channels, episodes=None, force_played=True):
+    def on_synchronize_episodes(self, channels, episodes=None, force_played=True, done_callback=None):
         device = sync.open_device(self)
 
         if device is None:
@@ -205,7 +206,7 @@ class gPodderSyncUI(object):
                 @util.run_in_background
                 def sync_thread_func():
                     device.add_sync_tasks(episodes, force_played=force_played,
-                                          done_callback=self.enable_download_list_update)
+                                          done_callback=done_callback)
 
                 return
 
@@ -269,7 +270,7 @@ class gPodderSyncUI(object):
                             ('markup_delete_episodes', None, None, _('Episode')),
                         )
 
-                        gPodderEpisodeSelector(
+                        self.select_episodes_to_delete(
                             self.parent_window,
                             title=_('Episodes have been deleted on device'),
                             instructions='Select the episodes you want to delete:',

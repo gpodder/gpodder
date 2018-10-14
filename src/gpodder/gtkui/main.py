@@ -51,7 +51,6 @@ from gpodder.gtkui.desktop.episodeselector import gPodderEpisodeSelector
 from gpodder.gtkui.desktop.exportlocal import gPodderExportToLocalFolder
 from gpodder.gtkui.desktop.podcastdirectory import gPodderPodcastDirectory
 from gpodder.gtkui.desktop.preferences import gPodderPreferences
-from gpodder.gtkui.desktop.sync import gPodderSyncUI
 from gpodder.gtkui.desktop.welcome import gPodderWelcome
 from gpodder.gtkui.desktopfile import UserAppsReader
 from gpodder.gtkui.download import DownloadStatusModel
@@ -64,6 +63,7 @@ from gpodder.gtkui.model import EpisodeListModel, Model, PodcastListModel
 from gpodder.gtkui.services import CoverDownloader
 from gpodder.gtkui.widgets import SimpleMessageArea
 from gpodder.model import PodcastEpisode, check_root_folder_path
+from gpodder.syncui import gPodderSyncUI
 
 import gi  # isort:skip
 gi.require_version('Gtk', '3.0')  # isort:skip
@@ -3612,9 +3612,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.download_queue_manager,
                 self.enable_download_list_update,
                 self.commit_changes_to_database,
-                self.delete_episode_list)
+                self.delete_episode_list,
+                gPodderEpisodeSelector)
 
-        self.sync_ui.on_synchronize_episodes(self.channels, episodes, force_played)
+        self.sync_ui.on_synchronize_episodes(self.channels, episodes, force_played,
+                                             self.enable_download_list_update)
 
     def on_update_youtube_subscriptions_activate(self, action, param):
         if not self.config.youtube.api_key_v3:
