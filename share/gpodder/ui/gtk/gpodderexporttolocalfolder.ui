@@ -11,6 +11,7 @@
     <property name="do_overwrite_confirmation">True</property>
     <property name="preview_widget_active">False</property>
     <property name="use_preview_label">False</property>
+    <property name="extra_widget">allsamefolder</property>
     <child internal-child="vbox">
       <object class="GtkBox">
         <property name="can_focus">False</property>
@@ -59,19 +60,6 @@
             <property name="position">0</property>
           </packing>
         </child>
-        <child>
-          <object class="GtkCheckButton" id="allsamefolder">
-            <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="receives_default">False</property>
-            <property name="draw_indicator">True</property>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="position">2</property>
-          </packing>
-        </child>
       </object>
     </child>
     <!-- to be recognized by the embedded GtkFileChooser -->
@@ -79,5 +67,11 @@
       <action-widget response="-3">btnOK</action-widget>
       <action-widget response="-6">btnCancel</action-widget>
     </action-widgets>
+  </object>
+  <object class="GtkCheckButton" id="allsamefolder">
+	<property name="visible">True</property>
+	<property name="can_focus">True</property>
+	<property name="receives_default">False</property>
+	<property name="draw_indicator">True</property>
   </object>
 </interface>
