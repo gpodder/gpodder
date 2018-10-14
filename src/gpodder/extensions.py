@@ -358,6 +358,9 @@ class ExtensionManager(object):
             new_enabled = (container.name in new_value)
             if new_enabled == container.enabled:
                 continue
+            if not new_enabled and container.metadata.mandatory_in_current_ui:
+                # forced extensions are never listed in extensions.enabled
+                continue
 
             logger.info('Extension "%s" is now %s', container.name,
                     'enabled' if new_enabled else 'disabled')
