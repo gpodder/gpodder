@@ -734,6 +734,7 @@ class DownloadTask(object):
 
             url = util.iri_to_url(url)
 
+            logger.info("Downloading %s", url)
             downloader = DownloadURLOpener(self.__episode.channel)
 
             # HTTP Status codes for which we retry the download
