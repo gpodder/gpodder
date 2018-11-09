@@ -1301,7 +1301,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         y -= y_bin
         (path, column, rx, ry) = treeview.get_path_at_pos(x, y) or (None,) * 4
 
-        if not getattr(treeview, TreeViewHelper.CAN_TOOLTIP) or x > 50 or (column is not None and column != treeview.get_columns()[0]):
+        if not getattr(treeview, TreeViewHelper.CAN_TOOLTIP) or x > 50 or (
+                column is not None and column != treeview.get_columns()[0]):
             setattr(treeview, TreeViewHelper.LAST_TOOLTIP, None)
             return False
 
@@ -2741,7 +2742,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             quit_button = dialog.add_button(Gtk.STOCK_QUIT, Gtk.ResponseType.CLOSE)
 
             title = _('Quit gPodder')
-            message = _('You are downloading episodes. You can resume downloads the next time you start gPodder. Do you want to quit now?')
+            message = _('You are downloading episodes. '
+                        'You can resume downloads the next time you start gPodder. Do you want to quit now?')
 
             dialog.set_title(title)
             dialog.set_markup('<span weight="bold" size="larger">%s</span>\n\n%s' % (title, message))
@@ -2851,11 +2853,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
             ('markup_delete_episodes', None, None, _('Episode')),
         )
 
-        msg_older_than = N_('Select older than %(count)d day', 'Select older than %(count)d days', self.config.episode_old_age)
+        msg_older_than = N_('Select older than %(count)d day',
+                            'Select older than %(count)d days',
+                            self.config.episode_old_age)
         selection_buttons = {
                 _('Select played'): lambda episode: not episode.is_new,
                 _('Select finished'): lambda episode: episode.is_finished(),
-                msg_older_than % {'count': self.config.episode_old_age}: lambda episode: episode.age_in_days() > self.config.episode_old_age,
+                msg_older_than % {'count': self.config.episode_old_age}:
+                lambda episode: episode.age_in_days() > self.config.episode_old_age,
         }
 
         instructions = _('Select the episodes you want to delete:')

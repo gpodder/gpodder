@@ -111,7 +111,8 @@ def release_text(tag, previous_tag, circleci=None, appveyor=None):
     t = Template("""
 Linux, macOS and Windows are supported.
 
-Thanks to {{contributors[0]}}{% for c in contributors[1:-1] %}, {{c}}{% endfor %} and {{contributors[-1]}} for contributing to this release!
+Thanks to {{contributors[0]}}{% for c in contributors[1:-1] %},
+ {{c}}{% endfor %} and {{contributors[-1]}} for contributing to this release!
 
 [Changes](https://github.com/gpodder/gpodder/compare/{{previous_tag}}...{{tag}}) since **{{previous_tag}}**:
 

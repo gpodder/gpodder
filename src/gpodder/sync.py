@@ -126,7 +126,8 @@ def open_device(gui):
 def get_track_length(filename):
     if util.find_command('mplayer') is not None:
         try:
-            mplayer_output = os.popen('mplayer -msglevel all=-1 -identify -vo null -ao null -frames 0 "%s" 2>/dev/null' % filename).read()
+            mplayer_output = os.popen(
+                'mplayer -msglevel all=-1 -identify -vo null -ao null -frames 0 "%s" 2>/dev/null' % filename).read()
             return int(float(mplayer_output[mplayer_output.index('ID_LENGTH'):].splitlines()[0][10:]) * 1000)
         except:
             pass
