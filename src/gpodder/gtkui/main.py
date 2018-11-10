@@ -649,18 +649,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_button_downloads_clicked(self, widget):
         self.downloads_window.show()
 
-    def for_each_episode_set_task_status(self, episodes, status):
-        episode_urls = set(episode.url for episode in episodes)
-        model = self.treeDownloads.get_model()
-        selected_tasks = [(
-            Gtk.TreeRowReference.new(model, row.path),
-            model.get_value(
-                row.iter,
-                DownloadStatusModel.C_TASK)) for row in model
-                if model.get_value(
-                row.iter, DownloadStatusModel.C_TASK).url in episode_urls]
-        self._for_each_task_set_status(selected_tasks, status)
-
     def on_treeview_button_pressed(self, treeview, event):
         if event.window != treeview.get_bin_window():
             return False
