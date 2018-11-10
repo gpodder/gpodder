@@ -2132,10 +2132,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.episode_list_status_changed(episodes)
 
-    def play_or_download(self):
-        if self.wNotebook.get_current_page() > 0:
+    def play_or_download(self, current_page=None):
+        if current_page is None:
+            current_page = self.wNotebook.get_current_page()
+        if current_page > 0:
+            print("play_or_download > 0")
             self.toolCancel.set_sensitive(True)
-            return (False, False, False, False, False, False)
+            return (False, False, False, False, False)
 
         (can_play, can_download, can_cancel, can_delete) = (False,) * 4
         (is_played, is_locked) = (False,) * 2
@@ -3356,8 +3359,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 util.open_website('http://gpodder.org/downloads')
 
     def on_wNotebook_switch_page(self, notebook, page, page_num):
+        logger.error("on_wNotebook_switch_page %i (%i)", page_num, self.wNotebook.get_current_page())
         if page_num == 0:
-            self.play_or_download()
+            self.play_or_download(current_page=page_num)
             # The message area in the downloads tab should be hidden
             # when the user switches away from the downloads tab
             if self.message_area is not None:
