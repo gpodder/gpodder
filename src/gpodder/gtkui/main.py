@@ -1240,7 +1240,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 logger.info('All tasks have finished.')
 
                 # Remove finished episodes
-                if self.config.auto_cleanup_downloads and can_call_cleanup:
+                if self.config.ui.gtk.download_list.remove_finished and can_call_cleanup:
                     self.cleanup_downloads()
 
                 # Stop updating the download list here
