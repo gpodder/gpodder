@@ -1392,10 +1392,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         if not paths:
             # Unselect any remaining items (clicked elsewhere)
-            if hasattr(treeview, 'is_rubber_banding_active'):
-                if not treeview.is_rubber_banding_active():
-                    selection.unselect_all()
-            else:
+            if not treeview.is_rubber_banding_active():
                 selection.unselect_all()
 
         return model, paths
@@ -1586,10 +1583,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def treeview_downloads_show_context_menu(self, treeview, event=None):
         model, paths = self.treeview_handle_context_menu_click(treeview, event)
         if not paths:
-            if not hasattr(treeview, 'is_rubber_banding_active'):
-                return True
-            else:
-                return not treeview.is_rubber_banding_active()
+            return not treeview.is_rubber_banding_active()
 
         if event is None or event.button == 3:
             selected_tasks, can_queue, can_cancel, can_pause, can_remove, can_force = \
@@ -1880,10 +1874,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def treeview_available_show_context_menu(self, treeview, event=None):
         model, paths = self.treeview_handle_context_menu_click(treeview, event)
         if not paths:
-            if not hasattr(treeview, 'is_rubber_banding_active'):
-                return True
-            else:
-                return not treeview.is_rubber_banding_active()
+            return not treeview.is_rubber_banding_active()
 
         if event is None or event.button == 3:
             episodes = self.get_selected_episodes()
