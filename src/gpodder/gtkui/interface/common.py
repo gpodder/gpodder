@@ -277,8 +277,15 @@ class TreeViewHelper(object):
 
     @staticmethod
     def make_popup_position_func(widget):
-        def position_func(menu):
-            x, y = widget.get_bin_window().get_origin()
+        """
+        :return: suitable function to pass to Gtk.Menu.popup()
+        It's used for instance when the popup trigger is the Menu key:
+        it will position the menu on top of the selected row even if the mouse is elsewhere
+        see http://lazka.github.io/pgi-docs/#Gtk-3.0/classes/Menu.html#Gtk.Menu.popup
+        """
+        def position_func(menu, *unused_args):
+            print("POSITION(%r)" % (widget.get_bin_window().get_origin(),))
+            _, x, y = widget.get_bin_window().get_origin()
 
             # If there's a selection, place the popup menu on top of
             # the first-selected row (otherwise in the top left corner)
