@@ -12,6 +12,7 @@ __description__ = _('Minimizes the gPodder window on startup.')
 __category__ = 'interface'
 __only_for__ = 'gtk'
 
+from gpodder import util
 
 class gPodderExtension:
     def __init__(self, container):
@@ -24,3 +25,4 @@ class gPodderExtension:
     def on_application_started(self):
         if self.ui_object:
             self.ui_object.main_window.iconify()
+            util.idle_add(self.ui_object.main_window.iconify)
