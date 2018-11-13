@@ -498,6 +498,9 @@ class PodcastEpisode(PodcastModelObject):
             self.download_filename = wanted_filename
             self.save()
 
+        if return_wanted_filename:
+            # return the filename, not full path
+            return self.download_filename
         return os.path.join(self.channel.save_dir, self.download_filename)
 
     def extension(self, may_call_local_filename=True):
