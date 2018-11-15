@@ -35,13 +35,13 @@ DefaultConfig = {
 class gPodderExtension:
     MIME_TYPES = ('audio/x-m4a', 'audio/mp4', 'audio/mp4a-latm', 'audio/ogg', 'audio/opus')
     EXT = ('.m4a', '.ogg', '.opus')
-    CMD = {'avconv': {'.mp3': ['-i', '%(old_file)s', '-q:a', '2', '-id3v2_version', '3', '-write_id3v1', '1', '%(new_file)s'],
-                      '.ogg': ['-i', '%(old_file)s', '-q:a', '2', '%(new_file)s'],
-                      '.opus': ['-i', '%(old_file)s', '-q:a', '2', '%(new_file)s']
+    CMD = {'avconv': {'.mp3': ['-n', '-i', '%(old_file)s', '-q:a', '2', '-id3v2_version', '3', '-write_id3v1', '1', '%(new_file)s'],
+                      '.ogg': ['-n', '-i', '%(old_file)s', '-q:a', '2', '%(new_file)s'],
+                      '.opus': ['-n', '-i', '%(old_file)s', '-b:a', '64k', '%(new_file)s']
                       },
-           'ffmpeg': {'.mp3': ['-i', '%(old_file)s', '-q:a', '2', '-id3v2_version', '3', '-write_id3v1', '1', '%(new_file)s'],
-                      '.ogg': ['-i', '%(old_file)s', '-q:a', '2', '%(new_file)s'],
-                      '.opus': ['-i', '%(old_file)s', '-q:a', '2', '%(new_file)s']
+           'ffmpeg': {'.mp3': ['-n', '-i', '%(old_file)s', '-q:a', '2', '-id3v2_version', '3', '-write_id3v1', '1', '%(new_file)s'],
+                      '.ogg': ['-n', '-i', '%(old_file)s', '-q:a', '2', '%(new_file)s'],
+                      '.opus': ['-n', '-i', '%(old_file)s', '-b:a', '64k', '%(new_file)s']
                       }
            }
 
