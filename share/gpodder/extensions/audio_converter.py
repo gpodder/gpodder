@@ -90,16 +90,18 @@ class gPodderExtension:
         if not any(self._check_source(episode) for episode in episodes):
             return None
 
+        menu_item = _('Convert to %(format)s') % {'format': self._target_format()}
+
+        return [(menu_item, self._convert_episodes)]
+
+    def _target_format(self):
         if self.config.use_ogg:
             target_format = 'OGG'
         elif self.config.use_opus:
             target_format = 'OPUS'
         else:
             target_format = 'MP3'
-
-        menu_item = _('Convert to %(format)s') % {'format': target_format}
-
-        return [(menu_item, self._convert_episodes)]
+        return target_format
 
     def _convert_episode(self, episode):
         if not self._check_source(episode):
@@ -135,5 +137,7 @@ class gPodderExtension:
             gpodder.user_extensions.on_notification_show(_('Conversion failed'), episode.title)
 
     def _convert_episodes(self, episodes):
+        # not running in background because there is no feedback to the user
+        # which one is being converted and nothing prevents from clicking convert twice.
         for episode in episodes:
             self._convert_episode(episode)
