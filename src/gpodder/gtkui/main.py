@@ -1771,6 +1771,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def save_episodes_as_file(self, episodes):
         def do_save_episode(copy_from, copy_to):
+            if os.path.exists(copy_to):
+              title = _('File already exist')
+              message = _('A file with this name already exist. Do you want to replace it?')
+              if not self.show_confirmation(message, title):
+                return
             try:
                 shutil.copyfile(copy_from, copy_to)
             except (OSError, IOError) as e:
