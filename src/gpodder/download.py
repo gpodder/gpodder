@@ -297,7 +297,7 @@ class DownloadURLOpener(urllib.request.FancyURLopener):
                 block = fp.read(bs)
             else:
                 block = fp.read(min(size - read, bs))
-            if block == "":
+            if len(block) == 0:
                 break
             read += len(block)
             tfp.write(block)
