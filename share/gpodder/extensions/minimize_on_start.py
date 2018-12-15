@@ -4,6 +4,7 @@
 # Thomas Perl <thp@gpodder.org>; 2012-07-31
 
 import gpodder
+from gpodder import util
 
 _ = gpodder.gettext
 
@@ -12,7 +13,6 @@ __description__ = _('Minimizes the gPodder window on startup.')
 __category__ = 'interface'
 __only_for__ = 'gtk'
 
-from gpodder import util
 
 class gPodderExtension:
     def __init__(self, container):
