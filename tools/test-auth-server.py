@@ -10,11 +10,12 @@ import hashlib
 import http.server
 import re
 import sys
+import threading
 
 USERNAME = 'user@example.com'    # Username used for HTTP Authentication
 PASSWORD = 'secret'              # Password used for HTTP Authentication
 
-HOST, PORT = 'localhost', 8000   # Hostname and port for the HTTP server
+HOST, PORT, RPORT = 'localhost', 8000, 8001   # Hostname and port for the HTTP server
 
 # When the script contents change, the feed's episodes each get a new GUID
 GUID = hashlib.sha1(open(__file__, mode='rb').read()).hexdigest()
@@ -22,6 +23,7 @@ GUID = hashlib.sha1(open(__file__, mode='rb').read()).hexdigest()
 URL = 'http://%(HOST)s:%(PORT)s' % locals()
 
 FEEDNAME = sys.argv[0]        # The title of the RSS feed
+REDIRECT = 'redirect.rss'     # The path for a redirection
 FEEDFILE = 'feed.rss'         # The "filename" of the feed on the server
 EPISODES = 'episode'          # Base name for the episode files
 EPISODES_EXT = '.mp3'         # Extension for the episode files
@@ -64,12 +66,13 @@ def mkrss(items=EP_COUNT):
 
 def mkdata(size=SIZE):
     """Generate dummy data of a given size (in bytes)"""
-    return ''.join(chr(32 + (i % (127 - 32))) for i in range(size))
+    return b''.join(chr(32 + (i % (127 - 32))) for i in range(size))
 
 
 class AuthRequestHandler(http.server.BaseHTTPRequestHandler):
     FEEDFILE_PATH = '/%s' % FEEDFILE
     EPISODES_PATH = '/%s' % EPISODES
+    REDIRECT_PATH = '/%s' % REDIRECT
 
     def do_GET(self):
         authorized = False
@@ -94,6 +97,12 @@ class AuthRequestHandler(http.server.BaseHTTPRequestHandler):
         elif self.path.startswith(self.EPISODES_PATH):
             print('Episode request.')
             is_episode = True
+        elif self.path == self.REDIRECT_PATH:
+            print('Redirect request.')
+            self.send_response(302)
+            self.send_header('Location', '%s/%s' % (URL, FEEDFILE))
+            self.end_headers()
+            return
 
         if not authorized:
             print('Not authorized - sending WWW-Authenticate header.')
@@ -110,12 +119,26 @@ class AuthRequestHandler(http.server.BaseHTTPRequestHandler):
         self.wfile.write(mkrss().encode('utf-8') if is_feed else mkdata())
 
 
+def run(httpd):
+    while True:
+        httpd.handle_request()
+
+
 if __name__ == '__main__':
     httpd = http.server.HTTPServer((HOST, PORT), AuthRequestHandler)
     print("""
     Feed URL: %(URL)s/%(FEEDFILE)s
+    Redirect URL: http://%(HOST)s:%(RPORT)d/%(REDIRECT)s
     Username: %(USERNAME)s
     Password: %(PASSWORD)s
     """ % locals())
-    while True:
-        httpd.handle_request()
+    httpdr = http.server.HTTPServer((HOST, RPORT), AuthRequestHandler)
+    t1 = threading.Thread(name='http', target=run, args=(httpd,), daemon=True)
+    t1.start()
+    t2 = threading.Thread(name='http redirect', target=run, args=(httpdr,), daemon=True)
+    t2.start()
+    try:
+        t1.join()
+        t2.join()
+    except KeyboardInterrupt:
+        pass

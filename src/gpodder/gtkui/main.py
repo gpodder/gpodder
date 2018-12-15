@@ -2489,14 +2489,15 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     channel.save()
 
                     self._update_cover(channel)
-                except feedcore.AuthenticationRequired:
-                    if url in auth_tokens:
+                except feedcore.AuthenticationRequired as e:
+                    # use e.url because there might have been a redirection (#571)
+                    if e.url in auth_tokens:
                         # Fail for wrong authentication data
-                        error_messages[url] = _('Authentication failed')
-                        failed.append(url)
+                        error_messages[e.url] = _('Authentication failed')
+                        failed.append(e.url)
                     else:
                         # Queue for login dialog later
-                        authreq.append(url)
+                        authreq.append(e.url)
                     continue
                 except feedcore.WifiLogin as error:
                     redirections[url] = error.data

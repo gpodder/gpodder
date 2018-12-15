@@ -77,7 +77,10 @@ class UnknownStatusCode(ExceptionWithData): pass
 
 
 # Authentication error
-class AuthenticationRequired(Exception): pass
+class AuthenticationRequired(Exception):
+    def __init__(self, msg, url=None):
+        super().__init__(msg)
+        self.url = url
 
 
 # Successful status codes
@@ -158,7 +161,7 @@ class Fetcher(object):
         if status == 400:
             raise BadRequest('bad request')
         elif status == 401:
-            raise AuthenticationRequired('authentication required')
+            raise AuthenticationRequired('authentication required', feed)
         elif status == 403:
             raise Unsubscribe('forbidden')
         elif status == 404:
