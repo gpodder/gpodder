@@ -3368,7 +3368,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 util.open_website('http://gpodder.org/downloads')
 
     def on_wNotebook_switch_page(self, notebook, page, page_num):
-        logger.error("on_wNotebook_switch_page %i (%i)", page_num, self.wNotebook.get_current_page())
         if page_num == 0:
             self.play_or_download(current_page=page_num)
             # The message area in the downloads tab should be hidden
