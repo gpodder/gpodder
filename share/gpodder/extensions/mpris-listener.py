@@ -236,8 +236,7 @@ class MPRISDBusReceiver(object):
                                      self.SIGNAL_SEEKED,
                                      self.INTERFACE_MPRIS,
                                      None,
-                                     None,
-                                     sender_keyword='sender')
+                                     None)
 
     def stop_receiving(self):
         self.bus.remove_signal_receiver(self.on_prop_change,
@@ -270,7 +269,7 @@ class MPRISDBusReceiver(object):
             # on stop there is no xesam:url
             if 'xesam:url' in changed_properties['Metadata']:
                 collected_info['uri'] = changed_properties['Metadata']['xesam:url']
-                collected_info['length'] = changed_properties['Metadata']['mpris:length']
+                collected_info['length'] = changed_properties['Metadata'].get('mpris:length', 0.0)
         if 'Rate' in changed_properties:
             collected_info['rate'] = changed_properties['Rate']
         collected_info['pos'] = self.query_position(sender)
