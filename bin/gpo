@@ -117,7 +117,7 @@ if os.path.exists(os.path.join(src_dir, 'gpodder', '__init__.py')):
     sys.path.insert(0, src_dir)
 
 import gpodder  # isort:skip
-from gpodder import common, core, download, log, model, my, opml, sync, util, youtube  # isort:skip
+from gpodder import common, core, download, feedcore, log, model, my, opml, sync, util, youtube  # isort:skip
 from gpodder.config import config_value_to_string  # isort:skip
 from gpodder.syncui import gPodderSyncUI  # isort:skip
 
@@ -301,8 +301,30 @@ class gPodderCli(object):
 
         # Subscribe to new podcast
         if create:
-            return self._model.load_podcast(
-                url, create=True, max_episodes=self._config.max_episodes_per_feed)
+            auth_tokens = {}
+            while True:
+                try:
+                    return self._model.load_podcast(
+                        url, create=True,
+                        authentication_tokens=auth_tokens.get(url, None),
+                        max_episodes=self._config.max_episodes_per_feed)
+                except feedcore.AuthenticationRequired as e:
+                    if e.url in auth_tokens:
+                        print(inred(_('Wrong username/password')))
+                        return None
+                    else:
+                        print(inyellow(_('Podcast requires authentication')))
+                        print(inyellow(_('Please login to %s:') % (url,)))
+                        username = input(_('User name:') + ' ')
+                        if username:
+                            password = input(_('Password:') + ' ')
+                            if password:
+                                auth_tokens[e.url] = (username, password)
+                                url = e.url
+                            else:
+                                return None
+                        else:
+                            return None
 
         # Load existing podcast
         for podcast in self._model.get_podcasts():
