@@ -198,7 +198,22 @@ class DownloadURLOpener(urllib.request.FancyURLopener):
     def __init__(self, channel):
         self.channel = channel
         self._auth_retry_counter = 0
-        urllib.request.FancyURLopener.__init__(self, None)
+        super().__init__()
+
+    def http_error(self, url, fp, errcode, errmsg, headers, data=None):
+        """Handle http errors.
+        Overriden to give retry=True to http_error_40{1,7}.
+        See https://github.com/python/cpython/commit/80f1b059714aeb1c6fc9f6ce1173bc8a51af7dd9
+        See python issue https://bugs.python.org/issue1368368
+        """
+        result = False
+        if errcode == 401:
+            result = self.http_error_401(url, fp, errcode, errmsg, headers, data=data, retry=True)
+        elif errcode == 407:
+            result = self.http_error_407(url, fp, errcode, errmsg, headers, data=data, retry=True)
+        if result:
+            return result
+        return super().http_error(url, fp, errcode, errmsg, headers, data=data)
 
     def http_error_default(self, url, fp, errcode, errmsg, headers):
         """

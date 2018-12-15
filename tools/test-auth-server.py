@@ -54,6 +54,16 @@ def mkrss(items=EP_COUNT):
     </item>
     """ % dict(list(locals().items()) + list(globals().items()))
         for INDEX, PUBDATE in enumerate(mkpubdates(items)))
+    ITEMS += """
+    <item>
+        <title>Missing Episode</title>
+        <guid>tag:test.gpodder.org,2012:missing</guid>
+        <pubDate>Sun, 25 Nov 2018 17:28:03 +0000</pubDate>
+        <enclosure
+          url="%(URL)s/not_there%(EPISODES_EXT)s"
+          type="%(EPISODES_MIME)s"
+          length="%(SIZE)s"/>
+    </item>""" % dict(list(locals().items()) + list(globals().items()))
 
     return """
     <rss>
@@ -109,6 +119,11 @@ class AuthRequestHandler(http.server.BaseHTTPRequestHandler):
             self.send_response(401)
             self.send_header('WWW-Authenticate',
                              'Basic realm="%s"' % sys.argv[0])
+            self.end_headers()
+            return
+        if not is_feed and not is_episode:
+            print('Not there episode - sending 404.')
+            self.send_response(404)
             self.end_headers()
             return
 
