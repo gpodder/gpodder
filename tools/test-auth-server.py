@@ -4,6 +4,7 @@
 # from our crappy-but-does-the-job department
 # Thomas Perl <thp.io/about>; 2012-01-20
 
+import base64
 import datetime
 import hashlib
 import http.server
@@ -16,7 +17,7 @@ PASSWORD = 'secret'              # Password used for HTTP Authentication
 HOST, PORT = 'localhost', 8000   # Hostname and port for the HTTP server
 
 # When the script contents change, the feed's episodes each get a new GUID
-GUID = hashlib.sha1(open(__file__).read()).hexdigest()
+GUID = hashlib.sha1(open(__file__, mode='rb').read()).hexdigest()
 
 URL = 'http://%(HOST)s:%(PORT)s' % locals()
 
@@ -78,7 +79,7 @@ class AuthRequestHandler(http.server.BaseHTTPRequestHandler):
         auth_header = self.headers.get('authorization', '')
         m = re.match(r'^Basic (.*)$', auth_header)
         if m is not None:
-            auth_data = m.group(1).decode('base64').split(':', 1)
+            auth_data = base64.b64decode(m.group(1)).decode().split(':', 1)
             if len(auth_data) == 2:
                 username, password = auth_data
                 print('Got username:', username)
@@ -100,15 +101,13 @@ class AuthRequestHandler(http.server.BaseHTTPRequestHandler):
             self.send_header('WWW-Authenticate',
                              'Basic realm="%s"' % sys.argv[0])
             self.end_headers()
-            self.wfile.close()
             return
 
         self.send_response(200)
         self.send_header('Content-type',
                          'application/xml' if is_feed else 'audio/mpeg')
         self.end_headers()
-        self.wfile.write(mkrss() if is_feed else mkdata())
-        self.wfile.close()
+        self.wfile.write(mkrss().encode('utf-8') if is_feed else mkdata())
 
 
 if __name__ == '__main__':
