@@ -108,7 +108,7 @@ To run gPodder from source, use..
     bin/gpodder              # for the Gtk+ UI
     bin/gpo                  # for the command-line interface
 
-To install gPodder system-wide, use "make install". By default, this
+To install gPodder system-wide, use `make install`. By default, this
 will install *all* UIs and all translations. The following environment
 variables are processed by setup.py:
 
@@ -129,6 +129,13 @@ into an alternative root (default /) and prefix (default /usr):
 
     make install DESTDIR=tmp/ PREFIX=/usr/local/
 
+[*Debian*](https://wiki.debian.org/Python#Deviations_from_upstream) and *Ubuntu* use `dist-packages`
+instead of `site-packages` for third party installs, so you'll want something like:
+
+    sudo python3 setup.py install --root / --prefix /usr/local --optimize=1 --install-lib=/usr/local/lib/python3.5/dist-packages
+
+In fact, first try running `python -c "import sys; print(sys.path)"` to check what is the exact path.
+It depends on your version of python.
 
 ## Portable Mode / Roaming Profiles
 

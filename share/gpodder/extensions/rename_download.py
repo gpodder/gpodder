@@ -47,7 +47,7 @@ class gPodderExtension:
         dirname = os.path.dirname(current_filename)
         filename = os.path.basename(current_filename)
         basename, ext = os.path.splitext(filename)
-        ext = utils.sanitize_filename(ext, PodcastEpisode.MAX_FILENAME_LENGTH)
+        ext = '.' + util.sanitize_filename(ext, PodcastEpisode.MAX_FILENAME_LENGTH)
 
         new_basename = []
         new_basename.append(title)

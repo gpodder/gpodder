@@ -52,6 +52,10 @@
     pending [URL]              List new episodes (all or only from URL)
     episodes [--guid] [URL]    List episodes with or without GUIDs (all or only from URL)
 
+  - Episode management -
+
+    sync                       Sync podcasts to device
+
   - Configuration -
 
     set [key] [value]          List one (all) keys or set to a new value
@@ -75,6 +79,7 @@ import pydoc
 import re
 import shlex
 import sys
+import threading
 
 try:
     import readline
@@ -112,8 +117,9 @@ if os.path.exists(os.path.join(src_dir, 'gpodder', '__init__.py')):
     sys.path.insert(0, src_dir)
 
 import gpodder  # isort:skip
-from gpodder import common, core, download, log, model, my, opml, util, youtube  # isort:skip
+from gpodder import common, core, download, feedcore, log, model, my, opml, sync, util, youtube  # isort:skip
 from gpodder.config import config_value_to_string  # isort:skip
+from gpodder.syncui import gPodderSyncUI  # isort:skip
 
 _ = gpodder.gettext
 N_ = gpodder.ngettext
@@ -138,8 +144,7 @@ def incolor(color_id, s):
 
 
 # ANSI Colors: red = 1, green = 2, yellow = 3, blue = 4
-inred, ingreen, inyellow, inblue = (functools.partial(incolor, x)
-        for x in range(1, 5))
+inred, ingreen, inyellow, inblue = (functools.partial(incolor, x) for x in range(1, 5))
 
 
 def FirstArgumentIsPodcastURL(function):
@@ -170,15 +175,17 @@ class gPodderCli(object):
         self._model = self.core.model
 
         self._current_action = ''
-        self._commands = dict((name.rstrip('_'), func)
+        self._commands = dict(
+            (name.rstrip('_'), func)
             for name, func in inspect.getmembers(self)
             if inspect.ismethod(func) and not name.startswith('_'))
         self._prefixes, self._expansions = self._build_prefixes_expansions()
         self._prefixes.update({'?': 'help'})
         self._valid_commands = sorted(self._prefixes.values())
-        gpodder.user_extensions.on_ui_initialized(self.core.model,
-                self._extensions_podcast_update_cb,
-                self._extensions_episode_download_cb)
+        gpodder.user_extensions.on_ui_initialized(
+            self.core.model,
+            self._extensions_podcast_update_cb,
+            self._extensions_episode_download_cb)
 
     @contextlib.contextmanager
     def _action(self, msg, *args):
@@ -294,8 +301,30 @@ class gPodderCli(object):
 
         # Subscribe to new podcast
         if create:
-            return self._model.load_podcast(url, create=True,
-                    max_episodes=self._config.max_episodes_per_feed)
+            auth_tokens = {}
+            while True:
+                try:
+                    return self._model.load_podcast(
+                        url, create=True,
+                        authentication_tokens=auth_tokens.get(url, None),
+                        max_episodes=self._config.max_episodes_per_feed)
+                except feedcore.AuthenticationRequired as e:
+                    if e.url in auth_tokens:
+                        print(inred(_('Wrong username/password')))
+                        return None
+                    else:
+                        print(inyellow(_('Podcast requires authentication')))
+                        print(inyellow(_('Please login to %s:') % (url,)))
+                        username = input(_('User name:') + ' ')
+                        if username:
+                            password = input(_('Password:') + ' ')
+                            if password:
+                                auth_tokens[e.url] = (username, password)
+                                url = e.url
+                            else:
+                                return None
+                        else:
+                            return None
 
         # Load existing podcast
         for podcast in self._model.get_podcasts():
@@ -404,8 +433,12 @@ class gPodderCli(object):
 
             return '   '
 
-        episodes = ('%3d.%s %s %s' % (i + 1, ((' %s' % e.guid) if show_guid else ''), status_str(e), e.title)
-                for i, e in enumerate(podcast.get_all_episodes()))
+        def guid_str(episode):
+            return ((' %s' % episode.guid) if show_guid else '')
+
+        episodes = ('%3d.%s %s %s' % (i + 1, guid_str(e),
+                                      status_str(e), e.title)
+                    for i, e in enumerate(podcast.get_all_episodes()))
         return episodes
 
     @FirstArgumentIsPodcastURL
@@ -475,7 +508,7 @@ class gPodderCli(object):
                 print('#', ingreen(podcast.title))
             else:
                 print('#', inred(podcast.title),
-                        '-', _('Updates disabled'))
+                      '-', _('Updates disabled'))
 
             print(podcast.url)
 
@@ -487,7 +520,7 @@ class gPodderCli(object):
 
     def _pending_message(self, count):
         return N_('%(count)d new episode', '%(count)d new episodes',
-                count) % {'count': count}
+                  count) % {'count': count}
 
     @FirstArgumentIsPodcastURL
     def update(self, url=None):
@@ -684,8 +717,8 @@ class gPodderCli(object):
             return
 
         def show_list():
-            self._pager('\n'.join('%3d: %s\n     %s' %
-                (index + 1, title, url if title != url else '')
+            self._pager('\n'.join(
+                '%3d: %s\n     %s' % (index + 1, title, url if title != url else '')
                 for index, (title, url) in enumerate(results)))
 
         show_list()
@@ -729,15 +762,174 @@ class gPodderCli(object):
             else:
                 new_url = result
                 self._error(_('Changed URL from %(old_url)s to %(new_url)s.') %
-                {
-                    'old_url': old_url,
-                    'new_url': new_url,
-                })
+                            {'old_url': old_url,
+                             'new_url': new_url, })
         return True
 
     def help(self):
         print(stylize(__doc__), file=sys.stderr, end='')
         return True
+
+    def sync(self):
+        def ep_repr(episode):
+            return '{} / {}'.format(episode.channel.title, episode.title)
+
+        def msg_title(title, message):
+            if title:
+                msg = '{}: {}'.format(title, message)
+            else:
+                msg = '{}'.format(message)
+            return msg
+
+        def _notification(message, title=None, important=False, widget=None):
+            print(msg_title(message, title))
+
+        def _show_confirmation(message, title=None):
+            msg = msg_title(message, title)
+            msg = _("%(title)s: %(msg)s ([yes]/no): ") % dict(title=title, msg=message)
+            if not interactive_console:
+                return True
+            line = input(msg)
+            return not line or (line.lower() == _('yes'))
+
+        def _delete_episode_list(episodes, confirm=True, skip_locked=True, callback=None):
+            if not episodes:
+                return False
+
+            if skip_locked:
+                episodes = [e for e in episodes if not e.archive]
+
+                if not episodes:
+                    title = _('Episodes are locked')
+                    message = _(
+                        'The selected episodes are locked. Please unlock the '
+                        'episodes that you want to delete before trying '
+                        'to delete them.')
+                    _notification(message, title)
+                    return False
+
+            count = len(episodes)
+            title = N_('Delete %(count)d episode?', 'Delete %(count)d episodes?',
+                       count) % {'count': count}
+            message = _('Deleting episodes removes downloaded files.')
+
+            if confirm and not _show_confirmation(message, title):
+                return False
+
+            print(_('Please wait while episodes are deleted'))
+
+            def finish_deletion(episode_urls, channel_urls):
+                # Episodes have been deleted - persist the database
+                self.db.commit()
+
+            episode_urls = set()
+            channel_urls = set()
+
+            episodes_status_update = []
+            for idx, episode in enumerate(episodes):
+                if not episode.archive or not skip_locked:
+                    self._start_action(_('Deleting episode: %(episode)s') % {
+                            'episode': episode.title})
+                    episode.delete_from_disk()
+                    self._finish_action(success=True)
+                    episode_urls.add(episode.url)
+                    channel_urls.add(episode.channel.url)
+                    episodes_status_update.append(episode)
+
+            # Notify the web service about the status update + upload
+            if self.mygpo_client.can_access_webservice():
+                self.mygpo_client.on_delete(episodes_status_update)
+                self.mygpo_client.flush()
+
+            if callback is None:
+                util.idle_add(finish_deletion, episode_urls, channel_urls)
+            else:
+                util.idle_add(callback, episode_urls, channel_urls, None)
+
+            return True
+
+        def _episode_selector(parent_window, title=None, instructions=None, episodes=None,
+                              selected=None, columns=None, callback=None, _config=None):
+            if not interactive_console:
+                return callback([e for i, e in enumerate(episodes) if selected[i]])
+
+            def show_list():
+                self._pager('\n'.join(
+                    '[%s] %3d: %s' % (('X' if selected[index] else ' '), index + 1, ep_repr(e))
+                    for index, e in enumerate(episodes)))
+
+            print("{}. {}".format(title, instructions))
+            show_list()
+
+            msg = _('Enter episode index to toggle, ? for list, X to select all, space to select none, empty when ready')
+            while True:
+                index = input(msg + ': ')
+
+                if not index:
+                    return callback([e for i, e in enumerate(episodes) if selected[i]])
+
+                if index == '?':
+                    show_list()
+                    continue
+                elif index == 'X':
+                    selected = [True, ] * len(episodes)
+                    show_list()
+                    continue
+                elif index == ' ':
+                    selected = [False, ] * len(episodes)
+                    show_list()
+                    continue
+                else:
+                    try:
+                        index = int(index)
+                    except ValueError:
+                        self._error(_('Invalid value.'))
+                        continue
+
+                    if not (1 <= index <= len(episodes)):
+                        self._error(_('Invalid value.'))
+                        continue
+
+                    e = episodes[index - 1]
+                    selected[index - 1] = not selected[index - 1]
+                    if selected[index - 1]:
+                        self._info(_('Will delete %(episode)s') % dict(episode=ep_repr(e)))
+                    else:
+                        self._info(_("Won't delete %(episode)s") % dict(episode=ep_repr(e)))
+
+        def _not_applicable(*args, **kwargs):
+            pass
+
+        class DownloadStatusModel(object):
+            def register_task(self, ask):
+                pass
+
+        class DownloadQueueManager(object):
+            def queue_task(x, task):
+                def progress_updated(progress):
+                    self._update_action(progress)
+                with self._action(_('Syncing %s'), ep_repr(task.episode)):
+                    task.status = sync.SyncTask.DOWNLOADING
+                    task.add_progress_callback(progress_updated)
+                    task.run()
+
+        done_lock = threading.Lock()
+        self.mygpo_client = my.MygPoClient(self._config)
+        sync_ui = gPodderSyncUI(self._config,
+                                _notification,
+                                None,
+                                _show_confirmation,
+                                _not_applicable,
+                                self._model.get_podcasts(),
+                                DownloadStatusModel(),
+                                DownloadQueueManager(),
+                                _not_applicable,
+                                self._db.commit,
+                                _delete_episode_list,
+                                _episode_selector)
+        done_lock.acquire()
+        sync_ui.on_synchronize_episodes(self._model.get_podcasts(), episodes=None, force_played=True, done_callback=done_lock.release)
+        done_lock.acquire()  # block until done
 
     # -------------------------------------------------------------------
 
@@ -787,7 +979,7 @@ class gPodderCli(object):
                 args = shlex.split(line)
             except ValueError as value_error:
                 self._error(_('Syntax error: %(error)s') %
-                        {'error': value_error})
+                            {'error': value_error})
                 continue
 
             try:
@@ -814,8 +1006,8 @@ class gPodderCli(object):
         defaults = defaults or ()
         minarg, maxarg = len(args) - len(defaults), len(args)
 
-        if len(command_line) < minarg or (len(command_line) > maxarg and
-                varargs is None):
+        if (len(command_line) < minarg or
+                (len(command_line) > maxarg and varargs is None)):
             self._error('Wrong argument count for %s.' % func.__name__)
             return False
 

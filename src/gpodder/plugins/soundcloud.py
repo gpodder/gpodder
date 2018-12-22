@@ -138,18 +138,18 @@ class SoundcloudUser(object):
         track it can find for its user."""
         global CONSUMER_KEY
         try:
-            json_url = 'https://api.soundcloud.com/users/%(user)s/%(feed)s.' \
-                       'json?filter=downloadable&consumer_key=%' \
-                       '(consumer_key)s&limit=200' \
-                    % {"user": self.get_user_id(),
-                       "feed": feed,
-                       "consumer_key": CONSUMER_KEY}
+            json_url = ('https://api.soundcloud.com/users/%(user)s/%(feed)s.'
+                        'json?filter=downloadable&consumer_key=%'
+                        '(consumer_key)s&limit=200'
+                        % {"user": self.get_user_id(),
+                           "feed": feed,
+                           "consumer_key": CONSUMER_KEY})
             logger.debug("loading %s", json_url)
 
             json_tracks = json.loads(util.urlopen(json_url).read().decode('utf-8'))
             tracks = [track for track in json_tracks if track['downloadable']]
             total_count = len(tracks) + len([track for track in json_tracks
-                                              if not track['downloadable']])
+                                             if not track['downloadable']])
 
             if len(tracks) == 0 and total_count > 0:
                 logger.warn("Download of all %i %s of user %s is disabled" %

@@ -498,6 +498,9 @@ class PodcastEpisode(PodcastModelObject):
             self.download_filename = wanted_filename
             self.save()
 
+        if return_wanted_filename:
+            # return the filename, not full path
+            return self.download_filename
         return os.path.join(self.channel.save_dir, self.download_filename)
 
     def extension(self, may_call_local_filename=True):
@@ -611,7 +614,7 @@ class PodcastEpisode(PodcastModelObject):
         total time or inside the last 10 seconds of a track.
         """
         return (self.current_position > 0 and self.total_time > 0 and
-                 (self.current_position + 10 >= self.total_time or
+                (self.current_position + 10 >= self.total_time or
                  self.current_position >= self.total_time * .99))
 
     def get_play_info_string(self, duration_only=False):
@@ -649,6 +652,7 @@ class PodcastChannel(PodcastModelObject):
     ]
 
     MAX_FOLDERNAME_LENGTH = 60
+    SECONDS_PER_DAY = 24 * 60 * 60
     SECONDS_PER_WEEK = 7 * 24 * 60 * 60
     EpisodeClass = PodcastEpisode
 
@@ -936,6 +940,12 @@ class PodcastChannel(PodcastModelObject):
 
         # Get most recent published of all episodes
         last_published = self.db.get_last_published(self) or 0
+        # fix for #516 an episode was marked published one month in the future (typo in month number)
+        # causing every new episode to be marked old
+        tomorrow = datetime.datetime.now().timestamp() + self.SECONDS_PER_DAY
+        if last_published > tomorrow:
+            logger.debug('Episode published in the future for podcast %s', self.title)
+            last_published = tomorrow
 
         # Keep track of episode GUIDs currently seen in the feed
         seen_guids = set()
@@ -1265,6 +1275,7 @@ def check_root_folder_path():
             + 1 + PodcastChannel.MAX_FOLDERNAME_LENGTH \
             + 1 + PodcastEpisode.MAX_FILENAME_LENGTH + 5  # eg. .opus
         if longest > 260:
-            return _("Warning: path to gPodder home (%(root)s) is very long and can result in failure to download files.\n" % {"root": root}) \
+            return _("Warning: path to gPodder home (%(root)s) is very long "
+                     "and can result in failure to download files.\n" % {"root": root}) \
                 + _("You're advised to set it to a shorter path.")
     return None

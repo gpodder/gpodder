@@ -48,9 +48,9 @@ from gpodder.gtkui import shownotes
 from gpodder.gtkui.config import UIConfig
 from gpodder.gtkui.desktop.channel import gPodderChannel
 from gpodder.gtkui.desktop.episodeselector import gPodderEpisodeSelector
+from gpodder.gtkui.desktop.exportlocal import gPodderExportToLocalFolder
 from gpodder.gtkui.desktop.podcastdirectory import gPodderPodcastDirectory
 from gpodder.gtkui.desktop.preferences import gPodderPreferences
-from gpodder.gtkui.desktop.sync import gPodderSyncUI
 from gpodder.gtkui.desktop.welcome import gPodderWelcome
 from gpodder.gtkui.desktopfile import UserAppsReader
 from gpodder.gtkui.download import DownloadStatusModel
@@ -63,6 +63,7 @@ from gpodder.gtkui.model import EpisodeListModel, Model, PodcastListModel
 from gpodder.gtkui.services import CoverDownloader
 from gpodder.gtkui.widgets import SimpleMessageArea
 from gpodder.model import PodcastEpisode, check_root_folder_path
+from gpodder.syncui import gPodderSyncUI
 
 import gi  # isort:skip
 gi.require_version('Gtk', '3.0')  # isort:skip
@@ -142,7 +143,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.download_queue_manager = download.DownloadQueueManager(self.config, self.download_status_model)
 
         self.config.connect_gtk_spinbutton('limit.downloads.concurrent', self.spinMaxDownloads,
-                                            self.config.limit.downloads.concurrent_max)
+                                           self.config.limit.downloads.concurrent_max)
         self.config.connect_gtk_togglebutton('max_downloads_enabled', self.cbMaxDownloads)
         self.config.connect_gtk_spinbutton('limit_rate_value', self.spinLimitDownloads)
         self.config.connect_gtk_togglebutton('limit_rate', self.cbLimitDownloads)
@@ -647,16 +648,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_button_downloads_clicked(self, widget):
         self.downloads_window.show()
-
-    def for_each_episode_set_task_status(self, episodes, status):
-        episode_urls = set(episode.url for episode in episodes)
-        model = self.treeDownloads.get_model()
-        selected_tasks = [(Gtk.TreeRowReference.new(model, row.path),
-                           model.get_value(row.iter,
-                           DownloadStatusModel.C_TASK)) for row in model
-                           if model.get_value(row.iter, DownloadStatusModel.C_TASK).url
-                           in episode_urls]
-        self._for_each_task_set_status(selected_tasks, status)
 
     def on_treeview_button_pressed(self, treeview, event):
         if event.window != treeview.get_bin_window():
@@ -1249,7 +1240,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 logger.info('All tasks have finished.')
 
                 # Remove finished episodes
-                if self.config.auto_cleanup_downloads and can_call_cleanup:
+                if self.config.ui.gtk.download_list.remove_finished and can_call_cleanup:
                     self.cleanup_downloads()
 
                 # Stop updating the download list here
@@ -1265,7 +1256,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return self.download_list_update_enabled
         except Exception as e:
             logger.error('Exception happened while updating download list.', exc_info=True)
-            self.show_message('%s\n\n%s' % (_('Please report this problem and restart gPodder:'), str(e)), _('Unhandled exception'), important=True)
+            self.show_message('%s\n\n%s' % (_('Please report this problem and restart gPodder:'),
+                                            str(e)), _('Unhandled exception'), important=True)
             # We return False here, so the update loop won't be called again,
             # that's why we require the restart of gPodder in the message.
             return False
@@ -1400,10 +1392,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         if not paths:
             # Unselect any remaining items (clicked elsewhere)
-            if hasattr(treeview, 'is_rubber_banding_active'):
-                if not treeview.is_rubber_banding_active():
-                    selection.unselect_all()
-            else:
+            if not treeview.is_rubber_banding_active():
                 selection.unselect_all()
 
         return model, paths
@@ -1594,10 +1583,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def treeview_downloads_show_context_menu(self, treeview, event=None):
         model, paths = self.treeview_handle_context_menu_click(treeview, event)
         if not paths:
-            if not hasattr(treeview, 'is_rubber_banding_active'):
-                return True
-            else:
-                return not treeview.is_rubber_banding_active()
+            return not treeview.is_rubber_banding_active()
 
         if event is None or event.button == 3:
             selected_tasks, can_queue, can_cancel, can_pause, can_remove, can_force = \
@@ -1646,16 +1632,31 @@ class gPodder(BuilderWidget, dbus.service.Object):
             menu = Gtk.Menu()
 
             if can_force:
-                menu.append(make_menu_item(_('Start download now'), 'document-save', selected_tasks, download.DownloadTask.QUEUED, force_start=True))
+                menu.append(make_menu_item(_('Start download now'), 'document-save',
+                                           selected_tasks,
+                                           download.DownloadTask.QUEUED,
+                                           force_start=True))
             else:
-                menu.append(make_menu_item(_('Download'), 'document-save', selected_tasks, download.DownloadTask.QUEUED, can_queue))
-            menu.append(make_menu_item(_('Cancel'), 'media-playback-stop', selected_tasks, download.DownloadTask.CANCELLED, can_cancel))
-            menu.append(make_menu_item(_('Pause'), 'media-playback-pause', selected_tasks, download.DownloadTask.PAUSED, can_pause))
+                menu.append(make_menu_item(_('Download'), 'document-save',
+                                           selected_tasks,
+                                           download.DownloadTask.QUEUED,
+                                           can_queue))
+
+            menu.append(make_menu_item(_('Cancel'), 'media-playback-stop',
+                                       selected_tasks,
+                                       download.DownloadTask.CANCELLED,
+                                       can_cancel))
+            menu.append(make_menu_item(_('Pause'), 'media-playback-pause',
+                                       selected_tasks,
+                                       download.DownloadTask.PAUSED, can_pause))
             menu.append(Gtk.SeparatorMenuItem())
-            menu.append(make_menu_item(_('Move up'), 'go-up', action=move_selected_items_up))
-            menu.append(make_menu_item(_('Move down'), 'go-down', action=move_selected_items_down))
+            menu.append(make_menu_item(_('Move up'), 'go-up',
+                                       action=move_selected_items_up))
+            menu.append(make_menu_item(_('Move down'), 'go-down',
+                                       action=move_selected_items_down))
             menu.append(Gtk.SeparatorMenuItem())
-            menu.append(make_menu_item(_('Remove from list'), 'list-remove', selected_tasks, sensitive=can_remove))
+            menu.append(make_menu_item(_('Remove from list'), 'list-remove',
+                                       selected_tasks, sensitive=can_remove))
 
             menu.attach_to_widget(treeview)
             menu.show_all()
@@ -1769,30 +1770,64 @@ class gPodder(BuilderWidget, dbus.service.Object):
         return filename
 
     def save_episodes_as_file(self, episodes):
+        def do_save_episode(copy_from, copy_to):
+            if os.path.exists(copy_to):
+                logger.warn(copy_from)
+                logger.warn(copy_to)
+                title = _('File already exist')
+                d = {'filename': os.path.basename(copy_to)}
+                message = _('A file named "%(filename)s" already exist. Do you want to replace it?') % d
+                if not self.show_confirmation(message, title):
+                    return
+            try:
+                shutil.copyfile(copy_from, copy_to)
+            except (OSError, IOError) as e:
+                logger.warn('Error copying from %s to %s: %r', copy_from, copy_to, e, exc_info=True)
+                folder, filename = os.path.split(copy_to)
+                # Remove characters not supported by VFAT (#282)
+                new_filename = re.sub(r"[\"*/:<>?\\|]", "_", filename)
+                destination = os.path.join(folder, new_filename)
+                if (copy_to != destination):
+                    shutil.copyfile(copy_from, destination)
+                else:
+                    raise
+
         PRIVATE_FOLDER_ATTRIBUTE = '_save_episodes_as_file_folder'
         folder = getattr(self, PRIVATE_FOLDER_ATTRIBUTE, None)
-        (notCancelled, folder) = self.show_folder_select_dialog(initial_directory=folder)
-        setattr(self, PRIVATE_FOLDER_ATTRIBUTE, folder)
+        allRemainingDefault = False
+        remaining = len(episodes)
+        dialog = gPodderExportToLocalFolder(self.main_window,
+                                            _config=self.config)
+        for episode in episodes:
+            remaining -= 1
+            if episode.was_downloaded(and_exists=True):
+                copy_from = episode.local_filename(create=False)
+                assert copy_from is not None
 
-        if notCancelled:
-            for episode in episodes:
-                if episode.was_downloaded(and_exists=True):
-                    copy_from = episode.local_filename(create=False)
-                    assert copy_from is not None
+                base, extension = os.path.splitext(copy_from)
+                filename = self.build_filename(episode.sync_filename(), extension)
 
-                    base, extension = os.path.splitext(copy_from)
-                    filename = self.build_filename(episode.sync_filename(), extension)
-                    copy_to = os.path.join(folder, filename)
-                    try:
-                        shutil.copyfile(copy_from, copy_to)
-                    except (OSError, IOError) as e:
-                        # Remove characters not supported by VFAT (#282)
-                        new_filename = re.sub(r"[\"*/:<>?\\|]", "_", filename)
-                        destination = os.path.join(folder, new_filename)
-                        if (copy_to != destination):
-                            shutil.copyfile(copy_from, destination)
+                try:
+                    if allRemainingDefault:
+                        do_save_episode(copy_from, os.path.join(folder, filename))
+                    else:
+                        (notCancelled, folder, dest_path, allRemainingDefault) = dialog.save_as(folder, filename, remaining)
+                        if notCancelled:
+                            do_save_episode(copy_from, dest_path)
                         else:
-                            raise
+                            break
+                except (OSError, IOError) as e:
+                    if remaining:
+                        msg = _('Error saving to local folder: %(error)r.\n'
+                                'Would you like to continue?') % dict(error=e)
+                        if not self.show_confirmation(msg, _('Error saving to local folder')):
+                            logger.warn("Save to Local Folder cancelled following error")
+                            break
+                    else:
+                        self.notification(_('Error saving to local folder: %(error)r') % dict(error=e),
+                                          _('Error saving to local folder'), important=True)
+
+        setattr(self, PRIVATE_FOLDER_ATTRIBUTE, folder)
 
     def copy_episodes_bluetooth(self, episodes):
         episodes_to_copy = [e for e in episodes if e.was_downloaded(and_exists=True)]
@@ -1847,10 +1882,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def treeview_available_show_context_menu(self, treeview, event=None):
         model, paths = self.treeview_handle_context_menu_click(treeview, event)
         if not paths:
-            if not hasattr(treeview, 'is_rubber_banding_active'):
-                return True
-            else:
-                return not treeview.is_rubber_banding_active()
+            return not treeview.is_rubber_banding_active()
 
         if event is None or event.button == 3:
             episodes = self.get_selected_episodes()
@@ -2108,10 +2140,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.episode_list_status_changed(episodes)
 
-    def play_or_download(self):
-        if self.wNotebook.get_current_page() > 0:
+    def play_or_download(self, current_page=None):
+        if current_page is None:
+            current_page = self.wNotebook.get_current_page()
+        if current_page > 0:
+            print("play_or_download > 0")
             self.toolCancel.set_sensitive(True)
-            return (False, False, False, False, False, False)
+            return (False, False, False, False, False)
 
         (can_play, can_download, can_cancel, can_delete) = (False,) * 4
         (is_played, is_locked) = (False,) * 2
@@ -2354,7 +2389,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if existing:
                 title = _('Existing subscriptions skipped')
                 message = _('You are already subscribed to these podcasts:') \
-                     + '\n\n' + '\n'.join(cgi.escape(url) for url in existing)
+                    + '\n\n' + '\n'.join(cgi.escape(url) for url in existing)
                 self.show_message(message, title, widget=self.treeChannels)
 
             # Report subscriptions that require authentication
@@ -2378,7 +2413,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             for url in redirections:
                 title = _('Website redirection detected')
                 message = _('The URL %(url)s redirects to %(target)s.') \
-                        + '\n\n' + _('Do you want to visit the website now?')
+                    + '\n\n' + _('Do you want to visit the website now?')
                 message = message % {'url': url, 'target': redirections[url]}
                 if self.show_confirmation(message, title):
                     util.open_website(url)
@@ -2389,8 +2424,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if failed:
                 title = _('Could not add some podcasts')
                 message = _('Some podcasts could not be added to your list:') \
-                     + '\n\n' + '\n'.join(cgi.escape('%s: %s' % (url,
-                        error_messages.get(url, _('Unknown')))) for url in failed)
+                    + '\n\n' + '\n'.join(
+                        cgi.escape('%s: %s' % (
+                            url, error_messages.get(url, _('Unknown')))) for url in failed)
                 self.show_message(message, title, important=True)
 
             # Upload subscription changes to gpodder.net
@@ -2461,14 +2497,15 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     channel.save()
 
                     self._update_cover(channel)
-                except feedcore.AuthenticationRequired:
-                    if url in auth_tokens:
+                except feedcore.AuthenticationRequired as e:
+                    # use e.url because there might have been a redirection (#571)
+                    if e.url in auth_tokens:
                         # Fail for wrong authentication data
-                        error_messages[url] = _('Authentication failed')
-                        failed.append(url)
+                        error_messages[e.url] = _('Authentication failed')
+                        failed.append(e.url)
                     else:
                         # Queue for login dialog later
-                        authreq.append(url)
+                        authreq.append(e.url)
                     continue
                 except feedcore.WifiLogin as error:
                     redirections[url] = error.data
@@ -2579,6 +2616,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 def indicate_updating_podcast(channel):
                     d = {'podcast': channel.title, 'position': updated + 1, 'total': count}
                     progression = _('Updating %(podcast)s (%(position)d/%(total)d)') % d
+                    logger.info(progression)
                     self.pbFeedUpdate.set_text(progression)
 
                 try:
@@ -2735,7 +2773,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             if not episodes:
                 title = _('Episodes are locked')
-                message = _('The selected episodes are locked. Please unlock the episodes that you want to delete before trying to delete them.')
+                message = _(
+                    'The selected episodes are locked. Please unlock the '
+                    'episodes that you want to delete before trying '
+                    'to delete them.')
                 self.notification(message, title, widget=self.treeAvailable)
                 return False
 
@@ -3079,10 +3120,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
             title = _('Subscriptions on %(server)s') \
                     % {'server': self.config.mygpo.server}
             dir = gPodderPodcastDirectory(self.gPodder,
-                                           _config=self.config,
-                                           custom_title=title,
-                                           add_podcast_list=self.add_podcast_list,
-                                           hide_url_entry=True)
+                                          _config=self.config,
+                                          custom_title=title,
+                                          add_podcast_list=self.add_podcast_list,
+                                          hide_url_entry=True)
 
             url = self.mygpo_client.get_download_user_subscriptions_url()
             dir.download_opml_file(url)
@@ -3328,7 +3369,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_wNotebook_switch_page(self, notebook, page, page_num):
         if page_num == 0:
-            self.play_or_download()
+            self.play_or_download(current_page=page_num)
             # The message area in the downloads tab should be hidden
             # when the user switches away from the downloads tab
             if self.message_area is not None:
@@ -3562,9 +3603,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.download_queue_manager,
                 self.enable_download_list_update,
                 self.commit_changes_to_database,
-                self.delete_episode_list)
+                self.delete_episode_list,
+                gPodderEpisodeSelector)
 
-        self.sync_ui.on_synchronize_episodes(self.channels, episodes, force_played)
+        self.sync_ui.on_synchronize_episodes(self.channels, episodes, force_played,
+                                             self.enable_download_list_update)
 
     def on_update_youtube_subscriptions_activate(self, action, param):
         if not self.config.youtube.api_key_v3:

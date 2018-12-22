@@ -488,8 +488,8 @@ class MygPoClient(object):
         try:
             # Load the "since" value from the database
             since_o = self._store.get(SinceValue, host=self.host,
-                                                  device_id=self.device_id,
-                                                  category=SinceValue.EPISODES)
+                                      device_id=self.device_id,
+                                      category=SinceValue.EPISODES)
 
             # Use a default since object for the first-time case
             if since_o is None:
@@ -546,8 +546,8 @@ class MygPoClient(object):
         try:
             # Load the "since" value from the database
             since_o = self._store.get(SinceValue, host=self.host,
-                                                  device_id=self.device_id,
-                                                  category=SinceValue.PODCASTS)
+                                      device_id=self.device_id,
+                                      category=SinceValue.PODCASTS)
 
             # Use a default since object for the first-time case
             if since_o is None:

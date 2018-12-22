@@ -35,6 +35,7 @@ Windows Toast Notification API or Balloon Notification as fallback.
 It's tested on Win7 32bit and Win10 64bit VMs from modern.ie
 So we have a working solution until Gio.Notification is implemented on Windows.
 """
+import logging
 import os
 import os.path
 import subprocess
@@ -140,9 +141,9 @@ try {{
             if not os.path.exists(powershell):
                 powershell = "powershell.exe"
             subprocess.run([powershell,
-                            "-ExecutionPolicy", "Bypass", "-File", path], check=True,
-                            stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                            startupinfo=startupinfo)
+                           "-ExecutionPolicy", "Bypass", "-File", path], check=True,
+                           stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                           startupinfo=startupinfo)
             os.remove(path)  # XXX: otherwise keep it for debugging
         except subprocess.CalledProcessError as e:
             logger.error("Error in on_notification_show(title=%r, message=%r):\n"

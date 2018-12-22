@@ -33,7 +33,7 @@ class gPodderWelcome(BuilderWidget):
             for child in widget.get_children():
                 if isinstance(child, Gtk.Alignment):
                     child.set_padding(self.PADDING, self.PADDING,
-                        self.PADDING, self.PADDING)
+                                      self.PADDING, self.PADDING)
                 else:
                     child.set_padding(self.PADDING, self.PADDING)
 

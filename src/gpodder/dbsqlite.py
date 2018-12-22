@@ -128,9 +128,12 @@ class Database(object):
         with self.lock:
             cur = self.cursor()
             if podcast_id is not None:
-                cur.execute('SELECT COUNT(*), state, is_new FROM %s WHERE podcast_id = ? GROUP BY state, is_new' % self.TABLE_EPISODE, (podcast_id,))
+                cur.execute('SELECT COUNT(*), state, is_new FROM %s '
+                            'WHERE podcast_id = ? GROUP BY state, is_new'
+                            % self.TABLE_EPISODE, (podcast_id,))
             else:
-                cur.execute('SELECT COUNT(*), state, is_new FROM %s GROUP BY state, is_new' % self.TABLE_EPISODE)
+                cur.execute('SELECT COUNT(*), state, is_new FROM %s '
+                            'GROUP BY state, is_new' % self.TABLE_EPISODE)
             for count, state, is_new in cur:
                 total += count
                 if state == gpodder.STATE_DELETED:

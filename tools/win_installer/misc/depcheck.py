@@ -59,7 +59,7 @@ def get_dependencies(filename):
     deps = []
     try:
         data = subprocess.check_output(["objdump", "-p", filename],
-            stderr=subprocess.STDOUT)
+                                       stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError:
         # can happen with wrong arch binaries
         return []

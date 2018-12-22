@@ -26,19 +26,22 @@ __category__ = 'post-download'
 
 
 DefaultConfig = {
-    'use_ogg': False,  # Set to True to convert to .ogg (otherwise .mp3)
+    'use_opus': False,  # Set to True to convert to .opus
+    'use_ogg': False,  # Set to True to convert to .ogg
     'context_menu': True,  # Show the conversion option in the context menu
 }
 
 
 class gPodderExtension:
-    MIME_TYPES = ('audio/x-m4a', 'audio/mp4', 'audio/mp4a-latm', 'audio/ogg', )
-    EXT = ('.m4a', '.ogg')
-    CMD = {'avconv': {'.mp3': ['-i', '%(old_file)s', '-q:a', '2', '-id3v2_version', '3', '-write_id3v1', '1', '%(new_file)s'],
-                      '.ogg': ['-i', '%(old_file)s', '-q:a', '2', '%(new_file)s']
+    MIME_TYPES = ('audio/x-m4a', 'audio/mp4', 'audio/mp4a-latm', 'audio/mpeg', 'audio/ogg', 'audio/opus')
+    EXT = ('.m4a', '.ogg', '.opus', '.mp3')
+    CMD = {'avconv': {'.mp3': ['-n', '-i', '%(old_file)s', '-q:a', '2', '-id3v2_version', '3', '-write_id3v1', '1', '%(new_file)s'],
+                      '.ogg': ['-n', '-i', '%(old_file)s', '-q:a', '2', '%(new_file)s'],
+                      '.opus': ['-n', '-i', '%(old_file)s', '-b:a', '64k', '%(new_file)s']
                       },
-           'ffmpeg': {'.mp3': ['-i', '%(old_file)s', '-q:a', '2', '-id3v2_version', '3', '-write_id3v1', '1', '%(new_file)s'],
-                      '.ogg': ['-i', '%(old_file)s', '-q:a', '2', '%(new_file)s']
+           'ffmpeg': {'.mp3': ['-n', '-i', '%(old_file)s', '-q:a', '2', '-id3v2_version', '3', '-write_id3v1', '1', '%(new_file)s'],
+                      '.ogg': ['-n', '-i', '%(old_file)s', '-q:a', '2', '%(new_file)s'],
+                      '.opus': ['-n', '-i', '%(old_file)s', '-b:a', '64k', '%(new_file)s']
                       }
            }
 
@@ -56,7 +59,13 @@ class gPodderExtension:
         self._convert_episode(episode)
 
     def _get_new_extension(self):
-        return ('.ogg' if self.config.use_ogg else '.mp3')
+        if self.config.use_ogg:
+            extension = '.ogg'
+        elif self.config.use_opus:
+            extension = '.opus'
+        else:
+            extension = '.mp3'
+        return extension
 
     def _check_source(self, episode):
         if episode.extension() == self._get_new_extension():
@@ -81,10 +90,18 @@ class gPodderExtension:
         if not any(self._check_source(episode) for episode in episodes):
             return None
 
-        target_format = ('OGG' if self.config.use_ogg else 'MP3')
-        menu_item = _('Convert to %(format)s') % {'format': target_format}
+        menu_item = _('Convert to %(format)s') % {'format': self._target_format()}
 
         return [(menu_item, self._convert_episodes)]
+
+    def _target_format(self):
+        if self.config.use_ogg:
+            target_format = 'OGG'
+        elif self.config.use_opus:
+            target_format = 'OPUS'
+        else:
+            target_format = 'MP3'
+        return target_format
 
     def _convert_episode(self, episode):
         if not self._check_source(episode):
@@ -120,5 +137,7 @@ class gPodderExtension:
             gpodder.user_extensions.on_notification_show(_('Conversion failed'), episode.title)
 
     def _convert_episodes(self, episodes):
+        # not running in background because there is no feedback to the user
+        # which one is being converted and nothing prevents from clicking convert twice.
         for episode in episodes:
             self._convert_episode(episode)

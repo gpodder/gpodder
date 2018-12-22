@@ -150,8 +150,8 @@ class gPodderExtension:
 
     def on_load(self):
         self.taskbar = client.CreateObject(
-                '{56FDF344-FD6D-11d0-958A-006097C9A090}',
-                interface=ITaskbarList3)
+            '{56FDF344-FD6D-11d0-958A-006097C9A090}',
+            interface=ITaskbarList3)
         self.taskbar.HrInit()
 
     def on_unload(self):

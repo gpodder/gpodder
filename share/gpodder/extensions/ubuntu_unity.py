@@ -43,7 +43,7 @@ if __name__ != '__main__':
             logger.info('Starting Ubuntu Unity Integration.')
             os.environ['PYTHONPATH'] = os.pathsep.join(sys.path)
             self.process = util.Popen(['python', __file__],
-                                             stdin=subprocess.PIPE)
+                                      stdin=subprocess.PIPE)
 
         def on_unload(self):
             logger.info('Killing process...')
@@ -86,7 +86,7 @@ else:
 
         def __init__(self):
             self.launcher = Unity.LauncherEntry.get_for_desktop_id(
-                    self.FILENAME)
+                self.FILENAME)
 
         def set_count(self, count):
             self.launcher.set_property('count', count)

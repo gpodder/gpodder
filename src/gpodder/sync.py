@@ -853,7 +853,11 @@ class MTPDevice(Device):
             needed = util.calculate_size(filename)
             free = self.get_free_space()
             if needed > free:
-                logger.error('Not enough space on device %s: %s available, but need at least %s', self.get_name(), util.format_filesize(free), util.format_filesize(needed))
+                logger.error('Not enough space on device %s: %s available, but '
+                             'need at least %s',
+                             self.get_name(),
+                             util.format_filesize(free),
+                             util.format_filesize(needed))
                 self.cancelled = True
                 return False
 

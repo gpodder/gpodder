@@ -26,8 +26,7 @@ import os
 
 import gpodder
 from gpodder import sync, util
-from gpodder.gtkui.desktop.deviceplaylist import gPodderDevicePlaylist
-from gpodder.gtkui.desktop.episodeselector import gPodderEpisodeSelector
+from gpodder.deviceplaylist import gPodderDevicePlaylist
 
 _ = gpodder.gettext
 
@@ -37,14 +36,15 @@ logger = logging.getLogger(__name__)
 
 class gPodderSyncUI(object):
     def __init__(self, config, notification, parent_window,
-            show_confirmation,
-            show_preferences,
-            channels,
-            download_status_model,
-            download_queue_manager,
-            enable_download_list_update,
-            commit_changes_to_database,
-            delete_episode_list):
+                 show_confirmation,
+                 show_preferences,
+                 channels,
+                 download_status_model,
+                 download_queue_manager,
+                 enable_download_list_update,
+                 commit_changes_to_database,
+                 delete_episode_list,
+                 select_episodes_to_delete):
         self.device = None
 
         self._config = config
@@ -59,6 +59,7 @@ class gPodderSyncUI(object):
         self.enable_download_list_update = enable_download_list_update
         self.commit_changes_to_database = commit_changes_to_database
         self.delete_episode_list = delete_episode_list
+        self.select_episodes_to_delete = select_episodes_to_delete
 
     def _filter_sync_episodes(self, channels, only_downloaded=False):
         """Return a list of episodes for device synchronization
@@ -90,7 +91,7 @@ class gPodderSyncUI(object):
         message = _('Please check the settings in the preferences dialog.')
         self.notification(message, title, important=True)
 
-    def on_synchronize_episodes(self, channels, episodes=None, force_played=True):
+    def on_synchronize_episodes(self, channels, episodes=None, force_played=True, done_callback=None):
         device = sync.open_device(self)
 
         if device is None:
@@ -177,15 +178,17 @@ class gPodderSyncUI(object):
                 self.commit_changes_to_database()
                 for current_channel in self.channels:
                     # only sync those channels marked for syncing
-                    if (self._config.device_sync.device_type == 'filesystem' and current_channel.sync_to_mp3_player and self._config.device_sync.playlists.create):
+                    if (self._config.device_sync.device_type == 'filesystem'
+                            and current_channel.sync_to_mp3_player
+                            and self._config.device_sync.playlists.create):
 
                         # get playlist object
                         playlist = gPodderDevicePlaylist(self._config,
-                                                       current_channel.title)
+                                                         current_channel.title)
                         # need to refresh episode list so that
                         # deleted episodes aren't included in playlists
                         episodes_for_playlist = sorted(current_channel.get_episodes(gpodder.STATE_DOWNLOADED),
-                                                     key=lambda ep: ep.published)
+                                                       key=lambda ep: ep.published)
                         # don't add played episodes to playlist if skip_played_episodes is True
                         if self._config.device_sync.skip_played_episodes:
                             episodes_for_playlist = [ep for ep in episodes_for_playlist if ep.is_new]
@@ -203,7 +206,7 @@ class gPodderSyncUI(object):
                 @util.run_in_background
                 def sync_thread_func():
                     device.add_sync_tasks(episodes, force_played=force_played,
-                            done_callback=self.enable_download_list_update)
+                                          done_callback=done_callback)
 
                 return
 
@@ -254,7 +257,7 @@ class gPodderSyncUI(object):
                             # episodes need to be deleted from gpodder
                             for episode_to_delete in episodes:
                                 logger.info("Deleting episode %s",
-                                               episode_to_delete.title)
+                                            episode_to_delete.title)
 
                             logger.info('Will start sync - after deleting episodes')
                             self.delete_episode_list(episodes, False,
@@ -267,7 +270,7 @@ class gPodderSyncUI(object):
                             ('markup_delete_episodes', None, None, _('Episode')),
                         )
 
-                        gPodderEpisodeSelector(
+                        self.select_episodes_to_delete(
                             self.parent_window,
                             title=_('Episodes have been deleted on device'),
                             instructions='Select the episodes you want to delete:',
@@ -294,8 +297,8 @@ class gPodderSyncUI(object):
             # played tracks will be copied then immediately deleted
             if (self._config.device_sync.delete_played_episodes and
                     self._config.device_sync.skip_played_episodes):
-                all_episodes = self._filter_sync_episodes(channels,
-                        only_downloaded=False)
+                all_episodes = self._filter_sync_episodes(
+                    channels, only_downloaded=False)
                 for local_episode in all_episodes:
                     episode = device.episode_on_device(local_episode)
                     if episode is None:
@@ -303,7 +306,7 @@ class gPodderSyncUI(object):
 
                     if local_episode.state == gpodder.STATE_DELETED:
                         logger.info('Removing episode from device: %s',
-                                episode.title)
+                                    episode.title)
                         device.remove_track(episode)
 
             # When this is done, start the callback in the UI code

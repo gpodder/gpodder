@@ -125,22 +125,23 @@ class CurrentTrackTracker(object):
                     ('status' not in kwargs or kwargs['status'] == 'Playing') and not
                     subsecond_difference(cur['pos'], kwargs['pos'])):
                 logger.debug('notify Stopped: playback discontinuity:' +
-                              'calc: %f observed: %f', cur['pos'], kwargs['pos'])
+                             'calc: %f observed: %f', cur['pos'], kwargs['pos'])
                 self.notify_stop()
 
             if ((kwargs['pos']) == 0 and
                     self.pos is not None and
-                    (self.length - USECS_IN_SEC) >
+                    self.length is not None and
+                    (self.length - USECS_IN_SEC) < self.pos and
                     self.pos < (self.length + 2 * USECS_IN_SEC)):
-                logger.debug('fixing for position 0 (calculated pos: %f/%f [%f])',
+                logger.debug('pos=0 end of stream (calculated pos: %f/%f [%f])',
                              self.pos / USECS_IN_SEC, self.length / USECS_IN_SEC,
                              (self.pos / USECS_IN_SEC) - (self.length / USECS_IN_SEC))
                 self.pos = self.length
                 kwargs.pop('pos')  # remove 'pos' even though we're not using it
             else:
-                if self.pos is not None:
+                if self.pos is not None and self.length is not None:
                     logger.debug("%r %r", self.pos, self.length)
-                    logger.debug('not fixing for position 0 (calculated pos: %f/%f [%f])',
+                    logger.debug('pos=0 not end of stream (calculated pos: %f/%f [%f])',
                                  self.pos / USECS_IN_SEC, self.length / USECS_IN_SEC,
                                  (self.pos / USECS_IN_SEC) - (self.length / USECS_IN_SEC))
                 self.pos = kwargs.pop('pos')
@@ -179,7 +180,11 @@ class CurrentTrackTracker(object):
                 self.length <= 0):
             return
         pos = self.pos // USECS_IN_SEC
-        file_uri = urllib.request.url2pathname(urllib.parse.urlparse(self.uri).path).encode('utf-8')
+        parsed_url = urllib.parse.urlparse(self.uri)
+        if (not parsed_url.scheme) or parsed_url.scheme == 'file':
+            file_uri = urllib.request.url2pathname(urllib.parse.urlparse(self.uri).path).encode('utf-8')
+        else:
+            file_uri = self.uri
         total_time = self.length // USECS_IN_SEC
 
         if status == 'Stopped':
@@ -197,7 +202,7 @@ class CurrentTrackTracker(object):
                 self._prev_notif = (start_position, file_uri)
             self._notifier.start_position = start_position
 
-        logger.info('CurrentTrackTracker: %s: %r', status, self)
+        logger.info('CurrentTrackTracker: %s: %r %s', status, self, file_uri)
 
     def __repr__(self):
         return '%s: %s at %d/%d (@%f)' % (
@@ -214,7 +219,6 @@ class MPRISDBusReceiver(object):
     PATH_MPRIS = '/org/mpris/MediaPlayer2'
     INTERFACE_MPRIS = 'org.mpris.MediaPlayer2.Player'
     SIGNAL_SEEKED = 'Seeked'
-    OBJECT_VLC = 'org.mpris.MediaPlayer2.vlc'
     OTHER_MPRIS_INTERFACES = ['org.mpris.MediaPlayer2',
                               'org.mpris.MediaPlayer2.TrackList',
                               'org.mpris.MediaPlayer2.Playlists']
@@ -226,7 +230,8 @@ class MPRISDBusReceiver(object):
                                      self.SIGNAL_PROP_CHANGE,
                                      self.INTERFACE_PROPS,
                                      None,
-                                     self.PATH_MPRIS)
+                                     self.PATH_MPRIS,
+                                     sender_keyword='sender')
         self.bus.add_signal_receiver(self.on_seeked,
                                      self.SIGNAL_SEEKED,
                                      self.INTERFACE_MPRIS,
@@ -246,27 +251,31 @@ class MPRISDBusReceiver(object):
                                         None)
 
     def on_prop_change(self, interface_name, changed_properties,
-                       invalidated_properties, path=None):
+                       invalidated_properties, path=None, sender=None):
         if interface_name != self.INTERFACE_MPRIS:
             if interface_name not in self.OTHER_MPRIS_INTERFACES:
                 logger.warn('unexpected interface: %s, props=%r', interface_name, list(changed_properties.keys()))
             return
+        if sender is None:
+            logger.warn('No sender associated to D-Bus signal, please report a bug')
+            return
 
         collected_info = {}
-
+        logger.debug("on_prop_change %r", changed_properties.keys())
         if 'PlaybackStatus' in changed_properties:
             collected_info['status'] = str(changed_properties['PlaybackStatus'])
         if 'Metadata' in changed_properties:
+            logger.debug("Metadata %r", changed_properties['Metadata'].keys())
             # on stop there is no xesam:url
             if 'xesam:url' in changed_properties['Metadata']:
                 collected_info['uri'] = changed_properties['Metadata']['xesam:url']
-                collected_info['length'] = changed_properties['Metadata']['mpris:length']
+                collected_info['length'] = changed_properties['Metadata'].get('mpris:length', 0.0)
         if 'Rate' in changed_properties:
             collected_info['rate'] = changed_properties['Rate']
-        collected_info['pos'] = self.query_position()
+        collected_info['pos'] = self.query_position(sender)
 
         if 'status' not in collected_info:
-            collected_info['status'] = str(self.query_status())
+            collected_info['status'] = str(self.query_status(sender))
         logger.debug('collected info: %r', collected_info)
 
         self.cur.update(**collected_info)
@@ -275,13 +284,13 @@ class MPRISDBusReceiver(object):
         logger.debug('seeked to pos: %f', position)
         self.cur.update(pos=position)
 
-    def query_position(self):
-        proxy = self.bus.get_object(self.OBJECT_VLC, self.PATH_MPRIS)
+    def query_position(self, sender):
+        proxy = self.bus.get_object(sender, self.PATH_MPRIS)
         props = dbus.Interface(proxy, self.INTERFACE_PROPS)
         return props.Get(self.INTERFACE_MPRIS, 'Position')
 
-    def query_status(self):
-        proxy = self.bus.get_object(self.OBJECT_VLC, self.PATH_MPRIS)
+    def query_status(self, sender):
+        proxy = self.bus.get_object(sender, self.PATH_MPRIS)
         props = dbus.Interface(proxy, self.INTERFACE_PROPS)
         return props.Get(self.INTERFACE_MPRIS, 'PlaybackStatus')
 

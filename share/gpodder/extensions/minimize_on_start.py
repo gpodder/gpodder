@@ -4,6 +4,7 @@
 # Thomas Perl <thp@gpodder.org>; 2012-07-31
 
 import gpodder
+from gpodder import util
 
 _ = gpodder.gettext
 
@@ -24,3 +25,4 @@ class gPodderExtension:
     def on_application_started(self):
         if self.ui_object:
             self.ui_object.main_window.iconify()
+            util.idle_add(self.ui_object.main_window.iconify)
