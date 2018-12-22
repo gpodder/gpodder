@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: gPodder\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-12-22 12:59+0100\n"
-"PO-Revision-Date: 2018-08-20 07:48+0200\n"
+"PO-Revision-Date: 2018-12-22 17:32+0100\n"
 "Last-Translator: TZocker\n"
 "Language-Team: German (http://www.transifex.com/projects/p/gpodder/language/"
 "de/)\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 2.1.1\n"
+"X-Generator: Poedit 2.2\n"
 
 #: src/gpodder/config.py:54
 #, python-format
@@ -646,12 +646,14 @@ msgstr "Podcast-Einstellungen"
 
 #: src/gpodder/gtkui/main.py:1777
 msgid "File already exist"
-msgstr ""
+msgstr "Datei ist bereits vorhanden"
 
 #: src/gpodder/gtkui/main.py:1779
 #, python-format
 msgid "A file named \"%(filename)s\" already exist. Do you want to replace it?"
 msgstr ""
+"Eine Datei mit dem Namen \"%(filename)s\" ist bereits vorhanden. Möchten sie "
+"diese ersetzen?"
 
 #: src/gpodder/gtkui/main.py:1821
 #, python-format
@@ -659,16 +661,17 @@ msgid ""
 "Error saving to local folder: %(error)r.\n"
 "Would you like to continue?"
 msgstr ""
+"Fehler beim Speichern in lokales Verzeichnis: %(error)r.\n"
+"Möchten Sie weitermachen?"
 
 #: src/gpodder/gtkui/main.py:1823 src/gpodder/gtkui/main.py:1828
-#, fuzzy
 msgid "Error saving to local folder"
-msgstr "Fehler beim Schreiben der Wiedergabe-Liste"
+msgstr "Fehler beim Speichern in lokales Verzeichnis"
 
 #: src/gpodder/gtkui/main.py:1827
 #, python-format
 msgid "Error saving to local folder: %(error)r"
-msgstr ""
+msgstr "Fehler beim Speichern in lokales Verzeichnis: %(error)r"
 
 #: src/gpodder/gtkui/main.py:1848
 msgid "Error converting file."
@@ -1548,12 +1551,16 @@ msgid "size: %s"
 msgstr "Größe: %s"
 
 #: src/gpodder/gtkui/desktop/exportlocal.py:57
-#, python-format
+#, fuzzy, python-format
 msgid "Export remaining %(count)d episode to this folder with its default name"
 msgid_plural ""
 "Export remaining %(count)d episodes to this folder with their default name"
 msgstr[0] ""
+"Restliche %(count)d Episode in diesen Ordner mit seinem Standardnamen "
+"exportieren"
 msgstr[1] ""
+"Restliche %(count)d Episoden in diesen Ordner mit ihrem Standardnamen "
+"exportieren"
 
 #: src/gpodder/gtkui/desktop/channel.py:98
 msgid "Add section"
@@ -2242,9 +2249,8 @@ msgid "Invalid url: %s"
 msgstr "Ungültige URL: %s"
 
 #: bin/gpo:318
-#, fuzzy
 msgid "User name:"
-msgstr "Benutzername:"
+msgstr "Benutzernamen:"
 
 #: bin/gpo:335 bin/gpo:411 bin/gpo:449 bin/gpo:600 bin/gpo:622 bin/gpo:637
 #: bin/gpo:757
@@ -2376,37 +2382,39 @@ msgstr "URL von %(old_url)s zu %(new_url)s geändert."
 #: bin/gpo:789
 #, python-format
 msgid "%(title)s: %(msg)s ([yes]/no): "
-msgstr ""
+msgstr "%(title)s: %(msg)s ([yes]/no): "
 
 #: bin/gpo:793
 msgid "yes"
-msgstr ""
+msgstr "ja"
 
 #: bin/gpo:831
-#, fuzzy, python-format
+#, python-format
 msgid "Deleting episode: %(episode)s"
-msgstr "Lösche Episoden"
+msgstr "Lösche Episode. %(episode)s"
 
 #: bin/gpo:864
 msgid ""
 "Enter episode index to toggle, ? for list, X to select all, space to select "
 "none, empty when ready"
 msgstr ""
+"Geben Sie den Episode-Index ein, ? zum wechseln, X um alle auszuwählen, "
+"Leertaste um keines auszuwählen, Nix wenn fertig"
 
 #: bin/gpo:896
-#, fuzzy, python-format
+#, python-format
 msgid "Will delete %(episode)s"
-msgstr "Gelöschte Episoden verstecken"
+msgstr "Lösche Episode. %(episode)s"
 
 #: bin/gpo:898
-#, fuzzy, python-format
+#, python-format
 msgid "Won't delete %(episode)s"
-msgstr "Episoden löschen"
+msgstr "Lösche nicht Episode. %(episode)s"
 
 #: bin/gpo:911
-#, fuzzy, python-format
+#, python-format
 msgid "Syncing %s"
-msgstr "Füge %s hinzu"
+msgstr "Synchronisierung %s"
 
 #: bin/gpo:981
 #, python-format
