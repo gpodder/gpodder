@@ -133,6 +133,10 @@ $(LOCALEDIR)/%/LC_MESSAGES/gpodder.mo: po/%.po
 $(MESSAGES): $(GETTEXT_SOURCE)
 	xgettext --from-code=utf-8 -LPython -k_:1 -kN_:1 -kN_:1,2 -kn_:1,2 -o $(MESSAGES) $^
 
+messages-force:
+	xgettext --from-code=utf-8 -LPython -k_:1 -kN_:1 -kN_:1,2 -kn_:1,2 -o $(MESSAGES)  $(GETTEXT_SOURCE)
+
+
 ##########################################################################
 
 # This only works in a Git working commit, and assumes that the local Git
