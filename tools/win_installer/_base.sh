@@ -60,7 +60,7 @@ function build_compileall {
 function install_pre_deps {
 	# install python3 here to ensure same version
     pacman -S --needed --noconfirm p7zip git dos2unix rsync \
-        mingw-w64-"${ARCH}"-nsis wget intltool mingw-w64-"${ARCH}"-toolchain \
+        mingw-w64-"${ARCH}"-nsis wget openssl intltool mingw-w64-"${ARCH}"-toolchain \
         mingw-w64-"${ARCH}"-python3
 }
 
