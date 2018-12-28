@@ -23,3 +23,6 @@ artifacts:
   - path: tools/win_installer/gpodder-*-portable.exe
 
 deploy: off
+
+on_failure:
+  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
