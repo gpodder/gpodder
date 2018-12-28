@@ -77,7 +77,7 @@ def find_data_files(uis, scripts):
         # Skip desktop stuff if we don't have any UIs requiring it
         skip_folder = False
         uis_requiring_freedesktop = ('gtk',)
-        freedesktop_folders = ('icons', 'dbus-1', 'applications')
+        freedesktop_folders = ('applications', 'dbus-1', 'icons', 'metainfo')
         for folder in freedesktop_folders:
             share_folder = os.path.join('share', folder)
             if dirpath.startswith(share_folder) and uis is not None:
