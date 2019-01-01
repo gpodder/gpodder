@@ -72,7 +72,7 @@ class gPodderExtension:
             return []
 
         menu_entries = []
-        for uid in self.speakers.iterkeys():
+        for uid in list(self.speakers.keys()):
             callback = partial(self._stream_to_speaker, uid)
 
             controller = self.speakers[uid]
