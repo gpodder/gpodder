@@ -61,6 +61,8 @@ DefaultConfig = {
     'always_remove_tags': False,
     'auto_embed_coverart': False,
     'set_artist_to_album': False,
+    'set_version': 4,
+    'modify_tags': True
 }
 
 
@@ -79,28 +81,32 @@ class AudioFile(object):
             audio.delete()
         audio.save()
 
-    def write_basic_tags(self, set_artist_to_album):
+    def write_basic_tags(self, modify_tags, set_artist_to_album, set_version):
         audio = File(self.filename, easy=True)
 
         if audio.tags is None:
             audio.add_tags()
 
-        if self.album is not None:
-            audio.tags['album'] = self.album
+        
 
-        if self.title is not None:
-            audio.tags['title'] = self.title
+        if modify_tags:
+            if self.album is not None:
+                audio.tags['album'] = self.album
 
-        if self.genre is not None:
-            audio.tags['genre'] = self.genre
+            if self.title is not None:
+                audio.tags['title'] = self.title
 
-        if self.pubDate is not None:
-            audio.tags['date'] = self.pubDate
+            if self.genre is not None:
+                audio.tags['genre'] = self.genre
 
-        if set_artist_to_album:
-            audio.tags['artist'] = self.album
+            if self.pubDate is not None:
+                audio.tags['date'] = self.pubDate
 
-        audio.save()
+            if set_artist_to_album:
+                audio.tags['artist'] = self.album
+
+        logger.warn(audio.tags)
+        audio.save(v2_version = set_version)
 
     def insert_coverart(self):
         """ implement the cover art logic in the subclass
@@ -176,6 +182,7 @@ class Mp3File(AudioFile):
 
 class gPodderExtension:
     def __init__(self, container):
+        logger.info(container)
         self.container = container
 
     def on_episode_downloaded(self, episode):
@@ -257,7 +264,9 @@ class gPodderExtension:
         if self.container.config.always_remove_tags:
             audio.remove_tags()
         else:
-            audio.write_basic_tags(self.container.config.set_artist_to_album)
+            audio.write_basic_tags(self.container.config.modify_tags,
+                                   self.container.config.set_artist_to_album,
+                                   self.container.config.set_version)
 
             if self.container.config.auto_embed_coverart:
                 audio.insert_coverart()
