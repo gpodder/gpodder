@@ -87,8 +87,6 @@ class AudioFile(object):
         if audio.tags is None:
             audio.add_tags()
 
-        
-
         if modify_tags:
             if self.album is not None:
                 audio.tags['album'] = self.album
@@ -106,7 +104,7 @@ class AudioFile(object):
                 audio.tags['artist'] = self.album
 
         logger.warn(audio.tags)
-        audio.save(v2_version = set_version)
+        audio.save(v2_version=set_version)
 
     def insert_coverart(self):
         """ implement the cover art logic in the subclass
