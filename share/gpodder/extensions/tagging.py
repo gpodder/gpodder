@@ -182,7 +182,6 @@ class Mp3File(AudioFile):
 
 class gPodderExtension:
     def __init__(self, container):
-        logger.info(container)
         self.container = container
 
     def on_episode_downloaded(self, episode):
