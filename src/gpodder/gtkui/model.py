@@ -598,6 +598,10 @@ class PodcastListModel(Gtk.ListStore):
     def _show_row_separator(self, model, iter):
         return model.get_value(iter, self.C_SEPARATOR)
 
+    def set_max_image_size(self, size):
+        self._max_image_side = size
+        self._cover_cache = {}
+
     def _resize_pixbuf_keep_ratio(self, url, pixbuf):
         """
         Resizes a GTK Pixbuf but keeps its aspect ratio.
@@ -663,7 +667,10 @@ class PodcastListModel(Gtk.ListStore):
             loader = GdkPixbuf.PixbufLoader()
             loader.write(channel.cover_thumb)
             loader.close()
-            return loader.get_pixbuf()
+            pixbuf = loader.get_pixbuf()
+            if self._max_image_side not in (pixbuf.get_width(), pixbuf.get_height()):
+                logger.debug("cached thumb wrong size: %r != %i", (pixbuf.get_width(), pixbuf.get_height()), self._max_image_side)
+                return None
         except Exception as e:
             logger.warn('Could not load cached cover art for %s', channel.url, exc_info=True)
             channel.cover_thumb = None

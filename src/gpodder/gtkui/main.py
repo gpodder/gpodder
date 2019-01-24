@@ -77,8 +77,6 @@ N_ = gpodder.ngettext
 
 
 class gPodder(BuilderWidget, dbus.service.Object):
-    # Width (in pixels) of episode list icon
-    EPISODE_LIST_ICON_WIDTH = 40
 
     def __init__(self, app, bus_name, gpodder_core, options):
         dbus.service.Object.__init__(self, object_path=gpodder.dbus_gui_object_path, bus_name=bus_name)
@@ -734,10 +732,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.entry_search_podcasts.set_position(-1)
 
     def init_podcast_list_treeview(self):
+        size = cake_size_from_widget(self.treeChannels) * 2
+        self.podcast_list_model.set_max_image_size(size)
         # Set up podcast channel tree view widget
         column = Gtk.TreeViewColumn('')
         iconcell = Gtk.CellRendererPixbuf()
-        iconcell.set_property('width', 45)
+        iconcell.set_property('width', size + 10)
         column.pack_start(iconcell, False)
         column.add_attribute(iconcell, 'pixbuf', PodcastListModel.C_COVER)
         column.add_attribute(iconcell, 'visible', PodcastListModel.C_COVER_VISIBLE)

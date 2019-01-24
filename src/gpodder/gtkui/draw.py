@@ -302,6 +302,7 @@ def cake_size_from_widget(widget=None):
     layout = Pango.Layout(pango_context)
     layout.set_font_description(font_desc)
     layout.set_text("1", -1)
+    # use text height as size
     return layout.get_pixel_size()[1]
 
 
