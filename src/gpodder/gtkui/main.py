@@ -54,7 +54,7 @@ from gpodder.gtkui.desktop.preferences import gPodderPreferences
 from gpodder.gtkui.desktop.welcome import gPodderWelcome
 from gpodder.gtkui.desktopfile import UserAppsReader
 from gpodder.gtkui.download import DownloadStatusModel
-from gpodder.gtkui.draw import (EPISODE_LIST_ICON_SIZE, draw_cake_pixbuf,
+from gpodder.gtkui.draw import (cake_size_from_widget, draw_cake_pixbuf,
                                 draw_text_box_centered)
 from gpodder.gtkui.interface.addpodcast import gPodderAddPodcast
 from gpodder.gtkui.interface.common import BuilderWidget, TreeViewHelper
@@ -756,6 +756,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.treeChannels.append_column(column)
 
         self.treeChannels.set_model(self.podcast_list_model.get_filtered_model())
+        self.podcast_list_model.widget = self.treeChannels
 
         # When no podcast is selected, clear the episode list model
         selection = self.treeChannels.get_selection()
@@ -884,15 +885,23 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def init_episode_list_treeview(self):
         self.episode_list_model.set_view_mode(self.config.episode_list_view_mode)
 
+        # Initialize progress icons
+        cake_size = cake_size_from_widget(self.treeAvailable)
+        for i in range(EpisodeListModel.PROGRESS_STEPS + 1):
+            pixbuf = draw_cake_pixbuf(i /
+                   EpisodeListModel.PROGRESS_STEPS, size=cake_size)
+            icon_name = 'gpodder-progress-%d' % i
+            Gtk.IconTheme.add_builtin_icon(icon_name, cake_size, pixbuf)
+
         self.treeAvailable.set_model(self.episode_list_model.get_filtered_model())
 
         TreeViewHelper.set(self.treeAvailable, TreeViewHelper.ROLE_EPISODES)
 
         iconcell = Gtk.CellRendererPixbuf()
         episode_list_icon_size = Gtk.icon_size_register('episode-list',
-            EPISODE_LIST_ICON_SIZE, EPISODE_LIST_ICON_SIZE)
+            cake_size, cake_size)
         iconcell.set_property('stock-size', episode_list_icon_size)
-        iconcell.set_fixed_size(self.EPISODE_LIST_ICON_WIDTH, -1)
+        iconcell.set_fixed_size(cake_size + 20, -1)
 
         namecell = Gtk.CellRendererText()
         namecell.set_property('ellipsize', Pango.EllipsizeMode.END)
@@ -3728,12 +3737,6 @@ class gPodderApplication(Gtk.Application):
         self.set_menubar(menubar)
 
         self.set_app_menu(builder.get_object('app-menu'))
-
-        for i in range(EpisodeListModel.PROGRESS_STEPS + 1):
-            pixbuf = draw_cake_pixbuf(i /
-                   EpisodeListModel.PROGRESS_STEPS)
-            icon_name = 'gpodder-progress-%d' % i
-            Gtk.IconTheme.add_builtin_icon(icon_name, pixbuf.get_width(), pixbuf)
 
         Gtk.Window.set_default_icon_name('gpodder')
         # Gtk.AboutDialog.set_url_hook(lambda dlg, link, data: util.open_website(link), None)

@@ -699,7 +699,7 @@ class PodcastListModel(Gtk.ListStore):
 
     def _get_pill_image(self, channel, count_downloaded, count_unplayed):
         if count_unplayed > 0 or count_downloaded > 0:
-            return draw.draw_pill_pixbuf(str(count_unplayed), str(count_downloaded))
+            return draw.draw_pill_pixbuf(str(count_unplayed), str(count_downloaded), widget=self.widget)
         else:
             return None
 

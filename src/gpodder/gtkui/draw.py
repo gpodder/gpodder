@@ -169,20 +169,20 @@ def draw_cake(percentage, text=None, emblem=None, size=None):
     return surface
 
 
-def draw_text_pill(left_text, right_text, x=0, y=0, border=2, radius=14, font_desc=None):
-
-    # Use GTK+ style of a normal Button
-    widget = Gtk.Label()
-    style_context = widget.get_style_context()
+def draw_text_pill(left_text, right_text, x=0, y=0, border=2, radius=14, widget=None):
 
     # Padding (in px) at the right edge of the image (for Ubuntu; bug 1533)
     padding_right = 7
 
     x_border = border * 2
 
-    if font_desc is None:
-        font_desc = style_context.get_font(Gtk.StateFlags.NORMAL)
-        font_desc.set_weight(Pango.Weight.BOLD)
+    if widget is None:
+        # Use GTK+ style of a normal Button
+        widget = Gtk.Label()
+
+    style_context = widget.get_style_context()
+    font_desc = style_context.get_font(Gtk.StateFlags.NORMAL)
+    font_desc.set_weight(Pango.Weight.BOLD)
 
     pango_context = widget.create_pango_context()
     layout_left = Pango.Layout(pango_context)
@@ -284,12 +284,25 @@ def draw_text_pill(left_text, right_text, x=0, y=0, border=2, radius=14, font_de
     return surface
 
 
-def draw_cake_pixbuf(percentage, text=None, emblem=None):
-    return cairo_surface_to_pixbuf(draw_cake(percentage, text, emblem))
+def draw_cake_pixbuf(percentage, text=None, emblem=None, size=None):
+    return cairo_surface_to_pixbuf(draw_cake(percentage, text, emblem, size=size))
 
 
-def draw_pill_pixbuf(left_text, right_text):
-    return cairo_surface_to_pixbuf(draw_text_pill(left_text, right_text))
+def draw_pill_pixbuf(left_text, right_text, widget=None):
+    return cairo_surface_to_pixbuf(draw_text_pill(left_text, right_text, widget=widget))
+
+
+def cake_size_from_widget(widget=None):
+    if widget is None:
+        # Use GTK+ style of a normal Button
+        widget = Gtk.Label()
+    style_context = widget.get_style_context()
+    font_desc = style_context.get_font(Gtk.StateFlags.NORMAL)
+    pango_context = widget.create_pango_context()
+    layout = Pango.Layout(pango_context)
+    layout.set_font_description(font_desc)
+    layout.set_text("1", -1)
+    return layout.get_pixel_size()[1]
 
 
 def cairo_surface_to_pixbuf(s):
