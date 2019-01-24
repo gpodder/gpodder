@@ -17,6 +17,7 @@
     <property name="page_size">0</property>
   </object>
   <object class="GtkApplicationWindow" id="gPodder">
+    <property name="name">gPodder</property>
     <property name="application">app</property>
     <property name="visible">False</property>
     <property name="title">gPodder</property>
@@ -179,6 +180,7 @@
                             <property name="window_placement">GTK_CORNER_TOP_LEFT</property>
                             <child>
                               <object class="GtkTreeView" id="treeChannels">
+                                <property name="name">treeChannels</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="headers_visible">False</property>
@@ -286,6 +288,7 @@
                             <property name="window_placement">GTK_CORNER_TOP_LEFT</property>
                             <child>
                               <object class="GtkTreeView" id="treeAvailable">
+                                <property name="name">treeAvailable</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="headers_visible">True</property>
