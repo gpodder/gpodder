@@ -91,6 +91,7 @@ html5lib==1.0.1
 webencodings==0.5.1
 six==1.12.0
 certifi==2018.11.29
+mutagen==1.42.0
 "
 
 function install_deps {
