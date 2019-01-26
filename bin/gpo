@@ -51,6 +51,8 @@
     delete [URL] [GUID]        Delete from feed at URL an episode with given GUID
     pending [URL]              List new episodes (all or only from URL)
     episodes [--guid] [URL]    List episodes with or without GUIDs (all or only from URL)
+    partial [--guid]           List partially downloaded episodes with or without GUIDs
+    resume [--guid]            Resume partially downloaded episodes or single GUID
 
   - Episode management -
 
@@ -135,6 +137,10 @@ interactive_console = sys.stdin.isatty() and sys.stdout.isatty()
 is_single_command = False
 
 log.setup(verbose)
+
+
+def noop(*args, **kwargs):
+    pass
 
 
 def incolor(color_id, s):
@@ -560,12 +566,58 @@ class gPodderCli(object):
         print(inblue(self._pending_message(count)))
         return True
 
+    @FirstArgumentIsPodcastURL
+    def partial(self, *args):
+        def by_channel(e):
+            return e.channel.title
+
+        def guid_str(episode):
+            return (('%s ' % episode.guid) if show_guid else '')
+
+        def on_finish(resumable_episodes):
+            count = len(resumable_episodes)
+            resumable_episodes = sorted(resumable_episodes, key=by_channel)
+            last_channel = None
+            for e in resumable_episodes:
+                if e.channel != last_channel:
+                    print('#', ingreen(e.channel.title))
+                    last_channel = e.channel
+                print('  %s%s' % (guid_str(e), e.title))
+            print(inblue(N_('%(count)d partial file',
+                   '%(count)d partial files',
+                   count) % {'count': count}))
+
+        show_guid = '--guid' in args
+
+        common.find_partial_downloads(self._model.get_podcasts(),
+                                      noop,
+                                      noop,
+                                      on_finish)
+        return True
+
     def _download_episode(self, episode):
         with self._action('Downloading %s', episode.title):
             task = download.DownloadTask(episode, self._config)
             task.add_progress_callback(self._update_action)
             task.status = download.DownloadTask.DOWNLOADING
             task.run()
+
+    def _download_episodes(self, episodes):
+        if self._config.downloads.chronological_order:
+            # download older episodes first
+            episodes = list(model.Model.sort_episodes_by_pubdate(episodes))
+
+        if episodes:
+            last_podcast = None
+            for episode in episodes:
+                if episode.channel != last_podcast:
+                    print(inblue(episode.channel.title))
+                    last_podcast = episode.channel
+                self._download_episode(episode)
+
+            util.delete_empty_folders(gpodder.downloads)
+        print(len(episodes), 'episodes downloaded.')
+        return True
 
     @FirstArgumentIsPodcastURL
     def download(self, url=None, guid=None):
@@ -575,20 +627,22 @@ class gPodderCli(object):
                 for episode in podcast.get_all_episodes():
                     if (not guid and self.is_episode_new(episode)) or (guid and episode.guid == guid):
                         episodes.append(episode)
+        return self._download_episodes(episodes)
 
-        if self._config.downloads.chronological_order:
-            # download older episodes first
-            episodes = list(model.Model.sort_episodes_by_pubdate(episodes))
+    @FirstArgumentIsPodcastURL
+    def resume(self, guid=None):
+        def guid_str(episode):
+            return (('%s ' % episode.guid) if show_guid else '')
 
-        last_podcast = None
-        for episode in episodes:
-            if episode.channel != last_podcast:
-                print(inblue(episode.channel.title))
-                last_podcast = episode.channel
-            self._download_episode(episode)
+        def on_finish(episodes):
+            if guid:
+                episodes = [e for e in episodes if e.guid == guid]
+            self._download_episodes(episodes)
 
-        util.delete_empty_folders(gpodder.downloads)
-        print(len(episodes), 'episodes downloaded.')
+        common.find_partial_downloads(self._model.get_podcasts(),
+                                      noop,
+                                      noop,
+                                      on_finish)
         return True
 
     @FirstArgumentIsPodcastURL

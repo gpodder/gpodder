@@ -1244,6 +1244,12 @@ class Model(object):
 
         return self.children
 
+    def get_podcast(self, url):
+        for p in self.get_podcasts():
+            if p.url == url:
+                return p
+        return None
+
     def load_podcast(self, url, create=True, authentication_tokens=None,
                      max_episodes=0):
         assert all(url != podcast.url for podcast in self.get_podcasts())
