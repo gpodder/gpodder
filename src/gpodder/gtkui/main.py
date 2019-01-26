@@ -902,6 +902,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             cake_size, cake_size)
         iconcell.set_property('stock-size', episode_list_icon_size)
         iconcell.set_fixed_size(cake_size + 20, -1)
+        self.EPISODE_LIST_ICON_WIDTH = cake_size
 
         namecell = Gtk.CellRendererText()
         namecell.set_property('ellipsize', Pango.EllipsizeMode.END)
