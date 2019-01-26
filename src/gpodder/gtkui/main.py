@@ -2153,7 +2153,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if current_page is None:
             current_page = self.wNotebook.get_current_page()
         if current_page > 0:
-            print("play_or_download > 0")
             self.toolCancel.set_sensitive(True)
             return (False, False, False, False, False)
 
