@@ -291,15 +291,15 @@ class gPodderCli(object):
         podcasts = self._model.get_podcasts()
         opml.Exporter(filename).write(podcasts)
 
-    def get_podcast(self, url, create=False, check_only=False):
+    def get_podcast(self, original_url, create=False, check_only=False):
         """Get a specific podcast by URL
 
         Returns a podcast object for the URL or None if
         the podcast has not been subscribed to.
         """
-        url = util.normalize_feed_url(url)
+        url = util.normalize_feed_url(original_url)
         if url is None:
-            self._error(_('Invalid url: %s') % url)
+            self._error(_('Invalid url: %s') % original_url)
             return None
 
         # Check if it's a YouTube channel, user, or playlist and resolves it to its feed if that's the case
