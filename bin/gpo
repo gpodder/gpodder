@@ -1056,7 +1056,7 @@ class gPodderCli(object):
 
     def _checkargs(self, func, command_line):
         argspec = inspect.getfullargspec(func)
-        assert not argspec.kwonlyargs # keyword-only arguments are unsupported
+        assert not argspec.kwonlyargs  # keyword-only arguments are unsupported
         args, varargs, keywords, defaults = argspec.args, argspec.varargs, argspec.varkw, argspec.defaults
         args.pop(0)  # Remove "self" from args
         defaults = defaults or ()
