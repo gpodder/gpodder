@@ -471,6 +471,8 @@ class PodcastEpisode(PodcastModelObject):
                         self.channel.url, self.url)
                 fn_template = hashlib.md5(self.url.encode('utf-8')).hexdigest()
 
+            # Also sanitize ext (see #591 where ext=.mp3?dest-id=754182)
+            ext = '.' + util.sanitize_filename(ext, self.MAX_FILENAME_LENGTH - len(fn_template) - 1)
             # Find a unique filename for this episode
             wanted_filename = self.find_unique_file_name(fn_template, ext)
 
