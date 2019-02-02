@@ -32,7 +32,7 @@ import os
 from mutagen import File
 from mutagen.flac import Picture
 from mutagen.id3 import APIC, ID3
-from mutagen.mp3 import MP3
+from mutagen.mp3 import MP3, EasyMP3
 from mutagen.mp4 import MP4Cover, MP4Tags
 
 import gpodder
@@ -103,8 +103,11 @@ class AudioFile(object):
             if set_artist_to_album:
                 audio.tags['artist'] = self.album
 
-        logger.warn(audio.tags)
-        audio.save(v2_version=set_version)
+        if type(audio) is EasyMP3:
+            audio.save(v2_version=set_version)
+        else:
+            # Not actually audio
+            audio.save()
 
     def insert_coverart(self):
         """ implement the cover art logic in the subclass
