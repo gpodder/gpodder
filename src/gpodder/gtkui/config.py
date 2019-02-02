@@ -22,7 +22,9 @@
 #  gpodder.gtkui.config -- Config object with GTK+ support (2009-08-24)
 #
 
-
+import gi  # isort:skip
+gi.require_version('Gdk', '3.0')  # isort:skip
+gi.require_version('Gtk', '3.0')  # isort:skip
 from gi.repository import Gdk, Gtk, Pango
 
 import gpodder

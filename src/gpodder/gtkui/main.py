@@ -19,38 +19,26 @@
 
 import cgi
 import collections
-import glob
 import logging
 import os
-import platform
-import random
 import re
 import shutil
-import subprocess
-import sys
 import tempfile
 import threading
 import time
-import urllib.error
 import urllib.parse
-import urllib.request
 
-import dbus
-import dbus.glib
-import dbus.mainloop
 import dbus.service
 
 import gpodder
-from gpodder import (common, core, download, extensions, feedcore, my, opml,
+from gpodder import (common, download, extensions, feedcore, my, opml,
                      player, util, youtube)
 from gpodder.dbusproxy import DBusPodcastsProxy
 from gpodder.gtkui import shownotes
-from gpodder.gtkui.config import UIConfig
 from gpodder.gtkui.desktop.channel import gPodderChannel
 from gpodder.gtkui.desktop.episodeselector import gPodderEpisodeSelector
 from gpodder.gtkui.desktop.exportlocal import gPodderExportToLocalFolder
 from gpodder.gtkui.desktop.podcastdirectory import gPodderPodcastDirectory
-from gpodder.gtkui.desktop.preferences import gPodderPreferences
 from gpodder.gtkui.desktop.welcome import gPodderWelcome
 from gpodder.gtkui.desktopfile import UserAppsReader
 from gpodder.gtkui.download import DownloadStatusModel
@@ -59,10 +47,10 @@ from gpodder.gtkui.draw import (cake_size_from_widget, draw_cake_pixbuf,
 from gpodder.gtkui.interface.addpodcast import gPodderAddPodcast
 from gpodder.gtkui.interface.common import BuilderWidget, TreeViewHelper
 from gpodder.gtkui.interface.progress import ProgressIndicator
-from gpodder.gtkui.model import EpisodeListModel, Model, PodcastListModel
+from gpodder.gtkui.model import EpisodeListModel, PodcastListModel
 from gpodder.gtkui.services import CoverDownloader
 from gpodder.gtkui.widgets import SimpleMessageArea
-from gpodder.model import PodcastEpisode, check_root_folder_path
+from gpodder.model import PodcastEpisode
 from gpodder.syncui import gPodderSyncUI
 
 import gi  # isort:skip
@@ -263,100 +251,48 @@ class gPodder(BuilderWidget, dbus.service.Object):
         action.connect('activate', self.on_item_view_episodes_changed)
         g.add_action(action)
 
-        action = Gio.SimpleAction.new('update', None)
-        action.connect('activate', self.on_itemUpdate_activate)
-        g.add_action(action)
-        self.update_action = action
+        action_defs = [
+            ('update', self.on_itemUpdate_activate),
+            ('downloadAllNew', self.on_itemDownloadAllNew_activate),
+            ('removeOldEpisodes', self.on_itemRemoveOldEpisodes_activate),
+            ('discover', self.on_itemImportChannels_activate),
+            ('addChannel', self.on_itemAddChannel_activate),
+            ('massUnsubscribe', self.on_itemMassUnsubscribe_activate),
+            ('updateChannel', self.on_itemUpdateChannel_activate),
+            ('editChannel', self.on_itemEditChannel_activate),
+            ('importFromFile', self.on_item_import_from_file_activate),
+            ('exportChannels', self.on_itemExportChannels_activate),
+            ('play', self.on_playback_selected_episodes),
+            ('open', self.on_playback_selected_episodes),
+            ('download', self.on_download_selected_episodes),
+            ('cancel', self.on_item_cancel_download_activate),
+            ('delete', self.on_btnDownloadedDelete_clicked),
+            ('toggleEpisodeNew', self.on_item_toggle_played_activate),
+            ('toggleEpisodeLock', self.on_item_toggle_lock_activate),
+            ('toggleShownotes', self.on_shownotes_selected_episodes),
+            ('sync', self.on_sync_to_device_activate),
+            ('updateYoutubeSubscriptions', self.on_update_youtube_subscriptions_activate),
+        ]
 
-        action = Gio.SimpleAction.new('downloadAllNew', None)
-        action.connect('activate', self.on_itemDownloadAllNew_activate)
-        g.add_action(action)
+        for name, callback in action_defs:
+            action = Gio.SimpleAction.new(name, None)
+            action.connect('activate', callback)
+            g.add_action(action)
 
-        action = Gio.SimpleAction.new('removeOldEpisodes', None)
-        action.connect('activate', self.on_itemRemoveOldEpisodes_activate)
-        g.add_action(action)
-
-        action = Gio.SimpleAction.new('discover', None)
-        action.connect('activate', self.on_itemImportChannels_activate)
-        g.add_action(action)
-
-        action = Gio.SimpleAction.new('addChannel', None)
-        action.connect('activate', self.on_itemAddChannel_activate)
-        g.add_action(action)
-
-        action = Gio.SimpleAction.new('massUnsubscribe', None)
-        action.connect('activate', self.on_itemMassUnsubscribe_activate)
-        g.add_action(action)
-
-        action = Gio.SimpleAction.new('updateChannel', None)
-        action.connect('activate', self.on_itemUpdateChannel_activate)
-        g.add_action(action)
-        self.update_channel_action = action
-
-        action = Gio.SimpleAction.new('editChannel', None)
-        action.connect('activate', self.on_itemEditChannel_activate)
-        g.add_action(action)
-        self.edit_channel_action = action
-
-        action = Gio.SimpleAction.new('importFromFile', None)
-        action.connect('activate', self.on_item_import_from_file_activate)
-        g.add_action(action)
-
-        action = Gio.SimpleAction.new('exportChannels', None)
-        action.connect('activate', self.on_itemExportChannels_activate)
-        g.add_action(action)
-
-        action = Gio.SimpleAction.new('play', None)
-        action.connect('activate', self.on_playback_selected_episodes)
-        g.add_action(action)
-        self.play_action = action
-
-        action = Gio.SimpleAction.new('open', None)
-        action.connect('activate', self.on_playback_selected_episodes)
-        g.add_action(action)
-        self.open_action = action
-
-        action = Gio.SimpleAction.new('download', None)
-        action.connect('activate', self.on_download_selected_episodes)
-        g.add_action(action)
-        self.download_action = action
-
-        action = Gio.SimpleAction.new('cancel', None)
-        action.connect('activate', self.on_item_cancel_download_activate)
-        g.add_action(action)
-        self.cancel_action = action
-
-        action = Gio.SimpleAction.new('delete', None)
-        action.connect('activate', self.on_btnDownloadedDelete_clicked)
-        g.add_action(action)
-        self.delete_action = action
-
-        action = Gio.SimpleAction.new('toggleEpisodeNew', None)
-        action.connect('activate', self.on_item_toggle_played_activate)
-        g.add_action(action)
-        self.toggle_episode_new_action = action
-
-        action = Gio.SimpleAction.new('toggleEpisodeLock', None)
-        action.connect('activate', self.on_item_toggle_lock_activate)
-        g.add_action(action)
-        self.toggle_episode_lock_action = action
-
-        action = Gio.SimpleAction.new('toggleShownotes', None)
-        action.connect('activate', self.on_shownotes_selected_episodes)
-        g.add_action(action)
+        self.update_action = g.lookup_action('update')
+        self.update_channel_action = g.lookup_action('updateChannel')
+        self.edit_channel_action = g.lookup_action('editChannel')
+        self.play_action = g.lookup_action('play')
+        self.open_action = g.lookup_action('open')
+        self.download_action = g.lookup_action('download')
+        self.cancel_action = g.lookup_action('cancel')
+        self.delete_action = g.lookup_action('delete')
+        self.toggle_episode_new_action = g.lookup_action('toggleEpisodeNew')
+        self.toggle_episode_lock_action = g.lookup_action('toggleEpisodeLock')
 
         action = Gio.SimpleAction.new_stateful(
             'showToolbar', None, GLib.Variant.new_boolean(self.config.show_toolbar))
         action.connect('activate', self.on_itemShowToolbar_activate)
-        g.add_action(action)
-
-        action = Gio.SimpleAction.new('sync', None)
-        action.connect('activate', self.on_sync_to_device_activate)
-        g.add_action(action)
-
-        action = Gio.SimpleAction.new('updateYoutubeSubscriptions', None)
-        action.connect('activate', self.on_update_youtube_subscriptions_activate)
-        g.add_action(action)
 
     def inject_extensions_menu(self):
         """
@@ -3678,185 +3614,3 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_extension_disabled(self, extension):
         self.inject_extensions_menu()
-
-
-class gPodderApplication(Gtk.Application):
-
-    def __init__(self, options):
-        Gtk.Application.__init__(self, application_id='org.gpodder.gpodder',
-                         flags=Gio.ApplicationFlags.FLAGS_NONE)
-        self.window = None
-        self.options = options
-        self.connect('window-removed', self.on_window_removed)
-
-    def create_actions(self):
-        action = Gio.SimpleAction.new('about', None)
-        action.connect('activate', self.on_about)
-        self.add_action(action)
-
-        action = Gio.SimpleAction.new('quit', None)
-        action.connect('activate', self.on_quit)
-        self.add_action(action)
-
-        action = Gio.SimpleAction.new('help', None)
-        action.connect('activate', self.on_help_activate)
-        self.add_action(action)
-
-        action = Gio.SimpleAction.new('preferences', None)
-        action.connect('activate', self.on_itemPreferences_activate)
-        self.add_action(action)
-
-        action = Gio.SimpleAction.new('gotoMygpo', None)
-        action.connect('activate', self.on_goto_mygpo)
-        self.add_action(action)
-
-        action = Gio.SimpleAction.new('checkForUpdates', None)
-        action.connect('activate', self.on_check_for_updates_activate)
-        self.add_action(action)
-
-    def do_startup(self):
-        Gtk.Application.do_startup(self)
-
-        self.create_actions()
-
-        builder = Gtk.Builder()
-        builder.set_translation_domain(gpodder.textdomain)
-
-        for ui_folder in gpodder.ui_folders:
-            filename = os.path.join(ui_folder, 'gtk/menus.ui')
-            if os.path.exists(filename):
-                builder.add_from_file(filename)
-                break
-
-        menubar = builder.get_object('menubar')
-        if menubar is None:
-            logger.error('Cannot find gtk/menus.ui in %r, exiting' % gpodder.ui_folders)
-            sys.exit(1)
-
-        self.menu_view_columns = builder.get_object('menuViewColumns')
-        self.set_menubar(menubar)
-
-        self.set_app_menu(builder.get_object('app-menu'))
-
-        Gtk.Window.set_default_icon_name('gpodder')
-        # Gtk.AboutDialog.set_url_hook(lambda dlg, link, data: util.open_website(link), None)
-
-        try:
-            dbus_main_loop = dbus.glib.DBusGMainLoop(set_as_default=True)
-            gpodder.dbus_session_bus = dbus.SessionBus(dbus_main_loop)
-
-            self.bus_name = dbus.service.BusName(gpodder.dbus_bus_name, bus=gpodder.dbus_session_bus)
-        except dbus.exceptions.DBusException as dbe:
-            logger.warn('Cannot get "on the bus".', exc_info=True)
-            dlg = Gtk.MessageDialog(None, Gtk.DialogFlags.MODAL, Gtk.MessageType.ERROR,
-                   Gtk.ButtonsType.CLOSE, _('Cannot start gPodder'))
-            dlg.format_secondary_markup(_('D-Bus error: %s') % (str(dbe),))
-            dlg.set_title('gPodder')
-            dlg.run()
-            dlg.destroy()
-            sys.exit(0)
-        util.idle_add(self.check_root_folder_path_gui)
-
-    def do_activate(self):
-        # We only allow a single window and raise any existing ones
-        if not self.window:
-            # Windows are associated with the application
-            # when the last one is closed the application shuts down
-            self.window = gPodder(self, self.bus_name, core.Core(UIConfig, model_class=Model), self.options)
-
-            if gpodder.ui.osx:
-                from gpodder.gtkui import macosx
-
-                # Handle "subscribe to podcast" events from firefox
-                macosx.register_handlers(self.window)
-
-        self.window.gPodder.present()
-
-    def on_about(self, action, param):
-        dlg = Gtk.Dialog(_('About gPodder'), self.window.gPodder,
-                Gtk.DialogFlags.MODAL)
-        dlg.add_button(Gtk.STOCK_CLOSE, Gtk.ResponseType.OK).show()
-        dlg.set_resizable(False)
-
-        bg = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
-        pb = GdkPixbuf.Pixbuf.new_from_file_at_size(gpodder.icon_file, 160, 160)
-        bg.pack_start(Gtk.Image.new_from_pixbuf(pb), False, False, 0)
-        vb = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
-        label = Gtk.Label()
-        label.set_alignment(0, 0.5)
-        label.set_markup('\n'.join(x.strip() for x in """
-        <b>gPodder {version} ({date})</b>
-
-        {copyright}
-        License: {license}
-
-        <a href="{url}">{tr_website}</a> · <a href="{bugs_url}">{tr_bugtracker}</a>
-        """.format(version=gpodder.__version__,
-                   date=gpodder.__date__,
-                   copyright=gpodder.__copyright__,
-                   license=gpodder.__license__,
-                   bugs_url='https://github.com/gpodder/gpodder/issues',
-                   url=cgi.escape(gpodder.__url__),
-                   tr_website=_('Website'),
-                   tr_bugtracker=_('Bug Tracker')).strip().split('\n')))
-
-        vb.pack_start(label, False, False, 0)
-        bg.pack_start(vb, False, False, 0)
-        bg.pack_start(Gtk.Label(), False, False, 0)
-
-        dlg.vbox.pack_start(bg, False, False, 0)
-        dlg.connect('response', lambda dlg, response: dlg.destroy())
-
-        dlg.vbox.show_all()
-
-        dlg.run()
-
-    def on_quit(self, *args):
-        self.window.on_gPodder_delete_event()
-
-    def on_window_removed(self, *args):
-        self.quit()
-
-    def on_help_activate(self, action, param):
-        util.open_website('https://gpodder.github.io/docs/')
-
-    def on_itemPreferences_activate(self, action, param=None):
-        gPodderPreferences(self.window.gPodder,
-                _config=self.window.config,
-                user_apps_reader=self.window.user_apps_reader,
-                parent_window=self.window.main_window,
-                mygpo_client=self.window.mygpo_client,
-                on_send_full_subscriptions=self.window.on_send_full_subscriptions,
-                on_itemExportChannels_activate=self.window.on_itemExportChannels_activate,
-                on_extension_enabled=self.on_extension_enabled,
-                on_extension_disabled=self.on_extension_disabled)
-
-    def on_goto_mygpo(self, action, param):
-        self.window.mygpo_client.open_website()
-
-    def on_check_for_updates_activate(self, action, param):
-        self.window.check_for_updates(silent=False)
-
-    def on_extension_enabled(self, extension):
-        self.window.on_extension_enabled(extension)
-
-    def on_extension_disabled(self, extension):
-        self.window.on_extension_disabled(extension)
-
-    @staticmethod
-    def check_root_folder_path_gui():
-        msg = check_root_folder_path()
-        if msg:
-            dlg = Gtk.MessageDialog(None, Gtk.DialogFlags.MODAL, Gtk.MessageType.WARNING,
-                Gtk.ButtonsType.CLOSE, msg)
-            dlg.set_title(_('Path to gPodder home is too long'))
-            dlg.run()
-            dlg.destroy()
-
-
-def main(options=None):
-    GObject.set_application_name('gPodder')
-
-    gp = gPodderApplication(options)
-    gp.run()
-    sys.exit(0)

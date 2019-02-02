@@ -39,7 +39,7 @@ logger = logging.getLogger(__name__)
 
 try:
     import dbus
-    import dbus.glib
+    from dbus.mainloop.glib import DBusGMainLoop
     have_dbus = True
 except ImportError:
     print("""
@@ -147,9 +147,9 @@ def main():
         sys.exit(1)
 
     if gpodder.ui.gtk:
-        from gpodder.gtkui import main
+        from gpodder.gtkui import app
         gpodder.ui_folders.insert(0, os.path.join(ui_folder, 'gtk'))
-        main.main(options)
+        app.main(options)
     else:
         logger.error('No GUI selected.')
 
