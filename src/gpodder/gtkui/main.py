@@ -31,27 +31,28 @@ import urllib.parse
 import dbus.service
 
 import gpodder
-from gpodder import (common, download, extensions, feedcore, my, opml,
-                     player, util, youtube)
+from gpodder import (common, download, extensions, feedcore, my, opml, player,
+                     util, youtube)
 from gpodder.dbusproxy import DBusPodcastsProxy
-from gpodder.gtkui import shownotes
-from gpodder.gtkui.desktop.channel import gPodderChannel
-from gpodder.gtkui.desktop.episodeselector import gPodderEpisodeSelector
-from gpodder.gtkui.desktop.exportlocal import gPodderExportToLocalFolder
-from gpodder.gtkui.desktop.podcastdirectory import gPodderPodcastDirectory
-from gpodder.gtkui.desktop.welcome import gPodderWelcome
-from gpodder.gtkui.desktopfile import UserAppsReader
-from gpodder.gtkui.download import DownloadStatusModel
-from gpodder.gtkui.draw import (cake_size_from_widget, draw_cake_pixbuf,
-                                draw_text_box_centered)
-from gpodder.gtkui.interface.addpodcast import gPodderAddPodcast
-from gpodder.gtkui.interface.common import BuilderWidget, TreeViewHelper
-from gpodder.gtkui.interface.progress import ProgressIndicator
-from gpodder.gtkui.model import EpisodeListModel, PodcastListModel
-from gpodder.gtkui.services import CoverDownloader
-from gpodder.gtkui.widgets import SimpleMessageArea
 from gpodder.model import PodcastEpisode
 from gpodder.syncui import gPodderSyncUI
+
+from . import shownotes
+from .desktop.channel import gPodderChannel
+from .desktop.episodeselector import gPodderEpisodeSelector
+from .desktop.exportlocal import gPodderExportToLocalFolder
+from .desktop.podcastdirectory import gPodderPodcastDirectory
+from .desktop.welcome import gPodderWelcome
+from .desktopfile import UserAppsReader
+from .download import DownloadStatusModel
+from .draw import (cake_size_from_widget, draw_cake_pixbuf,
+                   draw_text_box_centered)
+from .interface.addpodcast import gPodderAddPodcast
+from .interface.common import BuilderWidget, TreeViewHelper
+from .interface.progress import ProgressIndicator
+from .model import EpisodeListModel, PodcastListModel
+from .services import CoverDownloader
+from .widgets import SimpleMessageArea
 
 import gi  # isort:skip
 gi.require_version('Gtk', '3.0')  # isort:skip
