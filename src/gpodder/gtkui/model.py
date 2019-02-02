@@ -800,7 +800,7 @@ class PodcastListModel(Gtk.ListStore):
 
         for row in self:
             if row[self.C_URL] == url:
-                    return row.path
+                return row.path
         return None
 
     def update_first_row(self):

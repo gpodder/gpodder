@@ -2902,7 +2902,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_item_toggle_played_activate(self, action, param):
         for episode in self.get_selected_episodes():
-                episode.mark(is_played=episode.is_new)
+            episode.mark(is_played=episode.is_new)
         self.on_selected_episodes_status_changed()
 
     def on_item_toggle_lock_activate(self, widget, toggle=True, new_value=False):
