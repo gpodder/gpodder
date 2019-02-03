@@ -34,7 +34,7 @@ import gpodder
 from gpodder import (common, download, extensions, feedcore, my, opml, player,
                      util, youtube)
 from gpodder.dbusproxy import DBusPodcastsProxy
-from gpodder.model import PodcastEpisode
+from gpodder.model import Model, PodcastEpisode
 from gpodder.syncui import gPodderSyncUI
 
 from . import shownotes
