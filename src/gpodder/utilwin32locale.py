@@ -339,7 +339,14 @@ def install(domain, localedir):
     :param localedir: locale directory
     '''
     # prep locale system
-    locale.setlocale(locale.LC_ALL, '')
+    try:
+        # An empty string specifies the user’s default settings.
+        #  If the modification of the locale fails, the exception Error is raised. If successful, the new locale
+        #  setting is returned.
+        locale.setlocale(locale.LC_ALL, '')
+    except locale.Error:
+        # If locale is omitted or None, the current setting for category is returned.
+        locale.setlocale(locale.LC_ALL, None)
 
     # on windows systems, set the LANGUAGE environment variable
     if sys.platform == 'win32' or sys.platform == 'nt':
