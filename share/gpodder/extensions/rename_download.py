@@ -47,7 +47,6 @@ class gPodderExtension:
         dirname = os.path.dirname(current_filename)
         filename = os.path.basename(current_filename)
         basename, ext = os.path.splitext(filename)
-        ext = '.' + util.sanitize_filename(ext, PodcastEpisode.MAX_FILENAME_LENGTH)
 
         new_basename = []
         new_basename.append(title)
@@ -58,9 +57,12 @@ class gPodderExtension:
         new_basename = ' - '.join(new_basename)
 
         # Remove unwanted characters and shorten filename (#494)
-        new_basename = util.sanitize_filename(new_basename, PodcastEpisode.MAX_FILENAME_LENGTH)
-        # add extension after sanitization, to keep it even if filename is longer than limit
-        # (it's unlikely that new_basename + ext is longer than is allowed on platform).
+        # Also sanitize ext (see #591 where ext=.mp3?dest-id=754182)
+        new_basename, ext = util.sanitize_filename_ext(
+            new_basename,
+            ext,
+            PodcastEpisode.MAX_FILENAME_LENGTH,
+            PodcastEpisode.MAX_FILENAME_WITH_EXT_LENGTH)
         new_filename = os.path.join(dirname, new_basename + ext)
 
         if new_filename == current_filename:

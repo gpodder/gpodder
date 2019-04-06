@@ -121,7 +121,8 @@ class PodcastEpisode(PodcastModelObject):
     # effective number of characters less than that. eCryptFS recommends
     # 140 chars, we use 120 here (140 - len(extension) - len(".partial")).
     # References: gPodder bug 1898, http://unix.stackexchange.com/a/32834
-    MAX_FILENAME_LENGTH = 120
+    MAX_FILENAME_LENGTH = 120  # without extension
+    MAX_FILENAME_WITH_EXT_LENGTH = 140 - len(".partial")  # with extension
 
     __slots__ = schema.EpisodeColumns
 
@@ -446,33 +447,34 @@ class PodcastEpisode(PodcastModelObject):
                 episode_filename, ext = os.path.splitext(template)
             else:
                 episode_filename, _ = util.filename_from_url(self.url)
-            fn_template = util.sanitize_filename(episode_filename, self.MAX_FILENAME_LENGTH)
 
-            if 'redirect' in fn_template and template is None:
+            if 'redirect' in episode_filename and template is None:
                 # This looks like a redirection URL - force URL resolving!
                 logger.warn('Looks like a redirection to me: %s', self.url)
                 url = util.get_real_url(self.channel.authenticate_url(self.url))
                 logger.info('Redirection resolved to: %s', url)
                 episode_filename, _ = util.filename_from_url(url)
-                fn_template = util.sanitize_filename(episode_filename, self.MAX_FILENAME_LENGTH)
 
             # Use title for YouTube, Vimeo and Soundcloud downloads
             if (youtube.is_video_link(self.url) or
                     vimeo.is_video_link(self.url) or
                     escapist_videos.is_video_link(self.url) or
-                    fn_template == 'stream'):
-                sanitized = util.sanitize_filename(self.title, self.MAX_FILENAME_LENGTH)
-                if sanitized:
-                    fn_template = sanitized
+                    episode_filename == 'stream'):
+                episode_filename = self.title
 
             # If the basename is empty, use the md5 hexdigest of the URL
-            if not fn_template or fn_template.startswith('redirect.'):
+            if not episode_filename or episode_filename.startswith('redirect.'):
                 logger.error('Report this feed: Podcast %s, episode %s',
                         self.channel.url, self.url)
-                fn_template = hashlib.md5(self.url.encode('utf-8')).hexdigest()
+                episode_filename = hashlib.md5(self.url.encode('utf-8')).hexdigest()
 
             # Also sanitize ext (see #591 where ext=.mp3?dest-id=754182)
-            ext = '.' + util.sanitize_filename(ext, self.MAX_FILENAME_LENGTH - len(fn_template) - 1)
+            fn_template, ext = util.sanitize_filename_ext(
+                episode_filename,
+                ext,
+                self.MAX_FILENAME_LENGTH,
+                self.MAX_FILENAME_WITH_EXT_LENGTH)
+            ext = '.' + ext
             # Find a unique filename for this episode
             wanted_filename = self.find_unique_file_name(fn_template, ext)
 
@@ -1281,7 +1283,7 @@ def check_root_folder_path():
     if gpodder.ui.win32:
         longest = len(root) \
             + 1 + PodcastChannel.MAX_FOLDERNAME_LENGTH \
-            + 1 + PodcastEpisode.MAX_FILENAME_LENGTH + 5  # eg. .opus
+            + 1 + PodcastEpisode.MAX_FILENAME_WITH_EXT_LENGTH
         if longest > 260:
             return _("Warning: path to gPodder home (%(root)s) is very long "
                      "and can result in failure to download files.\n" % {"root": root}) \

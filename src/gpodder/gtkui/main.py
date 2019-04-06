@@ -1711,7 +1711,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     @staticmethod
     def build_filename(filename, extension):
-        filename = util.sanitize_filename(filename, PodcastEpisode.MAX_FILENAME_LENGTH)
+        filename, extension = util.sanitize_filename_ext(
+            filename,
+            extension,
+            PodcastEpisode.MAX_FILENAME_LENGTH,
+            PodcastEpisode.MAX_FILENAME_WITH_EXT_LENGTH)
         if not filename.endswith(extension):
             filename += extension
         return filename
