@@ -98,7 +98,7 @@ def get_contributors(tag, previous_tag):
     list contributor logins '@...' for every commit in range
     """
     cmp = repo.compare_commits(previous_tag, tag)
-    logins = [c.author.login for c in cmp.commits] + [c.committer.login for c in cmp.commits]
+    logins = [c.author.login for c in cmp.commits if c.author] + [c.committer.login for c in cmp.commits]
     return sorted(set("@{}".format(l) for l in logins))
 
 
