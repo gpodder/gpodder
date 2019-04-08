@@ -63,7 +63,7 @@ class gPodderExtension:
             ext,
             PodcastEpisode.MAX_FILENAME_LENGTH,
             PodcastEpisode.MAX_FILENAME_WITH_EXT_LENGTH)
-        new_filename = os.path.join(dirname, new_basename + ext)
+        new_filename = os.path.join(dirname, new_basename + '.' + ext)
 
         if new_filename == current_filename:
             return current_filename
