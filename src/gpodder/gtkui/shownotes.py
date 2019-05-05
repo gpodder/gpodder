@@ -217,6 +217,7 @@ class gPodderShownotesText(gPodderShownotes):
 
 class gPodderShownotesHTML(gPodderShownotes):
     def init(self):
+        self.episode = None
         # basic restrictions
         self.stylesheet = None
         self.manager = WebKit2.UserContentManager()
@@ -231,6 +232,7 @@ class gPodderShownotesHTML(gPodderShownotes):
         self.html_view.connect('mouse-target-changed', self.on_mouse_over)
         self.html_view.connect('context-menu', self.on_context_menu)
         self.html_view.connect('decide-policy', self.on_decide_policy)
+        self.html_view.connect('authenticate', self.on_authenticate)
         # give the vertical space to the html view!
         self.text_view.set_property('hexpand', True)
         self.status = Gtk.Label.new()
@@ -267,11 +269,13 @@ class gPodderShownotesHTML(gPodderShownotes):
         if description_html:
             # uncomment to prevent background override in html shownotes
             # self.manager.remove_all_style_sheets ()
+            logger.debug("base uri: %s (chan:%s)", self._base_uri, episode.channel.url)
             self.html_view.load_html(description_html, self._base_uri)
         else:
             self.html_view.load_plain_text(episode.description)
-            # uncomment to show web inspector
-            # self.html_view.get_inspector().show()
+        # uncomment to show web inspector
+        # self.html_view.get_inspector().show()
+        self.episode = episode
 
     def on_mouse_over(self, webview, hit_test_result, modifiers):
         if hit_test_result.context_is_link():
@@ -333,6 +337,33 @@ class gPodderShownotesHTML(gPodderShownotes):
 
     def on_open_in_browser(self, action):
         util.open_website(action.url)
+
+    def on_authenticate(self, view, request):
+        if request.is_retry():
+            return False
+        if not self.episode or not self.episode.channel.auth_username:
+            return False
+        chan = self.episode.channel
+        u = urlparse(chan.url)
+        host = u.hostname
+        if u.port:
+            port = u.port
+        elif u.scheme == 'https':
+            port = 443
+        else:
+            port = 80
+        logger.debug("on_authenticate(chan=%s:%s req=%s:%s (scheme=%s))",
+                     host, port, request.get_host(), request.get_port(),
+                     request.get_scheme())
+        if host == request.get_host() and port == request.get_port() \
+                and request.get_scheme() == WebKit2.AuthenticationScheme.HTTP_BASIC:
+            persistence = WebKit2.CredentialPersistence.FOR_SESSION
+            request.authenticate(WebKit2.Credential(chan.auth_username,
+                                                    chan.auth_password,
+                                                    persistence))
+            return True
+        else:
+            return False
 
     def create_open_item(self, name, label, url):
         action = Gtk.Action.new(name, label, None, Gtk.STOCK_OPEN)
