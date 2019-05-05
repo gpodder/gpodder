@@ -249,7 +249,7 @@ class gPodderShownotesHTML(gPodderShownotes):
         self.text_buffer.insert_at_cursor('\n')
         self.text_buffer.insert_with_tags_by_name(self.text_buffer.get_end_iter(), subheading, 'subheading')
 
-        if episode.has_website_link:
+        if episode.has_website_link():
             self._base_uri = episode.link
         else:
             self._base_uri = episode.channel.url
