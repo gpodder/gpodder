@@ -41,6 +41,7 @@ class CoverDownloader(object):
         '.png': lambda d: d.startswith(b'\x89PNG\r\n\x1a\n\x00'),
         '.jpg': lambda d: d.startswith(b'\xff\xd8'),
         '.gif': lambda d: d.startswith(b'GIF89a') or d.startswith(b'GIF87a'),
+        '.ico': lambda d: d.startswith(b'\0\0\1\0'),
     }
 
     EXTENSIONS = list(SUPPORTED_EXTENSIONS.keys())
