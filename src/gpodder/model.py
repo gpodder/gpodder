@@ -76,9 +76,16 @@ class gPodderFetcher(feedcore.Fetcher):
     def register(cls, handler):
         cls.custom_handlers.append(handler)
 
+    @classmethod
+    def unregister(cls, handler):
+        cls.custom_handlers.remove(handler)
+
 
 # The "register" method is exposed here for external usage
 register_custom_handler = gPodderFetcher.register
+
+# The "register" method is exposed here for external usage
+unregister_custom_handler = gPodderFetcher.unregister
 
 # Our podcast model:
 #
