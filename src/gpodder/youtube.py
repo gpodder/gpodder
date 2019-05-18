@@ -138,7 +138,20 @@ def get_real_download_url(url, preferred_fmt_ids=None):
                     yield int(video_info['itag'][0]), video_info['url'][0]
             else:
                 error_info = parse_qs(page)
-                error_message = util.remove_html_tags(error_info['reason'][0])
+                if 'reason' in error_info:
+                    error_message = util.remove_html_tags(error_info['reason'][0])
+                elif 'player_response' in error_info:
+                    player_response = json.loads(error_info['player_response'][0])
+                    if 'reason' in player_response['playabilityStatus']:
+                        error_message = util.remove_html_tags(player_response['playabilityStatus']['reason'])
+                    elif 'live_playback' in error_info:
+                        error_message = 'live stream'
+                    elif 'post_live_playback' in error_info:
+                        error_message = 'post live stream'
+                    else:
+                        error_message = ''
+                else:
+                    error_message = ''
                 raise YouTubeError('Cannot download video: %s' % error_message)
 
         fmt_id_url_map = sorted(find_urls(page), reverse=True)
