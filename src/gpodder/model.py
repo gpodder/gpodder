@@ -39,6 +39,7 @@ import gpodder
 import podcastparser
 from gpodder import (coverart, escapist_videos, feedcore, schema, util, vimeo,
                      youtube)
+from gpodder.jsonconfig import JsonConfig
 
 logger = logging.getLogger(__name__)
 
@@ -104,7 +105,10 @@ class PodcastModelObject(object):
     A generic base class for our podcast model providing common helper
     and utility functions.
     """
-    __slots__ = ('id', 'parent', 'children')
+    __slots__ = ('id', 'parent', 'children', '_parsed_ext_data', '_ext_data_dirty')
+
+    def __init__(self):
+        self._ext_data_dirty = False
 
     @classmethod
     def create_from_dict(cls, d, *args):
@@ -119,6 +123,24 @@ class PodcastModelObject(object):
             setattr(o, k, v)
 
         return o
+
+    def get_ext_data(self, extension):
+        """
+        Get extension-specific storage for this object.
+        It's a JsonConfigSubtree so setting attribute values will be saved.
+        Make sure to use a versionned key.
+        """
+        if not self._parsed_ext_data:
+            self._parsed_ext_data = JsonConfig(self.ext_data, on_key_changed=self._mark_ext_data_dirty)
+        return getattr(self._parsed_ext_data, extension)
+
+    def _mark_ext_data_dirty(self, name, old_value, new_value):
+        self._ext_data_dirty = True
+
+    def save_ext_data(self):
+        if self._ext_data_dirty:
+            self.ext_data = repr(self._parsed_ext_data)
+            self._ext_data_dirty = False
 
 
 class PodcastEpisode(PodcastModelObject):
@@ -199,6 +221,7 @@ class PodcastEpisode(PodcastModelObject):
         return None
 
     def __init__(self, channel):
+        super().__init__()
         self.parent = channel
         self.podcast_id = self.parent.id
         self.children = (None, None)
@@ -215,6 +238,7 @@ class PodcastEpisode(PodcastModelObject):
         self.published = 0
         self.download_filename = None
         self.payment_url = None
+        self.ext_data = None
 
         self.state = gpodder.STATE_NORMAL
         self.is_new = True
@@ -302,6 +326,7 @@ class PodcastEpisode(PodcastModelObject):
 
     def save(self):
         gpodder.user_extensions.on_episode_save(self)
+        self.save_ext_data()
         self.db.save_episode(self)
 
     def on_downloaded(self, filename):
@@ -666,6 +691,7 @@ class PodcastChannel(PodcastModelObject):
     feed_fetcher = gPodderFetcher()
 
     def __init__(self, model, id=None):
+        super().__init__()
         self.parent = model
         self.children = []
 
@@ -692,6 +718,8 @@ class PodcastChannel(PodcastModelObject):
         self.section = _('Other')
         self._common_prefix = None
         self.download_strategy = PodcastChannel.STRATEGY_DEFAULT
+
+        self.ext_data = None
 
         if self.id:
             self.children = self.db.load_episodes(self, self.episode_factory)
@@ -1077,6 +1105,7 @@ class PodcastChannel(PodcastModelObject):
 
         gpodder.user_extensions.on_podcast_save(self)
 
+        self.save_ext_data()
         self.db.save_podcast(self)
         self.model._append_podcast(self)
 

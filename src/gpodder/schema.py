@@ -50,6 +50,7 @@ EpisodeColumns = (
     'last_playback',
     'payment_url',
     'description_html',
+    'ext_data',
 )
 
 PodcastColumns = (
@@ -70,9 +71,10 @@ PodcastColumns = (
     'download_strategy',
     'sync_to_mp3_player',
     'cover_thumb',
+    'ext_data',
 )
 
-CURRENT_VERSION = 7
+CURRENT_VERSION = 8
 
 
 # SQL commands to upgrade old database versions to new ones
@@ -114,6 +116,12 @@ UPGRADE_SQL = [
         UPDATE episode SET description=remove_html_tags(description_html) WHERE is_html(description)
         UPDATE podcast SET http_last_modified=NULL, http_etag=NULL
         """),
+
+        # Version 8: Add extension storage
+        (7, 8, """
+        ALTER TABLE podcast ADD COLUMN ext_data TEXT NULL DEFAULT NULL
+        ALTER TABLE episode ADD COLUMN ext_data TEXT NULL DEFAULT NULL
+        """),
 ]
 
 
@@ -138,7 +146,8 @@ def initialize_database(db):
         payment_url TEXT NULL DEFAULT NULL,
         download_strategy INTEGER NOT NULL DEFAULT 0,
         sync_to_mp3_player INTEGER NOT NULL DEFAULT 1,
-        cover_thumb BLOB NULL DEFAULT NULL
+        cover_thumb BLOB NULL DEFAULT NULL,
+        ext_data TEXT NULL DEFAULT NULL
     )
     """)
 
@@ -172,7 +181,8 @@ def initialize_database(db):
         current_position_updated INTEGER NOT NULL DEFAULT 0,
         last_playback INTEGER NOT NULL DEFAULT 0,
         payment_url TEXT NULL DEFAULT NULL,
-        description_html TEXT NOT NULL DEFAULT ''
+        description_html TEXT NOT NULL DEFAULT '',
+        ext_data TEXT NULL DEFAULT NULL
     )
     """)
 
@@ -267,6 +277,7 @@ def convert_gpodder2_db(old_db, new_db):
                 0,
                 row['sync_to_devices'],
                 None,
+                None,
         )
         new_db.execute("""
         INSERT INTO podcast VALUES (%s)
@@ -299,6 +310,7 @@ def convert_gpodder2_db(old_db, new_db):
                 0,
                 None,
                 '',
+                None,
         )
         new_db.execute("""
         INSERT INTO episode VALUES (%s)
