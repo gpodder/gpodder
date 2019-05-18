@@ -2574,11 +2574,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     channel.update(max_episodes=self.config.max_episodes_per_feed)
                     self._update_cover(channel)
                 except Exception as e:
-                    d = {'url': cgi.escape(channel.url), 'message': cgi.escape(str(e))}
+                    d = {'title': cgi.escape(channel.title), 'url': cgi.escape(channel.url), 'message': cgi.escape(str(e))}
                     if d['message']:
-                        message = _('Error while updating %(url)s: %(message)s')
+                        message = _('Error while updating %(title)s at %(url)s: %(message)s')
                     else:
-                        message = _('The feed at %(url)s could not be updated.')
+                        message = _('The %(title)s feed at %(url)s could not be updated.')
                     self.notification(message % d, _('Error while updating feed'), widget=self.treeChannels)
                     logger.error('Error: %s', str(e), exc_info=True)
 
