@@ -55,9 +55,9 @@ class gPodderFetcher(feedcore.Fetcher):
     """
     custom_handlers = []
 
-    def fetch_channel(self, channel):
+    def fetch_channel(self, channel, max_episodes):
         for handler in self.custom_handlers:
-            custom_feed = handler.fetch_channel(channel)
+            custom_feed = handler.fetch_channel(channel, max_episodes)
             if custom_feed is not None:
                 return feedcore.Result(feedcore.CUSTOM_FEED, custom_feed)
         # If we have a username or password, rebuild the url with them included
@@ -1025,7 +1025,7 @@ class PodcastChannel(PodcastModelObject):
 
     def update(self, max_episodes=0):
         try:
-            result = self.feed_fetcher.fetch_channel(self)
+            result = self.feed_fetcher.fetch_channel(self, max_episodes)
 
             if result.status == feedcore.CUSTOM_FEED:
                 self._consume_custom_feed(result.feed, max_episodes)

@@ -188,7 +188,7 @@ class SoundcloudFeed(object):
     URL_REGEX = re.compile('https?://([a-z]+\.)?soundcloud\.com/([^/]+)$', re.I)
 
     @classmethod
-    def fetch_channel(cls, channel):
+    def fetch_channel(cls, channel, max_episodes=0):
         url = channel.authenticate_url(channel.url)
         return cls.handle_url(url)
 
