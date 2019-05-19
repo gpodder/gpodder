@@ -2072,3 +2072,93 @@ class Popen(subprocess.Popen):
             print("- - Caught - -\n{}: {}\n- - -    - - -\n".format(e.__class__.__name__, e))
 
         logger.info('Log spam only occurs if returncode is non-zero or if explaining the Windows redirection error.')
+
+
+def parse_mimetype(mimetype):
+    """
+    parse mimetype into (type, subtype, parameters)
+    see RFC 2045 §5.1
+    TODO: unhandled comments and continuations
+
+    >>> parse_mimetype('application/atom+xml;profile=opds-catalog;type=feed;kind=acquisition')
+    ('application', 'atom+xml', {'profile': 'opds-catalog', 'type': 'feed', 'kind': 'acquisition'})
+    >>> parse_mimetype('application/atom+xml; profile=opds-catalog ; type=feed ; kind=acquisition')
+    ('application', 'atom+xml', {'profile': 'opds-catalog', 'type': 'feed', 'kind': 'acquisition'})
+    >>> parse_mimetype(None)
+    (None, None, {})
+    >>> parse_mimetype('')
+    (None, None, {})
+    >>> parse_mimetype('application/x-myapp;quoted="a quoted string with ; etc.";a=b')
+    ('application', 'x-myapp', {'quoted': 'a quoted string with ; etc.', 'a': 'b'})
+    """
+    class MIMETypeException(Exception):
+        """ when an exception is encountered parsing mime type """
+
+    if not mimetype or '/' not in mimetype:
+        return (None, None, {})
+    main, sub = mimetype.split('/', 1)
+    try:
+        sub, rawparams = sub.split(';', 1)
+        params = {}
+        key = ''
+        value = ''
+        invalue = False
+        inquotes = False
+        quotedvalue = False
+        nomore = False
+        offset = len(main) + 1 + len(sub) + 1
+        for i, c in enumerate(rawparams):
+            if inquotes:
+                if c == '"':
+                    inquotes = False
+                    quotedvalue = True
+                    nomore = True
+                else:
+                    value += c
+                continue
+            if c == ';':
+                if invalue:
+                    params[key] = value
+                    key = ''
+                    invalue = False
+                    inquotes = False
+                    nomore = False
+                else:
+                    raise MIMETypeException("Unable to parse mimetype '%s': unexpected ; at %i" % (mimetype, offset + i))
+            elif c == '"':
+                if invalue:
+                    if value:
+                        raise MIMETypeException("Unable to parse mimetype '%s': unexpected \" at %i" % (mimetype, offset + i))
+                    inquotes = True
+            elif c == '=':
+                if invalue:
+                    raise MIMETypeException("Unable to parse mimetype '%s': unexpected = at %i" % (mimetype, offset + i))
+                invalue = True
+                quotedvalue = False
+                value = ''
+            elif c in (' ', '\t'):
+                if invalue and value:
+                    nomore = True
+                if not invalue and key:
+                    nomore = True
+            else:
+                if nomore:
+                    raise MIMETypeException("Unable to parse mimetype '%s': unexpected %s after space at %i" % (mimetype, c, offset + i))
+                if invalue:
+                    value += c
+                else:
+                    key += c
+        # after loop
+        if invalue:
+            if value or quotedvalue:
+                params[key] = value
+            else:
+                raise MIMETypeException("Unable to parse mimetype '%s': empty value for %s" % (mimetype, key))
+        elif key:
+            raise MIMETypeException("Unable to parse mimetype '%s': missing value for %s" % (mimetype, key))
+        elif inquotes:
+            raise MIMETypeException("Unable to parse mimetype '%s': unclosed \"" % mimetype)
+        return (main, sub, params)
+    except MIMETypeException as e:
+        print(e)
+        return (None, None, {})
