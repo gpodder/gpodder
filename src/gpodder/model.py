@@ -108,6 +108,7 @@ class PodcastModelObject(object):
     __slots__ = ('id', 'parent', 'children', '_parsed_ext_data', '_ext_data_dirty')
 
     def __init__(self):
+        self._parsed_ext_data = None
         self._ext_data_dirty = False
 
     @classmethod
