@@ -1000,9 +1000,9 @@ class PodcastChannel(PodcastModelObject):
         # downloaded and that the feed does not list as downloadable anymore
         # Keep episodes that are currently being downloaded, though (bug 1534)
         if self.id is not None:
-            episodes_to_purge = (e for e in existing if
+            episodes_to_purge = [e for e in existing if
                     e.state != gpodder.STATE_DOWNLOADED and
-                    e.guid not in seen_guids and not e.downloading)
+                    e.guid not in seen_guids and not e.downloading]
 
             for episode in episodes_to_purge:
                 logger.debug('Episode removed from feed: %s (%s)',
