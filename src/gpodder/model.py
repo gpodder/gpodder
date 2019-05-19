@@ -152,10 +152,6 @@ class PodcastEpisode(PodcastModelObject):
         episode.description = entry['description']
         if entry.get('description_html'):
             episode.description_html = entry['description_html']
-        # TODO: This really should be handled in podcastparser and not here.
-        elif util.is_html(entry['description']):
-            episode.description_html = entry['description']
-            episode.description = util.remove_html_tags(entry['description'])
 
         episode.total_time = entry['total_time']
         episode.published = entry['published']
