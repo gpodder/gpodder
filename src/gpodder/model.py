@@ -84,7 +84,7 @@ class gPodderFetcher(feedcore.Fetcher):
 # The "register" method is exposed here for external usage
 register_custom_handler = gPodderFetcher.register
 
-# The "register" method is exposed here for external usage
+# The "unregister" method is exposed here for external usage
 unregister_custom_handler = gPodderFetcher.unregister
 
 # Our podcast model:
