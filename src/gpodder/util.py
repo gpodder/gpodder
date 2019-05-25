@@ -1402,7 +1402,10 @@ def format_seconds_to_hour_min_sec(seconds):
 
 def http_request(url, method='HEAD'):
     (scheme, netloc, path, parms, qry, fragid) = urllib.parse.urlparse(url)
-    conn = http.client.HTTPConnection(netloc)
+    if scheme == 'https':
+        conn = http.client.HTTPSConnection(netloc)
+    else:
+        conn = http.client.HTTPConnection(netloc)
     start = len(scheme) + len('://') + len(netloc)
     conn.request(method, url[start:])
     return conn.getresponse()
