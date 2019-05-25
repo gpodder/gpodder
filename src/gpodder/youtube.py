@@ -116,7 +116,7 @@ def get_real_download_url(url, preferred_fmt_ids=None):
     vid = get_youtube_id(url)
     if vid is not None:
         page = None
-        url = 'http://www.youtube.com/get_video_info?&el=detailpage&video_id=' + vid
+        url = 'https://www.youtube.com/get_video_info?&el=detailpage&video_id=' + vid
 
         while page is None:
             req = util.http_request(url, method='GET')
