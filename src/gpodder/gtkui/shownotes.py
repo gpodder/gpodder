@@ -218,6 +218,7 @@ class gPodderShownotesText(gPodderShownotes):
 class gPodderShownotesHTML(gPodderShownotes):
     def init(self):
         self.episode = None
+        self._base_uri = None
         # basic restrictions
         self.stylesheet = None
         self.manager = WebKit2.UserContentManager()
@@ -238,6 +239,7 @@ class gPodderShownotesHTML(gPodderShownotes):
         self.status = Gtk.Label.new()
         self.status.set_halign(Gtk.Align.START)
         self.status.set_valign(Gtk.Align.END)
+        self.status.set_property('ellipsize', Pango.EllipsizeMode.END)
         self.set_status(None)
         grid = Gtk.Grid()
         grid.attach(self.text_view, 0, 0, 1, 1)
