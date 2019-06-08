@@ -17,9 +17,7 @@ build_script:
   - set CHERE_INVOKING=yes
   - bash -lc "pacman --noconfirm --ask 20 -Suy"
   # remove precisely conflicting packages
-  # - bash -lc "pacman --noconfirm --ask 20 --remove mingw-w64-x86_64-gcc-ada mingw-w64-x86_64-gcc-objc mingw-w64-i686-gcc-ada mingw-w64-i686-gcc-objc"
-  # fresh toolchain reinstall (most will get updated anyway)
-  - bash -lc "pacman --noconfirm --ask 20 --remove mingw-w64-i686-toolchain mingw-w64-x86_64-toolchain"
+  - bash -lc "pacman --noconfirm --ask 20 --remove mingw-w64-x86_64-gcc-ada mingw-w64-x86_64-gcc-objc mingw-w64-i686-gcc-ada mingw-w64-i686-gcc-objc"
   # rerun per the "terminate MSYS2 without returning to shell and check for updates again" message
   - bash -lc "pacman --noconfirm --ask 20 -Suy"
   - bash -lc "bash .appveyor/msys2.sh"
