@@ -2084,15 +2084,15 @@ def parse_mimetype(mimetype):
     TODO: unhandled comments and continuations
 
     >>> parse_mimetype('application/atom+xml;profile=opds-catalog;type=feed;kind=acquisition')
-    ('application', 'atom+xml', {'profile': 'opds-catalog', 'type': 'feed', 'kind': 'acquisition'})
+    ('application', 'atom+xml', {'kind': 'acquisition', 'profile': 'opds-catalog', 'type': 'feed'})
     >>> parse_mimetype('application/atom+xml; profile=opds-catalog ; type=feed ; kind=acquisition')
-    ('application', 'atom+xml', {'profile': 'opds-catalog', 'type': 'feed', 'kind': 'acquisition'})
+    ('application', 'atom+xml', {'kind': 'acquisition', 'profile': 'opds-catalog', 'type': 'feed'})
     >>> parse_mimetype(None)
     (None, None, {})
     >>> parse_mimetype('')
     (None, None, {})
     >>> parse_mimetype('application/x-myapp;quoted="a quoted string with ; etc.";a=b')
-    ('application', 'x-myapp', {'quoted': 'a quoted string with ; etc.', 'a': 'b'})
+    ('application', 'x-myapp', {'a': 'b', 'quoted': 'a quoted string with ; etc.'})
     """
     class MIMETypeException(Exception):
         """ when an exception is encountered parsing mime type """
@@ -2161,7 +2161,8 @@ def parse_mimetype(mimetype):
             raise MIMETypeException("Unable to parse mimetype '%s': missing value for %s" % (mimetype, key))
         elif inquotes:
             raise MIMETypeException("Unable to parse mimetype '%s': unclosed \"" % mimetype)
-        return (main, sub, params)
+        # explicitly sort dict by keys for python < 3.7 compatibility in unittest
+        return (main, sub, { k:params[k] for k in sorted(params)})
     except MIMETypeException as e:
         print(e)
         return (None, None, {})
