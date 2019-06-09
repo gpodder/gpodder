@@ -2162,7 +2162,7 @@ def parse_mimetype(mimetype):
         elif inquotes:
             raise MIMETypeException("Unable to parse mimetype '%s': unclosed \"" % mimetype)
         # explicitly sort dict by keys for python < 3.7 compatibility in unittest
-        return (main, sub, { k:params[k] for k in sorted(params)})
+        return (main, sub, {k: params[k] for k in sorted(params)})
     except MIMETypeException as e:
         print(e)
         return (None, None, {})
