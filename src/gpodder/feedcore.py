@@ -84,7 +84,7 @@ class AuthenticationRequired(Exception):
 
 
 # Successful status codes
-UPDATED_FEED, NEW_LOCATION, NOT_MODIFIED, CUSTOM_FEED = list(range(4))
+UPDATED_FEED, NEW_LOCATION, NOT_MODIFIED = list(range(3))
 
 
 class Result:
@@ -173,7 +173,7 @@ class Fetcher(object):
         else:
             raise UnknownStatusCode(status)
 
-    def _parse_feed(self, url, etag, modified, autodiscovery=True):
+    def _parse_feed(self, url, etag, modified, autodiscovery=True, max_episodes=0):
         headers = {}
         if modified is not None:
             headers['If-Modified-Since'] = modified
@@ -230,5 +230,5 @@ class Fetcher(object):
             feed['headers'] = stream.headers
             return self._check_statuscode(stream, feed)
 
-    def fetch(self, url, etag=None, modified=None):
-        return self._parse_feed(url, etag, modified)
+    def fetch(self, url, etag=None, modified=None, max_episodes=0):
+        return self._parse_feed(url, etag, modified, max_episodes)

@@ -45,7 +45,131 @@ logger = logging.getLogger(__name__)
 _ = gpodder.gettext
 
 
-class CustomFeed(feedcore.ExceptionWithData): pass
+class Feed:
+    """ abstract class for presenting a parsed feed to PodcastChannel """
+
+    def get_title(self):
+        """ :return str: the feed's title """
+        return None
+
+    def get_link(self):
+        """ :return str: link to the feed's website """
+        return None
+
+    def get_description(self):
+        """ :return str: feed's textual description """
+        return None
+
+    def get_cover_url(self):
+        """ :return str: url of the feed's cover image """
+        return None
+
+    def get_payment_url(self):
+        """ :return str: optional -- feed's payment url """
+        return None
+
+    def get_http_etag(self):
+        """ :return str: optional -- last HTTP etag header, for conditional request next time """
+        return None
+
+    def get_http_last_modified(self):
+        """ :return str: optional -- last HTTP Last-Modified header, for conditional request next time """
+        return None
+
+    def get_new_episodes(self, channel, existing_guids):
+        """
+        Produce new episodes and update old ones.
+        Feed is a class to present results, so the feed shall have already been fetched.
+        Existing episodes not in all_seen_guids will be purged from the database.
+        :param PodcastChannel channel: the updated channel
+        :param dict(str, PodcastEpisode): existing episodes, by guid
+        :return (list(PodcastEpisode), set(str)): new_episodes, all_seen_guids
+        """
+        return ([], set())
+
+    def get_next_page(self, channel, max_episodes):
+        """
+        Paginated feed support (RFC 5005).
+        If the feed is paged, return the next feed page.
+        Returned page will in turn be asked for the next page, until None is returned.
+        :return feedcore.Result: the next feed's page,
+                                 as a fully parsed Feed or None
+        """
+        return None
+
+
+class PodcastParserFeed(Feed):
+    def __init__(self, feed, fetcher, max_episodes=0):
+        self.feed = feed
+        self.fetcher = fetcher
+        self.max_episodes = max_episodes
+
+    def get_title(self):
+        return self.feed.get('title')
+
+    def get_link(self):
+        return self.feed.get('link')
+
+    def get_description(self):
+        return self.feed.get('description')
+
+    def get_cover_url(self):
+        return self.feed.get('cover_url')
+
+    def get_payment_url(self):
+        return self.feed.get('payment_url')
+
+    def get_http_etag(self):
+        return self.feed.get('headers', {}).get('etag')
+
+    def get_http_last_modified(self):
+        return self.feed.get('headers', {}).get('last-modified')
+
+    def get_new_episodes(self, channel, existing_guids):
+        # Keep track of episode GUIDs currently seen in the feed
+        seen_guids = set()
+
+        # list of new episodes
+        new_episodes = []
+
+        # We have to sort the entries in descending chronological order,
+        # because if the feed lists items in ascending order and has >
+        # max_episodes old episodes, new episodes will not be shown.
+        # See also: gPodder Bug 1186
+        entries = sorted(self.feed.get('episodes', []), key=lambda episode: episode['published'], reverse=True)
+
+        # We can limit the maximum number of entries that gPodder will parse
+        if self.max_episodes > 0 and len(entries) > self.max_episodes:
+            entries = entries[:self.max_episodes]
+
+        # Search all entries for new episodes
+        for entry in entries:
+            episode = channel.EpisodeClass.from_podcastparser_entry(entry, channel)
+            if episode is None:
+                continue
+
+            seen_guids.add(episode.guid)
+            # Detect (and update) existing episode based on GUIDs
+            existing_episode = existing_guids.get(episode.guid, None)
+            if existing_episode:
+                existing_episode.update_from(episode)
+                existing_episode.save()
+                continue
+
+            episode.save()
+            new_episodes.append(episode)
+        return new_episodes, seen_guids
+
+    def get_next_page(self, channel, max_episodes):
+        if 'paged_feed_next' in self.feed:
+            url = self.feed['paged_feed_next']
+            logger.debug("get_next_page: feed has next %s", url)
+            url = channel.authenticate_url(url)
+            res = self.fetcher.fetch(url, max_episodes=max_episodes)
+            if res.status == feedcore.UPDATED_FEED:
+                res.feed = PodcastParserFeed(res.feed, self.fetcher, max_episodes)
+            return res
+        return None
 
 
 class gPodderFetcher(feedcore.Fetcher):
@@ -59,12 +183,15 @@ class gPodderFetcher(feedcore.Fetcher):
         for handler in self.custom_handlers:
             custom_feed = handler.fetch_channel(channel, max_episodes)
             if custom_feed is not None:
-                return feedcore.Result(feedcore.CUSTOM_FEED, custom_feed)
+                return custom_feed
         # If we have a username or password, rebuild the url with them included
         # Note: using a HTTPBasicAuthHandler would be pain because we need to
         # know the realm. It can be done, but I think this method works, too
         url = channel.authenticate_url(channel.url)
-        return self.fetch(url, channel.http_etag, channel.http_last_modified)
+        res = self.fetch(url, channel.http_etag, channel.http_last_modified, max_episodes)
+        if res.status == feedcore.UPDATED_FEED:
+            res.feed = PodcastParserFeed(res.feed, self, max_episodes)
+        return res
 
     def _resolve_url(self, url):
         url = youtube.get_real_channel_url(url)
@@ -900,49 +1027,21 @@ class PodcastChannel(PodcastModelObject):
         self.payment_url = payment_url
         self.save()
 
-    def _consume_custom_feed(self, custom_feed, max_episodes=0):
-        self._consume_metadata(custom_feed.get_title(),
-                custom_feed.get_link(),
-                custom_feed.get_description(),
-                custom_feed.get_image(),
-                None)
-
-        existing = self.get_all_episodes()
-        existing_guids = [episode.guid for episode in existing]
-
-        # Insert newly-found episodes into the database + local cache
-        new_episodes, seen_guids = custom_feed.get_new_episodes(self, existing_guids)
-        self.children.extend(new_episodes)
-
-        self.remove_unreachable_episodes(existing, seen_guids, max_episodes)
-
     def _consume_updated_feed(self, feed, max_episodes=0):
-        self._consume_metadata(feed.get('title', self.url),
-                               feed.get('link', self.link),
-                               feed.get('description', ''),
-                               feed.get('cover_url', None),
-                               feed.get('payment_url', None))
+        self._consume_metadata(feed.get_title() or self.url,
+                               feed.get_link() or self.link,
+                               feed.get_description() or '',
+                               feed.get_cover_url() or None,
+                               feed.get_payment_url() or None)
 
         # Update values for HTTP conditional requests
-        headers = feed.get('headers', {})
-        self.http_etag = headers.get('etag', self.http_etag)
-        self.http_last_modified = headers.get('last-modified', self.http_last_modified)
+        self.http_etag = feed.get_http_etag() or self.http_etag
+        self.http_last_modified = feed.get_http_last_modified() or self.http_last_modified
 
         # Load all episodes to update them properly.
         existing = self.get_all_episodes()
-
-        # We have to sort the entries in descending chronological order,
-        # because if the feed lists items in ascending order and has >
-        # max_episodes old episodes, new episodes will not be shown.
-        # See also: gPodder Bug 1186
-        entries = sorted(feed.get('episodes', []), key=lambda episode: episode['published'], reverse=True)
-
-        # We can limit the maximum number of entries that gPodder will parse
-        if max_episodes > 0 and len(entries) > max_episodes:
-            entries = entries[:max_episodes]
-
         # GUID-based existing episode list
-        existing_guids = dict((e.guid, e) for e in existing)
+        existing_guids = {e.guid: e for e in existing}
 
         # Get most recent published of all episodes
         last_published = self.db.get_last_published(self) or 0
@@ -953,44 +1052,57 @@ class PodcastChannel(PodcastModelObject):
             logger.debug('Episode published in the future for podcast %s', self.title)
             last_published = tomorrow
 
-        # Keep track of episode GUIDs currently seen in the feed
-        seen_guids = set()
+        # new episodes from feed
+        new_episodes, seen_guids = feed.get_new_episodes(self, existing_guids)
 
-        # Number of new episodes found
-        new_episodes = 0
-
-        # Search all entries for new episodes
-        for entry in entries:
-            episode = self.EpisodeClass.from_podcastparser_entry(entry, self)
-            if episode is not None:
-                seen_guids.add(episode.guid)
+        # pagination
+        next_feed = feed
+        next_max_episodes = max_episodes - len(seen_guids)
+        # want to paginate if:
+        #  - we raised the max episode count so we want more old episodes now
+        #    FIXME: could also be that feed has less episodes than max_episodes and we're paginating for nothing
+        #  - all episodes are new so we continue getting them until max_episodes is reached
+        could_have_more = max_episodes > len(existing) or len(new_episodes) == len(seen_guids)
+        while next_feed and could_have_more:
+            if max_episodes > 0 and next_max_episodes <= 0:
+                logger.debug("stopping pagination: seen enough episodes (%i)", max_episodes)
+                break
+            # brand new: try to load another page!
+            next_result = next_feed.get_next_page(self, next_max_episodes)
+            if next_result and next_result.status == feedcore.UPDATED_FEED:
+                next_feed = next_result.feed
+                for e in new_episodes:
+                    existing_guids[e.guid] = e
+                next_new_episodes, next_seen_guids = next_feed.get_new_episodes(self, existing_guids)
+                logger.debug("next page has %i new episodes", len(next_new_episodes))
+                next_max_episodes -= len(next_seen_guids)
+                new_episodes += next_new_episodes
+                seen_guids = seen_guids.union(next_seen_guids)
             else:
-                continue
+                next_feed = None
 
-            # Detect (and update) existing episode based on GUIDs
-            existing_episode = existing_guids.get(episode.guid, None)
-            if existing_episode:
-                existing_episode.update_from(episode)
-                existing_episode.save()
-                continue
-
+        # mark episodes not new
+        real_new_episode_count = 0
+        # Search all entries for new episodes
+        for episode in new_episodes:
             # Workaround for bug 340: If the episode has been
             # published earlier than one week before the most
             # recent existing episode, do not mark it as new.
             if episode.published < last_published - self.SECONDS_PER_WEEK:
                 logger.debug('Episode with old date: %s', episode.title)
                 episode.is_new = False
+                episode.save()
 
             if episode.is_new:
-                new_episodes += 1
+                real_new_episode_count += 1
 
             # Only allow a certain number of new episodes per update
             if (self.download_strategy == PodcastChannel.STRATEGY_LATEST and
-                    new_episodes > 1):
+                    real_new_episode_count > 1):
                 episode.is_new = False
+                episode.save()
 
-            episode.save()
-            self.children.append(episode)
+        self.children.extend(new_episodes)
 
         self.remove_unreachable_episodes(existing, seen_guids, max_episodes)
 
@@ -1023,12 +1135,11 @@ class PodcastChannel(PodcastModelObject):
         self.children.sort(key=lambda e: e.published, reverse=True)
 
     def update(self, max_episodes=0):
+        max_episodes = int(max_episodes)
         try:
             result = self.feed_fetcher.fetch_channel(self, max_episodes)
 
-            if result.status == feedcore.CUSTOM_FEED:
-                self._consume_custom_feed(result.feed, max_episodes)
-            elif result.status == feedcore.UPDATED_FEED:
+            if result.status == feedcore.UPDATED_FEED:
                 self._consume_updated_feed(result.feed, max_episodes)
             elif result.status == feedcore.NEW_LOCATION:
                 url = result.feed

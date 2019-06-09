@@ -32,7 +32,7 @@ import urllib.parse
 import urllib.request
 
 import gpodder
-from gpodder import model, util
+from gpodder import feedcore, model, util
 
 _ = gpodder.gettext
 
@@ -184,29 +184,30 @@ class SoundcloudUser(object):
             self.commit_cache()
 
 
-class SoundcloudFeed(object):
+class SoundcloudFeed(model.Feed):
     URL_REGEX = re.compile('https?://([a-z]+\.)?soundcloud\.com/([^/]+)$', re.I)
 
     @classmethod
     def fetch_channel(cls, channel, max_episodes=0):
         url = channel.authenticate_url(channel.url)
-        return cls.handle_url(url)
+        return cls.handle_url(url, max_episodes)
 
     @classmethod
-    def handle_url(cls, url):
+    def handle_url(cls, url, max_episodes):
         m = cls.URL_REGEX.match(url)
         if m is not None:
             subdomain, username = m.groups()
-            return cls(username)
+            return feedcore.Result(feedcore.UPDATED_FEED, cls(username, max_episodes))
 
-    def __init__(self, username):
+    def __init__(self, username, max_episodes):
         self.username = username
         self.sc_user = SoundcloudUser(username)
+        self.max_episodes = max_episodes
 
     def get_title(self):
         return _('%s on Soundcloud') % self.username
 
-    def get_image(self):
+    def get_cover_url(self):
         return self.sc_user.get_coverart()
 
     def get_link(self):
@@ -218,10 +219,17 @@ class SoundcloudFeed(object):
     def get_new_episodes(self, channel, existing_guids):
         return self._get_new_episodes(channel, existing_guids, 'tracks')
 
+    def get_next_page(self, channel, max_episodes=0):
+        # one could return more, but it would consume too many api calls
+        # (see PR #184)
+        return None
+
     def _get_new_episodes(self, channel, existing_guids, track_type):
         tracks = [t for t in self.sc_user.get_tracks(track_type)]
+        if self.max_episodes > 0:
+            tracks = tracks[:self.max_episodes]
 
-        seen_guids = [track['guid'] for track in tracks]
+        seen_guids = set(track['guid'] for track in tracks)
         episodes = []
 
         for track in tracks:
