@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gPodder\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-05-27 21:10+0200\n"
+"POT-Creation-Date: 2019-06-09 16:07+0200\n"
 "PO-Revision-Date: 2019-05-30 12:04+0200\n"
 "Last-Translator: Karol Bieńkowski <karolbienkowski@protonmail.com>\n"
 "Language-Team: Polish <>\n"
@@ -17,8 +17,8 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10"
-" || n%100>=20) ? 1 : 2);\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
+"|| n%100>=20) ? 1 : 2);\n"
 "X-Generator: Lokalize 19.04.1\n"
 
 #: src/gpodder/config.py:54
@@ -151,7 +151,7 @@ msgstr "W kolejce"
 msgid "Downloading"
 msgstr "Pobieranie"
 
-#: src/gpodder/download.py:521 src/gpodder/model.py:632 src/gpodder/sync.py:959
+#: src/gpodder/download.py:521 src/gpodder/model.py:631 src/gpodder/sync.py:959
 msgid "Finished"
 msgstr "Ukończone"
 
@@ -222,33 +222,33 @@ msgstr "Zaimportowano plik OPML"
 msgid "No description available"
 msgstr "Opis niedostępny"
 
-#: src/gpodder/model.py:590
+#: src/gpodder/model.py:589
 msgid "unknown"
 msgstr "nieznany"
 
-#: src/gpodder/model.py:657
+#: src/gpodder/model.py:656
 msgid "Default"
 msgstr "Domyślnie"
 
-#: src/gpodder/model.py:658
+#: src/gpodder/model.py:657
 msgid "Only keep latest"
 msgstr "Zachowaj tylko najnowsze"
 
-#: src/gpodder/model.py:692 src/gpodder/model.py:1116
+#: src/gpodder/model.py:691 src/gpodder/model.py:1115
 #: src/gpodder/extensions.py:59
 msgid "Other"
 msgstr "Inne"
 
-#: src/gpodder/model.py:1099 src/gpodder/model.py:1114
+#: src/gpodder/model.py:1098 src/gpodder/model.py:1113
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:10
 msgid "Video"
 msgstr "Wideo"
 
-#: src/gpodder/model.py:1112
+#: src/gpodder/model.py:1111
 msgid "Audio"
 msgstr "Audio"
 
-#: src/gpodder/model.py:1291
+#: src/gpodder/model.py:1290
 #, python-format
 msgid ""
 "Warning: path to gPodder home (%(root)s) is very long and can result in "
@@ -257,7 +257,7 @@ msgstr ""
 "Uwaga: ścieżka domowa gPoddera (%(root)s) jest bardzo długa, co może "
 "skutkować niepowodzeniem przy pobieraniu plików.\n"
 
-#: src/gpodder/model.py:1293
+#: src/gpodder/model.py:1292
 msgid "You're advised to set it to a shorter path."
 msgstr "Radzimy ustawić ją na krótszą ścieżkę."
 
@@ -855,13 +855,11 @@ msgstr "Aktualizowanie %(podcast)s (%(position)d z %(total)d)"
 
 #: src/gpodder/gtkui/main.py:2579
 #, python-format
-#| msgid "Error while updating %(url)s: %(message)s"
 msgid "Error while updating %(title)s at %(url)s: %(message)s"
 msgstr "Błąd podczas aktualizowania %(title)s w %(url)s: %(message)s"
 
 #: src/gpodder/gtkui/main.py:2581
 #, python-format
-#| msgid "The feed at %(url)s could not be updated."
 msgid "The %(title)s feed at %(url)s could not be updated."
 msgstr "Kanał %(title)s pod adresem %(url)s nie mógł zostać zaktualizowany."
 
@@ -2284,7 +2282,6 @@ msgid "This configuration option does not exist."
 msgstr "Ta opcja konfiguracyjna nie istnieje."
 
 #: bin/gpo:391
-#, fuzzy
 msgid "Can only set leaf configuration nodes."
 msgstr ""
 

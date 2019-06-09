@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gPodder\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-05-27 21:10+0200\n"
+"POT-Creation-Date: 2019-06-09 16:07+0200\n"
 "PO-Revision-Date: 2018-12-27 16:28+0100\n"
 "Last-Translator: Eric Le Lay <elelay@macports.org>\n"
 "Language-Team: French (http://www.transifex.com/projects/p/gpodder/language/"
@@ -152,7 +152,7 @@ msgstr "Mis en file d'attente"
 msgid "Downloading"
 msgstr "En train de télécharger"
 
-#: src/gpodder/download.py:521 src/gpodder/model.py:632 src/gpodder/sync.py:959
+#: src/gpodder/download.py:521 src/gpodder/model.py:631 src/gpodder/sync.py:959
 msgid "Finished"
 msgstr "Terminé"
 
@@ -223,33 +223,33 @@ msgstr "Importer depuis un fichier OPML"
 msgid "No description available"
 msgstr "Aucune description disponible"
 
-#: src/gpodder/model.py:590
+#: src/gpodder/model.py:589
 msgid "unknown"
 msgstr "inconnu"
 
-#: src/gpodder/model.py:657
+#: src/gpodder/model.py:656
 msgid "Default"
 msgstr "Par défaut"
 
-#: src/gpodder/model.py:658
+#: src/gpodder/model.py:657
 msgid "Only keep latest"
 msgstr "Ne conserver que le dernier"
 
-#: src/gpodder/model.py:692 src/gpodder/model.py:1116
+#: src/gpodder/model.py:691 src/gpodder/model.py:1115
 #: src/gpodder/extensions.py:59
 msgid "Other"
 msgstr "Autre"
 
-#: src/gpodder/model.py:1099 src/gpodder/model.py:1114
+#: src/gpodder/model.py:1098 src/gpodder/model.py:1113
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:10
 msgid "Video"
 msgstr "Vidéo"
 
-#: src/gpodder/model.py:1112
+#: src/gpodder/model.py:1111
 msgid "Audio"
 msgstr "Audio"
 
-#: src/gpodder/model.py:1291
+#: src/gpodder/model.py:1290
 #, python-format
 msgid ""
 "Warning: path to gPodder home (%(root)s) is very long and can result in "
@@ -258,7 +258,7 @@ msgstr ""
 "Attention : le chemin vers le répertoire de stockage de gPodder (%(root)s) "
 "est très long et peut provoquer des erreurs au téléchargement d'épisodes.\n"
 
-#: src/gpodder/model.py:1293
+#: src/gpodder/model.py:1292
 msgid "You're advised to set it to a shorter path."
 msgstr "Nous vous recommandons d'utiliser un chemin plus court."
 
@@ -854,10 +854,12 @@ msgid "Updating %(podcast)s (%(position)d/%(total)d)"
 msgstr "Mise à jour de %(podcast)s (%(position)d/%(total)d)"
 
 #: src/gpodder/gtkui/main.py:2579
+#, python-format
 msgid "Error while updating %(title)s at %(url)s: %(message)s"
 msgstr "Erreur pendant la mise à jour de %(title)s %(url)s : %(message)s"
 
 #: src/gpodder/gtkui/main.py:2581
+#, python-format
 msgid "The %(title)s feed at %(url)s could not be updated."
 msgstr "Le flux %(title)s à l'adresse %(url)s n'a pas pu être mis à jour."
 
