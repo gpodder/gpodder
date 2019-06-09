@@ -2077,22 +2077,28 @@ class Popen(subprocess.Popen):
         logger.info('Log spam only occurs if returncode is non-zero or if explaining the Windows redirection error.')
 
 
+def _parse_mimetype_sorted_dictitems(mimetype):
+    """ python 3.5 unorderd dict compat for doctest. don't use! """
+    r = parse_mimetype(mimetype)
+    return r[0], r[1], sorted(r[2].items())
+
+
 def parse_mimetype(mimetype):
     """
     parse mimetype into (type, subtype, parameters)
     see RFC 2045 §5.1
     TODO: unhandled comments and continuations
 
-    >>> parse_mimetype('application/atom+xml;profile=opds-catalog;type=feed;kind=acquisition')
-    ('application', 'atom+xml', {'kind': 'acquisition', 'profile': 'opds-catalog', 'type': 'feed'})
-    >>> parse_mimetype('application/atom+xml; profile=opds-catalog ; type=feed ; kind=acquisition')
-    ('application', 'atom+xml', {'kind': 'acquisition', 'profile': 'opds-catalog', 'type': 'feed'})
-    >>> parse_mimetype(None)
-    (None, None, {})
-    >>> parse_mimetype('')
-    (None, None, {})
-    >>> parse_mimetype('application/x-myapp;quoted="a quoted string with ; etc.";a=b')
-    ('application', 'x-myapp', {'a': 'b', 'quoted': 'a quoted string with ; etc.'})
+    >>> _parse_mimetype_sorted_dictitems('application/atom+xml;profile=opds-catalog;type=feed;kind=acquisition')
+    ('application', 'atom+xml', [('kind', 'acquisition'), ('profile', 'opds-catalog'), ('type', 'feed')])
+    >>> _parse_mimetype_sorted_dictitems('application/atom+xml; profile=opds-catalog ; type=feed ; kind=acquisition')
+    ('application', 'atom+xml', [('kind', 'acquisition'), ('profile', 'opds-catalog'), ('type', 'feed')])
+    >>> _parse_mimetype_sorted_dictitems(None)
+    (None, None, [])
+    >>> _parse_mimetype_sorted_dictitems('')
+    (None, None, [])
+    >>> _parse_mimetype_sorted_dictitems('application/x-myapp;quoted="a quoted string with ; etc.";a=b')
+    ('application', 'x-myapp', [('a', 'b'), ('quoted', 'a quoted string with ; etc.')])
     """
     class MIMETypeException(Exception):
         """ when an exception is encountered parsing mime type """
@@ -2161,8 +2167,7 @@ def parse_mimetype(mimetype):
             raise MIMETypeException("Unable to parse mimetype '%s': missing value for %s" % (mimetype, key))
         elif inquotes:
             raise MIMETypeException("Unable to parse mimetype '%s': unclosed \"" % mimetype)
-        # explicitly sort dict by keys for python < 3.7 compatibility in unittest
-        return (main, sub, {k: params[k] for k in sorted(params)})
+        return (main, sub, params)
     except MIMETypeException as e:
         print(e)
         return (None, None, {})
