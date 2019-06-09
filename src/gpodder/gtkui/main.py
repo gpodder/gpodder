@@ -1717,7 +1717,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             PodcastEpisode.MAX_FILENAME_LENGTH,
             PodcastEpisode.MAX_FILENAME_WITH_EXT_LENGTH)
         if not filename.endswith(extension):
-            filename += "." + extension
+            filename += extension
         return filename
 
     def save_episodes_as_file(self, episodes):

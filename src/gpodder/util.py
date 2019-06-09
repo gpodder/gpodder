@@ -1501,17 +1501,17 @@ def sanitize_filename_ext(filename, ext, max_length, max_length_with_ext):
     Truncate filename if greater than max_length.
     Truncate extension if filename.extension is greater than max_length_with_ext.
     :param str filename: filename without extension
-    :param str ext: extension without dot
-    :return (str, str): (sanitized_truncated_filename, sanitized_extension_without_dot)
+    :param str ext: extension
+    :return (str, str): (sanitized_truncated_filename, sanitized_extension)
 
     >>> sanitize_filename_ext('podcast_4987_faz_essay_der_podcast_fur_die_geschichte' \
                               '_hinter_den_nachrichten_episode_4_04_die_macht_der_tater_brechen', \
-                              "mp3", 120, 131)
-    ('podcast_4987_faz_essay_der_podcast_fur_die_geschichte_hinter_den_nachrichten_episode_4_04_die_macht_der_tater_brechen', 'mp3')
+                              ".mp3", 120, 131)
+    ('podcast_4987_faz_essay_der_podcast_fur_die_geschichte_hinter_den_nachrichten_episode_4_04_die_macht_der_tater_brechen', '.mp3')
     """
     sanitized_fn = sanitize_filename(filename, max_length)
-    sanitized_ext = sanitize_filename(ext, max_length_with_ext - len(sanitized_fn) - 1)
-    return (sanitized_fn, sanitized_ext)
+    sanitized_ext = sanitize_filename(ext, max_length_with_ext - len(sanitized_fn))
+    return (sanitized_fn, "." + sanitized_ext)
 
 
 def find_mount_point(directory):

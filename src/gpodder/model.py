@@ -477,7 +477,6 @@ class PodcastEpisode(PodcastModelObject):
                 ext,
                 self.MAX_FILENAME_LENGTH,
                 self.MAX_FILENAME_WITH_EXT_LENGTH)
-            ext = '.' + ext
             # Find a unique filename for this episode
             wanted_filename = self.find_unique_file_name(fn_template, ext)
 
