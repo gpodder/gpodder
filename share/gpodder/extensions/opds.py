@@ -18,6 +18,7 @@
 #
 import copy
 import io
+import json
 import logging
 import os
 import re
@@ -29,6 +30,7 @@ from urllib3.util.request import make_headers
 
 from podcastparser import file_basename_no_extension, is_html, parse_length, parse_pubdate, parse_type, parse_url
 
+import gpodder
 from gpodder import feedcore, model, user_agent
 from gpodder.model import Feed, PodcastEpisode
 from gpodder.util import parse_mimetype, remove_html_tags
@@ -471,9 +473,20 @@ class OPDSCustomChannel(Feed):
 class OPDSFetcher:
     def __init__(self):
         self.http = urllib3.PoolManager()
+        self.cache_file = os.path.join(gpodder.home, 'ELLOpds')
+        if os.path.exists(self.cache_file):
+            try:
+                self.cache = json.load(open(self.cache_file, 'r'))
+            except:
+                self.cache = {}
+        else:
+            self.cache = {}
+
+    def commit_cache(self):
+        json.dump(self.cache, open(self.cache_file, 'w'))
 
     def fetch_channel(self, channel, max_episodes=0):
-        if channel.get_ext_data('opds').v1.not_opds is True:
+        if self.cache.get(channel.url, {}).get('not_opds') is True:
             logger.debug("channel is marked as not opds, returning None")
             return None
         url = channel.url
@@ -518,7 +531,8 @@ class OPDSFetcher:
             return feedcore.Result(feedcore.UPDATED_FEED, res)
         except NotOPDSError:
             logger.debug("%s is not an OPDS feed", handler.url)
-            channel.get_ext_data('opds').not_opds = True
+            self.cache[channel.url] = {"not_opds": True}
+            self.commit_cache()
             return None
         except sax.SAXParseException:
             logger.exception("error parsing %s", handler.url)
