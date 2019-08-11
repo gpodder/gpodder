@@ -739,6 +739,12 @@ class DownloadTask(object):
         self.status = DownloadTask.DOWNLOADING
         self._notification_shown = False
 
+        # Restore a reference to this task in the episode
+        # when running a recycled task following a pause or failed
+        # see #649
+        if not self.episode.download_task:
+            self.episode.download_task = self
+
         try:
             # Resolve URL and start downloading the episode
             fmt_ids = youtube.get_fmt_ids(self._config.youtube)
