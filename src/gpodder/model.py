@@ -767,7 +767,7 @@ class PodcastEpisode(PodcastModelObject):
 
     def update_from(self, episode):
         for k in ('title', 'url', 'description', 'description_html', 'link', 'published', 'guid', 'payment_url'):
-             setattr(self, k, getattr(episode, k))
+            setattr(self, k, getattr(episode, k))
         # Don't overwrite file size on downloaded episodes
         # See #648 refreshing a youtube podcast clears downloaded file size
         if self.state != gpodder.STATE_DOWNLOADED:
