@@ -9,11 +9,12 @@ import os
 import re
 import time
 
-import gpodder
 import youtube_dl
+from youtube_dl.utils import sanitize_url
+
+import gpodder
 from gpodder import download, feedcore, model, registry, youtube
 from gpodder.util import mimetype_from_extension, remove_html_tags
-from youtube_dl.utils import sanitize_url
 
 _ = gpodder.gettext
 
