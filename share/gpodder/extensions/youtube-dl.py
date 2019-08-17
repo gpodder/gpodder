@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 # Manage Youtube subscriptions using youtube-dl (https://github.com/ytdl-org/youtube-dl)
-# to handle youtube feeds.
-# Requirements: youtube-dl module
+# Requirements: youtube-dl module (pip install youtube_dl)
 # (c) 2019-08-17 Eric Le Lay <elelay.fr:contact>
 # Released under the same license terms as gPodder itself.
 
@@ -26,6 +25,17 @@ __title__ = 'youtube-dl'
 __description__ = 'Manage Youtube subscriptions using youtube-dl'
 __only_for__ = 'gtk, cli'
 __authors__ = 'Eric Le Lay <elelay.fr:contact>'
+__doc__ = 'https://github.com/gpodder/gpodder/blob/master/share/gpodder/extensions/youtube-dl.py'
+
+DefaultConfig = {
+    # youtube-dl downloads and parses each video page to get informations about it, which is very slow.
+    # Set to False to fall back to the fast but limited (only 15 episodes) gpodder code
+    'manage_channel': True,
+    # If for some reason youtube-dl download doesn't work for you, you can fallback to gpodder code.
+    # Set to False to fall back to default gpodder code (less available formats).
+    'manage_downloads': True,
+}
+
 
 # youtube feed still preprocessed by youtube.py (compat)
 CHANNEL_RE = re.compile(r'''https://www.youtube.com/feeds/videos.xml\?channel_id=(.+)''')
@@ -217,7 +227,16 @@ class gPodderYoutubeDL(download.CustomDownloader):
         }
 
     def add_format(self, gpodder_config, opts):
-        """ construct youtube-dl -f argument (see doc) """
+        """ construct youtube-dl -f argument from configured format. """
+        # You can set a custom format or custom formats by editing the config for key
+        # `youtube.preferred_fmt_ids`
+        #
+        # It takes a list of format strings separated by comma: bestaudio, 18
+        # they are translated to youtube dl format bestaudio/18, meaning preferably
+        # the best audio quality (audio-only) and MP4 360p if it's not available.
+        #
+        # See https://github.com/ytdl-org/youtube-dl#format-selection for details
+        # about youtube-dl format specification.
         fmt_ids = youtube.get_fmt_ids(gpodder_config.youtube)
         opts['format'] = '/'.join(str(fmt) for fmt in fmt_ids)
 
@@ -320,10 +339,18 @@ class gPodderExtension:
     def on_load(self):
         self.ytdl = gPodderYoutubeDL(self.container.manager.core.config)
         logger.info('Registering youtube-dl.')
-        registry.feed_handler.register(self.ytdl.fetch_channel)
-        registry.custom_downloader.register(self.ytdl.custom_downloader)
+        if self.container.config.manage_channel:
+            registry.feed_handler.register(self.ytdl.fetch_channel)
+        if self.container.config.manage_downloads:
+            registry.custom_downloader.register(self.ytdl.custom_downloader)
 
     def on_unload(self):
         logger.info('Unregistering youtube-dl.')
-        registry.feed_handler.unregister(self.ytdl.fetch_channel)
-        registry.custom_downloader.unregister(self.ytdl.custom_downloader)
+        try:
+            registry.feed_handler.unregister(self.ytdl.fetch_channel)
+        except ValueError:
+            pass
+        try:
+            registry.custom_downloader.unregister(self.ytdl.custom_downloader)
+        except ValueError:
+            pass
