@@ -28,7 +28,7 @@ import xml.etree.ElementTree
 from html.parser import HTMLParser
 from urllib.parse import parse_qs
 
-from gpodder import util
+from gpodder import registry, util
 
 logger = logging.getLogger(__name__)
 
@@ -107,6 +107,13 @@ def get_fmt_ids(youtube_config):
             fmt_ids, path, description = format
 
     return fmt_ids
+
+
+@registry.download_url.register
+def youtube_real_download_url(config, episode):
+    fmt_ids = get_fmt_ids(config.youtube) if config else None
+    res = get_real_download_url(episode.url, fmt_ids)
+    return None if res == episode.url else res
 
 
 def get_real_download_url(url, preferred_fmt_ids=None):

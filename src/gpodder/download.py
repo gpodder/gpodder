@@ -41,11 +41,41 @@ import urllib.request
 from email.header import decode_header
 
 import gpodder
-from gpodder import escapist_videos, util, vimeo, youtube
+from gpodder import registry, util
 
 logger = logging.getLogger(__name__)
 
 _ = gpodder.gettext
+
+
+class CustomDownload:
+    """ abstract class for custom downloads. DownloadTask call retrieve_resume() on it """
+
+    def retrieve_resume(self, unused_tempname, reporthook):
+        """
+        :param str tempname: temporary filename for the download
+        :param func(number, number, number) reporthook: callback for download progress (count, blockSize, totalSize)
+        :return dict(str, str), str: (headers, real_url)
+        """
+        return {}, None
+
+
+class CustomDownloader:
+    """
+    abstract class for custom downloaders.
+
+    DownloadTask calls custom_downloader to get a CustomDownload
+    """
+
+    def custom_downloader(self, config, episode):
+        """
+        if this custom downloader has a custom download method (e.g. youtube-dl),
+        return a CustomDownload. Else return None
+        :param config: gpodder config (e.g. to get preferred video format)
+        :param model.PodcastEpisode episode: episode to download
+        :return CustomDownload: object used to download the episode
+        """
+        return None
 
 
 def get_header_param(headers, param, header_name):
@@ -746,53 +776,59 @@ class DownloadTask(object):
             self.episode.download_task = self
 
         try:
-            # Resolve URL and start downloading the episode
-            fmt_ids = youtube.get_fmt_ids(self._config.youtube)
+
+            custom_downloader = registry.custom_downloader.resolve(self._config, None, self.episode)
+
             url = self.__episode.url
-            url = youtube.get_real_download_url(self.__episode.url, fmt_ids)
-            url = vimeo.get_real_download_url(url, self._config.vimeo.fileformat)
-            url = escapist_videos.get_real_download_url(url)
+            if custom_downloader:
+                logger.info('Downloading %s with %s', url, custom_downloader)
+                headers, real_url = custom_downloader.retrieve_resume(
+                    self.tempname, reporthook=self.status_updated)
+            else:
+                # Resolve URL and start downloading the episode
+                res = registry.download_url.resolve(self._config, None, self.episode)
+                if res:
+                    url = res
+                if url == self.__episode.url:
+                    # don't modify custom urls (#635 - vimeo breaks if * is unescaped)
+                    url = url.strip()
+                    url = util.iri_to_url(url)
 
-            if url == self.__episode.url:
-                # don't modify custom urls (#635 - vimeo breaks if * is unescaped)
-                url = url.strip()
-                url = util.iri_to_url(url)
+                logger.info("Downloading %s", url)
+                downloader = DownloadURLOpener(self.__episode.channel)
 
-            logger.info("Downloading %s", url)
-            downloader = DownloadURLOpener(self.__episode.channel)
+                # HTTP Status codes for which we retry the download
+                retry_codes = (408, 418, 504, 598, 599)
+                max_retries = max(0, self._config.auto.retries)
 
-            # HTTP Status codes for which we retry the download
-            retry_codes = (408, 418, 504, 598, 599)
-            max_retries = max(0, self._config.auto.retries)
+                # Retry the download on timeout (bug 1013)
+                for retry in range(max_retries + 1):
+                    if retry > 0:
+                        logger.info('Retrying download of %s (%d)', url, retry)
+                        time.sleep(1)
 
-            # Retry the download on timeout (bug 1013)
-            for retry in range(max_retries + 1):
-                if retry > 0:
-                    logger.info('Retrying download of %s (%d)', url, retry)
-                    time.sleep(1)
-
-                try:
-                    headers, real_url = downloader.retrieve_resume(url,
-                        self.tempname, reporthook=self.status_updated)
-                    # If we arrive here, the download was successful
-                    break
-                except urllib.error.ContentTooShortError as ctse:
-                    if retry < max_retries:
-                        logger.info('Content too short: %s - will retry.',
-                                url)
-                        continue
-                    raise
-                except socket.timeout as tmout:
-                    if retry < max_retries:
-                        logger.info('Socket timeout: %s - will retry.', url)
-                        continue
-                    raise
-                except gPodderDownloadHTTPError as http:
-                    if retry < max_retries and http.error_code in retry_codes:
-                        logger.info('HTTP error %d: %s - will retry.',
-                                http.error_code, url)
-                        continue
-                    raise
+                    try:
+                        headers, real_url = downloader.retrieve_resume(url,
+                            self.tempname, reporthook=self.status_updated)
+                        # If we arrive here, the download was successful
+                        break
+                    except urllib.error.ContentTooShortError as ctse:
+                        if retry < max_retries:
+                            logger.info('Content too short: %s - will retry.',
+                                    url)
+                            continue
+                        raise
+                    except socket.timeout as tmout:
+                        if retry < max_retries:
+                            logger.info('Socket timeout: %s - will retry.', url)
+                            continue
+                        raise
+                    except gPodderDownloadHTTPError as http:
+                        if retry < max_retries and http.error_code in retry_codes:
+                            logger.info('HTTP error %d: %s - will retry.',
+                                    http.error_code, url)
+                            continue
+                        raise
 
             new_mimetype = headers.get('content-type', self.__episode.mime_type)
             old_mimetype = self.__episode.mime_type

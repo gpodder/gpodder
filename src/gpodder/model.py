@@ -37,8 +37,8 @@ import time
 
 import gpodder
 import podcastparser
-from gpodder import (coverart, escapist_videos, feedcore, schema, util, vimeo,
-                     youtube)
+from gpodder import (coverart, escapist_videos, feedcore, registry, schema,
+                     util, vimeo, youtube)
 
 logger = logging.getLogger(__name__)
 
@@ -494,7 +494,7 @@ class PodcastEpisode(PodcastModelObject):
 
         self.set_state(gpodder.STATE_DELETED)
 
-    def get_playback_url(self, fmt_ids=None, vimeo_fmt=None, allow_partial=False):
+    def get_playback_url(self, config=None, allow_partial=False):
         """Local (or remote) playback/streaming filename/URL
 
         Returns either the local filename or a streaming URL that
@@ -510,11 +510,8 @@ class PodcastEpisode(PodcastModelObject):
             return url + '.partial'
 
         if url is None or not os.path.exists(url):
-            url = self.url
-            url = youtube.get_real_download_url(url, fmt_ids)
-            url = vimeo.get_real_download_url(url, vimeo_fmt)
-            url = escapist_videos.get_real_download_url(url)
-
+            # FIXME: may custom downloaders provide the real url ?
+            url = registry.download_url.resolve(config, self.url, self)
         return url
 
     def find_unique_file_name(self, filename, extension):

@@ -3,6 +3,7 @@
 # Requirements: gPodder 3.x (or "tres" branch newer than 2011-06-08)
 # (c) 2011-06-08 Thomas Perl <thp.io/about>
 # Released under the same license terms as gPodder itself.
+import functools
 import logging
 import subprocess
 
@@ -42,8 +43,8 @@ class Player(object):
     def open_files(self, filenames):
         raise NotImplemented('Must be implemented by subclass')
 
-    def enqueue_episodes(self, episodes):
-        filenames = [episode.get_playback_url() for episode in episodes]
+    def enqueue_episodes(self, episodes, config=None):
+        filenames = [episode.get_playback_url(config=config) for episode in episodes]
 
         self.open_files(filenames)
 
@@ -104,8 +105,8 @@ class MPRISResumer(FreeDesktopPlayer):
             return False
         return util.find_command(self.command[0]) is not None
 
-    def enqueue_episodes(self, episodes):
-        self.do_enqueue(episodes[0].get_playback_url(),
+    def enqueue_episodes(self, episodes, config=None):
+        self.do_enqueue(episodes[0].get_playback_url(config=config),
                         episodes[0].current_position)
 
         for episode in episodes:
@@ -259,6 +260,7 @@ class gPodderExtension:
     def __init__(self, container):
         self.container = container
         self.config = container.config
+        self.gpodder_config = self.container.manager.core.config
 
         # Only display media players that can be found at extension load time
         self.players = [player for player in PLAYERS if player.is_installed()]
@@ -273,13 +275,15 @@ class gPodderExtension:
         if not any(e.file_exists() for e in episodes):
             return None
 
-        ret = [(p.title, p.enqueue_episodes) for p in self.players]
+        ret = [(p.title, functools.partial(p.enqueue_episodes, config=self.gpodder_config))
+               for p in self.players]
 
         # needs dbus, doesn't handle more than 1 episode
         # and no point in using DBus when episode is not played.
         if not hasattr(gpodder.dbus_session_bus, 'fake') and \
                 len(episodes) == 1 and episodes[0].current_position > 0:
-            ret.extend([(p.title, p.enqueue_episodes) for p in self.resumers])
+            ret.extend([(p.title, functools.partial(p.enqueue_episodes, config=self.gpodder_config))
+                        for p in self.resumers])
 
         return ret
 

@@ -28,7 +28,7 @@ import logging
 import re
 
 import gpodder
-from gpodder import util
+from gpodder import registry, util
 
 _ = gpodder.gettext
 
@@ -47,6 +47,13 @@ FORMATS = tuple((x, x) for x in FILEFORMAT_RANKING)
 
 
 class VimeoError(BaseException): pass
+
+
+@registry.download_url.register
+def vimeo_real_download_url(config, episode):
+    fmt = config.vimeo.fileformat if config else None
+    res = get_real_download_url(episode.url, preferred_fileformat=fmt)
+    return None if res == episode.url else res
 
 
 def get_real_download_url(url, preferred_fileformat=None):
