@@ -177,13 +177,10 @@ class gPodderFetcher(feedcore.Fetcher):
     This class extends the feedcore Fetcher with the gPodder User-Agent and the
     Proxy handler based on the current settings in gPodder.
     """
-    custom_handlers = []
-
     def fetch_channel(self, channel, max_episodes):
-        for handler in self.custom_handlers:
-            custom_feed = handler.fetch_channel(channel, max_episodes)
-            if custom_feed is not None:
-                return custom_feed
+        custom_feed = registry.feed_handler.resolve(channel, None, max_episodes)
+        if custom_feed is not None:
+            return custom_feed
         # If we have a username or password, rebuild the url with them included
         # Note: using a HTTPBasicAuthHandler would be pain because we need to
         # know the realm. It can be done, but I think this method works, too
@@ -199,20 +196,6 @@ class gPodderFetcher(feedcore.Fetcher):
         url = escapist_videos.get_real_channel_url(url)
         return url
 
-    @classmethod
-    def register(cls, handler):
-        cls.custom_handlers.append(handler)
-
-    @classmethod
-    def unregister(cls, handler):
-        cls.custom_handlers.remove(handler)
-
-
-# The "register" method is exposed here for external usage
-register_custom_handler = gPodderFetcher.register
-
-# The "unregister" method is exposed here for external usage
-unregister_custom_handler = gPodderFetcher.unregister
 
 # Our podcast model:
 #

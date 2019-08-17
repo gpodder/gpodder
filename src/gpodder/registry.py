@@ -84,7 +84,7 @@ RESOLVER_NAMES = {
     # 'episode_basename': 'Resolve a good, unique download filename for an episode',
     # 'podcast_title': 'Resolve a good title for a podcast',
     # 'content_type': 'Resolve the content type (audio, video) of an episode',
-    # 'feed_handler': 'Handle fetching of a feed',
+    'feed_handler': 'Handle fetching of a feed',
     # 'fallback_feed_handler': 'Handle parsing of a feed (catch-all)',
     # 'url_shortcut': 'Expand shortcuts when adding a new URL',
     # 'after_download': 'Function to call with episodes after download finishes',

@@ -32,7 +32,7 @@ import urllib.parse
 import urllib.request
 
 import gpodder
-from gpodder import feedcore, model, util
+from gpodder import feedcore, model, registry, util
 
 _ = gpodder.gettext
 
@@ -261,8 +261,8 @@ class SoundcloudFavFeed(SoundcloudFeed):
 
 
 # Register our URL handlers
-model.register_custom_handler(SoundcloudFeed)
-model.register_custom_handler(SoundcloudFavFeed)
+registry.feed_handler.register(SoundcloudFeed.fetch_channel)
+registry.feed_handler.register(SoundcloudFavFeed.fetch_channel)
 
 
 def search_for_user(query):

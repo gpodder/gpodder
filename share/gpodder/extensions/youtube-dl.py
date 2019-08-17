@@ -322,10 +322,10 @@ class gPodderExtension:
     def on_load(self):
         self.ytdl = gPodderYoutubeDL(self.container.manager.core.config)
         logger.info('Registering youtube-dl.')
-        model.register_custom_handler(self.ytdl)
+        registry.feed_handler.register(self.ytdl.fetch_channel)
         registry.custom_downloader.register(self.ytdl.custom_downloader)
 
     def on_unload(self):
         logger.info('Unregistering youtube-dl.')
-        model.unregister_custom_handler(self.ytdl)
+        registry.feed_handler.unregister(self.ytdl.fetch_channel)
         registry.custom_downloader.unregister(self.ytdl.custom_downloader)
