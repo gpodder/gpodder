@@ -1009,10 +1009,9 @@ def get_first_line(s):
     Returns only the first line of a string, stripped so
     that it doesn't have whitespace before or after.
     """
-    try:
+    if s:
         return s.strip().split('\n')[0].strip()
-    except:
-        return ''
+    return ''
 
 
 def object_string_formatter(s, **kwargs):
