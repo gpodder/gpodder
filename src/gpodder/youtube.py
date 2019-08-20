@@ -292,6 +292,7 @@ def get_cover(url):
         except Exception:
             logger.warning('Could not retrieve cover art', exc_info=True)
 
+
 def get_channel_desc(url):
     if 'youtube.com' in url:
 
