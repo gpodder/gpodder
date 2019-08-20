@@ -310,7 +310,6 @@ def get_channel_desc(url):
                         and attribute_dict['name'] == "description":
                     self.description = attribute_dict['content']
 
-
         try:
             channel_url = get_channel_id_url(url)
             html_data = util.urlopen(channel_url).read().decode('utf-8')
