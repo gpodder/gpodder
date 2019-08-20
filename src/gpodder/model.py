@@ -1027,6 +1027,10 @@ class PodcastChannel(PodcastModelObject):
         self._consume_updated_title(title)
         self.link = link
         self.description = description
+        vid = youtube.get_youtube_id(self.url)
+        if vid is not None:
+            self.description = youtube.get_channel_desc(self.url)
+            self.link = youtube.get_channel_id_url(self.url)
         self.cover_url = cover_url
         self.payment_url = payment_url
         self.save()
