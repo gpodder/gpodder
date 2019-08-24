@@ -2915,7 +2915,24 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.download_episode_list(episodes, True)
 
     def download_episode_list(self, episodes, add_paused=False, force_start=False):
-        enable_update = False
+        def queue_tasks(tasks, queued_existing_task):
+            for task in tasks:
+                if add_paused:
+                    task.status = task.PAUSED
+                else:
+                    self.mygpo_client.on_download([task.episode])
+                    if force_start:
+                        self.download_queue_manager.force_start_task(task)
+                    else:
+                        self.download_queue_manager.queue_task(task)
+            if tasks or queued_existing_task:
+                self.enable_download_list_update()
+            # Flush updated episode status
+            if self.mygpo_client.can_access_webservice():
+                self.mygpo_client.flush()
+
+        queued_existing_task = False
+        new_tasks = []
 
         if self.config.downloads.chronological_order:
             # Download episodes in chronological order (older episodes first)
@@ -2933,7 +2950,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                                 self.download_queue_manager.force_start_task(task)
                             else:
                                 self.download_queue_manager.queue_task(task)
-                            enable_update = True
+                            queued_existing_task = True
                             continue
 
                 if task_exists:
@@ -2950,27 +2967,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
                 # New Task, we must wait on the GTK Loop
                 self.download_status_model.register_task(task)
+                new_tasks.append(task)
 
-                def queue_task(task):
-                    if add_paused:
-                        task.status = task.PAUSED
-                    else:
-                        self.mygpo_client.on_download([task.episode])
-                        if force_start:
-                            self.download_queue_manager.force_start_task(task)
-                        else:
-                            self.download_queue_manager.queue_task(task)
-                # Executes after task has been registered
-                util.idle_add(queue_task, task)
-
-                enable_update = True
-
-        if enable_update:
-            self.enable_download_list_update()
-
-        # Flush updated episode status
-        if self.mygpo_client.can_access_webservice():
-            self.mygpo_client.flush()
+        # Executes after tasks have been registered
+        util.idle_add(queue_tasks, new_tasks, queued_existing_task)
 
     def cancel_task_list(self, tasks):
         if not tasks:
