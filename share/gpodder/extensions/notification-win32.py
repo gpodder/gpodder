@@ -121,7 +121,7 @@ try {{
     $o.Visible = $True
     $Delay = 10    # Delay value in seconds.
     $o.ShowBalloonTip($Delay*1000)
-    Start-Sleep -s $Delay 
+    Start-Sleep -s $Delay
     $o.Dispose()
     Remove-Item -LiteralPath $MyInvocation.MyCommand.Path -Force    # Delete this script temp file.
     }}
