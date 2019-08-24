@@ -294,6 +294,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         action = Gio.SimpleAction.new_stateful(
             'showToolbar', None, GLib.Variant.new_boolean(self.config.show_toolbar))
         action.connect('activate', self.on_itemShowToolbar_activate)
+        g.add_action(action)
 
     def inject_extensions_menu(self):
         """
