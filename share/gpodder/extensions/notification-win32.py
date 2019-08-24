@@ -103,6 +103,7 @@ try {{
         $xml.LoadXml($template)
         $toast = New-Object Windows.UI.Notifications.ToastNotification $xml
         [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier($APP_ID).Show($toast)
+        Remove-Item -LiteralPath $MyInvocation.MyCommand.Path -Force    # Delete this script temp file.
     }} else {{
         # use older Baloon notification when not on Windows 10
         [System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms")
@@ -118,7 +119,11 @@ try {{
 "@
 
     $o.Visible = $True
-    $o.ShowBalloonTip(10000)
+    $Delay = 10    # Delay value in seconds.
+    $o.ShowBalloonTip($Delay*1000)
+    Start-Sleep -s $Delay 
+    $o.Dispose()
+    Remove-Item -LiteralPath $MyInvocation.MyCommand.Path -Force    # Delete this script temp file.
     }}
 }} catch {{
     write-host "Caught an exception:"
@@ -140,11 +145,11 @@ try {{
             powershell = r"{}\sysnative\WindowsPowerShell\v1.0\powershell.exe".format(os.environ["SystemRoot"])
             if not os.path.exists(powershell):
                 powershell = "powershell.exe"
-            subprocess.run([powershell,
-                           "-ExecutionPolicy", "Bypass", "-File", path], check=True,
+            subprocess.Popen([powershell,
+                           "-ExecutionPolicy", "Bypass", "-File", path],
                            stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                            startupinfo=startupinfo)
-            os.remove(path)  # XXX: otherwise keep it for debugging
+            #os.remove(path)  # XXX: otherwise keep it for debugging
         except subprocess.CalledProcessError as e:
             logger.error("Error in on_notification_show(title=%r, message=%r):\n"
                          "\t%r exit code %i\n\tstdout=%s\n\tstderr=%s",
