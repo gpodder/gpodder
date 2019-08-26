@@ -139,7 +139,7 @@ class SoundcloudUser(object):
         global CONSUMER_KEY
         try:
             json_url = ('https://api.soundcloud.com/users/%(user)s/%(feed)s.'
-                        'json?filter=downloadable&consumer_key=%'
+                        'json?consumer_key=%'
                         '(consumer_key)s&limit=200'
                         % {"user": self.get_user_id(),
                            "feed": feed,
@@ -147,9 +147,8 @@ class SoundcloudUser(object):
             logger.debug("loading %s", json_url)
 
             json_tracks = json.loads(util.urlopen(json_url).read().decode('utf-8'))
-            tracks = [track for track in json_tracks if track['downloadable']]
-            total_count = len(tracks) + len([track for track in json_tracks
-                                             if not track['downloadable']])
+            tracks = [track for track in json_tracks if track['streamable'] or track['downloadable']]
+            total_count = len(json_tracks)
 
             if len(tracks) == 0 and total_count > 0:
                 logger.warn("Download of all %i %s of user %s is disabled" %
@@ -160,9 +159,8 @@ class SoundcloudUser(object):
 
             for track in tracks:
                 # Prefer stream URL (MP3), fallback to download URL
-                url = track.get('stream_url', track['download_url']) + \
-                    '?consumer_key=%(consumer_key)s' \
-                    % {'consumer_key': CONSUMER_KEY}
+                base_url = track.get('stream_url') if track['streamable'] else track['download_url']
+                url = base_url + '?consumer_key=' + CONSUMER_KEY
                 if url not in self.cache:
                     try:
                         self.cache[url] = get_metadata(url)
@@ -225,7 +223,7 @@ class SoundcloudFeed(model.Feed):
         return None
 
     def _get_new_episodes(self, channel, existing_guids, track_type):
-        tracks = [t for t in self.sc_user.get_tracks(track_type)]
+        tracks = list(self.sc_user.get_tracks(track_type))
         if self.max_episodes > 0:
             tracks = tracks[:self.max_episodes]
 
