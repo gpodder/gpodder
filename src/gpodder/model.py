@@ -108,9 +108,15 @@ class PodcastParserFeed(Feed):
         return self.feed.get('title')
 
     def get_link(self):
+        vid = youtube.get_youtube_id(self.feed['url'])
+        if vid is not None:
+            self.feed['link'] = youtube.get_channel_id_url(self.feed['url'])
         return self.feed.get('link')
 
     def get_description(self):
+        vid = youtube.get_youtube_id(self.feed['url'])
+        if vid is not None:
+            self.feed['description'] = youtube.get_channel_desc(self.feed['url'])
         return self.feed.get('description')
 
     def get_cover_url(self):
@@ -1007,10 +1013,6 @@ class PodcastChannel(PodcastModelObject):
         self._consume_updated_title(title)
         self.link = link
         self.description = description
-        vid = youtube.get_youtube_id(self.url)
-        if vid is not None:
-            self.description = youtube.get_channel_desc(self.url)
-            self.link = youtube.get_channel_id_url(self.url)
         self.cover_url = cover_url
         self.payment_url = payment_url
         self.save()

@@ -220,6 +220,7 @@ class Fetcher(object):
 
         try:
             feed = podcastparser.parse(url, data)
+            feed['url'] = url
         except ValueError as e:
             raise InvalidFeed('Could not parse feed: {msg}'.format(msg=e))
 
