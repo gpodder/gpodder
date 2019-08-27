@@ -40,6 +40,8 @@ class gPodderConfigEditor(BuilderWidget):
 
         value_column = Gtk.TreeViewColumn(_('Set to'))
         value_check_renderer = Gtk.CellRendererToggle()
+        # align left otherwise the checkbox is very far away and not visible
+        value_check_renderer.set_alignment(0, 0.5)
         value_column.pack_start(value_check_renderer, False)
         value_column.add_attribute(value_check_renderer, 'active', 7)
         value_column.add_attribute(value_check_renderer, 'visible', 6)
