@@ -106,9 +106,10 @@ class YoutubeFeed(model.Feed):
     """
     Represents the youtube feed for model.PodcastChannel
     """
-    def __init__(self, url, cover_url, max_episodes, ie_result, downloader):
+    def __init__(self, url, cover_url, description, max_episodes, ie_result, downloader):
         self._url = url
         self._cover_url = cover_url
+        self._description = description
         self._max_episodes = max_episodes
         ie_result['entries'] = self._process_entries(ie_result.get('entries', []))
         self._ie_result = ie_result
@@ -131,10 +132,7 @@ class YoutubeFeed(model.Feed):
         return self._ie_result.get('webpage_url')
 
     def get_description(self):
-        if 'title' in self._ie_result and 'uploader' in self._ie_result:
-            return '{} from {} on Youtube'.format(self._ie_result.get('title'), self._ie_result.get('uploader'))
-        else:
-            return _('No description available')
+        return self._description
 
     def get_cover_url(self):
         return self._cover_url
@@ -301,8 +299,9 @@ class gPodderYoutubeDL(download.CustomDownloader):
                                                  ie_key=ie_result.get('ie_key'))
                 result_type, has_playlist = extract_type(ie_result)
         cover_url = youtube.get_cover(channel_url)  # youtube-dl doesn't provide the cover url!
+        description = youtube.get_channel_desc(channel_url) # youtube-dl doesn't provide the description!
         return feedcore.Result(feedcore.UPDATED_FEED,
-            YoutubeFeed(url, cover_url, max_episodes, ie_result, self))
+            YoutubeFeed(url, cover_url, description, max_episodes, ie_result, self))
 
     def fetch_channel(self, channel, max_episodes=0):
         """
