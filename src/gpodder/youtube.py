@@ -249,6 +249,20 @@ def get_real_channel_url(url):
     return for_each_feed_pattern(return_user_feed, url, url)
 
 
+def get_channel_id_url(url):
+    if 'youtube.com' in url:
+        try:
+            channel_url = ''
+            raw_xml_data = util.urlopen(url).read().decode('utf-8')
+            xml_data = xml.etree.ElementTree.fromstring(raw_xml_data)
+            channel_id = xml_data.find("{http://www.youtube.com/xml/schemas/2015}channelId").text
+            channel_url = 'https://www.youtube.com/channel/{}'.format(channel_id)
+            return channel_url
+
+        except Exception:
+            logger.warning('Could not retrieve youtube channel id.', exc_info=True)
+
+
 def get_cover(url):
     if 'youtube.com' in url:
 
@@ -256,7 +270,7 @@ def get_cover(url):
             """This custom html parser searches for the youtube channel thumbnail/avatar"""
             def __init__(self):
                 super().__init__()
-                self.url = ""
+                self.url = []
 
             def handle_starttag(self, tag, attributes):
                 attribute_dict = {attribute[0]: attribute[1] for attribute in attributes}
@@ -265,28 +279,59 @@ def get_cover(url):
                 if tag == 'link' \
                         and 'rel' in attribute_dict \
                         and attribute_dict['rel'] == 'image_src':
-                    self.url = attribute_dict['href']
+                    self.url.append(attribute_dict['href'])
 
                 # Fallback to image that may only be 100x100px.
                 elif tag == 'img' \
                         and 'class' in attribute_dict \
                         and attribute_dict['class'] == "channel-header-profile-image":
-                    self.url = attribute_dict['src']
+                    self.url.append(attribute_dict['src'])
 
         try:
-            raw_xml_data = util.urlopen(url).read().decode('utf-8')
-            xml_data = xml.etree.ElementTree.fromstring(raw_xml_data)
-            channel_id = xml_data.find("{http://www.youtube.com/xml/schemas/2015}channelId").text
-            channel_url = 'https://www.youtube.com/channel/{}'.format(channel_id)
+            channel_url = get_channel_id_url(url)
             html_data = util.urlopen(channel_url).read().decode('utf-8')
             parser = YouTubeHTMLCoverParser()
             parser.feed(html_data)
             if parser.url:
                 logger.debug('Youtube cover art for {} is: {}'.format(url, parser.url))
-                return parser.url
+                return parser.url[0]
 
         except Exception:
             logger.warning('Could not retrieve cover art', exc_info=True)
+
+
+def get_channel_desc(url):
+    if 'youtube.com' in url:
+
+        class YouTubeHTMLDesc(HTMLParser):
+            """This custom html parser searches for the YouTube channel description."""
+            def __init__(self):
+                super().__init__()
+                self.description = ''
+
+            def handle_starttag(self, tag, attributes):
+                attribute_dict = {attribute[0]: attribute[1] for attribute in attributes}
+
+                # Get YouTube channel description.
+                if tag == 'meta' \
+                        and 'name' in attribute_dict \
+                        and attribute_dict['name'] == "description":
+                    self.description = attribute_dict['content']
+
+        try:
+            channel_url = get_channel_id_url(url)
+            html_data = util.urlopen(channel_url).read().decode('utf-8')
+            parser = YouTubeHTMLDesc()
+            parser.feed(html_data)
+            if parser.description:
+                logger.debug('YouTube description for {} is: {}'.format(url, parser.description))
+                return parser.description
+            else:
+                logger.debug('YouTube description for {} is not provided.')
+                return 'No description available.'
+
+        except Exception:
+            logger.warning('Could not retrieve YouTube channel description.', exc_info=True)
 
 
 def get_channels_for_user(username, api_key_v3):
