@@ -22,11 +22,11 @@ _ = gpodder.gettext
 logger = logging.getLogger(__name__)
 
 
-__title__ = 'youtube-dl'
+__title__ = 'Youtube-dl'
 __description__ = 'Manage Youtube subscriptions using youtube-dl (pip install youtube_dl)'
 __only_for__ = 'gtk, cli'
 __authors__ = 'Eric Le Lay <elelay.fr:contact>'
-__doc__ = 'https://github.com/gpodder/gpodder/blob/master/share/gpodder/extensions/youtube-dl.py'
+__doc__ = 'https://gpodder.github.io/docs/extensions/youtubedl.html'
 
 DefaultConfig = {
     # youtube-dl downloads and parses each video page to get informations about it, which is very slow.
@@ -299,7 +299,7 @@ class gPodderYoutubeDL(download.CustomDownloader):
                                                  ie_key=ie_result.get('ie_key'))
                 result_type, has_playlist = extract_type(ie_result)
         cover_url = youtube.get_cover(channel_url)  # youtube-dl doesn't provide the cover url!
-        description = youtube.get_channel_desc(channel_url) # youtube-dl doesn't provide the description!
+        description = youtube.get_channel_desc(channel_url)  # youtube-dl doesn't provide the description!
         return feedcore.Result(feedcore.UPDATED_FEED,
             YoutubeFeed(url, cover_url, description, max_episodes, ie_result, self))
 
