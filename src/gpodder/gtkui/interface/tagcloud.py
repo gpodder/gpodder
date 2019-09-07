@@ -18,7 +18,7 @@
 #
 
 
-import cgi
+import html
 
 from gi.repository import GObject, Gtk
 
@@ -50,7 +50,7 @@ class TagCloud(Gtk.Layout):
 
         for tag, weight in tags:
             label = Gtk.Label()
-            markup = '<span size="%d">%s</span>' % (1000 * self._scale(weight), cgi.escape(tag))
+            markup = '<span size="%d">%s</span>' % (1000 * self._scale(weight), html.escape(tag))
             label.set_markup(markup)
             button = Gtk.ToolButton(label)
             button.connect('clicked', lambda b, t: self.emit('selected', t), tag)
