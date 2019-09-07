@@ -17,8 +17,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import cgi
 import collections
+import html
 import logging
 import os
 import re
@@ -572,7 +572,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 message = str(e)
                 if not message:
                     message = e.__class__.__name__
-                self.show_message(message,
+                self.show_message(html.escape(message),
                         _('Error while uploading'),
                         important=True)
             util.idle_add(show_error, e)
@@ -1204,8 +1204,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return self.download_list_update_enabled
         except Exception as e:
             logger.error('Exception happened while updating download list.', exc_info=True)
-            self.show_message('%s\n\n%s' % (_('Please report this problem and restart gPodder:'),
-                                            str(e)), _('Unhandled exception'), important=True)
+            self.show_message(
+                '%s\n\n%s' % (_('Please report this problem and restart gPodder:'), html.escape(str(e))),
+                _('Unhandled exception'), important=True)
             # We return False here, so the update loop won't be called again,
             # that's why we require the restart of gPodder in the message.
             return False
@@ -1272,7 +1273,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     return False
                 error_str = model.get_value(iter, PodcastListModel.C_ERROR)
                 if error_str:
-                    error_str = _('Feedparser error: %s') % cgi.escape(error_str.strip())
+                    error_str = _('Feedparser error: %s') % html.escape(error_str.strip())
                     error_str = '<span foreground="#ff0000">%s</span>' % error_str
                 table = Gtk.Table(rows=3, columns=3)
                 table.set_row_spacings(5)
@@ -1281,7 +1282,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
                 heading = Gtk.Label()
                 heading.set_alignment(0, 1)
-                heading.set_markup('<b><big>%s</big></b>\n<small>%s</small>' % (cgi.escape(channel.title), cgi.escape(channel.url)))
+                heading.set_markup('<b><big>%s</big></b>\n<small>%s</small>' % (html.escape(channel.title), html.escape(channel.url)))
                 table.attach(heading, 0, 1, 0, 1)
 
                 table.attach(Gtk.HSeparator(), 0, 3, 1, 2)
@@ -1466,7 +1467,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if len(title) > MAX_TITLE_LENGTH:
                 middle = (MAX_TITLE_LENGTH // 2) - 2
                 title = '%s...%s' % (title[0:middle], title[-middle:])
-            result.append(cgi.escape(title))
+            result.append(html.escape(title))
             result.append('\n')
 
         more_episodes = len(episode_list) - max_episodes
@@ -2337,7 +2338,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if existing:
                 title = _('Existing subscriptions skipped')
                 message = _('You are already subscribed to these podcasts:') \
-                    + '\n\n' + '\n'.join(cgi.escape(url) for url in existing)
+                    + '\n\n' + '\n'.join(html.escape(url) for url in existing)
                 self.show_message(message, title, widget=self.treeChannels)
 
             # Report subscriptions that require authentication
@@ -2345,7 +2346,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if authreq:
                 for url in authreq:
                     title = _('Podcast requires authentication')
-                    message = _('Please login to %s:') % (cgi.escape(url),)
+                    message = _('Please login to %s:') % (html.escape(url),)
                     success, auth_tokens = self.show_login_dialog(title, message)
                     if success:
                         retry_podcasts[url] = auth_tokens
@@ -2373,7 +2374,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 title = _('Could not add some podcasts')
                 message = _('Some podcasts could not be added to your list:') \
                     + '\n\n' + '\n'.join(
-                        cgi.escape('%s: %s' % (
+                        html.escape('%s: %s' % (
                             url, error_messages.get(url, _('Unknown')))) for url in failed)
                 self.show_message(message, title, important=True)
 
@@ -2572,7 +2573,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     channel.update(max_episodes=self.config.max_episodes_per_feed)
                     self._update_cover(channel)
                 except Exception as e:
-                    d = {'title': cgi.escape(channel.title), 'url': cgi.escape(channel.url), 'message': cgi.escape(str(e))}
+                    d = {'title': html.escape(channel.title), 'url': html.escape(channel.url), 'message': html.escape(str(e))}
                     if d['message']:
                         message = _('Error while updating %(title)s at %(url)s: %(message)s')
                     else:
@@ -2957,7 +2958,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 try:
                     task = download.DownloadTask(episode, self.config)
                 except Exception as e:
-                    d = {'episode': episode.title, 'message': str(e)}
+                    d = {'episode': html.escape(episode.title), 'message': html.escape(str(e))}
                     message = _('Download error while downloading %(episode)s: %(message)s')
                     self.show_message(message % d, _('Download error'), important=True)
                     logger.error('While downloading %s', episode.title, exc_info=True)
@@ -3590,11 +3591,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     logger.info('New feed location: %s => %s', url, new_url)
                     podcast.url = new_url
                     podcast.save()
-                    migrated_users.append(user)
+                    migrated_users.append(html.escape(user))
                 except Exception as e:
                     logger.error('Exception happened while updating download list.', exc_info=True)
-                    self.show_message(_('Make sure the API key is correct. Error: %(message)s') % {'message': str(e)},
-                                      _('Error getting YouTube channels'), important=True)
+                    self.show_message(
+                        _('Make sure the API key is correct. Error: %(message)s') % {'message': html.escape(str(e))},
+                        _('Error getting YouTube channels'), important=True)
 
         if migrated_users:
             self.show_message('\n'.join(migrated_users), _('Successfully migrated subscriptions'))
@@ -3602,7 +3604,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.show_message(_('Subscriptions are up to date'))
 
         if failed_urls:
-            self.show_message('\n'.join([_('These URLs failed:'), ''] + ['{0}: {1}'.format(url, message)
+            self.show_message('\n'.join([_('These URLs failed:'), ''] + [html.escape('{0}: {1}'.format(url, message))
                                                                          for url, message in failed_urls]),
                               _('Could not migrate some subscriptions'), important=True)
 
