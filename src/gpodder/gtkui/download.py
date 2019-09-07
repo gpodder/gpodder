@@ -23,8 +23,8 @@
 #  Based on code from gpodder.services (thp, 2007-08-24)
 #
 
-import cgi
 import collections
+import html
 import threading
 
 from gi.repository import Gtk
@@ -55,8 +55,8 @@ class DownloadStatusModel(Gtk.ListStore):
         self._status_ids[download.DownloadTask.PAUSED] = 'media-playback-pause'
 
     def _format_message(self, episode, message, podcast):
-        episode = cgi.escape(episode)
-        podcast = cgi.escape(podcast)
+        episode = html.escape(episode)
+        podcast = html.escape(podcast)
         return '%s\n<small>%s - %s</small>' % (episode, message, podcast)
 
     def request_update(self, iter, task=None):

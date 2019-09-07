@@ -24,7 +24,7 @@
 #  Thomas Perl <thp@gpodder.org> 2009-03-31
 #
 
-import cgi
+import html
 
 from gi.repository import Gdk, GObject, Gtk, Pango
 
@@ -46,7 +46,7 @@ class SimpleMessageArea(Gtk.HBox):
         self.__label.set_alignment(0.0, 0.5)
         self.__label.set_line_wrap(False)
         self.__label.set_ellipsize(Pango.EllipsizeMode.END)
-        self.__label.set_markup('<b>%s</b>' % cgi.escape(message))
+        self.__label.set_markup('<b>%s</b>' % html.escape(message))
         self.pack_start(self.__label, True, True, 0)
 
         hbox = Gtk.HBox()

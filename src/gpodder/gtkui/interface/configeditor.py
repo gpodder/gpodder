@@ -17,7 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import cgi
+import html
 
 from gi.repository import Gtk
 
@@ -82,9 +82,9 @@ class gPodderConfigEditor(BuilderWidget):
 
         if not self._config.update_field(name, new_text):
             message = _('Cannot set %(field)s to %(value)s. Needed data type: %(datatype)s')
-            d = {'field': cgi.escape(name),
-                 'value': cgi.escape(new_text),
-                 'datatype': cgi.escape(type_cute)}
+            d = {'field': html.escape(name),
+                 'value': html.escape(new_text),
+                 'datatype': html.escape(type_cute)}
             self.notification(message % d, _('Error setting option'))
 
     def value_toggled(self, renderer, path):

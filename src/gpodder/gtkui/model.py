@@ -23,7 +23,7 @@
 #  Based on code from libpodcasts.py (thp, 2005-10-29)
 #
 
-import cgi
+import html
 import logging
 import os
 import re
@@ -54,8 +54,8 @@ class GEpisode(model.PodcastEpisode):
 
     @property
     def title_markup(self):
-        return '%s\n<small>%s</small>' % (cgi.escape(self.title),
-                          cgi.escape(self.channel.title))
+        return '%s\n<small>%s</small>' % (html.escape(self.title),
+                          html.escape(self.channel.title))
 
     @property
     def markup_new_episodes(self):
@@ -65,10 +65,10 @@ class GEpisode(model.PodcastEpisode):
             length_str = ''
         return ('<b>%s</b>\n<small>%s' + _('released %s') +
                 '; ' + _('from %s') + '</small>') % (
-                cgi.escape(re.sub('\s+', ' ', self.title)),
-                cgi.escape(length_str),
-                cgi.escape(self.pubdate_prop),
-                cgi.escape(re.sub('\s+', ' ', self.channel.title)))
+                html.escape(re.sub('\s+', ' ', self.title)),
+                html.escape(length_str),
+                html.escape(self.pubdate_prop),
+                html.escape(re.sub('\s+', ' ', self.channel.title)))
 
     @property
     def markup_delete_episodes(self):
@@ -83,11 +83,11 @@ class GEpisode(model.PodcastEpisode):
             downloaded_string = _('today')
         return ('<b>%s</b>\n<small>%s; %s; ' + _('downloaded %s') +
                 '; ' + _('from %s') + '</small>') % (
-                cgi.escape(self.title),
-                cgi.escape(util.format_filesize(self.file_size)),
-                cgi.escape(played_string),
-                cgi.escape(downloaded_string),
-                cgi.escape(self.channel.title))
+                html.escape(self.title),
+                html.escape(util.format_filesize(self.file_size)),
+                html.escape(played_string),
+                html.escape(downloaded_string),
+                html.escape(self.channel.title))
 
 
 class GPodcast(model.PodcastChannel):
@@ -274,20 +274,20 @@ class EpisodeListModel(Gtk.ListStore):
 
         if episode.state != gpodder.STATE_DELETED and episode.is_new:
             yield '<b>'
-            yield cgi.escape(title)
+            yield html.escape(title)
             yield '</b>'
         else:
-            yield cgi.escape(title)
+            yield html.escape(title)
 
         if include_description:
             yield '\n'
             if self._all_episodes_view:
-                yield _('from %s') % cgi.escape(episode.channel.title)
+                yield _('from %s') % html.escape(episode.channel.title)
             else:
                 description = episode.one_line_description()
                 if description.startswith(title):
                     description = description[len(title):].strip()
-                yield cgi.escape(description)
+                yield html.escape(description)
 
     def replace_from_channel(self, channel, include_description=False):
         """
@@ -712,11 +712,11 @@ class PodcastListModel(Gtk.ListStore):
 
     def _format_description(self, channel, total, deleted,
             new, downloaded, unplayed):
-        title_markup = cgi.escape(channel.title)
+        title_markup = html.escape(channel.title)
         if not channel.pause_subscription:
-            description_markup = cgi.escape(util.get_first_line(channel.description) or ' ')
+            description_markup = html.escape(util.get_first_line(channel.description) or ' ')
         else:
-            description_markup = cgi.escape(_('Subscription paused'))
+            description_markup = html.escape(_('Subscription paused'))
         d = []
         if new:
             d.append('<span weight="bold">')
@@ -854,7 +854,7 @@ class PodcastListModel(Gtk.ListStore):
             # We could customized the section header here with the list
             # of channels and their stats (i.e. add some "new" indicator)
             description = '<span size="16000"> </span><b>%s</b>' % (
-                    cgi.escape(section))
+                    html.escape(section))
 
             self.set(
                 iter,

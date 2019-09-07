@@ -17,7 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import cgi
+import html
 import logging
 import os
 import sys
@@ -161,7 +161,7 @@ class gPodderApplication(Gtk.Application):
                    copyright=gpodder.__copyright__,
                    license=gpodder.__license__,
                    bugs_url='https://github.com/gpodder/gpodder/issues',
-                   url=cgi.escape(gpodder.__url__),
+                   url=html.escape(gpodder.__url__),
                    tr_website=_('Website'),
                    tr_bugtracker=_('Bug Tracker')).strip().split('\n')))
 

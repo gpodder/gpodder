@@ -17,7 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import cgi
+import html
 import logging
 import urllib.parse
 
@@ -338,13 +338,13 @@ class gPodderPreferences(BuilderWidget):
         for category, container in sorted(convert(
                 gpodder.user_extensions.get_extensions()), key=key_func):
             if old_category != category:
-                label = '<span weight="bold">%s</span>' % cgi.escape(category)
+                label = '<span weight="bold">%s</span>' % html.escape(category)
                 self.extensions_model.append((None, label, None, False))
                 old_category = category
 
             label = '%s\n<small>%s</small>' % (
-                    cgi.escape(container.metadata.title),
-                    cgi.escape(container.metadata.description))
+                    html.escape(container.metadata.title),
+                    html.escape(container.metadata.description))
             self.extensions_model.append((container.enabled, label, container, True))
 
         self.treeviewExtensions.set_model(self.extensions_model)
@@ -432,7 +432,7 @@ class gPodderPreferences(BuilderWidget):
         # This is one ugly hack, but it displays the attributes of
         # the metadata object of the container..
         info = '\n'.join('<b>%s:</b> %s' %
-                         tuple(map(cgi.escape, list(map(str, (key, value)))))
+                         tuple(map(html.escape, list(map(str, (key, value)))))
                          for key, value in container.metadata.get_sorted())
 
         self.show_message(info, _('Extension module info'), important=True)
