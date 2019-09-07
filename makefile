@@ -66,7 +66,7 @@ unittest:
 ISORTOPTS := -rc -c share src/gpodder tools bin/* *.py
 lint:
 	pycodestyle share src/gpodder tools bin/* *.py
-	isort -q $(ISORTOPTS) || isort -vb $(ISORTOPTS)
+	isort -q $(ISORTOPTS) || isort -df $(ISORTOPTS)
 
 
 release: distclean

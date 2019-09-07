@@ -31,7 +31,7 @@ import urllib.parse
 import urllib.request
 
 import gpodder
-from gpodder import util
+from gpodder import registry, util
 
 logger = logging.getLogger(__name__)
 
@@ -49,6 +49,12 @@ DATA_COVERART_RE = re.compile(r'<url>(http:.+\.jpg)</url>')
 
 
 class EscapistError(BaseException): pass
+
+
+@registry.download_url.register
+def escapist_real_download_url(unused_config, episode):
+    res = get_real_download_url(episode.url)
+    return None if res == episode.url else res
 
 
 def get_real_download_url(url):

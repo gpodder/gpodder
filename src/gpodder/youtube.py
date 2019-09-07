@@ -28,9 +28,14 @@ import xml.etree.ElementTree
 from html.parser import HTMLParser
 from urllib.parse import parse_qs
 
-from gpodder import util
+import gpodder
+from gpodder import registry, util
 
 logger = logging.getLogger(__name__)
+
+
+_ = gpodder.gettext
+
 
 # http://en.wikipedia.org/wiki/YouTube#Quality_and_codecs
 # format id, (preferred ids, path(?), description) # video bitrate, audio bitrate
@@ -107,6 +112,13 @@ def get_fmt_ids(youtube_config):
             fmt_ids, path, description = format
 
     return fmt_ids
+
+
+@registry.download_url.register
+def youtube_real_download_url(config, episode):
+    fmt_ids = get_fmt_ids(config.youtube) if config else None
+    res = get_real_download_url(episode.url, fmt_ids)
+    return None if res == episode.url else res
 
 
 def get_real_download_url(url, preferred_fmt_ids=None):
@@ -317,11 +329,11 @@ def get_channel_desc(url):
             parser = YouTubeHTMLDesc()
             parser.feed(html_data)
             if parser.description:
-                logger.debug('YouTube description for {} is: {}'.format(url, parser.description))
+                logger.debug('YouTube description for %s is: %s', url, parser.description)
                 return parser.description
             else:
-                logger.debug('YouTube description for {} is not provided.')
-                return 'No description available.'
+                logger.debug('YouTube description for %s is not provided.', url)
+                return _('No description available')
 
         except Exception:
             logger.warning('Could not retrieve YouTube channel description.', exc_info=True)

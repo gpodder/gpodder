@@ -37,8 +37,8 @@ import time
 
 import gpodder
 import podcastparser
-from gpodder import (coverart, escapist_videos, feedcore, schema, util, vimeo,
-                     youtube)
+from gpodder import (coverart, escapist_videos, feedcore, registry, schema,
+                     util, vimeo, youtube)
 
 logger = logging.getLogger(__name__)
 
@@ -108,9 +108,15 @@ class PodcastParserFeed(Feed):
         return self.feed.get('title')
 
     def get_link(self):
+        vid = youtube.get_youtube_id(self.feed['url'])
+        if vid is not None:
+            self.feed['link'] = youtube.get_channel_id_url(self.feed['url'])
         return self.feed.get('link')
 
     def get_description(self):
+        vid = youtube.get_youtube_id(self.feed['url'])
+        if vid is not None:
+            self.feed['description'] = youtube.get_channel_desc(self.feed['url'])
         return self.feed.get('description')
 
     def get_cover_url(self):
@@ -177,13 +183,10 @@ class gPodderFetcher(feedcore.Fetcher):
     This class extends the feedcore Fetcher with the gPodder User-Agent and the
     Proxy handler based on the current settings in gPodder.
     """
-    custom_handlers = []
-
     def fetch_channel(self, channel, max_episodes):
-        for handler in self.custom_handlers:
-            custom_feed = handler.fetch_channel(channel, max_episodes)
-            if custom_feed is not None:
-                return custom_feed
+        custom_feed = registry.feed_handler.resolve(channel, None, max_episodes)
+        if custom_feed is not None:
+            return custom_feed
         # If we have a username or password, rebuild the url with them included
         # Note: using a HTTPBasicAuthHandler would be pain because we need to
         # know the realm. It can be done, but I think this method works, too
@@ -199,20 +202,6 @@ class gPodderFetcher(feedcore.Fetcher):
         url = escapist_videos.get_real_channel_url(url)
         return url
 
-    @classmethod
-    def register(cls, handler):
-        cls.custom_handlers.append(handler)
-
-    @classmethod
-    def unregister(cls, handler):
-        cls.custom_handlers.remove(handler)
-
-
-# The "register" method is exposed here for external usage
-register_custom_handler = gPodderFetcher.register
-
-# The "unregister" method is exposed here for external usage
-unregister_custom_handler = gPodderFetcher.unregister
 
 # Our podcast model:
 #
@@ -494,7 +483,7 @@ class PodcastEpisode(PodcastModelObject):
 
         self.set_state(gpodder.STATE_DELETED)
 
-    def get_playback_url(self, fmt_ids=None, vimeo_fmt=None, allow_partial=False):
+    def get_playback_url(self, config=None, allow_partial=False):
         """Local (or remote) playback/streaming filename/URL
 
         Returns either the local filename or a streaming URL that
@@ -510,11 +499,8 @@ class PodcastEpisode(PodcastModelObject):
             return url + '.partial'
 
         if url is None or not os.path.exists(url):
-            url = self.url
-            url = youtube.get_real_download_url(url, fmt_ids)
-            url = vimeo.get_real_download_url(url, vimeo_fmt)
-            url = escapist_videos.get_real_download_url(url)
-
+            # FIXME: may custom downloaders provide the real url ?
+            url = registry.download_url.resolve(config, self.url, self)
         return url
 
     def find_unique_file_name(self, filename, extension):
@@ -1027,10 +1013,6 @@ class PodcastChannel(PodcastModelObject):
         self._consume_updated_title(title)
         self.link = link
         self.description = description
-        vid = youtube.get_youtube_id(self.url)
-        if vid is not None:
-            self.description = youtube.get_channel_desc(self.url)
-            self.link = youtube.get_channel_id_url(self.url)
         self.cover_url = cover_url
         self.payment_url = payment_url
         self.save()
