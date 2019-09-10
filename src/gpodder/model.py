@@ -1064,7 +1064,10 @@ class PodcastChannel(PodcastModelObject):
                 for e in new_episodes:
                     existing_guids[e.guid] = e
                 next_new_episodes, next_seen_guids = next_feed.get_new_episodes(self, existing_guids)
-                logger.debug("next page has %i new episodes", len(next_new_episodes))
+                logger.debug("next page has %i new episodes, %i seen episodes", len(next_new_episodes), len(next_seen_guids))
+                if not next_seen_guids:
+                    logger.debug("breaking out of get_next_page loop because no episode in this page")
+                    break
                 next_max_episodes -= len(next_seen_guids)
                 new_episodes += next_new_episodes
                 seen_guids = seen_guids.union(next_seen_guids)
