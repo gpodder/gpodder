@@ -119,7 +119,7 @@ share/man/man1/gpo.1: src/gpodder/__init__.py
 messages: $(MOFILES)
 
 %.po: $(MESSAGES)
-	msgmerge --silent $@ $< --output-file=$@
+	msgmerge --previous --silent $@ $< --output-file=$@
 	msgattrib --set-obsolete --ignore-file=$< -o $@ $@
 	msgattrib --no-obsolete -o $@ $@
 
