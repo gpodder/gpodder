@@ -10,7 +10,7 @@ import re
 import time
 
 import youtube_dl
-from youtube_dl.utils import sanitize_url
+from youtube_dl.utils import DownloadError, sanitize_url
 
 import gpodder
 from gpodder import download, feedcore, model, registry, youtube
@@ -71,6 +71,7 @@ class YoutubeCustomDownload(download.CustomDownload):
         self._ytdl = ytdl
         self._url = url
         self._reporthook = None
+        self._prev_dl_bytes = 0
 
     def retrieve_resume(self, tempname, reporthook=None):
         """
@@ -81,9 +82,21 @@ class YoutubeCustomDownload(download.CustomDownload):
         headers = {}
         # youtube-dl doesn't return a content-type but an extension
         if 'ext' in res:
-            ext_filetype = mimetype_from_extension('.{}'.format(res['ext']))
+            dot_ext = '.{}'.format(res['ext'])
+            ext_filetype = mimetype_from_extension(dot_ext)
             if ext_filetype:
                 headers['content-type'] = ext_filetype
+            # See #673 when merging multiple formats, the extension is appended to the tempname
+            # by YoutubeDL resulting in empty .partial file + .partial.mp4 exists
+            tempstat = os.stat(tempname)
+            if not tempstat.st_size:
+                tempname_with_ext = tempname + dot_ext
+                if os.path.isfile(tempname_with_ext):
+                    logger.debug('Youtubedl downloaded to %s instead of %s, moving',
+                                 os.path.basename(tempname),
+                                 os.path.basename(tempname_with_ext))
+                    os.remove(tempname)
+                    os.rename(tempname_with_ext, tempname)
         return headers, res.get('url', self._url)
 
     def _my_hook(self, d):
@@ -91,11 +104,14 @@ class YoutubeCustomDownload(download.CustomDownload):
             if self._reporthook:
                 dl_bytes = d['downloaded_bytes']
                 total_bytes = d.get('total_bytes') or d.get('total_bytes_estimate') or 0
-                self._reporthook(dl_bytes, 1, total_bytes)
+                self._reporthook(self._prev_dl_bytes + dl_bytes,
+                                 1,
+                                 self._prev_dl_bytes + total_bytes)
         elif d['status'] == 'finished':
+            dl_bytes = d['downloaded_bytes']
+            self._prev_dl_bytes += dl_bytes
             if self._reporthook:
-                dl_bytes = d['downloaded_bytes']
-                self._reporthook(dl_bytes, 1, dl_bytes)
+                self._reporthook(self._prev_dl_bytes, 1, self._prev_dl_bytes)
         elif d['status'] == 'error':
             logger.error('download hook error: %r', d)
         else:
@@ -225,7 +241,7 @@ class gPodderYoutubeDL(download.CustomDownloader):
             'no_color': True,  # prevent escape codes in desktop notifications on errors
         }
 
-    def add_format(self, gpodder_config, opts):
+    def add_format(self, gpodder_config, opts, fallback=None):
         """ construct youtube-dl -f argument from configured format. """
         # You can set a custom format or custom formats by editing the config for key
         # `youtube.preferred_fmt_ids`
@@ -238,6 +254,8 @@ class gPodderYoutubeDL(download.CustomDownloader):
         # about youtube-dl format specification.
         fmt_ids = youtube.get_fmt_ids(gpodder_config.youtube)
         opts['format'] = '/'.join(str(fmt) for fmt in fmt_ids)
+        if fallback:
+            opts['format'] += '/' + fallback
 
     def fetch_video(self, url, tempname, reporthook):
         opts = {
@@ -257,10 +275,13 @@ class gPodderYoutubeDL(download.CustomDownloader):
             'skip_download': True,  # don't download the video
             'youtube_include_dash_manifest': False,  # don't download the DASH manifest
         }
-        self.add_format(self.gpodder_config, opts)
+        self.add_format(self.gpodder_config, opts, fallback='18')
         opts.update(self._ydl_opts)
-        with youtube_dl.YoutubeDL(opts) as ydl:
-            ydl.process_ie_result(ie_result, download=False)
+        try:
+            with youtube_dl.YoutubeDL(opts) as ydl:
+                ydl.process_ie_result(ie_result, download=False)
+        except DownloadError:
+            logger.exception('refreshing %r', ie_result)
 
     def refresh(self, url, channel_url, max_episodes):
         """
