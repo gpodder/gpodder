@@ -194,16 +194,22 @@ class YoutubeFeed(model.Feed):
                 mime_type = mimetype_from_extension('.{}'.format(en['ext']))
             else:
                 mime_type = 'application/octet-stream'
+            if en.get('filesize'):
+                filesize = int(en['filesize'] or 0)
+            else:
+                filesize = sum(int(f.get('filesize') or 0)
+                               for f in en.get('requested_formats', []))
             ep = {
                 'title': en.get('title', guid),
                 'link': en.get('webpage_url'),
                 'description': description,
                 'description_html': html_description,
                 'url': en.get('webpage_url'),
-                'file_size': int(en.get('filesize') or 0),
+                'file_size': filesize,
                 'mime_type': mime_type,
                 'guid': guid,
                 'published': youtube_parsedate(en.get('upload_date', None)),
+                'total_time': int(en.get('duration') or 0),
             }
             episode = channel.episode_factory(ep)
             episode.save()
