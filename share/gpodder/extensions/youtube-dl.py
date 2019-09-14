@@ -133,12 +133,22 @@ class YoutubeFeed(model.Feed):
 
     def _process_entries(self, entries):
         filtered_entries = []
-        for e in entries:  # consumes the generator!
+        seen_guids = set()
+        for i, e in enumerate(entries):  # consumes the generator!
             if e.get('_type', 'video') == 'url' and e.get('ie_key') == 'Youtube':
-                e['guid'] = video_guid(e['id'])
-                filtered_entries.append(e)
+                guid = video_guid(e['id'])
+                e['guid'] = guid
+                if guid in seen_guids:
+                    logger.debug('dropping already seen entry %s title="%s"', guid, e.get('title'))
+                else:
+                    filtered_entries.append(e)
+                    seen_guids.add(guid)
             else:
                 logger.debug('dropping entry not youtube video %r', e)
+            if len(filtered_entries) == self._max_episodes:
+                # entries is a generator: stopping now prevents it to download more pages
+                logger.debug('stopping entry enumeration')
+                break
         return filtered_entries
 
     def get_title(self):
