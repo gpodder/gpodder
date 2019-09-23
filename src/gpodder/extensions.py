@@ -619,3 +619,14 @@ class ExtensionManager(object):
         It is called after on_ui_object_available and on_ui_initialized.
         """
         pass
+
+    @call_extensions
+    def on_find_partial_downloads_done(self):
+        """Called when the application started and the lookout for resume is done
+
+        This is mainly for extensions scheduling refresh or downloads at startup,
+        to prevent race conditions with the find_partial_downloads method.
+
+        It is called after on_application_started.
+        """
+        pass

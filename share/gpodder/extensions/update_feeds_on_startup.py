@@ -31,6 +31,6 @@ class gPodderExtension:
         if name == 'gpodder-gtk':
             self.gpodder = ui_object
 
-    def on_application_started(self):
+    def on_find_partial_downloads_done(self):
         if self.gpodder:
             self.gpodder.update_feed_cache()

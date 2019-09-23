@@ -372,6 +372,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     self.vboxDownloadStatusWidgets.attach(self.message_area, 0, -1, 1, 1)
                     self.message_area.show_all()
                     common.clean_up_downloads(delete_partial=False)
+                    logger.debug("find_partial_downloads done, calling extensions")
+                    gpodder.user_extensions.on_find_partial_downloads_done()
                 util.idle_add(offer_resuming)
             else:
                 util.idle_add(self.wNotebook.set_current_page, 0)
