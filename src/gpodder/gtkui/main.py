@@ -334,26 +334,24 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def find_partial_downloads(self):
         def start_progress_callback(count):
-            self.partial_downloads_indicator = ProgressIndicator(
-                    _('Loading incomplete downloads'),
-                    _('Some episodes have not finished downloading in a previous session.'),
-                    False, self.get_dialog_parent())
-            self.partial_downloads_indicator.on_message(N_(
-                '%(count)d partial file', '%(count)d partial files',
-                count) % {'count': count})
+            if count:
+                self.partial_downloads_indicator = ProgressIndicator(
+                        _('Loading incomplete downloads'),
+                        _('Some episodes have not finished downloading in a previous session.'),
+                        False, self.get_dialog_parent())
+                self.partial_downloads_indicator.on_message(N_(
+                    '%(count)d partial file', '%(count)d partial files',
+                    count) % {'count': count})
 
-            util.idle_add(self.wNotebook.set_current_page, 1)
+                util.idle_add(self.wNotebook.set_current_page, 1)
 
         def progress_callback(title, progress):
             self.partial_downloads_indicator.on_message(title)
             self.partial_downloads_indicator.on_progress(progress)
 
         def finish_progress_callback(resumable_episodes):
-            util.idle_add(self.partial_downloads_indicator.on_finished)
-            self.partial_downloads_indicator = None
-
-            if resumable_episodes:
-                def offer_resuming():
+            def offer_resuming():
+                if resumable_episodes:
                     self.download_episode_list_paused(resumable_episodes)
                     resume_all = Gtk.Button(_('Resume all'))
 
@@ -371,12 +369,15 @@ class gPodder(BuilderWidget, dbus.service.Object):
                             (resume_all,))
                     self.vboxDownloadStatusWidgets.attach(self.message_area, 0, -1, 1, 1)
                     self.message_area.show_all()
-                    common.clean_up_downloads(delete_partial=False)
-                    logger.debug("find_partial_downloads done, calling extensions")
-                    gpodder.user_extensions.on_find_partial_downloads_done()
-                util.idle_add(offer_resuming)
-            else:
-                util.idle_add(self.wNotebook.set_current_page, 0)
+                else:
+                    util.idle_add(self.wNotebook.set_current_page, 0)
+                logger.debug("find_partial_downloads done, calling extensions")
+                gpodder.user_extensions.on_find_partial_downloads_done()
+
+            if self.partial_downloads_indicator:
+                util.idle_add(self.partial_downloads_indicator.on_finished)
+                self.partial_downloads_indicator = None
+            util.idle_add(offer_resuming)
 
         common.find_partial_downloads(self.channels,
                 start_progress_callback,

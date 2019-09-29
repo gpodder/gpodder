@@ -57,8 +57,8 @@ def find_partial_downloads(channels, start_progress_callback, progress_callback,
     partial_files = glob.glob(os.path.join(gpodder.downloads, '*', '*.partial'))
     count = len(partial_files)
     resumable_episodes = []
+    start_progress_callback(count)
     if count:
-        start_progress_callback(count)
         candidates = [f[:-len('.partial')] for f in partial_files]
         found = 0
 
@@ -88,9 +88,10 @@ def find_partial_downloads(channels, start_progress_callback, progress_callback,
             logger.warn('Partial file without episode: %s', f)
             util.delete_file(f)
 
-        finish_progress_callback(resumable_episodes)
-    else:
-        clean_up_downloads(True)
+    # never delete partial: either we can't clean them up because we offer to
+    # resume download or there are none to delete in the first place.
+    clean_up_downloads(delete_partial=False)
+    finish_progress_callback(resumable_episodes)
 
 
 def get_expired_episodes(channels, config):
