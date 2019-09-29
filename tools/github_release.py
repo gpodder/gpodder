@@ -181,8 +181,8 @@ def upload(repo, tag, previous_tag, circleci, appveyor):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='upload gpodder-osx-bundle artifacts to a github release\n'
         'Example usage: \n'
-        '    GITHUB_TOKEN=xxx python github_release.py --download --circleci-build 171 --appveyor-build 1.0.104 3.10.4\n'
-        '    GITHUB_TOKEN=xxx python github_release.py --circleci-build 171 --appveyor-build 1.0.104 3.10.4\n',
+        '    GITHUB_TOKEN=xxx python github_release.py --download --circleci 171 --appveyor 1.0.104 3.10.4\n'
+        '    GITHUB_TOKEN=xxx python github_release.py --circleci 171 --appveyor 1.0.104 3.10.4\n',
         formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('tag', type=str,
                         help='gPodder git tag to create a release from')
