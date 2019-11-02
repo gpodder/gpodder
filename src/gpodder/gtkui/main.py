@@ -2848,9 +2848,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
             episode.mark(is_played=episode.is_new)
         self.on_selected_episodes_status_changed()
 
-    def on_item_toggle_lock_activate(self, widget, toggle=True, new_value=False):
+    def on_item_toggle_lock_activate(self, unused, toggle=True, new_value=False):
         for episode in self.get_selected_episodes():
-            if toggle:
+            # Gio.SimpleAction activate signal passes None (see #681)
+            if toggle or toggle is None:
                 episode.mark(is_locked=not episode.archive)
             else:
                 episode.mark(is_locked=new_value)
