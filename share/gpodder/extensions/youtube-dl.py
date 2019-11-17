@@ -279,6 +279,7 @@ class gPodderYoutubeDL(download.CustomDownloader):
         opts['format'] = '/'.join(str(fmt) for fmt in fmt_ids)
         if fallback:
             opts['format'] += '/' + fallback
+        logger.debug('format=%s', opts['format'])
 
     def fetch_video(self, url, tempname, reporthook):
         opts = {
