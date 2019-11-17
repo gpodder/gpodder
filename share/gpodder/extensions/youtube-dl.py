@@ -7,6 +7,7 @@
 import logging
 import os
 import re
+import sys
 import time
 
 import youtube_dl
@@ -256,6 +257,12 @@ class gPodderYoutubeDL(download.CustomDownloader):
             'cachedir': cachedir,
             'no_color': True,  # prevent escape codes in desktop notifications on errors
         }
+        # #686 on windows without a console, sys.stdout is None, causing exceptions
+        # when adding podcasts.
+        # See https://docs.python.org/3/library/sys.html#sys.__stderr__ Note
+        if not sys.stdout:
+            logger.debug('no stdout, setting YoutubeDL logger')
+            self._ydl_opts['logger'] = logger
 
     def add_format(self, gpodder_config, opts, fallback=None):
         """ construct youtube-dl -f argument from configured format. """
