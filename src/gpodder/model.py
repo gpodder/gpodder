@@ -1339,7 +1339,7 @@ class Model(object):
 
     def _remove_podcast(self, podcast):
         self.children.remove(podcast)
-        gpodder.user_extensions.on_podcast_delete(self)
+        gpodder.user_extensions.on_podcast_delete(podcast)
 
     def get_podcasts(self):
         def podcast_factory(dct, db):
