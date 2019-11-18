@@ -156,7 +156,8 @@ class UIConfig(config.Config):
         if gpodder.ui.win32:
             window.set_gravity(Gdk.Gravity.STATIC)
 
-        window.resize(cfg.width, cfg.height)
+        if cfg.width != -1 and cfg.height != -1:
+            window.resize(cfg.width, cfg.height)
         if cfg.x == -1 or cfg.y == -1:
             window.set_position(Gtk.WindowPosition.CENTER_ON_PARENT)
         else:

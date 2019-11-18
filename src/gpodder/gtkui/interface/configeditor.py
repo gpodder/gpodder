@@ -65,6 +65,8 @@ class gPodderConfigEditor(BuilderWidget):
         self.configeditor.set_model(self.filter)
         self.configeditor.set_rules_hint(True)
 
+        self._config.connect_gtk_window(self.main_window, 'config_editor', True)
+
     def visible_func(self, model, iter, user_data=None):
         text = self.entryFilter.get_text().lower()
         if text == '':

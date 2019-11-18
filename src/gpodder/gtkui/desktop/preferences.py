@@ -287,7 +287,8 @@ class gPodderPreferences(BuilderWidget):
 
         # Configure the extensions manager GUI
         self.set_extension_preferences()
-        self.main_window.show()
+
+        self._config.connect_gtk_window(self.main_window, 'preferences', True)
 
     def _extensions_select_function(self, selection, model, path, path_currently_selected):
         return model.get_value(model.get_iter(path), self.C_SHOW_TOGGLE)
