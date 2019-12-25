@@ -3144,11 +3144,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if len(channels) == 1:
             title = _('Deleting podcast')
             info = _('Please wait while the podcast is deleted')
-            message = _('This podcast and all its episodes will be PERMANENTLY DELETED.\r\nAre you sure you want to continue?')
+            message = _('This podcast and all its episodes will be PERMANENTLY DELETED.\nAre you sure you want to continue?')
         else:
             title = _('Deleting podcasts')
             info = _('Please wait while the podcasts are deleted')
-            message = _('These podcasts and all their episodes will be PERMANENTLY DELETED.\r\nAre you sure you want to continue?')
+            message = _('These podcasts and all their episodes will be PERMANENTLY DELETED.\nAre you sure you want to continue?')
 
         if confirm and not self.show_confirmation(message, title):
             return
