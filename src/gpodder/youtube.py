@@ -183,6 +183,9 @@ def get_real_download_url(url, preferred_fmt_ids=None):
         fmt_id_url_map = sorted(find_urls(page), reverse=True)
 
         if not fmt_id_url_map:
+            drm = re.search('%22cipher%22%3A', page)
+            if drm is not None:
+                raise YouTubeError('Unsupported DRM content found for video ID "%s"' % vid)
             raise YouTubeError('No formats found for video ID "%s"' % vid)
 
         # Default to the highest fmt_id if we don't find a match below
