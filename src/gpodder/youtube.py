@@ -142,34 +142,48 @@ def get_real_download_url(url, preferred_fmt_ids=None):
         # (http://forum.videohelp.com/topic336882-1800.html#1912972)
 
         def find_urls(page):
+            # streamingData is preferable to url_encoded_fmt_stream_map
+            # streamingData.formats are the same as url_encoded_fmt_stream_map
+            # streamingData.adaptiveFormats are audio-only and video-only formats
+            x = parse_qs(page)
+
+            if 'reason' in x:
+                error_message = util.remove_html_tags(x['reason'][0])
+            elif 'player_response' in x:
+                player_response = json.loads(x['player_response'][0])
+
+                if 'reason' in player_response['playabilityStatus']:
+                    error_message = util.remove_html_tags(player_response['playabilityStatus']['reason'])
+                elif 'live_playback' in x:
+                    error_message = 'live stream'
+                elif 'post_live_playback' in x:
+                    error_message = 'post live stream'
+                elif 'streamingData' in player_response:
+                    # DRM videos store url inside a cipher key - not supported
+                    if 'formats' in player_response['streamingData']:
+                        for f in player_response['streamingData']['formats']:
+                            if 'url' in f:
+                                yield int(f['itag']), f['url']
+                    if 'adaptiveFormats' in player_response['streamingData']:
+                        for f in player_response['streamingData']['adaptiveFormats']:
+                            if 'url' in f:
+                                yield int(f['itag']), f['url']
+                    return
+
+            if error_message:
+                raise YouTubeError('Cannot download video: %s' % error_message)
+
             r4 = re.search('url_encoded_fmt_stream_map=([^&]+)', page)
             if r4 is not None:
                 fmt_url_map = urllib.parse.unquote(r4.group(1))
                 for fmt_url_encoded in fmt_url_map.split(','):
                     video_info = parse_qs(fmt_url_encoded)
                     yield int(video_info['itag'][0]), video_info['url'][0]
-            else:
-                error_info = parse_qs(page)
-                if 'reason' in error_info:
-                    error_message = util.remove_html_tags(error_info['reason'][0])
-                elif 'player_response' in error_info:
-                    player_response = json.loads(error_info['player_response'][0])
-                    if 'reason' in player_response['playabilityStatus']:
-                        error_message = util.remove_html_tags(player_response['playabilityStatus']['reason'])
-                    elif 'live_playback' in error_info:
-                        error_message = 'live stream'
-                    elif 'post_live_playback' in error_info:
-                        error_message = 'post live stream'
-                    else:
-                        error_message = ''
-                else:
-                    error_message = ''
-                raise YouTubeError('Cannot download video: %s' % error_message)
 
         fmt_id_url_map = sorted(find_urls(page), reverse=True)
 
         if not fmt_id_url_map:
-            raise YouTubeError('fmt_url_map not found for video ID "%s"' % vid)
+            raise YouTubeError('No formats found for video ID "%s"' % vid)
 
         # Default to the highest fmt_id if we don't find a match below
         _, url = fmt_id_url_map[0]
