@@ -1,26 +1,25 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
+# Italian translation of the GPODDER package.
+# Copyright (C) 2019 THE GPODDER'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the GPODDER package.
 #
 # Translators:
-#   <alessandrocampidori@gmail.com>, 2012.
+# Marco Ciampa <ciampix@posteo.net>, 2019.
+# Alessandro Campidori  <alessandrocampidori@gmail.com>, 2012.
 # Andrea Scarpino <andrea@archlinux.org>, 2011.
 # Thomas Perl <thp@perli.net>, 2006.
 msgid ""
 msgstr ""
 "Project-Id-Version: gPodder\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-09-29 21:31+0200\n"
-"PO-Revision-Date: 2013-04-23 17:31+0100\n"
+"POT-Creation-Date: 2019-12-25 17:44+0100\n"
+"PO-Revision-Date: 2019-12-26 17:47+0100\n"
 "Last-Translator: Maurizio Ballo <xmaurizio.13@hotmail.com>\n"
-"Language-Team: Italian (http://www.transifex.com/projects/p/gpodder/language/"
-"it/)\n"
+"Language-Team: Italian (http://www.transifex.com/projects/p/gpodder/language/it/)\n"
 "Language: it\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 1.5.4\n"
 
 #: src/gpodder/config.py:54
 #, python-format
@@ -66,7 +65,7 @@ msgstr "La playlist sul lettore MP3 è stata aggiornata."
 
 #: src/gpodder/syncui.py:270 src/gpodder/gtkui/main.py:850
 #: src/gpodder/gtkui/main.py:976 src/gpodder/gtkui/main.py:2794
-#: src/gpodder/gtkui/main.py:2997
+#: src/gpodder/gtkui/main.py:2998
 #: src/gpodder/gtkui/desktop/episodeselector.py:127
 msgid "Episode"
 msgstr "Episodio"
@@ -81,9 +80,60 @@ msgstr "Errore di scrittura playlist"
 
 #: src/gpodder/youtube.py:336 src/gpodder/model.py:468
 #: src/gpodder/plugins/soundcloud.py:174
-#: share/gpodder/extensions/youtube-dl.py:191
+#: share/gpodder/extensions/youtube-dl.py:192
 msgid "No description available"
 msgstr "Nessuna descrizione disponibile"
+
+#: src/gpodder/model.py:702
+msgid "unknown"
+msgstr "sconosciuto"
+
+#: src/gpodder/model.py:744 src/gpodder/sync.py:959 src/gpodder/download.py:551
+msgid "Finished"
+msgstr "Completato"
+
+#: src/gpodder/model.py:773
+msgid "Default"
+msgstr "Predefinito"
+
+#: src/gpodder/model.py:774
+msgid "Only keep latest"
+msgstr "Tieni solo i più recenti"
+
+#: src/gpodder/model.py:808 src/gpodder/model.py:1219
+#: src/gpodder/extensions.py:59
+msgid "Other"
+msgstr "Altro"
+
+#: src/gpodder/model.py:1202 src/gpodder/model.py:1217
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:10
+msgid "Video"
+msgstr "Video"
+
+#: src/gpodder/model.py:1215
+msgid "Audio"
+msgstr "Audio"
+
+#: src/gpodder/model.py:1394
+#, python-format
+msgid ""
+"Warning: path to gPodder home (%(root)s) is very long and can result in "
+"failure to download files.\n"
+msgstr "Attenzione: il percorso verso la home di gPodder (%(root)s) è molto lungo è può provocare il fallimento dello scaricamento di file.\n"
+
+#: src/gpodder/model.py:1396
+msgid "You're advised to set it to a shorter path."
+msgstr "Si consiglia di accorciare il percorso."
+
+#: src/gpodder/my.py:178
+#, python-format
+msgid "Add %s"
+msgstr "Aggiungi %s"
+
+#: src/gpodder/my.py:180
+#, python-format
+msgid "Remove %s"
+msgstr "Elimina %s"
 
 #: src/gpodder/util.py:443
 #, python-format
@@ -138,69 +188,15 @@ msgstr "La cartella %s non può essere creata."
 msgid "Error writing playlist"
 msgstr "Errore scrittura playlist"
 
-#: src/gpodder/download.py:370 bin/gpo:319
-msgid "Wrong username/password"
-msgstr "Nome utente o password errati"
-
-#: src/gpodder/download.py:550 src/gpodder/sync.py:958
-msgid "Added"
-msgstr "Aggiunto"
-
-#: src/gpodder/download.py:550 src/gpodder/sync.py:958
-msgid "Queued"
-msgstr "In coda"
-
-#: src/gpodder/download.py:550 src/gpodder/gtkui/model.py:372
-msgid "Downloading"
-msgstr "Download in corso"
-
-#: src/gpodder/download.py:551 src/gpodder/model.py:744 src/gpodder/sync.py:959
-msgid "Finished"
-msgstr "Completato"
-
-#: src/gpodder/download.py:551 src/gpodder/sync.py:959
-msgid "Failed"
-msgstr "Fallito"
-
-#: src/gpodder/download.py:551 src/gpodder/sync.py:959
-msgid "Cancelled"
-msgstr "Annullato"
-
-#: src/gpodder/download.py:551 src/gpodder/sync.py:959
-msgid "Paused"
-msgstr "In pausa"
-
-#: src/gpodder/download.py:899
-msgid "Missing content from server"
-msgstr "Contenuti mancanti dal server"
-
-#: src/gpodder/download.py:905
-#, python-format
-msgid "I/O Error: %(error)s: %(filename)s"
-msgstr "Errore I/O: %(error)s: %(filename)s"
-
-#: src/gpodder/download.py:912
-#, python-format
-msgid "HTTP Error %(code)s: %(message)s"
-msgstr "Errore HTTP %(code)s: %(message)s"
-
-#: src/gpodder/download.py:916 src/gpodder/sync.py:1114
-#, python-format
-msgid "Error: %s"
-msgstr "Errore: %s"
-
 #: src/gpodder/directory.py:97
-#, fuzzy
 msgid "gpodder.net search"
-msgstr "gpodder.net"
+msgstr "ricerca su gpodder.net"
 
 #: src/gpodder/directory.py:107
-#, fuzzy
 msgid "OPML from web"
-msgstr "File OPML"
+msgstr "OPML dal web"
 
 #: src/gpodder/directory.py:117
-#, fuzzy
 msgid "OPML file"
 msgstr "File OPML"
 
@@ -209,61 +205,20 @@ msgid "Getting started"
 msgstr "Operazioni iniziali"
 
 #: src/gpodder/directory.py:137
-#, fuzzy
 msgid "gpodder.net Top 50"
-msgstr "gpodder.net"
+msgstr "Top 50 su gpodder.net"
 
 #: src/gpodder/directory.py:147
-#, fuzzy
 msgid "gpodder.net Tags"
-msgstr "gpodder.net"
+msgstr "Tag di gpodder.net"
 
 #: src/gpodder/directory.py:160
-#, fuzzy
 msgid "Soundcloud search"
-msgstr "%s su Soundcloud"
+msgstr "Ricerca su Soundcloud"
 
 #: src/gpodder/directory.py:174
-#, fuzzy
 msgid "Imported OPML file"
-msgstr "Importa da file OPML"
-
-#: src/gpodder/model.py:702
-msgid "unknown"
-msgstr "sconosciuto"
-
-#: src/gpodder/model.py:773
-msgid "Default"
-msgstr "Predefinito"
-
-#: src/gpodder/model.py:774
-msgid "Only keep latest"
-msgstr "Tieni solo i più recenti"
-
-#: src/gpodder/model.py:808 src/gpodder/model.py:1219
-#: src/gpodder/extensions.py:59
-msgid "Other"
-msgstr "Altro"
-
-#: src/gpodder/model.py:1202 src/gpodder/model.py:1217
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:10
-msgid "Video"
-msgstr "Video"
-
-#: src/gpodder/model.py:1215
-msgid "Audio"
-msgstr "Audio"
-
-#: src/gpodder/model.py:1394
-#, python-format
-msgid ""
-"Warning: path to gPodder home (%(root)s) is very long and can result in "
-"failure to download files.\n"
-msgstr ""
-
-#: src/gpodder/model.py:1396
-msgid "You're advised to set it to a shorter path."
-msgstr ""
+msgstr "Importato file OPML"
 
 #: src/gpodder/sync.py:238
 msgid "Cancelled by user"
@@ -318,7 +273,7 @@ msgstr "Lettore MP3 aperto"
 #, python-format
 msgid ""
 "Not enough space in %(path)s: %(free)s available, but need at least %(need)s"
-msgstr ""
+msgstr "Non c'è abbastanza spazio in %(path)s: sono disponibili %(free)s, ma servono almeno %(need)s"
 
 #: src/gpodder/sync.py:626 src/gpodder/sync.py:634
 #, python-format
@@ -353,19 +308,56 @@ msgstr "%s chiuso"
 msgid "Adding %s..."
 msgstr "Aggiunta di %s..."
 
+#: src/gpodder/sync.py:958 src/gpodder/download.py:550
+msgid "Added"
+msgstr "Aggiunto"
+
+#: src/gpodder/sync.py:958 src/gpodder/download.py:550
+msgid "Queued"
+msgstr "In coda"
+
 #: src/gpodder/sync.py:958
 msgid "Synchronizing"
 msgstr "Sincronizzazione"
 
-#: src/gpodder/my.py:178
-#, python-format
-msgid "Add %s"
-msgstr "Aggiungi %s"
+#: src/gpodder/sync.py:959 src/gpodder/download.py:551
+msgid "Failed"
+msgstr "Fallito"
 
-#: src/gpodder/my.py:180
+#: src/gpodder/sync.py:959 src/gpodder/download.py:551
+msgid "Cancelled"
+msgstr "Annullato"
+
+#: src/gpodder/sync.py:959 src/gpodder/download.py:551
+msgid "Paused"
+msgstr "In pausa"
+
+#: src/gpodder/sync.py:1114 src/gpodder/download.py:916
 #, python-format
-msgid "Remove %s"
-msgstr "Elimina %s"
+msgid "Error: %s"
+msgstr "Errore: %s"
+
+#: src/gpodder/download.py:370 bin/gpo:319
+msgid "Wrong username/password"
+msgstr "Nome utente o password errati"
+
+#: src/gpodder/download.py:550 src/gpodder/gtkui/model.py:372
+msgid "Downloading"
+msgstr "Download in corso"
+
+#: src/gpodder/download.py:899
+msgid "Missing content from server"
+msgstr "Contenuti mancanti dal server"
+
+#: src/gpodder/download.py:905
+#, python-format
+msgid "I/O Error: %(error)s: %(filename)s"
+msgstr "Errore I/O: %(error)s: %(filename)s"
+
+#: src/gpodder/download.py:912
+#, python-format
+msgid "HTTP Error %(code)s: %(message)s"
+msgstr "Errore HTTP %(code)s: %(message)s"
 
 #: src/gpodder/extensions.py:55
 msgid "Desktop Integration"
@@ -412,17 +404,16 @@ msgid "About gPodder"
 msgstr "Info su gPodder"
 
 #: src/gpodder/gtkui/app.py:165
-#, fuzzy
 msgid "Website"
-msgstr "Sito Web:"
+msgstr "Sito Web"
 
 #: src/gpodder/gtkui/app.py:166
 msgid "Bug Tracker"
-msgstr ""
+msgstr "Gestione bug"
 
 #: src/gpodder/gtkui/app.py:217
 msgid "Path to gPodder home is too long"
-msgstr ""
+msgstr "Il percorso verso la home di gPodder è troppo lungo"
 
 #: src/gpodder/gtkui/desktopfile.py:70
 #, python-format
@@ -643,11 +634,11 @@ msgstr "Pausa"
 
 #: src/gpodder/gtkui/main.py:1605
 msgid "Move up"
-msgstr ""
+msgstr "Sposta in alto"
 
 #: src/gpodder/gtkui/main.py:1607
 msgid "Move down"
-msgstr ""
+msgstr "Sposta in basso"
 
 #: src/gpodder/gtkui/main.py:1610
 msgid "Remove from list"
@@ -670,9 +661,8 @@ msgid "Archive"
 msgstr "Archivia"
 
 #: src/gpodder/gtkui/main.py:1673
-#, fuzzy
 msgid "Delete podcast"
-msgstr "Elimina episodi"
+msgstr "Elimina podcast"
 
 #: src/gpodder/gtkui/main.py:1688 share/gpodder/ui/gtk/menus.ui.h:16
 msgid "Podcast settings"
@@ -680,12 +670,12 @@ msgstr "Impostazioni podcast"
 
 #: src/gpodder/gtkui/main.py:1733
 msgid "File already exist"
-msgstr ""
+msgstr "Il file esiste già"
 
 #: src/gpodder/gtkui/main.py:1735
 #, python-format
 msgid "A file named \"%(filename)s\" already exist. Do you want to replace it?"
-msgstr ""
+msgstr "Un file di nome \"%(filename)s\" esiste già. Sovrascriverlo?"
 
 #: src/gpodder/gtkui/main.py:1777
 #, python-format
@@ -693,16 +683,17 @@ msgid ""
 "Error saving to local folder: %(error)r.\n"
 "Would you like to continue?"
 msgstr ""
+"Errore durante il salvataggio su cartella locale: %(error)r.\n"
+"Continuare?"
 
 #: src/gpodder/gtkui/main.py:1779 src/gpodder/gtkui/main.py:1784
-#, fuzzy
 msgid "Error saving to local folder"
-msgstr "Errore di scrittura playlist"
+msgstr "Errore durante il salvataggio su cartella locale"
 
 #: src/gpodder/gtkui/main.py:1783
 #, python-format
 msgid "Error saving to local folder: %(error)r"
-msgstr ""
+msgstr "Errore durante il salvataggio su cartella locale: %(error)r"
 
 #: src/gpodder/gtkui/main.py:1804
 msgid "Error converting file."
@@ -725,14 +716,12 @@ msgid "Stream"
 msgstr "Flusso"
 
 #: src/gpodder/gtkui/main.py:1876
-#, fuzzy
 msgid "_Cancel"
-msgstr "Annulla"
+msgstr "_Annulla"
 
 #: src/gpodder/gtkui/main.py:1880
-#, fuzzy
 msgid "_Delete"
-msgstr "Elimina"
+msgstr "_Elimina"
 
 #: src/gpodder/gtkui/main.py:1906
 msgid "Send to"
@@ -778,7 +767,7 @@ msgstr "Ignorata iscrizione esistente"
 
 #: src/gpodder/gtkui/main.py:2343
 msgid "You are already subscribed to these podcasts:"
-msgstr "Hai già sottoscritto questi podcast:"
+msgstr "Ti sei già iscritto questi podcast:"
 
 #: src/gpodder/gtkui/main.py:2351 bin/gpo:322
 msgid "Podcast requires authentication"
@@ -850,19 +839,19 @@ msgstr[0] "Aggiornamento di %(count)d feed..."
 msgstr[1] "Aggiornamento di %(count)d feed..."
 
 #: src/gpodder/gtkui/main.py:2570
-#, fuzzy, python-format
+#, python-format
 msgid "Updating %(podcast)s (%(position)d/%(total)d)"
-msgstr "Aggiornati %(podcast)s (%(position)d/%(total)d)"
+msgstr "Aggiornamento %(podcast)s (%(position)d/%(total)d)"
 
 #: src/gpodder/gtkui/main.py:2581
-#, fuzzy, python-format
+#, python-format
 msgid "Error while updating %(title)s at %(url)s: %(message)s"
-msgstr "Errore nell'aggiornamento di %(url)s: %(message)s"
+msgstr "Errore nell'aggiornamento di %(title)s su %(url)s: %(message)s"
 
 #: src/gpodder/gtkui/main.py:2583
-#, fuzzy, python-format
+#, python-format
 msgid "The %(title)s feed at %(url)s could not be updated."
-msgstr "Impossibile aggiornare il feed su %(url)s."
+msgstr "Il feed %(title)s su %(url)s non può essere aggiornato."
 
 #: src/gpodder/gtkui/main.py:2584
 msgid "Error while updating feed"
@@ -880,7 +869,7 @@ msgstr[0] "Download di %(count)d nuovo episodio."
 msgstr[1] "Download di %(count)d nuovi episodi."
 
 #: src/gpodder/gtkui/main.py:2642 src/gpodder/gtkui/main.py:2649
-#: src/gpodder/gtkui/main.py:3015
+#: src/gpodder/gtkui/main.py:3016
 msgid "New episodes available"
 msgstr "Nuovi episodi disponibili"
 
@@ -964,128 +953,126 @@ msgstr "Seleziona gli episodi che vuoi eliminare:"
 msgid "Delete episodes"
 msgstr "Elimina episodi"
 
-#: src/gpodder/gtkui/main.py:2874 src/gpodder/gtkui/main.py:3109
-#: src/gpodder/gtkui/main.py:3209
+#: src/gpodder/gtkui/main.py:2875 src/gpodder/gtkui/main.py:3110
+#: src/gpodder/gtkui/main.py:3210
 msgid "No podcast selected"
 msgstr "Nessun podcast selezionato"
 
-#: src/gpodder/gtkui/main.py:2875
+#: src/gpodder/gtkui/main.py:2876
 msgid "Please select a podcast in the podcasts list to update."
 msgstr "Seleziona un podcast nella lista per aggiornarlo."
 
-#: src/gpodder/gtkui/main.py:2965
+#: src/gpodder/gtkui/main.py:2966
 #, python-format
 msgid "Download error while downloading %(episode)s: %(message)s"
 msgstr "Errore durante il download %(episode)s: %(message)s"
 
-#: src/gpodder/gtkui/main.py:2966
+#: src/gpodder/gtkui/main.py:2967
 msgid "Download error"
 msgstr "Errore nel download"
 
-#: src/gpodder/gtkui/main.py:3000
+#: src/gpodder/gtkui/main.py:3001
 msgid "Select the episodes you want to download:"
 msgstr "Seleziona gli episodi che vuoi scaricare:"
 
-#: src/gpodder/gtkui/main.py:3023
+#: src/gpodder/gtkui/main.py:3024
 msgid "Mark as old"
 msgstr "Segna come ascoltato"
 
-#: src/gpodder/gtkui/main.py:3030
+#: src/gpodder/gtkui/main.py:3031
 msgid "Please check for new episodes later."
 msgstr "Controlla se ci sono nuovi episodi più tardi."
 
-#: src/gpodder/gtkui/main.py:3031
+#: src/gpodder/gtkui/main.py:3032
 msgid "No new episodes available"
 msgstr "Nessun nuovo episodio disponibile"
 
-#: src/gpodder/gtkui/main.py:3072
-#, fuzzy, python-format
+#: src/gpodder/gtkui/main.py:3073
+#, python-format
 msgid "Subscriptions on %(server)s"
-msgstr "iscrizioni su gpodder.net"
+msgstr "Iscrizioni su %(server)s"
 
-#: src/gpodder/gtkui/main.py:3083
+#: src/gpodder/gtkui/main.py:3084
 msgid "Login to gpodder.net"
 msgstr "Login su gpodder.net"
 
-#: src/gpodder/gtkui/main.py:3084
+#: src/gpodder/gtkui/main.py:3085
 msgid "Please login to download your subscriptions."
 msgstr "Fare login per scaricare le iscrizioni."
 
-#: src/gpodder/gtkui/main.py:3110
+#: src/gpodder/gtkui/main.py:3111
 msgid "Please select a podcast in the podcasts list to edit."
 msgstr "Seleziona un podcast nella lista per modificarlo."
 
-#: src/gpodder/gtkui/main.py:3124
+#: src/gpodder/gtkui/main.py:3125
 msgid "Podcast"
 msgstr "Podcast"
 
-#: src/gpodder/gtkui/main.py:3130 share/gpodder/ui/gtk/menus.ui.h:14
-#, fuzzy
+#: src/gpodder/gtkui/main.py:3131 share/gpodder/ui/gtk/menus.ui.h:14
 msgid "Delete podcasts"
 msgstr "Elimina podcast"
 
-#: src/gpodder/gtkui/main.py:3131
-#, fuzzy
+#: src/gpodder/gtkui/main.py:3132
 msgid "Select the podcast you want to delete."
-msgstr "Seleziona il podcast che vuoi eliminare."
+msgstr "Seleziona il podcast che si vuole eliminare."
 
-#: src/gpodder/gtkui/main.py:3135 share/gpodder/ui/gtk/menus.ui.h:24
+#: src/gpodder/gtkui/main.py:3136 share/gpodder/ui/gtk/menus.ui.h:24
 msgid "Delete"
 msgstr "Elimina"
 
-#: src/gpodder/gtkui/main.py:3144
-#, fuzzy
-msgid "Deleting podcast"
-msgstr "Eliminazione episodi"
-
 #: src/gpodder/gtkui/main.py:3145
-#, fuzzy
-msgid "Please wait while the podcast is deleted"
-msgstr "Attendi mentre il podcast viene eliminato"
+msgid "Deleting podcast"
+msgstr "Eliminazione podcast"
 
 #: src/gpodder/gtkui/main.py:3146
+msgid "Please wait while the podcast is deleted"
+msgstr "Attendere l'eliminazione del podcast"
+
+#: src/gpodder/gtkui/main.py:3147
 msgid ""
-"This podcast and all its episodes will be PERMANENTLY DELETED.\r\n"
+"This podcast and all its episodes will be PERMANENTLY DELETED.\n"
 "Are you sure you want to continue?"
 msgstr ""
+"Questo podcast e tutti i suoi episodi verranno PERMANENTEMENTE ELIMINATI.\n"
+"Sicuri di voler continuare?"
 
-#: src/gpodder/gtkui/main.py:3148
-#, fuzzy
+#: src/gpodder/gtkui/main.py:3149
 msgid "Deleting podcasts"
 msgstr "Eliminazione dei podcast"
 
-#: src/gpodder/gtkui/main.py:3149
-#, fuzzy
-msgid "Please wait while the podcasts are deleted"
-msgstr "Attendi mentre i podcast vengono eliminati."
-
 #: src/gpodder/gtkui/main.py:3150
+msgid "Please wait while the podcasts are deleted"
+msgstr "Attendere l'eliminazione dei podcast"
+
+#: src/gpodder/gtkui/main.py:3151
 msgid ""
-"These podcasts and all their episodes will be PERMANENTLY DELETED.\r\n"
+"These podcasts and all their episodes will be PERMANENTLY DELETED.\n"
 "Are you sure you want to continue?"
 msgstr ""
+"Questi podcast e tutti i loro episodi verranno PERMANENTEMENTE ELIMINATI.\n"
+"Sicuri di voler continuare?"
 
-#: src/gpodder/gtkui/main.py:3210
+#: src/gpodder/gtkui/main.py:3211
 msgid "Please select a podcast in the podcasts list to remove."
 msgstr "Seleziona un podcast nella lista per eliminarlo."
 
-#: src/gpodder/gtkui/main.py:3220
+#: src/gpodder/gtkui/main.py:3221
 msgid "OPML files"
 msgstr "File OPML"
 
-#: src/gpodder/gtkui/main.py:3225
+#: src/gpodder/gtkui/main.py:3226
 msgid "Import from OPML"
 msgstr "Importa da OPML"
 
-#: src/gpodder/gtkui/main.py:3239
+#: src/gpodder/gtkui/main.py:3240
 msgid "Import podcasts from OPML file"
 msgstr "Importa podcast da file OPML"
 
-#: src/gpodder/gtkui/main.py:3246
+#: src/gpodder/gtkui/main.py:3247
 msgid "Nothing to export"
 msgstr "Niente da esportare"
 
-#: src/gpodder/gtkui/main.py:3247
+#: src/gpodder/gtkui/main.py:3248
 msgid ""
 "Your list of podcast subscriptions is empty. Please subscribe to some "
 "podcasts first before trying to export your subscription list."
@@ -1093,120 +1080,112 @@ msgstr ""
 "La tua lista delle iscrizioni ai podcast è vuota. Iscriviti a qualcuno prima "
 "di provare a esportare la lista."
 
-#: src/gpodder/gtkui/main.py:3253
+#: src/gpodder/gtkui/main.py:3254
 msgid "Export to OPML"
 msgstr "Esporta in formato OPML"
 
-#: src/gpodder/gtkui/main.py:3266
+#: src/gpodder/gtkui/main.py:3267
 #, python-format
 msgid "%(count)d subscription exported"
 msgid_plural "%(count)d subscriptions exported"
 msgstr[0] "%(count)d iscrizione esportata"
 msgstr[1] "%(count)d iscrizioni esportate"
 
-#: src/gpodder/gtkui/main.py:3269
+#: src/gpodder/gtkui/main.py:3270
 msgid "Your podcast list has been successfully exported."
 msgstr "La tua lista dei podcast è stata esportata correttamente."
 
-#: src/gpodder/gtkui/main.py:3273
+#: src/gpodder/gtkui/main.py:3274
 msgid "Could not export OPML to file. Please check your permissions."
 msgstr "Impossibile esportare l'OPML su file. Verifica i tuoi permessi."
 
-#: src/gpodder/gtkui/main.py:3275
+#: src/gpodder/gtkui/main.py:3276
 msgid "OPML export failed"
 msgstr "Esportazione OPML fallita"
 
-#: src/gpodder/gtkui/main.py:3299
-#, fuzzy
-msgid "Could not check for updates"
-msgstr "Impossibile aggiungere alcuni podcast"
-
 #: src/gpodder/gtkui/main.py:3300
-msgid "Please try again later."
-msgstr ""
+msgid "Could not check for updates"
+msgstr "Impossibile controllare gli aggiornamenti"
 
-#: src/gpodder/gtkui/main.py:3305
+#: src/gpodder/gtkui/main.py:3301
+msgid "Please try again later."
+msgstr "Prego riprovare più tardi."
+
+#: src/gpodder/gtkui/main.py:3306
 msgid "No updates available"
 msgstr "Nessun aggiornamento disponibile"
 
-#: src/gpodder/gtkui/main.py:3306
+#: src/gpodder/gtkui/main.py:3307
 msgid "You have the latest version of gPodder."
 msgstr "Hai la versione più recente di gPodder"
 
-#: src/gpodder/gtkui/main.py:3310
+#: src/gpodder/gtkui/main.py:3311
 msgid "New version available"
 msgstr "Nuova versione disponibile"
 
-#: src/gpodder/gtkui/main.py:3312
+#: src/gpodder/gtkui/main.py:3313
 #, python-format
 msgid "Installed version: %s"
 msgstr "Installata versione: %s"
 
-#: src/gpodder/gtkui/main.py:3313
+#: src/gpodder/gtkui/main.py:3314
 #, python-format
 msgid "Newest version: %s"
 msgstr "Versione più recente: %s"
 
-#: src/gpodder/gtkui/main.py:3314
+#: src/gpodder/gtkui/main.py:3315
 #, python-format
 msgid "Release date: %s"
 msgstr "Data di rilascio: %s"
 
-#: src/gpodder/gtkui/main.py:3316
+#: src/gpodder/gtkui/main.py:3317
 msgid "Download the latest version from gpodder.org?"
 msgstr "Scaricare l'ultima versione da gpodder.org?"
 
-#: src/gpodder/gtkui/main.py:3566
-#, fuzzy
+#: src/gpodder/gtkui/main.py:3567
 msgid "Please register a YouTube API key and set it in the preferences."
-msgstr "Configura il tuo dispositivo nella schermata delle preferenze."
+msgstr "Registrare una chiave API YouTube ed impostarla nelle preferenze."
 
-#: src/gpodder/gtkui/main.py:3567
+#: src/gpodder/gtkui/main.py:3568
 msgid "Would you like to set up an API key now?"
-msgstr ""
+msgstr "Impostare una chiave API ora?"
 
-#: src/gpodder/gtkui/main.py:3567
+#: src/gpodder/gtkui/main.py:3568
 msgid "API key required"
-msgstr ""
+msgstr "Chiave API necessaria"
 
-#: src/gpodder/gtkui/main.py:3586 bin/gpo:725
-#, fuzzy
+#: src/gpodder/gtkui/main.py:3587 bin/gpo:725
 msgid "No unique URL found"
-msgstr "Nessun canale trovato"
+msgstr "Nessun URL univoco trovato"
 
-#: src/gpodder/gtkui/main.py:3591 bin/gpo:731
-#, fuzzy
+#: src/gpodder/gtkui/main.py:3592 bin/gpo:731
 msgid "Already subscribed"
-msgstr "Già sottoscritto a %s."
+msgstr "Già iscritto"
 
-#: src/gpodder/gtkui/main.py:3601 bin/gpo:743
+#: src/gpodder/gtkui/main.py:3602 bin/gpo:743
 #, python-format
 msgid "Make sure the API key is correct. Error: %(message)s"
-msgstr ""
+msgstr "Assicurarsi che la chiave API sia corretta. Errore: %(message)s"
 
-#: src/gpodder/gtkui/main.py:3602
-#, fuzzy
+#: src/gpodder/gtkui/main.py:3603
 msgid "Error getting YouTube channels"
-msgstr "Errore nell'impostazione dell'opzione"
+msgstr "Errore nell'ottenere i canali YouTube"
 
-#: src/gpodder/gtkui/main.py:3605
-#, fuzzy
+#: src/gpodder/gtkui/main.py:3606
 msgid "Successfully migrated subscriptions"
-msgstr "Aggiunto con successo %s."
+msgstr "Iscrizioni migrate con successo"
 
-#: src/gpodder/gtkui/main.py:3607
-#, fuzzy
+#: src/gpodder/gtkui/main.py:3608
 msgid "Subscriptions are up to date"
-msgstr "Sottoscrizione sospesa"
+msgstr "Le iscrizioni sono aggiornate"
 
-#: src/gpodder/gtkui/main.py:3610
+#: src/gpodder/gtkui/main.py:3611
 msgid "These URLs failed:"
-msgstr ""
+msgstr "Questi URL non hanno funzionato:"
 
-#: src/gpodder/gtkui/main.py:3612
-#, fuzzy
+#: src/gpodder/gtkui/main.py:3613
 msgid "Could not migrate some subscriptions"
-msgstr "Impossibile aggiungere alcuni podcast"
+msgstr "Impossibile migrare alcune inscrizioni"
 
 #: src/gpodder/gtkui/shownotes.py:99 src/gpodder/gtkui/model.py:67
 #: src/gpodder/gtkui/model.py:85 src/gpodder/gtkui/model.py:285
@@ -1215,17 +1194,16 @@ msgid "from %s"
 msgstr "da %s"
 
 #: src/gpodder/gtkui/shownotes.py:130
-#, fuzzy
 msgid "Please select an episode"
-msgstr "Seleziona episodi"
+msgstr "Selezionare un episodio"
 
 #: src/gpodder/gtkui/shownotes.py:312
 msgid "Open shownotes in web browser"
-msgstr ""
+msgstr "Aprire mostranote nel browser web"
 
 #: src/gpodder/gtkui/shownotes.py:318
 msgid "Open link in web browser"
-msgstr ""
+msgstr "Aprire il collegamento nel browser web"
 
 #: src/gpodder/gtkui/config.py:50
 msgid "Integer"
@@ -1327,7 +1305,7 @@ msgstr "da tutti i podcast"
 
 #: src/gpodder/gtkui/model.py:719
 msgid "Subscription paused"
-msgstr "Sottoscrizione sospesa"
+msgstr "Iscrizione in pausa"
 
 #: src/gpodder/gtkui/interface/addpodcast.py:76
 msgid "Nothing to paste."
@@ -1355,11 +1333,11 @@ msgstr "Autenticazione richiesta"
 
 #: src/gpodder/gtkui/interface/common.py:155
 msgid "hostname or root URL (e.g. https://gpodder.net)"
-msgstr ""
+msgstr "nomehost o URL radice (per es. https://gpodder.net)"
 
 #: src/gpodder/gtkui/interface/common.py:176
 msgid "Server"
-msgstr ""
+msgstr "Server"
 
 #: src/gpodder/gtkui/interface/common.py:182
 msgid "Password"
@@ -1412,7 +1390,7 @@ msgstr "Nessuno"
 
 #: src/gpodder/gtkui/desktop/preferences.py:69
 msgid "iPod"
-msgstr ""
+msgstr "iPod"
 
 #: src/gpodder/gtkui/desktop/preferences.py:70
 msgid "Filesystem-based"
@@ -1436,18 +1414,16 @@ msgid "Name"
 msgstr "Nome"
 
 #: src/gpodder/gtkui/desktop/preferences.py:373
-#, fuzzy
 msgid "Documentation"
-msgstr "Durata"
+msgstr "Documentazione"
 
 #: src/gpodder/gtkui/desktop/preferences.py:378
-#, fuzzy
 msgid "Extension info"
-msgstr "Info modulo estensione"
+msgstr "Info estensione"
 
 #: src/gpodder/gtkui/desktop/preferences.py:383
 msgid "Support the author"
-msgstr ""
+msgstr "Supporta l'autore"
 
 #: src/gpodder/gtkui/desktop/preferences.py:425
 msgid "Extension cannot be activated"
@@ -1503,24 +1479,21 @@ msgid "Select folder for playlists"
 msgstr "Seleziona cartella per le playlist"
 
 #: src/gpodder/gtkui/desktop/podcastdirectory.py:188
-#, fuzzy
 msgid "Search:"
 msgstr "Cerca:"
 
 #: src/gpodder/gtkui/desktop/podcastdirectory.py:189
-#, fuzzy
 msgid "Search"
-msgstr "Cerca:"
+msgstr "Cerca"
 
 #: src/gpodder/gtkui/desktop/podcastdirectory.py:191
 #: share/gpodder/ui/gtk/gpodderaddpodcast.ui.h:2
 msgid "URL:"
-msgstr "Indirizzo:"
+msgstr "URL:"
 
 #: src/gpodder/gtkui/desktop/podcastdirectory.py:194
-#, fuzzy
 msgid "Filename:"
-msgstr "Nome utente:"
+msgstr "Nomefile:"
 
 #: src/gpodder/gtkui/desktop/podcastdirectory.py:195
 #: share/gpodder/ui/gtk/menus.ui.h:21
@@ -1528,14 +1501,12 @@ msgid "Open"
 msgstr "Apri"
 
 #: src/gpodder/gtkui/desktop/podcastdirectory.py:236
-#, fuzzy
 msgid "Loading podcasts"
-msgstr "Aggiunta dei podcast"
+msgstr "Caricamento podcast"
 
 #: src/gpodder/gtkui/desktop/podcastdirectory.py:237
-#, fuzzy
 msgid "Please wait while the podcast list is downloaded"
-msgstr "Attendi mentre il podcast viene eliminato"
+msgstr "Attendere lo scaricamento dell'elenco podcast"
 
 #: src/gpodder/gtkui/desktop/episodeselector.py:100
 msgid "Remove"
@@ -1570,10 +1541,9 @@ msgstr "dimensione: %s"
 #: src/gpodder/gtkui/desktop/exportlocal.py:57
 #, python-format
 msgid "Export remaining %(count)d episode to this folder with its default name"
-msgid_plural ""
-"Export remaining %(count)d episodes to this folder with their default name"
-msgstr[0] ""
-msgstr[1] ""
+msgid_plural "Export remaining %(count)d episodes to this folder with their default name"
+msgstr[0] "Esporta il rimanente %(count)d episodio su questa cartella con il suo nome predefinito"
+msgstr[1] "Esporta i rimanenti %(count)d episodi su questa cartella con i loro nomi predefiniti"
 
 #: src/gpodder/gtkui/desktop/channel.py:98
 msgid "Add section"
@@ -1584,13 +1554,12 @@ msgid "New section:"
 msgstr "Nuovo sezione:"
 
 #: src/gpodder/gtkui/desktop/channel.py:116
-#, fuzzy
 msgid "_Open"
-msgstr "Apri"
+msgstr "_Apri"
 
 #: src/gpodder/gtkui/desktop/channel.py:120
 msgid "_Refresh"
-msgstr ""
+msgstr "_Ricarica"
 
 #: src/gpodder/gtkui/desktop/channel.py:133
 msgid "Select new podcast cover artwork"
@@ -1657,11 +1626,11 @@ msgstr "File convertito"
 
 #: share/gpodder/extensions/mpris-listener.py:36
 msgid "MPRIS Listener"
-msgstr ""
+msgstr "Listener MPRIS"
 
 #: share/gpodder/extensions/mpris-listener.py:37
 msgid "Convert MPRIS notifications to gPodder Media Player D-Bus API"
-msgstr ""
+msgstr "Converti le note MPRIS alle API D-Bus gPodder Media Player"
 
 #: share/gpodder/extensions/ubuntu_appindicator.py:15
 msgid "Ubuntu App Indicator"
@@ -1682,11 +1651,11 @@ msgstr "Esci"
 
 #: share/gpodder/extensions/rockbox_coverart.py:18
 msgid "Rockbox Cover Art Sync"
-msgstr ""
+msgstr "Sincronia Copertine Artistiche Rockbox"
 
 #: share/gpodder/extensions/rockbox_coverart.py:19
 msgid "Copy Cover Art To Rockboxed Media Player"
-msgstr ""
+msgstr "Copia copertine artistiche sul Rockboxed Media Player"
 
 #: share/gpodder/extensions/taskbar_progress.py:35
 msgid "Show download progress on the taskbar"
@@ -1707,15 +1676,15 @@ msgstr ""
 
 #: share/gpodder/extensions/command_on_download.py:18
 msgid "Run a Command on Download"
-msgstr ""
+msgstr "Esegui un comando allo scaricamento"
 
 #: share/gpodder/extensions/command_on_download.py:19
 msgid "Run a predefined external command upon download completion."
-msgstr ""
+msgstr "Esegui un comando esterno predefinito al completamento dello scaricamento."
 
-#: share/gpodder/extensions/youtube-dl.py:26
+#: share/gpodder/extensions/youtube-dl.py:27
 msgid "Manage Youtube subscriptions using youtube-dl (pip install youtube_dl)"
-msgstr ""
+msgstr "Gestisci le tue iscrizioni Youtube usando youtube-dl (pip install youtube_dl)"
 
 #: share/gpodder/extensions/video_converter.py:20
 msgid "Convert video files"
@@ -1749,34 +1718,30 @@ msgid "Remove cover art"
 msgstr "Rimuovi copertina"
 
 #: share/gpodder/extensions/enqueue_in_mediaplayer.py:17
-#, fuzzy
 msgid "Enqueue/Resume in media players"
-msgstr "Metti in coda nel lettore multimediale"
+msgstr "Accoda/Ripristina nei lettori multimediali"
 
 #: share/gpodder/extensions/enqueue_in_mediaplayer.py:18
-#, fuzzy
 msgid ""
 "Add a context menu item for enqueueing/resuming playback of episodes in "
 "installed media players"
-msgstr ""
-"Aggiungi al menù contestuale del lettore riferimento agli episodi in coda"
+msgstr "Aggiungi al menù contestuale per accodare/ripristinare episodi nei lettori multimediali installati"
 
 #: share/gpodder/extensions/enqueue_in_mediaplayer.py:36
 msgid "Enqueue in"
-msgstr "Accoda a"
+msgstr "Accoda"
 
 #: share/gpodder/extensions/enqueue_in_mediaplayer.py:97
-#, fuzzy
 msgid "Resume in"
-msgstr "Ripristina tutti"
+msgstr "Ripristina"
 
 #: share/gpodder/extensions/notification-win32.py:55
 msgid "Notification Bubbles for Windows"
-msgstr ""
+msgstr "Notifiche di Windows"
 
 #: share/gpodder/extensions/notification-win32.py:56
 msgid "Display notification bubbles for different events."
-msgstr ""
+msgstr "Mostra notifiche per diversi eventi."
 
 #: share/gpodder/extensions/update_feeds_on_startup.py:15
 msgid "Search for new episodes on startup"
@@ -1808,42 +1773,37 @@ msgstr "Mostra un'icona di stato per i desktop basati su Gtk."
 
 #: share/gpodder/extensions/concatenate_videos.py:20
 #: share/gpodder/extensions/concatenate_videos.py:102
-#, fuzzy
 msgid "Concatenate videos"
-msgstr "Converti file video"
+msgstr "Concatena video"
 
 #: share/gpodder/extensions/concatenate_videos.py:21
-#, fuzzy
 msgid "Add a context menu item for concatenating multiple videos"
-msgstr ""
-"Aggiungi al menù contestuale del lettore riferimento agli episodi in coda"
+msgstr "Aggiungi al menù contestuale per concatenare video multipli"
 
 #: share/gpodder/extensions/concatenate_videos.py:38
 msgid "Save video"
-msgstr ""
+msgstr "Salva video"
 
 #: share/gpodder/extensions/concatenate_videos.py:67
-#, fuzzy
 msgid "Concatenating video files"
-msgstr "Converti file video"
+msgstr "Concatenazione file video"
 
 #: share/gpodder/extensions/concatenate_videos.py:68
 #, python-format
 msgid "Writing %(filename)s"
-msgstr ""
+msgstr "Scrittura %(filename)s"
 
 #: share/gpodder/extensions/concatenate_videos.py:80
 msgid "Videos successfully converted"
-msgstr ""
+msgstr "Video convertiti con successo"
 
 #: share/gpodder/extensions/concatenate_videos.py:81
-#, fuzzy
 msgid "Error converting videos"
-msgstr "Errore nella conversione del file."
+msgstr "Errore nella conversione video"
 
 #: share/gpodder/extensions/concatenate_videos.py:82
 msgid "Concatenation result"
-msgstr ""
+msgstr "Concatenazione risultato"
 
 #: share/gpodder/extensions/sonos.py:19 share/gpodder/extensions/sonos.py:81
 msgid "Stream to Sonos"
@@ -1871,20 +1831,17 @@ msgstr "Codifica in file audio mp3/ogg "
 
 #: share/gpodder/extensions/episode_website_context_menu.py:15
 msgid "\"Open website\" episode and podcast context menu"
-msgstr ""
+msgstr "\"Apri sito web\" episodio e menu contestuale podcast"
 
 #: share/gpodder/extensions/episode_website_context_menu.py:16
-#, fuzzy
 msgid ""
 "Add a context menu item for opening the website of an episode or podcast"
-msgstr ""
-"Aggiungi al menù contestuale del lettore riferimento agli episodi in coda"
+msgstr "Aggiungi al menù contestuale per aprire il sito web di un episodio o podcast"
 
 #: share/gpodder/extensions/episode_website_context_menu.py:34
 #: share/gpodder/extensions/episode_website_context_menu.py:37
-#, fuzzy
 msgid "Open website"
-msgstr "Sito Web:"
+msgstr "Apri sito Web"
 
 #: share/gpodder/extensions/tagging.py:50
 msgid "Tag downloaded files using Mutagen"
@@ -1916,7 +1873,7 @@ msgstr "Sezione:"
 
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:3
 msgid "Disable feed updates (pause subscription)"
-msgstr "Disabilita aggiornamento dei feed (sottoscrizione sospesa)"
+msgstr "Disabilita aggiornamento dei feed (iscrizione in pausa)"
 
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:4
 msgid "Synchronize to MP3 player devices"
@@ -2028,7 +1985,7 @@ msgstr "Aggiungi un podcast tramite il suo URL "
 
 #: share/gpodder/ui/gtk/gpodderwelcome.ui.h:6
 msgid "Restore my subscriptions from gpodder.net"
-msgstr "Ripristina le mie sottoscrizioni da gpodder.net"
+msgstr "Ripristina le mie iscrizioni da gpodder.net"
 
 #: share/gpodder/ui/gtk/menus.ui.h:2
 msgid "Go to gpodder.net"
@@ -2039,27 +1996,24 @@ msgid "Software updates"
 msgstr "Aggiornamento programma"
 
 #: share/gpodder/ui/gtk/menus.ui.h:4
-#, fuzzy
 msgid "Help"
-msgstr "_Aiuto"
+msgstr "Aiuto"
 
 #: share/gpodder/ui/gtk/menus.ui.h:5
 msgid "About"
-msgstr ""
+msgstr "Informazioni"
 
 #: share/gpodder/ui/gtk/menus.ui.h:7
-#, fuzzy
 msgid "_Podcasts"
-msgstr "Podcast"
+msgstr "_Podcast"
 
 #: share/gpodder/ui/gtk/menus.ui.h:9
 msgid "Download new episodes"
 msgstr "Scarica nuovi episodi"
 
 #: share/gpodder/ui/gtk/menus.ui.h:11
-#, fuzzy
 msgid "_Subscriptions"
-msgstr "Nessuna iscrizione"
+msgstr "I_scrizioni"
 
 #: share/gpodder/ui/gtk/menus.ui.h:12
 msgid "Discover new podcasts"
@@ -2078,9 +2032,8 @@ msgid "Export to OPML file"
 msgstr "Esporta su file OPML"
 
 #: share/gpodder/ui/gtk/menus.ui.h:19
-#, fuzzy
 msgid "_Episodes"
-msgstr "Episodio"
+msgstr "_Episodi"
 
 #: share/gpodder/ui/gtk/menus.ui.h:25
 msgid "Toggle new status"
@@ -2095,13 +2048,12 @@ msgid "Sync to device"
 msgstr "Sincronizza con il dispositivo"
 
 #: share/gpodder/ui/gtk/menus.ui.h:30
-#, fuzzy
 msgid "Update YouTube subscriptions"
-msgstr "Nessuna iscrizione"
+msgstr "Aggiorna iscrizioni YouTube"
 
 #: share/gpodder/ui/gtk/menus.ui.h:31
 msgid "_View"
-msgstr ""
+msgstr "_Mostra"
 
 #: share/gpodder/ui/gtk/menus.ui.h:32
 msgid "Toolbar"
@@ -2148,18 +2100,16 @@ msgid "Use sections for podcast list"
 msgstr "Usa le sezioni per la lista dei podcast"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:7
-#, fuzzy
 msgid "Preferred YouTube format:"
-msgstr "Formato video preferito: "
+msgstr "Formato YouTube preferito:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:8
 msgid "YouTube API key (v3):"
-msgstr ""
+msgstr "Chiave API YouTube (v3):"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:9
-#, fuzzy
 msgid "Preferred Vimeo format:"
-msgstr "Formato video preferito: "
+msgstr "Formato video preferito:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:12
 msgid "Synchronize subscriptions and episode actions"
@@ -2167,7 +2117,7 @@ msgstr "Sincronizza le iscrizioni e le azioni sugli episodi"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:13
 msgid "Server:"
-msgstr ""
+msgstr "Server:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:16
 msgid "Replace list on server with local subscriptions"
@@ -2263,11 +2213,11 @@ msgstr "Seleziona Nessuno"
 
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:4
 msgid "label"
-msgstr ""
+msgstr "etichetta"
 
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:5
 msgid "..."
-msgstr ""
+msgstr "..."
 
 #: bin/gpo:245
 msgid "Podcast update requested by extensions."
@@ -2283,7 +2233,6 @@ msgid "Invalid url: %s"
 msgstr "URL non valido: %s"
 
 #: bin/gpo:324
-#, fuzzy
 msgid "User name:"
 msgstr "Nome utente:"
 
@@ -2291,17 +2240,17 @@ msgstr "Nome utente:"
 #: bin/gpo:811
 #, python-format
 msgid "You are not subscribed to %s."
-msgstr "Non hai sottoscritto %s."
+msgstr "Non ti sei iscritto a %s."
 
 #: bin/gpo:347
 #, python-format
 msgid "Already subscribed to %s."
-msgstr "Già sottoscritto a %s."
+msgstr "Sei già iscritto a %s."
 
 #: bin/gpo:353
 #, python-format
 msgid "Cannot subscribe to %s."
-msgstr "Impossibile sottoscrivere %s."
+msgstr "Impossibile iscriversi a %s."
 
 #: bin/gpo:369
 #, python-format
@@ -2319,22 +2268,21 @@ msgstr "Puoi solo impostare la configurazione dei nodi."
 #: bin/gpo:405
 #, python-format
 msgid "Renamed %(old_title)s to %(new_title)s."
-msgstr "Renaminati %(old_title)s in %(new_title)s."
+msgstr "Rinominato %(old_title)s in %(new_title)s."
 
 #: bin/gpo:421
 #, python-format
 msgid "Unsubscribed from %s."
-msgstr "Elimina sottoscrizione da %s."
+msgstr "Disiscritto da %s."
 
 #: bin/gpo:487
-#, fuzzy
 msgid "Invalid command."
-msgstr "Valore non valido"
+msgstr "Comando non valido."
 
 #: bin/gpo:492
-#, fuzzy, python-format
+#, python-format
 msgid "Invalid option: %s."
-msgstr "URL non valido: %s"
+msgstr "Opzione non valida: %s."
 
 #: bin/gpo:517
 msgid "Updates disabled"
@@ -2358,17 +2306,16 @@ msgstr "Salta %(podcast)s"
 
 #: bin/gpo:661
 msgid "No episode with the specified GUID found."
-msgstr ""
+msgstr "Nessun episodio con lo GUID specificato trovato."
 
 #: bin/gpo:665
-#, fuzzy, python-format
+#, python-format
 msgid "Deleted episode \"%s\"."
-msgstr "Elimina episodi"
+msgstr "Episodio eliminato \"%s\"."
 
 #: bin/gpo:667
-#, fuzzy
 msgid "Episode has already been deleted."
-msgstr "Gli episodi sono stati cancellati dal dispositivo"
+msgstr "L'episodio è già stato eliminato."
 
 #: bin/gpo:682
 #, python-format
@@ -2383,17 +2330,16 @@ msgstr "Abilita addiornamenti feed da %s."
 #: bin/gpo:710
 #, python-format
 msgid "Please register a YouTube API key and set it using %(command)s."
-msgstr ""
+msgstr "Registrare una chiave API YouTube ed impostarla usando %(command)s."
 
 #: bin/gpo:737
-#, fuzzy, python-format
+#, python-format
 msgid "Changing: %(old_url)s => %(new_url)s"
-msgstr "Cambiato URL da %(old_url)s in %(new_url)s."
+msgstr "Cambio: %(old_url)s => %(new_url)s"
 
 #: bin/gpo:747
-#, fuzzy
 msgid "Nothing to fix"
-msgstr "Niente da esportare"
+msgstr "Niente da sistemare"
 
 #: bin/gpo:766
 msgid "No podcasts found."
@@ -2401,7 +2347,7 @@ msgstr "Nessun podcast trovato."
 
 #: bin/gpo:780
 msgid "Enter index to subscribe, ? for list"
-msgstr "Inserire indice da sottoscrivere, ? per la lista"
+msgstr "Inserire indice a cui iscriversi, ? per l'elenco"
 
 #: bin/gpo:794 bin/gpo:798 bin/gpo:940 bin/gpo:944
 msgid "Invalid value."
@@ -2420,37 +2366,37 @@ msgstr "Cambiato URL da %(old_url)s in %(new_url)s."
 #: bin/gpo:843
 #, python-format
 msgid "%(title)s: %(msg)s ([yes]/no): "
-msgstr ""
+msgstr "%(title)s: %(msg)s ([si]/no): "
 
 #: bin/gpo:847
 msgid "yes"
-msgstr ""
+msgstr "sì"
 
 #: bin/gpo:885
-#, fuzzy, python-format
+#, python-format
 msgid "Deleting episode: %(episode)s"
-msgstr "Eliminazione episodi"
+msgstr "Eliminazione episodio: %(episode)s"
 
 #: bin/gpo:918
 msgid ""
 "Enter episode index to toggle, ? for list, X to select all, space to select "
 "none, empty when ready"
-msgstr ""
+msgstr "Inserire indice episodi per commutare, ? per l'elenco, X per selezionarli tutti, spazio per nessuno, vuoto quando si è pronti"
 
 #: bin/gpo:950
-#, fuzzy, python-format
+#, python-format
 msgid "Will delete %(episode)s"
-msgstr "Nascondi episodi eliminati"
+msgstr "Eliminerà %(episode)s"
 
 #: bin/gpo:952
-#, fuzzy, python-format
+#, python-format
 msgid "Won't delete %(episode)s"
-msgstr "Elimina episodi"
+msgstr "Non eliminerà %(episode)s"
 
 #: bin/gpo:965
-#, fuzzy, python-format
+#, python-format
 msgid "Syncing %s"
-msgstr "Aggiunta di %s"
+msgstr "Sincronizzazione di %s"
 
 #: bin/gpo:1035
 #, python-format
@@ -2465,22 +2411,21 @@ msgstr "Comando ambiguo. Si ntendeva..."
 msgid "The requested function is not available."
 msgstr "La funzione richiesta non è disponibile."
 
-#: bin/gpodder:100
+#: bin/gpodder:101
 msgid "print logging output on the console"
 msgstr "Stampa dati di login sulla console"
 
-#: bin/gpodder:103
+#: bin/gpodder:104
 msgid "subscribe to the feed at URL"
-msgstr "Sottoscrivi feedi all' URL"
+msgstr "iscrivi il feed all'URL"
 
-#: bin/gpodder:108
+#: bin/gpodder:109
 msgid "Mac OS X application process number"
 msgstr "Numero processo applicazione di Mac OS X"
 
 #: share/applications/gpodder-url-handler.desktop.in.h:1
-#, fuzzy
 msgid "gPodder (subscribe to feed)"
-msgstr "Sottoscrivi feedi all' URL"
+msgstr "gPodder (inscrivi al feed)"
 
 #: share/applications/gpodder.desktop.in.h:2
 msgid "gPodder Podcast Client"
@@ -2492,4 +2437,4 @@ msgstr "Lista Podcast"
 
 #: share/applications/gpodder.desktop.in.h:4
 msgid "Subscribe to audio and video content from the web"
-msgstr "Sottoscrivere contenuti audio e video da internet"
+msgstr "Iscrivere i contenuti audio e video dal web"
