@@ -1278,17 +1278,17 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 if error_str:
                     error_str = _('Feedparser error: %s') % html.escape(error_str.strip())
                     error_str = '<span foreground="#ff0000">%s</span>' % error_str
-                table = Gtk.Table(rows=3, columns=3)
-                table.set_row_spacings(5)
-                table.set_col_spacings(5)
-                table.set_border_width(5)
+
+                box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
+                box.set_border_width(5)
 
                 heading = Gtk.Label()
+                heading.set_max_width_chars(60)
                 heading.set_alignment(0, 1)
                 heading.set_markup('<b><big>%s</big></b>\n<small>%s</small>' % (html.escape(channel.title), html.escape(channel.url)))
-                table.attach(heading, 0, 1, 0, 1)
+                box.add(heading)
 
-                table.attach(Gtk.HSeparator(), 0, 3, 1, 2)
+                box.add(Gtk.HSeparator())
 
                 if len(channel.description) < 500:
                     description = channel.description
@@ -1300,14 +1300,15 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         description = channel.description[:pos]
 
                 description = Gtk.Label(label=description)
+                description.set_max_width_chars(60)
                 if error_str:
                     description.set_markup(error_str)
                 description.set_alignment(0, 0)
                 description.set_line_wrap(True)
-                table.attach(description, 0, 3, 2, 3)
+                box.add(description)
 
-                table.show_all()
-                tooltip.set_custom(table)
+                box.show_all()
+                tooltip.set_custom(box)
 
             return True
 
