@@ -1237,7 +1237,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # treeview header. This is the amount we have to subtract from the
         # event's Y coordinate to get the coordinate to pass to get_path_at_pos
         (x_bin, y_bin) = treeview.get_bin_window().get_position()
-        y -= x_bin
+        x -= x_bin
         y -= y_bin
         (path, column, rx, ry) = treeview.get_path_at_pos(x, y) or (None,) * 4
 
