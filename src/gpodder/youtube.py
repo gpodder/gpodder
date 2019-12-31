@@ -44,16 +44,16 @@ formats = [
     # Fallback to an MP4 version of same quality.
     # Try 34 (FLV 360p H.264 AAC) if 18 (MP4 360p) fails.
     # Fallback to 6 or 5 (FLV Sorenson H.263 MP3) if all fails.
-    (46, ([46, 37, 45, 22, 44, 35, 43, 18, 6, 34, 5],
+    (46, ([46, 37, 45, 22, '136+140', 44, 35, 43, 18, '134+140', 6, 34, 5],
           '45/1280x720/99/0/0',
           'WebM 1080p (1920x1080)')),  # N/A,      192 kbps
-    (45, ([45, 22, 44, 35, 43, 18, 6, 34, 5],
+    (45, ([45, 22, '136+140', 44, 35, 43, 18, '134+140', 6, 34, 5],
           '45/1280x720/99/0/0',
           'WebM 720p (1280x720)')),    # 2.0 Mbps, 192 kbps
-    (44, ([44, 35, 43, 18, 6, 34, 5],
+    (44, ([44, 35, 43, 18, '134+140', 6, 34, 5],
           '44/854x480/99/0/0',
           'WebM 480p (854x480)')),     # 1.0 Mbps, 128 kbps
-    (43, ([43, 18, 6, 34, 5],
+    (43, ([43, 18, '134+140', 6, 34, 5],
           '43/640x360/99/0/0',
           'WebM 360p (640x360)')),     # 0.5 Mbps, 128 kbps
 
@@ -61,16 +61,16 @@ formats = [
     # Try 35 (FLV 480p H.264 AAC) between 720p and 360p because there's no MP4 480p.
     # Try 34 (FLV 360p H.264 AAC) if 18 (MP4 360p) fails.
     # Fallback to 6 or 5 (FLV Sorenson H.263 MP3) if all fails.
-    (38, ([38, 37, 22, 35, 18, 34, 6, 5],
+    (38, ([38, 37, 22, '136+140', 35, 18, '134+140', 34, 6, 5],
           '38/1920x1080/9/0/115',
           'MP4 4K 3072p (4096x3072)')),  # 5.0 - 3.5 Mbps, 192 kbps
-    (37, ([37, 22, 35, 18, 34, 6, 5],
+    (37, ([37, 22, '136+140', 35, 18, '134+140', 34, 6, 5],
           '37/1920x1080/9/0/115',
           'MP4 HD 1080p (1920x1080)')),  # 4.3 - 3.0 Mbps, 192 kbps
-    (22, ([22, 35, 18, 34, 6, 5],
+    (22, ([22, '136+140', 35, 18, '134+140', 34, 6, 5],
           '22/1280x720/9/0/115',
           'MP4 HD 720p (1280x720)')),    # 2.9 - 2.0 Mbps, 192 kbps
-    (18, ([18, 34, 6, 5],
+    (18, ([18, '134+140', 34, 6, 5],
           '18/640x360/9/0/115',
           'MP4 360p (640x360)')),        # 0.5 Mbps,  96 kbps
 
@@ -195,6 +195,9 @@ def get_real_download_url(url, preferred_fmt_ids=None):
         fmt_id_url_map = dict(fmt_id_url_map)
 
         for id in preferred_fmt_ids:
+            if re.search('\+', id):
+                # skip formats that contain a + (136+140)
+                continue
             id = int(id)
             if id in formats_available:
                 format = formats_dict.get(id)
