@@ -132,6 +132,8 @@ gpodder.prefix = prefix
 # This is the command-line UI variant
 gpodder.ui.cli = True
 
+gpodder.verbose = verbose
+
 have_ansi = sys.stdout.isatty() and not gpodder.ui.win32
 interactive_console = sys.stdin.isatty() and sys.stdout.isatty()
 is_single_command = False

@@ -35,6 +35,9 @@ logger = logging.getLogger(__name__)
 
 
 def setup(verbose=True):
+    # mark verbose mode
+    gpodder.verbose = verbose
+
     # Configure basic stdout logging
     STDOUT_FMT = '%(created)f [%(name)s] %(levelname)s: %(message)s'
     logging.basicConfig(format=STDOUT_FMT,

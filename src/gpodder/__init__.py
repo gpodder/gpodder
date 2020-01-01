@@ -82,6 +82,10 @@ except ImportError:
 del sqlite3
 
 
+# Is gpodder running in verbose mode?
+verbose = False
+
+
 # The User-Agent string for downloads
 user_agent = 'gPodder/%s (+%s) %s/%s' % (__version__, __url__, platform.system(), platform.release())
 
