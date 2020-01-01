@@ -257,6 +257,10 @@ class gPodderYoutubeDL(download.CustomDownloader):
             'cachedir': cachedir,
             'no_color': True,  # prevent escape codes in desktop notifications on errors
         }
+        if gpodder.verbose:
+            self._ydl_opts['verbose'] = True
+        else:
+            self._ydl_opts['quiet'] = True
         # #686 on windows without a console, sys.stdout is None, causing exceptions
         # when adding podcasts.
         # See https://docs.python.org/3/library/sys.html#sys.__stderr__ Note
