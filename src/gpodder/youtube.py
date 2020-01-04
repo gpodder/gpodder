@@ -188,9 +188,6 @@ def get_real_download_url(url, preferred_fmt_ids=None):
                 raise YouTubeError('Unsupported DRM content found for video ID "%s"' % vid)
             raise YouTubeError('No formats found for video ID "%s"' % vid)
 
-        # Default to the highest fmt_id if we don't find a match below
-        _, url = fmt_id_url_map[0]
-
         formats_available = set(fmt_id for fmt_id, url in fmt_id_url_map)
         fmt_id_url_map = dict(fmt_id_url_map)
 
@@ -210,6 +207,8 @@ def get_real_download_url(url, preferred_fmt_ids=None):
                         description, id)
                 url = fmt_id_url_map[id]
                 break
+        else:
+            raise YouTubeError('No preferred formats found for video ID "%s"' % vid)
 
     return url
 
