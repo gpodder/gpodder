@@ -384,6 +384,7 @@ class gPodderYoutubeDL(download.CustomDownloader):
 class gPodderExtension:
     def __init__(self, container):
         self.container = container
+        self.ytdl = None
 
     def on_load(self):
         self.ytdl = gPodderYoutubeDL(self.container.manager.core.config)
@@ -403,3 +404,16 @@ class gPodderExtension:
             registry.custom_downloader.unregister(self.ytdl.custom_downloader)
         except ValueError:
             pass
+        self.ytdl = None
+
+    def on_ui_object_available(self, name, ui_object):
+        if name == 'gpodder-gtk':
+            self.gpodder = ui_object
+
+    def on_episodes_context_menu(self, episodes):
+        if not self.container.config.manage_downloads \
+                and not all(e.was_downloaded(and_exists=True) for e in episodes):
+            return [(_("Download with Youtube-DL"), self.download_episodes)]
+
+    def download_episodes(self, episodes):
+        self.gpodder.download_episode_list(episodes, downloader=self.ytdl)
