@@ -51,7 +51,7 @@ _ = gpodder.gettext
 class CustomDownload:
     """ abstract class for custom downloads. DownloadTask call retrieve_resume() on it """
 
-    def retrieve_resume(self, unused_tempname, reporthook):
+    def retrieve_resume(self, tempname, reporthook):
         """
         :param str tempname: temporary filename for the download
         :param func(number, number, number) reporthook: callback for download progress (count, blockSize, totalSize)
@@ -377,6 +377,67 @@ class DownloadURLOpener(urllib.request.FancyURLopener):
         return (None, None)
 
 
+class DefaultDownload(CustomDownload):
+    def __init__(self, config, episode, url):
+        self._config = config
+        self.__episode = episode
+        self._url = url
+
+    def retrieve_resume(self, tempname, reporthook):
+        url = self._url
+        logger.info("Downloading %s", url)
+        downloader = DownloadURLOpener(self.__episode.channel)
+
+        # HTTP Status codes for which we retry the download
+        retry_codes = (408, 418, 504, 598, 599)
+        max_retries = max(0, self._config.auto.retries)
+
+        # Retry the download on timeout (bug 1013)
+        for retry in range(max_retries + 1):
+            if retry > 0:
+                logger.info('Retrying download of %s (%d)', url, retry)
+                time.sleep(1)
+
+            try:
+                headers, real_url = downloader.retrieve_resume(url,
+                    tempname, reporthook=reporthook)
+                # If we arrive here, the download was successful
+                break
+            except urllib.error.ContentTooShortError as ctse:
+                if retry < max_retries:
+                    logger.info('Content too short: %s - will retry.',
+                            url)
+                    continue
+                raise
+            except socket.timeout as tmout:
+                if retry < max_retries:
+                    logger.info('Socket timeout: %s - will retry.', url)
+                    continue
+                raise
+            except gPodderDownloadHTTPError as http:
+                if retry < max_retries and http.error_code in retry_codes:
+                    logger.info('HTTP error %d: %s - will retry.',
+                            http.error_code, url)
+                    continue
+                raise
+        return (headers, real_url)
+
+
+class DefaultDownloader(CustomDownloader):
+    @staticmethod
+    def custom_downloader(config, episode):
+        url = episode.url
+        # Resolve URL and start downloading the episode
+        res = registry.download_url.resolve(config, None, episode)
+        if res:
+            url = res
+        if url == episode.url:
+            # don't modify custom urls (#635 - vimeo breaks if * is unescaped)
+            url = url.strip()
+            url = util.iri_to_url(url)
+        return DefaultDownload(config, episode, url)
+
+
 class DownloadQueueWorker(object):
     def __init__(self, queue, exit_callback, continue_check_callback):
         self.queue = queue
@@ -602,6 +663,15 @@ class DownloadTask(object):
 
     episode = property(fget=__get_episode)
 
+    def __get_downloader(self):
+        return self.__downloader
+
+    def __set_downloader(self, downloader):
+        # modifying the downloader will only have effect before the download is started
+        self.__downloader = downloader
+
+    downloader = property(fget=__get_downloader, fset=__set_downloader)
+
     def cancel(self):
         if self.status in (self.DOWNLOADING, self.QUEUED):
             self.status = self.CANCELLED
@@ -610,13 +680,15 @@ class DownloadTask(object):
         if self.status != self.DONE:
             util.delete_file(self.tempname)
 
-    def __init__(self, episode, config):
+    def __init__(self, episode, config, downloader=None):
         assert episode.download_task is None
         self.__status = DownloadTask.INIT
         self.__activity = DownloadTask.ACTIVITY_DOWNLOAD
         self.__status_changed = True
         self.__episode = episode
         self._config = config
+        # specify a custom downloader to be used for this download
+        self.__downloader = downloader
 
         # Create the target filename and save it in the database
         self.filename = self.__episode.local_filename(create=True)
@@ -776,60 +848,19 @@ class DownloadTask(object):
         if not self.episode.download_task:
             self.episode.download_task = self
 
+        url = self.__episode.url
         try:
-
-            custom_downloader = registry.custom_downloader.resolve(self._config, None, self.episode)
-
-            url = self.__episode.url
-            if custom_downloader:
-                logger.info('Downloading %s with %s', url, custom_downloader)
-                headers, real_url = custom_downloader.retrieve_resume(
-                    self.tempname, reporthook=self.status_updated)
+            if self.downloader:
+                downloader = self.downloader.custom_downloader(self._config, self.episode)
             else:
-                # Resolve URL and start downloading the episode
-                res = registry.download_url.resolve(self._config, None, self.episode)
-                if res:
-                    url = res
-                if url == self.__episode.url:
-                    # don't modify custom urls (#635 - vimeo breaks if * is unescaped)
-                    url = url.strip()
-                    url = util.iri_to_url(url)
+                downloader = registry.custom_downloader.resolve(self._config, None, self.episode)
 
-                logger.info("Downloading %s", url)
-                downloader = DownloadURLOpener(self.__episode.channel)
+            if downloader:
+                logger.info('Downloading %s with %s', url, downloader)
+            else:
+                downloader = DefaultDownloader.custom_downloader(self._config, self.episode)
 
-                # HTTP Status codes for which we retry the download
-                retry_codes = (408, 418, 504, 598, 599)
-                max_retries = max(0, self._config.auto.retries)
-
-                # Retry the download on timeout (bug 1013)
-                for retry in range(max_retries + 1):
-                    if retry > 0:
-                        logger.info('Retrying download of %s (%d)', url, retry)
-                        time.sleep(1)
-
-                    try:
-                        headers, real_url = downloader.retrieve_resume(url,
-                            self.tempname, reporthook=self.status_updated)
-                        # If we arrive here, the download was successful
-                        break
-                    except urllib.error.ContentTooShortError as ctse:
-                        if retry < max_retries:
-                            logger.info('Content too short: %s - will retry.',
-                                    url)
-                            continue
-                        raise
-                    except socket.timeout as tmout:
-                        if retry < max_retries:
-                            logger.info('Socket timeout: %s - will retry.', url)
-                            continue
-                        raise
-                    except gPodderDownloadHTTPError as http:
-                        if retry < max_retries and http.error_code in retry_codes:
-                            logger.info('HTTP error %d: %s - will retry.',
-                                    http.error_code, url)
-                            continue
-                        raise
+            headers, real_url = downloader.retrieve_resume(self.tempname, self.status_updated)
 
             new_mimetype = headers.get('content-type', self.__episode.mime_type)
             old_mimetype = self.__episode.mime_type

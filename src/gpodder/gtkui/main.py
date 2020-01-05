@@ -2918,7 +2918,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def download_episode_list_paused(self, episodes):
         self.download_episode_list(episodes, True)
 
-    def download_episode_list(self, episodes, add_paused=False, force_start=False):
+    def download_episode_list(self, episodes, add_paused=False, force_start=False, downloader=None):
         def queue_tasks(tasks, queued_existing_task):
             for task in tasks:
                 if add_paused:
@@ -2950,6 +2950,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     if episode.url == task.url:
                         task_exists = True
                         if task.status not in (task.DOWNLOADING, task.QUEUED):
+                            if downloader:
+                                # replace existing task's download with forced one
+                                task.downloader = downloader
                             if force_start:
                                 self.download_queue_manager.force_start_task(task)
                             else:
@@ -2961,7 +2964,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     continue
 
                 try:
-                    task = download.DownloadTask(episode, self.config)
+                    task = download.DownloadTask(episode, self.config, downloader=downloader)
                 except Exception as e:
                     d = {'episode': html.escape(episode.title), 'message': html.escape(str(e))}
                     message = _('Download error while downloading %(episode)s: %(message)s')
