@@ -192,7 +192,7 @@ def get_real_download_url(url, preferred_fmt_ids=None):
         fmt_id_url_map = dict(fmt_id_url_map)
 
         for id in preferred_fmt_ids:
-            if re.search('\+', id):
+            if re.search('\+', str(id)):
                 # skip formats that contain a + (136+140)
                 continue
             id = int(id)
