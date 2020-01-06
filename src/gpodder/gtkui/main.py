@@ -3389,8 +3389,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_download_selected_episodes(self, action_or_widget, param=None):
         episodes = self.get_selected_episodes()
         self.download_episode_list(episodes)
-        self.update_episode_list_icons([episode.url for episode in episodes])
-        self.play_or_download()
 
     def on_treeAvailable_row_activated(self, widget, path, view_column):
         """Double-click/enter action handler for treeAvailable"""
