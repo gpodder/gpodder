@@ -68,11 +68,12 @@ class YoutubeCustomDownload(download.CustomDownload):
 
     Actual youtube-dl interaction via gPodderYoutubeDL.
     """
-    def __init__(self, ytdl, url):
+    def __init__(self, ytdl, url, episode):
         self._ytdl = ytdl
         self._url = url
         self._reporthook = None
         self._prev_dl_bytes = 0
+        self._episode = episode
 
     def retrieve_resume(self, tempname, reporthook=None):
         """
@@ -80,6 +81,8 @@ class YoutubeCustomDownload(download.CustomDownload):
         """
         self._reporthook = reporthook
         res = self._ytdl.fetch_video(self._url, tempname, self._my_hook)
+        if 'duration' in res and res['duration']:
+            self._episode.total_time = res['duration']
         headers = {}
         # youtube-dl doesn't return a content-type but an extension
         if 'ext' in res:
@@ -375,9 +378,9 @@ class gPodderYoutubeDL(download.CustomDownloader):
         called from registry.custom_downloader.resolve
         """
         if re.match(r'''https://www.youtube.com/watch\?v=.+''', episode.url):
-            return YoutubeCustomDownload(self, episode.url)
+            return YoutubeCustomDownload(self, episode.url, episode)
         elif re.match(r'''https://www.youtube.com/watch\?v=.+''', episode.link):
-            return YoutubeCustomDownload(self, episode.link)
+            return YoutubeCustomDownload(self, episode.link, episode)
         return None
 
 

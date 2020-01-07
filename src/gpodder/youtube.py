@@ -117,13 +117,17 @@ def get_fmt_ids(youtube_config):
 @registry.download_url.register
 def youtube_real_download_url(config, episode):
     fmt_ids = get_fmt_ids(config.youtube) if config else None
-    res = get_real_download_url(episode.url, fmt_ids)
+    res, duration = get_real_download_url(episode.url, fmt_ids)
+    if duration is not None:
+        episode.total_time = int(int(duration) / 1000)
     return None if res == episode.url else res
 
 
 def get_real_download_url(url, preferred_fmt_ids=None):
     if not preferred_fmt_ids:
         preferred_fmt_ids, _, _ = formats_dict[22]  # MP4 720p
+
+    duration = None
 
     vid = get_youtube_id(url)
     if vid is not None:
@@ -163,11 +167,11 @@ def get_real_download_url(url, preferred_fmt_ids=None):
                     if 'formats' in player_response['streamingData']:
                         for f in player_response['streamingData']['formats']:
                             if 'url' in f:
-                                yield int(f['itag']), f['url']
+                                yield int(f['itag']), [f['url'], f.get('approxDurationMs')]
                     if 'adaptiveFormats' in player_response['streamingData']:
                         for f in player_response['streamingData']['adaptiveFormats']:
                             if 'url' in f:
-                                yield int(f['itag']), f['url']
+                                yield int(f['itag']), [f['url'], f.get('approxDurationMs')]
                     return
 
             if error_message:
@@ -178,7 +182,7 @@ def get_real_download_url(url, preferred_fmt_ids=None):
                 fmt_url_map = urllib.parse.unquote(r4.group(1))
                 for fmt_url_encoded in fmt_url_map.split(','):
                     video_info = parse_qs(fmt_url_encoded)
-                    yield int(video_info['itag'][0]), video_info['url'][0]
+                    yield int(video_info['itag'][0]), [video_info['url'][0], None]
 
         fmt_id_url_map = sorted(find_urls(page), reverse=True)
 
@@ -205,12 +209,12 @@ def get_real_download_url(url, preferred_fmt_ids=None):
 
                 logger.info('Found YouTube format: %s (fmt_id=%d)',
                         description, id)
-                url = fmt_id_url_map[id]
+                url, duration = fmt_id_url_map[id]
                 break
         else:
             raise YouTubeError('No preferred formats found for video ID "%s"' % vid)
 
-    return url
+    return url, duration
 
 
 def get_youtube_id(url):
