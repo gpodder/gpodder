@@ -44,16 +44,16 @@ formats = [
     # Fallback to an MP4 version of same quality.
     # Try 34 (FLV 360p H.264 AAC) if 18 (MP4 360p) fails.
     # Fallback to 6 or 5 (FLV Sorenson H.263 MP3) if all fails.
-    (46, ([46, 37, 45, 22, 44, 35, 43, 18, 6, 34, 5],
+    (46, ([46, 37, 45, 22, '136+140', 44, 35, 43, 18, '134+140', 6, 34, 5],
           '45/1280x720/99/0/0',
           'WebM 1080p (1920x1080)')),  # N/A,      192 kbps
-    (45, ([45, 22, 44, 35, 43, 18, 6, 34, 5],
+    (45, ([45, 22, '136+140', 44, 35, 43, 18, '134+140', 6, 34, 5],
           '45/1280x720/99/0/0',
           'WebM 720p (1280x720)')),    # 2.0 Mbps, 192 kbps
-    (44, ([44, 35, 43, 18, 6, 34, 5],
+    (44, ([44, 35, 43, 18, '134+140', 6, 34, 5],
           '44/854x480/99/0/0',
           'WebM 480p (854x480)')),     # 1.0 Mbps, 128 kbps
-    (43, ([43, 18, 6, 34, 5],
+    (43, ([43, 18, '134+140', 6, 34, 5],
           '43/640x360/99/0/0',
           'WebM 360p (640x360)')),     # 0.5 Mbps, 128 kbps
 
@@ -61,16 +61,16 @@ formats = [
     # Try 35 (FLV 480p H.264 AAC) between 720p and 360p because there's no MP4 480p.
     # Try 34 (FLV 360p H.264 AAC) if 18 (MP4 360p) fails.
     # Fallback to 6 or 5 (FLV Sorenson H.263 MP3) if all fails.
-    (38, ([38, 37, 22, 35, 18, 34, 6, 5],
+    (38, ([38, 37, 22, '136+140', 35, 18, '134+140', 34, 6, 5],
           '38/1920x1080/9/0/115',
           'MP4 4K 3072p (4096x3072)')),  # 5.0 - 3.5 Mbps, 192 kbps
-    (37, ([37, 22, 35, 18, 34, 6, 5],
+    (37, ([37, 22, '136+140', 35, 18, '134+140', 34, 6, 5],
           '37/1920x1080/9/0/115',
           'MP4 HD 1080p (1920x1080)')),  # 4.3 - 3.0 Mbps, 192 kbps
-    (22, ([22, 35, 18, 34, 6, 5],
+    (22, ([22, '136+140', 35, 18, '134+140', 34, 6, 5],
           '22/1280x720/9/0/115',
           'MP4 HD 720p (1280x720)')),    # 2.9 - 2.0 Mbps, 192 kbps
-    (18, ([18, 34, 6, 5],
+    (18, ([18, '134+140', 34, 6, 5],
           '18/640x360/9/0/115',
           'MP4 360p (640x360)')),        # 0.5 Mbps,  96 kbps
 
@@ -117,13 +117,17 @@ def get_fmt_ids(youtube_config):
 @registry.download_url.register
 def youtube_real_download_url(config, episode):
     fmt_ids = get_fmt_ids(config.youtube) if config else None
-    res = get_real_download_url(episode.url, fmt_ids)
+    res, duration = get_real_download_url(episode.url, fmt_ids)
+    if duration is not None:
+        episode.total_time = int(int(duration) / 1000)
     return None if res == episode.url else res
 
 
 def get_real_download_url(url, preferred_fmt_ids=None):
     if not preferred_fmt_ids:
         preferred_fmt_ids, _, _ = formats_dict[22]  # MP4 720p
+
+    duration = None
 
     vid = get_youtube_id(url)
     if vid is not None:
@@ -142,42 +146,59 @@ def get_real_download_url(url, preferred_fmt_ids=None):
         # (http://forum.videohelp.com/topic336882-1800.html#1912972)
 
         def find_urls(page):
+            # streamingData is preferable to url_encoded_fmt_stream_map
+            # streamingData.formats are the same as url_encoded_fmt_stream_map
+            # streamingData.adaptiveFormats are audio-only and video-only formats
+            x = parse_qs(page)
+
+            if 'reason' in x:
+                error_message = util.remove_html_tags(x['reason'][0])
+            elif 'player_response' in x:
+                player_response = json.loads(x['player_response'][0])
+
+                if 'reason' in player_response['playabilityStatus']:
+                    error_message = util.remove_html_tags(player_response['playabilityStatus']['reason'])
+                elif 'live_playback' in x:
+                    error_message = 'live stream'
+                elif 'post_live_playback' in x:
+                    error_message = 'post live stream'
+                elif 'streamingData' in player_response:
+                    # DRM videos store url inside a cipher key - not supported
+                    if 'formats' in player_response['streamingData']:
+                        for f in player_response['streamingData']['formats']:
+                            if 'url' in f:
+                                yield int(f['itag']), [f['url'], f.get('approxDurationMs')]
+                    if 'adaptiveFormats' in player_response['streamingData']:
+                        for f in player_response['streamingData']['adaptiveFormats']:
+                            if 'url' in f:
+                                yield int(f['itag']), [f['url'], f.get('approxDurationMs')]
+                    return
+
+            if error_message:
+                raise YouTubeError('Cannot download video: %s' % error_message)
+
             r4 = re.search('url_encoded_fmt_stream_map=([^&]+)', page)
             if r4 is not None:
                 fmt_url_map = urllib.parse.unquote(r4.group(1))
                 for fmt_url_encoded in fmt_url_map.split(','):
                     video_info = parse_qs(fmt_url_encoded)
-                    yield int(video_info['itag'][0]), video_info['url'][0]
-            else:
-                error_info = parse_qs(page)
-                if 'reason' in error_info:
-                    error_message = util.remove_html_tags(error_info['reason'][0])
-                elif 'player_response' in error_info:
-                    player_response = json.loads(error_info['player_response'][0])
-                    if 'reason' in player_response['playabilityStatus']:
-                        error_message = util.remove_html_tags(player_response['playabilityStatus']['reason'])
-                    elif 'live_playback' in error_info:
-                        error_message = 'live stream'
-                    elif 'post_live_playback' in error_info:
-                        error_message = 'post live stream'
-                    else:
-                        error_message = ''
-                else:
-                    error_message = ''
-                raise YouTubeError('Cannot download video: %s' % error_message)
+                    yield int(video_info['itag'][0]), [video_info['url'][0], None]
 
         fmt_id_url_map = sorted(find_urls(page), reverse=True)
 
         if not fmt_id_url_map:
-            raise YouTubeError('fmt_url_map not found for video ID "%s"' % vid)
-
-        # Default to the highest fmt_id if we don't find a match below
-        _, url = fmt_id_url_map[0]
+            drm = re.search('%22cipher%22%3A', page)
+            if drm is not None:
+                raise YouTubeError('Unsupported DRM content found for video ID "%s"' % vid)
+            raise YouTubeError('No formats found for video ID "%s"' % vid)
 
         formats_available = set(fmt_id for fmt_id, url in fmt_id_url_map)
         fmt_id_url_map = dict(fmt_id_url_map)
 
         for id in preferred_fmt_ids:
+            if re.search('\+', str(id)):
+                # skip formats that contain a + (136+140)
+                continue
             id = int(id)
             if id in formats_available:
                 format = formats_dict.get(id)
@@ -188,10 +209,12 @@ def get_real_download_url(url, preferred_fmt_ids=None):
 
                 logger.info('Found YouTube format: %s (fmt_id=%d)',
                         description, id)
-                url = fmt_id_url_map[id]
+                url, duration = fmt_id_url_map[id]
                 break
+        else:
+            raise YouTubeError('No preferred formats found for video ID "%s"' % vid)
 
-    return url
+    return url, duration
 
 
 def get_youtube_id(url):
