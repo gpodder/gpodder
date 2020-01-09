@@ -814,6 +814,15 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.view_column_actions[index].set_state(GLib.Variant.new_boolean(visible))
         self.treeAvailable.columns_autosize()
 
+    def on_episode_list_header_reordered(self, treeview):
+        self.config.ui.gtk.state.main_window.episode_column_order = \
+            [column.get_sort_column_id() for column in treeview.get_columns()]
+
+    def on_episode_list_header_sorted(self, column):
+        self.config.ui.gtk.state.main_window.episode_column_sort_id = column.get_sort_column_id()
+        self.config.ui.gtk.state.main_window.episode_column_sort_order = \
+            (column.get_sort_order() is Gtk.SortType.ASCENDING)
+
     def on_episode_list_header_clicked(self, button, event):
         if event.button != 3:
             return False
@@ -881,6 +890,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
         namecolumn.set_reorderable(True)
         self.treeAvailable.append_column(namecolumn)
 
+        # EpisodeListModel.C_PUBLISHED is not available in config.py, set it here on first run
+        if not self.config.ui.gtk.state.main_window.episode_column_sort_id:
+            self.config.ui.gtk.state.main_window.episode_column_sort_id = EpisodeListModel.C_PUBLISHED
+
         for itemcolumn in (sizecolumn, timecolumn, releasecolumn):
             itemcolumn.set_reorderable(True)
             self.treeAvailable.append_column(itemcolumn)
@@ -897,6 +910,31 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 w = w.get_parent()
 
             w.connect('button-release-event', self.on_episode_list_header_clicked)
+
+            # Restore column sorting
+            if column.get_sort_column_id() == self.config.ui.gtk.state.main_window.episode_column_sort_id:
+                self.episode_list_model._sorter.set_sort_column_id(Gtk.TREE_SORTABLE_UNSORTED_SORT_COLUMN_ID,
+                    Gtk.SortType.DESCENDING)
+                self.episode_list_model._sorter.set_sort_column_id(column.get_sort_column_id(),
+                    Gtk.SortType.ASCENDING if self.config.ui.gtk.state.main_window.episode_column_sort_order
+                        else Gtk.SortType.DESCENDING)
+            # Save column sorting when user clicks column headers
+            column.connect('clicked', self.on_episode_list_header_sorted)
+
+        # Restore column ordering
+        prev_column = None
+        for col in self.config.ui.gtk.state.main_window.episode_column_order:
+            for column in self.treeAvailable.get_columns():
+                if col is column.get_sort_column_id():
+                    break
+            else:
+                # Column ID not found, abort
+                # Manually re-ordering columns should fix the corrupt setting
+                break
+            self.treeAvailable.move_column_after(column, prev_column)
+            prev_column = column
+        # Save column ordering when user drags column headers
+        self.treeAvailable.connect('columns-changed', self.on_episode_list_header_reordered)
 
         # For each column that can be shown/hidden, add a menu item
         self.view_column_actions = []

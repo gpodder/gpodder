@@ -114,6 +114,10 @@ defaults = {
 
                     'paned_position': 200,
                     'episode_list_size': 200,
+
+                    'episode_column_sort_id': 0,
+                    'episode_column_sort_order': False,
+                    'episode_column_order': [],
                 },
                 'preferences': {
                     'width': -1,
