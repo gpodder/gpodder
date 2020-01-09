@@ -155,13 +155,15 @@ def get_real_download_url(url, preferred_fmt_ids=None):
                 error_message = util.remove_html_tags(x['reason'][0])
             elif 'player_response' in x:
                 player_response = json.loads(x['player_response'][0])
+                playabilityStatus = player_response['playabilityStatus']
 
-                if 'reason' in player_response['playabilityStatus']:
-                    error_message = util.remove_html_tags(player_response['playabilityStatus']['reason'])
-                elif 'live_playback' in x:
+                if 'reason' in playabilityStatus:
+                    error_message = util.remove_html_tags(playabilityStatus['reason'])
+                elif 'liveStreamability' in playabilityStatus \
+                        and not playabilityStatus['liveStreamability'].get('liveStreamabilityRenderer', {}).get('displayEndscreen', False):
+                    # playabilityStatus.liveStreamability -- video is or was a live stream
+                    # playabilityStatus.liveStreamability.liveStreamabilityRenderer.displayEndscreen -- video has ended if present
                     error_message = 'live stream'
-                elif 'post_live_playback' in x:
-                    error_message = 'post live stream'
                 elif 'streamingData' in player_response:
                     # DRM videos store url inside a cipher key - not supported
                     if 'formats' in player_response['streamingData']:
