@@ -150,6 +150,7 @@ def get_real_download_url(url, preferred_fmt_ids=None):
             # streamingData.formats are the same as url_encoded_fmt_stream_map
             # streamingData.adaptiveFormats are audio-only and video-only formats
             x = parse_qs(page)
+            error_message = None
 
             if 'reason' in x:
                 error_message = util.remove_html_tags(x['reason'][0])
@@ -176,7 +177,7 @@ def get_real_download_url(url, preferred_fmt_ids=None):
                                 yield int(f['itag']), [f['url'], f.get('approxDurationMs')]
                     return
 
-            if error_message:
+            if error_message is not None:
                 raise YouTubeError('Cannot download video: %s' % error_message)
 
             r4 = re.search('url_encoded_fmt_stream_map=([^&]+)', page)
