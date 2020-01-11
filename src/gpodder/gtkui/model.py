@@ -188,7 +188,7 @@ class EpisodeListModel(Gtk.ListStore):
         self.ICON_IMAGE_FILE = 'image-x-generic'
         self.ICON_GENERIC_FILE = 'text-x-generic'
         self.ICON_DOWNLOADING = Gtk.STOCK_GO_DOWN
-        self.ICON_DELETED = Gtk.STOCK_DELETE
+        self.ICON_DELETED = 'edit-delete'
 
         self.background_update = None
         self.background_update_tag = None
