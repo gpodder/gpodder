@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 #
 # gPodder dependency installer for running the CLI from the source tree
 #

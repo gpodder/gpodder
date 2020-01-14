@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 # Progressbar icon tester
 # Thomas Perl <thp.io/about>; 2012-02-05
 #
