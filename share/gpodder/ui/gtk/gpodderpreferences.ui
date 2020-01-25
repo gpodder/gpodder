@@ -200,45 +200,6 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkLabel" id="label_youtube_api_key">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="xalign">0</property>
-                        <property name="label" translatable="yes">YouTube API key (v3):</property>
-                      </object>
-                      <packing>
-                        <property name="left_attach">0</property>
-                        <property name="top_attach">1</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkEntry" id="entry_youtube_api_key">
-                        <property name="visible">True</property>
-                        <property name="hexpand">True</property>
-                        <signal handler="on_youtube_api_key_changed" name="changed"/>
-                      </object>
-                      <packing>
-                        <property name="left_attach">1</property>
-                        <property name="top_attach">1</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkButton" id="button_youtube_api_key">
-                        <property name="visible">True</property>
-                        <signal name="clicked" handler="on_button_youtube_api_key_clicked"/>
-                        <child>
-                          <object class="GtkImage" id="image_youtube_api_key">
-                            <property name="stock">gtk-jump-to</property>
-                            <property name="visible">True</property>
-                          </object>
-                        </child>
-                      </object>
-                      <packing>
-                        <property name="top_attach">1</property>
-                        <property name="left_attach">2</property>
-                      </packing>
-                    </child>
-                    <child>
                       <object class="GtkLabel" id="label_preferred_vimeo_format">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>

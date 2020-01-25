@@ -365,25 +365,6 @@ def get_channel_desc(url):
             logger.warning('Could not retrieve YouTube channel description.', exc_info=True)
 
 
-def get_channels_for_user(username, api_key_v3):
-    # already a channel ID: return videos.xml.
-    # Can't rely on automatic discovery, see #371
-    if username.startswith('UC'):
-        try:
-            url = '{0}?channel_id={1}'.format(CHANNEL_VIDEOS_XML, username)
-            stream = util.urlopen(url)
-            return [url]
-        except urllib.error.HTTPError as e:
-            logger.debug("get_channels_for_user(%s) not a channel id (got %i response code)", username, e.code)
-        except:
-            logger.error("get_channels_for_user(%s) not a channel id (got unexpected exception)", username)
-
-    # try username to channel ID conversion
-    stream = util.urlopen('{0}/channels?forUsername={1}&part=id&key={2}'.format(V3_API_ENDPOINT, username, api_key_v3))
-    data = json.load(stream)
-    return ['{0}?channel_id={1}'.format(CHANNEL_VIDEOS_XML, item['id']) for item in data['items']]
-
-
 def parse_youtube_url(url):
     """
     Youtube Channel Links are parsed into youtube feed links
