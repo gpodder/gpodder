@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gPodder\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-01-01 12:56+0100\n"
+"POT-Creation-Date: 2020-01-25 12:58+0100\n"
 "PO-Revision-Date: 2013-03-05 15:01+0000\n"
 "Last-Translator: Thomas Perl <m@thp.io>\n"
 "Language-Team: Czech (Czech Republic) (http://www.transifex.com/projects/p/"
@@ -66,9 +66,9 @@ msgstr "Seznam byl úspěšně nahrán"
 msgid "The playlist on your MP3 player has been updated."
 msgstr ""
 
-#: src/gpodder/syncui.py:270 src/gpodder/gtkui/main.py:850
-#: src/gpodder/gtkui/main.py:976 src/gpodder/gtkui/main.py:2795
-#: src/gpodder/gtkui/main.py:2999
+#: src/gpodder/syncui.py:270 src/gpodder/gtkui/main.py:859
+#: src/gpodder/gtkui/main.py:1014 src/gpodder/gtkui/main.py:2833
+#: src/gpodder/gtkui/main.py:3040
 #: src/gpodder/gtkui/desktop/episodeselector.py:127
 msgid "Episode"
 msgstr "Epizoda"
@@ -82,9 +82,9 @@ msgstr ""
 msgid "Error writing playlist files"
 msgstr "Chyba při převádění souboru"
 
-#: src/gpodder/youtube.py:336 src/gpodder/model.py:468
+#: src/gpodder/youtube.py:362 src/gpodder/model.py:468
 #: src/gpodder/plugins/soundcloud.py:174
-#: share/gpodder/extensions/youtube-dl.py:192
+#: share/gpodder/extensions/youtube-dl.py:195
 msgid "No description available"
 msgstr "Popis není k dispozici"
 
@@ -146,53 +146,53 @@ msgstr "Zdroj na %(url)s se nepodařilo aktualizovat."
 msgid "Error writing playlist"
 msgstr "Chyba při otevírání přehrávače"
 
-#: src/gpodder/download.py:370 bin/gpo:319
+#: src/gpodder/download.py:370 bin/gpo:321
 msgid "Wrong username/password"
 msgstr "Špatné jméno/heslo"
 
-#: src/gpodder/download.py:550 src/gpodder/sync.py:958
+#: src/gpodder/download.py:611 src/gpodder/sync.py:958
 msgid "Added"
 msgstr "Přidáno"
 
-#: src/gpodder/download.py:550 src/gpodder/sync.py:958
+#: src/gpodder/download.py:611 src/gpodder/sync.py:958
 msgid "Queued"
 msgstr "Zařazeno do fronty"
 
-#: src/gpodder/download.py:550 src/gpodder/gtkui/model.py:372
+#: src/gpodder/download.py:611 src/gpodder/gtkui/model.py:372
 msgid "Downloading"
 msgstr "Stahování"
 
-#: src/gpodder/download.py:551 src/gpodder/model.py:744 src/gpodder/sync.py:959
+#: src/gpodder/download.py:612 src/gpodder/model.py:744 src/gpodder/sync.py:959
 msgid "Finished"
 msgstr "Dokončeno"
 
-#: src/gpodder/download.py:551 src/gpodder/sync.py:959
+#: src/gpodder/download.py:612 src/gpodder/sync.py:959
 msgid "Failed"
 msgstr "Selhalo"
 
-#: src/gpodder/download.py:551 src/gpodder/sync.py:959
+#: src/gpodder/download.py:612 src/gpodder/sync.py:959
 msgid "Cancelled"
 msgstr "Zrušeno"
 
-#: src/gpodder/download.py:551 src/gpodder/sync.py:959
+#: src/gpodder/download.py:612 src/gpodder/sync.py:959
 msgid "Paused"
 msgstr "Pozastaveno"
 
-#: src/gpodder/download.py:899
+#: src/gpodder/download.py:930
 msgid "Missing content from server"
 msgstr "Poznámky"
 
-#: src/gpodder/download.py:905
+#: src/gpodder/download.py:936
 #, python-format
 msgid "I/O Error: %(error)s: %(filename)s"
 msgstr "Chyba vstupu/výstupu: %(error)s: %(filename)s"
 
-#: src/gpodder/download.py:912
+#: src/gpodder/download.py:943
 #, python-format
 msgid "HTTP Error %(code)s: %(message)s"
 msgstr "Chyba HTTP %(code)s: %(message)s"
 
-#: src/gpodder/download.py:916 src/gpodder/sync.py:1114
+#: src/gpodder/download.py:947 src/gpodder/sync.py:1114
 #, python-format
 msgid "Error: %s"
 msgstr "Chyba: %s"
@@ -354,7 +354,7 @@ msgstr "Zavírání %s"
 msgid "%s closed"
 msgstr "%s zavřen"
 
-#: src/gpodder/sync.py:847 bin/gpo:802
+#: src/gpodder/sync.py:847 bin/gpo:804
 #, python-format
 msgid "Adding %s..."
 msgstr "Přidávání %s..."
@@ -460,7 +460,7 @@ msgstr "Načítání nedokončených stahování"
 msgid "Some episodes have not finished downloading in a previous session."
 msgstr "Stahování některých epizod nebylo při minulém spuštění dokončeno."
 
-#: src/gpodder/gtkui/main.py:343 bin/gpo:586
+#: src/gpodder/gtkui/main.py:343 bin/gpo:588
 #, python-format
 msgid "%(count)d partial file"
 msgid_plural "%(count)d partial files"
@@ -504,44 +504,44 @@ msgstr "Seznam byl úspěšně nahrán"
 msgid "Error while uploading"
 msgstr "Při nahrávání došlo k chybě"
 
-#: src/gpodder/gtkui/main.py:869
+#: src/gpodder/gtkui/main.py:878
 msgid "Size"
 msgstr "Velikost"
 
-#: src/gpodder/gtkui/main.py:874
+#: src/gpodder/gtkui/main.py:883
 msgid "Duration"
 msgstr "Délka"
 
-#: src/gpodder/gtkui/main.py:878
+#: src/gpodder/gtkui/main.py:887
 msgid "Released"
 msgstr "Vydáno"
 
-#: src/gpodder/gtkui/main.py:996 src/gpodder/gtkui/main.py:1145
+#: src/gpodder/gtkui/main.py:1034 src/gpodder/gtkui/main.py:1183
 #: share/gpodder/ui/gtk/gpodder.ui.h:11
 msgid "Progress"
 msgstr "Průběh"
 
-#: src/gpodder/gtkui/main.py:1024
+#: src/gpodder/gtkui/main.py:1062
 msgid "No episodes in current view"
 msgstr "Žádné odběry v současném zobrazení"
 
-#: src/gpodder/gtkui/main.py:1026
+#: src/gpodder/gtkui/main.py:1064
 msgid "No episodes available"
 msgstr "Žádné dostupné epizody"
 
-#: src/gpodder/gtkui/main.py:1032
+#: src/gpodder/gtkui/main.py:1070
 msgid "No podcasts in this view"
 msgstr "Žádné podcasty v tomto zobrazení"
 
-#: src/gpodder/gtkui/main.py:1034
+#: src/gpodder/gtkui/main.py:1072
 msgid "No subscriptions"
 msgstr "Žádné odběry"
 
-#: src/gpodder/gtkui/main.py:1036
+#: src/gpodder/gtkui/main.py:1074
 msgid "No active tasks"
 msgstr "Žádné aktivní úlohy"
 
-#: src/gpodder/gtkui/main.py:1149 src/gpodder/gtkui/main.py:1151
+#: src/gpodder/gtkui/main.py:1187 src/gpodder/gtkui/main.py:1189
 #, python-format
 msgid "%(count)d active"
 msgid_plural "%(count)d active"
@@ -549,7 +549,7 @@ msgstr[0] "%(count)d aktivní"
 msgstr[1] "%(count)d aktivní"
 msgstr[2] "%(count)d aktivních"
 
-#: src/gpodder/gtkui/main.py:1153
+#: src/gpodder/gtkui/main.py:1191
 #, python-format
 msgid "%(count)d failed"
 msgid_plural "%(count)d failed"
@@ -557,7 +557,7 @@ msgstr[0] "%(count)d selhal"
 msgstr[1] "%(count)d selhaly"
 msgstr[2] "%(count)d selhalo"
 
-#: src/gpodder/gtkui/main.py:1155
+#: src/gpodder/gtkui/main.py:1193
 #, python-format
 msgid "%(count)d queued"
 msgid_plural "%(count)d queued"
@@ -565,7 +565,7 @@ msgstr[0] "%(count)d ve frontě"
 msgstr[1] "%(count)d ve frontě"
 msgstr[2] "%(count)d ve frontě"
 
-#: src/gpodder/gtkui/main.py:1168
+#: src/gpodder/gtkui/main.py:1206
 #, python-format
 msgid "downloading %(count)d file"
 msgid_plural "downloading %(count)d files"
@@ -573,7 +573,7 @@ msgstr[0] "stahuje se %(count)d ve soubor"
 msgstr[1] "stahují se %(count)d ve soubory"
 msgstr[2] "stahuje se %(count)d ve souborů"
 
-#: src/gpodder/gtkui/main.py:1180
+#: src/gpodder/gtkui/main.py:1218
 #, python-format
 msgid "synchronizing %(count)d file"
 msgid_plural "synchronizing %(count)d files"
@@ -581,7 +581,7 @@ msgstr[0] "synchronizace %(count)d souboru"
 msgstr[1] "synchronizace %(count)d souborů"
 msgstr[2] "synchronizace %(count)d souborů"
 
-#: src/gpodder/gtkui/main.py:1184
+#: src/gpodder/gtkui/main.py:1222
 #, python-format
 msgid "%(queued)d task queued"
 msgid_plural "%(queued)d tasks queued"
@@ -589,44 +589,44 @@ msgstr[0] "%(queued)d úloha ve frontě"
 msgstr[1] "%(queued)d úlohy ve frontě"
 msgstr[2] "%(queued)d úloh ve frontě"
 
-#: src/gpodder/gtkui/main.py:1211
+#: src/gpodder/gtkui/main.py:1249
 msgid "Please report this problem and restart gPodder:"
 msgstr "Nahlaste, prosím, tento problém a restartujte gPodder"
 
-#: src/gpodder/gtkui/main.py:1212
+#: src/gpodder/gtkui/main.py:1250
 msgid "Unhandled exception"
 msgstr "Nezvládnutá výjimka"
 
-#: src/gpodder/gtkui/main.py:1279
+#: src/gpodder/gtkui/main.py:1317
 #, python-format
 msgid "Feedparser error: %s"
 msgstr "Chyba při zpracování zdroje: %s"
 
-#: src/gpodder/gtkui/main.py:1413
+#: src/gpodder/gtkui/main.py:1451
 msgid "Could not download some episodes:"
 msgstr "Nelze stáhnout některé epizody:"
 
-#: src/gpodder/gtkui/main.py:1415 src/gpodder/gtkui/main.py:1418
+#: src/gpodder/gtkui/main.py:1453 src/gpodder/gtkui/main.py:1456
 msgid "Downloads finished"
 msgstr "Stahování dokončeno"
 
-#: src/gpodder/gtkui/main.py:1421
+#: src/gpodder/gtkui/main.py:1459
 msgid "Downloads failed"
 msgstr "Stahování selhalo"
 
-#: src/gpodder/gtkui/main.py:1426
+#: src/gpodder/gtkui/main.py:1464
 msgid "Could not sync some episodes:"
 msgstr "Nelze synchronizovat  některé epizody:"
 
-#: src/gpodder/gtkui/main.py:1429 src/gpodder/gtkui/main.py:1433
+#: src/gpodder/gtkui/main.py:1467 src/gpodder/gtkui/main.py:1471
 msgid "Device synchronization finished"
 msgstr "Synchronizace se zařízením dokončena"
 
-#: src/gpodder/gtkui/main.py:1437
+#: src/gpodder/gtkui/main.py:1475
 msgid "Device synchronization failed"
 msgstr "Synchronizace se zařízením se nezdařila"
 
-#: src/gpodder/gtkui/main.py:1480
+#: src/gpodder/gtkui/main.py:1518
 #, python-format
 msgid "%(count)d more episode"
 msgid_plural "%(count)d more episodes"
@@ -634,226 +634,226 @@ msgstr[0] "%(count)d další epizoda"
 msgstr[1] "%(count)d další epizody"
 msgstr[2] "%(count)d dalších epizod"
 
-#: src/gpodder/gtkui/main.py:1588
+#: src/gpodder/gtkui/main.py:1626
 msgid "Start download now"
 msgstr "Zahájit stahování"
 
-#: src/gpodder/gtkui/main.py:1593 src/gpodder/gtkui/main.py:1872
+#: src/gpodder/gtkui/main.py:1631 src/gpodder/gtkui/main.py:1910
 #: src/gpodder/gtkui/desktop/podcastdirectory.py:192
 #: src/gpodder/gtkui/desktop/episodeselector.py:139
 #: share/gpodder/ui/gtk/gpodder.ui.h:1 share/gpodder/ui/gtk/menus.ui.h:22
 msgid "Download"
 msgstr "Stahování"
 
-#: src/gpodder/gtkui/main.py:1598 share/gpodder/ui/gtk/gpodder.ui.h:2
+#: src/gpodder/gtkui/main.py:1636 share/gpodder/ui/gtk/gpodder.ui.h:2
 #: share/gpodder/ui/gtk/menus.ui.h:23
 msgid "Cancel"
 msgstr "Zrušeno"
 
-#: src/gpodder/gtkui/main.py:1602
+#: src/gpodder/gtkui/main.py:1640
 msgid "Pause"
 msgstr "Pozastavit"
 
-#: src/gpodder/gtkui/main.py:1606
+#: src/gpodder/gtkui/main.py:1644
 msgid "Move up"
 msgstr ""
 
-#: src/gpodder/gtkui/main.py:1608
+#: src/gpodder/gtkui/main.py:1646
 msgid "Move down"
 msgstr ""
 
-#: src/gpodder/gtkui/main.py:1611
+#: src/gpodder/gtkui/main.py:1649
 msgid "Remove from list"
 msgstr "Odstranit ze seznamu"
 
-#: src/gpodder/gtkui/main.py:1652 share/gpodder/ui/gtk/menus.ui.h:15
+#: src/gpodder/gtkui/main.py:1690 share/gpodder/ui/gtk/menus.ui.h:15
 msgid "Update podcast"
 msgstr "Aktualizovat podcast"
 
-#: src/gpodder/gtkui/main.py:1659
+#: src/gpodder/gtkui/main.py:1697
 msgid "Open download folder"
 msgstr "Otevřít složku pro stahování"
 
-#: src/gpodder/gtkui/main.py:1665
+#: src/gpodder/gtkui/main.py:1703
 msgid "Mark episodes as old"
 msgstr "Označit epizody jako staré"
 
-#: src/gpodder/gtkui/main.py:1669 src/gpodder/gtkui/main.py:1930
+#: src/gpodder/gtkui/main.py:1707 src/gpodder/gtkui/main.py:1968
 msgid "Archive"
 msgstr "Archivovat"
 
-#: src/gpodder/gtkui/main.py:1674
+#: src/gpodder/gtkui/main.py:1712
 #, fuzzy
 msgid "Delete podcast"
 msgstr "Odstranit epizody"
 
-#: src/gpodder/gtkui/main.py:1689 share/gpodder/ui/gtk/menus.ui.h:16
+#: src/gpodder/gtkui/main.py:1727 share/gpodder/ui/gtk/menus.ui.h:16
 msgid "Podcast settings"
 msgstr "Nastavení podcastů"
 
-#: src/gpodder/gtkui/main.py:1734
+#: src/gpodder/gtkui/main.py:1772
 msgid "File already exist"
 msgstr ""
 
-#: src/gpodder/gtkui/main.py:1736
+#: src/gpodder/gtkui/main.py:1774
 #, python-format
 msgid "A file named \"%(filename)s\" already exist. Do you want to replace it?"
 msgstr ""
 
-#: src/gpodder/gtkui/main.py:1778
+#: src/gpodder/gtkui/main.py:1816
 #, python-format
 msgid ""
 "Error saving to local folder: %(error)r.\n"
 "Would you like to continue?"
 msgstr ""
 
-#: src/gpodder/gtkui/main.py:1780 src/gpodder/gtkui/main.py:1785
+#: src/gpodder/gtkui/main.py:1818 src/gpodder/gtkui/main.py:1823
 #, fuzzy
 msgid "Error saving to local folder"
 msgstr "Chyba při převádění souboru"
 
-#: src/gpodder/gtkui/main.py:1784
+#: src/gpodder/gtkui/main.py:1822
 #, python-format
 msgid "Error saving to local folder: %(error)r"
 msgstr ""
 
-#: src/gpodder/gtkui/main.py:1805
+#: src/gpodder/gtkui/main.py:1843
 msgid "Error converting file."
 msgstr "Chyba při převádění souboru"
 
-#: src/gpodder/gtkui/main.py:1805
+#: src/gpodder/gtkui/main.py:1843
 msgid "Bluetooth file transfer"
 msgstr "Přenos souboru přes bluetooth"
 
-#: src/gpodder/gtkui/main.py:1858 share/gpodder/ui/gtk/menus.ui.h:20
+#: src/gpodder/gtkui/main.py:1896 share/gpodder/ui/gtk/menus.ui.h:20
 msgid "Play"
 msgstr "Přehrát"
 
-#: src/gpodder/gtkui/main.py:1862
+#: src/gpodder/gtkui/main.py:1900
 msgid "Preview"
 msgstr "Ukázka"
 
-#: src/gpodder/gtkui/main.py:1864
+#: src/gpodder/gtkui/main.py:1902
 msgid "Stream"
 msgstr "Proud"
 
-#: src/gpodder/gtkui/main.py:1877
+#: src/gpodder/gtkui/main.py:1915
 #, fuzzy
 msgid "_Cancel"
 msgstr "Zrušeno"
 
-#: src/gpodder/gtkui/main.py:1881
+#: src/gpodder/gtkui/main.py:1919
 #, fuzzy
 msgid "_Delete"
 msgstr "Odstranit"
 
-#: src/gpodder/gtkui/main.py:1907
+#: src/gpodder/gtkui/main.py:1945
 msgid "Send to"
 msgstr "Odeslat na"
 
-#: src/gpodder/gtkui/main.py:1909
+#: src/gpodder/gtkui/main.py:1947
 msgid "Local folder"
 msgstr "Místní složka"
 
-#: src/gpodder/gtkui/main.py:1914
+#: src/gpodder/gtkui/main.py:1952
 msgid "Bluetooth device"
 msgstr "Zařízení bluetooth"
 
-#: src/gpodder/gtkui/main.py:1921
+#: src/gpodder/gtkui/main.py:1959
 msgid "New"
 msgstr "Nový"
 
-#: src/gpodder/gtkui/main.py:1939 share/gpodder/ui/gtk/menus.ui.h:27
+#: src/gpodder/gtkui/main.py:1977 share/gpodder/ui/gtk/menus.ui.h:27
 msgid "Episode details"
 msgstr "Detaily epizody"
 
-#: src/gpodder/gtkui/main.py:2092
+#: src/gpodder/gtkui/main.py:2130
 msgid "Please check your media player settings in the preferences dialog."
 msgstr "Zkontrolujte nastavení vašeho přehrávače v nabídce možnosti"
 
-#: src/gpodder/gtkui/main.py:2093
+#: src/gpodder/gtkui/main.py:2131
 msgid "Error opening player"
 msgstr "Chyba při otevírání přehrávače"
 
-#: src/gpodder/gtkui/main.py:2335
+#: src/gpodder/gtkui/main.py:2373
 msgid "Adding podcasts"
 msgstr "Přidávání podcastů"
 
-#: src/gpodder/gtkui/main.py:2336
+#: src/gpodder/gtkui/main.py:2374
 msgid "Please wait while episode information is downloaded."
 msgstr "Informace o epizodě se stahují, čekejte, prosím"
 
-#: src/gpodder/gtkui/main.py:2343
+#: src/gpodder/gtkui/main.py:2381
 msgid "Existing subscriptions skipped"
 msgstr "Stávající odběry přeskočeny"
 
-#: src/gpodder/gtkui/main.py:2344
+#: src/gpodder/gtkui/main.py:2382
 msgid "You are already subscribed to these podcasts:"
 msgstr "Tyto podcasty již odebíráte:"
 
-#: src/gpodder/gtkui/main.py:2352 bin/gpo:322
+#: src/gpodder/gtkui/main.py:2390 bin/gpo:324
 msgid "Podcast requires authentication"
 msgstr "Podcast požaduje autentizaci"
 
-#: src/gpodder/gtkui/main.py:2353 bin/gpo:323
+#: src/gpodder/gtkui/main.py:2391 bin/gpo:325
 #, python-format
 msgid "Please login to %s:"
 msgstr "Přihlaste se na %s:"
 
-#: src/gpodder/gtkui/main.py:2361 src/gpodder/gtkui/main.py:2457
+#: src/gpodder/gtkui/main.py:2399 src/gpodder/gtkui/main.py:2495
 msgid "Authentication failed"
 msgstr "Autentizace selhala"
 
-#: src/gpodder/gtkui/main.py:2367
+#: src/gpodder/gtkui/main.py:2405
 msgid "Website redirection detected"
 msgstr "Bylo zaznamenáno přesměrování webové stránky"
 
-#: src/gpodder/gtkui/main.py:2368
+#: src/gpodder/gtkui/main.py:2406
 #, python-format
 msgid "The URL %(url)s redirects to %(target)s."
 msgstr "URL %(url)s se přesměrovává na %(target)s."
 
-#: src/gpodder/gtkui/main.py:2369
+#: src/gpodder/gtkui/main.py:2407
 msgid "Do you want to visit the website now?"
 msgstr "Chcete nyní navštívit webovou stránku"
 
-#: src/gpodder/gtkui/main.py:2378
+#: src/gpodder/gtkui/main.py:2416
 msgid "Could not add some podcasts"
 msgstr "Některé podcasty nemohly být přidány"
 
-#: src/gpodder/gtkui/main.py:2379
+#: src/gpodder/gtkui/main.py:2417
 msgid "Some podcasts could not be added to your list:"
 msgstr "Některé podcasty nemohly být přidány do vašeho seznamu:"
 
-#: src/gpodder/gtkui/main.py:2382
+#: src/gpodder/gtkui/main.py:2420
 msgid "Unknown"
 msgstr "Neznámý"
 
-#: src/gpodder/gtkui/main.py:2466
+#: src/gpodder/gtkui/main.py:2504
 msgid "Redirection detected"
 msgstr "Bylo zaznamenáno přesměrování"
 
-#: src/gpodder/gtkui/main.py:2500
+#: src/gpodder/gtkui/main.py:2538
 msgid "Merging episode actions"
 msgstr "Sloučení akcí epizody"
 
-#: src/gpodder/gtkui/main.py:2501
+#: src/gpodder/gtkui/main.py:2539
 msgid "Episode actions from gpodder.net are merged."
 msgstr "Akce epizody z gpodder.net jsou sloučeny"
 
-#: src/gpodder/gtkui/main.py:2525
+#: src/gpodder/gtkui/main.py:2563
 msgid "Cancelling..."
 msgstr "Zrušení..."
 
-#: src/gpodder/gtkui/main.py:2534
+#: src/gpodder/gtkui/main.py:2572
 msgid "Please connect to a network, then try again."
 msgstr "Připojte prosím síť a zkuste to znovu"
 
-#: src/gpodder/gtkui/main.py:2535
+#: src/gpodder/gtkui/main.py:2573
 msgid "No network connection"
 msgstr "Žádné připojení k síti"
 
-#: src/gpodder/gtkui/main.py:2556
+#: src/gpodder/gtkui/main.py:2594
 #, python-format
 msgid "Updating %(count)d feed..."
 msgid_plural "Updating %(count)d feeds..."
@@ -861,30 +861,30 @@ msgstr[0] "Aktualizace %(count)d zdroje..."
 msgstr[1] "Aktualizace %(count)d zdrojů..."
 msgstr[2] "Aktualizace %(count)d zdrojů..."
 
-#: src/gpodder/gtkui/main.py:2571
+#: src/gpodder/gtkui/main.py:2609
 #, fuzzy, python-format
 msgid "Updating %(podcast)s (%(position)d/%(total)d)"
 msgstr "Aktualizován %(podcast)s (%(position)d z %(total)d)"
 
-#: src/gpodder/gtkui/main.py:2582
+#: src/gpodder/gtkui/main.py:2620
 #, fuzzy, python-format
 msgid "Error while updating %(title)s at %(url)s: %(message)s"
 msgstr "Chyba při aktualizaci %(url)s: %(message)s"
 
-#: src/gpodder/gtkui/main.py:2584
+#: src/gpodder/gtkui/main.py:2622
 #, fuzzy, python-format
 msgid "The %(title)s feed at %(url)s could not be updated."
 msgstr "Zdroj na %(url)s se nepodařilo aktualizovat."
 
-#: src/gpodder/gtkui/main.py:2585
+#: src/gpodder/gtkui/main.py:2623
 msgid "Error while updating feed"
 msgstr "Chyba při aktualizaci zdroje"
 
-#: src/gpodder/gtkui/main.py:2627
+#: src/gpodder/gtkui/main.py:2665
 msgid "No new episodes"
 msgstr "Žádné nové epizody"
 
-#: src/gpodder/gtkui/main.py:2640
+#: src/gpodder/gtkui/main.py:2678
 #, python-format
 msgid "Downloading %(count)d new episode."
 msgid_plural "Downloading %(count)d new episodes."
@@ -892,12 +892,12 @@ msgstr[0] "Stahování %(count)d nové epizody"
 msgstr[1] "Stahování %(count)d nových epizod"
 msgstr[2] "Stahování %(count)d nových epizod"
 
-#: src/gpodder/gtkui/main.py:2643 src/gpodder/gtkui/main.py:2650
-#: src/gpodder/gtkui/main.py:3017
+#: src/gpodder/gtkui/main.py:2681 src/gpodder/gtkui/main.py:2688
+#: src/gpodder/gtkui/main.py:3058
 msgid "New episodes available"
 msgstr "Jsou dostupné nové epizody"
 
-#: src/gpodder/gtkui/main.py:2647
+#: src/gpodder/gtkui/main.py:2685
 #, python-format
 msgid "%(count)d new episode added to download list."
 msgid_plural "%(count)d new episodes added to download list."
@@ -905,7 +905,7 @@ msgstr[0] "%(count)d nová epizoda přidána do seznamu stahovaní"
 msgstr[1] "%(count)d nové epizody přidány do seznamu stahovaní"
 msgstr[2] "%(count)d nových epizod přidáno do seznamu stahovaní"
 
-#: src/gpodder/gtkui/main.py:2656
+#: src/gpodder/gtkui/main.py:2694
 #, python-format
 msgid "%(count)d new episode available"
 msgid_plural "%(count)d new episodes available"
@@ -913,11 +913,11 @@ msgstr[0] "%(count)d nová dostupná epizoda"
 msgstr[1] "%(count)d nové dostupné epizody"
 msgstr[2] "%(count)d nových dostupných epizod"
 
-#: src/gpodder/gtkui/main.py:2687
+#: src/gpodder/gtkui/main.py:2725
 msgid "Quit gPodder"
 msgstr "Ukončit gPodder"
 
-#: src/gpodder/gtkui/main.py:2688
+#: src/gpodder/gtkui/main.py:2726
 msgid ""
 "You are downloading episodes. You can resume downloads the next time you "
 "start gPodder. Do you want to quit now?"
@@ -925,11 +925,11 @@ msgstr ""
 "Stahujete epizody. Stahování můžete obnovit při příštím startu gPodderu. "
 "Chcete nyní skončit"
 
-#: src/gpodder/gtkui/main.py:2728 bin/gpo:857
+#: src/gpodder/gtkui/main.py:2766 bin/gpo:859
 msgid "Episodes are locked"
 msgstr "Epizody jsou uzamčeny"
 
-#: src/gpodder/gtkui/main.py:2730 bin/gpo:859
+#: src/gpodder/gtkui/main.py:2768 bin/gpo:861
 msgid ""
 "The selected episodes are locked. Please unlock the episodes that you want "
 "to delete before trying to delete them."
@@ -937,7 +937,7 @@ msgstr ""
 "Označené epizody jsou uzamčené. Pro jejich smazání je potřeba je nejprve "
 "odemknout."
 
-#: src/gpodder/gtkui/main.py:2737 bin/gpo:866
+#: src/gpodder/gtkui/main.py:2775 bin/gpo:868
 #, python-format
 msgid "Delete %(count)d episode?"
 msgid_plural "Delete %(count)d episodes?"
@@ -945,19 +945,19 @@ msgstr[0] "Odstranit %(count)d epizodu?"
 msgstr[1] "Smazat %(count)d epizody?"
 msgstr[2] "Smazat %(count)d epizod?"
 
-#: src/gpodder/gtkui/main.py:2739 bin/gpo:868
+#: src/gpodder/gtkui/main.py:2777 bin/gpo:870
 msgid "Deleting episodes removes downloaded files."
 msgstr "Odstranění epizod smaže stažené soubory."
 
-#: src/gpodder/gtkui/main.py:2744
+#: src/gpodder/gtkui/main.py:2782
 msgid "Deleting episodes"
 msgstr "Odstraňování epizod"
 
-#: src/gpodder/gtkui/main.py:2745 bin/gpo:873
+#: src/gpodder/gtkui/main.py:2783 bin/gpo:875
 msgid "Please wait while episodes are deleted"
 msgstr "Počkejte než budou epizody odstraněny"
 
-#: src/gpodder/gtkui/main.py:2798
+#: src/gpodder/gtkui/main.py:2836
 #, python-format
 msgid "Select older than %(count)d day"
 msgid_plural "Select older than %(count)d days"
@@ -965,144 +965,144 @@ msgstr[0] "Vybrat starší než %(count)d den"
 msgstr[1] "Vybrat starší než %(count)d dny"
 msgstr[2] "Vybrat starší než %(count)d dnů"
 
-#: src/gpodder/gtkui/main.py:2800
+#: src/gpodder/gtkui/main.py:2838
 msgid "Select played"
 msgstr "Vybrat přehrané"
 
-#: src/gpodder/gtkui/main.py:2801
+#: src/gpodder/gtkui/main.py:2839
 msgid "Select finished"
 msgstr "Vybrat dokončené"
 
-#: src/gpodder/gtkui/main.py:2805
+#: src/gpodder/gtkui/main.py:2843
 msgid "Select the episodes you want to delete:"
 msgstr "Vyberte episody, které chcete odstranit:"
 
-#: src/gpodder/gtkui/main.py:2822 share/gpodder/ui/gtk/menus.ui.h:10
+#: src/gpodder/gtkui/main.py:2860 share/gpodder/ui/gtk/menus.ui.h:10
 msgid "Delete episodes"
 msgstr "Odstranit epizody"
 
-#: src/gpodder/gtkui/main.py:2876 src/gpodder/gtkui/main.py:3111
-#: src/gpodder/gtkui/main.py:3211
+#: src/gpodder/gtkui/main.py:2914 src/gpodder/gtkui/main.py:3152
+#: src/gpodder/gtkui/main.py:3252
 msgid "No podcast selected"
 msgstr "Žádný podcast nebyl vybrán"
 
-#: src/gpodder/gtkui/main.py:2877
+#: src/gpodder/gtkui/main.py:2915
 msgid "Please select a podcast in the podcasts list to update."
 msgstr "Vyberte podcast ze seznamu, který chcete aktualizovat"
 
-#: src/gpodder/gtkui/main.py:2967
+#: src/gpodder/gtkui/main.py:3008
 #, python-format
 msgid "Download error while downloading %(episode)s: %(message)s"
 msgstr "Chyba stahování při stahování  %(episode)s: %(message)s"
 
-#: src/gpodder/gtkui/main.py:2968
+#: src/gpodder/gtkui/main.py:3009
 msgid "Download error"
 msgstr "Chyba stahování"
 
-#: src/gpodder/gtkui/main.py:3002
+#: src/gpodder/gtkui/main.py:3043
 msgid "Select the episodes you want to download:"
 msgstr "Vyberte episody, které chcete stáhnout:"
 
-#: src/gpodder/gtkui/main.py:3025
+#: src/gpodder/gtkui/main.py:3066
 msgid "Mark as old"
 msgstr "Označit jako staré"
 
-#: src/gpodder/gtkui/main.py:3032
+#: src/gpodder/gtkui/main.py:3073
 msgid "Please check for new episodes later."
 msgstr "Zkontrolovat nové epizody později."
 
-#: src/gpodder/gtkui/main.py:3033
+#: src/gpodder/gtkui/main.py:3074
 msgid "No new episodes available"
 msgstr "Žádné nové epizody"
 
-#: src/gpodder/gtkui/main.py:3074
+#: src/gpodder/gtkui/main.py:3115
 #, fuzzy, python-format
 msgid "Subscriptions on %(server)s"
 msgstr "Odběry na gpodder.net"
 
-#: src/gpodder/gtkui/main.py:3085
+#: src/gpodder/gtkui/main.py:3126
 msgid "Login to gpodder.net"
 msgstr "Přihlašování na gpodder.net"
 
-#: src/gpodder/gtkui/main.py:3086
+#: src/gpodder/gtkui/main.py:3127
 msgid "Please login to download your subscriptions."
 msgstr "Přihlaste se ke stažení vašich odběrů"
 
-#: src/gpodder/gtkui/main.py:3112
+#: src/gpodder/gtkui/main.py:3153
 msgid "Please select a podcast in the podcasts list to edit."
 msgstr "Vyberte podcast, který chcete upravit."
 
-#: src/gpodder/gtkui/main.py:3126
+#: src/gpodder/gtkui/main.py:3167
 msgid "Podcast"
 msgstr "Podcast"
 
-#: src/gpodder/gtkui/main.py:3132 share/gpodder/ui/gtk/menus.ui.h:14
+#: src/gpodder/gtkui/main.py:3173 share/gpodder/ui/gtk/menus.ui.h:14
 #, fuzzy
 msgid "Delete podcasts"
 msgstr "Odstranit podcasty"
 
-#: src/gpodder/gtkui/main.py:3133
+#: src/gpodder/gtkui/main.py:3174
 #, fuzzy
 msgid "Select the podcast you want to delete."
 msgstr "Vyberte který podcast chcete odstranit"
 
-#: src/gpodder/gtkui/main.py:3137 share/gpodder/ui/gtk/menus.ui.h:24
+#: src/gpodder/gtkui/main.py:3178 share/gpodder/ui/gtk/menus.ui.h:24
 msgid "Delete"
 msgstr "Odstranit"
 
-#: src/gpodder/gtkui/main.py:3146
+#: src/gpodder/gtkui/main.py:3187
 #, fuzzy
 msgid "Deleting podcast"
 msgstr "Odstraňování epizod"
 
-#: src/gpodder/gtkui/main.py:3147
+#: src/gpodder/gtkui/main.py:3188
 #, fuzzy
 msgid "Please wait while the podcast is deleted"
 msgstr "Počkejte na odstranění podcastu"
 
-#: src/gpodder/gtkui/main.py:3148
+#: src/gpodder/gtkui/main.py:3189
 msgid ""
 "This podcast and all its episodes will be PERMANENTLY DELETED.\n"
 "Are you sure you want to continue?"
 msgstr ""
 
-#: src/gpodder/gtkui/main.py:3150
+#: src/gpodder/gtkui/main.py:3191
 #, fuzzy
 msgid "Deleting podcasts"
 msgstr "Odstraňování podcastů"
 
-#: src/gpodder/gtkui/main.py:3151
+#: src/gpodder/gtkui/main.py:3192
 #, fuzzy
 msgid "Please wait while the podcasts are deleted"
 msgstr "Počkejte než budou podcasty odstraňeny"
 
-#: src/gpodder/gtkui/main.py:3152
+#: src/gpodder/gtkui/main.py:3193
 msgid ""
 "These podcasts and all their episodes will be PERMANENTLY DELETED.\n"
 "Are you sure you want to continue?"
 msgstr ""
 
-#: src/gpodder/gtkui/main.py:3212
+#: src/gpodder/gtkui/main.py:3253
 msgid "Please select a podcast in the podcasts list to remove."
 msgstr "Vyberte ze seznamu podcast který chcete odstranit"
 
-#: src/gpodder/gtkui/main.py:3222
+#: src/gpodder/gtkui/main.py:3263
 msgid "OPML files"
 msgstr "Soubory OPML"
 
-#: src/gpodder/gtkui/main.py:3227
+#: src/gpodder/gtkui/main.py:3268
 msgid "Import from OPML"
 msgstr "Importovat z OPML"
 
-#: src/gpodder/gtkui/main.py:3241
+#: src/gpodder/gtkui/main.py:3282
 msgid "Import podcasts from OPML file"
 msgstr "Importovat podcasty z OPML souboru"
 
-#: src/gpodder/gtkui/main.py:3248
+#: src/gpodder/gtkui/main.py:3289
 msgid "Nothing to export"
 msgstr "Nic k exportování"
 
-#: src/gpodder/gtkui/main.py:3249
+#: src/gpodder/gtkui/main.py:3290
 msgid ""
 "Your list of podcast subscriptions is empty. Please subscribe to some "
 "podcasts first before trying to export your subscription list."
@@ -1110,11 +1110,11 @@ msgstr ""
 "Váš seznam podcastů je prázdný. Začněte odebírat nějaké podcasty, a potom "
 "můžete exportovat jejich seznam."
 
-#: src/gpodder/gtkui/main.py:3255
+#: src/gpodder/gtkui/main.py:3296
 msgid "Export to OPML"
 msgstr "Exportovat do OPML"
 
-#: src/gpodder/gtkui/main.py:3268
+#: src/gpodder/gtkui/main.py:3309
 #, python-format
 msgid "%(count)d subscription exported"
 msgid_plural "%(count)d subscriptions exported"
@@ -1122,106 +1122,106 @@ msgstr[0] "%(count)d podcast exportován"
 msgstr[1] "%(count)d podcasty exportovány"
 msgstr[2] "%(count)d podcastů exportováno"
 
-#: src/gpodder/gtkui/main.py:3271
+#: src/gpodder/gtkui/main.py:3312
 msgid "Your podcast list has been successfully exported."
 msgstr "Seznam vašich podcastů byl úspěšně exportován"
 
-#: src/gpodder/gtkui/main.py:3275
+#: src/gpodder/gtkui/main.py:3316
 msgid "Could not export OPML to file. Please check your permissions."
 msgstr "Export do OPML souboru se nezdařil. Zkontrolujte svá oprávnění."
 
-#: src/gpodder/gtkui/main.py:3277
+#: src/gpodder/gtkui/main.py:3318
 msgid "OPML export failed"
 msgstr "Export do OPML selhal"
 
-#: src/gpodder/gtkui/main.py:3301
+#: src/gpodder/gtkui/main.py:3342
 #, fuzzy
 msgid "Could not check for updates"
 msgstr "Některé podcasty nemohly být přidány"
 
-#: src/gpodder/gtkui/main.py:3302
+#: src/gpodder/gtkui/main.py:3343
 msgid "Please try again later."
 msgstr ""
 
-#: src/gpodder/gtkui/main.py:3307
+#: src/gpodder/gtkui/main.py:3348
 msgid "No updates available"
 msgstr "Žádné aktualizace nejsou k dispozici"
 
-#: src/gpodder/gtkui/main.py:3308
+#: src/gpodder/gtkui/main.py:3349
 msgid "You have the latest version of gPodder."
 msgstr "Máte poslední verzi gPodderu."
 
-#: src/gpodder/gtkui/main.py:3312
+#: src/gpodder/gtkui/main.py:3353
 msgid "New version available"
 msgstr "Je k dispozici nová verze"
 
-#: src/gpodder/gtkui/main.py:3314
+#: src/gpodder/gtkui/main.py:3355
 #, python-format
 msgid "Installed version: %s"
 msgstr "Nainstalovaná verze: %s"
 
-#: src/gpodder/gtkui/main.py:3315
+#: src/gpodder/gtkui/main.py:3356
 #, python-format
 msgid "Newest version: %s"
 msgstr "Nejnovější verze: %s"
 
-#: src/gpodder/gtkui/main.py:3316
+#: src/gpodder/gtkui/main.py:3357
 #, python-format
 msgid "Release date: %s"
 msgstr "Datum vydání: %s"
 
-#: src/gpodder/gtkui/main.py:3318
+#: src/gpodder/gtkui/main.py:3359
 msgid "Download the latest version from gpodder.org?"
 msgstr "Stáhnout nejnovější verzi z gpodder.org?"
 
-#: src/gpodder/gtkui/main.py:3568
+#: src/gpodder/gtkui/main.py:3607
 #, fuzzy
 msgid "Please register a YouTube API key and set it in the preferences."
 msgstr "Nastavte, prosím, zařízení v dialogu předvoleb."
 
-#: src/gpodder/gtkui/main.py:3569
+#: src/gpodder/gtkui/main.py:3608
 msgid "Would you like to set up an API key now?"
 msgstr ""
 
-#: src/gpodder/gtkui/main.py:3569
+#: src/gpodder/gtkui/main.py:3608
 msgid "API key required"
 msgstr ""
 
-#: src/gpodder/gtkui/main.py:3588 bin/gpo:725
+#: src/gpodder/gtkui/main.py:3627 bin/gpo:727
 #, fuzzy
 msgid "No unique URL found"
 msgstr "Nenalezeny žádné kanály"
 
-#: src/gpodder/gtkui/main.py:3593 bin/gpo:731
+#: src/gpodder/gtkui/main.py:3632 bin/gpo:733
 #, fuzzy
 msgid "Already subscribed"
 msgstr "%s nelze odebírat"
 
-#: src/gpodder/gtkui/main.py:3603 bin/gpo:743
+#: src/gpodder/gtkui/main.py:3642 bin/gpo:745
 #, python-format
 msgid "Make sure the API key is correct. Error: %(message)s"
 msgstr ""
 
-#: src/gpodder/gtkui/main.py:3604
+#: src/gpodder/gtkui/main.py:3643
 #, fuzzy
 msgid "Error getting YouTube channels"
 msgstr "Chyba při nastavování možnosti"
 
-#: src/gpodder/gtkui/main.py:3607
+#: src/gpodder/gtkui/main.py:3646
 #, fuzzy
 msgid "Successfully migrated subscriptions"
 msgstr "%s úspěšně přidáno "
 
-#: src/gpodder/gtkui/main.py:3609
+#: src/gpodder/gtkui/main.py:3648
 #, fuzzy
 msgid "Subscriptions are up to date"
 msgstr "Odběr pozastaven"
 
-#: src/gpodder/gtkui/main.py:3612
+#: src/gpodder/gtkui/main.py:3651
 msgid "These URLs failed:"
 msgstr ""
 
-#: src/gpodder/gtkui/main.py:3614
+#: src/gpodder/gtkui/main.py:3653
 #, fuzzy
 msgid "Could not migrate some subscriptions"
 msgstr "Některé podcasty nemohly být přidány"
@@ -1396,13 +1396,13 @@ msgstr "Nastavení"
 msgid "Set to"
 msgstr "Nastavit na"
 
-#: src/gpodder/gtkui/interface/configeditor.py:84
+#: src/gpodder/gtkui/interface/configeditor.py:86
 #, python-format
 msgid "Cannot set %(field)s to %(value)s. Needed data type: %(datatype)s"
 msgstr ""
 "%(field)s nemohlo být nastaveno na %(value)s. Požadovaný typ: %(datatype)s"
 
-#: src/gpodder/gtkui/interface/configeditor.py:88
+#: src/gpodder/gtkui/interface/configeditor.py:90
 msgid "Error setting option"
 msgstr "Chyba při nastavování možnosti"
 
@@ -1448,51 +1448,51 @@ msgstr "Odstranit z aplikace gPodder"
 msgid "Custom (%(format_ids)s)"
 msgstr "Vlastní (%(format_ids)s)"
 
-#: src/gpodder/gtkui/desktop/preferences.py:321
+#: src/gpodder/gtkui/desktop/preferences.py:322
 msgid "Name"
 msgstr "Jméno"
 
-#: src/gpodder/gtkui/desktop/preferences.py:373
+#: src/gpodder/gtkui/desktop/preferences.py:374
 #, fuzzy
 msgid "Documentation"
 msgstr "Délka"
 
-#: src/gpodder/gtkui/desktop/preferences.py:378
+#: src/gpodder/gtkui/desktop/preferences.py:379
 #, fuzzy
 msgid "Extension info"
 msgstr "Info o přídavném modulu"
 
-#: src/gpodder/gtkui/desktop/preferences.py:383
+#: src/gpodder/gtkui/desktop/preferences.py:384
 msgid "Support the author"
 msgstr ""
 
-#: src/gpodder/gtkui/desktop/preferences.py:425
+#: src/gpodder/gtkui/desktop/preferences.py:426
 msgid "Extension cannot be activated"
 msgstr "Rozšíření nemůže být aktivováno"
 
-#: src/gpodder/gtkui/desktop/preferences.py:438
+#: src/gpodder/gtkui/desktop/preferences.py:439
 msgid "Extension module info"
 msgstr "Info o přídavném modulu"
 
-#: src/gpodder/gtkui/desktop/preferences.py:475
+#: src/gpodder/gtkui/desktop/preferences.py:476
 msgid "Configure audio player"
 msgstr "Nastavit přehrávač audia"
 
-#: src/gpodder/gtkui/desktop/preferences.py:476
-#: src/gpodder/gtkui/desktop/preferences.py:486
+#: src/gpodder/gtkui/desktop/preferences.py:477
+#: src/gpodder/gtkui/desktop/preferences.py:487
 msgid "Command:"
 msgstr "Příkaz:"
 
-#: src/gpodder/gtkui/desktop/preferences.py:485
+#: src/gpodder/gtkui/desktop/preferences.py:486
 msgid "Configure video player"
 msgstr "Nastavit přehrávač videa"
 
-#: src/gpodder/gtkui/desktop/preferences.py:498
-#: src/gpodder/gtkui/desktop/preferences.py:522
+#: src/gpodder/gtkui/desktop/preferences.py:499
+#: src/gpodder/gtkui/desktop/preferences.py:523
 msgid "manually"
 msgstr "ručně"
 
-#: src/gpodder/gtkui/desktop/preferences.py:524
+#: src/gpodder/gtkui/desktop/preferences.py:525
 #, python-format
 msgid "after %(count)d day"
 msgid_plural "after %(count)d days"
@@ -1500,11 +1500,11 @@ msgstr[0] "po %(count)d dni"
 msgstr[1] "po %(count)d dnech"
 msgstr[2] "po %(count)d dnech"
 
-#: src/gpodder/gtkui/desktop/preferences.py:564
+#: src/gpodder/gtkui/desktop/preferences.py:565
 msgid "Replace subscription list on server"
 msgstr "Nahradit seznam podcastů na serveru"
 
-#: src/gpodder/gtkui/desktop/preferences.py:565
+#: src/gpodder/gtkui/desktop/preferences.py:566
 msgid ""
 "Remote podcasts that have not been added locally will be removed on the "
 "server. Continue?"
@@ -1512,11 +1512,11 @@ msgstr ""
 "Podcasty na serveru, které nejsou v místním seznamu, budou smazány. "
 "Pokračovat?"
 
-#: src/gpodder/gtkui/desktop/preferences.py:644
+#: src/gpodder/gtkui/desktop/preferences.py:645
 msgid "Select folder for mount point"
 msgstr "Vyberte složku pro přípojný bod"
 
-#: src/gpodder/gtkui/desktop/preferences.py:661
+#: src/gpodder/gtkui/desktop/preferences.py:662
 #, fuzzy
 msgid "Select folder for playlists"
 msgstr "Vyberte složku pro přípojný bod"
@@ -1737,6 +1737,12 @@ msgstr ""
 #: share/gpodder/extensions/youtube-dl.py:27
 msgid "Manage Youtube subscriptions using youtube-dl (pip install youtube_dl)"
 msgstr ""
+
+#: share/gpodder/extensions/youtube-dl.py:419
+#, fuzzy
+#| msgid "Download to:"
+msgid "Download with Youtube-DL"
+msgstr "Stáhnout do:"
 
 #: share/gpodder/extensions/video_converter.py:20
 #, fuzzy
@@ -1969,7 +1975,7 @@ msgid "Username:"
 msgstr "Jméno:"
 
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:9
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:15 bin/gpo:326
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:15 bin/gpo:328
 msgid "Password:"
 msgstr "Heslo:"
 
@@ -2299,78 +2305,78 @@ msgstr ""
 msgid "..."
 msgstr ""
 
-#: bin/gpo:245
+#: bin/gpo:247
 msgid "Podcast update requested by extensions."
 msgstr "Aktualizace podcastů vyžadované rozšířeními."
 
-#: bin/gpo:249
+#: bin/gpo:251
 msgid "Episode download requested by extensions."
 msgstr "Stažení epizody vyžadované rozšířeními."
 
-#: bin/gpo:302
+#: bin/gpo:304
 #, python-format
 msgid "Invalid url: %s"
 msgstr "Neplatná url: %s"
 
-#: bin/gpo:324
+#: bin/gpo:326
 #, fuzzy
 msgid "User name:"
 msgstr "Jméno:"
 
-#: bin/gpo:341 bin/gpo:417 bin/gpo:455 bin/gpo:654 bin/gpo:676 bin/gpo:691
-#: bin/gpo:811
+#: bin/gpo:343 bin/gpo:419 bin/gpo:457 bin/gpo:656 bin/gpo:678 bin/gpo:693
+#: bin/gpo:813
 #, python-format
 msgid "You are not subscribed to %s."
 msgstr "Neodebíráte %s"
 
-#: bin/gpo:347
+#: bin/gpo:349
 #, fuzzy, python-format
 msgid "Already subscribed to %s."
 msgstr "%s nelze odebírat"
 
-#: bin/gpo:353
+#: bin/gpo:355
 #, python-format
 msgid "Cannot subscribe to %s."
 msgstr "%s nelze odebírat"
 
-#: bin/gpo:369
+#: bin/gpo:371
 #, python-format
 msgid "Successfully added %s."
 msgstr "%s úspěšně přidáno "
 
-#: bin/gpo:387
+#: bin/gpo:389
 msgid "This configuration option does not exist."
 msgstr "Tato možnost nastavení neexistuje."
 
-#: bin/gpo:391
+#: bin/gpo:393
 msgid "Can only set leaf configuration nodes."
 msgstr "Lze nastavit jen koncové větve konfigurace."
 
-#: bin/gpo:405
+#: bin/gpo:407
 #, python-format
 msgid "Renamed %(old_title)s to %(new_title)s."
 msgstr "%(old_title)s přejmenováno na %(new_title)s."
 
-#: bin/gpo:421
+#: bin/gpo:423
 #, python-format
 msgid "Unsubscribed from %s."
 msgstr "Zrušeno odebírání %s"
 
-#: bin/gpo:487
+#: bin/gpo:489
 #, fuzzy
 msgid "Invalid command."
 msgstr "Neplatná hodnota"
 
-#: bin/gpo:492
+#: bin/gpo:494
 #, fuzzy, python-format
 msgid "Invalid option: %s."
 msgstr "Neplatná url: %s"
 
-#: bin/gpo:517
+#: bin/gpo:519
 msgid "Updates disabled"
 msgstr "Aktualizace zakázány"
 
-#: bin/gpo:528
+#: bin/gpo:530
 #, python-format
 msgid "%(count)d new episode"
 msgid_plural "%(count)d new episodes"
@@ -2378,122 +2384,122 @@ msgstr[0] "%(count)d nová epizoda"
 msgstr[1] "%(count)d nové epizody"
 msgstr[2] "%(count)d nových epizod"
 
-#: bin/gpo:534
+#: bin/gpo:536
 msgid "Checking for new episodes"
 msgstr "Zkontrolovat nové epizody"
 
-#: bin/gpo:543
+#: bin/gpo:545
 #, python-format
 msgid "Skipping %(podcast)s"
 msgstr "Přeskakování %(podcast)s"
 
-#: bin/gpo:661
+#: bin/gpo:663
 msgid "No episode with the specified GUID found."
 msgstr ""
 
-#: bin/gpo:665
+#: bin/gpo:667
 #, fuzzy, python-format
 msgid "Deleted episode \"%s\"."
 msgstr "Odstranit epizody"
 
-#: bin/gpo:667
+#: bin/gpo:669
 #, fuzzy
 msgid "Episode has already been deleted."
 msgstr "Epizody jsou uzamčeny"
 
-#: bin/gpo:682
+#: bin/gpo:684
 #, python-format
 msgid "Disabling feed update from %s."
 msgstr "Zakázána aktualizace kanálu z %s"
 
-#: bin/gpo:697
+#: bin/gpo:699
 #, python-format
 msgid "Enabling feed update from %s."
 msgstr "Povolena aktualizace kanálu z %s"
 
-#: bin/gpo:710
+#: bin/gpo:712
 #, python-format
 msgid "Please register a YouTube API key and set it using %(command)s."
 msgstr ""
 
-#: bin/gpo:737
+#: bin/gpo:739
 #, fuzzy, python-format
 msgid "Changing: %(old_url)s => %(new_url)s"
 msgstr "URL adresa změněna z %(old_url)s na %(new_url)s."
 
-#: bin/gpo:747
+#: bin/gpo:749
 #, fuzzy
 msgid "Nothing to fix"
 msgstr "Nic k exportování"
 
-#: bin/gpo:766
+#: bin/gpo:768
 msgid "No podcasts found."
 msgstr "Nebyly nalezeny žádné podcasty"
 
-#: bin/gpo:780
+#: bin/gpo:782
 msgid "Enter index to subscribe, ? for list"
 msgstr "Pro přihlášení zadejte pořadové číslo, ? vypíše seznam"
 
-#: bin/gpo:794 bin/gpo:798 bin/gpo:940 bin/gpo:944
+#: bin/gpo:796 bin/gpo:800 bin/gpo:942 bin/gpo:946
 msgid "Invalid value."
 msgstr "Neplatná hodnota"
 
-#: bin/gpo:815
+#: bin/gpo:817
 #, python-format
 msgid "Invalid URL: %s"
 msgstr "Neplatná URL adresa: %s"
 
-#: bin/gpo:818
+#: bin/gpo:820
 #, python-format
 msgid "Changed URL from %(old_url)s to %(new_url)s."
 msgstr "URL adresa změněna z %(old_url)s na %(new_url)s."
 
-#: bin/gpo:843
+#: bin/gpo:845
 #, python-format
 msgid "%(title)s: %(msg)s ([yes]/no): "
 msgstr ""
 
-#: bin/gpo:847
+#: bin/gpo:849
 msgid "yes"
 msgstr ""
 
-#: bin/gpo:885
+#: bin/gpo:887
 #, fuzzy, python-format
 msgid "Deleting episode: %(episode)s"
 msgstr "Odstraňování epizod"
 
-#: bin/gpo:918
+#: bin/gpo:920
 msgid ""
 "Enter episode index to toggle, ? for list, X to select all, space to select "
 "none, empty when ready"
 msgstr ""
 
-#: bin/gpo:950
+#: bin/gpo:952
 #, fuzzy, python-format
 msgid "Will delete %(episode)s"
 msgstr "Skrýt odstraněné epizody"
 
-#: bin/gpo:952
+#: bin/gpo:954
 #, fuzzy, python-format
 msgid "Won't delete %(episode)s"
 msgstr "Odstranit epizody"
 
-#: bin/gpo:965
+#: bin/gpo:967
 #, fuzzy, python-format
 msgid "Syncing %s"
 msgstr "Přidání %s"
 
-#: bin/gpo:1035
+#: bin/gpo:1037
 #, python-format
 msgid "Syntax error: %(error)s"
 msgstr "Chyba syntaxe: %(error)s"
 
-#: bin/gpo:1129
+#: bin/gpo:1131
 #, fuzzy
 msgid "Ambiguous command. Did you mean.."
 msgstr "Nejednoznačný příkaz. Mysleli jste..."
 
-#: bin/gpo:1133
+#: bin/gpo:1135
 msgid "The requested function is not available."
 msgstr "Požadovaná funkce není dostupná."
 
