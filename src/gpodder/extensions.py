@@ -630,3 +630,34 @@ class ExtensionManager(object):
         It is called after on_application_started.
         """
         pass
+
+    @call_extensions
+    def on_preferences(self):
+        """Called when the preferences dialog is opened
+
+        You can add additional tabs to the preferences dialog here. You have to
+        return a list of tuples, where the first item is a label and the second
+        item is a callable with no parameters and returns a Gtk widget.
+
+        Example return value:
+
+        [('Tab name', lambda: ...)]
+        """
+        pass
+
+    @call_extensions
+    def on_channel_settings(self, channel):
+        """Called when a channel settings dialog is opened
+
+        You can add additional tabs to the channel settings dialog here. You
+        have to return a list of tuples, where the first item is a label and the
+        second item is a callable that will get the channel as its first and
+        only parameter and returns a Gtk widget.
+
+        Example return value:
+
+        [('Tab name', lambda channel: ...)]
+
+        @param channel: A gpodder.model.PodcastChannel instance
+        """
+        pass

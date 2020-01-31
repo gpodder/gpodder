@@ -94,6 +94,13 @@ class gPodderChannel(BuilderWidget):
         self.imgCoverEventBox.connect('button-press-event',
                 self.on_cover_popup_menu)
 
+        gpodder.user_extensions.on_ui_object_available('channel-gtk', self)
+
+        result = gpodder.user_extensions.on_channel_settings(self.channel)
+        if result:
+            for label, callback in result:
+                self.notebookChannelEditor.append_page(callback(self.channel), Gtk.Label(label))
+
     def on_button_add_section_clicked(self, widget):
         text = self.show_text_edit_dialog(_('Add section'), _('New section:'),
             affirmative_text=Gtk.STOCK_ADD)
