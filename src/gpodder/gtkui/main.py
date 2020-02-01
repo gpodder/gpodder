@@ -272,7 +272,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             ('toggleEpisodeLock', self.on_item_toggle_lock_activate),
             ('toggleShownotes', self.on_shownotes_selected_episodes),
             ('sync', self.on_sync_to_device_activate),
-            ('updateYoutubeSubscriptions', self.on_update_youtube_subscriptions_activate),
         ]
 
         for name, callback in action_defs:
@@ -3601,56 +3600,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.sync_ui.on_synchronize_episodes(self.channels, episodes, force_played,
                                              self.enable_download_list_update)
-
-    def on_update_youtube_subscriptions_activate(self, action, param):
-        if not self.config.youtube.api_key_v3:
-            if self.show_confirmation('\n'.join((_('Please register a YouTube API key and set it in the preferences.'),
-                                                 _('Would you like to set up an API key now?'))), _('API key required')):
-                self.application.on_itemPreferences_activate(self, None)
-            return
-
-        failed_urls = []
-        migrated_users = []
-        for podcast in self.channels:
-            url, user = youtube.for_each_feed_pattern(lambda url, channel: (url, channel), podcast.url, (None, None))
-            if url is not None and user is not None:
-                try:
-                    logger.info('Getting channels for YouTube user %s (%s)', user, url)
-                    new_urls = youtube.get_channels_for_user(user, self.config.youtube.api_key_v3)
-                    logger.debug('YouTube channels retrieved: %r', new_urls)
-
-                    if len(new_urls) == 0 and youtube.get_youtube_id(url) is not None:
-                        logger.info('No need to update %s', url)
-                        continue
-
-                    if len(new_urls) != 1:
-                        failed_urls.append((url, _('No unique URL found')))
-                        continue
-
-                    new_url = new_urls[0]
-                    if new_url in set(x.url for x in self.model.get_podcasts()):
-                        failed_urls.append((url, _('Already subscribed')))
-                        continue
-
-                    logger.info('New feed location: %s => %s', url, new_url)
-                    podcast.url = new_url
-                    podcast.save()
-                    migrated_users.append(html.escape(user))
-                except Exception as e:
-                    logger.error('Exception happened while updating download list.', exc_info=True)
-                    self.show_message(
-                        _('Make sure the API key is correct. Error: %(message)s') % {'message': html.escape(str(e))},
-                        _('Error getting YouTube channels'), important=True)
-
-        if migrated_users:
-            self.show_message('\n'.join(migrated_users), _('Successfully migrated subscriptions'))
-        elif not failed_urls:
-            self.show_message(_('Subscriptions are up to date'))
-
-        if failed_urls:
-            self.show_message('\n'.join([_('These URLs failed:'), ''] + [html.escape('{0}: {1}'.format(url, message))
-                                                                         for url, message in failed_urls]),
-                              _('Could not migrate some subscriptions'), important=True)
 
     def on_extension_enabled(self, extension):
         if getattr(extension, 'on_ui_object_available', None) is not None:
