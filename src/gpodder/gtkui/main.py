@@ -2625,7 +2625,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         message = _('The %(title)s feed at %(url)s could not be updated.')
                         channel._update_error = '?'
                     self.notification(message % d, _('Error while updating feed'), widget=self.treeChannels)
-                    logger.error('Error: %s', str(e), exc_info=True)
+                    logger.error('Error: %s', str(e), exc_info=(e.__class__ not in [
+                        gpodder.feedcore.BadRequest,
+                        gpodder.feedcore.AuthenticationRequired,
+                        gpodder.feedcore.Unsubscribe,
+                        gpodder.feedcore.NotFound,
+                        gpodder.feedcore.InternalServerError,
+                        gpodder.feedcore.UnknownStatusCode,
+                    ]))
 
                 updated_channels.append(channel)
 
