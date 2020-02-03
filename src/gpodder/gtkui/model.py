@@ -497,6 +497,8 @@ class PodcastChannelProxy(object):
         self.cover_thumb = None
         self.auto_archive_episodes = False
 
+        self._update_error = None
+
     def get_statistics(self):
         # Get the total statistics for all channels from the database
         return self._db.get_podcast_statistics()
@@ -713,7 +715,9 @@ class PodcastListModel(Gtk.ListStore):
     def _format_description(self, channel, total, deleted,
             new, downloaded, unplayed):
         title_markup = html.escape(channel.title)
-        if not channel.pause_subscription:
+        if channel._update_error is not None:
+            description_markup = html.escape(_('ERROR: %s') % channel._update_error)
+        elif not channel.pause_subscription:
             description_markup = html.escape(util.get_first_line(channel.description) or ' ')
         else:
             description_markup = html.escape(_('Subscription paused'))
@@ -724,7 +728,9 @@ class PodcastListModel(Gtk.ListStore):
         if new:
             d.append('</span>')
 
-        if description_markup.strip():
+        if channel._update_error is not None:
+            return ''.join(d + ['\n', '<span weight="bold">', description_markup, '</span>'])
+        elif description_markup.strip():
             return ''.join(d + ['\n', '<small>', description_markup, '</small>'])
         else:
             return ''.join(d)

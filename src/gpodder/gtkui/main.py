@@ -1327,7 +1327,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
                 box.add(Gtk.HSeparator())
 
-                if len(channel.description) < 500:
+                if channel._update_error is not None:
+                    description = _('ERROR: %s') % channel._update_error
+                elif len(channel.description) < 500:
                     description = channel.description
                 else:
                     pos = channel.description.find('\n\n')
@@ -2610,6 +2612,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     self.pbFeedUpdate.set_text(progression)
 
                 try:
+                    channel._update_error = None
                     util.idle_add(indicate_updating_podcast, channel)
                     channel.update(max_episodes=self.config.max_episodes_per_feed)
                     self._update_cover(channel)
@@ -2617,8 +2620,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     d = {'title': html.escape(channel.title), 'url': html.escape(channel.url), 'message': html.escape(str(e))}
                     if d['message']:
                         message = _('Error while updating %(title)s at %(url)s: %(message)s')
+                        channel._update_error = str(e)
                     else:
                         message = _('The %(title)s feed at %(url)s could not be updated.')
+                        channel._update_error = '?'
                     self.notification(message % d, _('Error while updating feed'), widget=self.treeChannels)
                     logger.error('Error: %s', str(e), exc_info=True)
 

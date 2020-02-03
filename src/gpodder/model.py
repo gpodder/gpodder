@@ -762,7 +762,7 @@ class PodcastEpisode(PodcastModelObject):
 
 
 class PodcastChannel(PodcastModelObject):
-    __slots__ = schema.PodcastColumns + ('_common_prefix',)
+    __slots__ = schema.PodcastColumns + ('_common_prefix', '_update_error',)
 
     UNICODE_TRANSLATE = {ord('ö'): 'o', ord('ä'): 'a', ord('ü'): 'u'}
 
@@ -813,6 +813,8 @@ class PodcastChannel(PodcastModelObject):
         if self.id:
             self.children = self.db.load_episodes(self, self.episode_factory)
             self._determine_common_prefix()
+
+        self._update_error = None
 
     @property
     def model(self):
