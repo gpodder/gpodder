@@ -35,8 +35,9 @@ import shutil
 import string
 import time
 
-import gpodder
 import podcastparser
+
+import gpodder
 from gpodder import (coverart, escapist_videos, feedcore, registry, schema,
                      util, vimeo, youtube)
 

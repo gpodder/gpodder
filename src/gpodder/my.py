@@ -32,12 +32,13 @@ import os
 import sys
 import time
 
-import gpodder
 # Append gPodder's user agent to mygpoclient's user agent
 import mygpoclient
-from gpodder import minidb, util
 from mygpoclient import api, public
 from mygpoclient import util as mygpoutil
+
+import gpodder
+from gpodder import minidb, util
 
 _ = gpodder.gettext
 
