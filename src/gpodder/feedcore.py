@@ -28,6 +28,7 @@ from html.parser import HTMLParser
 from urllib.error import HTTPError
 
 import podcastparser
+
 from gpodder import util
 
 logger = logging.getLogger(__name__)
