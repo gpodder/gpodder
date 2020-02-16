@@ -30,6 +30,7 @@ import mimetypes
 import os
 
 from mutagen import File
+from mutagen.easyid3 import EasyID3
 from mutagen.flac import Picture
 from mutagen.id3 import APIC, ID3
 from mutagen.mp3 import MP3, EasyMP3
@@ -67,10 +68,11 @@ DefaultConfig = {
 
 
 class AudioFile(object):
-    def __init__(self, filename, album, title, genre, pubDate, cover):
+    def __init__(self, filename, album, title, subtitle, genre, pubDate, cover):
         self.filename = filename
         self.album = album
         self.title = title
+        self.subtitle = subtitle
         self.genre = genre
         self.pubDate = pubDate
         self.cover = cover
@@ -93,6 +95,12 @@ class AudioFile(object):
 
             if self.title is not None:
                 audio.tags['title'] = self.title
+
+            if self.subtitle is not None:
+                audio.tags['subtitle'] = self.subtitle
+
+            if self.subtitle is not None:
+                audio.tags['comments'] = self.subtitle
 
             if self.genre is not None:
                 audio.tags['genre'] = self.genre
@@ -132,8 +140,8 @@ class AudioFile(object):
 
 
 class OggFile(AudioFile):
-    def __init__(self, filename, album, title, genre, pubDate, cover):
-        super(OggFile, self).__init__(filename, album, title, genre, pubDate, cover)
+    def __init__(self, filename, album, title, subtitle, genre, pubDate, cover):
+        super(OggFile, self).__init__(filename, album, title, subtitle, genre, pubDate, cover)
 
     def insert_coverart(self):
         audio = File(self.filename, easy=True)
@@ -143,8 +151,8 @@ class OggFile(AudioFile):
 
 
 class Mp4File(AudioFile):
-    def __init__(self, filename, album, title, genre, pubDate, cover):
-        super(Mp4File, self).__init__(filename, album, title, genre, pubDate, cover)
+    def __init__(self, filename, album, title, subtitle, genre, pubDate, cover):
+        super(Mp4File, self).__init__(filename, album, title, subtitle, genre, pubDate, cover)
 
     def insert_coverart(self):
         audio = File(self.filename)
@@ -160,8 +168,8 @@ class Mp4File(AudioFile):
 
 
 class Mp3File(AudioFile):
-    def __init__(self, filename, album, title, genre, pubDate, cover):
-        super(Mp3File, self).__init__(filename, album, title, genre, pubDate, cover)
+    def __init__(self, filename, album, title, subtitle, genre, pubDate, cover):
+        super(Mp3File, self).__init__(filename, album, title, subtitle, genre, pubDate, cover)
 
     def insert_coverart(self):
         audio = MP3(self.filename, ID3=ID3)
@@ -184,6 +192,9 @@ class Mp3File(AudioFile):
 class gPodderExtension:
     def __init__(self, container):
         self.container = container
+        # fix #737 EasyID3 doesn't recognize subtitle and comment tags
+        EasyID3.RegisterTextKey("comments", "COMM")
+        EasyID3.RegisterTextKey("subtitle", "TIT3")
 
     def on_episode_downloaded(self, episode):
         info = self.read_episode_info(episode)
@@ -214,6 +225,7 @@ class gPodderExtension:
             audio = audioClass(info['filename'],
                 info['album'],
                 info['title'],
+                info['subtitle'],
                 info['genre'],
                 info['pubDate'],
                 cover)
@@ -224,6 +236,7 @@ class gPodderExtension:
             'filename': None,
             'album': None,
             'title': None,
+            'subtitle': None,
             'genre': None,
             'pubDate': None
         }
@@ -240,6 +253,8 @@ class gPodderExtension:
             info['title'] = title[len(info['album']):].lstrip()
         else:
             info['title'] = title
+
+        info['subtitle'] = episode.description
 
         if self.container.config.genre_tag is not None:
             info['genre'] = self.container.config.genre_tag
