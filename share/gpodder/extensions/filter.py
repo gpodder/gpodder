@@ -20,6 +20,82 @@ DefaultConfig = {
 }
 
 
+class BlockExceptFrame:
+    """
+    Utility class to manage a Block or Except frame, with sub-widgets:
+     - Creation as well as internal UI change is handled;
+     - Changes to the other widget and to the model have to be handled outside.
+    It's less optimized than mapping each widget to a different signal handler,
+    but makes shorter code.
+    """
+    def __init__(self, value, enable_re, enable_ic, on_change_cb):
+        self.on_change_cb = on_change_cb
+        self.frame = Gtk.Frame()
+        frame_vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        self.frame.add(frame_vbox)
+        # checkbox and text entry
+        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        hbox.set_border_width(5)
+        frame_vbox.add(hbox)
+        self.checkbox = Gtk.CheckButton()
+        self.checkbox.set_active(value is not False)
+        hbox.pack_start(self.checkbox, False, False, 3)
+        self.entry = Gtk.Entry()
+        hbox.pack_start(self.entry, True, True, 5)
+        # lower hbox
+        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        hbox.set_border_width(5)
+        frame_vbox.add(hbox)
+        # regular expression checkbox
+        self.checkbox_re = Gtk.CheckButton(_('Regular Expression'))
+        hbox.pack_end(self.checkbox_re, False, False, 10)
+        # ignore case checkbox
+        self.checkbox_ic = Gtk.CheckButton(_('Ignore Case'))
+        hbox.pack_end(self.checkbox_ic, False, False, 10)
+
+        if value is False:
+            self.entry.set_sensitive(False)
+            self.entry.set_editable(False)
+            self.checkbox_re.set_sensitive(False)
+            self.checkbox_ic.set_sensitive(False)
+        else:
+            self.entry.set_text(value)
+            self.checkbox_re.set_active(enable_re)
+            self.checkbox_ic.set_active(enable_ic)
+
+        self.checkbox.connect('toggled', self.toggle_active)
+        self.entry.connect('changed', self.emit_change)
+        self.checkbox_re.connect('toggled', self.emit_change)
+        self.checkbox_ic.connect('toggled', self.emit_change)
+
+    def toggle_active(self, widget):
+        enabled = widget.get_active()
+        if enabled:
+            # enable text and RE/IC checkboxes
+            self.entry.set_sensitive(True)
+            self.entry.set_editable(True)
+            self.checkbox_re.set_sensitive(True)
+            self.checkbox_ic.set_sensitive(True)
+        else:
+            # clear and disable text and RE/IC checkboxes
+            self.entry.set_sensitive(False)
+            self.entry.set_text('')
+            self.entry.set_editable(False)
+            self.checkbox_re.set_active(False)
+            self.checkbox_re.set_sensitive(False)
+            self.checkbox_ic.set_active(False)
+            self.checkbox_ic.set_sensitive(False)
+        self.emit_change(widget)
+
+    def emit_change(self, widget):
+        del widget
+        if self.on_change_cb:
+            self.on_change_cb(active=self.checkbox.get_active(),
+                              text=self.entry.get_text(),
+                              regexp=self.checkbox_re.get_active(),
+                              ignore_case=self.checkbox_ic.get_active())
+
+
 class gPodderExtension:
     def __init__(self, container):
         self.core = container.manager.core  # gpodder core
@@ -31,14 +107,8 @@ class gPodderExtension:
         #    self.channel               = PodcastChannel
         #    self.url                   = current filter url
         #    self.f                     = current filter
-        #    self.allow_frame           = allow frame widget
-        #    self.allow_entry           = allow text widget
-        #    self.allow_checkbox_re     = allow RE checkbox widget
-        #    self.allow_checkbox_ic     = allow IC checkbox widget
-        #    self.block_checkbox        = block checkbox widget
-        #    self.block_entry           = block text widget
-        #    self.block_checkbox_re     = block RE checkbox widget
-        #    self.block_checkbox_ic     = block IC checkbox widget
+        #    self.allow_widget          = allow BlockExceptFrame
+        #    self.block_widget          = block BlockExceptFrame
 
     def on_ui_object_available(self, name, ui_object):
         if name == 'channel-gtk':
@@ -63,93 +133,23 @@ class gPodderExtension:
         box.set_border_width(10)
 
         # allow widgets
-        self.allow_frame = Gtk.Frame()
-        self.allow_frame.set_label(_('Allow'))
+        self.allow_widget = BlockExceptFrame(value=allow,
+                                             enable_re=self.key('allow_re') is not False,
+                                             enable_ic=self.key('allow_ic') is not False,
+                                             on_change_cb=self.on_allow_changed)
+        self.allow_widget.frame.set_label(_('Allow'))
+        box.add(self.allow_widget.frame)
         if self.f is None:
-            self.allow_frame.set_sensitive(False)
-        box.add(self.allow_frame)
-        frame_vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        self.allow_frame.add(frame_vbox)
-        # checkbox and text entry
-        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
-        hbox.set_border_width(5)
-        frame_vbox.add(hbox)
-        checkbox = Gtk.CheckButton()
-        checkbox.set_active(allow is not False)
-        checkbox.connect('toggled', self.toggle_allow)
-        hbox.pack_start(checkbox, False, False, 3)
-        self.allow_entry = Gtk.Entry()
-        if allow is not False:
-            self.allow_entry.set_text(allow)
-        else:
-            self.allow_entry.set_sensitive(False)
-            self.allow_entry.set_editable(False)
-        self.allow_entry.connect('changed', self.change_allow)
-        hbox.pack_start(self.allow_entry, True, True, 5)
-        # lower hbox
-        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
-        hbox.set_border_width(5)
-        frame_vbox.add(hbox)
-        # regular expression checkbox
-        self.allow_checkbox_re = Gtk.CheckButton(_('Regular Expression'))
-        if allow is False:
-            self.allow_checkbox_re.set_sensitive(False)
-        else:
-            self.allow_checkbox_re.set_active(self.key('allow_re') is not False)
-        self.allow_checkbox_re.connect('toggled', self.toggle_allow_re)
-        hbox.pack_end(self.allow_checkbox_re, False, False, 10)
-        # ignore case checkbox
-        self.allow_checkbox_ic = Gtk.CheckButton(_('Ignore Case'))
-        if allow is False:
-            self.allow_checkbox_ic.set_sensitive(False)
-        else:
-            self.allow_checkbox_ic.set_active(self.key('allow_ic') is not False)
-        self.allow_checkbox_ic.connect('toggled', self.toggle_allow_ic)
-        hbox.pack_end(self.allow_checkbox_ic, False, False, 10)
+            self.allow_widget.frame.set_sensitive(False)
 
         # block widgets
-        frame = Gtk.Frame()
-        frame.set_label(_('Block'))
-        box.add(frame)
-        frame_vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        frame.add(frame_vbox)
-        # checkbox and text entry
-        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
-        hbox.set_border_width(5)
-        frame_vbox.add(hbox)
-        self.block_checkbox = Gtk.CheckButton()
-        self.block_checkbox.set_active(block is not False)
-        self.block_checkbox.set_sensitive(allow is False)
-        self.block_checkbox.connect('toggled', self.toggle_block)
-        hbox.pack_start(self.block_checkbox, False, False, 3)
-        self.block_entry = Gtk.Entry()
-        if block is not False:
-            self.block_entry.set_text(block)
-        else:
-            self.block_entry.set_sensitive(False)
-            self.block_entry.set_editable(False)
-        self.block_entry.connect('changed', self.change_block)
-        hbox.pack_start(self.block_entry, True, True, 5)
-        # lower hbox
-        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
-        hbox.set_border_width(5)
-        frame_vbox.add(hbox)
-        # regular expression checkbox
-        self.block_checkbox_re = Gtk.CheckButton(_('Regular Expression'))
-        if block is False:
-            self.block_checkbox_re.set_sensitive(False)
-        else:
-            self.block_checkbox_re.set_active(self.key('block_re') is not False)
-        self.block_checkbox_re.connect('toggled', self.toggle_block_re)
-        hbox.pack_end(self.block_checkbox_re, False, False, 10)
-        # ignore case checkbox
-        self.block_checkbox_ic = Gtk.CheckButton(_('Ignore Case'))
-        if block is False:
-            self.block_checkbox_ic.set_sensitive(False)
-        else:
-            self.block_checkbox_ic.set_active(self.key('block_ic') is not False)
-        self.block_checkbox_ic.connect('toggled', self.toggle_block_ic)
-        hbox.pack_end(self.block_checkbox_ic, False, False, 10)
+        self.block_widget = BlockExceptFrame(value=block,
+                                             enable_re=self.key('block_re') is not False,
+                                             enable_ic=self.key('block_ic') is not False,
+                                             on_change_cb=self.on_block_changed)
+        self.block_widget.frame.set_label(_('Block'))
+        box.add(self.block_widget.frame)
+        self.block_widget.checkbox.set_sensitive(allow is False)
 
         # help
         label = Gtk.Label(_(
@@ -167,30 +167,6 @@ class gPodderExtension:
         box.show_all()
         return box
 
-    def toggle_allow(self, widget):
-        self.toggle(widget.get_active(), 'allow', self.allow_entry, self.allow_checkbox_re, self.allow_checkbox_ic)
-
-    def toggle_block(self, widget):
-        self.toggle(widget.get_active(), 'block', self.block_entry, self.block_checkbox_re, self.block_checkbox_ic)
-
-    def change_allow(self, widget):
-        self.change(self.allow_entry, 'allow')
-
-    def change_block(self, widget):
-        self.change(self.block_entry, 'block')
-
-    def toggle_allow_re(self, widget):
-        self.toggle_re(widget.get_active(), 'allow_re')
-
-    def toggle_block_re(self, widget):
-        self.toggle_re(widget.get_active(), 'block_re')
-
-    def toggle_allow_ic(self, widget):
-        self.toggle_ic(widget.get_active(), 'allow_ic')
-
-    def toggle_block_ic(self, widget):
-        self.toggle_ic(widget.get_active(), 'block_ic')
-
     # return filter for a given podcast channel url
     def find_filter(self, url):
         for f in self.filters:
@@ -204,29 +180,30 @@ class gPodderExtension:
             return False
         return self.f.get(key, False)
 
+    def on_allow_changed(self, active, text, regexp, ignore_case):
+        self.on_changed('allow', active, text, regexp, ignore_case)
+        self.block_widget.checkbox.set_sensitive(self.f is None or self.key('allow') is False)
+
+    def on_block_changed(self, active, text, regexp, ignore_case):
+        self.on_changed('block', active, text, regexp, ignore_case)
+        self.allow_widget.frame.set_sensitive(self.f is not None)
+
     # update filter when toggling allow/block checkbox
-    def toggle(self, enabled, field, entry, checkbox_re, checkbox_ic):
+    def on_changed(self, field, enabled, text, regexp, ignore_case):
         if enabled:
             if self.f is None:
                 self.f = {'url': self.url}
                 self.filters.append(self.f)
-            self.f[field] = ''
-
-            # enable text and RE/IC checkboxes
-            entry.set_sensitive(True)
-            entry.set_editable(True)
-            checkbox_re.set_sensitive(True)
-            checkbox_ic.set_sensitive(True)
+            self.f[field] = text
+            if regexp:
+                self.f[field + '_re'] = True
+            else:
+                self.f.pop(field + '_re', None)
+            if ignore_case:
+                self.f[field + '_ic'] = True
+            else:
+                self.f.pop(field + '_ic', None)
         else:
-            # clear and disable text and RE/IC checkboxes
-            entry.set_sensitive(False)
-            entry.set_text('')
-            entry.set_editable(False)
-            checkbox_re.set_active(False)
-            checkbox_re.set_sensitive(False)
-            checkbox_ic.set_active(False)
-            checkbox_ic.set_sensitive(False)
-
             if self.f is not None:
                 self.f.pop(field + '_ic', None)
                 self.f.pop(field + '_re', None)
@@ -234,46 +211,8 @@ class gPodderExtension:
                 if len(self.f.keys()) == 1:
                     self.filters.remove(self.f)
                     self.f = None
-
-        if field == 'allow':
-            # disable block checkbox when allow is checked
-            self.block_checkbox.set_sensitive(self.f is None or self.key('allow') is False)
-        if field == 'block':
-            # enable all allow widgets only when block is checked
-            self.allow_frame.set_sensitive(self.f is not None)
-
         # save config
         self.core.config.schedule_save()
-
-    # update filter when toggling allow/block RE checkbox
-    def toggle_re(self, enabled, field):
-        if self.f is not None:
-            if enabled:
-                self.f[field] = True
-            else:
-                self.f.pop(field, None)
-
-            # save config
-            self.core.config.schedule_save()
-
-    # update filter when toggling allow/block IC checkbox
-    def toggle_ic(self, enabled, field):
-        if self.f is not None:
-            if enabled:
-                self.f[field] = True
-            else:
-                self.f.pop(field, None)
-
-            # save config
-            self.core.config.schedule_save()
-
-    # update filter when changing allow/block text
-    def change(self, entry, field):
-        if self.f is not None:
-            self.f[field] = entry.get_text()
-
-            # save config
-            self.core.config.schedule_save()
 
     # remove filter when podcast channel is removed
     def on_podcast_delete(self, podcast):
