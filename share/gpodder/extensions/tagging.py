@@ -30,6 +30,7 @@ import mimetypes
 import os
 
 from mutagen import File
+from mutagen.easyid3 import EasyID3
 from mutagen.flac import Picture
 from mutagen.id3 import APIC, ID3
 from mutagen.mp3 import MP3, EasyMP3
@@ -191,6 +192,9 @@ class Mp3File(AudioFile):
 class gPodderExtension:
     def __init__(self, container):
         self.container = container
+        # fix #737 EasyID3 doesn't recognize subtitle and comment tags
+        EasyID3.RegisterTextKey("comments", "COMM")
+        EasyID3.RegisterTextKey("subtitle", "TIT3")
 
     def on_episode_downloaded(self, episode):
         info = self.read_episode_info(episode)
