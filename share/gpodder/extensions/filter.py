@@ -146,7 +146,7 @@ class gPodderExtension:
                                              enable_re=self.key('allow_re') is not False,
                                              enable_ic=self.key('allow_ic') is not False,
                                              on_change_cb=self.on_allow_changed)
-        self.allow_widget.frame.set_label(_('Allow'))
+        self.allow_widget.frame.set_label(_('Except'))
         box.add(self.allow_widget.frame)
         if self.f is None:
             self.allow_widget.frame.set_sensitive(False)
@@ -155,7 +155,7 @@ class gPodderExtension:
         label = Gtk.Label(_(
             'Clicking the block checkbox and leaving it empty will disable auto-download for all episodes in this channel.'
             '  The patterns match partial text in episode title, and an empty pattern matches any title.'
-            '  The allow pattern unblocks blocked episodes (to block all then unblock some).'))
+            '  The except pattern unblocks blocked episodes (to block all then unblock some).'))
         label.set_line_wrap(True)
         box.add(label)
 
