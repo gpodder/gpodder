@@ -543,15 +543,19 @@ class PodcastListModel(Gtk.ListStore):
         self.ICON_DISABLED = 'gtk-media-pause'
 
     def _filter_visible_func(self, model, iter, misc):
+        channel = model.get_value(iter, self.C_CHANNEL)
+
         # If searching is active, set visibility based on search text
         if self._search_term is not None:
-            if model.get_value(iter, self.C_CHANNEL) == SectionMarker:
+            if channel == SectionMarker:
                 return True
             key = self._search_term.lower()
             columns = (model.get_value(iter, c) for c in self.SEARCH_COLUMNS)
             return any((key in c.lower() for c in columns if c is not None))
 
         if model.get_value(iter, self.C_SEPARATOR):
+            return True
+        elif getattr(channel, '_update_error', None) is not None:
             return True
         elif self._view_mode == EpisodeListModel.VIEW_ALL:
             return model.get_value(iter, self.C_HAS_EPISODES)
