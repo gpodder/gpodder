@@ -194,6 +194,7 @@ class gPodderExtension:
             if self.f is None:
                 self.f = {'url': self.url}
                 self.filters.append(self.f)
+                self.filters.sort(key=lambda e: e['url'])
             self.f[field] = text
             if regexp:
                 self.f[field + '_re'] = True
