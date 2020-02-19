@@ -107,8 +107,8 @@ class gPodderExtension:
         #    self.channel               = PodcastChannel
         #    self.url                   = current filter url
         #    self.f                     = current filter
-        #    self.allow_widget          = allow BlockExceptFrame
         #    self.block_widget          = block BlockExceptFrame
+        #    self.allow_widget          = allow BlockExceptFrame
 
     def on_ui_object_available(self, name, ui_object):
         if name == 'channel-gtk':
@@ -126,11 +126,20 @@ class gPodderExtension:
         self.channel = channel
         self.url = channel.url
         self.f = self.find_filter(self.url)
-        allow = self.key('allow')
         block = self.key('block')
+        allow = self.key('allow')
 
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
         box.set_border_width(10)
+
+        # block widgets
+        self.block_widget = BlockExceptFrame(value=block,
+                                             enable_re=self.key('block_re') is not False,
+                                             enable_ic=self.key('block_ic') is not False,
+                                             on_change_cb=self.on_block_changed)
+        self.block_widget.frame.set_label(_('Block'))
+        box.add(self.block_widget.frame)
+        self.block_widget.checkbox.set_sensitive(allow is False)
 
         # allow widgets
         self.allow_widget = BlockExceptFrame(value=allow,
@@ -141,15 +150,6 @@ class gPodderExtension:
         box.add(self.allow_widget.frame)
         if self.f is None:
             self.allow_widget.frame.set_sensitive(False)
-
-        # block widgets
-        self.block_widget = BlockExceptFrame(value=block,
-                                             enable_re=self.key('block_re') is not False,
-                                             enable_ic=self.key('block_ic') is not False,
-                                             on_change_cb=self.on_block_changed)
-        self.block_widget.frame.set_label(_('Block'))
-        box.add(self.block_widget.frame)
-        self.block_widget.checkbox.set_sensitive(allow is False)
 
         # help
         label = Gtk.Label(_(
@@ -180,15 +180,15 @@ class gPodderExtension:
             return False
         return self.f.get(key, False)
 
-    def on_allow_changed(self, active, text, regexp, ignore_case):
-        self.on_changed('allow', active, text, regexp, ignore_case)
-        self.block_widget.checkbox.set_sensitive(self.f is None or self.key('allow') is False)
-
     def on_block_changed(self, active, text, regexp, ignore_case):
         self.on_changed('block', active, text, regexp, ignore_case)
         self.allow_widget.frame.set_sensitive(self.f is not None)
 
-    # update filter when toggling allow/block checkbox
+    def on_allow_changed(self, active, text, regexp, ignore_case):
+        self.on_changed('allow', active, text, regexp, ignore_case)
+        self.block_widget.checkbox.set_sensitive(self.f is None or self.key('allow') is False)
+
+    # update filter when toggling block/allow checkbox
     def on_changed(self, field, enabled, text, regexp, ignore_case):
         if enabled:
             if self.f is None:
@@ -247,15 +247,15 @@ class gPodderExtension:
     def filter_podcast(self, podcast, mark_new):
         f = self.find_filter(podcast.url)
         if f is not None:
-            allow = f.get('allow', False)
             block = f.get('block', False)
-            allow_ic = True if allow is not False and f.get('allow_ic', False) else False
+            allow = f.get('allow', False)
             block_ic = True if block is not False and f.get('block_ic', False) else False
-            allow_re = re.compile(allow, re.IGNORECASE if allow_ic else False) if allow is not False and f.get('allow_re', False) else False
+            allow_ic = True if allow is not False and f.get('allow_ic', False) else False
             block_re = re.compile(block, re.IGNORECASE if block_ic else False) if block is not False and f.get('block_re', False) else False
+            allow_re = re.compile(allow, re.IGNORECASE if allow_ic else False) if allow is not False and f.get('allow_re', False) else False
         else:
-            allow = False
             block = False
+            allow = False
 
         changes = False
         for e in podcast.get_episodes(gpodder.STATE_NORMAL):
