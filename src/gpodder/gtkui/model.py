@@ -541,6 +541,7 @@ class PodcastListModel(Gtk.ListStore):
         self._cover_downloader = cover_downloader
 
         self.ICON_DISABLED = 'gtk-media-pause'
+        self.ICON_ERROR = 'dialog-warning'
 
     def _filter_visible_func(self, model, iter, misc):
         channel = model.get_value(iter, self.C_CHANNEL)
@@ -693,20 +694,30 @@ class PodcastListModel(Gtk.ListStore):
         channel.cover_thumb = bytes(b''.join(bufs))
         channel.save()
 
-    def _get_cover_image(self, channel, add_overlay=False):
+    def _get_cover_image(self, channel, add_overlay=False, pixbuf_overlay=None):
+        """ get channel's cover image. Callable from gtk thread.
+            :param channel: channel model
+            :param bool add_overlay: True to add a pause/error overlay
+            :param GdkPixbuf.Pixbux pixbuf_overlay: existing pixbuf if already loaded, as an optimization
+            :return GdkPixbuf.Pixbux: channel's cover image as pixbuf
+        """
         if self._cover_downloader is None:
-            return None
+            return pixbuf_overlay
 
-        pixbuf_overlay = self._get_cached_thumb(channel)
+        if pixbuf_overlay is None:
+            pixbuf_overlay = self._get_cached_thumb(channel)
 
         if pixbuf_overlay is None:
             pixbuf = self._cover_downloader.get_cover(channel, avoid_downloading=True)
             pixbuf_overlay = self._resize_pixbuf(channel.url, pixbuf)
             self._save_cached_thumb(channel, pixbuf_overlay)
 
-        if add_overlay and channel.pause_subscription:
-            pixbuf_overlay = self._overlay_pixbuf(pixbuf_overlay, self.ICON_DISABLED)
-            pixbuf_overlay.saturate_and_pixelate(pixbuf_overlay, 0.0, False)
+        if add_overlay:
+            if channel.pause_subscription:
+                pixbuf_overlay = self._overlay_pixbuf(pixbuf_overlay, self.ICON_DISABLED)
+                pixbuf_overlay.saturate_and_pixelate(pixbuf_overlay, 0.0, False)
+            elif getattr(channel, '_update_error', None) is not None:
+                pixbuf_overlay = self._overlay_pixbuf(pixbuf_overlay, self.ICON_ERROR)
 
         return pixbuf_overlay
 
@@ -887,6 +898,7 @@ class PodcastListModel(Gtk.ListStore):
         self.set(iter,
                 self.C_TITLE, channel.title,
                 self.C_DESCRIPTION, description,
+                self.C_COVER, self._get_cover_image(channel, True),
                 self.C_SECTION, channel.section,
                 self.C_ERROR, self._format_error(channel),
                 self.C_PILL, pill_image,
@@ -912,9 +924,7 @@ class PodcastListModel(Gtk.ListStore):
         pixbuf = self._resize_pixbuf(channel.url, pixbuf)
         self._save_cached_thumb(channel, pixbuf)
 
-        if channel.pause_subscription:
-            pixbuf = self._overlay_pixbuf(pixbuf, self.ICON_DISABLED)
-            pixbuf.saturate_and_pixelate(pixbuf, 0.0, False)
+        pixbuf = self._get_cover_image(channel, add_overlay=True, pixbuf_overlay=pixbuf)
 
         for row in self:
             if row[self.C_URL] == channel.url:
