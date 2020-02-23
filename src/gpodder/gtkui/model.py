@@ -845,7 +845,7 @@ class PodcastListModel(Gtk.ListStore):
                     if isinstance(c, GPodcast) and c.section == section]
 
             # Calculate the stats over all podcasts of this section
-            if len(channels) is 0:
+            if len(channels) == 0:
                 total = deleted = new = downloaded = unplayed = 0
             else:
                 total, deleted, new, downloaded, unplayed = list(map(sum,
