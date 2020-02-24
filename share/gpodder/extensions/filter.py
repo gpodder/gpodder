@@ -14,6 +14,7 @@ __title__ = _('Filter Episodes')
 __description__ = _('Disable automatic downloads based on episode title.')
 __only_for__ = 'gtk'
 __authors__ = 'Brand Huntsman <http://qzx.com/mail/>'
+__doc__ = 'https://gpodder.github.io/docs/extensions/filter.html'
 
 DefaultConfig = {
     'filters': []
