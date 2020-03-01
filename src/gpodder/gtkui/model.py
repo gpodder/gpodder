@@ -540,7 +540,7 @@ class PodcastListModel(Gtk.ListStore):
         self._max_image_side = 40
         self._cover_downloader = cover_downloader
 
-        self.ICON_DISABLED = 'gtk-media-pause'
+        self.ICON_DISABLED = 'media-playback-pause'
         self.ICON_ERROR = 'dialog-warning'
 
     def _filter_visible_func(self, model, iter, misc):
