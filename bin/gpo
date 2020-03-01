@@ -1013,7 +1013,10 @@ class gPodderCli(object):
                         self._extensions_podcast_update_cb,
                         self._extensions_episode_download_cb)
             enabled_str = _('enabled') if now_enabled else _('disabled')
-            self._info(inblue(_('Extension %(name)s (%(title)s) %(enabled)s') % dict(name=container.name, title=container.metadata.title, enabled=enabled_str)))
+            self._info(
+                inblue(
+                    _('Extension %(name)s (%(title)s) %(enabled)s')
+                    % dict(name=container.name, title=container.metadata.title, enabled=enabled_str)))
         elif container.error is not None:
             if hasattr(container.error, 'message'):
                 error_msg = container.error.message
@@ -1148,7 +1151,6 @@ class gPodderCli(object):
     def _tab_completion_extensions(self, text, count):
         """Tab completion for extension names"""
         exts = [e.name for e in gpodder.user_extensions.get_extensions() if text in e.name]
-        #print('_tab_completion_extensions', text, count, exts)
         if count < len(exts):
             return exts[count]
 
