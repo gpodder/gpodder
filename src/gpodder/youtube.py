@@ -362,7 +362,7 @@ def get_channel_desc(url):
                 return _('No description available')
 
         except Exception:
-            logger.warning('Could not retrieve YouTube channel description.', exc_info=True)
+            logger.warning('Could not retrieve YouTube channel description for %s.' % url, exc_info=True)
 
 
 def parse_youtube_url(url):
