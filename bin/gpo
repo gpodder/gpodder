@@ -62,6 +62,13 @@
 
     set [key] [value]          List one (all) keys or set to a new value
 
+  - Extension management -
+
+    extensions [LIST]          List all available extensions
+    extension info <NAME>      Information about an extension
+    extension enable <NAME>    Enable an extension
+    extension disable <NAME>   Disable an extension
+
   - Other commands -
 
     youtube URL                Resolve the YouTube URL to a download URL
@@ -74,6 +81,7 @@ import collections
 import contextlib
 import functools
 import inspect
+import itertools
 import logging
 import os
 import pydoc
@@ -157,6 +165,13 @@ inred, ingreen, inyellow, inblue = (functools.partial(incolor, x) for x in range
 def FirstArgumentIsPodcastURL(function):
     """Decorator for functions that take a podcast URL as first arg"""
     setattr(function, '_first_arg_is_podcast', True)
+    return function
+
+
+def ExtensionsFunction(function):
+    """Decorator for functions that take an extension as second arg"""
+    setattr(function, '_first_arg_in', ('list', 'info', 'enable', 'disable'))
+    setattr(function, '_second_arg_is_extension', True)
     return function
 
 
@@ -944,6 +959,95 @@ class gPodderCli(object):
         sync_ui.on_synchronize_episodes(self._model.get_podcasts(), episodes=None, force_played=True, done_callback=done_lock.release)
         done_lock.acquire()  # block until done
 
+    def _extensions_list(self):
+        def by_category(ext):
+            return ext.metadata.category
+
+        def by_enabled_name(ext):
+            return ('0' if ext.enabled else '1') + ext.name
+
+        for cat, extensions in itertools.groupby(sorted(gpodder.user_extensions.get_extensions(), key=by_category), by_category):
+            print(_(cat))
+            for ext in sorted(extensions, key=by_enabled_name):
+                if ext.enabled:
+                    print('  ', inyellow(ext.name), ext.metadata.title, inyellow(_('(enabled)')))
+                else:
+                    print('  ', inblue(ext.name), ext.metadata.title)
+        return True
+
+    def _extensions_info(self, ext):
+        if ext.enabled:
+            print(inyellow(ext.name))
+        else:
+            print(inblue(ext.name))
+
+        print(_('Title:'), ext.metadata.title)
+        print(_('Category:'), _(ext.metadata.category))
+        print(_('Description:'), ext.metadata.description)
+        print(_('Authors:'), ext.metadata.authors)
+        if ext.metadata.doc:
+            print(_('Documentation:'), ext.metadata.doc)
+        print(_('Enabled:'), _('yes') if ext.enabled else _('no'))
+
+        return True
+
+    def _extension_enable(self, container, new_enabled):
+        if container.enabled == new_enabled:
+            return True
+
+        enabled_extensions = list(self._config.extensions.enabled)
+
+        if new_enabled and container.name not in enabled_extensions:
+            enabled_extensions.append(container.name)
+        elif not new_enabled and container.name in enabled_extensions:
+            enabled_extensions.remove(container.name)
+
+        self._config.extensions.enabled = enabled_extensions
+
+        now_enabled = (container.name in self._config.extensions.enabled)
+        if new_enabled == now_enabled:
+            if now_enabled:
+                if getattr(container, 'on_ui_initialized', None) is not None:
+                    container.on_ui_initialized(
+                        self.core.model,
+                        self._extensions_podcast_update_cb,
+                        self._extensions_episode_download_cb)
+            enabled_str = _('enabled') if now_enabled else _('disabled')
+            self._info(
+                inblue(
+                    _('Extension %(name)s (%(title)s) %(enabled)s')
+                    % dict(name=container.name, title=container.metadata.title, enabled=enabled_str)))
+        elif container.error is not None:
+            if hasattr(container.error, 'message'):
+                error_msg = container.error.message
+            else:
+                error_msg = str(container.error)
+            self._error(_('Extension cannot be activated'))
+            self._error(error_msg)
+        return True
+
+    @ExtensionsFunction
+    def extensions(self, action='list', extension_name=None):
+        if action in ('enable', 'disable', 'info'):
+            if not extension_name:
+                print(inred('E: extensions {} missing the extension name').format(action))
+                return False
+            extension = None
+            for ext in gpodder.user_extensions.get_extensions():
+                if ext.name == extension_name:
+                    extension = ext
+                    break
+            if not extension:
+                print(inred('E: extensions {} called with unknown extension name "{}"').format(action, extension_name))
+                return False
+
+        if action == 'list':
+            return self._extensions_list()
+        elif action in ('enable', 'disable'):
+            self._extension_enable(extension, action == 'enable')
+        elif action == 'info':
+            self._extensions_info(extension)
+        return True
     # -------------------------------------------------------------------
 
     def _pager(self, output):
@@ -1036,6 +1140,22 @@ class gPodderCli(object):
 
         return None
 
+    def _tab_completion_in(self, text, count, choices):
+        """Tab completion for a list of choices"""
+        compat_choices = [c for c in choices if text in c]
+        if count < len(compat_choices):
+            return compat_choices[count]
+
+        return None
+
+    def _tab_completion_extensions(self, text, count):
+        """Tab completion for extension names"""
+        exts = [e.name for e in gpodder.user_extensions.get_extensions() if text in e.name]
+        if count < len(exts):
+            return exts[count]
+
+        return None
+
     def _tab_completion(self, text, count):
         """Tab completion function for readline"""
         if readline is None:
@@ -1058,6 +1178,14 @@ class gPodderCli(object):
             if getattr(command_function, '_first_arg_is_podcast', False):
                 if not args or (len(args) == 1 and not current_line.endswith(' ')):
                     return self._tab_completion_podcast(text, count)
+            first_in = getattr(command_function, '_first_arg_in', False)
+            if first_in:
+                if not args or (len(args) == 1 and not current_line.endswith(' ')):
+                    return self._tab_completion_in(text, count, first_in)
+            snd_ext = getattr(command_function, '_second_arg_is_extension', False)
+            if snd_ext:
+                if (len(args) > 0 and len(args) < 2 and args[0] != 'list') or (len(args) == 2 and not current_line.endswith(' ')):
+                    return self._tab_completion_extensions(text, count)
 
         return None
 
