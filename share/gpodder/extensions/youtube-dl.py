@@ -290,7 +290,9 @@ class gPodderYoutubeDL(download.CustomDownloader):
 
     def fetch_video(self, url, tempname, reporthook):
         opts = {
-            'outtmpl': tempname,  # use given tempname by DownloadTask
+            # outtmpl: use given tempname by DownloadTask
+            # (escape % and $ because outtmpl used as a string template by youtube-dl)
+            'outtmpl': tempname.replace('%', '%%').replace('$', '$$'),
             'nopart': True,  # don't append .part (already .partial)
             'retries': 3,  # retry a few times
             'progress_hooks': [reporthook]  # to notify UI
