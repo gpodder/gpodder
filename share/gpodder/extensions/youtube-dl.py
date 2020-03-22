@@ -11,7 +11,7 @@ import sys
 import time
 
 import youtube_dl
-from youtube_dl.utils import DownloadError, sanitize_url
+from youtube_dl.utils import DownloadError, ExtractorError, sanitize_url
 
 import gpodder
 from gpodder import download, feedcore, model, registry, youtube
@@ -187,7 +187,7 @@ class YoutubeFeed(model.Feed):
         new_entries = [e for e in entries if e['guid'] not in existing_guids]
         logger.debug('%i/%i new entries', len(new_entries), len(all_seen_guids))
         self._ie_result['entries'] = new_entries
-        self._downloader.refresh_entries(self._ie_result, self._max_episodes)
+        self._downloader.refresh_entries(self._ie_result)
         # episodes from entries
         episodes = []
         for en in self._ie_result['entries']:
@@ -300,7 +300,7 @@ class gPodderYoutubeDL(download.CustomDownloader):
         with youtube_dl.YoutubeDL(opts) as ydl:
             return ydl.extract_info(url, download=True)
 
-    def refresh_entries(self, ie_result, max_episodes):
+    def refresh_entries(self, ie_result):
         # only interested in video metadata
         opts = {
             'skip_download': True,  # don't download the video
@@ -308,11 +308,22 @@ class gPodderYoutubeDL(download.CustomDownloader):
         }
         self.add_format(self.gpodder_config, opts, fallback='18')
         opts.update(self._ydl_opts)
-        try:
-            with youtube_dl.YoutubeDL(opts) as ydl:
-                ydl.process_ie_result(ie_result, download=False)
-        except DownloadError:
-            logger.exception('refreshing %r', ie_result)
+        new_entries = []
+        # refresh videos one by one to catch single videos blocked by youtube
+        for e in ie_result.get('entries', []):
+            tmp = {k: v for k, v in ie_result.items() if k != 'entries'}
+            tmp['entries'] = [e]
+            try:
+                with youtube_dl.YoutubeDL(opts) as ydl:
+                    ydl.process_ie_result(tmp, download=False)
+                    new_entries.extend(tmp.get('entries'))
+            except DownloadError as ex:
+                if ex.exc_info[0] == ExtractorError:
+                    # for instance "This video contains content from xyz, who has blocked it on copyright grounds"
+                    logger.warning('Skipping %s: %s', e.get('title', ''), ex.exc_info[1])
+                    continue
+                logger.exception('Skipping %r: %s', tmp, ex.exc_info)
+        ie_result['entries'] = new_entries
 
     def refresh(self, url, channel_url, max_episodes):
         """
