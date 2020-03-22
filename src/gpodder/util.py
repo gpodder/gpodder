@@ -651,6 +651,7 @@ class HyperlinkExtracter(object):
     def __init__(self):
         self.parts = []
         self.target_stack = [None]
+        self.ignore_data = False
 
     def get_result(self):
         # Group together multiple consecutive parts with same link target,
@@ -698,11 +699,18 @@ class HyperlinkExtracter(object):
         if len(self.target_stack) > 1:
             self.target_stack.pop()
 
+    def handle_start_style(self, attrs):
+        self.ignore_data = True
+
+    def handle_end_style(self):
+        self.ignore_data = False
+
     def output(self, text):
         self.parts.append((self.target_stack[-1], text))
 
     def handle_data(self, data):
-        self.output(self.htmlws(data))
+        if not self.ignore_data:
+            self.output(self.htmlws(data))
 
     def handle_entityref(self, name):
         c = chr(name2codepoint[name])
