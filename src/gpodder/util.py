@@ -1644,7 +1644,7 @@ def relpath(p1, p2):
     if len(l1) > 0:
         p = [('..' + os.sep) * len(l1)]
     p = p + l2
-    if len(p) is 0:
+    if len(p) == 0:
         return "."
 
     return os.path.join(*p)
