@@ -497,6 +497,8 @@ class PodcastChannelProxy(object):
         self.cover_thumb = None
         self.auto_archive_episodes = False
 
+        self._update_error = None
+
     def get_statistics(self):
         # Get the total statistics for all channels from the database
         return self._db.get_podcast_statistics()
@@ -538,18 +540,23 @@ class PodcastListModel(Gtk.ListStore):
         self._max_image_side = 40
         self._cover_downloader = cover_downloader
 
-        self.ICON_DISABLED = 'gtk-media-pause'
+        self.ICON_DISABLED = 'media-playback-pause'
+        self.ICON_ERROR = 'dialog-warning'
 
     def _filter_visible_func(self, model, iter, misc):
+        channel = model.get_value(iter, self.C_CHANNEL)
+
         # If searching is active, set visibility based on search text
         if self._search_term is not None:
-            if model.get_value(iter, self.C_CHANNEL) == SectionMarker:
+            if channel == SectionMarker:
                 return True
             key = self._search_term.lower()
             columns = (model.get_value(iter, c) for c in self.SEARCH_COLUMNS)
             return any((key in c.lower() for c in columns if c is not None))
 
         if model.get_value(iter, self.C_SEPARATOR):
+            return True
+        elif getattr(channel, '_update_error', None) is not None:
             return True
         elif self._view_mode == EpisodeListModel.VIEW_ALL:
             return model.get_value(iter, self.C_HAS_EPISODES)
@@ -687,20 +694,31 @@ class PodcastListModel(Gtk.ListStore):
         channel.cover_thumb = bytes(b''.join(bufs))
         channel.save()
 
-    def _get_cover_image(self, channel, add_overlay=False):
+    def _get_cover_image(self, channel, add_overlay=False, pixbuf_overlay=None):
+        """ get channel's cover image. Callable from gtk thread.
+            :param channel: channel model
+            :param bool add_overlay: True to add a pause/error overlay
+            :param GdkPixbuf.Pixbux pixbuf_overlay: existing pixbuf if already loaded, as an optimization
+            :return GdkPixbuf.Pixbux: channel's cover image as pixbuf
+        """
         if self._cover_downloader is None:
-            return None
+            return pixbuf_overlay
 
-        pixbuf_overlay = self._get_cached_thumb(channel)
+        if pixbuf_overlay is None:  # optimization: we can pass existing pixbuf
+            pixbuf_overlay = self._get_cached_thumb(channel)
 
         if pixbuf_overlay is None:
+            # load cover if it's not in cache
             pixbuf = self._cover_downloader.get_cover(channel, avoid_downloading=True)
             pixbuf_overlay = self._resize_pixbuf(channel.url, pixbuf)
             self._save_cached_thumb(channel, pixbuf_overlay)
 
-        if add_overlay and channel.pause_subscription:
-            pixbuf_overlay = self._overlay_pixbuf(pixbuf_overlay, self.ICON_DISABLED)
-            pixbuf_overlay.saturate_and_pixelate(pixbuf_overlay, 0.0, False)
+        if add_overlay:
+            if getattr(channel, '_update_error', None) is not None:
+                pixbuf_overlay = self._overlay_pixbuf(pixbuf_overlay, self.ICON_ERROR)
+            elif channel.pause_subscription:
+                pixbuf_overlay = self._overlay_pixbuf(pixbuf_overlay, self.ICON_DISABLED)
+                pixbuf_overlay.saturate_and_pixelate(pixbuf_overlay, 0.0, False)
 
         return pixbuf_overlay
 
@@ -713,7 +731,9 @@ class PodcastListModel(Gtk.ListStore):
     def _format_description(self, channel, total, deleted,
             new, downloaded, unplayed):
         title_markup = html.escape(channel.title)
-        if not channel.pause_subscription:
+        if channel._update_error is not None:
+            description_markup = html.escape(_('ERROR: %s') % channel._update_error)
+        elif not channel.pause_subscription:
             description_markup = html.escape(util.get_first_line(channel.description) or ' ')
         else:
             description_markup = html.escape(_('Subscription paused'))
@@ -724,7 +744,9 @@ class PodcastListModel(Gtk.ListStore):
         if new:
             d.append('</span>')
 
-        if description_markup.strip():
+        if channel._update_error is not None:
+            return ''.join(d + ['\n', '<span weight="bold">', description_markup, '</span>'])
+        elif description_markup.strip():
             return ''.join(d + ['\n', '<small>', description_markup, '</small>'])
         else:
             return ''.join(d)
@@ -877,6 +899,7 @@ class PodcastListModel(Gtk.ListStore):
         self.set(iter,
                 self.C_TITLE, channel.title,
                 self.C_DESCRIPTION, description,
+                self.C_COVER, self._get_cover_image(channel, True),
                 self.C_SECTION, channel.section,
                 self.C_ERROR, self._format_error(channel),
                 self.C_PILL, pill_image,
@@ -902,9 +925,7 @@ class PodcastListModel(Gtk.ListStore):
         pixbuf = self._resize_pixbuf(channel.url, pixbuf)
         self._save_cached_thumb(channel, pixbuf)
 
-        if channel.pause_subscription:
-            pixbuf = self._overlay_pixbuf(pixbuf, self.ICON_DISABLED)
-            pixbuf.saturate_and_pixelate(pixbuf, 0.0, False)
+        pixbuf = self._get_cover_image(channel, add_overlay=True, pixbuf_overlay=pixbuf)
 
         for row in self:
             if row[self.C_URL] == channel.url:
