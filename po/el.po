@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gPodder\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-01-29 12:36+0100\n"
+"POT-Creation-Date: 2020-04-03 18:39+0200\n"
 "PO-Revision-Date: 2013-01-19 12:30+0000\n"
 "Last-Translator: Teo <anapospastos@hotmail.com>\n"
 "Language-Team: Greek (http://www.transifex.com/projects/p/gpodder/language/"
@@ -26,111 +26,6 @@ msgstr ""
 msgid "gPodder on %s"
 msgstr "Το gPodder στο %s"
 
-#: src/gpodder/syncui.py:84
-msgid "No device configured"
-msgstr "Καμία συσκευή δεν έχει ρυθμιστεί"
-
-#: src/gpodder/syncui.py:85
-msgid "Please set up your device in the preferences dialog."
-msgstr ""
-"Παρακαλώ ρυθμίστε τη συσκευή σας στο παράθυρο διαλόγου των προτιμήσεων."
-
-#: src/gpodder/syncui.py:90
-msgid "Cannot open device"
-msgstr "Αδυναμία ανοίγματος της συσκευής"
-
-#: src/gpodder/syncui.py:91
-msgid "Please check the settings in the preferences dialog."
-msgstr "Παρακαλώ ελέγξτε τις ρυθμίσεις στο παράθυρο διαλόγου των προτιμήσεων."
-
-#: src/gpodder/syncui.py:138
-msgid "Not enough space left on device"
-msgstr "Δεν έχει μείνει αρκετός χώρος στη συσκευή"
-
-#: src/gpodder/syncui.py:139
-#, fuzzy, python-format
-msgid ""
-"Additional free space required: %(required_space)s\n"
-"Do you want to continue?"
-msgstr ""
-"Χρειάζεται να ελευθερώσεις %s.\n"
-"Θέλεις να συνεχίσεις;"
-
-#: src/gpodder/syncui.py:201
-#, fuzzy
-msgid "Update successful"
-msgstr "Η λίστα μεταφορτώθηκε με επιτυχία."
-
-#: src/gpodder/syncui.py:202
-msgid "The playlist on your MP3 player has been updated."
-msgstr ""
-
-#: src/gpodder/syncui.py:270 src/gpodder/gtkui/main.py:859
-#: src/gpodder/gtkui/main.py:1014 src/gpodder/gtkui/main.py:2833
-#: src/gpodder/gtkui/main.py:3040
-#: src/gpodder/gtkui/desktop/episodeselector.py:127
-msgid "Episode"
-msgstr "Επεισόδιο"
-
-#: src/gpodder/syncui.py:275
-msgid "Episodes have been deleted on device"
-msgstr ""
-
-#: src/gpodder/syncui.py:287
-#, fuzzy
-msgid "Error writing playlist files"
-msgstr "Σφάλμα κατά τη μετατροπή του αρχείου."
-
-#: src/gpodder/youtube.py:362 src/gpodder/model.py:468
-#: src/gpodder/plugins/soundcloud.py:174
-#: share/gpodder/extensions/youtube-dl.py:195
-msgid "No description available"
-msgstr "Δεν υπάρχει διαθέσιμη περιγραφή"
-
-#: src/gpodder/util.py:443
-#, python-format
-msgid "%(count)d day ago"
-msgid_plural "%(count)d days ago"
-msgstr[0] "Πριν από %(count)d ημέρα"
-msgstr[1] "Πριν από %(count)d ημέρες"
-
-#: src/gpodder/util.py:522
-msgid "Today"
-msgstr "Σήμερα"
-
-#: src/gpodder/util.py:524
-msgid "Yesterday"
-msgstr "Χθες"
-
-#: src/gpodder/util.py:567 src/gpodder/util.py:570
-msgid "(unknown)"
-msgstr "(άγνωστο)"
-
-#: src/gpodder/util.py:1375 src/gpodder/util.py:1397
-#, python-format
-msgid "%(count)d second"
-msgid_plural "%(count)d seconds"
-msgstr[0] "%(count)d δευτερόλεπτο"
-msgstr[1] "%(count)d δευτερόλεπτα"
-
-#: src/gpodder/util.py:1389
-#, python-format
-msgid "%(count)d hour"
-msgid_plural "%(count)d hours"
-msgstr[0] "%(count)d ώρα"
-msgstr[1] "%(count)d ώρες"
-
-#: src/gpodder/util.py:1393
-#, python-format
-msgid "%(count)d minute"
-msgid_plural "%(count)d minutes"
-msgstr[0] "%(count)d λεπτό"
-msgstr[1] "%(count)d λεπτά"
-
-#: src/gpodder/util.py:1401
-msgid "and"
-msgstr "και"
-
 #: src/gpodder/deviceplaylist.py:98
 #, fuzzy, python-format
 msgid "Folder %s could not be created."
@@ -140,57 +35,6 @@ msgstr "Η ροή στο %(url)s δεν ήταν δυνατό να ενημερ�
 #, fuzzy
 msgid "Error writing playlist"
 msgstr "Σφάλμα κατά το άνοιγμα του αναπαραγωγέα"
-
-#: src/gpodder/download.py:370 bin/gpo:321
-msgid "Wrong username/password"
-msgstr "Λάθος όνομα χρήστη/κωδικός πρόσβασης"
-
-#: src/gpodder/download.py:611 src/gpodder/sync.py:958
-msgid "Added"
-msgstr "Προστέθηκε"
-
-#: src/gpodder/download.py:611 src/gpodder/sync.py:958
-msgid "Queued"
-msgstr "Σε αναμονή"
-
-#: src/gpodder/download.py:611 src/gpodder/gtkui/model.py:372
-msgid "Downloading"
-msgstr "Λήψη"
-
-#: src/gpodder/download.py:612 src/gpodder/model.py:744 src/gpodder/sync.py:959
-msgid "Finished"
-msgstr "Τελείωσε"
-
-#: src/gpodder/download.py:612 src/gpodder/sync.py:959
-msgid "Failed"
-msgstr "Απέτυχε"
-
-#: src/gpodder/download.py:612 src/gpodder/sync.py:959
-msgid "Cancelled"
-msgstr "Ακυρώθηκε"
-
-#: src/gpodder/download.py:612 src/gpodder/sync.py:959
-msgid "Paused"
-msgstr "Παύση"
-
-#: src/gpodder/download.py:930
-msgid "Missing content from server"
-msgstr "Λείπει περιεχόμενο από τον διακομιστή"
-
-#: src/gpodder/download.py:936
-#, python-format
-msgid "I/O Error: %(error)s: %(filename)s"
-msgstr "Σφάλμα I/O: %(error)s: %(filename)s"
-
-#: src/gpodder/download.py:943
-#, python-format
-msgid "HTTP Error %(code)s: %(message)s"
-msgstr "Σφάλμα HTTP %(code)s: %(message)s"
-
-#: src/gpodder/download.py:947 src/gpodder/sync.py:1114
-#, python-format
-msgid "Error: %s"
-msgstr "Σφάλμα: %s"
 
 #: src/gpodder/directory.py:97
 #, fuzzy
@@ -231,42 +75,142 @@ msgstr "%s στο Soundcloud"
 msgid "Imported OPML file"
 msgstr "Εισαγωγή από αρχείο OPML"
 
-#: src/gpodder/model.py:702
-msgid "unknown"
-msgstr "άγνωστο"
+#: src/gpodder/download.py:370 bin/gpo:335
+msgid "Wrong username/password"
+msgstr "Λάθος όνομα χρήστη/κωδικός πρόσβασης"
 
-#: src/gpodder/model.py:773
-msgid "Default"
+#: src/gpodder/download.py:611 src/gpodder/sync.py:958
+msgid "Added"
+msgstr "Προστέθηκε"
+
+#: src/gpodder/download.py:611 src/gpodder/sync.py:958
+msgid "Queued"
+msgstr "Σε αναμονή"
+
+#: src/gpodder/download.py:611 src/gpodder/gtkui/model.py:372
+msgid "Downloading"
+msgstr "Λήψη"
+
+#: src/gpodder/download.py:612 src/gpodder/model.py:745 src/gpodder/sync.py:959
+msgid "Finished"
+msgstr "Τελείωσε"
+
+#: src/gpodder/download.py:612 src/gpodder/sync.py:959
+msgid "Failed"
+msgstr "Απέτυχε"
+
+#: src/gpodder/download.py:612 src/gpodder/sync.py:959
+msgid "Cancelled"
+msgstr "Ακυρώθηκε"
+
+#: src/gpodder/download.py:612 src/gpodder/sync.py:959
+msgid "Paused"
+msgstr "Παύση"
+
+#: src/gpodder/download.py:930
+msgid "Missing content from server"
+msgstr "Λείπει περιεχόμενο από τον διακομιστή"
+
+#: src/gpodder/download.py:936
+#, python-format
+msgid "I/O Error: %(error)s: %(filename)s"
+msgstr "Σφάλμα I/O: %(error)s: %(filename)s"
+
+#: src/gpodder/download.py:943
+#, python-format
+msgid "HTTP Error %(code)s: %(message)s"
+msgstr "Σφάλμα HTTP %(code)s: %(message)s"
+
+#: src/gpodder/download.py:947 src/gpodder/sync.py:1114
+#, python-format
+msgid "Error: %s"
+msgstr "Σφάλμα: %s"
+
+#: src/gpodder/extensions.py:55
+msgid "Desktop Integration"
 msgstr ""
 
-#: src/gpodder/model.py:774
-msgid "Only keep latest"
-msgstr ""
+#: src/gpodder/extensions.py:56
+#, fuzzy
+msgid "Interface"
+msgstr "Ακέραιος αριθμός"
 
-#: src/gpodder/model.py:808 src/gpodder/model.py:1219
-#: src/gpodder/extensions.py:59
+#: src/gpodder/extensions.py:57
+#, fuzzy
+msgid "Post download"
+msgstr "Παύση λήψης"
+
+#: src/gpodder/extensions.py:59 src/gpodder/model.py:809
+#: src/gpodder/model.py:1222
 msgid "Other"
 msgstr "Άλλο"
 
-#: src/gpodder/model.py:1202 src/gpodder/model.py:1217
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:10
+#: src/gpodder/extensions.py:100
+msgid "No description for this extension."
+msgstr "Δεν υπάρχει περιγραφή για αυτή την επέκταση."
+
+#: src/gpodder/extensions.py:220
+#, python-format
+msgid "Command not found: %(command)s"
+msgstr "Δεν βρέθηκε η εντολή: %(command)s"
+
+#: src/gpodder/extensions.py:236
+#, python-format
+msgid "Need at least one of the following commands: %(list_of_commands)s"
+msgstr ""
+
+#: src/gpodder/extensions.py:273
+#, fuzzy, python-format
+msgid "Python module not found: %(module)s"
+msgstr "Το python module \"%s\" δεν είναι εγκατεστημένο"
+
+#: src/gpodder/model.py:469 src/gpodder/youtube.py:362
+#: src/gpodder/plugins/soundcloud.py:174
+#: share/gpodder/extensions/youtube-dl.py:195
+msgid "No description available"
+msgstr "Δεν υπάρχει διαθέσιμη περιγραφή"
+
+#: src/gpodder/model.py:703
+msgid "unknown"
+msgstr "άγνωστο"
+
+#: src/gpodder/model.py:774
+msgid "Default"
+msgstr ""
+
+#: src/gpodder/model.py:775
+msgid "Only keep latest"
+msgstr ""
+
+#: src/gpodder/model.py:1205 src/gpodder/model.py:1220
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:9
 msgid "Video"
 msgstr "Βίντεο"
 
-#: src/gpodder/model.py:1215
+#: src/gpodder/model.py:1218
 msgid "Audio"
 msgstr "Ήχος"
 
-#: src/gpodder/model.py:1394
+#: src/gpodder/model.py:1397
 #, python-format
 msgid ""
 "Warning: path to gPodder home (%(root)s) is very long and can result in "
 "failure to download files.\n"
 msgstr ""
 
-#: src/gpodder/model.py:1396
+#: src/gpodder/model.py:1399
 msgid "You're advised to set it to a shorter path."
 msgstr ""
+
+#: src/gpodder/my.py:179
+#, python-format
+msgid "Add %s"
+msgstr "Προσθήκη %s"
+
+#: src/gpodder/my.py:181
+#, python-format
+msgid "Remove %s"
+msgstr "Αφαίρεση %s"
 
 #: src/gpodder/sync.py:238
 msgid "Cancelled by user"
@@ -351,7 +295,7 @@ msgstr "Κλείσιμο του %s"
 msgid "%s closed"
 msgstr "Το %s έκλεισε"
 
-#: src/gpodder/sync.py:847 bin/gpo:804
+#: src/gpodder/sync.py:847 bin/gpo:776
 #, python-format
 msgid "Adding %s..."
 msgstr "Προσθήκη του %s..."
@@ -360,48 +304,104 @@ msgstr "Προσθήκη του %s..."
 msgid "Synchronizing"
 msgstr "Συγχρονισμός"
 
-#: src/gpodder/my.py:178
-#, python-format
-msgid "Add %s"
-msgstr "Προσθήκη %s"
+#: src/gpodder/syncui.py:84
+msgid "No device configured"
+msgstr "Καμία συσκευή δεν έχει ρυθμιστεί"
 
-#: src/gpodder/my.py:180
-#, python-format
-msgid "Remove %s"
-msgstr "Αφαίρεση %s"
-
-#: src/gpodder/extensions.py:55
-msgid "Desktop Integration"
+#: src/gpodder/syncui.py:85
+msgid "Please set up your device in the preferences dialog."
 msgstr ""
+"Παρακαλώ ρυθμίστε τη συσκευή σας στο παράθυρο διαλόγου των προτιμήσεων."
 
-#: src/gpodder/extensions.py:56
-#, fuzzy
-msgid "Interface"
-msgstr "Ακέραιος αριθμός"
+#: src/gpodder/syncui.py:90
+msgid "Cannot open device"
+msgstr "Αδυναμία ανοίγματος της συσκευής"
 
-#: src/gpodder/extensions.py:57
-#, fuzzy
-msgid "Post download"
-msgstr "Παύση λήψης"
+#: src/gpodder/syncui.py:91
+msgid "Please check the settings in the preferences dialog."
+msgstr "Παρακαλώ ελέγξτε τις ρυθμίσεις στο παράθυρο διαλόγου των προτιμήσεων."
 
-#: src/gpodder/extensions.py:100
-msgid "No description for this extension."
-msgstr "Δεν υπάρχει περιγραφή για αυτή την επέκταση."
+#: src/gpodder/syncui.py:138
+msgid "Not enough space left on device"
+msgstr "Δεν έχει μείνει αρκετός χώρος στη συσκευή"
 
-#: src/gpodder/extensions.py:220
-#, python-format
-msgid "Command not found: %(command)s"
-msgstr "Δεν βρέθηκε η εντολή: %(command)s"
-
-#: src/gpodder/extensions.py:236
-#, python-format
-msgid "Need at least one of the following commands: %(list_of_commands)s"
-msgstr ""
-
-#: src/gpodder/extensions.py:273
+#: src/gpodder/syncui.py:139
 #, fuzzy, python-format
-msgid "Python module not found: %(module)s"
-msgstr "Το python module \"%s\" δεν είναι εγκατεστημένο"
+msgid ""
+"Additional free space required: %(required_space)s\n"
+"Do you want to continue?"
+msgstr ""
+"Χρειάζεται να ελευθερώσεις %s.\n"
+"Θέλεις να συνεχίσεις;"
+
+#: src/gpodder/syncui.py:201
+#, fuzzy
+msgid "Update successful"
+msgstr "Η λίστα μεταφορτώθηκε με επιτυχία."
+
+#: src/gpodder/syncui.py:202
+msgid "The playlist on your MP3 player has been updated."
+msgstr ""
+
+#: src/gpodder/syncui.py:270 src/gpodder/gtkui/main.py:858
+#: src/gpodder/gtkui/main.py:1013 src/gpodder/gtkui/main.py:2844
+#: src/gpodder/gtkui/main.py:3051
+#: src/gpodder/gtkui/desktop/episodeselector.py:127
+msgid "Episode"
+msgstr "Επεισόδιο"
+
+#: src/gpodder/syncui.py:275
+msgid "Episodes have been deleted on device"
+msgstr ""
+
+#: src/gpodder/syncui.py:287
+#, fuzzy
+msgid "Error writing playlist files"
+msgstr "Σφάλμα κατά τη μετατροπή του αρχείου."
+
+#: src/gpodder/util.py:443
+#, python-format
+msgid "%(count)d day ago"
+msgid_plural "%(count)d days ago"
+msgstr[0] "Πριν από %(count)d ημέρα"
+msgstr[1] "Πριν από %(count)d ημέρες"
+
+#: src/gpodder/util.py:522
+msgid "Today"
+msgstr "Σήμερα"
+
+#: src/gpodder/util.py:524
+msgid "Yesterday"
+msgstr "Χθες"
+
+#: src/gpodder/util.py:567 src/gpodder/util.py:570
+msgid "(unknown)"
+msgstr "(άγνωστο)"
+
+#: src/gpodder/util.py:1383 src/gpodder/util.py:1405
+#, python-format
+msgid "%(count)d second"
+msgid_plural "%(count)d seconds"
+msgstr[0] "%(count)d δευτερόλεπτο"
+msgstr[1] "%(count)d δευτερόλεπτα"
+
+#: src/gpodder/util.py:1397
+#, python-format
+msgid "%(count)d hour"
+msgid_plural "%(count)d hours"
+msgstr[0] "%(count)d ώρα"
+msgstr[1] "%(count)d ώρες"
+
+#: src/gpodder/util.py:1401
+#, python-format
+msgid "%(count)d minute"
+msgid_plural "%(count)d minutes"
+msgstr[0] "%(count)d λεπτό"
+msgstr[1] "%(count)d λεπτά"
+
+#: src/gpodder/util.py:1409
+msgid "and"
+msgstr "και"
 
 #: src/gpodder/gtkui/app.py:117
 msgid "Cannot start gPodder"
@@ -429,815 +429,6 @@ msgstr ""
 msgid "Path to gPodder home is too long"
 msgstr ""
 
-#: src/gpodder/gtkui/desktopfile.py:70
-#, python-format
-msgid "Command: %s"
-msgstr "Εντολή: %s"
-
-#: src/gpodder/gtkui/desktopfile.py:156
-msgid "Default application"
-msgstr "Προεπιλεγμένη εφαρμογή"
-
-#: src/gpodder/gtkui/main.py:149 share/applications/gpodder.desktop.in.h:1
-msgid "gPodder"
-msgstr "gPodder"
-
-#: src/gpodder/gtkui/main.py:318 share/gpodder/ui/gtk/menus.ui.h:28
-msgid "E_xtras"
-msgstr ""
-
-#: src/gpodder/gtkui/main.py:319
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:11
-msgid "Extensions"
-msgstr "Επεκτάσεις"
-
-#: src/gpodder/gtkui/main.py:339
-msgid "Loading incomplete downloads"
-msgstr "Φόρτωση μη ολοκληρωμένων λήψεων"
-
-#: src/gpodder/gtkui/main.py:340
-msgid "Some episodes have not finished downloading in a previous session."
-msgstr ""
-"Δεν έχει ολοκληρωθεί η λήψη ορισμένων επεισοδίων σε προηγούμενη συνεδρία."
-
-#: src/gpodder/gtkui/main.py:343 bin/gpo:588
-#, python-format
-msgid "%(count)d partial file"
-msgid_plural "%(count)d partial files"
-msgstr[0] "%(count)d ατελές αρχείο"
-msgstr[1] "%(count)d ατελή αρχεία"
-
-#: src/gpodder/gtkui/main.py:356
-msgid "Resume all"
-msgstr "Συνέχιση όλων"
-
-#: src/gpodder/gtkui/main.py:368
-msgid "Incomplete downloads from a previous session were found."
-msgstr "Βρέθηκαν ατελείς λήψεις από προηγούμενη συνεδρία."
-
-#: src/gpodder/gtkui/main.py:478
-msgid "Action"
-msgstr "Ενέργεια"
-
-#: src/gpodder/gtkui/main.py:525
-msgid "Confirm changes from gpodder.net"
-msgstr "Επιβεβαίωση αλλαγών από gpodder.net"
-
-#: src/gpodder/gtkui/main.py:526
-msgid "Select the actions you want to carry out."
-msgstr "Επίλεξε τις ενέργειες που θέλεις να πραγματοποιήσεις."
-
-#: src/gpodder/gtkui/main.py:566
-msgid "Uploading subscriptions"
-msgstr "Μεταφόρτωση συνδρομών"
-
-#: src/gpodder/gtkui/main.py:567
-msgid "Your subscriptions are being uploaded to the server."
-msgstr "Οι συνδρομές σας μεταφορτώνονται στο διακομιστή."
-
-#: src/gpodder/gtkui/main.py:572
-msgid "List uploaded successfully."
-msgstr "Η λίστα μεταφορτώθηκε με επιτυχία."
-
-#: src/gpodder/gtkui/main.py:579
-msgid "Error while uploading"
-msgstr "Σφάλμα κατά τη μεταφόρτωση"
-
-#: src/gpodder/gtkui/main.py:878
-msgid "Size"
-msgstr "Μέγεθος"
-
-#: src/gpodder/gtkui/main.py:883
-msgid "Duration"
-msgstr "Διάρκεια"
-
-#: src/gpodder/gtkui/main.py:887
-msgid "Released"
-msgstr "Κυκλοφόρησε"
-
-#: src/gpodder/gtkui/main.py:1034 src/gpodder/gtkui/main.py:1183
-#: share/gpodder/ui/gtk/gpodder.ui.h:11
-msgid "Progress"
-msgstr "Πρόοδος"
-
-#: src/gpodder/gtkui/main.py:1062
-msgid "No episodes in current view"
-msgstr "Δεν υπάρχουν επεισόδια στην τρέχουσα προβολή"
-
-#: src/gpodder/gtkui/main.py:1064
-msgid "No episodes available"
-msgstr "Δεν υπάρχουν διαθέσιμα επεισόδια"
-
-#: src/gpodder/gtkui/main.py:1070
-msgid "No podcasts in this view"
-msgstr "Δεν υπάρχουν podcasts σε αυτήν την προβολή"
-
-#: src/gpodder/gtkui/main.py:1072
-msgid "No subscriptions"
-msgstr "Δεν υπάρχουν συνδρομές"
-
-#: src/gpodder/gtkui/main.py:1074
-msgid "No active tasks"
-msgstr "Δεν υπάρχουν ενεργές διεργασίες"
-
-#: src/gpodder/gtkui/main.py:1187 src/gpodder/gtkui/main.py:1189
-#, python-format
-msgid "%(count)d active"
-msgid_plural "%(count)d active"
-msgstr[0] "%(count)d ενεργή"
-msgstr[1] "%(count)d ενεργές"
-
-#: src/gpodder/gtkui/main.py:1191
-#, python-format
-msgid "%(count)d failed"
-msgid_plural "%(count)d failed"
-msgstr[0] "Απέτυχε %(count)d"
-msgstr[1] "Απέτυχαν %(count)d"
-
-#: src/gpodder/gtkui/main.py:1193
-#, python-format
-msgid "%(count)d queued"
-msgid_plural "%(count)d queued"
-msgstr[0] "%(count)d σε αναμονή"
-msgstr[1] "%(count)d σε αναμονή"
-
-#: src/gpodder/gtkui/main.py:1206
-#, python-format
-msgid "downloading %(count)d file"
-msgid_plural "downloading %(count)d files"
-msgstr[0] "λήψη %(count)d αρχείου"
-msgstr[1] "λήψη %(count)d αρχείων"
-
-#: src/gpodder/gtkui/main.py:1218
-#, python-format
-msgid "synchronizing %(count)d file"
-msgid_plural "synchronizing %(count)d files"
-msgstr[0] "συγχρονισμός %(count)d αρχείου"
-msgstr[1] "συγχρονισμός %(count)d αρχείων"
-
-#: src/gpodder/gtkui/main.py:1222
-#, python-format
-msgid "%(queued)d task queued"
-msgid_plural "%(queued)d tasks queued"
-msgstr[0] ""
-msgstr[1] ""
-
-#: src/gpodder/gtkui/main.py:1249
-msgid "Please report this problem and restart gPodder:"
-msgstr "Παρακαλώ ανάφερε αυτό το πρόβλημα και επανεκκίνησε το gPodder:"
-
-#: src/gpodder/gtkui/main.py:1250
-msgid "Unhandled exception"
-msgstr "Εξαίρεση που δεν αντιμετωπίστηκε"
-
-#: src/gpodder/gtkui/main.py:1317
-#, python-format
-msgid "Feedparser error: %s"
-msgstr "Σφάλμα στην ανάλυση της ροής: %s"
-
-#: src/gpodder/gtkui/main.py:1451
-msgid "Could not download some episodes:"
-msgstr "Δεν ήταν δυνατή η λήψη κάποιων επεισοδίων:"
-
-#: src/gpodder/gtkui/main.py:1453 src/gpodder/gtkui/main.py:1456
-msgid "Downloads finished"
-msgstr "Οι λήψεις τελείωσαν"
-
-#: src/gpodder/gtkui/main.py:1459
-msgid "Downloads failed"
-msgstr "Αποτυχία λήψεων"
-
-#: src/gpodder/gtkui/main.py:1464
-msgid "Could not sync some episodes:"
-msgstr "Δεν ήταν δυνατός ο συγχρονισμός ορισμένων επεισοδίων"
-
-#: src/gpodder/gtkui/main.py:1467 src/gpodder/gtkui/main.py:1471
-msgid "Device synchronization finished"
-msgstr "Ο συγχρονισμός της συσκευής ολοκληρώθηκε"
-
-#: src/gpodder/gtkui/main.py:1475
-msgid "Device synchronization failed"
-msgstr "Ο συγχρονισμός της συσκευής απέτυχε"
-
-#: src/gpodder/gtkui/main.py:1518
-#, python-format
-msgid "%(count)d more episode"
-msgid_plural "%(count)d more episodes"
-msgstr[0] "Ακόμα %(count)d επεισόδιο"
-msgstr[1] "Ακόμα %(count)d επεισόδια"
-
-#: src/gpodder/gtkui/main.py:1626
-msgid "Start download now"
-msgstr "Εκκίνηση λήψης τώρα"
-
-#: src/gpodder/gtkui/main.py:1631 src/gpodder/gtkui/main.py:1910
-#: src/gpodder/gtkui/desktop/podcastdirectory.py:192
-#: src/gpodder/gtkui/desktop/episodeselector.py:139
-#: share/gpodder/ui/gtk/gpodder.ui.h:1 share/gpodder/ui/gtk/menus.ui.h:22
-msgid "Download"
-msgstr "Λήψη"
-
-#: src/gpodder/gtkui/main.py:1636 share/gpodder/ui/gtk/gpodder.ui.h:2
-#: share/gpodder/ui/gtk/menus.ui.h:23
-msgid "Cancel"
-msgstr "Ακύρωση"
-
-#: src/gpodder/gtkui/main.py:1640
-msgid "Pause"
-msgstr "Παύση"
-
-#: src/gpodder/gtkui/main.py:1644
-msgid "Move up"
-msgstr ""
-
-#: src/gpodder/gtkui/main.py:1646
-msgid "Move down"
-msgstr ""
-
-#: src/gpodder/gtkui/main.py:1649
-msgid "Remove from list"
-msgstr "Αφαίρεση από τη λίστα"
-
-#: src/gpodder/gtkui/main.py:1690 share/gpodder/ui/gtk/menus.ui.h:15
-msgid "Update podcast"
-msgstr "Ενημέρωση podcast"
-
-#: src/gpodder/gtkui/main.py:1697
-msgid "Open download folder"
-msgstr "Άνοιγμα φακέλου λήψεων"
-
-#: src/gpodder/gtkui/main.py:1703
-msgid "Mark episodes as old"
-msgstr "Σήμανση επισοδίων ως παλιά"
-
-#: src/gpodder/gtkui/main.py:1707 src/gpodder/gtkui/main.py:1968
-msgid "Archive"
-msgstr "Αρχειοθέτηση"
-
-#: src/gpodder/gtkui/main.py:1712
-#, fuzzy
-msgid "Delete podcast"
-msgstr "Διαγραφή επεισοδίων"
-
-#: src/gpodder/gtkui/main.py:1727 share/gpodder/ui/gtk/menus.ui.h:16
-msgid "Podcast settings"
-msgstr "Ρυθμίσεις του podcast"
-
-#: src/gpodder/gtkui/main.py:1772
-msgid "File already exist"
-msgstr ""
-
-#: src/gpodder/gtkui/main.py:1774
-#, python-format
-msgid "A file named \"%(filename)s\" already exist. Do you want to replace it?"
-msgstr ""
-
-#: src/gpodder/gtkui/main.py:1816
-#, python-format
-msgid ""
-"Error saving to local folder: %(error)r.\n"
-"Would you like to continue?"
-msgstr ""
-
-#: src/gpodder/gtkui/main.py:1818 src/gpodder/gtkui/main.py:1823
-#, fuzzy
-msgid "Error saving to local folder"
-msgstr "Σφάλμα κατά τη μετατροπή του αρχείου."
-
-#: src/gpodder/gtkui/main.py:1822
-#, python-format
-msgid "Error saving to local folder: %(error)r"
-msgstr ""
-
-#: src/gpodder/gtkui/main.py:1843
-msgid "Error converting file."
-msgstr "Σφάλμα κατά τη μετατροπή του αρχείου."
-
-#: src/gpodder/gtkui/main.py:1843
-msgid "Bluetooth file transfer"
-msgstr "Μεταφορά αρχείου μέσω Bluetooth"
-
-#: src/gpodder/gtkui/main.py:1896 share/gpodder/ui/gtk/menus.ui.h:20
-msgid "Play"
-msgstr "Αναπαραγωγή"
-
-#: src/gpodder/gtkui/main.py:1900
-msgid "Preview"
-msgstr "Προεπισκόπηση"
-
-#: src/gpodder/gtkui/main.py:1902
-msgid "Stream"
-msgstr "Αναπαραγωγή"
-
-#: src/gpodder/gtkui/main.py:1915
-#, fuzzy
-msgid "_Cancel"
-msgstr "Ακύρωση"
-
-#: src/gpodder/gtkui/main.py:1919
-#, fuzzy
-msgid "_Delete"
-msgstr "Διαγραφή"
-
-#: src/gpodder/gtkui/main.py:1945
-msgid "Send to"
-msgstr "Αποστολή προς"
-
-#: src/gpodder/gtkui/main.py:1947
-msgid "Local folder"
-msgstr "Τοπικός φάκελος"
-
-#: src/gpodder/gtkui/main.py:1952
-msgid "Bluetooth device"
-msgstr "Συσκευή Bluetooth"
-
-#: src/gpodder/gtkui/main.py:1959
-msgid "New"
-msgstr "Νέο"
-
-#: src/gpodder/gtkui/main.py:1977 share/gpodder/ui/gtk/menus.ui.h:27
-msgid "Episode details"
-msgstr "Λεπτομέρειες επεισοδίου"
-
-#: src/gpodder/gtkui/main.py:2130
-msgid "Please check your media player settings in the preferences dialog."
-msgstr ""
-"Παρακαλώ ελέγξτε τις ρυθμίσεις του αναπαραγωγέα των μέσων σας στο παράθυρο "
-"διαλόγου των προτιμήσεων."
-
-#: src/gpodder/gtkui/main.py:2131
-msgid "Error opening player"
-msgstr "Σφάλμα κατά το άνοιγμα του αναπαραγωγέα"
-
-#: src/gpodder/gtkui/main.py:2373
-msgid "Adding podcasts"
-msgstr "Προσθήκη podcasts"
-
-#: src/gpodder/gtkui/main.py:2374
-msgid "Please wait while episode information is downloaded."
-msgstr "Παρακαλώ περίμενε ενώ γίνεται λήψη των πληροφοριών του επεισοδίου."
-
-#: src/gpodder/gtkui/main.py:2381
-msgid "Existing subscriptions skipped"
-msgstr "Οι υπάρχουσες συνδρομές παραλείφθηκαν"
-
-#: src/gpodder/gtkui/main.py:2382
-msgid "You are already subscribed to these podcasts:"
-msgstr "Έχεις ήδη εγγραφεί σε αυτά τα podcasts:"
-
-#: src/gpodder/gtkui/main.py:2390 bin/gpo:324
-msgid "Podcast requires authentication"
-msgstr "Το Podcast απαιτεί πιστοποίηση"
-
-#: src/gpodder/gtkui/main.py:2391 bin/gpo:325
-#, python-format
-msgid "Please login to %s:"
-msgstr "Παρακαλώ συνδεθείτε στο %s:"
-
-#: src/gpodder/gtkui/main.py:2399 src/gpodder/gtkui/main.py:2495
-msgid "Authentication failed"
-msgstr "Η πιστοποίηση απέτυχε"
-
-#: src/gpodder/gtkui/main.py:2405
-msgid "Website redirection detected"
-msgstr "Εντοπίστηκε ανακατεύθυνση ιστότοπου"
-
-#: src/gpodder/gtkui/main.py:2406
-#, python-format
-msgid "The URL %(url)s redirects to %(target)s."
-msgstr "Η διεύθυνση (URL) %(url)s ανακατευθύνει προς %(target)s."
-
-#: src/gpodder/gtkui/main.py:2407
-msgid "Do you want to visit the website now?"
-msgstr "Θέλεις να επισκεφθείς τον ιστότοπο τώρα;"
-
-#: src/gpodder/gtkui/main.py:2416
-msgid "Could not add some podcasts"
-msgstr "Δεν είναι δυνατή η προσθήκη ορισμένων podcasts"
-
-#: src/gpodder/gtkui/main.py:2417
-msgid "Some podcasts could not be added to your list:"
-msgstr "Ορισμένα podcasts δεν θα μπορούσαν να προστεθούν στη λίστα σας:"
-
-#: src/gpodder/gtkui/main.py:2420
-msgid "Unknown"
-msgstr "Άγνωστο"
-
-#: src/gpodder/gtkui/main.py:2504
-msgid "Redirection detected"
-msgstr "Ανίχνευση αυτόματης εκτροπής"
-
-#: src/gpodder/gtkui/main.py:2538
-msgid "Merging episode actions"
-msgstr "Συγχώνευση ενεργειών επεισοδίου"
-
-#: src/gpodder/gtkui/main.py:2539
-msgid "Episode actions from gpodder.net are merged."
-msgstr "Οι ενέργειες επεισοδίου από το gpodder.net συγχωνεύτηκαν."
-
-#: src/gpodder/gtkui/main.py:2563
-msgid "Cancelling..."
-msgstr "Ακύρωση..."
-
-#: src/gpodder/gtkui/main.py:2572
-msgid "Please connect to a network, then try again."
-msgstr ""
-
-#: src/gpodder/gtkui/main.py:2573
-#, fuzzy
-msgid "No network connection"
-msgstr "Νέο όνομα:"
-
-#: src/gpodder/gtkui/main.py:2594
-#, python-format
-msgid "Updating %(count)d feed..."
-msgid_plural "Updating %(count)d feeds..."
-msgstr[0] "Ενημέρωση %(count)d ροής..."
-msgstr[1] "Ενημέρωση %(count)d ροών..."
-
-#: src/gpodder/gtkui/main.py:2609
-#, fuzzy, python-format
-msgid "Updating %(podcast)s (%(position)d/%(total)d)"
-msgstr "Ενημερώθηκε το %(podcast)s (%(position)d/%(total)d)"
-
-#: src/gpodder/gtkui/main.py:2620
-#, fuzzy, python-format
-msgid "Error while updating %(title)s at %(url)s: %(message)s"
-msgstr "Σφάλμα κατά τη διάρκεια της ενημέρωσης του %(url)s: %(message)s"
-
-#: src/gpodder/gtkui/main.py:2622
-#, fuzzy, python-format
-msgid "The %(title)s feed at %(url)s could not be updated."
-msgstr "Η ροή στο %(url)s δεν ήταν δυνατό να ενημερωθεί."
-
-#: src/gpodder/gtkui/main.py:2623
-msgid "Error while updating feed"
-msgstr "Σφάλμα κατά την ενημέρωση της ροής"
-
-#: src/gpodder/gtkui/main.py:2665
-msgid "No new episodes"
-msgstr "Δεν υπάρχουν νέα επεισόδια"
-
-#: src/gpodder/gtkui/main.py:2678
-#, python-format
-msgid "Downloading %(count)d new episode."
-msgid_plural "Downloading %(count)d new episodes."
-msgstr[0] "Λήψη %(count)d νέου επεισοδίου."
-msgstr[1] "Λήψη %(count)d νέων επεισοδίων."
-
-#: src/gpodder/gtkui/main.py:2681 src/gpodder/gtkui/main.py:2688
-#: src/gpodder/gtkui/main.py:3058
-msgid "New episodes available"
-msgstr "Νέα επεισόδια είναι διαθέσιμα"
-
-#: src/gpodder/gtkui/main.py:2685
-#, python-format
-msgid "%(count)d new episode added to download list."
-msgid_plural "%(count)d new episodes added to download list."
-msgstr[0] "%(count)d νέο επεισόδιο προστέθηκε στη λίστα λήψεων."
-msgstr[1] "%(count)d νέα επεισόδια προστέθηκαν στη λίστα λήψεων."
-
-#: src/gpodder/gtkui/main.py:2694
-#, python-format
-msgid "%(count)d new episode available"
-msgid_plural "%(count)d new episodes available"
-msgstr[0] "%(count)d νέο επεισόδιο διαθέσιμο"
-msgstr[1] "%(count)d νέα επεισόδια διαθέσιμα"
-
-#: src/gpodder/gtkui/main.py:2725
-msgid "Quit gPodder"
-msgstr "Έξοδος από το gPodder"
-
-#: src/gpodder/gtkui/main.py:2726
-msgid ""
-"You are downloading episodes. You can resume downloads the next time you "
-"start gPodder. Do you want to quit now?"
-msgstr ""
-"Γίνεται λήψη επεισοδίων. Μπορείς να συνεχίσεις τις λήψεις την επόμενη φορά "
-"που θα εκκινήσεις το gPodder. Θέλεις να το κλείσεις τώρα;"
-
-#: src/gpodder/gtkui/main.py:2766 bin/gpo:859
-msgid "Episodes are locked"
-msgstr "Τα επεισόδια είναι κλειδωμέμα"
-
-#: src/gpodder/gtkui/main.py:2768 bin/gpo:861
-msgid ""
-"The selected episodes are locked. Please unlock the episodes that you want "
-"to delete before trying to delete them."
-msgstr ""
-"Τα επιλεγμένα επεισόδια είναι κλειδωμένα. Παρακαλώ να ξεκλειδώσεις τα "
-"επεισόδια που θέλεις να διαγράψεις πριν προσπαθήσεις να τα διαγράψεις."
-
-#: src/gpodder/gtkui/main.py:2775 bin/gpo:868
-#, python-format
-msgid "Delete %(count)d episode?"
-msgid_plural "Delete %(count)d episodes?"
-msgstr[0] "Να διαγραφεί %(count)d επεισόδιο;"
-msgstr[1] "Να διαγραφούν %(count)d επεισόδια;"
-
-#: src/gpodder/gtkui/main.py:2777 bin/gpo:870
-msgid "Deleting episodes removes downloaded files."
-msgstr "Η διαγραφή των επεισοδίων αφαιρεί τα ληφθέντα αρχεία."
-
-#: src/gpodder/gtkui/main.py:2782
-msgid "Deleting episodes"
-msgstr "Διαγραφή επεισοδίων"
-
-#: src/gpodder/gtkui/main.py:2783 bin/gpo:875
-msgid "Please wait while episodes are deleted"
-msgstr "Παρακαλώ περίμενε ενώ τα επεισόδια διαγράφονται"
-
-#: src/gpodder/gtkui/main.py:2836
-#, python-format
-msgid "Select older than %(count)d day"
-msgid_plural "Select older than %(count)d days"
-msgstr[0] "Επίλεξε παλαιότερα από %(count)d ημέρα"
-msgstr[1] "Επίλεξε παλαιότερα από %(count)d ημέρες"
-
-#: src/gpodder/gtkui/main.py:2838
-msgid "Select played"
-msgstr "Επιλογή αναπαραγμένου"
-
-#: src/gpodder/gtkui/main.py:2839
-msgid "Select finished"
-msgstr "Επιλογή ολοκληρωμένων"
-
-#: src/gpodder/gtkui/main.py:2843
-msgid "Select the episodes you want to delete:"
-msgstr "Επίλεξε τα επεισόδια που θέλεις να διαγράψεις:"
-
-#: src/gpodder/gtkui/main.py:2860 share/gpodder/ui/gtk/menus.ui.h:10
-msgid "Delete episodes"
-msgstr "Διαγραφή επεισοδίων"
-
-#: src/gpodder/gtkui/main.py:2914 src/gpodder/gtkui/main.py:3152
-#: src/gpodder/gtkui/main.py:3252
-msgid "No podcast selected"
-msgstr "Δεν έχει επιλεγεί κανένα podcast"
-
-#: src/gpodder/gtkui/main.py:2915
-msgid "Please select a podcast in the podcasts list to update."
-msgstr "Παρακαλώ επιλέξτε ένα podcast από τη λίστα των podcasts για ενημέρωση."
-
-#: src/gpodder/gtkui/main.py:3008
-#, python-format
-msgid "Download error while downloading %(episode)s: %(message)s"
-msgstr "Σφάλμα κατά τη διάρκεια της λήψης %(episode)s: %(message)s"
-
-#: src/gpodder/gtkui/main.py:3009
-msgid "Download error"
-msgstr "Σφάλμα λήψης"
-
-#: src/gpodder/gtkui/main.py:3043
-msgid "Select the episodes you want to download:"
-msgstr "Επίλεξε τα επεισόδια που θέλεις να κατεβάσεις:"
-
-#: src/gpodder/gtkui/main.py:3066
-msgid "Mark as old"
-msgstr "Σημείωση ως παλιό"
-
-#: src/gpodder/gtkui/main.py:3073
-msgid "Please check for new episodes later."
-msgstr "Παρακαλώ ελέγξτε για νέα επεισόδια αργότερα."
-
-#: src/gpodder/gtkui/main.py:3074
-msgid "No new episodes available"
-msgstr "Δεν υπάρχουν νέα επεισόδια διαθέσιμα"
-
-#: src/gpodder/gtkui/main.py:3115
-#, fuzzy, python-format
-msgid "Subscriptions on %(server)s"
-msgstr "Συνδρομές στο gpodder.net"
-
-#: src/gpodder/gtkui/main.py:3126
-msgid "Login to gpodder.net"
-msgstr "Σύνδεση στο gpodder.net"
-
-#: src/gpodder/gtkui/main.py:3127
-msgid "Please login to download your subscriptions."
-msgstr "Παρακαλώ κάνε σύνδεση για να κατεβάσεις τις συνδρομές σου."
-
-#: src/gpodder/gtkui/main.py:3153
-msgid "Please select a podcast in the podcasts list to edit."
-msgstr ""
-"Παρακαλώ επιλέξτε ένα podcast από τη λίστα των podcasts για να το "
-"επεξεργαστείτε."
-
-#: src/gpodder/gtkui/main.py:3167
-msgid "Podcast"
-msgstr "Podcast"
-
-#: src/gpodder/gtkui/main.py:3173 share/gpodder/ui/gtk/menus.ui.h:14
-#, fuzzy
-msgid "Delete podcasts"
-msgstr "Αφαίρεση podcasts"
-
-#: src/gpodder/gtkui/main.py:3174
-#, fuzzy
-msgid "Select the podcast you want to delete."
-msgstr "Επίλεξε το podcast που θέλεις να αφαιρέσεις."
-
-#: src/gpodder/gtkui/main.py:3178 share/gpodder/ui/gtk/menus.ui.h:24
-msgid "Delete"
-msgstr "Διαγραφή"
-
-#: src/gpodder/gtkui/main.py:3187
-#, fuzzy
-msgid "Deleting podcast"
-msgstr "Διαγραφή επεισοδίων"
-
-#: src/gpodder/gtkui/main.py:3188
-#, fuzzy
-msgid "Please wait while the podcast is deleted"
-msgstr "Παρακαλώ περίμενε ενώ το podcast αφαιρείται"
-
-#: src/gpodder/gtkui/main.py:3189
-msgid ""
-"This podcast and all its episodes will be PERMANENTLY DELETED.\n"
-"Are you sure you want to continue?"
-msgstr ""
-
-#: src/gpodder/gtkui/main.py:3191
-#, fuzzy
-msgid "Deleting podcasts"
-msgstr "Αφαίρεση των podcasts"
-
-#: src/gpodder/gtkui/main.py:3192
-#, fuzzy
-msgid "Please wait while the podcasts are deleted"
-msgstr "Παρακαλώ περίμενε ενώ τα podcasts αφαιρούνται"
-
-#: src/gpodder/gtkui/main.py:3193
-msgid ""
-"These podcasts and all their episodes will be PERMANENTLY DELETED.\n"
-"Are you sure you want to continue?"
-msgstr ""
-
-#: src/gpodder/gtkui/main.py:3253
-msgid "Please select a podcast in the podcasts list to remove."
-msgstr ""
-"Παρακαλώ επίλεξε ένα podcast από τη λίστα των podcasts για να το αφαιρέσεις."
-
-#: src/gpodder/gtkui/main.py:3263
-msgid "OPML files"
-msgstr "Αρχεία OPML"
-
-#: src/gpodder/gtkui/main.py:3268
-msgid "Import from OPML"
-msgstr "Εισαγωγή από OPML"
-
-#: src/gpodder/gtkui/main.py:3282
-msgid "Import podcasts from OPML file"
-msgstr "Εισαγωγή podcasts από αρχείο OPML"
-
-#: src/gpodder/gtkui/main.py:3289
-msgid "Nothing to export"
-msgstr "Δεν υπάρχει τίποτα προς εξαγωγή"
-
-#: src/gpodder/gtkui/main.py:3290
-msgid ""
-"Your list of podcast subscriptions is empty. Please subscribe to some "
-"podcasts first before trying to export your subscription list."
-msgstr ""
-"Η λίστα των συνδρομών podcast είναι άδεια. Παρακαλώ εγγράψου σε κάποια "
-"podcasts πρώτα πριν προσπαθήσεις να εξάγεις τη λίστα των συνδρομών σου."
-
-#: src/gpodder/gtkui/main.py:3296
-msgid "Export to OPML"
-msgstr "Εξαγωγή σε OPML"
-
-#: src/gpodder/gtkui/main.py:3309
-#, python-format
-msgid "%(count)d subscription exported"
-msgid_plural "%(count)d subscriptions exported"
-msgstr[0] "Εξάχθηκε %(count)d συνδρομή"
-msgstr[1] "Εξάχθηκαν %(count)d συνδρομές"
-
-#: src/gpodder/gtkui/main.py:3312
-msgid "Your podcast list has been successfully exported."
-msgstr "Ο κατάλογος των podcast σας έχει εξαχθεί με επιτυχία."
-
-#: src/gpodder/gtkui/main.py:3316
-msgid "Could not export OPML to file. Please check your permissions."
-msgstr ""
-"Δεν ήταν δυνατή η εξαγωγή OPML σε αρχείο. Παρακαλώ ελέγξτε τα δικαιώματα σας."
-
-#: src/gpodder/gtkui/main.py:3318
-msgid "OPML export failed"
-msgstr "Αποτυχία εξαγωγής OPML"
-
-#: src/gpodder/gtkui/main.py:3342
-#, fuzzy
-msgid "Could not check for updates"
-msgstr "Δεν είναι δυνατή η προσθήκη ορισμένων podcasts"
-
-#: src/gpodder/gtkui/main.py:3343
-msgid "Please try again later."
-msgstr ""
-
-#: src/gpodder/gtkui/main.py:3348
-msgid "No updates available"
-msgstr "Καμία διαθέσιμη ενημέρωση"
-
-#: src/gpodder/gtkui/main.py:3349
-msgid "You have the latest version of gPodder."
-msgstr "Έχετε την τελευταία έκδοση του gPodder."
-
-#: src/gpodder/gtkui/main.py:3353
-msgid "New version available"
-msgstr "Νέα διαθέσιμη έκδοση"
-
-#: src/gpodder/gtkui/main.py:3355
-#, python-format
-msgid "Installed version: %s"
-msgstr "Εγκατεστημένη έκδοση: %s"
-
-#: src/gpodder/gtkui/main.py:3356
-#, python-format
-msgid "Newest version: %s"
-msgstr "Νεότερη έκδοση: %s"
-
-#: src/gpodder/gtkui/main.py:3357
-#, python-format
-msgid "Release date: %s"
-msgstr "Ημερομηνία διάθεσης: %s"
-
-#: src/gpodder/gtkui/main.py:3359
-msgid "Download the latest version from gpodder.org?"
-msgstr "Λήψη της τελευταίας έκδοσης από το gpodder.org;"
-
-#: src/gpodder/gtkui/main.py:3607
-#, fuzzy
-msgid "Please register a YouTube API key and set it in the preferences."
-msgstr ""
-"Παρακαλώ ρυθμίστε τη συσκευή σας στο παράθυρο διαλόγου των προτιμήσεων."
-
-#: src/gpodder/gtkui/main.py:3608
-msgid "Would you like to set up an API key now?"
-msgstr ""
-
-#: src/gpodder/gtkui/main.py:3608
-msgid "API key required"
-msgstr ""
-
-#: src/gpodder/gtkui/main.py:3627 bin/gpo:727
-#, fuzzy
-msgid "No unique URL found"
-msgstr "Δε βρέθηκαν κανάλια"
-
-#: src/gpodder/gtkui/main.py:3632 bin/gpo:733
-#, fuzzy
-msgid "Already subscribed"
-msgstr "Αδυναμία συνδρομής στο %s."
-
-#: src/gpodder/gtkui/main.py:3642 bin/gpo:745
-#, python-format
-msgid "Make sure the API key is correct. Error: %(message)s"
-msgstr ""
-
-#: src/gpodder/gtkui/main.py:3643
-#, fuzzy
-msgid "Error getting YouTube channels"
-msgstr "Σφάλμα στη ρύθμιση επιλογής"
-
-#: src/gpodder/gtkui/main.py:3646
-#, fuzzy
-msgid "Successfully migrated subscriptions"
-msgstr "Επιτυχής προσθήκη του %s."
-
-#: src/gpodder/gtkui/main.py:3648
-#, fuzzy
-msgid "Subscriptions are up to date"
-msgstr "Η συνδρομή παύθηκε"
-
-#: src/gpodder/gtkui/main.py:3651
-msgid "These URLs failed:"
-msgstr ""
-
-#: src/gpodder/gtkui/main.py:3653
-#, fuzzy
-msgid "Could not migrate some subscriptions"
-msgstr "Δεν είναι δυνατή η προσθήκη ορισμένων podcasts"
-
-#: src/gpodder/gtkui/shownotes.py:99 src/gpodder/gtkui/model.py:67
-#: src/gpodder/gtkui/model.py:85 src/gpodder/gtkui/model.py:285
-#, python-format
-msgid "from %s"
-msgstr "από το %s"
-
-#: src/gpodder/gtkui/shownotes.py:130
-#, fuzzy
-msgid "Please select an episode"
-msgstr "Επιλογή επεισοδίων"
-
-#: src/gpodder/gtkui/shownotes.py:312
-msgid "Open shownotes in web browser"
-msgstr ""
-
-#: src/gpodder/gtkui/shownotes.py:318
-msgid "Open link in web browser"
-msgstr ""
-
 #: src/gpodder/gtkui/config.py:50
 msgid "Integer"
 msgstr "Ακέραιος αριθμός"
@@ -1254,10 +445,758 @@ msgstr "Boolean"
 msgid "String"
 msgstr "String"
 
+#: src/gpodder/gtkui/desktopfile.py:70
+#, python-format
+msgid "Command: %s"
+msgstr "Εντολή: %s"
+
+#: src/gpodder/gtkui/desktopfile.py:156
+msgid "Default application"
+msgstr "Προεπιλεγμένη εφαρμογή"
+
+#: src/gpodder/gtkui/main.py:149 share/applications/gpodder.desktop.in.h:1
+msgid "gPodder"
+msgstr "gPodder"
+
+#: src/gpodder/gtkui/main.py:317 share/gpodder/ui/gtk/menus.ui.h:28
+msgid "E_xtras"
+msgstr ""
+
+#: src/gpodder/gtkui/main.py:318
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:10
+msgid "Extensions"
+msgstr "Επεκτάσεις"
+
+#: src/gpodder/gtkui/main.py:338
+msgid "Loading incomplete downloads"
+msgstr "Φόρτωση μη ολοκληρωμένων λήψεων"
+
+#: src/gpodder/gtkui/main.py:339
+msgid "Some episodes have not finished downloading in a previous session."
+msgstr ""
+"Δεν έχει ολοκληρωθεί η λήψη ορισμένων επεισοδίων σε προηγούμενη συνεδρία."
+
+#: src/gpodder/gtkui/main.py:342 bin/gpo:602
+#, python-format
+msgid "%(count)d partial file"
+msgid_plural "%(count)d partial files"
+msgstr[0] "%(count)d ατελές αρχείο"
+msgstr[1] "%(count)d ατελή αρχεία"
+
+#: src/gpodder/gtkui/main.py:355
+msgid "Resume all"
+msgstr "Συνέχιση όλων"
+
+#: src/gpodder/gtkui/main.py:367
+msgid "Incomplete downloads from a previous session were found."
+msgstr "Βρέθηκαν ατελείς λήψεις από προηγούμενη συνεδρία."
+
+#: src/gpodder/gtkui/main.py:477
+msgid "Action"
+msgstr "Ενέργεια"
+
+#: src/gpodder/gtkui/main.py:524
+msgid "Confirm changes from gpodder.net"
+msgstr "Επιβεβαίωση αλλαγών από gpodder.net"
+
+#: src/gpodder/gtkui/main.py:525
+msgid "Select the actions you want to carry out."
+msgstr "Επίλεξε τις ενέργειες που θέλεις να πραγματοποιήσεις."
+
+#: src/gpodder/gtkui/main.py:565
+msgid "Uploading subscriptions"
+msgstr "Μεταφόρτωση συνδρομών"
+
+#: src/gpodder/gtkui/main.py:566
+msgid "Your subscriptions are being uploaded to the server."
+msgstr "Οι συνδρομές σας μεταφορτώνονται στο διακομιστή."
+
+#: src/gpodder/gtkui/main.py:571
+msgid "List uploaded successfully."
+msgstr "Η λίστα μεταφορτώθηκε με επιτυχία."
+
+#: src/gpodder/gtkui/main.py:578
+msgid "Error while uploading"
+msgstr "Σφάλμα κατά τη μεταφόρτωση"
+
+#: src/gpodder/gtkui/main.py:877
+msgid "Size"
+msgstr "Μέγεθος"
+
+#: src/gpodder/gtkui/main.py:882
+msgid "Duration"
+msgstr "Διάρκεια"
+
+#: src/gpodder/gtkui/main.py:886
+msgid "Released"
+msgstr "Κυκλοφόρησε"
+
+#: src/gpodder/gtkui/main.py:1033 src/gpodder/gtkui/main.py:1182
+#: share/gpodder/ui/gtk/gpodder.ui.h:11
+msgid "Progress"
+msgstr "Πρόοδος"
+
+#: src/gpodder/gtkui/main.py:1061
+msgid "No episodes in current view"
+msgstr "Δεν υπάρχουν επεισόδια στην τρέχουσα προβολή"
+
+#: src/gpodder/gtkui/main.py:1063
+msgid "No episodes available"
+msgstr "Δεν υπάρχουν διαθέσιμα επεισόδια"
+
+#: src/gpodder/gtkui/main.py:1069
+msgid "No podcasts in this view"
+msgstr "Δεν υπάρχουν podcasts σε αυτήν την προβολή"
+
+#: src/gpodder/gtkui/main.py:1071
+msgid "No subscriptions"
+msgstr "Δεν υπάρχουν συνδρομές"
+
+#: src/gpodder/gtkui/main.py:1073
+msgid "No active tasks"
+msgstr "Δεν υπάρχουν ενεργές διεργασίες"
+
+#: src/gpodder/gtkui/main.py:1186 src/gpodder/gtkui/main.py:1188
+#, python-format
+msgid "%(count)d active"
+msgid_plural "%(count)d active"
+msgstr[0] "%(count)d ενεργή"
+msgstr[1] "%(count)d ενεργές"
+
+#: src/gpodder/gtkui/main.py:1190
+#, python-format
+msgid "%(count)d failed"
+msgid_plural "%(count)d failed"
+msgstr[0] "Απέτυχε %(count)d"
+msgstr[1] "Απέτυχαν %(count)d"
+
+#: src/gpodder/gtkui/main.py:1192
+#, python-format
+msgid "%(count)d queued"
+msgid_plural "%(count)d queued"
+msgstr[0] "%(count)d σε αναμονή"
+msgstr[1] "%(count)d σε αναμονή"
+
+#: src/gpodder/gtkui/main.py:1205
+#, python-format
+msgid "downloading %(count)d file"
+msgid_plural "downloading %(count)d files"
+msgstr[0] "λήψη %(count)d αρχείου"
+msgstr[1] "λήψη %(count)d αρχείων"
+
+#: src/gpodder/gtkui/main.py:1217
+#, python-format
+msgid "synchronizing %(count)d file"
+msgid_plural "synchronizing %(count)d files"
+msgstr[0] "συγχρονισμός %(count)d αρχείου"
+msgstr[1] "συγχρονισμός %(count)d αρχείων"
+
+#: src/gpodder/gtkui/main.py:1221
+#, python-format
+msgid "%(queued)d task queued"
+msgid_plural "%(queued)d tasks queued"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/gpodder/gtkui/main.py:1248
+msgid "Please report this problem and restart gPodder:"
+msgstr "Παρακαλώ ανάφερε αυτό το πρόβλημα και επανεκκίνησε το gPodder:"
+
+#: src/gpodder/gtkui/main.py:1249
+msgid "Unhandled exception"
+msgstr "Εξαίρεση που δεν αντιμετωπίστηκε"
+
+#: src/gpodder/gtkui/main.py:1316
+#, python-format
+msgid "Feedparser error: %s"
+msgstr "Σφάλμα στην ανάλυση της ροής: %s"
+
+#: src/gpodder/gtkui/main.py:1331 src/gpodder/gtkui/model.py:735
+#, python-format
+msgid "ERROR: %s"
+msgstr ""
+
+#: src/gpodder/gtkui/main.py:1452
+msgid "Could not download some episodes:"
+msgstr "Δεν ήταν δυνατή η λήψη κάποιων επεισοδίων:"
+
+#: src/gpodder/gtkui/main.py:1454 src/gpodder/gtkui/main.py:1457
+msgid "Downloads finished"
+msgstr "Οι λήψεις τελείωσαν"
+
+#: src/gpodder/gtkui/main.py:1460
+msgid "Downloads failed"
+msgstr "Αποτυχία λήψεων"
+
+#: src/gpodder/gtkui/main.py:1465
+msgid "Could not sync some episodes:"
+msgstr "Δεν ήταν δυνατός ο συγχρονισμός ορισμένων επεισοδίων"
+
+#: src/gpodder/gtkui/main.py:1468 src/gpodder/gtkui/main.py:1472
+msgid "Device synchronization finished"
+msgstr "Ο συγχρονισμός της συσκευής ολοκληρώθηκε"
+
+#: src/gpodder/gtkui/main.py:1476
+msgid "Device synchronization failed"
+msgstr "Ο συγχρονισμός της συσκευής απέτυχε"
+
+#: src/gpodder/gtkui/main.py:1519
+#, python-format
+msgid "%(count)d more episode"
+msgid_plural "%(count)d more episodes"
+msgstr[0] "Ακόμα %(count)d επεισόδιο"
+msgstr[1] "Ακόμα %(count)d επεισόδια"
+
+#: src/gpodder/gtkui/main.py:1627
+msgid "Start download now"
+msgstr "Εκκίνηση λήψης τώρα"
+
+#: src/gpodder/gtkui/main.py:1632 src/gpodder/gtkui/main.py:1911
+#: src/gpodder/gtkui/desktop/episodeselector.py:139
+#: src/gpodder/gtkui/desktop/podcastdirectory.py:192
+#: share/gpodder/ui/gtk/gpodder.ui.h:1 share/gpodder/ui/gtk/menus.ui.h:22
+msgid "Download"
+msgstr "Λήψη"
+
+#: src/gpodder/gtkui/main.py:1637 share/gpodder/ui/gtk/gpodder.ui.h:2
+#: share/gpodder/ui/gtk/menus.ui.h:23
+msgid "Cancel"
+msgstr "Ακύρωση"
+
+#: src/gpodder/gtkui/main.py:1641
+msgid "Pause"
+msgstr "Παύση"
+
+#: src/gpodder/gtkui/main.py:1645
+msgid "Move up"
+msgstr ""
+
+#: src/gpodder/gtkui/main.py:1647
+msgid "Move down"
+msgstr ""
+
+#: src/gpodder/gtkui/main.py:1650
+msgid "Remove from list"
+msgstr "Αφαίρεση από τη λίστα"
+
+#: src/gpodder/gtkui/main.py:1691 share/gpodder/ui/gtk/menus.ui.h:15
+msgid "Update podcast"
+msgstr "Ενημέρωση podcast"
+
+#: src/gpodder/gtkui/main.py:1698
+msgid "Open download folder"
+msgstr "Άνοιγμα φακέλου λήψεων"
+
+#: src/gpodder/gtkui/main.py:1704
+msgid "Mark episodes as old"
+msgstr "Σήμανση επισοδίων ως παλιά"
+
+#: src/gpodder/gtkui/main.py:1708 src/gpodder/gtkui/main.py:1969
+msgid "Archive"
+msgstr "Αρχειοθέτηση"
+
+#: src/gpodder/gtkui/main.py:1713
+#, fuzzy
+msgid "Delete podcast"
+msgstr "Διαγραφή επεισοδίων"
+
+#: src/gpodder/gtkui/main.py:1728 share/gpodder/ui/gtk/menus.ui.h:16
+msgid "Podcast settings"
+msgstr "Ρυθμίσεις του podcast"
+
+#: src/gpodder/gtkui/main.py:1773
+msgid "File already exist"
+msgstr ""
+
+#: src/gpodder/gtkui/main.py:1775
+#, python-format
+msgid "A file named \"%(filename)s\" already exist. Do you want to replace it?"
+msgstr ""
+
+#: src/gpodder/gtkui/main.py:1817
+#, python-format
+msgid ""
+"Error saving to local folder: %(error)r.\n"
+"Would you like to continue?"
+msgstr ""
+
+#: src/gpodder/gtkui/main.py:1819 src/gpodder/gtkui/main.py:1824
+#, fuzzy
+msgid "Error saving to local folder"
+msgstr "Σφάλμα κατά τη μετατροπή του αρχείου."
+
+#: src/gpodder/gtkui/main.py:1823
+#, python-format
+msgid "Error saving to local folder: %(error)r"
+msgstr ""
+
+#: src/gpodder/gtkui/main.py:1844
+msgid "Error converting file."
+msgstr "Σφάλμα κατά τη μετατροπή του αρχείου."
+
+#: src/gpodder/gtkui/main.py:1844
+msgid "Bluetooth file transfer"
+msgstr "Μεταφορά αρχείου μέσω Bluetooth"
+
+#: src/gpodder/gtkui/main.py:1897 share/gpodder/ui/gtk/menus.ui.h:20
+msgid "Play"
+msgstr "Αναπαραγωγή"
+
+#: src/gpodder/gtkui/main.py:1901
+msgid "Preview"
+msgstr "Προεπισκόπηση"
+
+#: src/gpodder/gtkui/main.py:1903
+msgid "Stream"
+msgstr "Αναπαραγωγή"
+
+#: src/gpodder/gtkui/main.py:1916
+#, fuzzy
+msgid "_Cancel"
+msgstr "Ακύρωση"
+
+#: src/gpodder/gtkui/main.py:1920
+#, fuzzy
+msgid "_Delete"
+msgstr "Διαγραφή"
+
+#: src/gpodder/gtkui/main.py:1946
+msgid "Send to"
+msgstr "Αποστολή προς"
+
+#: src/gpodder/gtkui/main.py:1948
+msgid "Local folder"
+msgstr "Τοπικός φάκελος"
+
+#: src/gpodder/gtkui/main.py:1953
+msgid "Bluetooth device"
+msgstr "Συσκευή Bluetooth"
+
+#: src/gpodder/gtkui/main.py:1960
+msgid "New"
+msgstr "Νέο"
+
+#: src/gpodder/gtkui/main.py:1978 share/gpodder/ui/gtk/menus.ui.h:27
+msgid "Episode details"
+msgstr "Λεπτομέρειες επεισοδίου"
+
+#: src/gpodder/gtkui/main.py:2131
+msgid "Please check your media player settings in the preferences dialog."
+msgstr ""
+"Παρακαλώ ελέγξτε τις ρυθμίσεις του αναπαραγωγέα των μέσων σας στο παράθυρο "
+"διαλόγου των προτιμήσεων."
+
+#: src/gpodder/gtkui/main.py:2132
+msgid "Error opening player"
+msgstr "Σφάλμα κατά το άνοιγμα του αναπαραγωγέα"
+
+#: src/gpodder/gtkui/main.py:2374
+msgid "Adding podcasts"
+msgstr "Προσθήκη podcasts"
+
+#: src/gpodder/gtkui/main.py:2375
+msgid "Please wait while episode information is downloaded."
+msgstr "Παρακαλώ περίμενε ενώ γίνεται λήψη των πληροφοριών του επεισοδίου."
+
+#: src/gpodder/gtkui/main.py:2382
+msgid "Existing subscriptions skipped"
+msgstr "Οι υπάρχουσες συνδρομές παραλείφθηκαν"
+
+#: src/gpodder/gtkui/main.py:2383
+msgid "You are already subscribed to these podcasts:"
+msgstr "Έχεις ήδη εγγραφεί σε αυτά τα podcasts:"
+
+#: src/gpodder/gtkui/main.py:2391 bin/gpo:338
+msgid "Podcast requires authentication"
+msgstr "Το Podcast απαιτεί πιστοποίηση"
+
+#: src/gpodder/gtkui/main.py:2392 bin/gpo:339
+#, python-format
+msgid "Please login to %s:"
+msgstr "Παρακαλώ συνδεθείτε στο %s:"
+
+#: src/gpodder/gtkui/main.py:2400 src/gpodder/gtkui/main.py:2496
+msgid "Authentication failed"
+msgstr "Η πιστοποίηση απέτυχε"
+
+#: src/gpodder/gtkui/main.py:2406
+msgid "Website redirection detected"
+msgstr "Εντοπίστηκε ανακατεύθυνση ιστότοπου"
+
+#: src/gpodder/gtkui/main.py:2407
+#, python-format
+msgid "The URL %(url)s redirects to %(target)s."
+msgstr "Η διεύθυνση (URL) %(url)s ανακατευθύνει προς %(target)s."
+
+#: src/gpodder/gtkui/main.py:2408
+msgid "Do you want to visit the website now?"
+msgstr "Θέλεις να επισκεφθείς τον ιστότοπο τώρα;"
+
+#: src/gpodder/gtkui/main.py:2417
+msgid "Could not add some podcasts"
+msgstr "Δεν είναι δυνατή η προσθήκη ορισμένων podcasts"
+
+#: src/gpodder/gtkui/main.py:2418
+msgid "Some podcasts could not be added to your list:"
+msgstr "Ορισμένα podcasts δεν θα μπορούσαν να προστεθούν στη λίστα σας:"
+
+#: src/gpodder/gtkui/main.py:2421
+msgid "Unknown"
+msgstr "Άγνωστο"
+
+#: src/gpodder/gtkui/main.py:2505
+msgid "Redirection detected"
+msgstr "Ανίχνευση αυτόματης εκτροπής"
+
+#: src/gpodder/gtkui/main.py:2539
+msgid "Merging episode actions"
+msgstr "Συγχώνευση ενεργειών επεισοδίου"
+
+#: src/gpodder/gtkui/main.py:2540
+msgid "Episode actions from gpodder.net are merged."
+msgstr "Οι ενέργειες επεισοδίου από το gpodder.net συγχωνεύτηκαν."
+
+#: src/gpodder/gtkui/main.py:2564
+msgid "Cancelling..."
+msgstr "Ακύρωση..."
+
+#: src/gpodder/gtkui/main.py:2573
+msgid "Please connect to a network, then try again."
+msgstr ""
+
+#: src/gpodder/gtkui/main.py:2574
+#, fuzzy
+msgid "No network connection"
+msgstr "Νέο όνομα:"
+
+#: src/gpodder/gtkui/main.py:2595
+#, python-format
+msgid "Updating %(count)d feed..."
+msgid_plural "Updating %(count)d feeds..."
+msgstr[0] "Ενημέρωση %(count)d ροής..."
+msgstr[1] "Ενημέρωση %(count)d ροών..."
+
+#: src/gpodder/gtkui/main.py:2610
+#, fuzzy, python-format
+msgid "Updating %(podcast)s (%(position)d/%(total)d)"
+msgstr "Ενημερώθηκε το %(podcast)s (%(position)d/%(total)d)"
+
+#: src/gpodder/gtkui/main.py:2622
+#, fuzzy, python-format
+msgid "Error while updating %(title)s at %(url)s: %(message)s"
+msgstr "Σφάλμα κατά τη διάρκεια της ενημέρωσης του %(url)s: %(message)s"
+
+#: src/gpodder/gtkui/main.py:2625
+#, fuzzy, python-format
+msgid "The %(title)s feed at %(url)s could not be updated."
+msgstr "Η ροή στο %(url)s δεν ήταν δυνατό να ενημερωθεί."
+
+#: src/gpodder/gtkui/main.py:2627
+msgid "Error while updating feed"
+msgstr "Σφάλμα κατά την ενημέρωση της ροής"
+
+#: src/gpodder/gtkui/main.py:2676
+msgid "No new episodes"
+msgstr "Δεν υπάρχουν νέα επεισόδια"
+
+#: src/gpodder/gtkui/main.py:2689
+#, python-format
+msgid "Downloading %(count)d new episode."
+msgid_plural "Downloading %(count)d new episodes."
+msgstr[0] "Λήψη %(count)d νέου επεισοδίου."
+msgstr[1] "Λήψη %(count)d νέων επεισοδίων."
+
+#: src/gpodder/gtkui/main.py:2692 src/gpodder/gtkui/main.py:2699
+#: src/gpodder/gtkui/main.py:3069
+msgid "New episodes available"
+msgstr "Νέα επεισόδια είναι διαθέσιμα"
+
+#: src/gpodder/gtkui/main.py:2696
+#, python-format
+msgid "%(count)d new episode added to download list."
+msgid_plural "%(count)d new episodes added to download list."
+msgstr[0] "%(count)d νέο επεισόδιο προστέθηκε στη λίστα λήψεων."
+msgstr[1] "%(count)d νέα επεισόδια προστέθηκαν στη λίστα λήψεων."
+
+#: src/gpodder/gtkui/main.py:2705
+#, python-format
+msgid "%(count)d new episode available"
+msgid_plural "%(count)d new episodes available"
+msgstr[0] "%(count)d νέο επεισόδιο διαθέσιμο"
+msgstr[1] "%(count)d νέα επεισόδια διαθέσιμα"
+
+#: src/gpodder/gtkui/main.py:2736
+msgid "Quit gPodder"
+msgstr "Έξοδος από το gPodder"
+
+#: src/gpodder/gtkui/main.py:2737
+msgid ""
+"You are downloading episodes. You can resume downloads the next time you "
+"start gPodder. Do you want to quit now?"
+msgstr ""
+"Γίνεται λήψη επεισοδίων. Μπορείς να συνεχίσεις τις λήψεις την επόμενη φορά "
+"που θα εκκινήσεις το gPodder. Θέλεις να το κλείσεις τώρα;"
+
+#: src/gpodder/gtkui/main.py:2777 bin/gpo:831
+msgid "Episodes are locked"
+msgstr "Τα επεισόδια είναι κλειδωμέμα"
+
+#: src/gpodder/gtkui/main.py:2779 bin/gpo:833
+msgid ""
+"The selected episodes are locked. Please unlock the episodes that you want "
+"to delete before trying to delete them."
+msgstr ""
+"Τα επιλεγμένα επεισόδια είναι κλειδωμένα. Παρακαλώ να ξεκλειδώσεις τα "
+"επεισόδια που θέλεις να διαγράψεις πριν προσπαθήσεις να τα διαγράψεις."
+
+#: src/gpodder/gtkui/main.py:2786 bin/gpo:840
+#, python-format
+msgid "Delete %(count)d episode?"
+msgid_plural "Delete %(count)d episodes?"
+msgstr[0] "Να διαγραφεί %(count)d επεισόδιο;"
+msgstr[1] "Να διαγραφούν %(count)d επεισόδια;"
+
+#: src/gpodder/gtkui/main.py:2788 bin/gpo:842
+msgid "Deleting episodes removes downloaded files."
+msgstr "Η διαγραφή των επεισοδίων αφαιρεί τα ληφθέντα αρχεία."
+
+#: src/gpodder/gtkui/main.py:2793
+msgid "Deleting episodes"
+msgstr "Διαγραφή επεισοδίων"
+
+#: src/gpodder/gtkui/main.py:2794 bin/gpo:847
+msgid "Please wait while episodes are deleted"
+msgstr "Παρακαλώ περίμενε ενώ τα επεισόδια διαγράφονται"
+
+#: src/gpodder/gtkui/main.py:2847
+#, python-format
+msgid "Select older than %(count)d day"
+msgid_plural "Select older than %(count)d days"
+msgstr[0] "Επίλεξε παλαιότερα από %(count)d ημέρα"
+msgstr[1] "Επίλεξε παλαιότερα από %(count)d ημέρες"
+
+#: src/gpodder/gtkui/main.py:2849
+msgid "Select played"
+msgstr "Επιλογή αναπαραγμένου"
+
+#: src/gpodder/gtkui/main.py:2850
+msgid "Select finished"
+msgstr "Επιλογή ολοκληρωμένων"
+
+#: src/gpodder/gtkui/main.py:2854
+msgid "Select the episodes you want to delete:"
+msgstr "Επίλεξε τα επεισόδια που θέλεις να διαγράψεις:"
+
+#: src/gpodder/gtkui/main.py:2871 share/gpodder/ui/gtk/menus.ui.h:10
+msgid "Delete episodes"
+msgstr "Διαγραφή επεισοδίων"
+
+#: src/gpodder/gtkui/main.py:2925 src/gpodder/gtkui/main.py:3163
+#: src/gpodder/gtkui/main.py:3263
+msgid "No podcast selected"
+msgstr "Δεν έχει επιλεγεί κανένα podcast"
+
+#: src/gpodder/gtkui/main.py:2926
+msgid "Please select a podcast in the podcasts list to update."
+msgstr "Παρακαλώ επιλέξτε ένα podcast από τη λίστα των podcasts για ενημέρωση."
+
+#: src/gpodder/gtkui/main.py:3019
+#, python-format
+msgid "Download error while downloading %(episode)s: %(message)s"
+msgstr "Σφάλμα κατά τη διάρκεια της λήψης %(episode)s: %(message)s"
+
+#: src/gpodder/gtkui/main.py:3020
+msgid "Download error"
+msgstr "Σφάλμα λήψης"
+
+#: src/gpodder/gtkui/main.py:3054
+msgid "Select the episodes you want to download:"
+msgstr "Επίλεξε τα επεισόδια που θέλεις να κατεβάσεις:"
+
+#: src/gpodder/gtkui/main.py:3077
+msgid "Mark as old"
+msgstr "Σημείωση ως παλιό"
+
+#: src/gpodder/gtkui/main.py:3084
+msgid "Please check for new episodes later."
+msgstr "Παρακαλώ ελέγξτε για νέα επεισόδια αργότερα."
+
+#: src/gpodder/gtkui/main.py:3085
+msgid "No new episodes available"
+msgstr "Δεν υπάρχουν νέα επεισόδια διαθέσιμα"
+
+#: src/gpodder/gtkui/main.py:3126
+#, fuzzy, python-format
+msgid "Subscriptions on %(server)s"
+msgstr "Συνδρομές στο gpodder.net"
+
+#: src/gpodder/gtkui/main.py:3137
+msgid "Login to gpodder.net"
+msgstr "Σύνδεση στο gpodder.net"
+
+#: src/gpodder/gtkui/main.py:3138
+msgid "Please login to download your subscriptions."
+msgstr "Παρακαλώ κάνε σύνδεση για να κατεβάσεις τις συνδρομές σου."
+
+#: src/gpodder/gtkui/main.py:3164
+msgid "Please select a podcast in the podcasts list to edit."
+msgstr ""
+"Παρακαλώ επιλέξτε ένα podcast από τη λίστα των podcasts για να το "
+"επεξεργαστείτε."
+
+#: src/gpodder/gtkui/main.py:3178
+msgid "Podcast"
+msgstr "Podcast"
+
+#: src/gpodder/gtkui/main.py:3184 share/gpodder/ui/gtk/menus.ui.h:14
+#, fuzzy
+msgid "Delete podcasts"
+msgstr "Αφαίρεση podcasts"
+
+#: src/gpodder/gtkui/main.py:3185
+#, fuzzy
+msgid "Select the podcast you want to delete."
+msgstr "Επίλεξε το podcast που θέλεις να αφαιρέσεις."
+
+#: src/gpodder/gtkui/main.py:3189 share/gpodder/ui/gtk/menus.ui.h:24
+msgid "Delete"
+msgstr "Διαγραφή"
+
+#: src/gpodder/gtkui/main.py:3198
+#, fuzzy
+msgid "Deleting podcast"
+msgstr "Διαγραφή επεισοδίων"
+
+#: src/gpodder/gtkui/main.py:3199
+#, fuzzy
+msgid "Please wait while the podcast is deleted"
+msgstr "Παρακαλώ περίμενε ενώ το podcast αφαιρείται"
+
+#: src/gpodder/gtkui/main.py:3200
+msgid ""
+"This podcast and all its episodes will be PERMANENTLY DELETED.\n"
+"Are you sure you want to continue?"
+msgstr ""
+
+#: src/gpodder/gtkui/main.py:3202
+#, fuzzy
+msgid "Deleting podcasts"
+msgstr "Αφαίρεση των podcasts"
+
+#: src/gpodder/gtkui/main.py:3203
+#, fuzzy
+msgid "Please wait while the podcasts are deleted"
+msgstr "Παρακαλώ περίμενε ενώ τα podcasts αφαιρούνται"
+
+#: src/gpodder/gtkui/main.py:3204
+msgid ""
+"These podcasts and all their episodes will be PERMANENTLY DELETED.\n"
+"Are you sure you want to continue?"
+msgstr ""
+
+#: src/gpodder/gtkui/main.py:3264
+msgid "Please select a podcast in the podcasts list to remove."
+msgstr ""
+"Παρακαλώ επίλεξε ένα podcast από τη λίστα των podcasts για να το αφαιρέσεις."
+
+#: src/gpodder/gtkui/main.py:3274
+msgid "OPML files"
+msgstr "Αρχεία OPML"
+
+#: src/gpodder/gtkui/main.py:3279
+msgid "Import from OPML"
+msgstr "Εισαγωγή από OPML"
+
+#: src/gpodder/gtkui/main.py:3293
+msgid "Import podcasts from OPML file"
+msgstr "Εισαγωγή podcasts από αρχείο OPML"
+
+#: src/gpodder/gtkui/main.py:3300
+msgid "Nothing to export"
+msgstr "Δεν υπάρχει τίποτα προς εξαγωγή"
+
+#: src/gpodder/gtkui/main.py:3301
+msgid ""
+"Your list of podcast subscriptions is empty. Please subscribe to some "
+"podcasts first before trying to export your subscription list."
+msgstr ""
+"Η λίστα των συνδρομών podcast είναι άδεια. Παρακαλώ εγγράψου σε κάποια "
+"podcasts πρώτα πριν προσπαθήσεις να εξάγεις τη λίστα των συνδρομών σου."
+
+#: src/gpodder/gtkui/main.py:3307
+msgid "Export to OPML"
+msgstr "Εξαγωγή σε OPML"
+
+#: src/gpodder/gtkui/main.py:3320
+#, python-format
+msgid "%(count)d subscription exported"
+msgid_plural "%(count)d subscriptions exported"
+msgstr[0] "Εξάχθηκε %(count)d συνδρομή"
+msgstr[1] "Εξάχθηκαν %(count)d συνδρομές"
+
+#: src/gpodder/gtkui/main.py:3323
+msgid "Your podcast list has been successfully exported."
+msgstr "Ο κατάλογος των podcast σας έχει εξαχθεί με επιτυχία."
+
+#: src/gpodder/gtkui/main.py:3327
+msgid "Could not export OPML to file. Please check your permissions."
+msgstr ""
+"Δεν ήταν δυνατή η εξαγωγή OPML σε αρχείο. Παρακαλώ ελέγξτε τα δικαιώματα σας."
+
+#: src/gpodder/gtkui/main.py:3329
+msgid "OPML export failed"
+msgstr "Αποτυχία εξαγωγής OPML"
+
+#: src/gpodder/gtkui/main.py:3353
+#, fuzzy
+msgid "Could not check for updates"
+msgstr "Δεν είναι δυνατή η προσθήκη ορισμένων podcasts"
+
+#: src/gpodder/gtkui/main.py:3354
+msgid "Please try again later."
+msgstr ""
+
+#: src/gpodder/gtkui/main.py:3359
+msgid "No updates available"
+msgstr "Καμία διαθέσιμη ενημέρωση"
+
+#: src/gpodder/gtkui/main.py:3360
+msgid "You have the latest version of gPodder."
+msgstr "Έχετε την τελευταία έκδοση του gPodder."
+
+#: src/gpodder/gtkui/main.py:3364
+msgid "New version available"
+msgstr "Νέα διαθέσιμη έκδοση"
+
+#: src/gpodder/gtkui/main.py:3366
+#, python-format
+msgid "Installed version: %s"
+msgstr "Εγκατεστημένη έκδοση: %s"
+
+#: src/gpodder/gtkui/main.py:3367
+#, python-format
+msgid "Newest version: %s"
+msgstr "Νεότερη έκδοση: %s"
+
+#: src/gpodder/gtkui/main.py:3368
+#, python-format
+msgid "Release date: %s"
+msgstr "Ημερομηνία διάθεσης: %s"
+
+#: src/gpodder/gtkui/main.py:3370
+msgid "Download the latest version from gpodder.org?"
+msgstr "Λήψη της τελευταίας έκδοσης από το gpodder.org;"
+
 #: src/gpodder/gtkui/model.py:66
 #, python-format
 msgid "released %s"
 msgstr "κυκλοφόρησε %s"
+
+#: src/gpodder/gtkui/model.py:67 src/gpodder/gtkui/model.py:85
+#: src/gpodder/gtkui/model.py:285 src/gpodder/gtkui/shownotes.py:99
+#, python-format
+msgid "from %s"
+msgstr "από το %s"
 
 #: src/gpodder/gtkui/model.py:78 src/gpodder/gtkui/model.py:439
 msgid "played"
@@ -1328,7 +1267,7 @@ msgstr "ανοίχτηκε"
 msgid "deletion prevented"
 msgstr "η διαγραφή εμποδίστηκε"
 
-#: src/gpodder/gtkui/model.py:485 share/gpodder/ui/gtk/menus.ui.h:34
+#: src/gpodder/gtkui/model.py:485 share/gpodder/ui/gtk/menus.ui.h:33
 msgid "All episodes"
 msgstr "Όλα τα επεισόδια"
 
@@ -1336,9 +1275,22 @@ msgstr "Όλα τα επεισόδια"
 msgid "from all podcasts"
 msgstr "από όλα τα podcasts"
 
-#: src/gpodder/gtkui/model.py:719
+#: src/gpodder/gtkui/model.py:739
 msgid "Subscription paused"
 msgstr "Η συνδρομή παύθηκε"
+
+#: src/gpodder/gtkui/shownotes.py:130
+#, fuzzy
+msgid "Please select an episode"
+msgstr "Επιλογή επεισοδίων"
+
+#: src/gpodder/gtkui/shownotes.py:312
+msgid "Open shownotes in web browser"
+msgstr ""
+
+#: src/gpodder/gtkui/shownotes.py:318
+msgid "Open link in web browser"
+msgstr ""
 
 #: src/gpodder/gtkui/interface/addpodcast.py:76
 msgid "Nothing to paste."
@@ -1400,6 +1352,114 @@ msgstr ""
 msgid "Error setting option"
 msgstr "Σφάλμα στη ρύθμιση επιλογής"
 
+#: src/gpodder/gtkui/desktop/channel.py:105
+msgid "Add section"
+msgstr "Προσθήκη τμήματος"
+
+#: src/gpodder/gtkui/desktop/channel.py:105
+msgid "New section:"
+msgstr "Νέο τμήμα"
+
+#: src/gpodder/gtkui/desktop/channel.py:123
+#, fuzzy
+msgid "_Open"
+msgstr "Άνοιγμα"
+
+#: src/gpodder/gtkui/desktop/channel.py:127
+msgid "_Refresh"
+msgstr ""
+
+#: src/gpodder/gtkui/desktop/channel.py:140
+msgid "Select new podcast cover artwork"
+msgstr "Επιλέξτε νέο εξώφυλλο podcast"
+
+#: src/gpodder/gtkui/desktop/channel.py:172
+msgid "You can only drop a single image or URL here."
+msgstr "Μπορείς να αποθέσεις μία μόνο εικόνα ή διεύθυνση (URL) εδώ."
+
+#: src/gpodder/gtkui/desktop/channel.py:173
+#: src/gpodder/gtkui/desktop/channel.py:185
+msgid "Drag and drop"
+msgstr "Μεταφορά και απόθεση"
+
+#: src/gpodder/gtkui/desktop/channel.py:184
+msgid "You can only drop local files and http:// URLs here."
+msgstr ""
+"Μπορείς να αποθέσεις μόνο τοπικά αρχεία και http:// διευθύνσεις (URLs) εδώ."
+
+#: src/gpodder/gtkui/desktop/episodeselector.py:100
+msgid "Remove"
+msgstr "Αφαίρεση"
+
+#: src/gpodder/gtkui/desktop/episodeselector.py:283
+#: share/gpodder/ui/gtk/gpodderepisodeselector.ui.h:2
+msgid "Select all"
+msgstr "Επιλογή όλων"
+
+#: src/gpodder/gtkui/desktop/episodeselector.py:287
+#: share/gpodder/ui/gtk/gpodderepisodeselector.ui.h:3
+msgid "Select none"
+msgstr "Αποεπιλογή όλων"
+
+#: src/gpodder/gtkui/desktop/episodeselector.py:319
+msgid "Nothing selected"
+msgstr "Δεν έχει γίνει καμία επιλογή"
+
+#: src/gpodder/gtkui/desktop/episodeselector.py:320
+#, python-format
+msgid "%(count)d episode"
+msgid_plural "%(count)d episodes"
+msgstr[0] "%(count)d επεισόδιο"
+msgstr[1] "%(count)d επεισόδια"
+
+#: src/gpodder/gtkui/desktop/episodeselector.py:323
+#, python-format
+msgid "size: %s"
+msgstr "μέγεθος: %s"
+
+#: src/gpodder/gtkui/desktop/exportlocal.py:57
+#, python-format
+msgid "Export remaining %(count)d episode to this folder with its default name"
+msgid_plural ""
+"Export remaining %(count)d episodes to this folder with their default name"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/gpodder/gtkui/desktop/podcastdirectory.py:188
+#, fuzzy
+msgid "Search:"
+msgstr "Αναζήτηση για:"
+
+#: src/gpodder/gtkui/desktop/podcastdirectory.py:189
+#, fuzzy
+msgid "Search"
+msgstr "Αναζήτηση για:"
+
+#: src/gpodder/gtkui/desktop/podcastdirectory.py:191
+#: share/gpodder/ui/gtk/gpodderaddpodcast.ui.h:2
+msgid "URL:"
+msgstr "Διεύθυνση (URL):"
+
+#: src/gpodder/gtkui/desktop/podcastdirectory.py:194
+#, fuzzy
+msgid "Filename:"
+msgstr "Όνομα χρήστη:"
+
+#: src/gpodder/gtkui/desktop/podcastdirectory.py:195
+#: share/gpodder/ui/gtk/menus.ui.h:21
+msgid "Open"
+msgstr "Άνοιγμα"
+
+#: src/gpodder/gtkui/desktop/podcastdirectory.py:236
+#, fuzzy
+msgid "Loading podcasts"
+msgstr "Προσθήκη podcasts"
+
+#: src/gpodder/gtkui/desktop/podcastdirectory.py:237
+#, fuzzy
+msgid "Please wait while the podcast list is downloaded"
+msgstr "Παρακαλώ περίμενε ενώ το podcast αφαιρείται"
+
 #: src/gpodder/gtkui/desktop/preferences.py:46
 #: src/gpodder/gtkui/desktop/preferences.py:89
 msgid "Do nothing"
@@ -1443,51 +1503,51 @@ msgstr "Διαγραφή από το gPodder"
 msgid "Custom (%(format_ids)s)"
 msgstr ""
 
-#: src/gpodder/gtkui/desktop/preferences.py:322
+#: src/gpodder/gtkui/desktop/preferences.py:328
 msgid "Name"
 msgstr "Όνομα"
 
-#: src/gpodder/gtkui/desktop/preferences.py:374
+#: src/gpodder/gtkui/desktop/preferences.py:380
 #, fuzzy
 msgid "Documentation"
 msgstr "Διάρκεια"
 
-#: src/gpodder/gtkui/desktop/preferences.py:379
+#: src/gpodder/gtkui/desktop/preferences.py:385
 #, fuzzy
 msgid "Extension info"
 msgstr "Επεκτάσεις"
 
-#: src/gpodder/gtkui/desktop/preferences.py:384
+#: src/gpodder/gtkui/desktop/preferences.py:390
 msgid "Support the author"
 msgstr ""
 
-#: src/gpodder/gtkui/desktop/preferences.py:426
+#: src/gpodder/gtkui/desktop/preferences.py:432 bin/gpo:1025
 msgid "Extension cannot be activated"
 msgstr "Η επέκταση δεν γίνεται να ενεργοποιηθεί"
 
-#: src/gpodder/gtkui/desktop/preferences.py:439
+#: src/gpodder/gtkui/desktop/preferences.py:445
 msgid "Extension module info"
 msgstr ""
 
-#: src/gpodder/gtkui/desktop/preferences.py:476
+#: src/gpodder/gtkui/desktop/preferences.py:482
 msgid "Configure audio player"
 msgstr "Ρύθμιση αναπαραγωγέα ήχου"
 
-#: src/gpodder/gtkui/desktop/preferences.py:477
-#: src/gpodder/gtkui/desktop/preferences.py:487
+#: src/gpodder/gtkui/desktop/preferences.py:483
+#: src/gpodder/gtkui/desktop/preferences.py:493
 msgid "Command:"
 msgstr "Εντολή:"
 
-#: src/gpodder/gtkui/desktop/preferences.py:486
+#: src/gpodder/gtkui/desktop/preferences.py:492
 msgid "Configure video player"
 msgstr "Ρύθμιση αναπαραγωγέα βίντεο"
 
-#: src/gpodder/gtkui/desktop/preferences.py:499
-#: src/gpodder/gtkui/desktop/preferences.py:523
+#: src/gpodder/gtkui/desktop/preferences.py:505
+#: src/gpodder/gtkui/desktop/preferences.py:529
 msgid "manually"
 msgstr "χειροκίνητα"
 
-#: src/gpodder/gtkui/desktop/preferences.py:525
+#: src/gpodder/gtkui/desktop/preferences.py:531
 #, python-format
 msgid "after %(count)d day"
 msgid_plural "after %(count)d days"
@@ -1515,114 +1575,6 @@ msgstr "Επιλέξτε το φάκελο για το σημείο προσάρ
 msgid "Select folder for playlists"
 msgstr "Επιλέξτε το φάκελο για το σημείο προσάρτησης"
 
-#: src/gpodder/gtkui/desktop/podcastdirectory.py:188
-#, fuzzy
-msgid "Search:"
-msgstr "Αναζήτηση για:"
-
-#: src/gpodder/gtkui/desktop/podcastdirectory.py:189
-#, fuzzy
-msgid "Search"
-msgstr "Αναζήτηση για:"
-
-#: src/gpodder/gtkui/desktop/podcastdirectory.py:191
-#: share/gpodder/ui/gtk/gpodderaddpodcast.ui.h:2
-msgid "URL:"
-msgstr "Διεύθυνση (URL):"
-
-#: src/gpodder/gtkui/desktop/podcastdirectory.py:194
-#, fuzzy
-msgid "Filename:"
-msgstr "Όνομα χρήστη:"
-
-#: src/gpodder/gtkui/desktop/podcastdirectory.py:195
-#: share/gpodder/ui/gtk/menus.ui.h:21
-msgid "Open"
-msgstr "Άνοιγμα"
-
-#: src/gpodder/gtkui/desktop/podcastdirectory.py:236
-#, fuzzy
-msgid "Loading podcasts"
-msgstr "Προσθήκη podcasts"
-
-#: src/gpodder/gtkui/desktop/podcastdirectory.py:237
-#, fuzzy
-msgid "Please wait while the podcast list is downloaded"
-msgstr "Παρακαλώ περίμενε ενώ το podcast αφαιρείται"
-
-#: src/gpodder/gtkui/desktop/episodeselector.py:100
-msgid "Remove"
-msgstr "Αφαίρεση"
-
-#: src/gpodder/gtkui/desktop/episodeselector.py:283
-#: share/gpodder/ui/gtk/gpodderepisodeselector.ui.h:2
-msgid "Select all"
-msgstr "Επιλογή όλων"
-
-#: src/gpodder/gtkui/desktop/episodeselector.py:287
-#: share/gpodder/ui/gtk/gpodderepisodeselector.ui.h:3
-msgid "Select none"
-msgstr "Αποεπιλογή όλων"
-
-#: src/gpodder/gtkui/desktop/episodeselector.py:319
-msgid "Nothing selected"
-msgstr "Δεν έχει γίνει καμία επιλογή"
-
-#: src/gpodder/gtkui/desktop/episodeselector.py:320
-#, python-format
-msgid "%(count)d episode"
-msgid_plural "%(count)d episodes"
-msgstr[0] "%(count)d επεισόδιο"
-msgstr[1] "%(count)d επεισόδια"
-
-#: src/gpodder/gtkui/desktop/episodeselector.py:323
-#, python-format
-msgid "size: %s"
-msgstr "μέγεθος: %s"
-
-#: src/gpodder/gtkui/desktop/exportlocal.py:57
-#, python-format
-msgid "Export remaining %(count)d episode to this folder with its default name"
-msgid_plural ""
-"Export remaining %(count)d episodes to this folder with their default name"
-msgstr[0] ""
-msgstr[1] ""
-
-#: src/gpodder/gtkui/desktop/channel.py:98
-msgid "Add section"
-msgstr "Προσθήκη τμήματος"
-
-#: src/gpodder/gtkui/desktop/channel.py:98
-msgid "New section:"
-msgstr "Νέο τμήμα"
-
-#: src/gpodder/gtkui/desktop/channel.py:116
-#, fuzzy
-msgid "_Open"
-msgstr "Άνοιγμα"
-
-#: src/gpodder/gtkui/desktop/channel.py:120
-msgid "_Refresh"
-msgstr ""
-
-#: src/gpodder/gtkui/desktop/channel.py:133
-msgid "Select new podcast cover artwork"
-msgstr "Επιλέξτε νέο εξώφυλλο podcast"
-
-#: src/gpodder/gtkui/desktop/channel.py:165
-msgid "You can only drop a single image or URL here."
-msgstr "Μπορείς να αποθέσεις μία μόνο εικόνα ή διεύθυνση (URL) εδώ."
-
-#: src/gpodder/gtkui/desktop/channel.py:166
-#: src/gpodder/gtkui/desktop/channel.py:178
-msgid "Drag and drop"
-msgstr "Μεταφορά και απόθεση"
-
-#: src/gpodder/gtkui/desktop/channel.py:177
-msgid "You can only drop local files and http:// URLs here."
-msgstr ""
-"Μπορείς να αποθέσεις μόνο τοπικά αρχεία και http:// διευθύνσεις (URLs) εδώ."
-
 #: src/gpodder/plugins/soundcloud.py:172
 msgid "Unknown track"
 msgstr "Άγνωστο κομμάτι"
@@ -1647,77 +1599,31 @@ msgstr "Αγαπημένα από %s στο Soundcloud"
 msgid "Tracks favorited by %s on Soundcloud."
 msgstr "Αγαπημένα κομμάτια από %s στο Soundcloud"
 
-#: share/gpodder/extensions/ted_subtitles.py:17
-msgid "Subtitle Downloader for TED Talks"
+#: share/gpodder/extensions/audio_converter.py:20
+#, fuzzy
+msgid "Convert audio files"
+msgstr "Η μετατροπή απέτυχε"
+
+#: share/gpodder/extensions/audio_converter.py:21
+msgid "Transcode audio files to mp3/ogg"
 msgstr ""
 
-#: share/gpodder/extensions/ted_subtitles.py:18
-msgid "Downloads .srt subtitles for TED Talks Videos"
-msgstr ""
+#: share/gpodder/extensions/audio_converter.py:93
+#: share/gpodder/extensions/video_converter.py:84
+#, python-format
+msgid "Convert to %(format)s"
+msgstr "Μετατροπή σε τύπο %(format)s"
 
-#: share/gpodder/extensions/rockbox_convert2mp4.py:26
-msgid "Convert video files to MP4 for Rockbox"
-msgstr "Μετατροπή αρχείων βίντεο σε MP4 για το Rockbox"
-
-#: share/gpodder/extensions/rockbox_convert2mp4.py:27
-msgid "Converts all videos to a Rockbox-compatible format"
-msgstr "Μετατροπή όλων των βίντεο σε μορφή συμβατή με το Rockbox"
-
+#: share/gpodder/extensions/audio_converter.py:134
 #: share/gpodder/extensions/rockbox_convert2mp4.py:65
 #: share/gpodder/extensions/video_converter.py:115
-#: share/gpodder/extensions/audio_converter.py:134
 msgid "File converted"
 msgstr "Η μετατροπή ολοκληρώθηκε"
 
-#: share/gpodder/extensions/mpris-listener.py:36
-msgid "MPRIS Listener"
-msgstr ""
-
-#: share/gpodder/extensions/mpris-listener.py:37
-msgid "Convert MPRIS notifications to gPodder Media Player D-Bus API"
-msgstr ""
-
-#: share/gpodder/extensions/ubuntu_appindicator.py:15
-msgid "Ubuntu App Indicator"
-msgstr ""
-
-#: share/gpodder/extensions/ubuntu_appindicator.py:16
-msgid "Show a status indicator in the top bar."
-msgstr ""
-
-#: share/gpodder/extensions/ubuntu_appindicator.py:47
-msgid "Show main window"
-msgstr "Εμφάνιση βασικού παραθύρου"
-
-#: share/gpodder/extensions/ubuntu_appindicator.py:58
-#: share/gpodder/ui/gtk/gpodder.ui.h:4 share/gpodder/ui/gtk/menus.ui.h:6
-msgid "Quit"
-msgstr "Έξοδος"
-
-#: share/gpodder/extensions/rockbox_coverart.py:18
-msgid "Rockbox Cover Art Sync"
-msgstr ""
-
-#: share/gpodder/extensions/rockbox_coverart.py:19
-msgid "Copy Cover Art To Rockboxed Media Player"
-msgstr ""
-
-#: share/gpodder/extensions/taskbar_progress.py:35
-#, fuzzy
-msgid "Show download progress on the taskbar"
-msgstr "Προβολή προόδου λήψης στο εικονίδιο του Unity Launcher."
-
-#: share/gpodder/extensions/taskbar_progress.py:36
-msgid "Displays the progress on the Windows taskbar."
-msgstr ""
-
-#: share/gpodder/extensions/rename_download.py:17
-msgid "Rename episodes after download"
-msgstr "Μετονομασία των επεισοδίων μετά τη λήψη"
-
-#: share/gpodder/extensions/rename_download.py:18
-msgid "Rename episodes to \"<Episode Title>.<ext>\" on download"
-msgstr ""
+#: share/gpodder/extensions/audio_converter.py:137
+#: share/gpodder/extensions/video_converter.py:118
+msgid "Conversion failed"
+msgstr "Η μετατροπή απέτυχε"
 
 #: share/gpodder/extensions/command_on_download.py:18
 msgid "Run a Command on Download"
@@ -1725,106 +1631,6 @@ msgstr ""
 
 #: share/gpodder/extensions/command_on_download.py:19
 msgid "Run a predefined external command upon download completion."
-msgstr ""
-
-#: share/gpodder/extensions/youtube-dl.py:27
-msgid "Manage Youtube subscriptions using youtube-dl (pip install youtube_dl)"
-msgstr ""
-
-#: share/gpodder/extensions/youtube-dl.py:419
-#, fuzzy
-#| msgid "Download to:"
-msgid "Download with Youtube-DL"
-msgstr "Λήψη στο:"
-
-#: share/gpodder/extensions/video_converter.py:20
-#, fuzzy
-msgid "Convert video files"
-msgstr "Η μετατροπή απέτυχε"
-
-#: share/gpodder/extensions/video_converter.py:21
-msgid "Transcode video files to avi/mp4/m4v"
-msgstr ""
-
-#: share/gpodder/extensions/video_converter.py:84
-#: share/gpodder/extensions/audio_converter.py:93
-#, python-format
-msgid "Convert to %(format)s"
-msgstr "Μετατροπή σε τύπο %(format)s"
-
-#: share/gpodder/extensions/video_converter.py:118
-#: share/gpodder/extensions/audio_converter.py:137
-msgid "Conversion failed"
-msgstr "Η μετατροπή απέτυχε"
-
-#: share/gpodder/extensions/rm_ogg_cover.py:38
-msgid "Remove cover art from OGG files"
-msgstr "Αφαιρέστε τα εξώφυλλα από τα αρχεία OGG"
-
-#: share/gpodder/extensions/rm_ogg_cover.py:39
-msgid "removes coverart from all downloaded ogg files"
-msgstr "αφαιρεί τα εξώφυλλα από όλα τα αρχεία OGG"
-
-#: share/gpodder/extensions/rm_ogg_cover.py:68
-msgid "Remove cover art"
-msgstr "Αφαιρέστε τα εξώφυλλα"
-
-#: share/gpodder/extensions/enqueue_in_mediaplayer.py:17
-msgid "Enqueue/Resume in media players"
-msgstr ""
-
-#: share/gpodder/extensions/enqueue_in_mediaplayer.py:18
-msgid ""
-"Add a context menu item for enqueueing/resuming playback of episodes in "
-"installed media players"
-msgstr ""
-
-#: share/gpodder/extensions/enqueue_in_mediaplayer.py:36
-msgid "Enqueue in"
-msgstr ""
-
-#: share/gpodder/extensions/enqueue_in_mediaplayer.py:97
-#, fuzzy
-msgid "Resume in"
-msgstr "Συνέχιση όλων"
-
-#: share/gpodder/extensions/notification-win32.py:55
-msgid "Notification Bubbles for Windows"
-msgstr ""
-
-#: share/gpodder/extensions/notification-win32.py:56
-msgid "Display notification bubbles for different events."
-msgstr ""
-
-#: share/gpodder/extensions/update_feeds_on_startup.py:15
-#, fuzzy
-msgid "Search for new episodes on startup"
-msgstr "Έλεγχος για νέα επεισόδια κατά την εκκίνηση"
-
-#: share/gpodder/extensions/update_feeds_on_startup.py:16
-#, fuzzy
-msgid "Starts the search for new episodes on startup"
-msgstr "Έλεγχος για νέα επεισόδια κατά την εκκίνηση"
-
-#: share/gpodder/extensions/normalize_audio.py:21
-msgid "Normalize audio with re-encoding"
-msgstr ""
-
-#: share/gpodder/extensions/normalize_audio.py:22
-msgid "Normalize the volume of audio files with normalize-audio"
-msgstr ""
-
-#: share/gpodder/extensions/normalize_audio.py:105
-#, fuzzy
-msgid "File normalized"
-msgstr "Όνομα αρχείου"
-
-#: share/gpodder/extensions/gtk_statusicon.py:19
-msgid "Gtk Status Icon"
-msgstr ""
-
-#: share/gpodder/extensions/gtk_statusicon.py:20
-msgid "Show a status icon for Gtk-based Desktops."
 msgstr ""
 
 #: share/gpodder/extensions/concatenate_videos.py:20
@@ -1864,30 +1670,24 @@ msgstr "Σφάλμα κατά τη μετατροπή του αρχείου."
 msgid "Concatenation result"
 msgstr ""
 
-#: share/gpodder/extensions/sonos.py:19 share/gpodder/extensions/sonos.py:81
-msgid "Stream to Sonos"
+#: share/gpodder/extensions/enqueue_in_mediaplayer.py:17
+msgid "Enqueue/Resume in media players"
 msgstr ""
 
-#: share/gpodder/extensions/sonos.py:20
-msgid "Stream podcasts to Sonos speakers"
+#: share/gpodder/extensions/enqueue_in_mediaplayer.py:18
+msgid ""
+"Add a context menu item for enqueueing/resuming playback of episodes in "
+"installed media players"
 msgstr ""
 
-#: share/gpodder/extensions/minimize_on_start.py:11
-msgid "Minimize on start"
-msgstr "Ελαχιστοποίηση κατά την έναρξη"
+#: share/gpodder/extensions/enqueue_in_mediaplayer.py:36
+msgid "Enqueue in"
+msgstr ""
 
-#: share/gpodder/extensions/minimize_on_start.py:12
-msgid "Minimizes the gPodder window on startup."
-msgstr "Ελαχιστοποίηση του gPodder κατά την εκκίνηση"
-
-#: share/gpodder/extensions/audio_converter.py:20
+#: share/gpodder/extensions/enqueue_in_mediaplayer.py:97
 #, fuzzy
-msgid "Convert audio files"
-msgstr "Η μετατροπή απέτυχε"
-
-#: share/gpodder/extensions/audio_converter.py:21
-msgid "Transcode audio files to mp3/ogg"
-msgstr ""
+msgid "Resume in"
+msgstr "Συνέχιση όλων"
 
 #: share/gpodder/extensions/episode_website_context_menu.py:15
 msgid "\"Open website\" episode and podcast context menu"
@@ -1904,14 +1704,181 @@ msgstr ""
 msgid "Open website"
 msgstr "Ιστότοπος:"
 
-#: share/gpodder/extensions/tagging.py:50
-msgid "Tag downloaded files using Mutagen"
+#: share/gpodder/extensions/filter.py:13
+#, fuzzy
+#| msgid "Delete episodes"
+msgid "Filter Episodes"
+msgstr "Διαγραφή επεισοδίων"
+
+#: share/gpodder/extensions/filter.py:14
+msgid "Disable automatic downloads based on episode title."
+msgstr ""
+
+#: share/gpodder/extensions/filter.py:51
+msgid "Regular Expression"
+msgstr ""
+
+#: share/gpodder/extensions/filter.py:54
+msgid "Ignore Case"
+msgstr ""
+
+#: share/gpodder/extensions/filter.py:124
+#, fuzzy
+#| msgid "Filter:"
+msgid "Filter"
+msgstr "Φίλτρο:"
+
+#: share/gpodder/extensions/filter.py:141
+msgid "Block"
+msgstr ""
+
+#: share/gpodder/extensions/filter.py:150
+msgid "Except"
+msgstr ""
+
+#: share/gpodder/extensions/filter.py:157
+msgid ""
+"Clicking the block checkbox and leaving it empty will disable auto-download "
+"for all episodes in this channel.  The patterns match partial text in "
+"episode title, and an empty pattern matches any title.  The except pattern "
+"unblocks blocked episodes (to block all then unblock some)."
+msgstr ""
+
+#: share/gpodder/extensions/filter.py:164
+msgid "Filter episodes now (undoes any episodes you marked as old)"
+msgstr ""
+
+#: share/gpodder/extensions/gtk_statusicon.py:19
+msgid "Gtk Status Icon"
+msgstr ""
+
+#: share/gpodder/extensions/gtk_statusicon.py:20
+msgid "Show a status icon for Gtk-based Desktops."
+msgstr ""
+
+#: share/gpodder/extensions/minimize_on_start.py:11
+msgid "Minimize on start"
+msgstr "Ελαχιστοποίηση κατά την έναρξη"
+
+#: share/gpodder/extensions/minimize_on_start.py:12
+msgid "Minimizes the gPodder window on startup."
+msgstr "Ελαχιστοποίηση του gPodder κατά την εκκίνηση"
+
+#: share/gpodder/extensions/mpris-listener.py:36
+msgid "MPRIS Listener"
+msgstr ""
+
+#: share/gpodder/extensions/mpris-listener.py:37
+msgid "Convert MPRIS notifications to gPodder Media Player D-Bus API"
+msgstr ""
+
+#: share/gpodder/extensions/normalize_audio.py:21
+msgid "Normalize audio with re-encoding"
+msgstr ""
+
+#: share/gpodder/extensions/normalize_audio.py:22
+msgid "Normalize the volume of audio files with normalize-audio"
+msgstr ""
+
+#: share/gpodder/extensions/normalize_audio.py:105
+#, fuzzy
+msgid "File normalized"
+msgstr "Όνομα αρχείου"
+
+#: share/gpodder/extensions/notification-win32.py:55
+msgid "Notification Bubbles for Windows"
+msgstr ""
+
+#: share/gpodder/extensions/notification-win32.py:56
+msgid "Display notification bubbles for different events."
+msgstr ""
+
+#: share/gpodder/extensions/rename_download.py:17
+msgid "Rename episodes after download"
+msgstr "Μετονομασία των επεισοδίων μετά τη λήψη"
+
+#: share/gpodder/extensions/rename_download.py:18
+msgid "Rename episodes to \"<Episode Title>.<ext>\" on download"
+msgstr ""
+
+#: share/gpodder/extensions/rm_ogg_cover.py:38
+msgid "Remove cover art from OGG files"
+msgstr "Αφαιρέστε τα εξώφυλλα από τα αρχεία OGG"
+
+#: share/gpodder/extensions/rm_ogg_cover.py:39
+msgid "removes coverart from all downloaded ogg files"
+msgstr "αφαιρεί τα εξώφυλλα από όλα τα αρχεία OGG"
+
+#: share/gpodder/extensions/rm_ogg_cover.py:68
+msgid "Remove cover art"
+msgstr "Αφαιρέστε τα εξώφυλλα"
+
+#: share/gpodder/extensions/rockbox_convert2mp4.py:26
+msgid "Convert video files to MP4 for Rockbox"
+msgstr "Μετατροπή αρχείων βίντεο σε MP4 για το Rockbox"
+
+#: share/gpodder/extensions/rockbox_convert2mp4.py:27
+msgid "Converts all videos to a Rockbox-compatible format"
+msgstr "Μετατροπή όλων των βίντεο σε μορφή συμβατή με το Rockbox"
+
+#: share/gpodder/extensions/rockbox_coverart.py:18
+msgid "Rockbox Cover Art Sync"
+msgstr ""
+
+#: share/gpodder/extensions/rockbox_coverart.py:19
+msgid "Copy Cover Art To Rockboxed Media Player"
+msgstr ""
+
+#: share/gpodder/extensions/sonos.py:19 share/gpodder/extensions/sonos.py:81
+msgid "Stream to Sonos"
+msgstr ""
+
+#: share/gpodder/extensions/sonos.py:20
+msgid "Stream podcasts to Sonos speakers"
 msgstr ""
 
 #: share/gpodder/extensions/tagging.py:51
+msgid "Tag downloaded files using Mutagen"
+msgstr ""
+
+#: share/gpodder/extensions/tagging.py:52
 #, fuzzy
 msgid "Add episode and podcast titles to MP3/OGG tags"
 msgstr "Εμφάνιση \"Όλα τα επεισόδια\" στη λίστα των podcast"
+
+#: share/gpodder/extensions/taskbar_progress.py:35
+#, fuzzy
+msgid "Show download progress on the taskbar"
+msgstr "Προβολή προόδου λήψης στο εικονίδιο του Unity Launcher."
+
+#: share/gpodder/extensions/taskbar_progress.py:36
+msgid "Displays the progress on the Windows taskbar."
+msgstr ""
+
+#: share/gpodder/extensions/ted_subtitles.py:17
+msgid "Subtitle Downloader for TED Talks"
+msgstr ""
+
+#: share/gpodder/extensions/ted_subtitles.py:18
+msgid "Downloads .srt subtitles for TED Talks Videos"
+msgstr ""
+
+#: share/gpodder/extensions/ubuntu_appindicator.py:15
+msgid "Ubuntu App Indicator"
+msgstr ""
+
+#: share/gpodder/extensions/ubuntu_appindicator.py:16
+msgid "Show a status indicator in the top bar."
+msgstr ""
+
+#: share/gpodder/extensions/ubuntu_appindicator.py:47
+msgid "Show main window"
+msgstr "Εμφάνιση βασικού παραθύρου"
+
+#: share/gpodder/extensions/ubuntu_appindicator.py:58
+#: share/gpodder/ui/gtk/gpodder.ui.h:4 share/gpodder/ui/gtk/menus.ui.h:6
+msgid "Quit"
+msgstr "Έξοδος"
 
 #: share/gpodder/extensions/ubuntu_unity.py:16
 msgid "Ubuntu Unity Integration"
@@ -1920,6 +1887,35 @@ msgstr "Ενσωμάτωση Ubuntu Unity"
 #: share/gpodder/extensions/ubuntu_unity.py:17
 msgid "Show download progress in the Unity Launcher icon."
 msgstr "Προβολή προόδου λήψης στο εικονίδιο του Unity Launcher."
+
+#: share/gpodder/extensions/update_feeds_on_startup.py:15
+#, fuzzy
+msgid "Search for new episodes on startup"
+msgstr "Έλεγχος για νέα επεισόδια κατά την εκκίνηση"
+
+#: share/gpodder/extensions/update_feeds_on_startup.py:16
+#, fuzzy
+msgid "Starts the search for new episodes on startup"
+msgstr "Έλεγχος για νέα επεισόδια κατά την εκκίνηση"
+
+#: share/gpodder/extensions/video_converter.py:20
+#, fuzzy
+msgid "Convert video files"
+msgstr "Η μετατροπή απέτυχε"
+
+#: share/gpodder/extensions/video_converter.py:21
+msgid "Transcode video files to avi/mp4/m4v"
+msgstr ""
+
+#: share/gpodder/extensions/youtube-dl.py:27
+msgid "Manage Youtube subscriptions using youtube-dl (pip install youtube_dl)"
+msgstr ""
+
+#: share/gpodder/extensions/youtube-dl.py:432
+#, fuzzy
+#| msgid "Download to:"
+msgid "Download with Youtube-DL"
+msgstr "Λήψη στο:"
 
 #: share/gpodder/ui/gtk/gpodderaddpodcast.ui.h:1
 msgid "Add a new podcast"
@@ -1955,12 +1951,12 @@ msgid "<b>HTTP/FTP Authentication</b>"
 msgstr "<b>Πιστοποίηση HTTP/FTP</b>"
 
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:8
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:14
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:13
 msgid "Username:"
 msgstr "Όνομα χρήστη:"
 
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:9
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:15 bin/gpo:328
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:14 bin/gpo:342
 msgid "Password:"
 msgstr "Κωδικός πρόσβασης:"
 
@@ -1996,10 +1992,148 @@ msgstr "Αναζήτηση για:"
 msgid "Show All"
 msgstr "Εμφάνιση όλων"
 
-#: share/gpodder/ui/gtk/gpodder.ui.h:3 share/gpodder/ui/gtk/menus.ui.h:1
+#: share/gpodder/ui/gtk/gpodderepisodeselector.ui.h:1
+msgid "Select episodes"
+msgstr "Επιλογή επεισοδίων"
+
+#: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:1
+msgid "Find new podcasts"
+msgstr "Βρείτε νέα podcasts"
+
+#: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:2
+msgid "Select All"
+msgstr "Επιλογή όλων"
+
+#: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:3
+msgid "Select None"
+msgstr "Αποεπιλογή όλων"
+
+#: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:4
+msgid "label"
+msgstr ""
+
+#: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:5
+msgid "..."
+msgstr ""
+
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:1
+#: share/gpodder/ui/gtk/gpodder.ui.h:3 share/gpodder/ui/gtk/menus.ui.h:1
 msgid "Preferences"
 msgstr "Προτιμήσεις"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:2
+msgid "Audio player:"
+msgstr "Αναπαραγωγέας ήχου:"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:3
+msgid "Video player:"
+msgstr "Αναπαραγωγέας βίντεο:"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:4
+msgid "\"All episodes\" in podcast list"
+msgstr "\"Όλα τα επισόδια\" στην λίστα των podcast"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:5
+msgid "Use sections for podcast list"
+msgstr "Χρήση τμημάτων για την λίστα των podcast"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:7
+msgid "Preferred YouTube format:"
+msgstr ""
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:8
+msgid "Preferred Vimeo format:"
+msgstr ""
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:11
+msgid "Synchronize subscriptions and episode actions"
+msgstr "Συγχρονίστε τις συνδρομές και τις ενέργειες επεισοδίου"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:12
+msgid "Server:"
+msgstr ""
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:15
+msgid "Replace list on server with local subscriptions"
+msgstr "Αντικαταστήστε τη λίστα στο διακομιστή με τις τοπικές συνδρομές"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:16
+msgid "Device name:"
+msgstr "Όνομα συσκευής:"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:17
+msgid "gpodder.net"
+msgstr "gpodder.net"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:18
+msgid "Update interval:"
+msgstr "Διάστημα ενημέρωσης:"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:19
+msgid "Maximum number of episodes per podcast:"
+msgstr "Μέγιστος αριθμός επεισοδίων ανά podcast:"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:20
+msgid "When new episodes are found:"
+msgstr "Όταν βρεθούν νέα επεισόδια:"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:21
+msgid "Updating"
+msgstr "Ενημέρωση"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:22
+msgid "Delete played episodes:"
+msgstr "Διαγραφή αναπαραγμένων επεισοδίων:"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:23
+msgid "Remove played episodes even if unfinished"
+msgstr "Αφαίρεση ατελείωτων επεισοδίων που παίχτικαν "
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:24
+msgid "Also remove unplayed episodes"
+msgstr "Επίσης, αφαίρεση μη αναπαραγμένων επεισοδίων"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:25
+msgid "Clean-up"
+msgstr "Εκκαθάριση"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:26
+msgid "Device type:"
+msgstr "Τύπος συσκευής:"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:27
+msgid "Mountpoint:"
+msgstr "Σημείο προσάρτησης:"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:28
+msgid "After syncing an episode:"
+msgstr "Μετά το συγχρονισμό ενός επεισοδίου:"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:29
+#, fuzzy
+msgid "Create playlists on device"
+msgstr "Αντικατάσταση λίστας στον διακομιστή"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:30
+#, fuzzy
+msgid "Playlists Folder:"
+msgstr "Άδεια λίστα αναπαραγωγής"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:31
+msgid "Remove episodes deleted on device from gPodder"
+msgstr ""
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:32
+msgid "Only sync unplayed episodes"
+msgstr "Συγχρονισμός μόνο των μη αναπαραγμένων επεισοδίων"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:33
+msgid "Devices"
+msgstr "Συσκευές"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:34
+msgid "Edit config"
+msgstr "Επεξεργασία ρυθμίσεων"
 
 #: share/gpodder/ui/gtk/gpodder.ui.h:5 share/gpodder/ui/gtk/menus.ui.h:8
 msgid "Check for new episodes"
@@ -2024,10 +2158,6 @@ msgstr "KiB/s"
 #: share/gpodder/ui/gtk/gpodder.ui.h:10
 msgid "Limit downloads to"
 msgstr "Περιορισμός λήψεων σε"
-
-#: share/gpodder/ui/gtk/gpodderepisodeselector.ui.h:1
-msgid "Select episodes"
-msgstr "Επιλογή επεισοδίων"
 
 #: share/gpodder/ui/gtk/gpodderwelcome.ui.h:2
 msgid "<big>Welcome to gPodder</big>"
@@ -2114,374 +2244,266 @@ msgid "Sync to device"
 msgstr "Συγχρονισμός στη συσκευή"
 
 #: share/gpodder/ui/gtk/menus.ui.h:30
-#, fuzzy
-msgid "Update YouTube subscriptions"
-msgstr "Δεν υπάρχουν συνδρομές"
-
-#: share/gpodder/ui/gtk/menus.ui.h:31
 msgid "_View"
 msgstr ""
 
-#: share/gpodder/ui/gtk/menus.ui.h:32
+#: share/gpodder/ui/gtk/menus.ui.h:31
 msgid "Toolbar"
 msgstr "Γραμμή εργαλείων"
 
-#: share/gpodder/ui/gtk/menus.ui.h:33
+#: share/gpodder/ui/gtk/menus.ui.h:32
 msgid "Episode descriptions"
 msgstr "Περιγραφές επεισοδίου"
 
-#: share/gpodder/ui/gtk/menus.ui.h:35
+#: share/gpodder/ui/gtk/menus.ui.h:34
 msgid "Hide deleted episodes"
 msgstr "Απόκρυψη διαγραμμένων επεισοδίων"
 
-#: share/gpodder/ui/gtk/menus.ui.h:36
+#: share/gpodder/ui/gtk/menus.ui.h:35
 msgid "Downloaded episodes"
 msgstr "Ληφθέντα επεισόδια"
 
-#: share/gpodder/ui/gtk/menus.ui.h:37
+#: share/gpodder/ui/gtk/menus.ui.h:36
 msgid "Unplayed episodes"
 msgstr "Μη αναπαραγμένα επεισόδια"
 
-#: share/gpodder/ui/gtk/menus.ui.h:38
+#: share/gpodder/ui/gtk/menus.ui.h:37
 msgid "Hide podcasts without episodes"
 msgstr "Απόκρυψη των podcasts χωρίς επεισόδια"
 
-#: share/gpodder/ui/gtk/menus.ui.h:39
+#: share/gpodder/ui/gtk/menus.ui.h:38
 msgid "Visible columns"
 msgstr "Ορατές στήλες"
 
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:2
-msgid "Audio player:"
-msgstr "Αναπαραγωγέας ήχου:"
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:3
-msgid "Video player:"
-msgstr "Αναπαραγωγέας βίντεο:"
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:4
-msgid "\"All episodes\" in podcast list"
-msgstr "\"Όλα τα επισόδια\" στην λίστα των podcast"
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:5
-msgid "Use sections for podcast list"
-msgstr "Χρήση τμημάτων για την λίστα των podcast"
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:7
-msgid "Preferred YouTube format:"
-msgstr ""
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:8
-msgid "YouTube API key (v3):"
-msgstr ""
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:9
-msgid "Preferred Vimeo format:"
-msgstr ""
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:12
-msgid "Synchronize subscriptions and episode actions"
-msgstr "Συγχρονίστε τις συνδρομές και τις ενέργειες επεισοδίου"
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:13
-msgid "Server:"
-msgstr ""
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:16
-msgid "Replace list on server with local subscriptions"
-msgstr "Αντικαταστήστε τη λίστα στο διακομιστή με τις τοπικές συνδρομές"
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:17
-msgid "Device name:"
-msgstr "Όνομα συσκευής:"
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:18
-msgid "gpodder.net"
-msgstr "gpodder.net"
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:19
-msgid "Update interval:"
-msgstr "Διάστημα ενημέρωσης:"
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:20
-msgid "Maximum number of episodes per podcast:"
-msgstr "Μέγιστος αριθμός επεισοδίων ανά podcast:"
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:21
-msgid "When new episodes are found:"
-msgstr "Όταν βρεθούν νέα επεισόδια:"
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:22
-msgid "Updating"
-msgstr "Ενημέρωση"
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:23
-msgid "Delete played episodes:"
-msgstr "Διαγραφή αναπαραγμένων επεισοδίων:"
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:24
-msgid "Remove played episodes even if unfinished"
-msgstr "Αφαίρεση ατελείωτων επεισοδίων που παίχτικαν "
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:25
-msgid "Also remove unplayed episodes"
-msgstr "Επίσης, αφαίρεση μη αναπαραγμένων επεισοδίων"
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:26
-msgid "Clean-up"
-msgstr "Εκκαθάριση"
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:27
-msgid "Device type:"
-msgstr "Τύπος συσκευής:"
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:28
-msgid "Mountpoint:"
-msgstr "Σημείο προσάρτησης:"
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:29
-msgid "After syncing an episode:"
-msgstr "Μετά το συγχρονισμό ενός επεισοδίου:"
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:30
-#, fuzzy
-msgid "Create playlists on device"
-msgstr "Αντικατάσταση λίστας στον διακομιστή"
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:31
-#, fuzzy
-msgid "Playlists Folder:"
-msgstr "Άδεια λίστα αναπαραγωγής"
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:32
-msgid "Remove episodes deleted on device from gPodder"
-msgstr ""
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:33
-msgid "Only sync unplayed episodes"
-msgstr "Συγχρονισμός μόνο των μη αναπαραγμένων επεισοδίων"
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:34
-msgid "Devices"
-msgstr "Συσκευές"
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:35
-msgid "Edit config"
-msgstr "Επεξεργασία ρυθμίσεων"
-
-#: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:1
-msgid "Find new podcasts"
-msgstr "Βρείτε νέα podcasts"
-
-#: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:2
-msgid "Select All"
-msgstr "Επιλογή όλων"
-
-#: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:3
-msgid "Select None"
-msgstr "Αποεπιλογή όλων"
-
-#: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:4
-msgid "label"
-msgstr ""
-
-#: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:5
-msgid "..."
-msgstr ""
-
-#: bin/gpo:247
+#: bin/gpo:261
 msgid "Podcast update requested by extensions."
 msgstr "Η ενημέρωση του podcast ζητήθηκε από τις επεκτάσεις."
 
-#: bin/gpo:251
+#: bin/gpo:265
 msgid "Episode download requested by extensions."
 msgstr ""
 
-#: bin/gpo:304
+#: bin/gpo:318
 #, python-format
 msgid "Invalid url: %s"
 msgstr ""
 
-#: bin/gpo:326
+#: bin/gpo:340
 #, fuzzy
 msgid "User name:"
 msgstr "Όνομα χρήστη:"
 
-#: bin/gpo:343 bin/gpo:419 bin/gpo:457 bin/gpo:656 bin/gpo:678 bin/gpo:693
-#: bin/gpo:813
+#: bin/gpo:357 bin/gpo:433 bin/gpo:471 bin/gpo:670 bin/gpo:692 bin/gpo:707
+#: bin/gpo:785
 #, fuzzy, python-format
 msgid "You are not subscribed to %s."
 msgstr "Έχεις ήδη εγγραφεί σε αυτά τα podcasts:"
 
-#: bin/gpo:349
+#: bin/gpo:363
 #, fuzzy, python-format
 msgid "Already subscribed to %s."
 msgstr "Αδυναμία συνδρομής στο %s."
 
-#: bin/gpo:355
+#: bin/gpo:369
 #, python-format
 msgid "Cannot subscribe to %s."
 msgstr "Αδυναμία συνδρομής στο %s."
 
-#: bin/gpo:371
+#: bin/gpo:385
 #, python-format
 msgid "Successfully added %s."
 msgstr "Επιτυχής προσθήκη του %s."
 
-#: bin/gpo:389
+#: bin/gpo:403
 msgid "This configuration option does not exist."
 msgstr "Αυτή η επιλογή ρύθμισης δεν υπάρχει."
 
-#: bin/gpo:393
+#: bin/gpo:407
 msgid "Can only set leaf configuration nodes."
 msgstr "Μόνο οι τερματικοί κόμβοι μπορούν να ρυθμιστούν."
 
-#: bin/gpo:407
+#: bin/gpo:421
 #, python-format
 msgid "Renamed %(old_title)s to %(new_title)s."
 msgstr ""
 
-#: bin/gpo:423
+#: bin/gpo:437
 #, fuzzy, python-format
 msgid "Unsubscribed from %s."
 msgstr "Κατάργηση συνδρομής"
 
-#: bin/gpo:489
+#: bin/gpo:503
 #, fuzzy
 msgid "Invalid command."
 msgstr "Μη έγκυρη τιμή."
 
-#: bin/gpo:494
+#: bin/gpo:508
 #, fuzzy, python-format
 msgid "Invalid option: %s."
 msgstr "Μη έγκυρο URL: %s"
 
-#: bin/gpo:519
+#: bin/gpo:533
 msgid "Updates disabled"
 msgstr "Οι ενημερώσεις απενεργοποιήθηκαν."
 
-#: bin/gpo:530
+#: bin/gpo:544
 #, python-format
 msgid "%(count)d new episode"
 msgid_plural "%(count)d new episodes"
 msgstr[0] "%(count)d νέο επεισόδιο"
 msgstr[1] "%(count)d νέα επεισόδια"
 
-#: bin/gpo:536
+#: bin/gpo:550
 #, fuzzy
 msgid "Checking for new episodes"
 msgstr "Έλεγχος για νέα επεισόδια..."
 
-#: bin/gpo:545
+#: bin/gpo:559
 #, fuzzy, python-format
 msgid "Skipping %(podcast)s"
 msgstr "Προσθήκη podcasts"
 
-#: bin/gpo:663
+#: bin/gpo:677
 msgid "No episode with the specified GUID found."
 msgstr ""
 
-#: bin/gpo:667
+#: bin/gpo:681
 #, fuzzy, python-format
 msgid "Deleted episode \"%s\"."
 msgstr "Διαγραφή επεισοδίων"
 
-#: bin/gpo:669
+#: bin/gpo:683
 #, fuzzy
 msgid "Episode has already been deleted."
 msgstr "Τα επεισόδια είναι κλειδωμέμα"
 
-#: bin/gpo:684
+#: bin/gpo:698
 #, python-format
 msgid "Disabling feed update from %s."
 msgstr ""
 
-#: bin/gpo:699
+#: bin/gpo:713
 #, fuzzy, python-format
 msgid "Enabling feed update from %s."
 msgstr "Ανάγνωση αρχείων από το %s"
 
-#: bin/gpo:712
-#, python-format
-msgid "Please register a YouTube API key and set it using %(command)s."
-msgstr ""
-
-#: bin/gpo:739
-#, python-format
-msgid "Changing: %(old_url)s => %(new_url)s"
-msgstr ""
-
-#: bin/gpo:749
-#, fuzzy
-msgid "Nothing to fix"
-msgstr "Δεν υπάρχει τίποτα προς εξαγωγή"
-
-#: bin/gpo:768
+#: bin/gpo:740
 msgid "No podcasts found."
 msgstr "Δεν βρέθηκαν podcasts."
 
-#: bin/gpo:782
+#: bin/gpo:754
 msgid "Enter index to subscribe, ? for list"
 msgstr ""
 
-#: bin/gpo:796 bin/gpo:800 bin/gpo:942 bin/gpo:946
+#: bin/gpo:768 bin/gpo:772 bin/gpo:914 bin/gpo:918
 msgid "Invalid value."
 msgstr "Μη έγκυρη τιμή."
 
-#: bin/gpo:817
+#: bin/gpo:789
 #, python-format
 msgid "Invalid URL: %s"
 msgstr "Μη έγκυρο URL: %s"
 
-#: bin/gpo:820
+#: bin/gpo:792
 #, python-format
 msgid "Changed URL from %(old_url)s to %(new_url)s."
 msgstr ""
 
-#: bin/gpo:845
+#: bin/gpo:817
 #, python-format
 msgid "%(title)s: %(msg)s ([yes]/no): "
 msgstr ""
 
-#: bin/gpo:849
+#: bin/gpo:821 bin/gpo:990
 msgid "yes"
 msgstr ""
 
-#: bin/gpo:887
+#: bin/gpo:859
 #, fuzzy, python-format
 msgid "Deleting episode: %(episode)s"
 msgstr "Διαγραφή επεισοδίων"
 
-#: bin/gpo:920
+#: bin/gpo:892
 msgid ""
 "Enter episode index to toggle, ? for list, X to select all, space to select "
 "none, empty when ready"
 msgstr ""
 
-#: bin/gpo:952
+#: bin/gpo:924
 #, fuzzy, python-format
 msgid "Will delete %(episode)s"
 msgstr "Απόκρυψη διαγραμμένων επεισοδίων"
 
-#: bin/gpo:954
+#: bin/gpo:926
 #, fuzzy, python-format
 msgid "Won't delete %(episode)s"
 msgstr "Διαγραφή επεισοδίων"
 
-#: bin/gpo:967
+#: bin/gpo:939
 #, fuzzy, python-format
 msgid "Syncing %s"
 msgstr "Προσθήκη του %s"
 
-#: bin/gpo:1037
+#: bin/gpo:973
+msgid "(enabled)"
+msgstr ""
+
+#: bin/gpo:984
+msgid "Title:"
+msgstr ""
+
+#: bin/gpo:985
+msgid "Category:"
+msgstr ""
+
+#: bin/gpo:986
+#, fuzzy
+#| msgid "Section:"
+msgid "Description:"
+msgstr "Τμήμα:"
+
+#: bin/gpo:987
+msgid "Authors:"
+msgstr ""
+
+#: bin/gpo:989
+#, fuzzy
+msgid "Documentation:"
+msgstr "Διάρκεια"
+
+#: bin/gpo:990
+msgid "Enabled:"
+msgstr ""
+
+#: bin/gpo:990
+msgid "no"
+msgstr ""
+
+#: bin/gpo:1015
+msgid "enabled"
+msgstr ""
+
+#: bin/gpo:1015
+#, fuzzy
+#| msgid "Updates disabled"
+msgid "disabled"
+msgstr "Οι ενημερώσεις απενεργοποιήθηκαν."
+
+#: bin/gpo:1018
+#, python-format
+msgid "Extension %(name)s (%(title)s) %(enabled)s"
+msgstr ""
+
+#: bin/gpo:1098
 #, python-format
 msgid "Syntax error: %(error)s"
 msgstr "Συντακτικό λάθος: %(error)s"
 
-#: bin/gpo:1131
+#: bin/gpo:1216
 msgid "Ambiguous command. Did you mean.."
 msgstr ""
 
-#: bin/gpo:1135
+#: bin/gpo:1220
 msgid "The requested function is not available."
 msgstr "Η ζητούμενη λειτουργία δεν είναι διαθέσιμη."
 
@@ -2499,11 +2521,6 @@ msgstr "Εγγραφή στο "
 msgid "Mac OS X application process number"
 msgstr "Αριθμός διεργασία εφαρμογής Mac OS X"
 
-#: share/applications/gpodder-url-handler.desktop.in.h:1
-#, fuzzy
-msgid "gPodder (subscribe to feed)"
-msgstr "Εγγραφή στο "
-
 #: share/applications/gpodder.desktop.in.h:2
 msgid "gPodder Podcast Client"
 msgstr "Πελάτης Podcast gPodder"
@@ -2515,3 +2532,8 @@ msgstr "Πελάτης Podcast"
 #: share/applications/gpodder.desktop.in.h:4
 msgid "Subscribe to audio and video content from the web"
 msgstr "Εγγραφή σε περιεχόμενο ήχου και βίντεο από τον ιστό"
+
+#: share/applications/gpodder-url-handler.desktop.in.h:1
+#, fuzzy
+msgid "gPodder (subscribe to feed)"
+msgstr "Εγγραφή στο "
