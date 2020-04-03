@@ -44,7 +44,7 @@ GETTEXT_SOURCE=$(wildcard src/gpodder/*.py \
 			  share/gpodder/extensions/*.py)
 
 GETTEXT_SOURCE += $(UIFILES_H)
-GETTEXT_SOURCE += $(wildcard bin/*)
+GETTEXT_SOURCE += $(wildcard bin/*[^~])
 GETTEXT_SOURCE += $(DESKTOP_FILES_IN_H)
 
 DESTDIR ?= /
