@@ -4,21 +4,21 @@
 # Translators:
 # Thomas Perl <thp@perli.net>, 2006.
 # Torstein Adolf Winterseth <kvikende@fsfe.org>, 2009, 2010.
-# Karl Ove Hufthammer <karl@huftis.org>, 2019.
+# Karl Ove Hufthammer <karl@huftis.org>, 2019, 2020.
 msgid ""
 msgstr ""
 "Project-Id-Version: gPodder\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-04-03 18:39+0200\n"
-"PO-Revision-Date: 2019-09-11 21:23+0200\n"
+"POT-Creation-Date: 2020-04-04 14:42+0200\n"
+"PO-Revision-Date: 2020-04-04 14:54+0200\n"
 "Last-Translator: Karl Ove Hufthammer <karl@huftis.org>\n"
-"Language-Team: Norwegian Nynorsk <i18n-nn@lister.ping.uio.no>\n"
+"Language-Team: Norwegian Nynorsk <l10n-no@lister.huftis.org>\n"
 "Language: nn\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Lokalize 19.11.70\n"
+"X-Generator: Lokalize 19.12.3\n"
 
 #: src/gpodder/config.py:54
 #, python-format
@@ -605,7 +605,7 @@ msgstr "Feil ved innlesing av kjelde: %s"
 #: src/gpodder/gtkui/main.py:1331 src/gpodder/gtkui/model.py:735
 #, python-format
 msgid "ERROR: %s"
-msgstr ""
+msgstr "FEIL: %s"
 
 #: src/gpodder/gtkui/main.py:1452
 msgid "Could not download some episodes:"
@@ -1321,9 +1321,10 @@ msgstr "Vel mål"
 msgid "Setting"
 msgstr "Innstilling"
 
+# Preteritum. Instillinga er *sett* til denne verdien.
 #: src/gpodder/gtkui/interface/configeditor.py:41
 msgid "Set to"
-msgstr "Set til"
+msgstr "Sett til"
 
 #: src/gpodder/gtkui/interface/configeditor.py:86
 #, python-format
@@ -1401,8 +1402,7 @@ msgstr "storleik: %s"
 #: src/gpodder/gtkui/desktop/exportlocal.py:57
 #, python-format
 msgid "Export remaining %(count)d episode to this folder with its default name"
-msgid_plural ""
-"Export remaining %(count)d episodes to this folder with their default name"
+msgid_plural "Export remaining %(count)d episodes to this folder with their default name"
 msgstr[0] ""
 "Eksporter gjenståande %(count)d episode til denne mappa, med standardnamn"
 msgstr[1] ""
@@ -1676,36 +1676,33 @@ msgid "Open website"
 msgstr "Opna nettsida"
 
 #: share/gpodder/extensions/filter.py:13
-#, fuzzy
-#| msgid "Delete episodes"
 msgid "Filter Episodes"
-msgstr "Slett episodar"
+msgstr "Filtrer episodar"
 
 #: share/gpodder/extensions/filter.py:14
 msgid "Disable automatic downloads based on episode title."
-msgstr ""
+msgstr "Slå av automatisk nedlasting basert på episodetittel"
 
 #: share/gpodder/extensions/filter.py:51
 msgid "Regular Expression"
-msgstr ""
+msgstr "Regulært uttrykk"
 
 #: share/gpodder/extensions/filter.py:54
 msgid "Ignore Case"
-msgstr ""
+msgstr "Ikkje skil mellom store/små bokstavar"
 
+# Vist som fane i «Podkastinnstillingar»-vindauget for einskildpodkast.
 #: share/gpodder/extensions/filter.py:124
-#, fuzzy
-#| msgid "Filter:"
 msgid "Filter"
-msgstr "Filter:"
+msgstr "Filtrering"
 
 #: share/gpodder/extensions/filter.py:141
 msgid "Block"
-msgstr ""
+msgstr "Blokker episodar"
 
 #: share/gpodder/extensions/filter.py:150
 msgid "Except"
-msgstr ""
+msgstr "Gjer unntak for"
 
 #: share/gpodder/extensions/filter.py:157
 msgid ""
@@ -1714,10 +1711,15 @@ msgid ""
 "episode title, and an empty pattern matches any title.  The except pattern "
 "unblocks blocked episodes (to block all then unblock some)."
 msgstr ""
+"Kryss av for «Blokker episodar» og la tekst­feltet stå tomt for å slå av "
+"automatisk nedlasting av episodar. Teksten i feltet vert brukt til å søkja "
+"etter (delar av) episode­titlar, så tom tekst søkjer etter alle titlane. "
+"Bruk unntaks­mønsteret til å fjerna episode­blokkering. (Blokker først alle "
+"episodane og så avblokker nokre av dei)."
 
 #: share/gpodder/extensions/filter.py:164
 msgid "Filter episodes now (undoes any episodes you marked as old)"
-msgstr ""
+msgstr "Filtrer episodane no (angrar merking av episodar som gamle)"
 
 #: share/gpodder/extensions/gtk_statusicon.py:19
 msgid "Gtk Status Icon"
@@ -1882,10 +1884,8 @@ msgid "Manage Youtube subscriptions using youtube-dl (pip install youtube_dl)"
 msgstr "Handsam YouTube-abonnement med youtube-dl («pip install youtube_dl»)"
 
 #: share/gpodder/extensions/youtube-dl.py:432
-#, fuzzy
-#| msgid "Download to:"
 msgid "Download with Youtube-DL"
-msgstr "Last ned til:"
+msgstr "Last ned med youtube-dl"
 
 #: share/gpodder/ui/gtk/gpodderaddpodcast.ui.h:1
 msgid "Add a new podcast"
@@ -2412,56 +2412,48 @@ msgstr "Synkroniserer %s"
 
 #: bin/gpo:973
 msgid "(enabled)"
-msgstr ""
+msgstr "(på)"
 
 #: bin/gpo:984
 msgid "Title:"
-msgstr ""
+msgstr "Tittel:"
 
 #: bin/gpo:985
-#, fuzzy
-#| msgid "Strategy:"
 msgid "Category:"
-msgstr "Strategi:"
+msgstr "Kategori:"
 
 #: bin/gpo:986
-#, fuzzy
-#| msgid "Section:"
 msgid "Description:"
-msgstr "Kategori:"
+msgstr "Skildring:"
 
 #: bin/gpo:987
 msgid "Authors:"
-msgstr ""
+msgstr "Opphavspersonar:"
 
 #: bin/gpo:989
-#, fuzzy
-#| msgid "Documentation"
 msgid "Documentation:"
-msgstr "Dokumentasjon"
+msgstr "Dokumentasjon:"
 
 #: bin/gpo:990
 msgid "Enabled:"
-msgstr ""
+msgstr "Slått på:"
 
 #: bin/gpo:990
 msgid "no"
-msgstr ""
+msgstr "nei"
 
 #: bin/gpo:1015
 msgid "enabled"
-msgstr ""
+msgstr "på"
 
 #: bin/gpo:1015
-#, fuzzy
-#| msgid "Updates disabled"
 msgid "disabled"
-msgstr "Oppdateringar av"
+msgstr "av"
 
 #: bin/gpo:1018
 #, python-format
 msgid "Extension %(name)s (%(title)s) %(enabled)s"
-msgstr ""
+msgstr "Utviding %(name)s (%(title)s) %(enabled)s"
 
 #: bin/gpo:1098
 #, python-format
