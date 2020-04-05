@@ -39,13 +39,6 @@
       <attribute name="label" translatable="yes">_Podcasts</attribute>
       <section>
         <item>
-          <attribute name="action">win.findPodcast</attribute>
-          <attribute name="label" translatable="yes">Find Podcast</attribute>
-          <attribute name="accel">&lt;Primary&gt;&lt;Shift&gt;f</attribute>
-        </item>
-      </section>
-      <section>
-        <item>
           <attribute name="action">win.update</attribute>
           <attribute name="label" translatable="yes">Check for new episodes</attribute>
           <attribute name="accel">&lt;Primary&gt;r</attribute>
@@ -59,6 +52,13 @@
           <attribute name="action">win.removeOldEpisodes</attribute>
           <attribute name="label" translatable="yes">Delete episodes</attribute>
           <attribute name="accel">&lt;Primary&gt;k</attribute>
+        </item>
+      </section>
+      <section>
+        <item>
+          <attribute name="action">win.findPodcast</attribute>
+          <attribute name="label" translatable="yes">Find Podcast</attribute>
+          <attribute name="accel">&lt;Primary&gt;&lt;Shift&gt;f</attribute>
         </item>
       </section>
     </submenu>
