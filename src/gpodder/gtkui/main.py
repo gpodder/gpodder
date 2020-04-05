@@ -272,6 +272,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             ('toggleEpisodeLock', self.on_item_toggle_lock_activate),
             ('toggleShownotes', self.on_shownotes_selected_episodes),
             ('sync', self.on_sync_to_device_activate),
+            ('findPodcast', self.on_find_podcast_activate),
+            ('findEpisode', self.on_find_episode_activate),
         ]
 
         for name, callback in action_defs:
@@ -667,9 +669,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def show_podcast_search(self, input_char):
         self.hbox_search_podcasts.show()
-        self.entry_search_podcasts.insert_text(input_char, -1)
+        if input_char:
+            self.entry_search_podcasts.insert_text(input_char, -1)
         self.entry_search_podcasts.grab_focus()
         self.entry_search_podcasts.set_position(-1)
+
+    def on_find_podcast_activate(self, *args):
+        self.show_podcast_search(None)
 
     def init_podcast_list_treeview(self):
         size = cake_size_from_widget(self.treeChannels) * 2
@@ -794,9 +800,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def show_episode_search(self, input_char):
         self.hbox_search_episodes.show()
-        self.entry_search_episodes.insert_text(input_char, -1)
+        if input_char:
+            self.entry_search_episodes.insert_text(input_char, -1)
         self.entry_search_episodes.grab_focus()
         self.entry_search_episodes.set_position(-1)
+
+    def on_find_episode_activate(self, *args):
+        self.show_episode_search(None)
 
     def set_episode_list_column(self, index, new_value):
         mask = (1 << index)

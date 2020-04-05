@@ -39,6 +39,13 @@
       <attribute name="label" translatable="yes">_Podcasts</attribute>
       <section>
         <item>
+          <attribute name="action">win.findPodcast</attribute>
+          <attribute name="label" translatable="yes">Find Podcast</attribute>
+          <attribute name="accel">&lt;Primary&gt;&lt;Shift&gt;f</attribute>
+        </item>
+      </section>
+      <section>
+        <item>
           <attribute name="action">win.update</attribute>
           <attribute name="label" translatable="yes">Check for new episodes</attribute>
           <attribute name="accel">&lt;Primary&gt;r</attribute>
@@ -61,7 +68,7 @@
         <item>
           <attribute name="action">win.discover</attribute>
           <attribute name="label" translatable="yes">Discover new podcasts</attribute>
-          <attribute name="accel">&lt;Primary&gt;f</attribute>
+          <attribute name="accel">&lt;Primary&gt;d</attribute>
         </item>
         <item>
           <attribute name="action">win.addChannel</attribute>
@@ -131,6 +138,11 @@
         </item>
       </section>
       <section>
+        <item>
+          <attribute name="action">win.findEpisode</attribute>
+          <attribute name="label" translatable="yes">Find Episode</attribute>
+          <attribute name="accel">&lt;Primary&gt;f</attribute>
+        </item>
         <item>
           <attribute name="action">win.toggleShownotes</attribute>
           <attribute name="label" translatable="yes">Episode details</attribute>
