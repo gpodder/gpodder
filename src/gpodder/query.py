@@ -42,7 +42,6 @@ class Matcher(object):
         try:
             return bool(eval(term, {'__builtins__': None}, self))
         except Exception as e:
-            print(e)
             return False
 
     def __getitem__(self, k):
@@ -82,7 +81,7 @@ class Matcher(object):
         elif k in ('minutes', 'min'):
             return episode.total_time / 60
         elif k in ('remaining', 'rem'):
-            return episode.total_time - episode.current_position / 60
+            return (episode.total_time - episode.current_position) / 60
 
         raise KeyError(k)
 
@@ -142,7 +141,6 @@ class EQL(object):
             try:
                 self._query = compile(query, '<eql-string>', 'eval')
             except Exception as e:
-                print(e)
                 self._query = None
 
     def match(self, episode):
