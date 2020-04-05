@@ -149,6 +149,7 @@ defaults = {
             'toolbar': False,
             'new_episodes': 'show',  # ignore, show, queue, download
             'live_search_delay': 200,
+            'search_always_visible': False,
 
             'podcast_list': {
                 'all_episodes': True,

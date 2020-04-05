@@ -247,6 +247,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
         action.connect('activate', self.on_item_view_hide_boring_podcasts_toggled)
         g.add_action(action)
 
+        action = Gio.SimpleAction.new_stateful(
+            'searchAlwaysVisible', None, GLib.Variant.new_boolean(self.config.ui.gtk.search_always_visible))
+        action.connect('activate', self.on_item_view_search_always_visible_toggled)
+        g.add_action(action)
+
         value = EpisodeListModel.VIEWS[
             self.config.episode_list_view_mode or EpisodeListModel.VIEW_ALL]
         action = Gio.SimpleAction.new_stateful(
@@ -645,7 +650,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_find_podcast_activate(self, *args):
         if self._search_podcasts:
-            self._search_podcasts.show_search(None)
+            self._search_podcasts.show_search()
 
     def init_podcast_list_treeview(self):
         size = cake_size_from_widget(self.treeChannels) * 2
@@ -746,9 +751,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
                                            self.treeChannels,
                                            self.podcast_list_model,
                                            self.config)
+        if self.config.ui.gtk.search_always_visible:
+            self._search_podcasts.show_search(grab_focus=False)
+
 
     def on_find_episode_activate(self, *args):
-        self._search_episodes.show_search(None)
+        if self._search_episodes:
+            self._search_episodes.show_search()
 
     def set_episode_list_column(self, index, new_value):
         mask = (1 << index)
@@ -954,6 +963,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                                            self.treeAvailable,
                                            self.episode_list_model,
                                            self.config)
+        if self.config.ui.gtk.search_always_visible:
+            self._search_episodes.show_search(grab_focus=False)
 
     def on_episode_list_selection_changed(self, selection):
         # Update the toolbar buttons
@@ -3065,6 +3076,17 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.config.podcast_list_hide_boring = not state
         action.set_state(GLib.Variant.new_boolean(not state))
         self.apply_podcast_list_hide_boring()
+
+    def on_item_view_search_always_visible_toggled(self, action, param):
+        state = action.get_state()
+        self.config.ui.gtk.search_always_visible = not state
+        action.set_state(GLib.Variant.new_boolean(not state))
+        for search in (self._search_episodes, self._search_podcasts):
+            if search:
+                if self.config.ui.gtk.search_always_visible:
+                    search.show_search(grab_focus=False)
+                else:
+                    search.hide_search()
 
     def on_item_view_episodes_changed(self, action, param):
         self.config.episode_list_view_mode = getattr(EpisodeListModel, param.get_string()) or EpisodeListModel.VIEW_ALL

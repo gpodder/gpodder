@@ -61,14 +61,16 @@ class SearchTree:
         if self._search_timeout is not None:
             GLib.source_remove(self._search_timeout)
             self._search_timeout = None
-        self.search_box.hide()
+        if not self.config.ui.gtk.search_always_visible:
+            self.search_box.hide()
         self.search_entry.set_text('')
         self.model.set_search_term(None)
         self.tree.grab_focus()
 
-    def show_search(self, input_char):
+    def show_search(self, input_char=None, grab_focus=True):
         self.search_box.show()
         if input_char:
             self.search_entry.insert_text(input_char, -1)
-        self.search_entry.grab_focus()
+        if grab_focus:
+            self.search_entry.grab_focus()
         self.search_entry.set_position(-1)
