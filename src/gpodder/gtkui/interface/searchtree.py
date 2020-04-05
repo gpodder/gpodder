@@ -23,6 +23,11 @@ from gi.repository import Gdk, GLib  # isort:skip
 
 
 class SearchTree:
+    """
+        handle showing/hiding the search box for podcast or episode treeviews,
+        as well as searching for text entered in the search entry.
+        Automatically attaches to entry signals on creation.
+    """
     def __init__(self, search_box, search_entry, tree, model, config):
         self.search_box = search_box
         self.search_entry = search_entry
