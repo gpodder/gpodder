@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: gPodder\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-04-03 18:39+0200\n"
-"PO-Revision-Date: 2019-09-10 22:24+0200\n"
+"PO-Revision-Date: 2020-04-06 14:25+0200\n"
 "Last-Translator: TZocker\n"
 "Language-Team: German (http://www.transifex.com/projects/p/gpodder/language/"
 "de/)\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 2.2\n"
+"X-Generator: Poedit 2.3\n"
 
 #: src/gpodder/config.py:54
 #, python-format
@@ -608,7 +608,7 @@ msgstr "Feedparser-Fehler: %s"
 #: src/gpodder/gtkui/main.py:1331 src/gpodder/gtkui/model.py:735
 #, python-format
 msgid "ERROR: %s"
-msgstr ""
+msgstr "Fehler: %s"
 
 #: src/gpodder/gtkui/main.py:1452
 msgid "Could not download some episodes:"
@@ -1007,7 +1007,7 @@ msgstr "Wählen Sie die Episoden, die Sie herunterladen möchten:"
 
 #: src/gpodder/gtkui/main.py:3077
 msgid "Mark as old"
-msgstr "Als alt markieren"
+msgstr "Als gespielt markieren"
 
 #: src/gpodder/gtkui/main.py:3084
 msgid "Please check for new episodes later."
@@ -1686,48 +1686,55 @@ msgid "Open website"
 msgstr "Webseite öffnen"
 
 #: share/gpodder/extensions/filter.py:13
-#, fuzzy
-#| msgid "Delete episodes"
 msgid "Filter Episodes"
-msgstr "Episoden löschen"
+msgstr "Filter Episoden"
 
 #: share/gpodder/extensions/filter.py:14
 msgid "Disable automatic downloads based on episode title."
 msgstr ""
+"Deaktivieren Sie automatische Downloads basierend auf dem Episodentitel."
 
 #: share/gpodder/extensions/filter.py:51
 msgid "Regular Expression"
-msgstr ""
+msgstr "Regulären Ausdruck"
 
 #: share/gpodder/extensions/filter.py:54
 msgid "Ignore Case"
-msgstr ""
+msgstr "Variante ignorieren"
 
 #: share/gpodder/extensions/filter.py:124
-#, fuzzy
-#| msgid "Filter:"
 msgid "Filter"
-msgstr "Filter:"
+msgstr "Filter"
 
 #: share/gpodder/extensions/filter.py:141
 msgid "Block"
-msgstr ""
+msgstr "Block"
 
 #: share/gpodder/extensions/filter.py:150
 msgid "Except"
-msgstr ""
+msgstr "Ausgenommen"
 
+# Muss aus der Logik herraus überprüft werden.
+# Sry. (Check context)
 #: share/gpodder/extensions/filter.py:157
+#, fuzzy
 msgid ""
 "Clicking the block checkbox and leaving it empty will disable auto-download "
 "for all episodes in this channel.  The patterns match partial text in "
 "episode title, and an empty pattern matches any title.  The except pattern "
 "unblocks blocked episodes (to block all then unblock some)."
 msgstr ""
+"Wenn Sie das Kontrollkästchen leer lassen, wird der automatische Download "
+"für alle Episoden in diesem Kanal deaktiviert. Die Muster stimmen mit "
+"Teiltexten im Episodentitel überein, und ein leeres Muster stimmt mit jedem "
+"Titel überein. Das Ausnahme-Muster entsperrt blockierte Episoden (um alle zu "
+"blockieren und dann einige zu entsperren)."
 
 #: share/gpodder/extensions/filter.py:164
 msgid "Filter episodes now (undoes any episodes you marked as old)"
 msgstr ""
+"Filtert Episoden (macht alle Episoden rückgängig, die Sie als gespielt "
+"markiert haben)"
 
 #: share/gpodder/extensions/gtk_statusicon.py:19
 msgid "Gtk Status Icon"
@@ -1887,10 +1894,8 @@ msgid "Manage Youtube subscriptions using youtube-dl (pip install youtube_dl)"
 msgstr "Verwaltung von Youtube Abos mit youtube-dl (pip install youtube_dl)"
 
 #: share/gpodder/extensions/youtube-dl.py:432
-#, fuzzy
-#| msgid "Download to:"
 msgid "Download with Youtube-DL"
-msgstr "Herunterladen nach:"
+msgstr "Download mit Youtube Link"
 
 #: share/gpodder/ui/gtk/gpodderaddpodcast.ui.h:1
 msgid "Add a new podcast"
@@ -2413,56 +2418,48 @@ msgstr "Synchronisierung %s"
 
 #: bin/gpo:973
 msgid "(enabled)"
-msgstr ""
+msgstr "(aktiviert)"
 
 #: bin/gpo:984
 msgid "Title:"
-msgstr ""
+msgstr "Titel:"
 
 #: bin/gpo:985
-#, fuzzy
-#| msgid "Strategy:"
 msgid "Category:"
-msgstr "Strategie:"
+msgstr "Kategorie:"
 
 #: bin/gpo:986
-#, fuzzy
-#| msgid "Section:"
 msgid "Description:"
-msgstr "Sektion:"
+msgstr "Beschreibung:"
 
 #: bin/gpo:987
 msgid "Authors:"
-msgstr ""
+msgstr "Autoren:"
 
 #: bin/gpo:989
-#, fuzzy
-#| msgid "Documentation"
 msgid "Documentation:"
-msgstr "Dokumentation"
+msgstr "Dokumentation:"
 
 #: bin/gpo:990
 msgid "Enabled:"
-msgstr ""
+msgstr "Aktivieren:"
 
 #: bin/gpo:990
 msgid "no"
-msgstr ""
+msgstr "Nein"
 
 #: bin/gpo:1015
 msgid "enabled"
-msgstr ""
+msgstr "aktiviert"
 
 #: bin/gpo:1015
-#, fuzzy
-#| msgid "Updates disabled"
 msgid "disabled"
-msgstr "Updates deaktiviert"
+msgstr "deaktiviert"
 
 #: bin/gpo:1018
 #, python-format
 msgid "Extension %(name)s (%(title)s) %(enabled)s"
-msgstr ""
+msgstr "Erweiterung %(name)s (%(title)s) %(enabled)s"
 
 #: bin/gpo:1098
 #, python-format
