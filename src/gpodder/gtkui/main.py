@@ -754,7 +754,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if self.config.ui.gtk.search_always_visible:
             self._search_podcasts.show_search(grab_focus=False)
 
-
     def on_find_episode_activate(self, *args):
         if self._search_episodes:
             self._search_episodes.show_search()
