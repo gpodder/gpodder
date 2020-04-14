@@ -90,7 +90,7 @@ git+https://github.com/enthought/pywin32-ctypes.git@f27d6a0
 html5lib==1.0.1
 webencodings==0.5.1
 six==1.12.0
-certifi==2019.9.11
+certifi==2020.4.5.1
 mutagen==1.44.0
 youtube_dl==2020.3.8
 "
