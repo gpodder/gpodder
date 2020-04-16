@@ -54,6 +54,13 @@
           <attribute name="accel">&lt;Primary&gt;k</attribute>
         </item>
       </section>
+      <section>
+        <item>
+          <attribute name="action">win.findPodcast</attribute>
+          <attribute name="label" translatable="yes">Find Podcast</attribute>
+          <attribute name="accel">&lt;Primary&gt;&lt;Shift&gt;f</attribute>
+        </item>
+      </section>
     </submenu>
     <submenu id="menuSubscriptions">
       <attribute name="label" translatable="yes">_Subscriptions</attribute>
@@ -61,7 +68,7 @@
         <item>
           <attribute name="action">win.discover</attribute>
           <attribute name="label" translatable="yes">Discover new podcasts</attribute>
-          <attribute name="accel">&lt;Primary&gt;f</attribute>
+          <attribute name="accel">&lt;Primary&gt;d</attribute>
         </item>
         <item>
           <attribute name="action">win.addChannel</attribute>
@@ -132,6 +139,11 @@
       </section>
       <section>
         <item>
+          <attribute name="action">win.findEpisode</attribute>
+          <attribute name="label" translatable="yes">Find Episode</attribute>
+          <attribute name="accel">&lt;Primary&gt;f</attribute>
+        </item>
+        <item>
           <attribute name="action">win.toggleShownotes</attribute>
           <attribute name="label" translatable="yes">Episode details</attribute>
         </item>
@@ -157,6 +169,10 @@
           <attribute name="action">win.showEpisodeDescription</attribute>
           <attribute name="label" translatable="yes">Episode descriptions</attribute>
           <attribute name="accel">&lt;Primary&gt;d</attribute>
+        </item>
+        <item>
+          <attribute name="action">win.searchAlwaysVisible</attribute>
+          <attribute name="label" translatable="yes">Always show Find entries</attribute>
         </item>
       </section>
       <section>

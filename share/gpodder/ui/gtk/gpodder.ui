@@ -207,11 +207,9 @@
                             <property name="orientation">horizontal</property>
                             <child>
                               <object class="GtkEntry" id="entry_search_podcasts">
+                                <property name="hexpand">True</property>
                                 <property name="visible">True</property>
                                 <property name="secondary-icon-stock">gtk-close</property>
-                                <signal name="icon-press" handler="hide_podcast_search"/>
-                                <signal name="changed" handler="on_entry_search_podcasts_changed"/>
-                                <signal name="key-press-event" handler="on_entry_search_podcasts_key_press"/>
                               </object>
                             </child>
                           </object>
@@ -321,11 +319,9 @@
                             </child>
                             <child>
                               <object class="GtkEntry" id="entry_search_episodes">
+                                <property name="hexpand">True</property>
                                 <property name="visible">True</property>
                                 <property name="secondary-icon-stock">gtk-close</property>
-                                <signal name="icon-press" handler="hide_episode_search"/>
-                                <signal name="changed" handler="on_entry_search_episodes_changed"/>
-                                <signal name="key-press-event" handler="on_entry_search_episodes_key_press"/>
                               </object>
                             </child>
                           </object>

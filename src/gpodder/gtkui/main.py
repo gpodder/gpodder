@@ -50,6 +50,7 @@ from .draw import (cake_size_from_widget, draw_cake_pixbuf,
 from .interface.addpodcast import gPodderAddPodcast
 from .interface.common import BuilderWidget, TreeViewHelper
 from .interface.progress import ProgressIndicator
+from .interface.searchtree import SearchTree
 from .model import EpisodeListModel, PodcastListModel
 from .services import CoverDownloader
 from .widgets import SimpleMessageArea
@@ -83,6 +84,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.options = options
         self.extensions_menu = None
         self.extensions_actions = []
+        self._search_podcasts = None
+        self._search_episodes = None
         BuilderWidget.__init__(self, None, _builder_expose={'app': app})
 
     def new(self):
@@ -244,6 +247,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
         action.connect('activate', self.on_item_view_hide_boring_podcasts_toggled)
         g.add_action(action)
 
+        action = Gio.SimpleAction.new_stateful(
+            'searchAlwaysVisible', None, GLib.Variant.new_boolean(self.config.ui.gtk.search_always_visible))
+        action.connect('activate', self.on_item_view_search_always_visible_toggled)
+        g.add_action(action)
+
         value = EpisodeListModel.VIEWS[
             self.config.episode_list_view_mode or EpisodeListModel.VIEW_ALL]
         action = Gio.SimpleAction.new_stateful(
@@ -272,6 +280,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             ('toggleEpisodeLock', self.on_item_toggle_lock_activate),
             ('toggleShownotes', self.on_shownotes_selected_episodes),
             ('sync', self.on_sync_to_device_activate),
+            ('findPodcast', self.on_find_podcast_activate),
+            ('findEpisode', self.on_find_episode_activate),
         ]
 
         for name, callback in action_defs:
@@ -638,38 +648,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         return self.treeview_downloads_show_context_menu(treeview, event)
 
-    def on_entry_search_podcasts_changed(self, editable):
-        if self.hbox_search_podcasts.get_property('visible'):
-            def set_search_term(self, text):
-                self.podcast_list_model.set_search_term(text)
-                self._podcast_list_search_timeout = None
-                return False
-
-            if self._podcast_list_search_timeout is not None:
-                GObject.source_remove(self._podcast_list_search_timeout)
-            self._podcast_list_search_timeout = GObject.timeout_add(
-                    self.config.ui.gtk.live_search_delay,
-                    set_search_term, self, editable.get_chars(0, -1))
-
-    def on_entry_search_podcasts_key_press(self, editable, event):
-        if event.keyval == Gdk.KEY_Escape:
-            self.hide_podcast_search()
-            return True
-
-    def hide_podcast_search(self, *args):
-        if self._podcast_list_search_timeout is not None:
-            GObject.source_remove(self._podcast_list_search_timeout)
-            self._podcast_list_search_timeout = None
-        self.hbox_search_podcasts.hide()
-        self.entry_search_podcasts.set_text('')
-        self.podcast_list_model.set_search_term(None)
-        self.treeChannels.grab_focus()
-
-    def show_podcast_search(self, input_char):
-        self.hbox_search_podcasts.show()
-        self.entry_search_podcasts.insert_text(input_char, -1)
-        self.entry_search_podcasts.grab_focus()
-        self.entry_search_podcasts.set_position(-1)
+    def on_find_podcast_activate(self, *args):
+        if self._search_podcasts:
+            self._search_podcasts.show_search()
 
     def init_podcast_list_treeview(self):
         size = cake_size_from_widget(self.treeChannels) * 2
@@ -740,7 +721,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
                 self.treeChannels.set_cursor(path)
             elif event.keyval == Gdk.KEY_Escape:
-                self.hide_podcast_search()
+                self._search_podcasts.hide_search()
             elif event.get_state() & Gdk.ModifierType.CONTROL_MASK:
                 # Don't handle type-ahead when control is pressed (so shortcuts
                 # with the Ctrl key still work, e.g. Ctrl+A, ...)
@@ -753,7 +734,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 if unicode_char_id < 32:
                     return False
                 input_char = chr(unicode_char_id)
-                self.show_podcast_search(input_char)
+                self._search_podcasts.show_search(input_char)
             return True
         self.treeChannels.connect('key-press-event', on_key_press)
 
@@ -765,38 +746,17 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         TreeViewHelper.set(self.treeChannels, TreeViewHelper.ROLE_PODCASTS)
 
-    def on_entry_search_episodes_changed(self, editable):
-        if self.hbox_search_episodes.get_property('visible'):
-            def set_search_term(self, text):
-                self.episode_list_model.set_search_term(text)
-                self._episode_list_search_timeout = None
-                return False
+        self._search_podcasts = SearchTree(self.hbox_search_podcasts,
+                                           self.entry_search_podcasts,
+                                           self.treeChannels,
+                                           self.podcast_list_model,
+                                           self.config)
+        if self.config.ui.gtk.search_always_visible:
+            self._search_podcasts.show_search(grab_focus=False)
 
-            if self._episode_list_search_timeout is not None:
-                GObject.source_remove(self._episode_list_search_timeout)
-            self._episode_list_search_timeout = GObject.timeout_add(
-                    self.config.ui.gtk.live_search_delay,
-                    set_search_term, self, editable.get_chars(0, -1))
-
-    def on_entry_search_episodes_key_press(self, editable, event):
-        if event.keyval == Gdk.KEY_Escape:
-            self.hide_episode_search()
-            return True
-
-    def hide_episode_search(self, *args):
-        if self._episode_list_search_timeout is not None:
-            GObject.source_remove(self._episode_list_search_timeout)
-            self._episode_list_search_timeout = None
-        self.hbox_search_episodes.hide()
-        self.entry_search_episodes.set_text('')
-        self.episode_list_model.set_search_term(None)
-        self.treeAvailable.grab_focus()
-
-    def show_episode_search(self, input_char):
-        self.hbox_search_episodes.show()
-        self.entry_search_episodes.insert_text(input_char, -1)
-        self.entry_search_episodes.grab_focus()
-        self.entry_search_episodes.set_position(-1)
+    def on_find_episode_activate(self, *args):
+        if self._search_episodes:
+            self._search_episodes.show_search()
 
     def set_episode_list_column(self, index, new_value):
         mask = (1 << index)
@@ -964,7 +924,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.treeChannels.grab_focus()
             elif event.keyval == Gdk.KEY_Escape:
                 if self.hbox_search_episodes.get_property('visible'):
-                    self.hide_episode_search()
+                    self._search_episodes.hide_search()
                 else:
                     self.shownotes_object.hide_pane()
             elif event.get_state() & Gdk.ModifierType.CONTROL_MASK:
@@ -977,7 +937,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 if unicode_char_id < 32:
                     return False
                 input_char = chr(unicode_char_id)
-                self.show_episode_search(input_char)
+                self._search_episodes.show_search(input_char)
             return True
         self.treeAvailable.connect('key-press-event', on_key_press)
 
@@ -996,6 +956,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
         selection = self.treeAvailable.get_selection()
         selection.set_mode(Gtk.SelectionMode.MULTIPLE)
         self.selection_handler_id = selection.connect('changed', self.on_episode_list_selection_changed)
+
+        self._search_episodes = SearchTree(self.hbox_search_episodes,
+                                           self.entry_search_episodes,
+                                           self.treeAvailable,
+                                           self.episode_list_model,
+                                           self.config)
+        if self.config.ui.gtk.search_always_visible:
+            self._search_episodes.show_search(grab_focus=False)
 
     def on_episode_list_selection_changed(self, selection):
         # Update the toolbar buttons
@@ -3107,6 +3075,17 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.config.podcast_list_hide_boring = not state
         action.set_state(GLib.Variant.new_boolean(not state))
         self.apply_podcast_list_hide_boring()
+
+    def on_item_view_search_always_visible_toggled(self, action, param):
+        state = action.get_state()
+        self.config.ui.gtk.search_always_visible = not state
+        action.set_state(GLib.Variant.new_boolean(not state))
+        for search in (self._search_episodes, self._search_podcasts):
+            if search:
+                if self.config.ui.gtk.search_always_visible:
+                    search.show_search(grab_focus=False)
+                else:
+                    search.hide_search()
 
     def on_item_view_episodes_changed(self, action, param):
         self.config.episode_list_view_mode = getattr(EpisodeListModel, param.get_string()) or EpisodeListModel.VIEW_ALL
