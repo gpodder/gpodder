@@ -114,8 +114,8 @@ def main():
 
     desktop_session = os.environ.get('DESKTOP_SESSION', 'unknown').lower()
     xdg_current_desktop = os.environ.get('XDG_CURRENT_DESKTOP', 'unknown').lower()
-    gpodder.ui.unity = (desktop_session in ('ubuntu', 'ubuntu-2d')
-                        and xdg_current_desktop == 'unity')
+    gpodder.ui.unity = (desktop_session in ('ubuntu', 'ubuntu-2d', 'unity')
+                        and xdg_current_desktop in ('unity', 'unity:unity7:ubuntu'))
 
     from gpodder import log
     log.setup(options.verbose)
