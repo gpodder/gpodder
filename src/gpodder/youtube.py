@@ -37,60 +37,95 @@ logger = logging.getLogger(__name__)
 _ = gpodder.gettext
 
 
-# http://en.wikipedia.org/wiki/YouTube#Quality_and_codecs
+# http://en.wikipedia.org/wiki/YouTube#Quality_and_formats
+# https://gist.github.com/Marco01809/34d47c65b1d28829bb17c24c04a0096f
+
+# adaptive audio formats
+#   140  MP4   128k
+#   251  WebM  160k
+#   250  WebM  70k
+#   249  WebM  50k
+
+# formats and fallbacks of same quality: WebM -> MP4 -> FLV
+flv_240 = [5]
+flv_270 = [6]
+flv_360 = [34]
+flv_480 = [35]
+mp4_144 = ['160+140']
+mp4_240 = ['133+140'] + flv_240
+mp4_360 = [18, '134+140'] + flv_360
+mp4_480 = ['135+140'] + flv_480
+mp4_720 = [22, '136+140']
+mp4_1080 = [37, '137+140']
+mp4_1440 = ['264+140']
+mp4_2160 = ['266+140']
+mp4_3072 = [38]
+mp4_4320 = ['138+140']
+webm_144 = ['278+250'] + mp4_144
+webm_240 = ['242+250'] + mp4_240
+webm_360 = [43, '243+251'] + mp4_360
+webm_480 = [44, '244+251'] + mp4_480
+webm_720 = [45, '247+251'] + mp4_720
+webm_1080 = [46, '248+251'] + mp4_1080
+webm_1440 = ['271+251'] + mp4_1440
+webm_2160 = ['313+251'] + mp4_2160
+webm_4320 = ['272+251'] + mp4_4320
+# fallbacks to lower quality
+webm_240 = webm_240 + webm_144
+webm_360 = webm_360 + flv_270 + webm_240
+webm_480 = webm_480 + webm_360
+webm_720 = webm_720 + webm_480
+webm_1080 = webm_1080 + webm_720
+webm_1440 = webm_1440 + webm_1080
+webm_2160 = webm_2160 + webm_1440
+webm_4320 = webm_4320 + mp4_3072 + webm_2160
+mp4_240 = mp4_240 + mp4_144
+mp4_360 = mp4_360 + flv_270 + mp4_240
+mp4_480 = mp4_480 + mp4_360
+mp4_720 = mp4_720 + mp4_480
+mp4_1080 = mp4_1080 + mp4_720
+mp4_1440 = mp4_1440 + mp4_1080
+mp4_2160 = mp4_2160 + mp4_1440
+mp4_3072 = mp4_3072 + mp4_2160
+mp4_4320 = mp4_4320 + mp4_3072
+flv_270 = flv_270 + flv_240
+flv_360 = flv_360 + flv_270
+flv_480 = flv_480 + flv_360
 # format id, (preferred ids, path(?), description) # video bitrate, audio bitrate
 formats = [
-    # WebM VP8 video, Vorbis audio
-    # Fallback to an MP4 version of same quality.
-    # Try 34 (FLV 360p H.264 AAC) if 18 (MP4 360p) fails.
-    # Fallback to 6 or 5 (FLV Sorenson H.263 MP3) if all fails.
-    (46, ([46, 37, 45, 22, '136+140', 44, 35, 43, 18, '134+140', 6, 34, 5],
-          '45/1280x720/99/0/0',
-          'WebM 1080p (1920x1080)')),  # N/A,      192 kbps
-    (45, ([45, 22, '136+140', 44, 35, 43, 18, '134+140', 6, 34, 5],
-          '45/1280x720/99/0/0',
-          'WebM 720p (1280x720)')),    # 2.0 Mbps, 192 kbps
-    (44, ([44, 35, 43, 18, '134+140', 6, 34, 5],
-          '44/854x480/99/0/0',
-          'WebM 480p (854x480)')),     # 1.0 Mbps, 128 kbps
-    (43, ([43, 18, '134+140', 6, 34, 5],
-          '43/640x360/99/0/0',
-          'WebM 360p (640x360)')),     # 0.5 Mbps, 128 kbps
+    # WebM VP8, VP9 or VP9 HFR video, Vorbis or Opus audio
+    # Fallback to MP4 or FLV
+    (272, (webm_4320, '272/7680x4320/99/0/0', 'WebM 4320p 8K (7680x4320) youtube-dl')),  # N/A,      160 kbps
+    (313, (webm_2160, '313/3840x2160/99/0/0', 'WebM 2160p 4K (3840x2160) youtube-dl')),  # N/A,      160 kbps
+    (271, (webm_1440, '271/2560x1440/99/0/0', 'WebM 1440p (2560x1440) youtube-dl')),     # N/A,      160 kbps
+    (46, (webm_1080, '46/1920x1080/99/0/0', 'WebM 1080p (1920x1080) youtube-dl')),       # N/A,      192 kbps
+    (45, (webm_720, '45/1280x720/99/0/0', 'WebM 720p (1280x720) youtube-dl')),           # 2.0 Mbps, 192 kbps
+    (44, (webm_480, '44/854x480/99/0/0', 'WebM 480p (854x480) youtube-dl')),             # 1.0 Mbps, 128 kbps
+    (43, (webm_360, '43/640x360/99/0/0', 'WebM 360p (640x360)')),                        # 0.5 Mbps, 128 kbps
+    (242, (webm_240, '242/426x240/99/0/0', 'WebM 240p (426x240) youtube-dl')),           # N/A,       70 kbps
+    (278, (webm_144, '278/256x144/99/0/0', 'WebM 144p (256x144) youtube-dl')),           # N/A,       70 kbps
 
     # MP4 H.264 video, AAC audio
-    # Try 35 (FLV 480p H.264 AAC) between 720p and 360p because there's no MP4 480p.
-    # Try 34 (FLV 360p H.264 AAC) if 18 (MP4 360p) fails.
-    # Fallback to 6 or 5 (FLV Sorenson H.263 MP3) if all fails.
-    (38, ([38, 37, 22, '136+140', 35, 18, '134+140', 34, 6, 5],
-          '38/1920x1080/9/0/115',
-          'MP4 4K 3072p (4096x3072)')),  # 5.0 - 3.5 Mbps, 192 kbps
-    (37, ([37, 22, '136+140', 35, 18, '134+140', 34, 6, 5],
-          '37/1920x1080/9/0/115',
-          'MP4 HD 1080p (1920x1080)')),  # 4.3 - 3.0 Mbps, 192 kbps
-    (22, ([22, '136+140', 35, 18, '134+140', 34, 6, 5],
-          '22/1280x720/9/0/115',
-          'MP4 HD 720p (1280x720)')),    # 2.9 - 2.0 Mbps, 192 kbps
-    (18, ([18, '134+140', 34, 6, 5],
-          '18/640x360/9/0/115',
-          'MP4 360p (640x360)')),        # 0.5 Mbps,  96 kbps
+    # Fallback to FLV
+    (138, (mp4_4320, '138/7680x4320/9/0/115', 'MP4 4320p 8K (7680x4320) youtube-dl')),  # N/A,       128 kbps
+    (38, (mp4_3072, '38/4096x3072/9/0/115', 'MP4 3072p 4K (4096x3072)')),               # 5.0 - 3.5 Mbps, 192 kbps
+    (266, (mp4_2160, '266/3840x2160/9/0/115', 'MP4 2160p 4K (3840x2160) youtube-dl')),  # N/A,       128 kbps
+    (264, (mp4_1440, '264/2560x1440/9/0/115', 'MP4 1440p (2560x1440) youtube-dl')),     # N/A,       128 kbps
+    (37, (mp4_1080, '37/1920x1080/9/0/115', 'MP4 1080p (1920x1080) youtube-dl')),       # 4.3 - 3.0 Mbps, 192 kbps
+    (22, (mp4_720, '22/1280x720/9/0/115', 'MP4 720p (1280x720)')),                      # 2.9 - 2.0 Mbps, 192 kbps
+    (135, (mp4_480, '135/854x480/9/0/115', 'MP4 480p (854x480) youtube-dl')),           # N/A,       128 kbps
+    (18, (mp4_360, '18/640x360/9/0/115', 'MP4 360p (640x360)')),                        # 0.5 Mbps,   96 kbps
+    (133, (mp4_240, '133/426x240/9/0/115', 'MP4 240p (426x240) youtube-dl')),           # N/A,       128 kbps
+    (160, (mp4_144, '160/256x144/9/0/115', 'MP4 144p (256x144) youtube-dl')),           # N/A,       128 kbps
 
     # FLV H.264 video, AAC audio
-    # Does not check for 360p MP4.
-    # Fallback to 6 or 5 (FLV Sorenson H.263 MP3) if all fails.
-    (35, ([35, 34, 6, 5],
-          '35/854x480/9/0/115',
-          'FLV 480p (854x480)')),  # 1 - 0.80 Mbps, 128 kbps
-    (34, ([34, 6, 5],
-          '34/640x360/9/0/115',
-          'FLV 360p (640x360)')),  # 0.50 Mbps, 128 kbps
+    # Fallback to FLV 6 or 5
+    (35, (flv_480, '35/854x480/9/0/115', 'FLV 480p (854x480)')),  # 1 - 0.80 Mbps, 128 kbps
+    (34, (flv_360, '34/640x360/9/0/115', 'FLV 360p (640x360)')),  # 0.50 Mbps, 128 kbps
 
     # FLV Sorenson H.263 video, MP3 audio
-    (6, ([6, 5],
-         '5/480x270/7/0/0',
-         'FLV 270p (480x270)')),  # 0.80 Mbps,  64 kbps
-    (5, ([5],
-         '5/320x240/7/0/0',
-         'FLV 240p (320x240)')),  # 0.25 Mbps,  64 kbps
+    (6, (flv_270, '6/480x270/7/0/0', 'FLV 270p (480x270)')),  # 0.80 Mbps,  64 kbps
+    (5, (flv_240, '5/320x240/7/0/0', 'FLV 240p (320x240)')),  # 0.25 Mbps,  64 kbps
 ]
 formats_dict = dict(formats)
 
