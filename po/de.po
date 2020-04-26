@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: gPodder\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-04-15 09:44+0200\n"
-"PO-Revision-Date: 2020-04-06 14:25+0200\n"
+"PO-Revision-Date: 2020-04-22 19:13+0200\n"
 "Last-Translator: TZocker\n"
 "Language-Team: German (http://www.transifex.com/projects/p/gpodder/language/"
 "de/)\n"
@@ -1708,16 +1708,13 @@ msgstr "Filter"
 
 #: share/gpodder/extensions/filter.py:141
 msgid "Block"
-msgstr "Block"
+msgstr "Blockieren"
 
 #: share/gpodder/extensions/filter.py:150
 msgid "Except"
-msgstr "Ausgenommen"
+msgstr "Ausnahmen"
 
-# Muss aus der Logik herraus überprüft werden.
-# Sry. (Check context)
 #: share/gpodder/extensions/filter.py:157
-#, fuzzy
 msgid ""
 "Clicking the block checkbox and leaving it empty will disable auto-download "
 "for all episodes in this channel.  The patterns match partial text in "
@@ -1725,10 +1722,10 @@ msgid ""
 "unblocks blocked episodes (to block all then unblock some)."
 msgstr ""
 "Wenn Sie das Kontrollkästchen leer lassen, wird der automatische Download "
-"für alle Episoden in diesem Kanal deaktiviert. Die Muster stimmen mit "
-"Teiltexten im Episodentitel überein, und ein leeres Muster stimmt mit jedem "
-"Titel überein. Das Ausnahme-Muster entsperrt blockierte Episoden (um alle zu "
-"blockieren und dann einige zu entsperren)."
+"für alle Episoden in diesem Kanal deaktiviert. Der Filter überprüft mit "
+"Teiltexten den Episodentitel, ein leeres Muster stimmt mit jedem Titel "
+"überein. Der Ausnahmenfilter entsperrt blockierte Episoden, um alle zu "
+"blockieren und dann einige zu entsperren."
 
 #: share/gpodder/extensions/filter.py:164
 msgid "Filter episodes now (undoes any episodes you marked as old)"
@@ -2211,7 +2208,7 @@ msgstr "Als \"Neu\" markieren"
 
 #: share/gpodder/ui/gtk/menus.ui.h:26
 msgid "Change delete lock"
-msgstr "Löschsperre ändern"
+msgstr "Löschsperre umschalten"
 
 #: share/gpodder/ui/gtk/menus.ui.h:29
 msgid "Sync to device"
