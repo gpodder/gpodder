@@ -272,7 +272,9 @@ class MPRISDBusReceiver(object):
                 collected_info['length'] = changed_properties['Metadata'].get('mpris:length', 0.0)
         if 'Rate' in changed_properties:
             collected_info['rate'] = changed_properties['Rate']
-        collected_info['pos'] = self.query_position(sender)
+        # Fix #788 pos=0 when Stopped resulting in not saving position on VLC quit
+        if changed_properties.get('PlaybackStatus') != 'Stopped':
+            collected_info['pos'] = self.query_position(sender)
 
         if 'status' not in collected_info:
             collected_info['status'] = str(self.query_status(sender))
