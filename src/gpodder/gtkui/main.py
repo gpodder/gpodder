@@ -197,8 +197,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         util.run_in_background(self.user_apps_reader.read)
 
         # Now, update the feed cache, when everything's in place
-        if getattr(self, 'last_btn_update_feeds_visible', False):
-            self.btnUpdateFeeds.show()
+        self.default_btn_update_feeds_visible = True
+        self.btnUpdateFeeds.show()
         self.feed_cache_update_cancelled = False
         self.update_podcast_list_model()
 
@@ -2524,7 +2524,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # Make sure that the buttons for updating feeds
         # appear - this should happen after a feed update
         self.hboxUpdateFeeds.hide()
-        if getattr(self, 'last_btn_update_feeds_visible', False):
+        if self.default_btn_update_feeds_visible:
             self.btnUpdateFeeds.show()
         self.update_action.set_enabled(True)
         self.update_channel_action.set_enabled(True)
@@ -2559,7 +2559,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.btnCancelFeedUpdate.set_sensitive(True)
         self.btnCancelFeedUpdate.set_image(Gtk.Image.new_from_icon_name('process-stop', Gtk.IconSize.BUTTON))
         self.hboxUpdateFeeds.show_all()
-        self.last_btn_update_feeds_visible = self.btnUpdateFeeds.get_visible()
         self.btnUpdateFeeds.hide()
 
         count = len(channels)
