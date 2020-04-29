@@ -101,7 +101,7 @@ class UserApplication(object):
             (icon_name, extension) = os.path.splitext(os.path.basename(self.icon))
             theme = Gtk.IconTheme()
             if theme.has_icon(icon_name):
-                return theme.load_icon(icon_name, 24, 0)
+                return theme.load_icon(icon_name, 24, Gtk.IconLookupFlags.FORCE_SIZE)
 
     def is_mime(self, mimetype):
         return self.mime.find(mimetype + '/') != -1
