@@ -106,8 +106,16 @@ class gPodderApplication(Gtk.Application):
         self.menu_view_columns = builder.get_object('menuViewColumns')
         self.set_menubar(menubar)
 
+        # If $XDG_CURRENT_DESKTOP is set then it contains a colon-separated list of strings.
+        # https://specifications.freedesktop.org/desktop-entry-spec/desktop-entry-spec-latest.html
+        # See https://askubuntu.com/a/227669 for a list of values in different environments
+        xdg_current_desktops = os.environ.get('XDG_CURRENT_DESKTOP', '').split(':')
+
+        self.want_headerbar = ('GNOME' in xdg_current_desktops) and not gpodder.ui.osx
+
         self.app_menu = builder.get_object('app-menu')
-        self.set_app_menu(self.app_menu)
+        if not self.want_headerbar:
+            self.set_app_menu(self.app_menu)
 
         Gtk.Window.set_default_icon_name('gpodder')
 
@@ -134,17 +142,13 @@ class gPodderApplication(Gtk.Application):
             # when the last one is closed the application shuts down
             self.window = gPodder(self, self.bus_name, core.Core(UIConfig, model_class=Model), self.options)
 
-            # If $XDG_CURRENT_DESKTOP is set then it contains a colon-separated list of strings.
-            # https://specifications.freedesktop.org/desktop-entry-spec/desktop-entry-spec-latest.html
-            # See https://askubuntu.com/a/227669 for a list of values in different environments
-            xdg_current_desktops = os.environ.get('XDG_CURRENT_DESKTOP', '').split(':')
-
             if gpodder.ui.osx:
                 from . import macosx
 
                 # Handle "subscribe to podcast" events from firefox
                 macosx.register_handlers(self.window)
-            elif 'GNOME' in xdg_current_desktops:
+
+            if self.want_headerbar:
                 # Use GtkHeaderBar for client-side decorations on recent GNOME 3 versions
                 self.header_bar_menu_button = Gtk.Button.new_from_icon_name('open-menu-symbolic', Gtk.IconSize.SMALL_TOOLBAR)
                 self.header_bar_menu_button.set_action_name('app.menu')
