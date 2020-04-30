@@ -114,7 +114,17 @@ class gPodderApplication(Gtk.Application):
         self.want_headerbar = ('GNOME' in xdg_current_desktops) and not gpodder.ui.osx
 
         self.app_menu = builder.get_object('app-menu')
-        if not self.want_headerbar:
+        if self.want_headerbar:
+            # Use GtkHeaderBar for client-side decorations on recent GNOME 3 versions
+            self.header_bar_menu_button = Gtk.Button.new_from_icon_name('open-menu-symbolic', Gtk.IconSize.SMALL_TOOLBAR)
+            self.header_bar_menu_button.set_action_name('app.menu')
+
+            self.header_bar_refresh_button = Gtk.Button.new_from_icon_name('view-refresh-symbolic', Gtk.IconSize.SMALL_TOOLBAR)
+            self.header_bar_refresh_button.set_action_name('win.updateChannel')
+
+            self.menu_popover = Gtk.Popover.new_from_model(self.header_bar_menu_button, self.app_menu)
+            self.menu_popover.set_position(Gtk.PositionType.BOTTOM)
+        else:
             self.set_app_menu(self.app_menu)
 
         Gtk.Window.set_default_icon_name('gpodder')
@@ -147,31 +157,6 @@ class gPodderApplication(Gtk.Application):
 
                 # Handle "subscribe to podcast" events from firefox
                 macosx.register_handlers(self.window)
-
-            if self.want_headerbar:
-                # Use GtkHeaderBar for client-side decorations on recent GNOME 3 versions
-                self.header_bar_menu_button = Gtk.Button.new_from_icon_name('open-menu-symbolic', Gtk.IconSize.SMALL_TOOLBAR)
-                self.header_bar_menu_button.set_action_name('app.menu')
-
-                self.header_bar_refresh_button = Gtk.Button.new_from_icon_name('view-refresh-symbolic', Gtk.IconSize.SMALL_TOOLBAR)
-                self.header_bar_refresh_button.set_action_name('win.updateChannel')
-
-                self.header_bar = Gtk.HeaderBar()
-                self.header_bar.pack_end(self.header_bar_menu_button)
-                self.header_bar.pack_start(self.header_bar_refresh_button)
-                self.header_bar.set_show_close_button(True)
-                self.header_bar.set_title(self.window.main_window.get_title())
-                self.header_bar.show_all()
-
-                self.menu_popover = Gtk.Popover.new_from_model(self.header_bar_menu_button, self.app_menu)
-                self.menu_popover.set_position(Gtk.PositionType.BOTTOM)
-
-                # Tweaks to the UI since we moved the refresh button into the header bar
-                self.window.btnUpdateFeeds.hide()
-                self.window.default_btn_update_feeds_visible = False
-                self.window.vboxChannelNavigator.set_row_spacing(0)
-
-                self.window.main_window.set_titlebar(self.header_bar)
 
         self.window.gPodder.present()
 

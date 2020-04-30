@@ -89,6 +89,18 @@ class gPodder(BuilderWidget, dbus.service.Object):
         BuilderWidget.__init__(self, None, _builder_expose={'app': app})
 
     def new(self):
+        if self.application.want_headerbar:
+            self.header_bar = Gtk.HeaderBar()
+            self.header_bar.pack_end(self.application.header_bar_menu_button)
+            self.header_bar.pack_start(self.application.header_bar_refresh_button)
+            self.header_bar.set_show_close_button(True)
+            self.header_bar.show_all()
+
+            # Tweaks to the UI since we moved the refresh button into the header bar
+            self.vboxChannelNavigator.set_row_spacing(0)
+
+            self.main_window.set_titlebar(self.header_bar)
+
         gpodder.user_extensions.on_ui_object_available('gpodder-gtk', self)
         self.toolbar.set_property('visible', self.config.show_toolbar)
 
@@ -197,8 +209,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         util.run_in_background(self.user_apps_reader.read)
 
         # Now, update the feed cache, when everything's in place
-        self.default_btn_update_feeds_visible = True
-        self.btnUpdateFeeds.show()
+        if not self.application.want_headerbar:
+            self.btnUpdateFeeds.show()
         self.feed_cache_update_cancelled = False
         self.update_podcast_list_model()
 
@@ -2524,7 +2536,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # Make sure that the buttons for updating feeds
         # appear - this should happen after a feed update
         self.hboxUpdateFeeds.hide()
-        if self.default_btn_update_feeds_visible:
+        if not self.application.want_headerbar:
             self.btnUpdateFeeds.show()
         self.update_action.set_enabled(True)
         self.update_channel_action.set_enabled(True)
