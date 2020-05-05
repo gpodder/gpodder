@@ -112,37 +112,24 @@ class YouTubeVideoFormatListModel(Gtk.ListStore):
     def __init__(self, config):
         Gtk.ListStore.__init__(self, str, int)
         self._config = config
-        self.custom_fmt_ids = self._config.youtube.preferred_fmt_ids
 
         if self._config.youtube.preferred_fmt_ids:
             caption = _('Custom (%(format_ids)s)') % {
-                'format_ids': ', '.join(str(x) for x in self.custom_fmt_ids),
+                'format_ids': ', '.join(str(x) for x in self._config.youtube.preferred_fmt_ids),
             }
-            self.append((caption, -1))
+            self.append((caption, 0))
 
         for id, (fmt_id, path, description) in youtube.formats:
             self.append((description, id))
 
     def get_index(self):
-        if self._config.youtube.preferred_fmt_ids:
-            return 0
-
         for index, row in enumerate(self):
             if self._config.youtube.preferred_fmt_id == row[self.C_ID]:
                 return index
         return 0
 
     def set_index(self, index):
-        value = self[index][self.C_ID]
-        if value > 0:
-            self._config.youtube.preferred_fmt_id = value
-            # If we set a value, we need to unset the custom one, so that
-            # the single value (preferred_fmt_id) gets used instead
-            self._config.youtube.preferred_fmt_ids = []
-        else:
-            # If the user selects the -1 value, it's our custom one, and
-            # we need to restore the value for preferred_fmt_ids
-            self._config.youtube.preferred_fmt_ids = self.custom_fmt_ids
+        self._config.youtube.preferred_fmt_id = self[index][self.C_ID]
 
 
 class VimeoVideoFormatListModel(Gtk.ListStore):
