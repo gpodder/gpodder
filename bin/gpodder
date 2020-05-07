@@ -99,6 +99,10 @@ def main():
                       action="store_true", dest="verbose", default=False,
                       help=_("print logging output on the console"))
 
+    parser.add_option("-q", "--quiet",
+                      action="store_true", dest="quiet", default=False,
+                      help=_("reduce warnings on the console"))
+
     parser.add_option('-s', '--subscribe', dest='subscribe', metavar='URL',
                       help=_('subscribe to the feed at URL'))
 
@@ -118,7 +122,7 @@ def main():
                         and xdg_current_desktop in ('unity', 'unity:unity7:ubuntu'))
 
     from gpodder import log
-    log.setup(options.verbose)
+    log.setup(options.verbose, options.quiet)
 
     if have_dbus:
         # Try to find an already-running instance of gPodder

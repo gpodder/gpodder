@@ -84,6 +84,8 @@ del sqlite3
 
 # Is gpodder running in verbose mode?
 verbose = False
+# Is gpodder running in quiet mode?
+quiet = False
 
 
 # The User-Agent string for downloads
