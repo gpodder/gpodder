@@ -138,14 +138,13 @@ class YouTubeError(Exception):
 
 
 def get_fmt_ids(youtube_config):
-    fmt_ids = youtube_config.preferred_fmt_ids
-    if not fmt_ids:
-        format = formats_dict.get(youtube_config.preferred_fmt_id)
-        if format is None:
-            fmt_ids = []
-        else:
-            fmt_ids, path, description = format
+    if youtube_config.preferred_fmt_id == 0:
+        return (youtube_config.preferred_fmt_ids if youtube_config.preferred_fmt_ids else [])
 
+    format = formats_dict.get(youtube_config.preferred_fmt_id)
+    if format is None:
+        return []
+    fmt_ids, path, description = format
     return fmt_ids
 
 
