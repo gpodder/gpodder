@@ -110,8 +110,11 @@ class gPodderApplication(Gtk.Application):
         # https://specifications.freedesktop.org/desktop-entry-spec/desktop-entry-spec-latest.html
         # See https://askubuntu.com/a/227669 for a list of values in different environments
         xdg_current_desktops = os.environ.get('XDG_CURRENT_DESKTOP', '').split(':')
+        # See https://developer.gnome.org/gtk3/stable/gtk-running.html
+        # GTK_CSD=0 is used to disable client side decorations
+        csd_disabled = os.environ.get('GTK_CSD') == '0'
 
-        self.want_headerbar = ('GNOME' in xdg_current_desktops) and not gpodder.ui.osx
+        self.want_headerbar = ('GNOME' in xdg_current_desktops) and not gpodder.ui.osx and not csd_disabled
 
         self.app_menu = builder.get_object('app-menu')
         if self.want_headerbar:
