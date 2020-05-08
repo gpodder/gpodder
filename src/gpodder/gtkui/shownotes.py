@@ -55,6 +55,8 @@ class gPodderShownotes:
     def __init__(self, shownotes_pane):
         self.shownotes_pane = shownotes_pane
 
+        self.dark_theme = Gtk.Settings.get_default().get_property('gtk-application-prefer-dark-theme')
+
         self.text_view = Gtk.TextView()
         self.text_view.set_wrap_mode(Gtk.WrapMode.WORD_CHAR)
         self.text_view.set_border_width(10)
@@ -137,7 +139,9 @@ class gPodderShownotesText(gPodderShownotes):
         self.text_view.set_property('expand', True)
         self.text_view.connect('button-release-event', self.on_button_release)
         self.text_view.connect('key-press-event', self.on_key_press)
-        self.text_buffer.create_tag('hyperlink', foreground="#0000FF", underline=Pango.Underline.SINGLE)
+        self.text_buffer.create_tag('hyperlink',
+            foreground=None if self.dark_theme else "#0000FF",
+            underline=Pango.Underline.SINGLE)
         self.text_view.connect('motion-notify-event', self.on_hover_hyperlink)
         self.overlay = Gtk.Overlay()
         self.overlay.add(self.scrolled_window)
@@ -380,8 +384,13 @@ class gPodderShownotesHTML(gPodderShownotes):
         if self.stylesheet is None:
             foreground = get_foreground_color()
             background = get_background_color(Gtk.StateFlags.ACTIVE)
+            style = ''
             if background is not None:
-                style = "html { background: %s; color: %s;}" % \
+                style += "html { background: %s; color: %s;}" % \
                             (background.to_string(), foreground.to_string())
+            if self.dark_theme:
+                style += "a { color: %s;}" % \
+                            (foreground.to_string() if foreground else '#000000')
+            if style:
                 self.stylesheet = WebKit2.UserStyleSheet(style, 0, 1, None, None)
         return self.stylesheet
