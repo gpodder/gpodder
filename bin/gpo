@@ -25,7 +25,7 @@
 
 
 """
-  Usage: gpo [--verbose|-v] [COMMAND] [params...]
+  Usage: gpo [--verbose|-v|--quiet|-q] [COMMAND] [params...]
 
   - Subscription management -
 
@@ -111,6 +111,12 @@ for flag in ('-v', '--verbose'):
         sys.argv.remove(flag)
         verbose = True
         break
+quiet = False
+for flag in ('-q', '--quiet'):
+    if flag in sys.argv:
+        sys.argv.remove(flag)
+        quiet = True
+        break
 
 gpodder_script = sys.argv[0]
 gpodder_script = os.path.realpath(gpodder_script)
@@ -126,7 +132,11 @@ if os.path.exists(os.path.join(src_dir, 'gpodder', '__init__.py')):
     sys.path.insert(0, src_dir)
 
 import gpodder  # isort:skip
-from gpodder import common, core, download, feedcore, log, model, my, opml, sync, util, youtube  # isort:skip
+
+from gpodder import log  # isort:skip
+log.setup(verbose, quiet)
+
+from gpodder import common, core, download, feedcore, model, my, opml, sync, util, youtube  # isort:skip
 from gpodder.config import config_value_to_string  # isort:skip
 from gpodder.syncui import gPodderSyncUI  # isort:skip
 
@@ -139,13 +149,9 @@ gpodder.prefix = prefix
 # This is the command-line UI variant
 gpodder.ui.cli = True
 
-gpodder.verbose = verbose
-
 have_ansi = sys.stdout.isatty() and not gpodder.ui.win32
 interactive_console = sys.stdin.isatty() and sys.stdout.isatty()
 is_single_command = False
-
-log.setup(verbose)
 
 
 def noop(*args, **kwargs):

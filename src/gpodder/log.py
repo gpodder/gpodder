@@ -34,14 +34,15 @@ import gpodder
 logger = logging.getLogger(__name__)
 
 
-def setup(verbose=True):
+def setup(verbose=True, quiet=False):
     # mark verbose mode
     gpodder.verbose = verbose
+    gpodder.quiet = quiet and not verbose
 
     # Configure basic stdout logging
     STDOUT_FMT = '%(created)f [%(name)s] %(levelname)s: %(message)s'
     logging.basicConfig(format=STDOUT_FMT,
-            level=logging.DEBUG if verbose else logging.WARNING)
+            level=logging.DEBUG if verbose else logging.ERROR if quiet else logging.WARNING)
 
     # Replace except hook with a custom one that logs it as an error
     original_excepthook = sys.excepthook
