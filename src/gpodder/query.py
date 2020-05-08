@@ -40,7 +40,42 @@ class Matcher(object):
 
     def match(self, term):
         try:
-            return bool(eval(term, {'__builtins__': None}, self))
+            # case-sensitive search in haystack, or both title and description if no haystack
+            def S(needle, haystack=None):
+                if haystack is not None:
+                    return (needle in haystack)
+                if needle in self._episode.title:
+                    return True
+                return (needle in self._episode.description)
+
+            # case-insensitive search in haystack, or both title and description if no haystack
+            def s(needle, haystack=None):
+                needle = needle.casefold()
+                if haystack is not None:
+                    return (needle in haystack.casefold())
+                if needle in self._episode.title.casefold():
+                    return True
+                return (needle in self._episode.description.casefold())
+
+            # case-sensitive regular expression search in haystack, or both title and description if no haystack
+            def R(needle, haystack=None):
+                regexp = re.compile(needle)
+                if haystack is not None:
+                    return regexp.search(haystack)
+                if regexp.search(self._episode.title):
+                    return True
+                return regexp.search(self._episode.description)
+
+            # case-insensitive regular expression search in haystack, or both title and description if no haystack
+            def r(needle, haystack=None):
+                regexp = re.compile(needle, re.IGNORECASE)
+                if haystack is not None:
+                    return regexp.search(haystack)
+                if regexp.search(self._episode.title):
+                    return True
+                return regexp.search(self._episode.description)
+
+            return bool(eval(term, {'__builtins__': None, 'S': S, 's': s, 'R': R, 'r': r}, self))
         except Exception as e:
             return False
 
@@ -109,10 +144,36 @@ class EQL(object):
 
     >>> q = EQL("'linux'")
 
-    Normal EQL queries cannot be mixed with RegEx
-    or string matching yet, so this does NOT work:
+    The lowercase s() and r() functions perform
+    case-insensitive string and regular expression
+    matches:
 
-    >>> # EQL('downloaded and /The.*/i')
+    >>> q = EQL("s('linux')")
+
+    >>> q = EQL("r('^the.*')")
+
+    The uppercase S() and R() functions perform
+    case-sensitive string and regular expression
+    matches:
+
+    >>> q = EQL("S('Linux')")
+
+    >>> q = EQL("R('^The.*')")
+
+    The S, s, R, and r functions search both
+    title and description by default. Passing
+    'title' or 'description' in second parameter
+    refines the search:
+
+    >>> q = EQL("s('in title', title)")
+
+    >>> q = EQL("s('in description', description)")
+
+    Normal EQL queries can be mixed with RegEx
+    or string matching using the S, s, R and r
+    functions:
+
+    >>> # EQL('downloaded and r("The.*")')
     """
 
     def __init__(self, query):
