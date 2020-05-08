@@ -4,15 +4,17 @@
 
 import re
 
-from gi.repository import Gtk
-
 import gpodder
+
+import gi  # isort:skip
+gi.require_version('Gtk', '3.0')  # isort:skip
+from gi.repository import Gtk  # isort:skip
 
 _ = gpodder.gettext
 
 __title__ = _('Filter Episodes')
 __description__ = _('Disable automatic downloads based on episode title.')
-__only_for__ = 'gtk'
+__only_for__ = 'gtk, cli'
 __authors__ = 'Brand Huntsman <http://qzx.com/mail/>'
 __doc__ = 'https://gpodder.github.io/docs/extensions/filter.html'
 
