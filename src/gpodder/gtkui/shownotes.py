@@ -62,8 +62,8 @@ class gPodderShownotes:
         self.text_view.set_border_width(10)
         self.text_view.set_editable(False)
         self.text_buffer = Gtk.TextBuffer()
-        self.text_buffer.create_tag('heading', scale=1.6, weight=Pango.Weight.BOLD)
-        self.text_buffer.create_tag('subheading', scale=1.3)
+        self.text_buffer.create_tag('heading', scale=1.2, weight=Pango.Weight.BOLD)
+        self.text_buffer.create_tag('subheading', scale=1.0)
         self.text_view.set_buffer(self.text_buffer)
 
         self.status = Gtk.Label.new()
