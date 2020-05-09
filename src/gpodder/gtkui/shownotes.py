@@ -66,6 +66,14 @@ class gPodderShownotes:
         self.text_buffer.create_tag('subheading', scale=1.3)
         self.text_view.set_buffer(self.text_buffer)
 
+        self.status = Gtk.Label.new()
+        self.status.set_halign(Gtk.Align.START)
+        self.status.set_valign(Gtk.Align.END)
+        self.status.set_property('ellipsize', Pango.EllipsizeMode.END)
+        self.set_status(None)
+        self.status_bg = None
+        self.color_set = False
+
         self.scrolled_window = Gtk.ScrolledWindow()
         # main_component is the scrolled_window, except for gPodderShownotesText
         # where it's an overlay, to show hyperlink targets
@@ -133,24 +141,33 @@ class gPodderShownotes:
         draw_text_box_centered(ctx, drawingarea, width, height, text, None, None)
         return False
 
+    def set_status(self, text):
+        self.status.set_label(text or " ")
+
+    def define_colors(self):
+        if not self.color_set:
+            self.color_set = True
+            background = get_background_color(Gtk.StateFlags.ACTIVE, widget=self.status) or Gdk.RGBA()
+            link = (get_foreground_color(state=(Gtk.StateFlags.LINK | Gtk.StateFlags.ACTIVE), widget=self.status) or Gdk.RGBA(0, 0, 0)).to_string()
+            self.status_bg.override_background_color(Gtk.StateFlags.NORMAL, background)
+            self.text_view.override_background_color(Gtk.StateFlags.NORMAL, background)
+            self.text_buffer.create_tag('hyperlink',
+                foreground=link,
+                underline=Pango.Underline.SINGLE)
+
 
 class gPodderShownotesText(gPodderShownotes):
     def init(self):
         self.text_view.set_property('expand', True)
         self.text_view.connect('button-release-event', self.on_button_release)
         self.text_view.connect('key-press-event', self.on_key_press)
-        self.text_buffer.create_tag('hyperlink',
-            foreground=None if self.dark_theme else "#0000FF",
-            underline=Pango.Underline.SINGLE)
         self.text_view.connect('motion-notify-event', self.on_hover_hyperlink)
         self.overlay = Gtk.Overlay()
         self.overlay.add(self.scrolled_window)
-        self.hyperlink_target = Gtk.Label()
-        self.hyperlink_target.set_alignment(0., 1.)
         # need an EventBox for an opaque background behind the label
         box = Gtk.EventBox()
-        box.add(self.hyperlink_target)
-        box.override_background_color(Gtk.StateFlags.NORMAL, get_background_color())
+        self.status_bg = box
+        box.add(self.status)
         box.set_hexpand(False)
         box.set_vexpand(False)
         box.set_valign(Gtk.Align.END)
@@ -161,6 +178,7 @@ class gPodderShownotesText(gPodderShownotes):
         return self.text_view
 
     def update(self, heading, subheading, episode):
+        self.define_colors()
         hyperlinks = [(0, None)]
         self.text_buffer.set_text('')
         self.text_buffer.insert_with_tags_by_name(self.text_buffer.get_end_iter(), heading, 'heading')
@@ -212,10 +230,10 @@ class gPodderShownotesText(gPodderShownotes):
             pos = it.get_offset()
             target = self.hyperlink_at_pos(pos)
             if target:
-                self.hyperlink_target.set_text(target)
+                self.set_status(target)
                 w.set_cursor(Gdk.Cursor.new_from_name(w.get_display(), 'pointer'))
                 return
-        self.hyperlink_target.set_text('')
+        self.set_status('')
         w.set_cursor(None)
 
 
@@ -240,18 +258,16 @@ class gPodderShownotesHTML(gPodderShownotes):
         self.html_view.connect('authenticate', self.on_authenticate)
         # give the vertical space to the html view!
         self.text_view.set_property('hexpand', True)
-        self.status = Gtk.Label.new()
-        self.status.set_halign(Gtk.Align.START)
-        self.status.set_valign(Gtk.Align.END)
-        self.status.set_property('ellipsize', Pango.EllipsizeMode.END)
-        self.set_status(None)
         grid = Gtk.Grid()
+        self.status_bg = grid
         grid.attach(self.text_view, 0, 0, 1, 1)
         grid.attach(self.html_view, 0, 1, 1, 1)
         grid.attach(self.status, 0, 2, 1, 1)
         return grid
 
     def update(self, heading, subheading, episode):
+        self.define_colors()
+
         self.text_buffer.set_text('')
         self.text_buffer.insert_with_tags_by_name(self.text_buffer.get_end_iter(), heading, 'heading')
         self.text_buffer.insert_at_cursor('\n')
@@ -377,20 +393,15 @@ class gPodderShownotesHTML(gPodderShownotes):
         action.connect('activate', self.on_open_in_browser)
         return WebKit2.ContextMenuItem.new(action)
 
-    def set_status(self, text):
-        self.status.set_label(text or " ")
-
     def get_stylesheet(self):
         if self.stylesheet is None:
-            foreground = get_foreground_color()
-            background = get_background_color(Gtk.StateFlags.ACTIVE)
-            style = ''
-            if background is not None:
-                style += "html { background: %s; color: %s;}" % \
-                            (background.to_string(), foreground.to_string())
-            if self.dark_theme:
-                style += "a { color: %s;}" % \
-                            (foreground.to_string() if foreground else '#000000')
-            if style:
-                self.stylesheet = WebKit2.UserStyleSheet(style, 0, 1, None, None)
+            foreground = (get_foreground_color(state=Gtk.StateFlags.ACTIVE, widget=self.status) or Gdk.RGBA(0, 0, 0)).to_string()
+            background = (get_background_color(Gtk.StateFlags.ACTIVE, widget=self.status) or Gdk.RGBA()).to_string()
+            link = (get_foreground_color(state=(Gtk.StateFlags.LINK | Gtk.StateFlags.ACTIVE), widget=self.status) or foreground).to_string()
+            visited = (get_foreground_color(state=Gtk.StateFlags.VISITED, widget=self.status) or foreground).to_string()
+            style = ("html { background: %s; color: %s;}"
+                    "a { color: %s; } "
+                    "a:visited { color: %s; }") % \
+                          (background, foreground, link, visited)
+            self.stylesheet = WebKit2.UserStyleSheet(style, 0, 1, None, None)
         return self.stylesheet
