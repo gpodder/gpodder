@@ -24,6 +24,7 @@ import gpodder
 from gpodder import util
 from gpodder.gtkui.draw import (draw_text_box_centered, get_background_color,
                                 get_foreground_color)
+# from gpodder.gtkui.draw import investigate_widget_colors
 
 import gi  # isort:skip
 gi.require_version('Gdk', '3.0')  # isort:skip
@@ -73,6 +74,10 @@ class gPodderShownotes:
         self.set_status(None)
         self.status_bg = None
         self.color_set = False
+        self.background_color = None
+        self.foreground_color = None
+        self.link_color = None
+        self.visited_color = None
 
         self.scrolled_window = Gtk.ScrolledWindow()
         # main_component is the scrolled_window, except for gPodderShownotesText
@@ -147,12 +152,19 @@ class gPodderShownotes:
     def define_colors(self):
         if not self.color_set:
             self.color_set = True
-            background = get_background_color(Gtk.StateFlags.ACTIVE, widget=self.status) or Gdk.RGBA()
-            link = (get_foreground_color(state=(Gtk.StateFlags.LINK | Gtk.StateFlags.ACTIVE), widget=self.status) or Gdk.RGBA(0, 0, 0)).to_string()
-            self.status_bg.override_background_color(Gtk.StateFlags.NORMAL, background)
-            self.text_view.override_background_color(Gtk.StateFlags.NORMAL, background)
+            # investigate_widget_colors([
+            #     ([(Gtk.Window, 'background', '')], self.status.get_toplevel()),
+            #     ([(Gtk.Window, 'background', ''), (Gtk.Label, '', '')], self.status),
+            #     ([(Gtk.Window, 'background', ''), (Gtk.TextView, 'view', '')], self.text_view),
+            #     ([(Gtk.Window, 'background', ''), (Gtk.TextView, 'view', 'text')], self.text_view),
+            # ])
+            self.background_color = get_background_color(Gtk.StateFlags.NORMAL, widget=self.text_view) or Gdk.RGBA()
+            self.foreground_color = get_foreground_color(Gtk.StateFlags.NORMAL, widget=self.text_view) or Gdk.RGBA(0, 0, 0)
+            self.link_color = (get_foreground_color(state=Gtk.StateFlags.LINK, widget=self.text_view) or Gdk.RGBA(0, 0, 0))
+            self.visited_color = (get_foreground_color(state=Gtk.StateFlags.VISITED, widget=self.text_view) or self.link_color)
+            self.status_bg.override_background_color(Gtk.StateFlags.NORMAL, self.background_color)
             self.text_buffer.create_tag('hyperlink',
-                foreground=link,
+                foreground=self.link_color.to_string(),
                 underline=Pango.Underline.SINGLE)
 
 
@@ -395,13 +407,9 @@ class gPodderShownotesHTML(gPodderShownotes):
 
     def get_stylesheet(self):
         if self.stylesheet is None:
-            foreground = (get_foreground_color(state=Gtk.StateFlags.ACTIVE, widget=self.status) or Gdk.RGBA(0, 0, 0)).to_string()
-            background = (get_background_color(Gtk.StateFlags.ACTIVE, widget=self.status) or Gdk.RGBA()).to_string()
-            link = (get_foreground_color(state=(Gtk.StateFlags.LINK | Gtk.StateFlags.ACTIVE), widget=self.status) or foreground).to_string()
-            visited = (get_foreground_color(state=Gtk.StateFlags.VISITED, widget=self.status) or foreground).to_string()
             style = ("html { background: %s; color: %s;}"
-                    "a { color: %s; } "
-                    "a:visited { color: %s; }") % \
-                          (background, foreground, link, visited)
+                     " a { color: %s; }"
+                     " a:visited { color: %s; }") % \
+                     (self.background_color.to_string(), self.foreground_color.to_string(), self.link_color.to_string(), self.visited_color.to_string())
             self.stylesheet = WebKit2.UserStyleSheet(style, 0, 1, None, None)
         return self.stylesheet
