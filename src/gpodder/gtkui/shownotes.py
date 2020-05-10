@@ -56,8 +56,6 @@ class gPodderShownotes:
     def __init__(self, shownotes_pane):
         self.shownotes_pane = shownotes_pane
 
-        self.dark_theme = Gtk.Settings.get_default().get_property('gtk-application-prefer-dark-theme')
-
         self.text_view = Gtk.TextView()
         self.text_view.set_wrap_mode(Gtk.WrapMode.WORD_CHAR)
         self.text_view.set_border_width(10)
