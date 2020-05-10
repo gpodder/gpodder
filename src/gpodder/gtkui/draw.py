@@ -384,7 +384,7 @@ def get_background_color(state=Gtk.StateFlags.NORMAL, widget=Gtk.TreeView()):
     color = Gdk.RGBA(0, 0, 0, 0)
     while p is not None and color.alpha == 0:
         style_context = p.get_style_context()
-        color = style_context.get_background_color(0)
+        color = style_context.get_background_color(state)
         p = p.get_parent()
     return color
 
@@ -399,9 +399,9 @@ def get_foreground_color(state=Gtk.StateFlags.NORMAL, widget=Gtk.TreeView()):
     p = widget
     color = Gdk.RGBA(0, 0, 0, 0)
     style_context = widget.get_style_context()
-    foreground = style_context.get_color(0)
+    foreground = style_context.get_color(state)
     while p is not None and color.alpha == 0:
         style_context = p.get_style_context()
-        color = style_context.get_color(0)
+        color = style_context.get_color(state)
         p = p.get_parent()
     return color
