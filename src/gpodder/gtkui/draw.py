@@ -459,7 +459,7 @@ def investigate_widget_colors(type_classes_and_widgets):
             # Create an empty style context
             style_ctx = Gtk.StyleContext()
             # Create an empty widget path
-            widget_path =  Gtk.WidgetPath()
+            widget_path = Gtk.WidgetPath()
             # Specify the widget class type you want to get colors from
             for t, c, r in type_and_class:
                 widget_path.append_type(t)

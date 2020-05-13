@@ -24,6 +24,7 @@ import gpodder
 from gpodder import util
 from gpodder.gtkui.draw import (draw_text_box_centered, get_background_color,
                                 get_foreground_color)
+
 # from gpodder.gtkui.draw import investigate_widget_colors
 
 import gi  # isort:skip
@@ -408,6 +409,7 @@ class gPodderShownotesHTML(gPodderShownotes):
             style = ("html { background: %s; color: %s;}"
                      " a { color: %s; }"
                      " a:visited { color: %s; }") % \
-                     (self.background_color.to_string(), self.foreground_color.to_string(), self.link_color.to_string(), self.visited_color.to_string())
+                     (self.background_color.to_string(), self.foreground_color.to_string(),
+                      self.link_color.to_string(), self.visited_color.to_string())
             self.stylesheet = WebKit2.UserStyleSheet(style, 0, 1, None, None)
         return self.stylesheet
