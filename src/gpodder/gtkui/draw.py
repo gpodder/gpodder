@@ -384,7 +384,7 @@ def get_background_color(state=Gtk.StateFlags.NORMAL, widget=Gtk.TreeView()):
     color = Gdk.RGBA(0, 0, 0, 0)
     while p is not None and color.alpha == 0:
         style_context = p.get_style_context()
-        color = style_context.get_background_color(0)
+        color = style_context.get_background_color(state)
         p = p.get_parent()
     return color
 
@@ -399,9 +399,83 @@ def get_foreground_color(state=Gtk.StateFlags.NORMAL, widget=Gtk.TreeView()):
     p = widget
     color = Gdk.RGBA(0, 0, 0, 0)
     style_context = widget.get_style_context()
-    foreground = style_context.get_color(0)
+    foreground = style_context.get_color(state)
     while p is not None and color.alpha == 0:
         style_context = p.get_style_context()
-        color = style_context.get_color(0)
+        color = style_context.get_color(state)
         p = p.get_parent()
     return color
+
+
+def investigate_widget_colors(type_classes_and_widgets):
+    """
+    investigate using Gtk.StyleContext to get widget style properties
+    I tried to compare gettings values from static and live widgets.
+    To sum up, better use the live widget, because you'll get the correct path, classes, regions automatically.
+    See "CSS Nodes" in widget documentation for classes and sub-nodes (=regions).
+    WidgetPath and Region are replaced by CSSNodes in gtk4.
+    Not sure it's legitimate usage, though: I got different results from one run to another.
+    Run `GTK_DEBUG=interactive ./bin/gpodder` for gtk widget inspection
+    """
+    def investigate_stylecontext(style_ctx, label):
+        style_ctx.save()
+        for statename, state in [
+                ('normal', Gtk.StateFlags.NORMAL),
+                ('active', Gtk.StateFlags.ACTIVE),
+                ('link', Gtk.StateFlags.LINK),
+                ('visited', Gtk.StateFlags.VISITED)]:
+            f.write("<dt>%s %s</dt><dd>\n" % (label, statename))
+            colors = {
+                'get_color': style_ctx.get_color(state),
+                'get_background_color': style_ctx.get_background_color(state),
+                'color': style_ctx.get_property('color', state),
+                'background-color': style_ctx.get_property('background-color', state),
+                'outline-color': style_ctx.get_property('outline-color', state),
+            }
+            f.write("<p>PREVIEW: <span style='background-color: %s; color: %s'>get_color + get_background_color</span>"
+                  % (colors['get_background_color'].to_string(),
+                     colors['get_color'].to_string()))
+            f.write("<span style='background-color: %s; color: %s; border solid 2px %s;'>color + background-color properties</span></p>\n"
+                  % (colors['background-color'].to_string(),
+                     colors['color'].to_string(),
+                     colors['outline-color'].to_string()))
+            f.write("<p>VALUES: ")
+            for p, v in colors.items():
+                f.write("%s=<span style='background-color: %s;'>%s</span>" % (p, v.to_string(), v.to_string()))
+            f.write("</p></dd>\n")
+        style_ctx.restore()
+
+    with open('/tmp/colors.html', 'w') as f:
+        f.write("""<html>
+                  <style type='text/css'>
+                  body {color: red; background: yellow;}
+                  span { display: inline-block; margin-right: 1ch; }
+                  dd { margin-bottom: 1em; }
+                  td { vertical-align: top; }
+                  </style>
+                  <table>""")
+        for type_and_class, w in type_classes_and_widgets:
+            f.write("<tr><td><dl>\n")
+            # Create an empty style context
+            style_ctx = Gtk.StyleContext()
+            # Create an empty widget path
+            widget_path = Gtk.WidgetPath()
+            # Specify the widget class type you want to get colors from
+            for t, c, r in type_and_class:
+                widget_path.append_type(t)
+                if c:
+                    widget_path.iter_add_class(widget_path.length() - 1, c)
+                if r:
+                    widget_path.iter_add_region(widget_path.length() - 1, r, 0)
+            style_ctx.set_path(widget_path)
+
+            investigate_stylecontext(
+                style_ctx,
+                'STATIC {}'.format(' '.join('{}.{}({})'.format(t.__name__, c, r) for t, c, r in type_and_class)))
+
+            f.write("</dl></td><td><dl>\n")
+
+            investigate_stylecontext(w.get_style_context(), 'LIVE {}'.format(type(w).__name__))
+
+        f.write("</dl></td></tr>\n")
+        f.write("</table></html>\n")
