@@ -88,7 +88,7 @@ class gPodderSyncUI(object):
 
     def _show_message_cannot_open(self):
         title = _('Cannot open device')
-        message = _('Please check the settings in the preferences dialog.')
+        message = _('Please check logs and the settings in the preferences dialog.')
         self.notification(message, title, important=True)
 
     def on_synchronize_episodes(self, channels, episodes=None, force_played=True, done_callback=None):
