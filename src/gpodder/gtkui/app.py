@@ -80,6 +80,10 @@ class gPodderApplication(Gtk.Application):
         action.connect('activate', self.on_check_for_updates_activate)
         self.add_action(action)
 
+        action = Gio.SimpleAction.new('menu', None)
+        action.connect('activate', self.on_menu)
+        self.add_action(action)
+
     def do_startup(self):
         Gtk.Application.do_startup(self)
 
@@ -102,7 +106,29 @@ class gPodderApplication(Gtk.Application):
         self.menu_view_columns = builder.get_object('menuViewColumns')
         self.set_menubar(menubar)
 
-        self.set_app_menu(builder.get_object('app-menu'))
+        # If $XDG_CURRENT_DESKTOP is set then it contains a colon-separated list of strings.
+        # https://specifications.freedesktop.org/desktop-entry-spec/desktop-entry-spec-latest.html
+        # See https://askubuntu.com/a/227669 for a list of values in different environments
+        xdg_current_desktops = os.environ.get('XDG_CURRENT_DESKTOP', '').split(':')
+        # See https://developer.gnome.org/gtk3/stable/gtk-running.html
+        # GTK_CSD=0 is used to disable client side decorations
+        csd_disabled = os.environ.get('GTK_CSD') == '0'
+
+        self.want_headerbar = ('GNOME' in xdg_current_desktops) and not gpodder.ui.osx and not csd_disabled
+
+        self.app_menu = builder.get_object('app-menu')
+        if self.want_headerbar:
+            # Use GtkHeaderBar for client-side decorations on recent GNOME 3 versions
+            self.header_bar_menu_button = Gtk.Button.new_from_icon_name('open-menu-symbolic', Gtk.IconSize.SMALL_TOOLBAR)
+            self.header_bar_menu_button.set_action_name('app.menu')
+
+            self.header_bar_refresh_button = Gtk.Button.new_from_icon_name('view-refresh-symbolic', Gtk.IconSize.SMALL_TOOLBAR)
+            self.header_bar_refresh_button.set_action_name('win.updateChannel')
+
+            self.menu_popover = Gtk.Popover.new_from_model(self.header_bar_menu_button, self.app_menu)
+            self.menu_popover.set_position(Gtk.PositionType.BOTTOM)
+        else:
+            self.set_app_menu(self.app_menu)
 
         Gtk.Window.set_default_icon_name('gpodder')
 
@@ -136,6 +162,9 @@ class gPodderApplication(Gtk.Application):
                 macosx.register_handlers(self.window)
 
         self.window.gPodder.present()
+
+    def on_menu(self, action, param):
+        self.menu_popover.popup()
 
     def on_about(self, action, param):
         dlg = Gtk.Dialog(_('About gPodder'), self.window.gPodder,
