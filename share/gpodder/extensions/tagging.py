@@ -52,7 +52,7 @@ _ = gpodder.gettext
 __title__ = _('Tag downloaded files using Mutagen')
 __description__ = _('Add episode and podcast titles to MP3/OGG tags')
 __authors__ = 'Bernd Schlapsi <brot@gmx.info>'
-__doc__ = 'http://wiki.gpodder.org/wiki/Extensions/Tagging'
+__doc__ = 'https://gpodder.github.io/docs/extensions/tagging.html'
 __payment__ = 'https://flattr.com/submit/auto?user_id=BerndSch&url=http://wiki.gpodder.org/wiki/Extensions/Tagging'
 __category__ = 'post-download'
 

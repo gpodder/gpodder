@@ -36,7 +36,7 @@ _ = gpodder.gettext
 __title__ = _('MPRIS Listener')
 __description__ = _('Convert MPRIS notifications to gPodder Media Player D-Bus API')
 __authors__ = 'Dov Feldstern <dovdevel@gmail.com>'
-__doc__ = 'http://wiki.gpodder.org/wiki/Extensions/MprisListener'
+__doc__ = 'https://gpodder.github.io/docs/extensions/mprislistener.html'
 __category__ = 'desktop-integration'
 __only_for__ = 'freedesktop'
 
