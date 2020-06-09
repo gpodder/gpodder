@@ -47,7 +47,6 @@ try:
     import gpod
 except:
     gpod_available = False
-    logger.warning('Could not find gpod')
 
 # pymtp_available = True
 # try:
@@ -56,10 +55,13 @@ except:
 #     pymtp_available = False
 #     logger.warning('Could not load gpopymtp (libmtp not installed?).')
 
+mplayer_available = True if util.find_command('mplayer') is not None else False
+
+eyed3mp3_available = True
 try:
     import eyed3.mp3
 except:
-    logger.warning('Could not find eyed3.mp3')
+    eyed3mp3_available = False
 
 
 if pymtp_available:
@@ -124,20 +126,31 @@ def open_device(gui):
 
 
 def get_track_length(filename):
-    if util.find_command('mplayer') is not None:
+    attempted = False
+
+    if mplayer_available:
         try:
             mplayer_output = os.popen('mplayer -msglevel all=-1 -identify -vo null -ao null -frames 0 "%s" 2>/dev/null' % filename).read()
             return int(float(mplayer_output[mplayer_output.index('ID_LENGTH'):].splitlines()[0][10:]) * 1000)
-        except:
-            pass
-    else:
-        logger.info('Please install MPlayer for track length detection.')
+        except Exception:
+            logger.error('MPlayer could not determine length: %s', filename, exc_info=True)
+            attempted = True
 
-    try:
-        mp3file = eyed3.mp3.Mp3AudioFile(filename)
-        return int(mp3file.info.time_secs * 1000)
-    except Exception as e:
-        logger.warn('Could not determine length: %s', filename, exc_info=True)
+    if eyd3mp3_available:
+        try:
+            length = int(eyed3.mp3.Mp3AudioFile(filename).info.time_secs * 1000)
+            # Notify user on eyed3 success if mplayer failed.
+            # A warning is used to make it visible in gpo or on console.
+            if attempted:
+                logger.warn('eyed3.mp3 successfully determined length: %s', filename)
+            return length
+        except Exception:
+            logger.error('eyed3.mp3 could not determine length: %s', filename, exc_info=True)
+            attempted = True
+
+    if not attempted:
+        logger.warn('Could not determine length: %s', filename)
+        logger.warn('Please install MPlayer or the eyed3.mp3 module for track length detection.')
 
     return int(60 * 60 * 1000 * 3)
     # Default is three hours (to be on the safe side)
@@ -332,7 +345,10 @@ class iPodDevice(Device):
 
     def open(self):
         Device.open(self)
-        if not gpod_available or not os.path.isdir(self.mountpoint):
+        if not gpod_available:
+            logger.error('Please install the gpod module to sync with an iPod device.')
+            return False
+        if not os.path.isdir(self.mountpoint):
             return False
 
         self.notify('status', _('Opening iPod database'))
