@@ -117,6 +117,10 @@ class Matcher(object):
             return episode.total_time / 60
         elif k in ('remaining', 'rem'):
             return (episode.total_time - episode.current_position) / 60
+        elif k == 'podcast':
+            return episode.channel.title
+        elif k == 'section':
+            return episode.channel.section
 
         raise KeyError(k)
 
