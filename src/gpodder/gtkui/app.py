@@ -21,6 +21,7 @@ import html
 import logging
 import os
 import sys
+import xml.etree.ElementTree as ET
 
 import dbus
 import dbus.service
@@ -44,6 +45,32 @@ logger = logging.getLogger(__name__)
 
 _ = gpodder.gettext
 N_ = gpodder.ngettext
+
+
+def parse_app_menu_for_accels(filename):
+    """
+    grab (accelerator, action) bindings from menus.ui.
+    See #815 Ctrl-Q doesn't quit for justification.
+    Unfortunately it's not available from the Gio.MenuModel we get from the Gtk.Builder,
+    so we get it ourself.
+    """
+    res = []
+    menu_tree = ET.parse(filename)
+    assert menu_tree.getroot().tag == 'interface'
+    for menu in menu_tree.getroot():
+        assert menu.tag == 'menu'
+        if menu.attrib.get('id') == 'app-menu':
+            for itm in menu.iter('item'):
+                action = None
+                accel = None
+                for att in itm.findall('attribute'):
+                    if att.get('name') == 'action':
+                        action = att.text.strip()
+                    elif att.get('name') == 'accel':
+                        accel = att.text.strip()
+                if action and accel:
+                    res.append((accel, action))
+    return res
 
 
 class gPodderApplication(Gtk.Application):
@@ -92,10 +119,12 @@ class gPodderApplication(Gtk.Application):
         builder = Gtk.Builder()
         builder.set_translation_domain(gpodder.textdomain)
 
+        menu_filename = None
         for ui_folder in gpodder.ui_folders:
             filename = os.path.join(ui_folder, 'gtk/menus.ui')
             if os.path.exists(filename):
                 builder.add_from_file(filename)
+                menu_filename = filename
                 break
 
         menubar = builder.get_object('menubar')
@@ -127,6 +156,10 @@ class gPodderApplication(Gtk.Application):
 
             self.menu_popover = Gtk.Popover.new_from_model(self.header_bar_menu_button, self.app_menu)
             self.menu_popover.set_position(Gtk.PositionType.BOTTOM)
+
+            for (accel, action) in parse_app_menu_for_accels(menu_filename):
+                self.add_accelerator(accel, action, None)
+
         else:
             self.set_app_menu(self.app_menu)
 
