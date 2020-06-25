@@ -36,6 +36,11 @@ DefaultConfig = {
     # If for some reason youtube-dl download doesn't work for you, you can fallback to gpodder code.
     # Set to False to fall back to default gpodder code (less available formats).
     'manage_downloads': True,
+    # Bypass geographic restriction via faking X-Forwarded-For HTTP header
+    'geo_bypass': False,
+    # Two-letter ISO 3166-2 country code that will be used for explicit geographic
+    # restriction bypassing via faking X-Forwarded-For HTTP header
+    'geo_bypass_country': '',
 }
 
 
@@ -251,7 +256,7 @@ class YoutubeFeed(model.Feed):
 
 
 class gPodderYoutubeDL(download.CustomDownloader):
-    def __init__(self, gpodder_config=None):
+    def __init__(self, ytdl_config, gpodder_config=None):
         self.gpodder_config = gpodder_config
         # cachedir is not much used in youtube-dl, but set it anyway
         cachedir = os.path.join(gpodder.home, 'youtube-dl')
@@ -270,6 +275,10 @@ class gPodderYoutubeDL(download.CustomDownloader):
         if not sys.stdout:
             logger.debug('no stdout, setting YoutubeDL logger')
             self._ydl_opts['logger'] = logger
+        if ytdl_config.geo_bypass:
+            self._ydl_opts['geo_bypass'] = True
+        if ytdl_config.geo_bypass_country != '':
+            self._ydl_opts['geo_bypass_country'] = ytdl_config.geo_bypass_country
 
     def add_format(self, gpodder_config, opts, fallback=None):
         """ construct youtube-dl -f argument from configured format. """
@@ -403,7 +412,7 @@ class gPodderExtension:
         self.ytdl = None
 
     def on_load(self):
-        self.ytdl = gPodderYoutubeDL(self.container.manager.core.config)
+        self.ytdl = gPodderYoutubeDL(self.container.config, self.container.manager.core.config)
         logger.info('Registering youtube-dl.')
         if self.container.config.manage_channel:
             registry.feed_handler.register(self.ytdl.fetch_channel)
