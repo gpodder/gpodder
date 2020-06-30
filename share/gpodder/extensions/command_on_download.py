@@ -20,7 +20,7 @@ __description__ = _('Run a predefined external command upon download completion.
 __authors__ = 'Eric Le Lay <elelay@macports.org>'
 __doc__ = 'https://gpodder.github.io/docs/extensions/commandondownload.html'
 __category__ = 'post-download'
-__only_for__ = 'python3'
+__only_for__ = 'gtk, cli'
 
 
 DefaultConfig = {
