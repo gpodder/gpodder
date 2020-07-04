@@ -80,7 +80,15 @@ class YoutubeCustomDownload(download.CustomDownload):
         called by download.DownloadTask to perform the download.
         """
         self._reporthook = reporthook
-        res = self._ytdl.fetch_video(self._url, tempname, self._my_hook)
+        # outtmpl: use given tempname by DownloadTask
+        # (escape % and $ because outtmpl used as a string template by youtube-dl)
+        outtmpl = tempname.replace('%', '%%').replace('$', '$$')
+        res = self._ytdl.fetch_video(self._url, outtmpl, self._my_hook)
+        if outtmpl != tempname:
+            if 'ext' in res and os.path.isfile(outtmpl + '.{}'.format(res['ext'])):
+                os.rename(outtmpl + '.{}'.format(res['ext']), tempname)
+            else:
+                os.rename(outtmpl, tempname)
         if 'duration' in res and res['duration']:
             self._episode.total_time = res['duration']
         headers = {}
@@ -290,9 +298,7 @@ class gPodderYoutubeDL(download.CustomDownloader):
 
     def fetch_video(self, url, tempname, reporthook):
         opts = {
-            # outtmpl: use given tempname by DownloadTask
-            # (escape % and $ because outtmpl used as a string template by youtube-dl)
-            'outtmpl': tempname.replace('%', '%%').replace('$', '$$'),
+            'outtmpl': tempname,
             'nopart': True,  # don't append .part (already .partial)
             'retries': 3,  # retry a few times
             'progress_hooks': [reporthook]  # to notify UI
