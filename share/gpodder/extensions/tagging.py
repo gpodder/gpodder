@@ -87,6 +87,10 @@ class AudioFile(object):
     def write_basic_tags(self, modify_tags, set_artist_to_album, set_version):
         audio = File(self.filename, easy=True)
 
+        if audio is None:
+            logger.warning("Unable to add tags to file '%s'", self.filename)
+            return
+
         if audio.tags is None:
             audio.add_tags()
 
