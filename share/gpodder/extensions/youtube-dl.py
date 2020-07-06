@@ -100,15 +100,18 @@ class YoutubeCustomDownload(download.CustomDownload):
                 headers['content-type'] = ext_filetype
             # See #673 when merging multiple formats, the extension is appended to the tempname
             # by YoutubeDL resulting in empty .partial file + .partial.mp4 exists
+            # and #796 .mkv is chosen by ytdl sometimes
             tempstat = os.stat(tempname)
             if not tempstat.st_size:
-                tempname_with_ext = tempname + dot_ext
-                if os.path.isfile(tempname_with_ext):
-                    logger.debug('Youtubedl downloaded to %s instead of %s, moving',
-                                 os.path.basename(tempname),
-                                 os.path.basename(tempname_with_ext))
-                    os.remove(tempname)
-                    os.rename(tempname_with_ext, tempname)
+                for try_ext in (dot_ext, ".mp4", ".m4a", ".webm", ".mkv"):
+                    tempname_with_ext = tempname + try_ext
+                    if os.path.isfile(tempname_with_ext):
+                        logger.debug('Youtubedl downloaded to "%s" instead of "%s", moving',
+                                     os.path.basename(tempname_with_ext),
+                                     os.path.basename(tempname))
+                        os.remove(tempname)
+                        os.rename(tempname_with_ext, tempname)
+                        break
         return headers, res.get('url', self._url)
 
     def _my_hook(self, d):
