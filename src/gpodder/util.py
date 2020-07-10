@@ -58,19 +58,13 @@ import urllib.parse
 import urllib.request
 import webbrowser
 import xml.dom.minidom
-from html.entities import entitydefs
+from html.entities import entitydefs, name2codepoint
+from html.parser import HTMLParser
 
 import gpodder
 
 logger = logging.getLogger(__name__)
 
-
-if sys.hexversion < 0x03000000:
-    from html.parser import HTMLParser
-    from html.entities import name2codepoint
-else:
-    from html.parser import HTMLParser
-    from html.entities import name2codepoint
 
 try:
     import html5lib
