@@ -1138,6 +1138,7 @@ class PodcastChannel(PodcastModelObject):
             if result.status == feedcore.UPDATED_FEED:
                 self._consume_updated_feed(result.feed, max_episodes)
             elif result.status == feedcore.NEW_LOCATION:
+                # FIXME: could return the feed because in autodiscovery it is parsed already
                 url = result.feed
                 logger.info('New feed location: %s => %s', self.url, url)
                 if url in set(x.url for x in self.model.get_podcasts()):

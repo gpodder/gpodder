@@ -73,7 +73,7 @@ def get_real_download_url(url):
 
     logger.debug('Config URL: %s', data_config_url)
 
-    data_config_data = util.urlopen(data_config_url).read().decode('utf-8')
+    data_config_data = util.urlopen(data_config_url).text
 
     # TODO: This second argument should get a real name
     real_url = get_escapist_real_url(data_config_data, data_config_frag.group(1))
@@ -120,8 +120,7 @@ def get_real_cover(url):
     if rss_url is None:
         return None
 
-    # FIXME: can I be sure to decode it as utf-8?
-    rss_data = util.urlopen(rss_url).read()
+    rss_data = util.urlopen(rss_url).text
     rss_data_frag = DATA_COVERART_RE.search(rss_data)
 
     if rss_data_frag is None:
@@ -134,9 +133,8 @@ def get_escapist_web(video_id):
     if video_id is None:
         return None
 
-    # FIXME: must check if it's utf-8
     web_url = 'http://www.escapistmagazine.com/videos/view/%s' % video_id
-    return util.urlopen(web_url).read()
+    return util.urlopen(web_url).text
 
 
 def get_escapist_config_url(data):

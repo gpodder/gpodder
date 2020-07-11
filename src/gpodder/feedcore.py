@@ -25,9 +25,9 @@
 import logging
 import urllib.parse
 from html.parser import HTMLParser
-from urllib.error import HTTPError
 
 import podcastparser
+from requests.exceptions import RequestException
 
 from gpodder import util
 
@@ -132,78 +132,71 @@ class Fetcher(object):
         """
         return None
 
-    def _normalize_status(self, status):
-        # Based on Mark Pilgrim's "Atom aggregator behaviour" article
-        if status in (200, 301, 302, 304, 400, 401, 403, 404, 410, 500):
-            return status
-        elif status >= 200 and status < 300:
-            return 200
-        elif status >= 300 and status < 400:
-            return 302
-        elif status >= 400 and status < 500:
-            return 400
-        elif status >= 500 and status < 600:
-            return 500
-        else:
-            return status
-
-    def _check_statuscode(self, response, feed):
-        status = self._normalize_status(response.getcode())
-
-        if status == 200:
-            return Result(UPDATED_FEED, feed)
-        elif status == 301:
-            return Result(NEW_LOCATION, feed)
-        elif status == 302:
-            return Result(UPDATED_FEED, feed)
+    @staticmethod
+    def _check_statuscode(status, url):
+        if status >= 200 and status < 300:
+            return UPDATED_FEED
         elif status == 304:
-            return Result(NOT_MODIFIED, feed)
+            return NOT_MODIFIED
+        # redirects are handled by requests directly
+        # => the status should never be 301, 302, 303, 307, 308
 
-        if status == 400:
-            raise BadRequest('bad request')
-        elif status == 401:
-            raise AuthenticationRequired('authentication required', feed)
+        if status == 401:
+            raise AuthenticationRequired('authentication required', url)
         elif status == 403:
             raise Unsubscribe('forbidden')
         elif status == 404:
             raise NotFound('not found')
         elif status == 410:
             raise Unsubscribe('resource is gone')
-        elif status == 500:
+        elif status >= 400 and status < 500:
+            raise BadRequest('bad request')
+        elif status >= 500 and status < 600:
             raise InternalServerError('internal server error')
         else:
             raise UnknownStatusCode(status)
 
+    @staticmethod
+    def _podcastparse_feed(url, data_stream):
+        try:
+            feed = podcastparser.parse(url, data_stream)
+            feed['url'] = url
+            return feed
+        except ValueError as e:
+            raise InvalidFeed('Could not parse feed: {msg}'.format(msg=e))
+
     def _parse_feed(self, url, etag, modified, autodiscovery=True, max_episodes=0):
+        # handle local file first
+        if url.startswith('file://'):
+            url = url[len('file://'):]
+            stream = open(url)
+            feed = self._podcastparse_feed(url, stream)
+            feed['headers'] = {}
+            return Result(UPDATED_FEED, feed)
+
+        # remote feed
         headers = {}
         if modified is not None:
             headers['If-Modified-Since'] = modified
         if etag is not None:
             headers['If-None-Match'] = etag
 
-        if url.startswith('file://'):
-            is_local = True
-            url = url[len('file://'):]
-            stream = open(url)
-        else:
-            is_local = False
-            try:
-                stream = util.urlopen(url, headers)
-            except HTTPError as e:
-                return self._check_statuscode(e, e.geturl())
+        stream = util.urlopen(url, headers)
 
-        data = stream
-        if autodiscovery and not is_local and stream.headers.get('content-type', '').startswith('text/html'):
-            # Not very robust attempt to detect encoding: http://stackoverflow.com/a/1495675/1072626
-            charset = stream.headers.get_param('charset')
-            if charset is None:
-                charset = 'utf-8'  # utf-8 appears hard-coded elsewhere in this codebase
+        responses = stream.history + [stream]
+        for i, resp in enumerate(responses):
+            if resp.is_permanent_redirect:
+                # there should always be a next response when a redirect is encountered
+                # If max redirects is reached, TooManyRedirects is raised
+                # TODO: since we've got the end contents anyway, modify model.py to accept contents on NEW_LOCATION
+                return Result(NEW_LOCATION, responses[i+1].url)
+        res = self._check_statuscode(stream.status_code, stream.url)
+        if res == NOT_MODIFIED:
+            return Result(res, stream.url)
 
-            # We use StringIO in case the stream needs to be read again
-            data = StringIO(stream.read().decode(charset))
+        if autodiscovery and stream.headers.get('content-type', '').startswith('text/html'):
             ad = FeedAutodiscovery(url)
-
-            ad.feed(data.getvalue())
+            ad.feed(stream.text)  # uses headers, then apparent encoding
             if ad._resolved_url:
                 try:
                     self._parse_feed(ad._resolved_url, None, None, False)
@@ -215,22 +208,9 @@ class Fetcher(object):
                 url = self._resolve_url(url)
                 if url:
                     return Result(NEW_LOCATION, url)
-
-            # Reset the stream so podcastparser can give it a go
-            data.seek(0)
-
-        try:
-            feed = podcastparser.parse(url, data)
-            feed['url'] = url
-        except ValueError as e:
-            raise InvalidFeed('Could not parse feed: {msg}'.format(msg=e))
-
-        if is_local:
-            feed['headers'] = {}
-            return Result(UPDATED_FEED, feed)
-        else:
-            feed['headers'] = stream.headers
-            return self._check_statuscode(stream, feed)
+        feed = self._podcastparse_feed(url, StringIO(stream.text))
+        feed['headers'] = stream.headers
+        return Result(UPDATED_FEED, feed)
 
     def fetch(self, url, etag=None, modified=None, max_episodes=0):
         return self._parse_feed(url, etag, modified, max_episodes)

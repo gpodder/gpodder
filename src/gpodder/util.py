@@ -55,11 +55,13 @@ import threading
 import time
 import urllib.error
 import urllib.parse
-import urllib.request
 import webbrowser
 import xml.dom.minidom
 from html.entities import entitydefs, name2codepoint
 from html.parser import HTMLParser
+
+import requests
+import requests.exceptions
 
 import gpodder
 
@@ -1181,31 +1183,17 @@ def url_add_authentication(url, username, password):
     return urllib.parse.urlunsplit(url_parts)
 
 
-def urlopen(url, headers=None, data=None, timeout=None):
+def urlopen(url, headers=None, data=None, timeout=None, **kwargs):
     """
     An URL opener with the User-agent set to gPodder (with version)
     """
-    username, password = username_password_from_url(url)
-    if username is not None or password is not None:
-        url = url_strip_authentication(url)
-        password_mgr = urllib.request.HTTPPasswordMgrWithDefaultRealm()
-        password_mgr.add_password(None, url, username, password)
-        handler = urllib.request.HTTPBasicAuthHandler(password_mgr)
-        opener = urllib.request.build_opener(handler)
-    else:
-        opener = urllib.request.build_opener()
-
     if headers is None:
         headers = {}
     else:
         headers = dict(headers)
 
     headers.update({'User-agent': gpodder.user_agent})
-    request = urllib.request.Request(url, data=data, headers=headers)
-    if timeout is None:
-        return opener.open(request)
-    else:
-        return opener.open(request, timeout=timeout)
+    return requests.get(url, headers=headers, data=data, timeout=timeout, **kwargs)
 
 
 def get_real_url(url):
@@ -1213,7 +1201,7 @@ def get_real_url(url):
     Gets the real URL of a file and resolves all redirects.
     """
     try:
-        return urlopen(url).geturl()
+        return urlopen(url).url
     except:
         logger.error('Getting real url for %s', url, exc_info=True)
         return url
@@ -1799,8 +1787,7 @@ def get_update_info():
         (False, '3.0.5', '2012-02-29', 10)
     """
     url = 'https://api.github.com/repos/gpodder/gpodder/releases/latest'
-    data = urlopen(url).read().decode('utf-8')
-    info = json.loads(data)
+    info = urlopen(url).json()
 
     latest_version = info.get('tag_name', '').replace('gpodder-', '')
     release_date = info['published_at']
@@ -1916,9 +1903,9 @@ def website_reachable(url):
         return (False, None)
 
     try:
-        response = urllib.request.urlopen(url, timeout=1)
+        response = requests.get(url, timeout=1)
         return (True, response)
-    except urllib.error.URLError as err:
+    except requests.exceptions.RequestException:
         pass
 
     return (False, None)
