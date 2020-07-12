@@ -189,7 +189,7 @@ class Fetcher(object):
                 # there should always be a next response when a redirect is encountered
                 # If max redirects is reached, TooManyRedirects is raised
                 # TODO: since we've got the end contents anyway, modify model.py to accept contents on NEW_LOCATION
-                return Result(NEW_LOCATION, responses[i+1].url)
+                return Result(NEW_LOCATION, responses[i + 1].url)
         res = self._check_statuscode(stream.status_code, stream.url)
         if res == NOT_MODIFIED:
             return Result(res, stream.url)
