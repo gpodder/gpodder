@@ -130,6 +130,9 @@ class BuilderWidget(GtkBuilderWidget):
 
     def show_login_dialog(self, title, message, root_url=None, username=None, password=None,
             username_prompt=None, register_callback=None, register_text=None, ask_server=False):
+        def toggle_password_visibility(_, entry):
+            entry.set_visibility(not entry.get_visibility())
+
         if username_prompt is None:
             username_prompt = _('Username')
 
@@ -181,8 +184,13 @@ class BuilderWidget(GtkBuilderWidget):
         password_label = Gtk.Label()
         password_label.set_markup('<b>' + _('Password') + ':</b>')
 
+        show_password_label = Gtk.Label()
+        show_password = Gtk.CheckButton.new_with_label(_('Show Password'))
+        show_password.connect('toggled', toggle_password_visibility, password_entry)
+
         label_entries = [(username_label, username_entry),
-                         (password_label, password_entry)]
+                         (password_label, password_entry),
+                         (show_password_label, show_password)]
 
         if ask_server:
             label_entries.insert(0, (server_label, server_entry))
