@@ -57,6 +57,7 @@ class DownloadStatusModel(Gtk.ListStore):
     def _format_message(self, episode, message, podcast):
         episode = html.escape(episode)
         podcast = html.escape(podcast)
+        message = html.escape(message)
         return '%s\n<small>%s - %s</small>' % (episode, message, podcast)
 
     def request_update(self, iter, task=None):
