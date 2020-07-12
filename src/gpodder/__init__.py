@@ -143,7 +143,7 @@ del locale_dir
 SOCKET_TIMEOUT = 60
 socket.setdefaulttimeout(SOCKET_TIMEOUT)
 del socket
-del SOCKET_TIMEOUT
+SOCKET_TIMEOUT
 
 # Variables reserved for GUI-specific use (will be set accordingly)
 ui_folders = []

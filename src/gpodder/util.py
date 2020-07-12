@@ -1193,6 +1193,9 @@ def urlopen(url, headers=None, data=None, timeout=None, **kwargs):
     else:
         headers = dict(headers)
 
+    if not timeout:
+        timeout = gpodder.SOCKET_TIMEOUT
+
     headers.update({'User-agent': gpodder.user_agent})
     return requests.get(url, headers=headers, data=data, timeout=timeout, **kwargs)
 
