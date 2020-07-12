@@ -36,9 +36,12 @@ import socket
 import threading
 import time
 import urllib.error
-import urllib.parse
-import urllib.request
-from email.header import decode_header
+
+import requests
+from requests.adapters import HTTPAdapter
+from requests.exceptions import ConnectionError, HTTPError, RequestException
+from requests.packages.urllib3.exceptions import MaxRetryError
+from requests.packages.urllib3.util.retry import Retry
 
 import gpodder
 from gpodder import registry, util
@@ -46,6 +49,8 @@ from gpodder import registry, util
 logger = logging.getLogger(__name__)
 
 _ = gpodder.gettext
+
+REDIRECT_RETRIES = 3
 
 
 class CustomDownload:
@@ -193,73 +198,37 @@ class gPodderDownloadHTTPError(Exception):
         self.error_message = error_message
 
 
-class DownloadURLOpener(urllib.request.FancyURLopener):
-    version = gpodder.user_agent
+class DownloadURLOpener:
 
     # Sometimes URLs are not escaped correctly - try to fix them
     # (see RFC2396; Section 2.4.3. Excluded US-ASCII Characters)
     # FYI: The omission of "%" in the list is to avoid double escaping!
     ESCAPE_CHARS = dict((ord(c), '%%%x' % ord(c)) for c in ' <>#"{}|\\^[]`')
 
-    def __init__(self, channel):
-        self.channel = channel
-        self._auth_retry_counter = 0
+    def __init__(self, channel, max_retries=3):
         super().__init__()
+        self.channel = channel
+        self.max_retries = max_retries
 
-    def http_error(self, url, fp, errcode, errmsg, headers, data=None):
-        """Handle http errors.
-        Overriden to give retry=True to http_error_40{1,7}.
-        See https://github.com/python/cpython/commit/80f1b059714aeb1c6fc9f6ce1173bc8a51af7dd9
-        See python issue https://bugs.python.org/issue1368368
-        """
-        result = False
-        if errcode == 401:
-            result = self.http_error_401(url, fp, errcode, errmsg, headers, data=data, retry=True)
-        elif errcode == 407:
-            result = self.http_error_407(url, fp, errcode, errmsg, headers, data=data, retry=True)
-        if result:
-            return result
-        return super().http_error(url, fp, errcode, errmsg, headers, data=data)
-
-    def http_error_default(self, url, fp, errcode, errmsg, headers):
-        """
-        FancyURLopener by default does not raise an exception when
-        there is some unknown HTTP error code. We want to override
-        this and provide a function to log the error and raise an
-        exception, so we don't download the HTTP error page here.
-        """
-        # The following two lines are copied from urllib.URLopener's
-        # implementation of http_error_default
-        void = fp.read()
-        fp.close()
-        raise gPodderDownloadHTTPError(url, errcode, errmsg)
-
-    def redirect_internal(self, url, fp, errcode, errmsg, headers, data):
-        """ This is the exact same function that's included with urllib
-            except with "void = fp.read()" commented out. """
-
-        if 'location' in headers:
-            newurl = headers['location']
-        elif 'uri' in headers:
-            newurl = headers['uri']
-        else:
-            return
-
-        # This blocks forever(?) with certain servers (see bug #465)
-        # void = fp.read()
-        fp.close()
-
-        # In case the server sent a relative URL, join with original:
-        newurl = urllib.parse.urljoin(self.type + ":" + url, newurl)
-        return self.open(newurl)
+    def init_session(self):
+        """ init a session with our own retry codes + retry count """
+        # I add a few retries for redirects but it means that I will allow max_retries + REDIRECT_RETRIES
+        # if encountering max_retries connect and REDIRECT_RETRIES read for instance
+        retry_strategy = Retry(
+            total=self.max_retries + REDIRECT_RETRIES,
+            connect=self.max_retries,
+            read=self.max_retries,
+            redirect=max(REDIRECT_RETRIES, self.max_retries),
+            status=self.max_retries,
+            status_forcelist=Retry.RETRY_AFTER_STATUS_CODES.union((408, 418, 504, 598, 599,)))
+        adapter = HTTPAdapter(max_retries=retry_strategy)
+        http = requests.Session()
+        http.mount("https://", adapter)
+        http.mount("http://", adapter)
+        return http
 
 # The following is based on Python's urllib.py "URLopener.retrieve"
 # Also based on http://mail.python.org/pipermail/python-list/2001-October/110069.html
-
-    def http_error_206(self, url, fp, errcode, errmsg, headers, data=None):
-        # The next line is taken from urllib's URLopener.open_http
-        # method, at the end after the line "if errcode == 200:"
-        return urllib.addinfourl(fp, headers, 'http:' + url)
 
     def retrieve_resume(self, url, filename, reporthook=None, data=None):
         """Download files from an URL; return (headers, real_url)
@@ -270,13 +239,23 @@ class DownloadURLOpener(urllib.request.FancyURLopener):
 
         current_size = 0
         tfp = None
+        headers = {
+            'User-agent': gpodder.user_agent
+        }
+
+        if self.channel.auth_username or self.channel.auth_password:
+            logger.debug('Authenticating as "%s"', self.channel.auth_username)
+            auth = (self.channel.auth_username, self.channel.auth_password)
+        else:
+            auth = None
+
         if os.path.exists(filename):
             try:
                 current_size = os.path.getsize(filename)
                 tfp = open(filename, 'ab')
                 # If the file exists, then only download the remainder
                 if current_size > 0:
-                    self.addheader('Range', 'bytes=%s-' % (current_size))
+                    headers['Range'] = 'bytes=%s-' % (current_size)
             except:
                 logger.warn('Cannot resume download: %s', filename, exc_info=True)
                 tfp = None
@@ -288,47 +267,49 @@ class DownloadURLOpener(urllib.request.FancyURLopener):
         # Fix a problem with bad URLs that are not encoded correctly (bug 549)
         url = url.translate(self.ESCAPE_CHARS)
 
-        fp = self.open(url, data)
-        headers = fp.info()
+        session = self.init_session()
+        with session.get(url,
+                         headers=headers,
+                         stream=True,
+                         auth=auth,
+                         timeout=gpodder.SOCKET_TIMEOUT) as resp:
+            try:
+                resp.raise_for_status()
+            except HTTPError as e:
+                raise gPodderDownloadHTTPError(url, resp.status_code, str(e))
 
-        if current_size > 0:
-            # We told the server to resume - see if she agrees
-            # See RFC2616 (206 Partial Content + Section 14.16)
-            # XXX check status code here, too...
-            range = ContentRange.parse(headers.get('content-range', ''))
-            if range is None or range.start != current_size:
-                # Ok, that did not work. Reset the download
-                # TODO: seek and truncate if content-range differs from request
-                tfp.close()
-                tfp = open(filename, 'wb')
-                current_size = 0
-                logger.warn('Cannot resume: Invalid Content-Range (RFC2616).')
+            headers = resp.headers
 
-        result = headers, fp.geturl()
-        bs = 1024 * 8
-        size = -1
-        read = current_size
-        blocknum = current_size // bs
-        if reporthook:
-            if "content-length" in headers:
-                size = int(headers['Content-Length']) + current_size
-            reporthook(blocknum, bs, size)
-        while read < size or size == -1:
-            if size == -1:
-                block = fp.read(bs)
-            else:
-                block = fp.read(min(size - read, bs))
-            if len(block) == 0:
-                break
-            read += len(block)
-            tfp.write(block)
-            blocknum += 1
+            if current_size > 0:
+                # We told the server to resume - see if she agrees
+                # See RFC2616 (206 Partial Content + Section 14.16)
+                # XXX check status code here, too...
+                range = ContentRange.parse(headers.get('content-range', ''))
+                if range is None or range.start != current_size:
+                    # Ok, that did not work. Reset the download
+                    # TODO: seek and truncate if content-range differs from request
+                    tfp.close()
+                    tfp = open(filename, 'wb')
+                    current_size = 0
+                    logger.warn('Cannot resume: Invalid Content-Range (RFC2616).')
+
+            result = headers, resp.url
+            bs = 1024 * 8
+            size = -1
+            read = current_size
+            blocknum = current_size // bs
             if reporthook:
+                if "content-length" in headers:
+                    size = int(headers['content-length']) + current_size
                 reporthook(blocknum, bs, size)
-        fp.close()
-        tfp.close()
-        del fp
-        del tfp
+            for block in resp.iter_content(bs):
+                read += len(block)
+                tfp.write(block)
+                blocknum += 1
+                if reporthook:
+                    reporthook(blocknum, bs, size)
+            tfp.close()
+            del tfp
 
         # raise exception if actual size does not match content-length header
         if size >= 0 and read < size:
@@ -338,19 +319,6 @@ class DownloadURLOpener(urllib.request.FancyURLopener):
         return result
 
 # end code based on urllib.py
-
-    def prompt_user_passwd(self, host, realm):
-        # Keep track of authentication attempts, fail after the third one
-        self._auth_retry_counter += 1
-        if self._auth_retry_counter > 3:
-            raise AuthenticationError(_('Wrong username/password'))
-
-        if self.channel.auth_username or self.channel.auth_password:
-            logger.debug('Authenticating as "%s" to "%s" for realm "%s".',
-                    self.channel.auth_username, host, realm)
-            return (self.channel.auth_username, self.channel.auth_password)
-
-        return (None, None)
 
 
 class DefaultDownload(CustomDownload):
@@ -362,13 +330,10 @@ class DefaultDownload(CustomDownload):
     def retrieve_resume(self, tempname, reporthook):
         url = self._url
         logger.info("Downloading %s", url)
-        downloader = DownloadURLOpener(self.__episode.channel)
-
-        # HTTP Status codes for which we retry the download
-        retry_codes = (408, 418, 504, 598, 599)
         max_retries = max(0, self._config.auto.retries)
+        downloader = DownloadURLOpener(self.__episode.channel, max_retries=max_retries)
 
-        # Retry the download on timeout (bug 1013)
+        # Retry the download on incomplete download (other retries are done by the Retry strategy)
         for retry in range(max_retries + 1):
             if retry > 0:
                 logger.info('Retrying download of %s (%d)', url, retry)
@@ -383,17 +348,6 @@ class DefaultDownload(CustomDownload):
                 if retry < max_retries:
                     logger.info('Content too short: %s - will retry.',
                             url)
-                    continue
-                raise
-            except socket.timeout as tmout:
-                if retry < max_retries:
-                    logger.info('Socket timeout: %s - will retry.', url)
-                    continue
-                raise
-            except gPodderDownloadHTTPError as http:
-                if retry < max_retries and http.error_code in retry_codes:
-                    logger.info('HTTP error %d: %s - will retry.',
-                            http.error_code, url)
                     continue
                 raise
         return (headers, real_url)
@@ -904,6 +858,21 @@ class DownloadTask(object):
         except urllib.error.ContentTooShortError as ctse:
             self.status = DownloadTask.FAILED
             self.error_message = _('Missing content from server')
+        except ConnectionError as ce:
+            # special case request exception
+            self.status = DownloadTask.FAILED
+            logger.error('Download failed: %s', str(ce), exc_info=True)
+            d = {'host': ce.args[0].pool.host, 'port': ce.args[0].pool.port}
+            self.error_message = _("Couldn't connect to server %(host)s:%(port)s" % d)
+        except RequestException as re:
+            # extract MaxRetryError to shorten the exception message
+            if isinstance(re.args[0], MaxRetryError):
+                re = re.args[0]
+            logger.error('%s while downloading "%s"', str(re),
+                    self.__episode.title, exc_info=True)
+            self.status = DownloadTask.FAILED
+            d = {'error': str(re)}
+            self.error_message = _('Request Error: %(error)s') % d
         except IOError as ioe:
             logger.error('%s while downloading "%s": %s', ioe.strerror,
                     self.__episode.title, ioe.filename, exc_info=True)
