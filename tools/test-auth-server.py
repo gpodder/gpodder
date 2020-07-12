@@ -11,6 +11,7 @@ import http.server
 import re
 import sys
 import threading
+import time
 
 USERNAME = 'user@example.com'    # Username used for HTTP Authentication
 PASSWORD = 'secret'              # Password used for HTTP Authentication
@@ -24,8 +25,10 @@ URL = 'http://%(HOST)s:%(PORT)s' % locals()
 
 FEEDNAME = sys.argv[0]        # The title of the RSS feed
 REDIRECT = 'redirect.rss'     # The path for a redirection
+REDIRECT_TO_BAD_HOST = 'redirect_bad'     # The path for a redirection
 FEEDFILE = 'feed.rss'         # The "filename" of the feed on the server
 EPISODES = 'episode'          # Base name for the episode files
+TIMEOUT = 'timeout'           # The path to never return
 EPISODES_EXT = '.mp3'         # Extension for the episode files
 EPISODES_MIME = 'audio/mpeg'  # Mime type for the episode files
 EP_COUNT = 7                  # Number of episodes in the feed
@@ -64,6 +67,26 @@ def mkrss(items=EP_COUNT):
           type="%(EPISODES_MIME)s"
           length="%(SIZE)s"/>
     </item>""" % dict(list(locals().items()) + list(globals().items()))
+    ITEMS += """
+    <item>
+        <title>Server Timeout Episode</title>
+        <guid>tag:test.gpodder.org,2012:timeout</guid>
+        <pubDate>Sun, 25 Nov 2018 17:28:03 +0000</pubDate>
+        <enclosure
+          url="%(URL)s/%(TIMEOUT)s"
+          type="%(EPISODES_MIME)s"
+          length="%(SIZE)s"/>
+    </item>""" % dict(list(locals().items()) + list(globals().items()))
+    ITEMS += """
+    <item>
+        <title>Bad Host Episode</title>
+        <guid>tag:test.gpodder.org,2012:timeout</guid>
+        <pubDate>Sun, 25 Nov 2018 17:28:03 +0000</pubDate>
+        <enclosure
+          url="%(URL)s/%(REDIRECT_TO_BAD_HOST)s"
+          type="%(EPISODES_MIME)s"
+          length="%(SIZE)s"/>
+    </item>""" % dict(list(locals().items()) + list(globals().items()))
 
     return """
     <rss>
@@ -76,13 +99,15 @@ def mkrss(items=EP_COUNT):
 
 def mkdata(size=SIZE):
     """Generate dummy data of a given size (in bytes)"""
-    return b''.join(chr(32 + (i % (127 - 32))) for i in range(size))
+    return bytes([32 + (i % (127 - 32)) for i in range(size)])
 
 
 class AuthRequestHandler(http.server.BaseHTTPRequestHandler):
     FEEDFILE_PATH = '/%s' % FEEDFILE
     EPISODES_PATH = '/%s' % EPISODES
     REDIRECT_PATH = '/%s' % REDIRECT
+    REDIRECT_TO_BAD_HOST_PATH = '/%s' % REDIRECT_TO_BAD_HOST
+    TIMEOUT_PATH = '/%s' % TIMEOUT
 
     def do_GET(self):
         authorized = False
@@ -112,6 +137,16 @@ class AuthRequestHandler(http.server.BaseHTTPRequestHandler):
             self.send_response(302)
             self.send_header('Location', '%s/%s' % (URL, FEEDFILE))
             self.end_headers()
+            return
+        elif self.path.startswith(self.REDIRECT_TO_BAD_HOST_PATH):
+            print('Redirect request => bad host.')
+            self.send_response(302)
+            self.send_header('Location', '//notthere.gpodder.io/%s' % (FEEDFILE))
+            self.end_headers()
+            return
+        elif self.path == self.TIMEOUT_PATH:
+            # will need to restart the server or wait 80s before next request
+            time.sleep(80)
             return
 
         if not authorized:
@@ -144,6 +179,7 @@ if __name__ == '__main__':
     print("""
     Feed URL: %(URL)s/%(FEEDFILE)s
     Redirect URL: http://%(HOST)s:%(RPORT)d/%(REDIRECT)s
+    Timeout URL: %(URL)s/%(TIMEOUT)s
     Username: %(USERNAME)s
     Password: %(PASSWORD)s
     """ % locals())
