@@ -87,6 +87,16 @@ def mkrss(items=EP_COUNT):
           type="%(EPISODES_MIME)s"
           length="%(SIZE)s"/>
     </item>""" % dict(list(locals().items()) + list(globals().items()))
+    ITEMS += """
+    <item>
+        <title>Space in url Episode</title>
+        <guid>tag:test.gpodder.org,2012:timeout</guid>
+        <pubDate>Sun, 25 Nov 2018 17:28:03 +0000</pubDate>
+        <enclosure
+          url="%(URL)s/%(EPISODES)s with space%(EPISODES_EXT)s"
+          type="%(EPISODES_MIME)s"
+          length="%(SIZE)s"/>
+    </item>""" % dict(list(locals().items()) + list(globals().items()))
 
     return """
     <rss>
