@@ -70,6 +70,10 @@ class BuilderWidget(GtkBuilderWidget):
                 dlg.set_markup('<span weight="bold" size="larger">%s</span>\n\n%s' % (title, message))
             else:
                 dlg.set_markup('<span weight="bold" size="larger">%s</span>' % (message))
+            # make message copy/pastable
+            for lbl in dlg.get_message_area():
+                if isinstance(lbl, Gtk.Label):
+                    lbl.set_selectable(True)
             dlg.run()
             dlg.destroy()
         else:
