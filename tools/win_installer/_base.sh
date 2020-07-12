@@ -90,9 +90,11 @@ git+https://github.com/enthought/pywin32-ctypes.git@f27d6a0
 html5lib==1.0.1
 webencodings==0.5.1
 six==1.12.0
-certifi==2020.4.5.2
+certifi==2020.6.20
 mutagen==1.44.0
 youtube_dl==2020.6.16.1
+requests==2.24.0
+PySocks==1.7.1
 "
 
 function install_deps {
@@ -119,7 +121,6 @@ function install_deps {
     mkdir -p ${MINGW_ROOT}/ssl
     site_packages=$(build_python -c  'import sys;print(next(c for c in sys.path if "site-packages" in c))')
     cp -v ${site_packages}/certifi/cacert.pem ${MINGW_ROOT}/ssl/cert.pem
-    build_pip uninstall -y certifi
 
     build_pacman --noconfirm -Rdds mingw-w64-"${ARCH}"-python3-pip || true
 }
