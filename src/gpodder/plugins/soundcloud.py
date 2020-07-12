@@ -54,28 +54,6 @@ def soundcloud_parsedate(s):
     return time.mktime(tuple([int(x) for x in m.groups()] + [0, 0, -1]))
 
 
-def get_param(s, param='filename', header='content-disposition'):
-    """Get a parameter from a string of headers
-
-    By default, this gets the "filename" parameter of
-    the content-disposition header. This works fine
-    for downloads from Soundcloud.
-    """
-    msg = email.message_from_string(s)
-    if header in msg:
-        value = msg.get_param(param, header=header)
-        decoded_list = email.header.decode_header(value)
-        value = []
-        for part, encoding in decoded_list:
-            if encoding:
-                value.append(part.decode(encoding))
-            else:
-                value.append(str(part))
-        return ''.join(value)
-
-    return None
-
-
 def get_metadata(url):
     """Get file download metadata
 
@@ -87,7 +65,8 @@ def get_metadata(url):
     filesize = track_response.headers['content-length'] or '0'
     filetype = track_response.headers['content-type'] or 'application/octet-stream'
     headers_s = '\n'.join('%s:%s' % (k, v) for k, v in list(track_response.headers.items()))
-    filename = get_param(headers_s) or os.path.basename(os.path.dirname(url))
+    filename = util.get_header_param(track_response.headers, 'filename', 'content-disposition') \
+        or os.path.basename(os.path.dirname(url))
     track_fp.close()
     return filesize, filetype, filename
 

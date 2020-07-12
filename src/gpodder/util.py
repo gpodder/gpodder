@@ -31,6 +31,7 @@ are not tied to any specific part of gPodder.
 """
 import collections
 import datetime
+import email
 import glob
 import gzip
 import http.client
@@ -2163,3 +2164,27 @@ def parse_mimetype(mimetype):
     except MIMETypeException as e:
         print(e)
         return (None, None, {})
+
+
+def get_header_param(headers, param, header_name):
+    """Extract a HTTP header parameter from a dict
+
+    Uses the "email" module to retrieve parameters
+    from HTTP headers. This can be used to get the
+    "filename" parameter of the "content-disposition"
+    header for downloads to pick a good filename.
+
+    Returns None if the filename cannot be retrieved.
+    """
+    value = None
+    try:
+        headers_string = ['%s:%s' % (k, v) for k, v in list(headers.items())]
+        msg = email.message_from_string('\n'.join(headers_string))
+        if header_name in msg:
+            raw_value = msg.get_param(param, header=header_name)
+            if raw_value is not None:
+                value = email.utils.collapse_rfc2231_value(raw_value)
+    except Exception as e:
+        logger.error('Cannot get %s from %s', param, header_name, exc_info=True)
+
+    return value
