@@ -29,7 +29,7 @@ from urllib.error import HTTPError
 
 import podcastparser
 
-from gpodder import util
+from gpodder import util, youtube
 
 logger = logging.getLogger(__name__)
 
@@ -105,11 +105,17 @@ class FeedAutodiscovery(HTMLParser):
             attrs = dict(attrs)
 
             is_feed = attrs.get('type', '') in Fetcher.FEED_TYPES
+            is_youtube = 'youtube.com' in self._base
             is_alternate = attrs.get('rel', '') == 'alternate'
+            is_canonical = attrs.get('rel', '') == 'canonical'
             url = attrs.get('href', None)
             url = urllib.parse.urljoin(self._base, url)
 
             if is_feed and is_alternate and url:
+                logger.info('Feed autodiscovery: %s', url)
+                self._resolved_url = url
+            elif is_youtube and is_canonical and url:
+                url = youtube.parse_youtube_url(url)
                 logger.info('Feed autodiscovery: %s', url)
                 self._resolved_url = url
 
