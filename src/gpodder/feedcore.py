@@ -26,7 +26,6 @@ import logging
 import urllib.parse
 from html.parser import HTMLParser
 
-import podcastparser
 from requests.exceptions import RequestException
 
 from gpodder import util
@@ -156,23 +155,24 @@ class Fetcher(object):
         else:
             raise UnknownStatusCode(status)
 
-    @staticmethod
-    def _podcastparse_feed(url, data_stream):
-        try:
-            feed = podcastparser.parse(url, data_stream)
-            feed['url'] = url
-            return feed
-        except ValueError as e:
-            raise InvalidFeed('Could not parse feed: {msg}'.format(msg=e))
+    def parse_feed(self, url, data_stream, headers, status, **kwargs):
+        """
+        kwargs are passed from Fetcher.fetch
+        :param str url: real url
+        :param data_stream: file-like object to read from (text mode)
+        :param dict-like headers: response headers (may be empty)
+        :param int status: always UPDATED_FEED for now
+        :return Result: Result(status, model.Feed from parsed data_stream)
+        """
+        raise NotImplementedError("Implement parse_feed()")
 
-    def _parse_feed(self, url, etag, modified, autodiscovery=True, max_episodes=0):
+    def fetch(self, url, etag=None, modified=None, autodiscovery=True, **kwargs):
+        """ use kwargs to pass extra data to parse_feed in Fetcher subclasses """
         # handle local file first
         if url.startswith('file://'):
             url = url[len('file://'):]
             stream = open(url)
-            feed = self._podcastparse_feed(url, stream)
-            feed['headers'] = {}
-            return Result(UPDATED_FEED, feed)
+            return self.parse_feed(url, stream, {}, UPDATED_FEED, **kwargs)
 
         # remote feed
         headers = {}
@@ -192,14 +192,14 @@ class Fetcher(object):
                 return Result(NEW_LOCATION, responses[i + 1].url)
         res = self._check_statuscode(stream.status_code, stream.url)
         if res == NOT_MODIFIED:
-            return Result(res, stream.url)
+            return Result(NOT_MODIFIED, stream.url)
 
         if autodiscovery and stream.headers.get('content-type', '').startswith('text/html'):
             ad = FeedAutodiscovery(url)
             ad.feed(stream.text)  # uses headers, then apparent encoding
             if ad._resolved_url:
                 try:
-                    self._parse_feed(ad._resolved_url, None, None, False)
+                    self.fetch(ad._resolved_url, etag=None, modified=None, autodiscovery=False, **kwargs)
                     return Result(NEW_LOCATION, ad._resolved_url)
                 except Exception as e:
                     logger.warn('Feed autodiscovery failed', exc_info=True)
@@ -208,9 +208,4 @@ class Fetcher(object):
                 url = self._resolve_url(url)
                 if url:
                     return Result(NEW_LOCATION, url)
-        feed = self._podcastparse_feed(url, StringIO(stream.text))
-        feed['headers'] = stream.headers
-        return Result(UPDATED_FEED, feed)
-
-    def fetch(self, url, etag=None, modified=None, max_episodes=0):
-        return self._parse_feed(url, etag, modified, max_episodes)
+        return self.parse_feed(url, StringIO(stream.text), stream.headers, UPDATED_FEED, **kwargs)

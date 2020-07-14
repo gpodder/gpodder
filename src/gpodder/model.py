@@ -172,7 +172,7 @@ class PodcastParserFeed(Feed):
             url = self.feed['paged_feed_next']
             logger.debug("get_next_page: feed has next %s", url)
             url = channel.authenticate_url(url)
-            res = self.fetcher.fetch(url, max_episodes=max_episodes)
+            res = self.fetcher.fetch(url, autodiscovery=False)
             if res.status == feedcore.UPDATED_FEED:
                 res.feed = PodcastParserFeed(res.feed, self.fetcher, max_episodes)
             return res
@@ -181,8 +181,8 @@ class PodcastParserFeed(Feed):
 
 class gPodderFetcher(feedcore.Fetcher):
     """
-    This class extends the feedcore Fetcher with the gPodder User-Agent and the
-    Proxy handler based on the current settings in gPodder.
+    This class implements fetching a channel from custom feed handlers
+    or the default using podcastparser
     """
     def fetch_channel(self, channel, max_episodes):
         custom_feed = registry.feed_handler.resolve(channel, None, max_episodes)
@@ -192,16 +192,22 @@ class gPodderFetcher(feedcore.Fetcher):
         # Note: using a HTTPBasicAuthHandler would be pain because we need to
         # know the realm. It can be done, but I think this method works, too
         url = channel.authenticate_url(channel.url)
-        res = self.fetch(url, channel.http_etag, channel.http_last_modified, max_episodes)
-        if res.status == feedcore.UPDATED_FEED:
-            res.feed = PodcastParserFeed(res.feed, self, max_episodes)
-        return res
+        return self.fetch(url, channel.http_etag, channel.http_last_modified, max_episodes=max_episodes)
 
     def _resolve_url(self, url):
         url = youtube.get_real_channel_url(url)
         url = vimeo.get_real_channel_url(url)
         url = escapist_videos.get_real_channel_url(url)
         return url
+
+    def parse_feed(self, url, data_stream, headers, status, max_episodes=0, **kwargs):
+        try:
+            feed = podcastparser.parse(url, data_stream)
+            feed['url'] = url
+            feed['headers'] = headers
+            return feedcore.Result(status, PodcastParserFeed(feed, self, max_episodes))
+        except ValueError as e:
+            raise feedcore.InvalidFeed('Could not parse feed: {msg}'.format(msg=e))
 
 
 # Our podcast model:
