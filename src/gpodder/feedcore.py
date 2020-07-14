@@ -33,14 +33,8 @@ from gpodder import util
 logger = logging.getLogger(__name__)
 
 
-try:
-    # Python 2
-    from rfc822 import mktime_tz
-    from StringIO import StringIO
-except ImportError:
-    # Python 3
-    from email.utils import mktime_tz
-    from io import StringIO
+from email.utils import mktime_tz
+from io import BytesIO
 
 
 class ExceptionWithData(Exception):
@@ -159,7 +153,7 @@ class Fetcher(object):
         """
         kwargs are passed from Fetcher.fetch
         :param str url: real url
-        :param data_stream: file-like object to read from (text mode)
+        :param data_stream: file-like object to read from (bytes mode)
         :param dict-like headers: response headers (may be empty)
         :param int status: always UPDATED_FEED for now
         :return Result: Result(status, model.Feed from parsed data_stream)
@@ -194,9 +188,14 @@ class Fetcher(object):
         if res == NOT_MODIFIED:
             return Result(NOT_MODIFIED, stream.url)
 
+
         if autodiscovery and stream.headers.get('content-type', '').startswith('text/html'):
             ad = FeedAutodiscovery(url)
-            ad.feed(stream.text)  # uses headers, then apparent encoding
+            if 'charset=' in stream.headers.get('content-type', ''):
+                # FIXME: encoding will be ISO-8859-1 if not specified by the server
+                # (see https://github.com/psf/requests/issues/2086)
+                # It matters for autodiscovery if non ascii links are used
+                ad.feed(stream.text)
             if ad._resolved_url:
                 try:
                     self.fetch(ad._resolved_url, etag=None, modified=None, autodiscovery=False, **kwargs)
@@ -208,4 +207,7 @@ class Fetcher(object):
                 url = self._resolve_url(url)
                 if url:
                     return Result(NEW_LOCATION, url)
-        return self.parse_feed(url, StringIO(stream.text), stream.headers, UPDATED_FEED, **kwargs)
+        # xml documents specify the encoding inline so better pass encoded body.
+        # Especially since requests will use ISO-8859-1 for content-type 'text/xml'
+        # if the server doesn't specify a charset.
+        return self.parse_feed(url, BytesIO(stream.content), stream.headers, UPDATED_FEED, **kwargs)
