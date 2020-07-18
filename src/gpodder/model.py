@@ -38,7 +38,7 @@ import time
 import podcastparser
 
 import gpodder
-from gpodder import (coverart, escapist_videos, feedcore, registry, schema,
+from gpodder import (coverart, feedcore, registry, schema,
                      util, vimeo, youtube)
 
 logger = logging.getLogger(__name__)
@@ -198,7 +198,6 @@ class gPodderFetcher(feedcore.Fetcher):
     def _resolve_url(self, url):
         url = youtube.get_real_channel_url(url)
         url = vimeo.get_real_channel_url(url)
-        url = escapist_videos.get_real_channel_url(url)
         return url
 
     def parse_feed(self, url, data_stream, headers, status, max_episodes=0, **kwargs):
@@ -309,7 +308,7 @@ class PodcastEpisode(PodcastModelObject):
         if not episode.url:
             return None
 
-        if any(mod.is_video_link(episode.url) for mod in (youtube, vimeo, escapist_videos)):
+        if any(mod.is_video_link(episode.url) for mod in (youtube, vimeo)):
             return episode
 
         # Check if we can resolve this link to a audio/video file
@@ -582,7 +581,6 @@ class PodcastEpisode(PodcastModelObject):
             # Use title for YouTube, Vimeo and Soundcloud downloads
             if (youtube.is_video_link(self.url) or
                     vimeo.is_video_link(self.url) or
-                    escapist_videos.is_video_link(self.url) or
                     episode_filename == 'stream'):
                 episode_filename = self.title
 
@@ -672,7 +670,7 @@ class PodcastEpisode(PodcastModelObject):
 
     def file_type(self):
         # Assume all YouTube/Vimeo links are video files
-        if youtube.is_video_link(self.url) or vimeo.is_video_link(self.url) or escapist_videos.is_video_link(self.url):
+        if youtube.is_video_link(self.url) or vimeo.is_video_link(self.url):
             return 'video'
 
         return util.file_type_by_extension(self.extension())
@@ -1209,7 +1207,7 @@ class PodcastChannel(PodcastModelObject):
         return self.section
 
     def _get_content_type(self):
-        if 'youtube.com' in self.url or 'vimeo.com' in self.url or 'escapistmagazine.com' in self.url:
+        if 'youtube.com' in self.url or 'vimeo.com' in self.url:
             return _('Video')
 
         audio, video, other = 0, 0, 0
