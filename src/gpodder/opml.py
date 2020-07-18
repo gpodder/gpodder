@@ -34,6 +34,7 @@ objects to valid OPML 1.1 files that can be used to backup
 or distribute gPodder's channel subscriptions.
 """
 
+import io
 import logging
 import os
 import os.path
@@ -69,7 +70,7 @@ class Importer(object):
             if os.path.exists(url):
                 doc = xml.dom.minidom.parse(url)
             else:
-                doc = xml.dom.minidom.parseString(util.urlopen(url).text)
+                doc = xml.dom.minidom.parse(io.BytesIO(util.urlopen(url).content))
 
             for outline in doc.getElementsByTagName('outline'):
                 # Make sure we are dealing with a valid link type (ignore case)

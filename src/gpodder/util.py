@@ -2191,3 +2191,18 @@ def get_header_param(headers, param, header_name):
         logger.error('Cannot get %s from %s', param, header_name, exc_info=True)
 
     return value
+
+
+def response_text(response, default_encoding='utf-8'):
+    """
+    Utility method to return urlopen response's text.
+    Requests uses only the charset info in content-type, then defaults to ISO-8859-1
+    when content-type=text/*.
+    We could use chardet (via response.apparent_encoding) but it's slow so often it's
+    simpler to just use the known encoding.
+    :return: textual body of the response
+    """
+    if 'charset=' in response.headers.get('content-type'):
+        return response.text
+    else:
+        return response.content.decode(default_encoding)

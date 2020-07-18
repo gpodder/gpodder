@@ -20,6 +20,7 @@
 #  Justin Forest <justin.forest@gmail.com> 2008-10-13
 #
 
+import io
 import json
 import logging
 import re
@@ -318,8 +319,8 @@ def get_channel_id_url(url):
     if 'youtube.com' in url:
         try:
             channel_url = ''
-            raw_xml_data = util.urlopen(url).text
-            xml_data = xml.etree.ElementTree.fromstring(raw_xml_data)
+            raw_xml_data = io.BytesIO(util.urlopen(url).content)
+            xml_data = xml.etree.ElementTree.parse(raw_xml_data)
             channel_id = xml_data.find("{http://www.youtube.com/xml/schemas/2015}channelId").text
             channel_url = 'https://www.youtube.com/channel/{}'.format(channel_id)
             return channel_url
@@ -354,7 +355,7 @@ def get_cover(url):
 
         try:
             channel_url = get_channel_id_url(url)
-            html_data = util.urlopen(channel_url).text
+            html_data = util.response_text(util.urlopen(channel_url))
             parser = YouTubeHTMLCoverParser()
             parser.feed(html_data)
             if parser.url:
@@ -385,7 +386,7 @@ def get_channel_desc(url):
 
         try:
             channel_url = get_channel_id_url(url)
-            html_data = util.urlopen(channel_url).text
+            html_data = util.response_text(util.urlopen(channel_url))
             parser = YouTubeHTMLDesc()
             parser.feed(html_data)
             if parser.description:

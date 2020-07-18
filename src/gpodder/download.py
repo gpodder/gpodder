@@ -188,9 +188,6 @@ class ContentRange(object):
 class DownloadCancelledException(Exception): pass
 
 
-class AuthenticationError(Exception): pass
-
-
 class gPodderDownloadHTTPError(Exception):
     def __init__(self, url, error_code, error_message):
         self.url = url

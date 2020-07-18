@@ -25,16 +25,13 @@
 import logging
 import urllib.parse
 from html.parser import HTMLParser
+from io import BytesIO
 
 from requests.exceptions import RequestException
 
 from gpodder import util
 
 logger = logging.getLogger(__name__)
-
-
-from email.utils import mktime_tz
-from io import BytesIO
 
 
 class ExceptionWithData(Exception):
@@ -188,14 +185,10 @@ class Fetcher(object):
         if res == NOT_MODIFIED:
             return Result(NOT_MODIFIED, stream.url)
 
-
         if autodiscovery and stream.headers.get('content-type', '').startswith('text/html'):
             ad = FeedAutodiscovery(url)
-            if 'charset=' in stream.headers.get('content-type', ''):
-                # FIXME: encoding will be ISO-8859-1 if not specified by the server
-                # (see https://github.com/psf/requests/issues/2086)
-                # It matters for autodiscovery if non ascii links are used
-                ad.feed(stream.text)
+            # response_text() will assume utf-8 if no charset specified
+            ad.feed(util.response_text(stream.text))
             if ad._resolved_url:
                 try:
                     self.fetch(ad._resolved_url, etag=None, modified=None, autodiscovery=False, **kwargs)

@@ -188,6 +188,7 @@ class gPodderFetcher(feedcore.Fetcher):
         custom_feed = registry.feed_handler.resolve(channel, None, max_episodes)
         if custom_feed is not None:
             return custom_feed
+        # TODO: revisit authenticate_url: pass auth as kwarg
         # If we have a username or password, rebuild the url with them included
         # Note: using a HTTPBasicAuthHandler would be pain because we need to
         # know the realm. It can be done, but I think this method works, too

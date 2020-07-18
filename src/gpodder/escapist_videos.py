@@ -73,7 +73,7 @@ def get_real_download_url(url):
 
     logger.debug('Config URL: %s', data_config_url)
 
-    data_config_data = util.urlopen(data_config_url).text
+    data_config_data = util.urlopen(data_config_url).content.decode('utf-8')
 
     # TODO: This second argument should get a real name
     real_url = get_escapist_real_url(data_config_data, data_config_frag.group(1))
@@ -120,7 +120,7 @@ def get_real_cover(url):
     if rss_url is None:
         return None
 
-    rss_data = util.urlopen(rss_url).text
+    rss_data = util.urlopen(rss_url).content.decode('utf-8')
     rss_data_frag = DATA_COVERART_RE.search(rss_data)
 
     if rss_data_frag is None:
