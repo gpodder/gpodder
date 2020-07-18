@@ -259,8 +259,13 @@ class YoutubeFeed(model.Feed):
 
 
 class gPodderYoutubeDL(download.CustomDownloader):
-    def __init__(self, gpodder_config=None):
+    def __init__(self, gpodder_config, my_config, force=False):
+        """
+        :param force: force using this downloader even if config says don't manage downloads
+        """
         self.gpodder_config = gpodder_config
+        self.my_config = my_config
+        self.force = force
         # cachedir is not much used in youtube-dl, but set it anyway
         cachedir = os.path.join(gpodder.home, 'youtube-dl')
         os.makedirs(cachedir, exist_ok=True)
@@ -379,6 +384,8 @@ class gPodderYoutubeDL(download.CustomDownloader):
         called by model.gPodderFetcher to get a custom feed.
         :returns feedcore.Result: a YoutubeFeed or None if channel is not a youtube channel or playlist
         """
+        if not self.my_config.manage_channel:
+            return None
         url = None
         m = CHANNEL_RE.match(channel.url)
         if m:
@@ -396,6 +403,8 @@ class gPodderYoutubeDL(download.CustomDownloader):
         """
         called from registry.custom_downloader.resolve
         """
+        if not self.force and not self.my_config.manage_downloads:
+            return None
         if re.match(r'''https://www.youtube.com/watch\?v=.+''', episode.url):
             return YoutubeCustomDownload(self, episode.url, episode)
         elif re.match(r'''https://www.youtube.com/watch\?v=.+''', episode.link):
@@ -409,12 +418,10 @@ class gPodderExtension:
         self.ytdl = None
 
     def on_load(self):
-        self.ytdl = gPodderYoutubeDL(self.container.manager.core.config)
+        self.ytdl = gPodderYoutubeDL(self.container.manager.core.config, self.container.config)
         logger.info('Registering youtube-dl.')
-        if self.container.config.manage_channel:
-            registry.feed_handler.register(self.ytdl.fetch_channel)
-        if self.container.config.manage_downloads:
-            registry.custom_downloader.register(self.ytdl.custom_downloader)
+        registry.feed_handler.register(self.ytdl.fetch_channel)
+        registry.custom_downloader.register(self.ytdl.custom_downloader)
 
     def on_unload(self):
         logger.info('Unregistering youtube-dl.')
@@ -438,4 +445,6 @@ class gPodderExtension:
             return [(_("Download with Youtube-DL"), self.download_episodes)]
 
     def download_episodes(self, episodes):
-        self.gpodder.download_episode_list(episodes, downloader=self.ytdl)
+        # create a new gPodderYoutubeDL to force using it even if manage_downloads is False
+        downloader = gPodderYoutubeDL(self.container.manager.core.config, self.container.config, force=True)
+        self.gpodder.download_episode_list(episodes, downloader=downloader)
