@@ -67,7 +67,9 @@ PyPI. With this, you get a self-contained gPodder CLI codebase.
 ### Test Dependencies
 
 - python-minimock
-- python-coverage
+- pytest
+- pytest-httpserver
+- pytest-cov
 - desktop-file-utils
 
 ## Testing
@@ -86,9 +88,8 @@ Tests in gPodder are written in two different ways:
 - [unittests](http://docs.python.org/3/library/unittest.html)
 
 If you want to add doctests, simply write the doctest and make sure that
-the module appears in "doctest_modules" in src/gpodder/unittests.py. For
-example, the doctests in src/gpodder/util.py are added as 'util' (the
-"gpodder" prefix must not be specified there).
+the module appears after `--doctest-modules` in `pytest.ini`. If you
+add tests to any module in `src/gpodder` you have nothing to do.
 
 If you want to add unit tests for a specific module (ex: gpodder.model),
 you should add the tests as gpodder.test.model, or in other words:

@@ -61,7 +61,8 @@ help:
 ##########################################################################
 
 unittest:
-	LC_ALL=C PYTHONPATH=src/ $(PYTHON) -m gpodder.unittests
+	LC_ALL=C PYTHONPATH=src/ pytest --ignore=tests --ignore=src/gpodder/utilwin32ctypes.py --doctest-modules src/gpodder/util.py src/gpodder/jsonconfig.py
+	LC_ALL=C PYTHONPATH=src/ pytest tests --ignore=src/gpodder/utilwin32ctypes.py --ignore=src/mygpoclient --cov=gpodder
 
 ISORTOPTS := -rc -c share src/gpodder tools bin/* *.py
 lint:
