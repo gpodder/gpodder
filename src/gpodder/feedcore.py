@@ -188,7 +188,7 @@ class Fetcher(object):
         if autodiscovery and stream.headers.get('content-type', '').startswith('text/html'):
             ad = FeedAutodiscovery(url)
             # response_text() will assume utf-8 if no charset specified
-            ad.feed(util.response_text(stream.text))
+            ad.feed(util.response_text(stream))
             if ad._resolved_url:
                 try:
                     self.fetch(ad._resolved_url, etag=None, modified=None, autodiscovery=False, **kwargs)
