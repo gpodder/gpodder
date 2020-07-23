@@ -63,6 +63,7 @@ from html.parser import HTMLParser
 
 import requests
 import requests.exceptions
+from requests.packages.urllib3.util.retry import Retry
 
 import gpodder
 
@@ -1196,8 +1197,15 @@ def urlopen(url, headers=None, data=None, timeout=None, **kwargs):
     if not timeout:
         timeout = gpodder.SOCKET_TIMEOUT
 
+    retry_strategy = Retry(
+        total=3,
+        status_forcelist=Retry.RETRY_AFTER_STATUS_CODES.union((408, 418, 504, 598, 599,)))
+    s = requests.Session()
+    a = requests.adapters.HTTPAdapter(max_retries=retry_strategy)
+    s.mount('http://', a)
+    s.mount('https://', a)
     headers.update({'User-agent': gpodder.user_agent})
-    return requests.get(url, headers=headers, data=data, timeout=timeout, **kwargs)
+    return s.get(url, headers=headers, data=data, timeout=timeout, **kwargs)
 
 
 def get_real_url(url):
