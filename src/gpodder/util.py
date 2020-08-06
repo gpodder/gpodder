@@ -1839,7 +1839,7 @@ def linux_get_active_interfaces():
     """
     process = Popen(['ip', 'link'], close_fds=True, stdout=subprocess.PIPE)
     data, _ = process.communicate()
-    for interface, _ in re.findall(r'\d+: ([^:]+):.*state (UP|UNKNOWN)', data.decode(locale.getpreferredencoding())):
+    for interface, _ in re.findall(r'\d+: ([^:]+):.*state (UP|DORMANT|UNKNOWN)', data.decode(locale.getpreferredencoding())):
         if interface != 'lo':
             yield interface
 
