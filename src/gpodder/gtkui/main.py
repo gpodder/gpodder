@@ -2583,6 +2583,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         @util.run_in_background
         def update_feed_cache_proc():
             updated_channels = []
+            nr_update_errors = 0
             for updated, channel in enumerate(channels):
                 if self.feed_cache_update_cancelled:
                     break
@@ -2599,15 +2600,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     channel.update(max_episodes=self.config.max_episodes_per_feed)
                     self._update_cover(channel)
                 except Exception as e:
-                    d = {'title': html.escape(channel.title), 'url': html.escape(channel.url), 'message': html.escape(str(e))}
-                    if d['message']:
-                        message = _('Error while updating %(title)s at %(url)s: %(message)s')
-                        channel._update_error = str(e)
+                    message = str(e)
+                    if message:
+                        channel._update_error = message
                     else:
-                        message = _('The %(title)s feed at %(url)s could not be updated.')
                         channel._update_error = '?'
-                    self.notification(message % d, _('Error while updating feed'), widget=self.treeChannels)
-                    logger.error('Error: %s', str(e), exc_info=(e.__class__ not in [
+                    nr_update_errors += 1
+                    logger.error('Error: %s', message, exc_info=(e.__class__ not in [
                         gpodder.feedcore.BadRequest,
                         gpodder.feedcore.AuthenticationRequired,
                         gpodder.feedcore.Unsubscribe,
@@ -2630,6 +2629,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     self.pbFeedUpdate.set_fraction(float(updated + 1) / float(count))
 
                 util.idle_add(update_progress, channel)
+
+            if nr_update_errors > 0:
+                self.notification(_('%d channel(s) failed to update') % nr_update_errors,
+                    _('Error while updating feeds'), widget=self.treeChannels)
 
             def update_feed_cache_finish_callback():
                 # Process received episode actions for all updated URLs
