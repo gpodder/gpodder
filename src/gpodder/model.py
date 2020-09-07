@@ -38,8 +38,7 @@ import time
 import podcastparser
 
 import gpodder
-from gpodder import (coverart, feedcore, registry, schema,
-                     util, vimeo, youtube)
+from gpodder import coverart, feedcore, registry, schema, util, vimeo, youtube
 
 logger = logging.getLogger(__name__)
 
