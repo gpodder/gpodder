@@ -15,8 +15,9 @@ import os
 import shlex
 import subprocess
 
-import gpodder
 import kaa.metadata
+
+import gpodder
 from gpodder import util
 
 logger = logging.getLogger(__name__)
