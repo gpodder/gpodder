@@ -614,7 +614,7 @@ msgstr "Ошибка Feedparser: %s"
 #: src/gpodder/gtkui/main.py:1312 src/gpodder/gtkui/model.py:735
 #, python-format
 msgid "ERROR: %s"
-msgstr ""
+msgstr "ОШИБКА: %s"
 
 #: src/gpodder/gtkui/main.py:1433
 msgid "Could not download some episodes:"
@@ -1707,11 +1707,11 @@ msgstr ""
 
 #: share/gpodder/extensions/filter.py:53
 msgid "Regular Expression"
-msgstr ""
+msgstr "Регулярное выражение"
 
 #: share/gpodder/extensions/filter.py:56
 msgid "Ignore Case"
-msgstr ""
+msgstr "Игнорировать регистр"
 
 #: share/gpodder/extensions/filter.py:126
 #, fuzzy
@@ -1721,11 +1721,11 @@ msgstr "Фильтр:"
 
 #: share/gpodder/extensions/filter.py:143
 msgid "Block"
-msgstr ""
+msgstr "Блокировать"
 
 #: share/gpodder/extensions/filter.py:152
 msgid "Except"
-msgstr ""
+msgstr "Кроме"
 
 #: share/gpodder/extensions/filter.py:159
 msgid ""
@@ -1734,10 +1734,14 @@ msgid ""
 "episode title, and an empty pattern matches any title.  The except pattern "
 "unblocks blocked episodes (to block all then unblock some)."
 msgstr ""
+"Если установить флажок блокировки и оставить его пустым, автоматическая загрузка "
+"всех выпусков на этом канале будет отключена. Шаблоны соответствуют частичному тексту "
+"в названии эпизода, а пустой шаблон соответствует любому заголовку. Шаблон "except" "
+"разблокирует заблокированные эпизоды (чтобы заблокировать все, а затем разблокировать некоторые)."
 
 #: share/gpodder/extensions/filter.py:166
 msgid "Filter episodes now (undoes any episodes you marked as old)"
-msgstr ""
+msgstr "Отфильтровать выпуски сейчас (отменяет все выпуски, помеченные как старые)"
 
 #: share/gpodder/extensions/gtk_statusicon.py:19
 msgid "Gtk Status Icon"
@@ -1894,13 +1898,13 @@ msgstr "Перекодировать видео файлы в avi/mp4/m4v"
 
 #: share/gpodder/extensions/youtube-dl.py:27
 msgid "Manage Youtube subscriptions using youtube-dl (pip install youtube_dl)"
-msgstr ""
+msgstr "Управление подписками Youtube с помощью youtube-dl (pip install youtube_dl)"
 
 #: share/gpodder/extensions/youtube-dl.py:432
 #, fuzzy
 #| msgid "Download to:"
 msgid "Download with Youtube-DL"
-msgstr "Загружать в:"
+msgstr "Скачать с Youtube-DL"
 
 #: share/gpodder/ui/gtk/gpodderaddpodcast.ui.h:1
 msgid "Add a new podcast"
@@ -2248,7 +2252,7 @@ msgstr "Описание эпизодов"
 
 #: share/gpodder/ui/gtk/menus.ui.h:35
 msgid "Always show Find entries"
-msgstr ""
+msgstr "Всегда показывать найденные записи"
 
 #: share/gpodder/ui/gtk/menus.ui.h:37
 msgid "Hide deleted episodes"
@@ -2444,7 +2448,7 @@ msgstr ""
 
 #: bin/gpo:990
 msgid "Title:"
-msgstr ""
+msgstr "Заголовок:"
 
 #: bin/gpo:991
 #, fuzzy
@@ -2456,11 +2460,11 @@ msgstr "Способ удаления:"
 #, fuzzy
 #| msgid "Section:"
 msgid "Description:"
-msgstr "Раздел:"
+msgstr "Описание:"
 
 #: bin/gpo:993
 msgid "Authors:"
-msgstr ""
+msgstr "Авторы:"
 
 #: bin/gpo:995
 #, fuzzy
@@ -2470,15 +2474,15 @@ msgstr "Документация"
 
 #: bin/gpo:996
 msgid "Enabled:"
-msgstr ""
+msgstr "Включено:"
 
 #: bin/gpo:996
 msgid "no"
-msgstr ""
+msgstr "нет"
 
 #: bin/gpo:1021
 msgid "enabled"
-msgstr ""
+msgstr "включено"
 
 #: bin/gpo:1021
 #, fuzzy
@@ -2489,7 +2493,7 @@ msgstr "Обновления отключены"
 #: bin/gpo:1024
 #, python-format
 msgid "Extension %(name)s (%(title)s) %(enabled)s"
-msgstr ""
+msgstr "Расширение %(name)s (%(title)s) %(enabled)s"
 
 #: bin/gpo:1104
 #, python-format
