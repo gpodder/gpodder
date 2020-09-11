@@ -137,7 +137,7 @@ class BackgroundUpdate(object):
             except ValueError:
                 break
             model.set(it, *(x for fields in (base_fields, update_fields)
-                              for pair in fields for x in pair))
+                            for pair in fields for x in pair))
             self.index += 1
 
             # Check for the time limit of 20 ms after each 50 rows processed
