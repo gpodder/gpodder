@@ -64,10 +64,11 @@ unittest:
 	LC_ALL=C PYTHONPATH=src/ pytest --ignore=tests --ignore=src/gpodder/utilwin32ctypes.py --doctest-modules src/gpodder/util.py src/gpodder/jsonconfig.py
 	LC_ALL=C PYTHONPATH=src/ pytest tests --ignore=src/gpodder/utilwin32ctypes.py --ignore=src/mygpoclient --cov=gpodder
 
-ISORTOPTS := -c share src/gpodder tools bin/* *.py
+# ISORTOPTS := -c share src/gpodder tools bin/* *.py # for isort >= 5.0
+ISORTOPTS := -rc -c share src/gpodder tools bin/* *.py
 lint:
 	pycodestyle share src/gpodder tools bin/* *.py
-	isort -q $(ISORTOPTS) || isort --df $(ISORTOPTS)
+	isort -q $(ISORTOPTS) || isort -df $(ISORTOPTS)
 
 
 release: distclean
