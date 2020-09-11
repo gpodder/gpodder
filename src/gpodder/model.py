@@ -182,10 +182,7 @@ class PodcastParserFeed(Feed):
             url = self.feed['paged_feed_next']
             logger.debug("get_next_page: feed has next %s", url)
             url = channel.authenticate_url(url)
-            res = self.fetcher.fetch(url, autodiscovery=False)
-            if res.status == feedcore.UPDATED_FEED:
-                res.feed = PodcastParserFeed(res.feed, self.fetcher, max_episodes)
-            return res
+            return self.fetcher.fetch(url, autodiscovery=False, max_episodes=max_episodes)
         return None
 
 
