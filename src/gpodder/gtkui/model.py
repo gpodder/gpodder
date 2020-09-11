@@ -131,8 +131,13 @@ class BackgroundUpdate(object):
                 (model.C_PUBLISHED, episode.published),
             )
             update_fields = model.get_update_fields(episode, include_description)
-            model.set(model.get_iter((self.index,)), *(x for fields in (base_fields, update_fields)
-                                                       for pair in fields for x in pair))
+            try:
+                it = model.get_iter((self.index,))
+            # fix #727 the tree might be invalid when trying to update so discard the exception
+            except ValueError:
+                break
+            model.set(it, *(x for fields in (base_fields, update_fields)
+                            for pair in fields for x in pair))
             self.index += 1
 
             # Check for the time limit of 20 ms after each 50 rows processed

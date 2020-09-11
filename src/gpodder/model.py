@@ -148,10 +148,21 @@ class PodcastParserFeed(Feed):
         if self.max_episodes > 0 and len(entries) > self.max_episodes:
             entries = entries[:self.max_episodes]
 
+        num_duplicate_guids = 0
+
         # Search all entries for new episodes
         for entry in entries:
             episode = channel.EpisodeClass.from_podcastparser_entry(entry, channel)
             if episode is None:
+                continue
+
+            # Discard episode when its GUID collides with a newer episode
+            if episode.guid in seen_guids:
+                num_duplicate_guids += 1
+                channel._update_error = ('Discarded {} episode(s) with non-unique GUID, contact the podcast publisher to fix this issue.'
+                        .format(num_duplicate_guids))
+                logger.warn('Discarded episode with non-unique GUID, contact the podcast publisher to fix this issue. [%s] [%s]',
+                        channel.title, episode.title)
                 continue
 
             seen_guids.add(episode.guid)
