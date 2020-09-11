@@ -79,7 +79,11 @@ class gPodderChannel(BuilderWidget):
             self.btn_website.hide()
 
         b = Gtk.TextBuffer()
-        b.set_text(self.channel.description)
+        if self.channel._update_error:
+            err = '\n\nERROR: {}'.format(self.channel._update_error)
+        else:
+            err = ''
+        b.set_text(self.channel.description + err)
         self.channel_description.set_buffer(b)
 
         # Add Drag and Drop Support
