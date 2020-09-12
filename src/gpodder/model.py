@@ -512,7 +512,7 @@ class PodcastEpisode(PodcastModelObject):
 
         if url is None or not os.path.exists(url):
             # FIXME: may custom downloaders provide the real url ?
-            url = registry.download_url.resolve(config, self.url, self)
+            url = registry.download_url.resolve(config, self.url, self, allow_partial)
         return url
 
     def find_unique_file_name(self, filename, extension):

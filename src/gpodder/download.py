@@ -428,7 +428,7 @@ class DefaultDownloader(CustomDownloader):
     def custom_downloader(config, episode):
         url = episode.url
         # Resolve URL and start downloading the episode
-        res = registry.download_url.resolve(config, None, episode)
+        res = registry.download_url.resolve(config, None, episode, False)
         if res:
             url = res
         if url == episode.url:
