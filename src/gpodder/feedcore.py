@@ -195,17 +195,17 @@ class Fetcher(object):
             ad = FeedAutodiscovery(url)
             # response_text() will assume utf-8 if no charset specified
             ad.feed(util.response_text(stream))
-            if ad._resolved_url:
+            if ad._resolved_url and ad._resolved_url != url:
                 try:
                     self.fetch(ad._resolved_url, etag=None, modified=None, autodiscovery=False, **kwargs)
                     return Result(NEW_LOCATION, ad._resolved_url)
                 except Exception as e:
                     logger.warn('Feed autodiscovery failed', exc_info=True)
 
-                # Second, try to resolve the URL
-                url = self._resolve_url(url)
-                if url:
-                    return Result(NEW_LOCATION, url)
+            # Second, try to resolve the URL
+            new_url = self._resolve_url(url)
+            if new_url and new_url != url:
+                return Result(NEW_LOCATION, new_url)
         # xml documents specify the encoding inline so better pass encoded body.
         # Especially since requests will use ISO-8859-1 for content-type 'text/xml'
         # if the server doesn't specify a charset.
