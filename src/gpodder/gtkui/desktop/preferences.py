@@ -132,6 +132,32 @@ class YouTubeVideoFormatListModel(Gtk.ListStore):
         self._config.youtube.preferred_fmt_id = self[index][self.C_ID]
 
 
+class YouTubeVideoHLSFormatListModel(Gtk.ListStore):
+    C_CAPTION, C_ID = list(range(2))
+
+    def __init__(self, config):
+        Gtk.ListStore.__init__(self, str, int)
+        self._config = config
+
+        if self._config.youtube.preferred_hls_fmt_ids:
+            caption = _('Custom (%(format_ids)s)') % {
+                'format_ids': ', '.join(str(x) for x in self._config.youtube.preferred_hls_fmt_ids),
+            }
+            self.append((caption, 0))
+
+        for id, (fmt_id, path, description) in youtube.hls_formats:
+            self.append((description, id))
+
+    def get_index(self):
+        for index, row in enumerate(self):
+            if self._config.youtube.preferred_hls_fmt_id == row[self.C_ID]:
+                return index
+        return 0
+
+    def set_index(self, index):
+        self._config.youtube.preferred_hls_fmt_id = self[index][self.C_ID]
+
+
 class VimeoVideoFormatListModel(Gtk.ListStore):
     C_CAPTION, C_ID = list(range(2))
 
@@ -184,6 +210,13 @@ class gPodderPreferences(BuilderWidget):
         self.combobox_preferred_youtube_format.pack_start(cellrenderer, True)
         self.combobox_preferred_youtube_format.add_attribute(cellrenderer, 'text', self.preferred_youtube_format_model.C_CAPTION)
         self.combobox_preferred_youtube_format.set_active(self.preferred_youtube_format_model.get_index())
+
+        self.preferred_youtube_hls_format_model = YouTubeVideoHLSFormatListModel(self._config)
+        self.combobox_preferred_youtube_hls_format.set_model(self.preferred_youtube_hls_format_model)
+        cellrenderer = Gtk.CellRendererText()
+        self.combobox_preferred_youtube_hls_format.pack_start(cellrenderer, True)
+        self.combobox_preferred_youtube_hls_format.add_attribute(cellrenderer, 'text', self.preferred_youtube_hls_format_model.C_CAPTION)
+        self.combobox_preferred_youtube_hls_format.set_active(self.preferred_youtube_hls_format_model.get_index())
 
         self.preferred_vimeo_format_model = VimeoVideoFormatListModel(self._config)
         self.combobox_preferred_vimeo_format.set_model(self.preferred_vimeo_format_model)
@@ -460,6 +493,10 @@ class gPodderPreferences(BuilderWidget):
     def on_combobox_preferred_youtube_format_changed(self, widget):
         index = self.combobox_preferred_youtube_format.get_active()
         self.preferred_youtube_format_model.set_index(index)
+
+    def on_combobox_preferred_youtube_hls_format_changed(self, widget):
+        index = self.combobox_preferred_youtube_hls_format.get_active()
+        self.preferred_youtube_hls_format_model.set_index(index)
 
     def on_combobox_preferred_vimeo_format_changed(self, widget):
         index = self.combobox_preferred_vimeo_format.get_active()
