@@ -210,17 +210,17 @@ class Fetcher(object):
             ad = FeedAutodiscovery(url)
 
             ad.feed(data.getvalue())
-            if ad._resolved_url:
+            if ad._resolved_url and ad._resolved_url != url:
                 try:
                     self._parse_feed(ad._resolved_url, None, None, False)
                     return Result(NEW_LOCATION, ad._resolved_url)
                 except Exception as e:
                     logger.warn('Feed autodiscovery failed', exc_info=True)
 
-                # Second, try to resolve the URL
-                url = self._resolve_url(url)
-                if url:
-                    return Result(NEW_LOCATION, url)
+            # Second, try to resolve the URL
+            new_url = self._resolve_url(url)
+            if new_url and new_url != url:
+                return Result(NEW_LOCATION, new_url)
 
             # Reset the stream so podcastparser can give it a go
             data.seek(0)
