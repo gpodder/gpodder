@@ -295,7 +295,7 @@ class gPodderYoutubeDL(download.CustomDownloader):
         #
         # See https://github.com/ytdl-org/youtube-dl#format-selection for details
         # about youtube-dl format specification.
-        fmt_ids = youtube.get_fmt_ids(gpodder_config.youtube)
+        fmt_ids = youtube.get_fmt_ids(gpodder_config.youtube, False)
         opts['format'] = '/'.join(str(fmt) for fmt in fmt_ids)
         if fallback:
             opts['format'] += '/' + fallback
