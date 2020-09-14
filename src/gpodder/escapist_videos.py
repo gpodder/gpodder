@@ -52,7 +52,7 @@ class EscapistError(BaseException): pass
 
 
 @registry.download_url.register
-def escapist_real_download_url(unused_config, episode):
+def escapist_real_download_url(unused_config, episode, allow_partial):
     res = get_real_download_url(episode.url)
     return None if res == episode.url else res
 
