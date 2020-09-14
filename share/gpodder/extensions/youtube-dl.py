@@ -95,20 +95,24 @@ class YoutubeCustomDownload(download.CustomDownload):
         # youtube-dl doesn't return a content-type but an extension
         if 'ext' in res:
             dot_ext = '.{}'.format(res['ext'])
+            # See #673 when merging multiple formats, the extension is appended to the tempname
+            # by YoutubeDL resulting in empty .partial file + .partial.mp4 exists
+            # and #796 .mkv is chosen by ytdl sometimes
+            tempstat = os.stat(tempname)
+            if not tempstat.st_size:
+                for try_ext in (dot_ext, ".mp4", ".m4a", ".webm", ".mkv"):
+                    tempname_with_ext = tempname + try_ext
+                    if os.path.isfile(tempname_with_ext):
+                        logger.debug('Youtubedl downloaded to "%s" instead of "%s", moving',
+                                     os.path.basename(tempname_with_ext),
+                                     os.path.basename(tempname))
+                        os.remove(tempname)
+                        os.rename(tempname_with_ext, tempname)
+                        dot_ext = try_ext
+                        break
             ext_filetype = mimetype_from_extension(dot_ext)
             if ext_filetype:
                 headers['content-type'] = ext_filetype
-            # See #673 when merging multiple formats, the extension is appended to the tempname
-            # by YoutubeDL resulting in empty .partial file + .partial.mp4 exists
-            tempstat = os.stat(tempname)
-            if not tempstat.st_size:
-                tempname_with_ext = tempname + dot_ext
-                if os.path.isfile(tempname_with_ext):
-                    logger.debug('Youtubedl downloaded to %s instead of %s, moving',
-                                 os.path.basename(tempname),
-                                 os.path.basename(tempname_with_ext))
-                    os.remove(tempname)
-                    os.rename(tempname_with_ext, tempname)
         return headers, res.get('url', self._url)
 
     def _my_hook(self, d):
