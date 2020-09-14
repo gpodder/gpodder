@@ -722,7 +722,7 @@ class gPodderCli(object):
 
     def youtube(self, url):
         fmt_ids = youtube.get_fmt_ids(self._config.youtube)
-        yurl = youtube.get_real_download_url(url, fmt_ids)
+        yurl = youtube.get_real_download_url(url, False, fmt_ids)
         print(yurl)
 
         return True
