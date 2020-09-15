@@ -721,8 +721,10 @@ class gPodderCli(object):
         return True
 
     def youtube(self, url):
-        fmt_ids = youtube.get_fmt_ids(self._config.youtube)
-        yurl = youtube.get_real_download_url(url, fmt_ids)
+        fmt_ids = youtube.get_fmt_ids(self._config.youtube, False)
+        yurl, duration = youtube.get_real_download_url(url, False, fmt_ids)
+        if duration is not None:
+            episode.total_time = int(int(duration) / 1000)
         print(yurl)
 
         return True
