@@ -284,7 +284,6 @@ class TreeViewHelper(object):
         see http://lazka.github.io/pgi-docs/#Gtk-3.0/classes/Menu.html#Gtk.Menu.popup
         """
         def position_func(menu, *unused_args):
-            print("POSITION(%r)" % (widget.get_bin_window().get_origin(),))
             _, x, y = widget.get_bin_window().get_origin()
 
             # If there's a selection, place the popup menu on top of
