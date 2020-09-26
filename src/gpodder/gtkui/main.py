@@ -88,6 +88,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self._search_episodes = None
         BuilderWidget.__init__(self, None, _builder_expose={'app': app})
 
+        self.last_episode_date_refresh = None
+        self.refresh_episode_dates()
+
     def new(self):
         if self.application.want_headerbar:
             self.header_bar = Gtk.HeaderBar()
@@ -2200,6 +2203,22 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def episode_new_status_changed(self, urls):
         self.update_podcast_list_model()
         self.update_episode_list_icons(urls)
+
+    def refresh_episode_dates(self):
+        t = time.localtime()
+        current_day = t[:3]
+        if self.last_episode_date_refresh is not None and self.last_episode_date_refresh != current_day:
+            # update all episodes in current view
+            for row in self.episode_list_model:
+                row[EpisodeListModel.C_PUBLISHED_TEXT] = row[EpisodeListModel.C_EPISODE].cute_pubdate()
+
+        self.last_episode_date_refresh = current_day
+
+        remaining_seconds = 86400 - 3600 * t.tm_hour - 60 * t.tm_min - t.tm_sec
+        if remaining_seconds > 3600:
+            # timeout an hour early in the event daylight savings changes the clock forward
+            remaining_seconds = remaining_seconds - 3600
+        GObject.timeout_add(remaining_seconds * 1000, self.refresh_episode_dates)
 
     def update_podcast_list_model(self, urls=None, selected=False, select_url=None,
             sections_changed=False):
