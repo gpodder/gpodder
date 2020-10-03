@@ -133,7 +133,8 @@ class gPodderApplication(Gtk.Application):
             sys.exit(1)
 
         self.menu_view_columns = builder.get_object('menuViewColumns')
-        self.set_menubar(menubar)
+        if not gpodder.ui.hdy:
+            self.set_menubar(menubar)
 
         # If $XDG_CURRENT_DESKTOP is set then it contains a colon-separated list of strings.
         # https://specifications.freedesktop.org/desktop-entry-spec/desktop-entry-spec-latest.html
