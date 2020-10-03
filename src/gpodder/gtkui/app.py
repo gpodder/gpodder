@@ -121,7 +121,7 @@ class gPodderApplication(Gtk.Application):
 
         menu_filename = None
         for ui_folder in gpodder.ui_folders:
-            filename = os.path.join(ui_folder, 'gtk/menus.ui')
+            filename = os.path.join(ui_folder, 'menus.ui')
             if os.path.exists(filename):
                 builder.add_from_file(filename)
                 menu_filename = filename
@@ -129,7 +129,7 @@ class gPodderApplication(Gtk.Application):
 
         menubar = builder.get_object('menubar')
         if menubar is None:
-            logger.error('Cannot find gtk/menus.ui in %r, exiting' % gpodder.ui_folders)
+            logger.error('Cannot find menus.ui in %r, exiting' % gpodder.ui_folders)
             sys.exit(1)
 
         self.menu_view_columns = builder.get_object('menuViewColumns')

@@ -86,7 +86,7 @@ def main():
     _ = gpodder.gettext
 
     # Set up paths to folder with GtkBuilder files and gpodder.svg
-    gpodder.ui_folders.append(ui_folder)
+#    gpodder.ui_folders.append(ui_folder)
     gpodder.images_folder = images_folder
     gpodder.icon_file = icon_file
 
@@ -114,6 +114,7 @@ def main():
     options, args = parser.parse_args(sys.argv)
 
     gpodder.ui.gtk = True
+    gpodder.ui.hdy = True
     gpodder.ui.python3 = True
 
     desktop_session = os.environ.get('DESKTOP_SESSION', 'unknown').lower()
@@ -154,7 +155,10 @@ def main():
 
     if gpodder.ui.gtk:
         from gpodder.gtkui import app
-        gpodder.ui_folders.insert(0, os.path.join(ui_folder, 'gtk'))
+        if gpodder.ui.hdy:
+            gpodder.ui_folders.insert(0, os.path.join(ui_folder, 'hdy'))
+        else:
+            gpodder.ui_folders.insert(0, os.path.join(ui_folder, 'gtk'))
         app.main(options)
     else:
         logger.error('No GUI selected.')
