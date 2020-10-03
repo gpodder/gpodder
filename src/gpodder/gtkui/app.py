@@ -187,6 +187,7 @@ class gPodderApplication(Gtk.Application):
             # Windows are associated with the application
             # when the last one is closed the application shuts down
             self.window = gPodder(self, self.bus_name, core.Core(UIConfig, model_class=Model), self.options)
+            self.add_window(self.window.main_window)
 
             if gpodder.ui.osx:
                 from . import macosx
