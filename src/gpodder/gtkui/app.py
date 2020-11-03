@@ -153,7 +153,8 @@ class gPodderApplication(Gtk.Application):
             self.header_bar_menu_button.set_action_name('app.menu')
 
             self.header_bar_refresh_button = Gtk.Button.new_from_icon_name('view-refresh-symbolic', Gtk.IconSize.SMALL_TOOLBAR)
-            self.header_bar_refresh_button.set_action_name('win.updateChannel')
+#            self.header_bar_refresh_button.set_action_name('win.updateChannel')
+            self.header_bar_refresh_button.set_action_name('win.update')
 
             self.menu_popover = Gtk.Popover.new_from_model(self.header_bar_menu_button, self.app_menu)
             self.menu_popover.set_position(Gtk.PositionType.BOTTOM)
