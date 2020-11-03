@@ -158,7 +158,7 @@ class EpisodeListModel(Gtk.ListStore):
         C_VIEW_SHOW_UNDELETED, C_VIEW_SHOW_DOWNLOADED, \
         C_VIEW_SHOW_UNPLAYED, C_FILESIZE, C_PUBLISHED, \
         C_TIME, C_TIME_VISIBLE, C_TOTAL_TIME, \
-        C_LOCKED = list(range(17))
+        C_LOCKED, C_TIME_AND_PUBLISHED_TEXT = list(range(18))
 
     VIEW_ALL, VIEW_UNDELETED, VIEW_DOWNLOADED, VIEW_UNPLAYED = list(range(4))
 
@@ -174,7 +174,7 @@ class EpisodeListModel(Gtk.ListStore):
         Gtk.ListStore.__init__(self, str, str, str, object, str, str, str,
                                str, bool, bool, bool, GObject.TYPE_INT64,
                                GObject.TYPE_INT64, str, bool,
-                               GObject.TYPE_INT64, bool)
+                               GObject.TYPE_INT64, bool, str)
 
         self._config = config
 
@@ -477,6 +477,7 @@ class EpisodeListModel(Gtk.ListStore):
                 (self.C_LOCKED, episode.archive),
                 (self.C_FILESIZE_TEXT, self._format_filesize(episode)),
                 (self.C_FILESIZE, episode.file_size),
+                (self.C_TIME_AND_PUBLISHED_TEXT, episode.get_play_info_string()+'\n'+episode.cute_pubdate()),
         )
 
     def update_by_iter(self, iter, include_description=False):
