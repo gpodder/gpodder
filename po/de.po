@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: gPodder\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-11-06 17:18+0100\n"
-"PO-Revision-Date: 2020-06-14 16:34+0200\n"
+"PO-Revision-Date: 2020-11-06 18:29+0100\n"
 "Last-Translator: TZocker\n"
 "Language-Team: German (http://www.transifex.com/projects/p/gpodder/language/"
 "de/)\n"
@@ -419,25 +419,23 @@ msgstr "Bugtracker"
 msgid "Path to gPodder home is too long"
 msgstr "Der Pfad zum gPodder Homeverzeichnis ist zu lang"
 
-# (Ganzzahl)
 #: src/gpodder/gtkui/config.py:50
 msgid "Integer"
-msgstr "Integer"
+msgstr "Ganzzahl"
 
-# Gleitkommazahl
 #: src/gpodder/gtkui/config.py:52
 msgid "Float"
-msgstr "Float"
+msgstr "Gleitkommazahl"
 
-# 0 / 1
+# 0 / 1 (binär)
+# Typ ist Bool
 #: src/gpodder/gtkui/config.py:54
 msgid "Boolean"
-msgstr "Boolesch"
+msgstr "Bool"
 
-# Zeichenkette
 #: src/gpodder/gtkui/config.py:56
 msgid "String"
-msgstr "String"
+msgstr "Zeichenkette"
 
 #: src/gpodder/gtkui/desktopfile.py:70
 #, python-format
@@ -872,16 +870,18 @@ msgstr[1] "Aktualisiere %(count)d Feeds..."
 msgid "Updating %(podcast)s (%(position)d/%(total)d)"
 msgstr "Aktualisiert %(podcast)s (%(position)d/%(total)d)"
 
+# Singular:
+# %d Kanal konnte(n) nicht aktualisiert werden
+# Plural:
+# %d Kanäle konnte(n) nicht aktualisiert werden
 #: src/gpodder/gtkui/main.py:2667
-#, python-format
+#, fuzzy, python-format
 msgid "%d channel(s) failed to update"
-msgstr ""
+msgstr "%d Channel(s) konnte(n) nicht aktualisiert werden"
 
 #: src/gpodder/gtkui/main.py:2668
-#, fuzzy
-#| msgid "Error while updating feed"
 msgid "Error while updating feeds"
-msgstr "Fehler beim Aktualisieren des Feeds"
+msgstr "Fehler beim Aktualisieren von Feeds"
 
 #: src/gpodder/gtkui/main.py:2694
 msgid "No new episodes"
@@ -2017,10 +2017,8 @@ msgid "Preferred YouTube format:"
 msgstr "Bevorzugtes YouTube-Format:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:8
-#, fuzzy
-#| msgid "Preferred YouTube format:"
 msgid "Preferred YouTube HLS format:"
-msgstr "Bevorzugtes YouTube-Format:"
+msgstr "Bevorzugtes YouTube HLS-Format:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:9
 msgid "Preferred Vimeo format:"
