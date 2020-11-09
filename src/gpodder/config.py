@@ -162,6 +162,7 @@ defaults = {
                 'descriptions': True,
                 'view_mode': 1,
                 'columns': int('110', 2),  # bitfield of visible columns
+                'always_show_new': True,
             },
 
             'download_list': {

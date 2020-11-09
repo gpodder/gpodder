@@ -390,7 +390,7 @@ class EpisodeListModel(Gtk.ListStore):
             elif episode.state == gpodder.STATE_NORMAL and \
                     episode.is_new:
                 tooltip.append(_('New episode'))
-                view_show_downloaded = True
+                view_show_downloaded = self._config.ui.gtk.episode_list.always_show_new
                 view_show_unplayed = True
             elif episode.state == gpodder.STATE_DOWNLOADED:
                 tooltip = []
