@@ -2664,7 +2664,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 util.idle_add(update_progress, channel)
 
             if nr_update_errors > 0:
-                self.notification(_('%d channel(s) failed to update') % nr_update_errors,
+                self.notification(
+                    N_('%(count)d channel failed to update',
+                       '%(count)d channels failed to update',
+                       nr_update_errors) % {'count': nr_update_errors},
                     _('Error while updating feeds'), widget=self.treeChannels)
 
             def update_feed_cache_finish_callback():
