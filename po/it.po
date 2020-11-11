@@ -3,7 +3,7 @@
 # This file is distributed under the same license as the GPODDER package.
 #
 # Translators:
-# Marco Ciampa <ciampix@posteo.net>, 2019.
+# Marco Ciampa <ciampix@posteo.net>, 2019, 2020.
 # Alessandro Campidori  <alessandrocampidori@gmail.com>, 2012.
 # Andrea Scarpino <andrea@archlinux.org>, 2011.
 # Thomas Perl <thp@perli.net>, 2006.
@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: gPodder\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-11-10 16:20+0100\n"
-"PO-Revision-Date: 2019-12-26 17:47+0100\n"
+"PO-Revision-Date: 2020-11-11 10:31+0100\n"
 "Last-Translator: Maurizio Ballo <xmaurizio.13@hotmail.com>\n"
 "Language-Team: Italian (http://www.transifex.com/projects/p/gpodder/language/"
 "it/)\n"
@@ -312,10 +312,8 @@ msgid "Cannot open device"
 msgstr "Impossibile aprire il dispositivo"
 
 #: src/gpodder/syncui.py:91
-#, fuzzy
-#| msgid "Please check the settings in the preferences dialog."
 msgid "Please check logs and the settings in the preferences dialog."
-msgstr "Verifica le impostazioni nella schermata delle preferenze."
+msgstr "Verifica i log e le impostazioni nella schermata delle preferenze."
 
 #: src/gpodder/syncui.py:138
 msgid "Not enough space left on device"
@@ -607,7 +605,7 @@ msgstr "Errore nel feed: %s"
 #: src/gpodder/gtkui/main.py:1315 src/gpodder/gtkui/model.py:740
 #, python-format
 msgid "ERROR: %s"
-msgstr ""
+msgstr "ERRORE: %s"
 
 #: src/gpodder/gtkui/main.py:1436
 msgid "Could not download some episodes:"
@@ -872,19 +870,15 @@ msgid "Updating %(podcast)s (%(position)d/%(total)d)"
 msgstr "Aggiornamento %(podcast)s (%(position)d/%(total)d)"
 
 #: src/gpodder/gtkui/main.py:2668
-#, fuzzy, python-format
-#| msgid "%(count)d failed"
-#| msgid_plural "%(count)d failed"
+#, python-format
 msgid "%(count)d channel failed to update"
 msgid_plural "%(count)d channels failed to update"
-msgstr[0] "%(count)d fallito"
-msgstr[1] "%(count)d falliti"
+msgstr[0] "Fallito aggiornamento di %(count)d canale"
+msgstr[1] "Fallito aggiornamento di %(count)d canali"
 
 #: src/gpodder/gtkui/main.py:2671
-#, fuzzy
-#| msgid "Error while updating feed"
 msgid "Error while updating feeds"
-msgstr "Errore nell'aggiornamento del feed"
+msgstr "Errore nell'aggiornamento dei feed"
 
 #: src/gpodder/gtkui/main.py:2697
 msgid "No new episodes"
@@ -1680,36 +1674,32 @@ msgid "Open website"
 msgstr "Apri sito Web"
 
 #: share/gpodder/extensions/filter.py:15
-#, fuzzy
-#| msgid "Delete episodes"
 msgid "Filter Episodes"
-msgstr "Elimina episodi"
+msgstr "Filtra episodi"
 
 #: share/gpodder/extensions/filter.py:16
 msgid "Disable automatic downloads based on episode title."
-msgstr ""
+msgstr "Disabilita gli scaricamenti automatici basati sul titolo dell'episodio."
 
 #: share/gpodder/extensions/filter.py:53
 msgid "Regular Expression"
-msgstr ""
+msgstr "Espressione regolare"
 
 #: share/gpodder/extensions/filter.py:56
 msgid "Ignore Case"
-msgstr ""
+msgstr "Ingora le maiuscole"
 
 #: share/gpodder/extensions/filter.py:126
-#, fuzzy
-#| msgid "Filter:"
 msgid "Filter"
-msgstr "Filtro:"
+msgstr "Filtra"
 
 #: share/gpodder/extensions/filter.py:143
 msgid "Block"
-msgstr ""
+msgstr "Blocca"
 
 #: share/gpodder/extensions/filter.py:152
 msgid "Except"
-msgstr ""
+msgstr "Eccetto"
 
 #: share/gpodder/extensions/filter.py:159
 msgid ""
@@ -1717,11 +1707,11 @@ msgid ""
 "for all episodes in this channel.  The patterns match partial text in "
 "episode title, and an empty pattern matches any title.  The except pattern "
 "unblocks blocked episodes (to block all then unblock some)."
-msgstr ""
+msgstr "Facendo clic sul blocco spunte e lasciandolo vuoto disabiliterà l'auto-scaricamento per tutti gli episodi in questo canale.  I modelli corrispondono al testo parziale nel titolo dell'episodio, e uno schema vuoto corrisponde a qualunque titolo. Il modello eccetto sblocca gli episodi bloccati (per bloccare tutti e poi sbloccarne alcuni)."
 
 #: share/gpodder/extensions/filter.py:166
 msgid "Filter episodes now (undoes any episodes you marked as old)"
-msgstr ""
+msgstr "Filtra gli episodi ora (toglie la marcatura di vecchio da ogni episodio)"
 
 #: share/gpodder/extensions/gtk_statusicon.py:19
 msgid "Gtk Status Icon"
@@ -1883,10 +1873,8 @@ msgstr ""
 "Gestisci le tue iscrizioni Youtube usando youtube-dl (pip install youtube_dl)"
 
 #: share/gpodder/extensions/youtube-dl.py:449
-#, fuzzy
-#| msgid "Download to:"
 msgid "Download with Youtube-DL"
-msgstr "Scarica in:"
+msgstr "Scarica con Youtube-DL"
 
 #: share/gpodder/ui/gtk/gpodderaddpodcast.ui.h:1
 msgid "Add a new podcast"
@@ -2013,10 +2001,8 @@ msgid "Preferred YouTube format:"
 msgstr "Formato YouTube preferito:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:8
-#, fuzzy
-#| msgid "Preferred YouTube format:"
 msgid "Preferred YouTube HLS format:"
-msgstr "Formato YouTube preferito:"
+msgstr "Formato YouTube HSL preferito:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:9
 msgid "Preferred Vimeo format:"
@@ -2179,10 +2165,8 @@ msgid "Download new episodes"
 msgstr "Scarica nuovi episodi"
 
 #: share/gpodder/ui/gtk/menus.ui.h:11
-#, fuzzy
-#| msgid "Find new podcasts"
 msgid "Find Podcast"
-msgstr "Trova nuovi podcast"
+msgstr "Trova podcast"
 
 #: share/gpodder/ui/gtk/menus.ui.h:12
 msgid "_Subscriptions"
@@ -2217,10 +2201,8 @@ msgid "Change delete lock"
 msgstr "Modifica blocco di cancellazione"
 
 #: share/gpodder/ui/gtk/menus.ui.h:28
-#, fuzzy
-#| msgid "Delete episodes"
 msgid "Find Episode"
-msgstr "Elimina episodi"
+msgstr "Trova episodio"
 
 #: share/gpodder/ui/gtk/menus.ui.h:31
 msgid "Sync to device"
@@ -2240,7 +2222,7 @@ msgstr "Descrizioni degli episodi"
 
 #: share/gpodder/ui/gtk/menus.ui.h:35
 msgid "Always show Find entries"
-msgstr ""
+msgstr "Mostra sempre le voci Trova"
 
 #: share/gpodder/ui/gtk/menus.ui.h:37
 msgid "Hide deleted episodes"
@@ -2431,56 +2413,48 @@ msgstr "Sincronizzazione di %s"
 
 #: bin/gpo:981
 msgid "(enabled)"
-msgstr ""
+msgstr "(abilitato)"
 
 #: bin/gpo:992
 msgid "Title:"
-msgstr ""
+msgstr "Titolo:"
 
 #: bin/gpo:993
-#, fuzzy
-#| msgid "Strategy:"
 msgid "Category:"
-msgstr "Strategia: "
+msgstr "Categoria:"
 
 #: bin/gpo:994
-#, fuzzy
-#| msgid "Section:"
 msgid "Description:"
-msgstr "Sezione:"
+msgstr "Descrizione:"
 
 #: bin/gpo:995
 msgid "Authors:"
-msgstr ""
+msgstr "Autori:"
 
 #: bin/gpo:997
-#, fuzzy
-#| msgid "Documentation"
 msgid "Documentation:"
-msgstr "Documentazione"
+msgstr "Documentazione:"
 
 #: bin/gpo:998
 msgid "Enabled:"
-msgstr ""
+msgstr "Abilitato:"
 
 #: bin/gpo:998
 msgid "no"
-msgstr ""
+msgstr "no"
 
 #: bin/gpo:1023
 msgid "enabled"
-msgstr ""
+msgstr "abilitato"
 
 #: bin/gpo:1023
-#, fuzzy
-#| msgid "Updates disabled"
 msgid "disabled"
-msgstr "Aggiornamenti disabilitati"
+msgstr "disabilitato"
 
 #: bin/gpo:1026
 #, python-format
 msgid "Extension %(name)s (%(title)s) %(enabled)s"
-msgstr ""
+msgstr "Estensione %(name)s (%(title)s) %(enabled)s"
 
 #: bin/gpo:1106
 #, python-format
@@ -2500,10 +2474,8 @@ msgid "print logging output on the console"
 msgstr "Stampa dati di login sulla console"
 
 #: bin/gpodder:104
-#, fuzzy
-#| msgid "print logging output on the console"
 msgid "reduce warnings on the console"
-msgstr "Stampa dati di login sulla console"
+msgstr "riduci gli avvertimenti sulla console"
 
 #: bin/gpodder:107
 msgid "subscribe to the feed at URL"
