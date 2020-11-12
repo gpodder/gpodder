@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: gPodder\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-11-10 16:20+0100\n"
-"PO-Revision-Date: 2020-06-21 11:08+0200\n"
+"PO-Revision-Date: 2020-11-11 21:29+0100\n"
 "Last-Translator: Karl Ove Hufthammer <karl@huftis.org>\n"
 "Language-Team: Norwegian Nynorsk <l10n-no@lister.huftis.org>\n"
 "Language: nn\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Lokalize 20.07.70\n"
+"X-Generator: Lokalize 20.08.2\n"
 
 #: src/gpodder/config.py:54
 #, python-format
@@ -871,16 +871,15 @@ msgid "Updating %(podcast)s (%(position)d/%(total)d)"
 msgstr "Oppdaterer %(podcast)s (%(position)d/%(total)d)"
 
 #: src/gpodder/gtkui/main.py:2668
-#, fuzzy, python-format
+#, python-format
 #| msgid "%(count)d failed"
 #| msgid_plural "%(count)d failed"
 msgid "%(count)d channel failed to update"
 msgid_plural "%(count)d channels failed to update"
-msgstr[0] "%(count)d mislukka"
-msgstr[1] "%(count)d mislukka"
+msgstr[0] "%(count)d kanal gav feil ved oppdatering"
+msgstr[1] "%(count)d kanalar gav feil ved oppdatering"
 
 #: src/gpodder/gtkui/main.py:2671
-#, fuzzy
 #| msgid "Error while updating feed"
 msgid "Error while updating feeds"
 msgstr "Feil ved kjeldeoppdatering"
@@ -1403,8 +1402,7 @@ msgstr "storleik: %s"
 #: src/gpodder/gtkui/desktop/exportlocal.py:57
 #, python-format
 msgid "Export remaining %(count)d episode to this folder with its default name"
-msgid_plural ""
-"Export remaining %(count)d episodes to this folder with their default name"
+msgid_plural "Export remaining %(count)d episodes to this folder with their default name"
 msgstr[0] ""
 "Eksporter gjenståande %(count)d episode til denne mappa, med standardnamn"
 msgstr[1] ""
@@ -1601,9 +1599,10 @@ msgstr "Fil gjord om"
 msgid "Conversion failed"
 msgstr "Feil ved formatomgjering"
 
+# Er *etter* nedlasting, jf. neste tekst.
 #: share/gpodder/extensions/command_on_download.py:18
 msgid "Run a Command on Download"
-msgstr "Køyr kommando ved nedlasting"
+msgstr "Køyr kommando etter nedlasting"
 
 # Skal ikkje vera avsluttande punktum i utvidingsskildringane.
 #: share/gpodder/extensions/command_on_download.py:19
@@ -1752,7 +1751,7 @@ msgstr "Gjer om MPRIS-varslingar til D-Bus-API for gPodder-mediespelar"
 
 #: share/gpodder/extensions/normalize_audio.py:21
 msgid "Normalize audio with re-encoding"
-msgstr "Normaliser lydstyrken med omkoding"
+msgstr "Normaliser lydstyrken via omkoding"
 
 #: share/gpodder/extensions/normalize_audio.py:22
 msgid "Normalize the volume of audio files with normalize-audio"
@@ -2004,7 +2003,7 @@ msgstr "Videoavspelar:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:4
 msgid "\"All episodes\" in podcast list"
-msgstr "Vis samlekategori med «alle episodar» i podkastlista"
+msgstr "Vis samlekategori med «Alle episodar» i podkastlista"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:5
 msgid "Use sections for podcast list"
@@ -2012,17 +2011,16 @@ msgstr "Grupper podkastlista etter kategoriar"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:7
 msgid "Preferred YouTube format:"
-msgstr "Føretrekt YouTube-format:"
+msgstr "Føretrekt format for YouTube:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:8
-#, fuzzy
 #| msgid "Preferred YouTube format:"
 msgid "Preferred YouTube HLS format:"
-msgstr "Føretrekt YouTube-format:"
+msgstr "Føretrekt format for YouTube HLS:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:9
 msgid "Preferred Vimeo format:"
-msgstr "Føretrekt Vimeo-format:"
+msgstr "Føretrekt format for Vimeo:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:12
 msgid "Synchronize subscriptions and episode actions"
