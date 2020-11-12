@@ -485,7 +485,7 @@ def parse_youtube_url(url):
 
         if 'list=' in query:
             playlist_query = [query_value for query_value in query.split("&") if 'list=' in query_value][0]
-            playlist_id = playlist_query.strip("list=")
+            playlist_id = playlist_query[5:]
             query = 'playlist_id={playlist_id}'.format(playlist_id=playlist_id)
 
         path = '/feeds/videos.xml'
