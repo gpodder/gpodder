@@ -6,7 +6,7 @@ jobs:
       # important: must be same as mac bundle's python
       - image: python:3.8
     environment:
-      - BUNDLE_TAG: base-5.2.0
+      - BUNDLE_TAG: base-5.2.1_0
     shell: /bin/bash --login -o pipefail
     steps:
       - checkout
