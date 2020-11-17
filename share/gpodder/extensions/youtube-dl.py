@@ -393,7 +393,7 @@ class gPodderYoutubeDL(download.CustomDownloader):
         url = None
         m = CHANNEL_RE.match(channel.url)
         if m:
-            url = 'https://www.youtube.com/channel/{}'.format(m.group(1))
+            url = 'https://www.youtube.com/channel/{}/videos'.format(m.group(1))
         else:
             m = PLAYLIST_RE.match(channel.url)
             if m:
