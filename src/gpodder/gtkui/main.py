@@ -40,7 +40,7 @@ from gpodder.model import Model, PodcastEpisode
 from gpodder.syncui import gPodderSyncUI
 
 from . import shownotes
-from .desktop.channel import gPodderChannel
+from .adaptive.channel import gPodderChannel
 from .desktop.episodeselector import gPodderEpisodeSelector
 from .desktop.exportlocal import gPodderExportToLocalFolder
 from .desktop.podcastdirectory import gPodderPodcastDirectory
