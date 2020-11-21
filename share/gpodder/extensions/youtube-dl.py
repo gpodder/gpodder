@@ -41,6 +41,7 @@ DefaultConfig = {
 
 # youtube feed still preprocessed by youtube.py (compat)
 CHANNEL_RE = re.compile(r'''https://www.youtube.com/feeds/videos.xml\?channel_id=(.+)''')
+USER_RE = re.compile(r'''https://www.youtube.com/feeds/videos.xml\?user=(.+)''')
 PLAYLIST_RE = re.compile(r'''https://www.youtube.com/feeds/videos.xml\?playlist_id=(.+)''')
 
 
@@ -151,7 +152,7 @@ class YoutubeFeed(model.Feed):
         filtered_entries = []
         seen_guids = set()
         for i, e in enumerate(entries):  # consumes the generator!
-            if e.get('_type', 'video') == 'url' and e.get('ie_key') == 'Youtube':
+            if e.get('_type', 'video') in ('url', 'url_transparent') and e.get('ie_key') == 'Youtube':
                 guid = video_guid(e['id'])
                 e['guid'] = guid
                 if guid in seen_guids:
@@ -393,11 +394,15 @@ class gPodderYoutubeDL(download.CustomDownloader):
         url = None
         m = CHANNEL_RE.match(channel.url)
         if m:
-            url = 'https://www.youtube.com/channel/{}'.format(m.group(1))
+            url = 'https://www.youtube.com/channel/{}/videos'.format(m.group(1))
         else:
-            m = PLAYLIST_RE.match(channel.url)
+            m = USER_RE.match(channel.url)
             if m:
-                url = 'https://www.youtube.com/playlist?list={}'.format(m.group(1))
+                url = 'https://www.youtube.com/user/{}/videos'.format(m.group(1))
+            else:
+                m = PLAYLIST_RE.match(channel.url)
+                if m:
+                    url = 'https://www.youtube.com/playlist?list={}'.format(m.group(1))
         if url:
             logger.info('Youtube-dl Handling %s => %s', channel.url, url)
             return self.refresh(url, channel.url, max_episodes)
