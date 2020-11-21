@@ -84,7 +84,7 @@ function extract_installer {
 }
 
 PIP_REQUIREMENTS="\
-podcastparser==0.6.5
+podcastparser==0.6.6
 mygpoclient==1.8
 git+https://github.com/enthought/pywin32-ctypes.git@f27d6a0
 html5lib==1.1
@@ -92,7 +92,7 @@ webencodings==0.5.1
 six==1.12.0
 certifi==2020.11.8
 mutagen==1.45.1
-youtube_dl==2020.11.1.1
+youtube_dl==2020.11.21.1
 "
 
 function install_deps {
