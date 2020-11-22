@@ -20,7 +20,8 @@ build_script:
   - curl -O http://repo.msys2.org/msys/x86_64/msys2-keyring-r21.b39fb11-1-any.pkg.tar.xz.sig
   - bash -lc "pacman-key --verify msys2-keyring-r21.b39fb11-1-any.pkg.tar.xz.sig"
   - bash -lc "pacman --noconfirm  -U msys2-keyring-r21.b39fb11-1-any.pkg.tar.xz"
-  - bash -lc "pacman --noconfirm --ask 20 -Suy"
+  - bash -lc "pacman -Syuu --noconfirm && ps -ef | grep 'dirmngr' | grep -v grep | awk '{print `$2}' | xargs -r kill -9 && ps -ef | grep 'gpg-agent' | grep -v grep | awk '{print `$2}' | xargs -r kill -9"
+  - bash -lc "pacman -Syuu --noconfirm && ps -ef | grep 'gpg-agent' | grep -v grep | awk '{print `$2}' | xargs -r kill -9"
   # remove precisely conflicting packages
   - bash -lc "pacman --noconfirm --ask 20 --remove mingw-w64-x86_64-gcc-ada mingw-w64-x86_64-gcc-objc mingw-w64-i686-gcc-ada mingw-w64-i686-gcc-objc"
   # rerun per the "terminate MSYS2 without returning to shell and check for updates again" message
