@@ -22,8 +22,8 @@ build_script:
   - bash -lc "pacman --noconfirm  -U msys2-keyring-r21.b39fb11-1-any.pkg.tar.xz"
   # workaround updating msys2-runtime breaks all programs until last one exited
   - bash -lc "pacman -Syuu --noconfirm"
-  - Powershell.exe "Stop-Process -name dirmngr -Erroraction silentlycontinue"
-  - Powershell.exe "Stop-Process -name gpg-agent -Erroraction silentlycontinue"
+  - Powershell.exe "Stop-Process -name dirmngr -Erroraction silentlycontinue" || echo dirmng not running
+  - Powershell.exe "Stop-Process -name gpg-agent -Erroraction silentlycontinue" ||  echo gpg-agent not running
   - bash -lc "pacman -Syuu --noconfirm"
   - Powershell.exe "Stop-Process -name dirmngr -Erroraction silentlycontinue"
   - Powershell.exe "Stop-Process -name gpg-agent -Erroraction silentlycontinue"
