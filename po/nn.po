@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gPodder\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-11-10 16:20+0100\n"
+"POT-Creation-Date: 2020-11-23 08:13+0100\n"
 "PO-Revision-Date: 2020-11-11 21:29+0100\n"
 "Last-Translator: Karl Ove Hufthammer <karl@huftis.org>\n"
 "Language-Team: Norwegian Nynorsk <l10n-no@lister.huftis.org>\n"
@@ -157,7 +157,7 @@ msgstr "Fann ikkje Python-modul: %(module)s"
 
 #: src/gpodder/model.py:481 src/gpodder/youtube.py:444
 #: src/gpodder/plugins/soundcloud.py:174
-#: share/gpodder/extensions/youtube-dl.py:207
+#: share/gpodder/extensions/youtube-dl.py:208
 msgid "No description available"
 msgstr "Inga skildring tilgjengeleg"
 
@@ -872,15 +872,12 @@ msgstr "Oppdaterer %(podcast)s (%(position)d/%(total)d)"
 
 #: src/gpodder/gtkui/main.py:2668
 #, python-format
-#| msgid "%(count)d failed"
-#| msgid_plural "%(count)d failed"
 msgid "%(count)d channel failed to update"
 msgid_plural "%(count)d channels failed to update"
 msgstr[0] "%(count)d kanal gav feil ved oppdatering"
 msgstr[1] "%(count)d kanalar gav feil ved oppdatering"
 
 #: src/gpodder/gtkui/main.py:2671
-#| msgid "Error while updating feed"
 msgid "Error while updating feeds"
 msgstr "Feil ved kjeldeoppdatering"
 
@@ -1402,7 +1399,8 @@ msgstr "storleik: %s"
 #: src/gpodder/gtkui/desktop/exportlocal.py:57
 #, python-format
 msgid "Export remaining %(count)d episode to this folder with its default name"
-msgid_plural "Export remaining %(count)d episodes to this folder with their default name"
+msgid_plural ""
+"Export remaining %(count)d episodes to this folder with their default name"
 msgstr[0] ""
 "Eksporter gjenståande %(count)d episode til denne mappa, med standardnamn"
 msgstr[1] ""
@@ -1885,7 +1883,7 @@ msgstr "Transkod videofiler til AVI/MP4/M4V"
 msgid "Manage Youtube subscriptions using youtube-dl (pip install youtube_dl)"
 msgstr "Handsam YouTube-abonnement med youtube-dl («pip install youtube_dl»)"
 
-#: share/gpodder/extensions/youtube-dl.py:449
+#: share/gpodder/extensions/youtube-dl.py:454
 msgid "Download with Youtube-DL"
 msgstr "Last ned med youtube-dl"
 
@@ -2014,7 +2012,6 @@ msgid "Preferred YouTube format:"
 msgstr "Føretrekt format for YouTube:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:8
-#| msgid "Preferred YouTube format:"
 msgid "Preferred YouTube HLS format:"
 msgstr "Føretrekt format for YouTube HLS:"
 
