@@ -41,6 +41,7 @@ DefaultConfig = {
 
 # youtube feed still preprocessed by youtube.py (compat)
 CHANNEL_RE = re.compile(r'''https://www.youtube.com/feeds/videos.xml\?channel_id=(.+)''')
+USER_RE = re.compile(r'''https://www.youtube.com/feeds/videos.xml\?user=(.+)''')
 PLAYLIST_RE = re.compile(r'''https://www.youtube.com/feeds/videos.xml\?playlist_id=(.+)''')
 
 
@@ -95,20 +96,24 @@ class YoutubeCustomDownload(download.CustomDownload):
         # youtube-dl doesn't return a content-type but an extension
         if 'ext' in res:
             dot_ext = '.{}'.format(res['ext'])
+            # See #673 when merging multiple formats, the extension is appended to the tempname
+            # by YoutubeDL resulting in empty .partial file + .partial.mp4 exists
+            # and #796 .mkv is chosen by ytdl sometimes
+            tempstat = os.stat(tempname)
+            if not tempstat.st_size:
+                for try_ext in (dot_ext, ".mp4", ".m4a", ".webm", ".mkv"):
+                    tempname_with_ext = tempname + try_ext
+                    if os.path.isfile(tempname_with_ext):
+                        logger.debug('Youtubedl downloaded to "%s" instead of "%s", moving',
+                                     os.path.basename(tempname_with_ext),
+                                     os.path.basename(tempname))
+                        os.remove(tempname)
+                        os.rename(tempname_with_ext, tempname)
+                        dot_ext = try_ext
+                        break
             ext_filetype = mimetype_from_extension(dot_ext)
             if ext_filetype:
                 headers['content-type'] = ext_filetype
-            # See #673 when merging multiple formats, the extension is appended to the tempname
-            # by YoutubeDL resulting in empty .partial file + .partial.mp4 exists
-            tempstat = os.stat(tempname)
-            if not tempstat.st_size:
-                tempname_with_ext = tempname + dot_ext
-                if os.path.isfile(tempname_with_ext):
-                    logger.debug('Youtubedl downloaded to %s instead of %s, moving',
-                                 os.path.basename(tempname),
-                                 os.path.basename(tempname_with_ext))
-                    os.remove(tempname)
-                    os.rename(tempname_with_ext, tempname)
         return headers, res.get('url', self._url)
 
     def _my_hook(self, d):
@@ -147,7 +152,7 @@ class YoutubeFeed(model.Feed):
         filtered_entries = []
         seen_guids = set()
         for i, e in enumerate(entries):  # consumes the generator!
-            if e.get('_type', 'video') == 'url' and e.get('ie_key') == 'Youtube':
+            if e.get('_type', 'video') in ('url', 'url_transparent') and e.get('ie_key') == 'Youtube':
                 guid = video_guid(e['id'])
                 e['guid'] = guid
                 if guid in seen_guids:
@@ -295,7 +300,7 @@ class gPodderYoutubeDL(download.CustomDownloader):
         #
         # See https://github.com/ytdl-org/youtube-dl#format-selection for details
         # about youtube-dl format specification.
-        fmt_ids = youtube.get_fmt_ids(gpodder_config.youtube)
+        fmt_ids = youtube.get_fmt_ids(gpodder_config.youtube, False)
         opts['format'] = '/'.join(str(fmt) for fmt in fmt_ids)
         if fallback:
             opts['format'] += '/' + fallback
@@ -389,11 +394,15 @@ class gPodderYoutubeDL(download.CustomDownloader):
         url = None
         m = CHANNEL_RE.match(channel.url)
         if m:
-            url = 'https://www.youtube.com/channel/{}'.format(m.group(1))
+            url = 'https://www.youtube.com/channel/{}/videos'.format(m.group(1))
         else:
-            m = PLAYLIST_RE.match(channel.url)
+            m = USER_RE.match(channel.url)
             if m:
-                url = 'https://www.youtube.com/playlist?list={}'.format(m.group(1))
+                url = 'https://www.youtube.com/user/{}/videos'.format(m.group(1))
+            else:
+                m = PLAYLIST_RE.match(channel.url)
+                if m:
+                    url = 'https://www.youtube.com/playlist?list={}'.format(m.group(1))
         if url:
             logger.info('Youtube-dl Handling %s => %s', channel.url, url)
             return self.refresh(url, channel.url, max_episodes)

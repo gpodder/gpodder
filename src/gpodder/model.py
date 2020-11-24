@@ -256,10 +256,11 @@ class PodcastEpisode(PodcastModelObject):
     # In theory, Linux can have 255 bytes (not characters!) in a filename, but
     # filesystems like eCryptFS store metadata in the filename, making the
     # effective number of characters less than that. eCryptFS recommends
-    # 140 chars, we use 120 here (140 - len(extension) - len(".partial")).
+    # 140 chars, we use 120 here (140 - len(extension) - len(".partial.webm"))
+    # (youtube-dl appends an extension after .partial, ".webm" is the longest).
     # References: gPodder bug 1898, http://unix.stackexchange.com/a/32834
     MAX_FILENAME_LENGTH = 120  # without extension
-    MAX_FILENAME_WITH_EXT_LENGTH = 140 - len(".partial")  # with extension
+    MAX_FILENAME_WITH_EXT_LENGTH = 140 - len(".partial.webm")  # with extension
 
     __slots__ = schema.EpisodeColumns
 
@@ -514,7 +515,7 @@ class PodcastEpisode(PodcastModelObject):
 
         if url is None or not os.path.exists(url):
             # FIXME: may custom downloaders provide the real url ?
-            url = registry.download_url.resolve(config, self.url, self)
+            url = registry.download_url.resolve(config, self.url, self, allow_partial)
         return url
 
     def find_unique_file_name(self, filename, extension):

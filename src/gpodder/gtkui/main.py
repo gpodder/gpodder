@@ -88,6 +88,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self._search_episodes = None
         BuilderWidget.__init__(self, None, _builder_expose={'app': app})
 
+        self.last_episode_date_refresh = None
+        self.refresh_episode_dates()
+
     def new(self):
         if self.application.want_headerbar:
             self.header_bar = Gtk.HeaderBar()
@@ -2015,23 +2018,35 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.update_podcast_list_model(set(e.channel.url for e in episodes))
         self.db.commit()
 
-    def streaming_possible(self):
-        # User has to have a media player set on the Desktop, or else we
-        # would probably open the browser when giving a URL to xdg-open..
-        return (self.config.player and self.config.player != 'default')
+    def episode_player(self, episode):
+        file_type = episode.file_type()
+        if file_type == 'video' and self.config.videoplayer and \
+                self.config.videoplayer != 'default':
+            player = self.config.videoplayer
+        elif file_type == 'audio' and self.config.player and \
+                self.config.player != 'default':
+            player = self.config.player
+        else:
+            player = 'default'
+        return player
+
+    def streaming_possible(self, episode=None):
+        """
+        Don't try streaming if the user has not defined a player
+        or else we would probably open the browser when giving a URL to xdg-open.
+        If an episode is given, we look at the audio or video player depending on its file type.
+        :return bool: if streaming is possible
+        """
+        if episode:
+            player = self.episode_player(episode)
+        else:
+            player = self.config.player
+        return player and player != 'default'
 
     def playback_episodes_for_real(self, episodes):
         groups = collections.defaultdict(list)
         for episode in episodes:
-            file_type = episode.file_type()
-            if file_type == 'video' and self.config.videoplayer and \
-                    self.config.videoplayer != 'default':
-                player = self.config.videoplayer
-            elif file_type == 'audio' and self.config.player and \
-                    self.config.player != 'default':
-                player = self.config.player
-            else:
-                player = 'default'
+            player = self.episode_player(episode)
 
             # Mark episode as played in the database
             episode.playback_mark()
@@ -2103,7 +2118,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def playback_episodes(self, episodes):
         # We need to create a list, because we run through it more than once
         episodes = list(Model.sort_episodes_by_pubdate(e for e in episodes if
-               e.was_downloaded(and_exists=True) or self.streaming_possible()))
+               e.was_downloaded(and_exists=True) or self.streaming_possible(e)))
 
         try:
             self.playback_episodes_for_real(episodes)
@@ -2129,6 +2144,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         selection = self.treeAvailable.get_selection()
         if selection.count_selected_rows() > 0:
             (model, paths) = selection.get_selected_rows()
+            streaming_possible = self.streaming_possible()
 
             for path in paths:
                 try:
@@ -2153,10 +2169,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     if episode.downloading:
                         can_cancel = True
                     else:
+                        streaming_possible |= self.streaming_possible(episode)
                         can_download = True
 
             can_download = can_download and not can_cancel
-            can_play = self.streaming_possible() or (can_play and not can_cancel and not can_download)
+            can_play = streaming_possible or (can_play and not can_cancel and not can_download)
             can_delete = not can_cancel
 
         if open_instead_of_play:
@@ -2186,6 +2203,22 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def episode_new_status_changed(self, urls):
         self.update_podcast_list_model()
         self.update_episode_list_icons(urls)
+
+    def refresh_episode_dates(self):
+        t = time.localtime()
+        current_day = t[:3]
+        if self.last_episode_date_refresh is not None and self.last_episode_date_refresh != current_day:
+            # update all episodes in current view
+            for row in self.episode_list_model:
+                row[EpisodeListModel.C_PUBLISHED_TEXT] = row[EpisodeListModel.C_EPISODE].cute_pubdate()
+
+        self.last_episode_date_refresh = current_day
+
+        remaining_seconds = 86400 - 3600 * t.tm_hour - 60 * t.tm_min - t.tm_sec
+        if remaining_seconds > 3600:
+            # timeout an hour early in the event daylight savings changes the clock forward
+            remaining_seconds = remaining_seconds - 3600
+        GObject.timeout_add(remaining_seconds * 1000, self.refresh_episode_dates)
 
     def update_podcast_list_model(self, urls=None, selected=False, select_url=None,
             sections_changed=False):
@@ -2631,7 +2664,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 util.idle_add(update_progress, channel)
 
             if nr_update_errors > 0:
-                self.notification(_('%d channel(s) failed to update') % nr_update_errors,
+                self.notification(
+                    N_('%(count)d channel failed to update',
+                       '%(count)d channels failed to update',
+                       nr_update_errors) % {'count': nr_update_errors},
                     _('Error while updating feeds'), widget=self.treeChannels)
 
             def update_feed_cache_finish_callback():

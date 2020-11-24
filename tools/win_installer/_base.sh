@@ -84,16 +84,15 @@ function extract_installer {
 }
 
 PIP_REQUIREMENTS="\
-podcastparser==0.6.5
+podcastparser==0.6.6
 mygpoclient==1.8
 git+https://github.com/enthought/pywin32-ctypes.git@f27d6a0
-html5lib==1.0.1
+html5lib==1.1
 webencodings==0.5.1
-six==1.12.0
-certifi==2020.6.20
-mutagen==1.44.0
-youtube_dl==2020.6.16.1
-requests==2.24.0
+certifi==2020.11.8
+mutagen==1.45.1
+youtube_dl==2020.11.21.1
+requests==2.25.0
 PySocks==1.7.1
 "
 
@@ -109,6 +108,7 @@ function install_deps {
         mingw-w64-"${ARCH}"-python3-gobject \
         mingw-w64-"${ARCH}"-python3-cairo \
         mingw-w64-"${ARCH}"-python3-pip \
+        mingw-w64-"${ARCH}"-python-six \
 		mingw-w64-"${ARCH}"-make
 
     build_pacman -S --noconfirm mingw-w64-"${ARCH}"-python3-setuptools

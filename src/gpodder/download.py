@@ -355,7 +355,7 @@ class DefaultDownloader(CustomDownloader):
     def custom_downloader(config, episode):
         url = episode.url
         # Resolve URL and start downloading the episode
-        res = registry.download_url.resolve(config, None, episode)
+        res = registry.download_url.resolve(config, None, episode, False)
         if res:
             url = res
         if url == episode.url:
@@ -796,7 +796,8 @@ class DownloadTask(object):
                 logger.info('Updating mime type: %s => %s', old_mimetype, new_mimetype)
                 old_extension = self.__episode.extension()
                 self.__episode.mime_type = new_mimetype
-                new_extension = self.__episode.extension()
+                # don't call local_filename because we'll get the old download name
+                new_extension = self.__episode.extension(may_call_local_filename=False)
 
                 # If the desired filename extension changed due to the new
                 # mimetype, we force an update of the local filename to fix the

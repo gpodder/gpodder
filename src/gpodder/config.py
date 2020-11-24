@@ -203,6 +203,8 @@ defaults = {
     'youtube': {
         'preferred_fmt_id': 18,  # default fmt_id (see fallbacks in youtube.py)
         'preferred_fmt_ids': [],  # for advanced uses (custom fallback sequence)
+        'preferred_hls_fmt_id': 93,  # default fmt_id (see fallbacks in youtube.py)
+        'preferred_hls_fmt_ids': [],  # for advanced uses (custom fallback sequence)
     },
 
     'vimeo': {

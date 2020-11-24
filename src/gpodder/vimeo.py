@@ -50,7 +50,7 @@ class VimeoError(BaseException): pass
 
 
 @registry.download_url.register
-def vimeo_real_download_url(config, episode):
+def vimeo_real_download_url(config, episode, allow_partial):
     fmt = config.vimeo.fileformat if config else None
     res = get_real_download_url(episode.url, preferred_fileformat=fmt)
     return None if res == episode.url else res

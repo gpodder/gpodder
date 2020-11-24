@@ -206,6 +206,7 @@ class Fetcher(object):
             new_url = self._resolve_url(url)
             if new_url and new_url != url:
                 return Result(NEW_LOCATION, new_url)
+
         # xml documents specify the encoding inline so better pass encoded body.
         # Especially since requests will use ISO-8859-1 for content-type 'text/xml'
         # if the server doesn't specify a charset.

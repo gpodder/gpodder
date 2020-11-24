@@ -39,7 +39,7 @@ _ = gpodder.gettext
 
 
 # http://en.wikipedia.org/wiki/YouTube#Quality_and_formats
-# https://gist.github.com/Marco01809/34d47c65b1d28829bb17c24c04a0096f
+# https://github.com/ytdl-org/youtube-dl/blob/master/youtube_dl/extractor/youtube.py#L447
 
 # adaptive audio formats
 #   140  MP4   128k
@@ -130,6 +130,23 @@ formats = [
 ]
 formats_dict = dict(formats)
 
+# streaming formats and fallbacks to lower quality
+hls_144 = [91]
+hls_240 = [92] + hls_144
+hls_360 = [93] + hls_240
+hls_480 = [94] + hls_360
+hls_720 = [95] + hls_480
+hls_1080 = [96] + hls_720
+hls_formats = [
+    (96, (hls_1080, '9/1920x1080/9/0/115', 'MP4 1080p (1920x1080)')),   # N/A,       256 kbps
+    (95, (hls_720, '9/1280x720/9/0/115', 'MP4 720p (1280x720)')),       # N/A,       256 kbps
+    (94, (hls_480, '9/854x480/9/0/115', 'MP4 480p (854x480)')),         # N/A,       128 kbps
+    (93, (hls_360, '9/640x360/9/0/115', 'MP4 360p (640x360)')),         # N/A,       128 kbps
+    (92, (hls_240, '9/426x240/9/0/115', 'MP4 240p (426x240)')),         # N/A,        48 kbps
+    (91, (hls_144, '9/256x144/9/0/115', 'MP4 144p (256x144)')),         # N/A,        48 kbps
+]
+hls_formats_dict = dict(hls_formats)
+
 V3_API_ENDPOINT = 'https://www.googleapis.com/youtube/v3'
 CHANNEL_VIDEOS_XML = 'https://www.youtube.com/feeds/videos.xml'
 
@@ -138,27 +155,39 @@ class YouTubeError(Exception):
     pass
 
 
-def get_fmt_ids(youtube_config):
+def get_fmt_ids(youtube_config, allow_partial):
+    if allow_partial:
+        if youtube_config.preferred_hls_fmt_id == 0:
+            hls_fmt_ids = (youtube_config.preferred_hls_fmt_ids if youtube_config.preferred_hls_fmt_ids else [])
+        else:
+            format = hls_formats_dict.get(youtube_config.preferred_hls_fmt_id)
+            if format is None:
+                hls_fmt_ids = []
+            else:
+                hls_fmt_ids, path, description = format
+    else:
+        hls_fmt_ids = []
+
     if youtube_config.preferred_fmt_id == 0:
-        return (youtube_config.preferred_fmt_ids if youtube_config.preferred_fmt_ids else [])
+        return (youtube_config.preferred_fmt_ids + hls_fmt_ids if youtube_config.preferred_fmt_ids else hls_fmt_ids)
 
     format = formats_dict.get(youtube_config.preferred_fmt_id)
     if format is None:
-        return []
+        return hls_fmt_ids
     fmt_ids, path, description = format
-    return fmt_ids
+    return fmt_ids + hls_fmt_ids
 
 
 @registry.download_url.register
-def youtube_real_download_url(config, episode):
-    fmt_ids = get_fmt_ids(config.youtube) if config else None
-    res, duration = get_real_download_url(episode.url, fmt_ids)
+def youtube_real_download_url(config, episode, allow_partial):
+    fmt_ids = get_fmt_ids(config.youtube, allow_partial) if config else None
+    res, duration = get_real_download_url(episode.url, allow_partial, fmt_ids)
     if duration is not None:
         episode.total_time = int(int(duration) / 1000)
     return None if res == episode.url else res
 
 
-def get_real_download_url(url, preferred_fmt_ids=None):
+def get_real_download_url(url, allow_partial, preferred_fmt_ids=None):
     if not preferred_fmt_ids:
         preferred_fmt_ids, _, _ = formats_dict[22]  # MP4 720p
 
@@ -199,6 +228,25 @@ def get_real_download_url(url, preferred_fmt_ids=None):
                         and not playabilityStatus['liveStreamability'].get('liveStreamabilityRenderer', {}).get('displayEndscreen', False):
                     # playabilityStatus.liveStreamability -- video is or was a live stream
                     # playabilityStatus.liveStreamability.liveStreamabilityRenderer.displayEndscreen -- video has ended if present
+
+                    if allow_partial and 'streamingData' in player_response and 'hlsManifestUrl' in player_response['streamingData']:
+                        manifest = None
+                        url = player_response['streamingData']['hlsManifestUrl']
+                        while manifest is None:
+                            req = util.http_request(url, method='GET')
+                            if 'location' in req.msg:
+                                url = req.msg['location']
+                            else:
+                                manifest = req.read()
+                        manifest = manifest.decode().splitlines()
+
+                        urls = [line for line in manifest if line[0] != '#']
+                        itag_re = re.compile('/itag/([0-9]+)/')
+                        for url in urls:
+                            itag = itag_re.search(url).group(1)
+                            yield int(itag), [url, None]
+                        return
+
                     error_message = 'live stream'
                 elif 'streamingData' in player_response:
                     # DRM videos store url inside a cipher key - not supported
@@ -225,7 +273,7 @@ def get_real_download_url(url, preferred_fmt_ids=None):
         fmt_id_url_map = sorted(find_urls(page), reverse=True)
 
         if not fmt_id_url_map:
-            drm = re.search('%22cipher%22%3A', page)
+            drm = re.search('%22(cipher|signatureCipher)%22%3A', page)
             if drm is not None:
                 raise YouTubeError('Unsupported DRM content found for video ID "%s"' % vid)
             raise YouTubeError('No formats found for video ID "%s"' % vid)
@@ -239,7 +287,7 @@ def get_real_download_url(url, preferred_fmt_ids=None):
                 continue
             id = int(id)
             if id in formats_available:
-                format = formats_dict.get(id)
+                format = formats_dict.get(id) or hls_formats_dict.get(id)
                 if format is not None:
                     _, _, description = format
                 else:
@@ -438,7 +486,7 @@ def parse_youtube_url(url):
 
         if 'list=' in query:
             playlist_query = [query_value for query_value in query.split("&") if 'list=' in query_value][0]
-            playlist_id = playlist_query.strip("list=")
+            playlist_id = playlist_query[5:]
             query = 'playlist_id={playlist_id}'.format(playlist_id=playlist_id)
 
         path = '/feeds/videos.xml'
