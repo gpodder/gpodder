@@ -1,12 +1,12 @@
 language: python
-dist: trusty
+dist: focal
 sudo: required
 python:
-    - "3.5"
+    - "3.8"
 install:
     - sudo apt-get update -q
     - sudo apt-get install intltool desktop-file-utils
-    - pip3 install coverage==4.5.4 minimock pycodestyle isort
+    - "pip3 install pytest-cov minimock pycodestyle 'isort<5.0' requests pytest pytest-httpserver"
     - python3 tools/localdepends.py
 script:
     - make lint
