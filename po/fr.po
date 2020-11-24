@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: gPodder\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-11-24 17:28+0100\n"
-"PO-Revision-Date: 2020-11-10 16:09+0100\n"
+"PO-Revision-Date: 2020-11-24 17:39+0100\n"
 "Last-Translator: Eric Le Lay <elelay@macports.org>\n"
 "Language-Team: French (http://www.transifex.com/projects/p/gpodder/language/"
 "fr/)\n"
@@ -105,10 +105,9 @@ msgid "Couldn't connect to server %(host)s:%(port)s"
 msgstr ""
 
 #: src/gpodder/download.py:873
-#, fuzzy, python-format
-#| msgid "Syntax error: %(error)s"
+#, python-format
 msgid "Request Error: %(error)s"
-msgstr "Erreur de syntaxe : %(error)s"
+msgstr "Erreur HTTP : %(error)s"
 
 #: src/gpodder/download.py:879
 #, python-format
@@ -1327,10 +1326,8 @@ msgid "Password"
 msgstr "Mot de passe"
 
 #: src/gpodder/gtkui/interface/common.py:192
-#, fuzzy
-#| msgid "Password"
 msgid "Show Password"
-msgstr "Mot de passe"
+msgstr "Afficher le mot de passe"
 
 #: src/gpodder/gtkui/interface/common.py:229
 #: share/gpodder/ui/gtk/gpodderexporttolocalfolder.ui.h:1
@@ -2285,10 +2282,8 @@ msgid "Hide podcasts without episodes"
 msgstr "Cacher les podcasts sans épisode"
 
 #: share/gpodder/ui/gtk/menus.ui.h:41
-#, fuzzy
-#| msgid "Always show Find entries"
 msgid "Always show New Episodes"
-msgstr "Toujours afficher les champs de recherche"
+msgstr "Toujours afficher les nouveaux épisodes"
 
 #: share/gpodder/ui/gtk/menus.ui.h:42
 msgid "Visible columns"
@@ -2528,7 +2523,7 @@ msgstr "La fonctionnalité n'est pas disponible."
 
 #: bin/gpodder:100
 msgid "print logging output on the console"
-msgstr "Afficher les messages de debug sur la sortie standard"
+msgstr "afficher les messages de debug sur la sortie standard"
 
 #: bin/gpodder:104
 msgid "reduce warnings on the console"
@@ -2536,7 +2531,7 @@ msgstr "afficher moins de messages sur la console"
 
 #: bin/gpodder:107
 msgid "subscribe to the feed at URL"
-msgstr "S'abonner à l'URL donnée"
+msgstr "s'abonner à l'URL donnée"
 
 #: bin/gpodder:112
 msgid "Mac OS X application process number"
@@ -2544,7 +2539,7 @@ msgstr "Numéro de processus de l'application Mac OS X"
 
 #: share/applications/gpodder.desktop.in.h:2
 msgid "gPodder Podcast Client"
-msgstr "Client de podcasts gPodder"
+msgstr "client de podcasts gPodder"
 
 #: share/applications/gpodder.desktop.in.h:3
 msgid "Podcast Client"
@@ -2556,4 +2551,4 @@ msgstr "S'abonner à du contenu audio et vidéo depuis le web"
 
 #: share/applications/gpodder-url-handler.desktop.in.h:1
 msgid "gPodder (subscribe to feed)"
-msgstr "S'abonner à l'URL donnée avec gPodder"
+msgstr "s'abonner à l'URL donnée avec gPodder"
