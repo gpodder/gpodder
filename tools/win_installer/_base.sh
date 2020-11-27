@@ -119,7 +119,7 @@ function install_deps {
     # replace ca-certificates with certifi's
     build_pacman --noconfirm -Rdds mingw-w64-"${ARCH}"-ca-certificates || true
     mkdir -p ${MINGW_ROOT}/ssl
-    site_packages=$(build_python -c  'import sys;print(next(c for c in sys.path if "site-packages" in c))')
+    site_packages=$(build_python -c  'import sys;print(next(c for c in sys.path if "site-packages" in c and ".local" not in c))')
     cp -v ${site_packages}/certifi/cacert.pem ${MINGW_ROOT}/ssl/cert.pem
 
     build_pacman --noconfirm -Rdds mingw-w64-"${ARCH}"-python3-pip || true
