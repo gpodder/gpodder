@@ -144,8 +144,8 @@ function install_gpodder {
     GPO_VERSION_DESC="$GPO_VERSION"
     if [ "$1" = "master" ]
     then
-        local GIT_REV=$(git rev-list --count HEAD)
-        local GIT_HASH=$(git rev-parse --short HEAD)
+        local GIT_REV=$(cd "${REPO_CLONE}" && git rev-list --count HEAD)
+        local GIT_HASH=$(cd "${REPO_CLONE}" && git rev-parse --short HEAD)
         GPO_VERSION_DESC="$GPO_VERSION-rev$GIT_REV-$GIT_HASH"
     fi
 
@@ -438,7 +438,7 @@ function build_installer {
     cp "${REPO_CLONE}"/src/gpodder/build_info.py "$BUILDPY"
     echo 'BUILD_TYPE = u"windows"' >> "$BUILDPY"
     echo "BUILD_VERSION = $BUILD_VERSION" >> "$BUILDPY"
-    (cd "$REPO_CLONE" && echo "BUILD_INFO = u\"$(git rev-parse --short HEAD)\"" >> "$BUILDPY")
+    (cd "$REPO_CLONE" && echo "BUILD_INFO = u\"$(cd "${REPO_CLONE}" && git rev-parse --short HEAD)\"" >> "$BUILDPY")
     (cd $(dirname "$BUILDPY") && build_compileall -d "" -q -f -l .)
     rm -f "$BUILDPY"
 
@@ -453,7 +453,7 @@ function build_portable_installer {
     cp "${REPO_CLONE}"/src/gpodder/build_info.py "$BUILDPY"
     echo 'BUILD_TYPE = u"windows-portable"' >> "$BUILDPY"
     echo "BUILD_VERSION = $BUILD_VERSION" >> "$BUILDPY"
-    (cd "$REPO_CLONE" && echo "BUILD_INFO = u\"$(git rev-parse --short HEAD)\"" >> "$BUILDPY")
+    (cd "$REPO_CLONE" && echo "BUILD_INFO = u\"$(cd "${REPO_CLONE}" && git rev-parse --short HEAD)\"" >> "$BUILDPY")
     (cd $(dirname "$BUILDPY") && build_compileall -d "" -q -f -l .)
     rm -f "$BUILDPY"
 
