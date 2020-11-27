@@ -31,6 +31,7 @@ are not tied to any specific part of gPodder.
 """
 import collections
 import datetime
+import email
 import glob
 import gzip
 import http.client
@@ -55,22 +56,19 @@ import threading
 import time
 import urllib.error
 import urllib.parse
-import urllib.request
 import webbrowser
 import xml.dom.minidom
-from html.entities import entitydefs
+from html.entities import entitydefs, name2codepoint
+from html.parser import HTMLParser
+
+import requests
+import requests.exceptions
+from requests.packages.urllib3.util.retry import Retry
 
 import gpodder
 
 logger = logging.getLogger(__name__)
 
-
-if sys.hexversion < 0x03000000:
-    from html.parser import HTMLParser
-    from html.entities import name2codepoint
-else:
-    from html.parser import HTMLParser
-    from html.entities import name2codepoint
 
 try:
     import html5lib
@@ -1187,31 +1185,27 @@ def url_add_authentication(url, username, password):
     return urllib.parse.urlunsplit(url_parts)
 
 
-def urlopen(url, headers=None, data=None, timeout=None):
+def urlopen(url, headers=None, data=None, timeout=None, **kwargs):
     """
     An URL opener with the User-agent set to gPodder (with version)
     """
-    username, password = username_password_from_url(url)
-    if username is not None or password is not None:
-        url = url_strip_authentication(url)
-        password_mgr = urllib.request.HTTPPasswordMgrWithDefaultRealm()
-        password_mgr.add_password(None, url, username, password)
-        handler = urllib.request.HTTPBasicAuthHandler(password_mgr)
-        opener = urllib.request.build_opener(handler)
-    else:
-        opener = urllib.request.build_opener()
-
     if headers is None:
         headers = {}
     else:
         headers = dict(headers)
 
+    if not timeout:
+        timeout = gpodder.SOCKET_TIMEOUT
+
+    retry_strategy = Retry(
+        total=3,
+        status_forcelist=Retry.RETRY_AFTER_STATUS_CODES.union((408, 418, 504, 598, 599,)))
+    s = requests.Session()
+    a = requests.adapters.HTTPAdapter(max_retries=retry_strategy)
+    s.mount('http://', a)
+    s.mount('https://', a)
     headers.update({'User-agent': gpodder.user_agent})
-    request = urllib.request.Request(url, data=data, headers=headers)
-    if timeout is None:
-        return opener.open(request)
-    else:
-        return opener.open(request, timeout=timeout)
+    return s.get(url, headers=headers, data=data, timeout=timeout, **kwargs)
 
 
 def get_real_url(url):
@@ -1219,7 +1213,7 @@ def get_real_url(url):
     Gets the real URL of a file and resolves all redirects.
     """
     try:
-        return urlopen(url).geturl()
+        return urlopen(url).url
     except:
         logger.error('Getting real url for %s', url, exc_info=True)
         return url
@@ -1805,8 +1799,7 @@ def get_update_info():
         (False, '3.0.5', '2012-02-29', 10)
     """
     url = 'https://api.github.com/repos/gpodder/gpodder/releases/latest'
-    data = urlopen(url).read().decode('utf-8')
-    info = json.loads(data)
+    info = urlopen(url).json()
 
     latest_version = info.get('tag_name', '').replace('gpodder-', '')
     release_date = info['published_at']
@@ -1922,9 +1915,9 @@ def website_reachable(url):
         return (False, None)
 
     try:
-        response = urllib.request.urlopen(url, timeout=1)
+        response = requests.get(url, timeout=1)
         return (True, response)
-    except urllib.error.URLError as err:
+    except requests.exceptions.RequestException:
         pass
 
     return (False, None)
@@ -2182,3 +2175,42 @@ def parse_mimetype(mimetype):
     except MIMETypeException as e:
         print(e)
         return (None, None, {})
+
+
+def get_header_param(headers, param, header_name):
+    """Extract a HTTP header parameter from a dict
+
+    Uses the "email" module to retrieve parameters
+    from HTTP headers. This can be used to get the
+    "filename" parameter of the "content-disposition"
+    header for downloads to pick a good filename.
+
+    Returns None if the filename cannot be retrieved.
+    """
+    value = None
+    try:
+        headers_string = ['%s:%s' % (k, v) for k, v in list(headers.items())]
+        msg = email.message_from_string('\n'.join(headers_string))
+        if header_name in msg:
+            raw_value = msg.get_param(param, header=header_name)
+            if raw_value is not None:
+                value = email.utils.collapse_rfc2231_value(raw_value)
+    except Exception as e:
+        logger.error('Cannot get %s from %s', param, header_name, exc_info=True)
+
+    return value
+
+
+def response_text(response, default_encoding='utf-8'):
+    """
+    Utility method to return urlopen response's text.
+    Requests uses only the charset info in content-type, then defaults to ISO-8859-1
+    when content-type=text/*.
+    We could use chardet (via response.apparent_encoding) but it's slow so often it's
+    simpler to just use the known encoding.
+    :return: textual body of the response
+    """
+    if 'charset=' in response.headers.get('content-type'):
+        return response.text
+    else:
+        return response.content.decode(default_encoding)

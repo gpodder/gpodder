@@ -43,9 +43,7 @@ except ImportError:
 # Also note that it only works when gPodder is not running !
 # For some reason I don't get the events afterwards...
 try:
-    from AppKit import NSObject
-    from AppKit import NSAppleEventManager
-    from AppKit import NSAppleEventDescriptor
+    from AppKit import NSAppleEventDescriptor, NSAppleEventManager, NSObject
 
     class gPodderEventHandler(NSObject):
         """ handles Apple Events for :

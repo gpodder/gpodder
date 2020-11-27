@@ -26,8 +26,9 @@ from ctypes import (HRESULT, POINTER, Structure, alignment, c_int, c_uint,
                     c_ulong, c_ulonglong, c_ushort, c_wchar_p, sizeof)
 from ctypes.wintypes import tagRECT
 
-import gpodder
 from comtypes import COMMETHOD, GUID, IUnknown, client, wireHWND
+
+import gpodder
 
 _ = gpodder.gettext
 

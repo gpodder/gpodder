@@ -54,28 +54,6 @@ def soundcloud_parsedate(s):
     return time.mktime(tuple([int(x) for x in m.groups()] + [0, 0, -1]))
 
 
-def get_param(s, param='filename', header='content-disposition'):
-    """Get a parameter from a string of headers
-
-    By default, this gets the "filename" parameter of
-    the content-disposition header. This works fine
-    for downloads from Soundcloud.
-    """
-    msg = email.message_from_string(s)
-    if header in msg:
-        value = msg.get_param(param, header=header)
-        decoded_list = email.header.decode_header(value)
-        value = []
-        for part, encoding in decoded_list:
-            if encoding:
-                value.append(part.decode(encoding))
-            else:
-                value.append(str(part))
-        return ''.join(value)
-
-    return None
-
-
 def get_metadata(url):
     """Get file download metadata
 
@@ -83,12 +61,12 @@ def get_metadata(url):
     URL. Will use the network connection to determine the
     metadata via the HTTP header fields.
     """
-    track_fp = util.urlopen(url)
-    headers = track_fp.info()
-    filesize = headers['content-length'] or '0'
-    filetype = headers['content-type'] or 'application/octet-stream'
-    headers_s = '\n'.join('%s:%s' % (k, v) for k, v in list(headers.items()))
-    filename = get_param(headers_s) or os.path.basename(os.path.dirname(url))
+    track_response = util.urlopen(url)
+    filesize = track_response.headers['content-length'] or '0'
+    filetype = track_response.headers['content-type'] or 'application/octet-stream'
+    headers_s = '\n'.join('%s:%s' % (k, v) for k, v in list(track_response.headers.items()))
+    filename = util.get_header_param(track_response.headers, 'filename', 'content-disposition') \
+        or os.path.basename(os.path.dirname(url))
     track_fp.close()
     return filesize, filetype, filename
 
@@ -116,7 +94,7 @@ class SoundcloudUser(object):
 
         try:
             json_url = 'https://api.soundcloud.com/users/%s.json?consumer_key=%s' % (self.username, CONSUMER_KEY)
-            user_info = json.loads(util.urlopen(json_url).read().decode('utf-8'))
+            user_info = util.urlopen(json_url).json()
             self.cache[key] = user_info
         finally:
             self.commit_cache()
@@ -146,7 +124,7 @@ class SoundcloudUser(object):
                            "consumer_key": CONSUMER_KEY})
             logger.debug("loading %s", json_url)
 
-            json_tracks = json.loads(util.urlopen(json_url).read().decode('utf-8'))
+            json_tracks = util.urlopen(json_url).json()
             tracks = [track for track in json_tracks if track['streamable'] or track['downloadable']]
             total_count = len(json_tracks)
 
@@ -265,4 +243,4 @@ registry.feed_handler.register(SoundcloudFavFeed.fetch_channel)
 
 def search_for_user(query):
     json_url = 'https://api.soundcloud.com/users.json?q=%s&consumer_key=%s' % (urllib.parse.quote(query), CONSUMER_KEY)
-    return json.loads(util.urlopen(json_url).read().decode('utf-8'))
+    return util.urlopen(json_url).json()

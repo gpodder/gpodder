@@ -264,6 +264,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
         g.add_action(action)
 
         action = Gio.SimpleAction.new_stateful(
+            'viewAlwaysShowNewEpisodes', None, GLib.Variant.new_boolean(self.config.ui.gtk.episode_list.always_show_new))
+        action.connect('activate', self.on_item_view_always_show_new_episodes_toggled)
+        g.add_action(action)
+
+        action = Gio.SimpleAction.new_stateful(
             'searchAlwaysVisible', None, GLib.Variant.new_boolean(self.config.ui.gtk.search_always_visible))
         action.connect('activate', self.on_item_view_search_always_visible_toggled)
         g.add_action(action)
@@ -1241,7 +1246,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def _on_config_changed(self, name, old_value, new_value):
         if name == 'ui.gtk.toolbar':
             self.toolbar.set_property('visible', new_value)
-        elif name == 'ui.gtk.episode_list.descriptions':
+        elif name in ('ui.gtk.episode_list.descriptions',
+                'ui.gtk.episode_list.always_show_new'):
             self.update_episode_list_model()
         elif name in ('auto.update.enabled', 'auto.update.frequency'):
             self.restart_auto_update_timer()
@@ -3128,6 +3134,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.config.podcast_list_hide_boring = not state
         action.set_state(GLib.Variant.new_boolean(not state))
         self.apply_podcast_list_hide_boring()
+
+    def on_item_view_always_show_new_episodes_toggled(self, action, param):
+        state = action.get_state()
+        self.config.ui.gtk.episode_list.always_show_new = not state
+        action.set_state(GLib.Variant.new_boolean(not state))
 
     def on_item_view_search_always_visible_toggled(self, action, param):
         state = action.get_state()

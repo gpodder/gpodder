@@ -38,8 +38,7 @@ import time
 import podcastparser
 
 import gpodder
-from gpodder import (coverart, escapist_videos, feedcore, registry, schema,
-                     util, vimeo, youtube)
+from gpodder import coverart, feedcore, registry, schema, util, vimeo, youtube
 
 logger = logging.getLogger(__name__)
 
@@ -183,36 +182,39 @@ class PodcastParserFeed(Feed):
             url = self.feed['paged_feed_next']
             logger.debug("get_next_page: feed has next %s", url)
             url = channel.authenticate_url(url)
-            res = self.fetcher.fetch(url, max_episodes=max_episodes)
-            if res.status == feedcore.UPDATED_FEED:
-                res.feed = PodcastParserFeed(res.feed, self.fetcher, max_episodes)
-            return res
+            return self.fetcher.fetch(url, autodiscovery=False, max_episodes=max_episodes)
         return None
 
 
 class gPodderFetcher(feedcore.Fetcher):
     """
-    This class extends the feedcore Fetcher with the gPodder User-Agent and the
-    Proxy handler based on the current settings in gPodder.
+    This class implements fetching a channel from custom feed handlers
+    or the default using podcastparser
     """
     def fetch_channel(self, channel, max_episodes):
         custom_feed = registry.feed_handler.resolve(channel, None, max_episodes)
         if custom_feed is not None:
             return custom_feed
+        # TODO: revisit authenticate_url: pass auth as kwarg
         # If we have a username or password, rebuild the url with them included
         # Note: using a HTTPBasicAuthHandler would be pain because we need to
         # know the realm. It can be done, but I think this method works, too
         url = channel.authenticate_url(channel.url)
-        res = self.fetch(url, channel.http_etag, channel.http_last_modified, max_episodes)
-        if res.status == feedcore.UPDATED_FEED:
-            res.feed = PodcastParserFeed(res.feed, self, max_episodes)
-        return res
+        return self.fetch(url, channel.http_etag, channel.http_last_modified, max_episodes=max_episodes)
 
     def _resolve_url(self, url):
         url = youtube.get_real_channel_url(url)
         url = vimeo.get_real_channel_url(url)
-        url = escapist_videos.get_real_channel_url(url)
         return url
+
+    def parse_feed(self, url, data_stream, headers, status, max_episodes=0, **kwargs):
+        try:
+            feed = podcastparser.parse(url, data_stream)
+            feed['url'] = url
+            feed['headers'] = headers
+            return feedcore.Result(status, PodcastParserFeed(feed, self, max_episodes))
+        except ValueError as e:
+            raise feedcore.InvalidFeed('Could not parse feed: {msg}'.format(msg=e))
 
 
 # Our podcast model:
@@ -314,7 +316,7 @@ class PodcastEpisode(PodcastModelObject):
         if not episode.url:
             return None
 
-        if any(mod.is_video_link(episode.url) for mod in (youtube, vimeo, escapist_videos)):
+        if any(mod.is_video_link(episode.url) for mod in (youtube, vimeo)):
             return episode
 
         # Check if we can resolve this link to a audio/video file
@@ -587,7 +589,6 @@ class PodcastEpisode(PodcastModelObject):
             # Use title for YouTube, Vimeo and Soundcloud downloads
             if (youtube.is_video_link(self.url) or
                     vimeo.is_video_link(self.url) or
-                    escapist_videos.is_video_link(self.url) or
                     episode_filename == 'stream'):
                 episode_filename = self.title
 
@@ -677,7 +678,7 @@ class PodcastEpisode(PodcastModelObject):
 
     def file_type(self):
         # Assume all YouTube/Vimeo links are video files
-        if youtube.is_video_link(self.url) or vimeo.is_video_link(self.url) or escapist_videos.is_video_link(self.url):
+        if youtube.is_video_link(self.url) or vimeo.is_video_link(self.url):
             return 'video'
 
         return util.file_type_by_extension(self.extension())
@@ -1150,6 +1151,7 @@ class PodcastChannel(PodcastModelObject):
             if result.status == feedcore.UPDATED_FEED:
                 self._consume_updated_feed(result.feed, max_episodes)
             elif result.status == feedcore.NEW_LOCATION:
+                # FIXME: could return the feed because in autodiscovery it is parsed already
                 url = result.feed
                 logger.info('New feed location: %s => %s', self.url, url)
                 if url in set(x.url for x in self.model.get_podcasts()):
@@ -1213,7 +1215,7 @@ class PodcastChannel(PodcastModelObject):
         return self.section
 
     def _get_content_type(self):
-        if 'youtube.com' in self.url or 'vimeo.com' in self.url or 'escapistmagazine.com' in self.url:
+        if 'youtube.com' in self.url or 'vimeo.com' in self.url:
             return _('Video')
 
         audio, video, other = 0, 0, 0

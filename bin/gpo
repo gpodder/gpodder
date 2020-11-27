@@ -96,13 +96,13 @@ except ImportError:
     readline = None
 
 try:
-    import termios
     import fcntl
     import struct
+    import termios
 except ImportError:
-    termios = None
     fcntl = None
     struct = None
+    termios = None
 
 # A poor man's argparse/getopt - but it works for our use case :)
 verbose = False

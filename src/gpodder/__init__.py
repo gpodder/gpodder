@@ -143,7 +143,7 @@ del locale_dir
 SOCKET_TIMEOUT = 60
 socket.setdefaulttimeout(SOCKET_TIMEOUT)
 del socket
-del SOCKET_TIMEOUT
+SOCKET_TIMEOUT
 
 # Variables reserved for GUI-specific use (will be set accordingly)
 ui_folders = []
@@ -185,7 +185,8 @@ def fixup_home(old_home):
             old_home = new_home  # force to config directory
             print("D: windows-portable build; forcing home to config directory %s" % new_home, file=sys.stderr)
         else:  # ui.win32, not portable build
-            from gpodder.utilwin32ctypes import get_documents_folder, get_reg_current_user_string_value
+            from gpodder.utilwin32ctypes import (
+                get_documents_folder, get_reg_current_user_string_value)
             try:
                 # from old launcher, see
                 # https://github.com/gpodder/gpodder/blob/old/gtk2/tools/win32-launcher/folderselector.c

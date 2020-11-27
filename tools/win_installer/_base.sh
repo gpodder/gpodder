@@ -92,6 +92,8 @@ webencodings==0.5.1
 certifi==2020.11.8
 mutagen==1.45.1
 youtube_dl==2020.11.21.1
+requests==2.25.0
+PySocks==1.7.1
 "
 
 function install_deps {
@@ -119,7 +121,6 @@ function install_deps {
     mkdir -p ${MINGW_ROOT}/ssl
     site_packages=$(build_python -c  'import sys;print(next(c for c in sys.path if "site-packages" in c))')
     cp -v ${site_packages}/certifi/cacert.pem ${MINGW_ROOT}/ssl/cert.pem
-    build_pip uninstall -y certifi
 
     build_pacman --noconfirm -Rdds mingw-w64-"${ARCH}"-python3-pip || true
 }
