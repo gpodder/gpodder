@@ -29,6 +29,8 @@ import time
 import urllib.parse
 
 import dbus.service
+import requests.exceptions
+import urllib3.exceptions
 
 import gpodder
 from gpodder import (common, download, extensions, feedcore, my, opml, player,
@@ -2652,6 +2654,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         gpodder.feedcore.NotFound,
                         gpodder.feedcore.InternalServerError,
                         gpodder.feedcore.UnknownStatusCode,
+                        requests.exceptions.ConnectionError,
+                        requests.exceptions.RetryError,
+                        urllib3.exceptions.MaxRetryError,
+                        urllib3.exceptions.ReadTimeoutError,
                     ]))
 
                 updated_channels.append(channel)
