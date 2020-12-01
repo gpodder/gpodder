@@ -156,7 +156,7 @@ function install_gpodder {
         "${GPO_VERSION}" "${MINGW_ROOT}"/bin
 
 	# install fake dbus
-    site_packages=$(build_python -c  'import sys;print(next(c for c in sys.path if "site-packages" in c))')
+    site_packages=$(build_python -c  'import sys;print(next(c for c in sys.path if "site-packages" in c and ".local" not in c))')
     site_packages_unix=$(echo "/$site_packages" | sed -e 's/\\/\//g' -e 's/://')
     rsync -arv --delete "${REPO_CLONE}"/tools/fake-dbus-module/dbus "${site_packages_unix}/"
 	
