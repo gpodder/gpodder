@@ -244,8 +244,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         util.run_in_background(self.user_apps_reader.read)
 
         # Now, update the feed cache, when everything's in place
-        if not self.application.want_headerbar:
-            self.btnUpdateFeeds.show()
+#        if not self.application.want_headerbar:
+#            self.btnUpdateFeeds.show()
         self.feed_cache_update_cancelled = False
         self.update_podcast_list_model()
 
@@ -2714,8 +2714,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # Make sure that the buttons for updating feeds
         # appear - this should happen after a feed update
 #        self.hboxUpdateFeeds.hide()
-        if not self.application.want_headerbar:
-            self.btnUpdateFeeds.show()
+#        if not self.application.want_headerbar:
+#            self.btnUpdateFeeds.show()
         self.update_action.set_enabled(True)
         self.update_channel_action.set_enabled(True)
 

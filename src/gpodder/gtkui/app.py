@@ -144,7 +144,7 @@ class gPodderApplication(Gtk.Application):
         # GTK_CSD=0 is used to disable client side decorations
         csd_disabled = os.environ.get('GTK_CSD') == '0'
 
-        self.want_headerbar = ('GNOME' in xdg_current_desktops) and not gpodder.ui.osx and not csd_disabled
+        self.want_headerbar = gpodder.ui.hdy or (('GNOME' in xdg_current_desktops) and not gpodder.ui.osx and not csd_disabled)
 
         self.app_menu = builder.get_object('app-menu')
         if self.want_headerbar:
