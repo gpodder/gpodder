@@ -41,7 +41,7 @@ from gpodder.syncui import gPodderSyncUI
 
 from . import shownotes
 from .adaptive.channel import gPodderChannel
-from .desktop.episodeselector import gPodderEpisodeSelector
+from .adaptive.episodeselector import gPodderEpisodeSelector
 from .desktop.exportlocal import gPodderExportToLocalFolder
 from .desktop.podcastdirectory import gPodderPodcastDirectory
 from .desktop.welcome import gPodderWelcome
