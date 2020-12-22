@@ -579,7 +579,7 @@ def format_filesize(bytesize, use_si_units=False, digits=2):
             used_value = bytesize / float(value)
             used_unit = unit
 
-    return locale.format_string('%.' + str(digits) + 'f %s', (used_value, used_unit))
+    return locale.format_string('%.' + str(digits) + 'f\u00a0%s', (used_value, used_unit))
 
 
 def delete_file(filename):
