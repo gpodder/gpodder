@@ -166,9 +166,11 @@ class UIConfig(config.Config):
         # Ignore events while we're connecting to the window
         self.__ignore_window_events = True
 
+        # Get window state, correct size comes from window.get_size(),
+        # see https://developer.gnome.org/SaveWindowState/
         def _receive_configure_event(widget, event):
             x_pos, y_pos = event.x, event.y
-            width_size, height_size = event.width, event.height
+            width_size, height_size = widget.get_size()
             maximized = bool(event.window.get_state() & Gdk.WindowState.MAXIMIZED)
             if not self.__ignore_window_events and not maximized:
                 cfg.x = x_pos
