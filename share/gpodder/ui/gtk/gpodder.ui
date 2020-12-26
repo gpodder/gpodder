@@ -149,16 +149,6 @@
             <property name="hexpand">True</property>
             <property name="vexpand">True</property>
             <child>
-              <object class="GtkNotebook" id="wNotebook">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="show_tabs">True</property>
-                <property name="show_border">True</property>
-                <property name="tab_pos">GTK_POS_TOP</property>
-                <property name="scrollable">False</property>
-                <property name="enable_popup">False</property>
-                <signal handler="on_wNotebook_switch_page" name="switch_page"/>
-                <child>
                   <object class="GtkPaned" id="channelPaned">
                     <property name="border_width">5</property>
                     <property name="visible">True</property>
@@ -262,6 +252,24 @@
                               <packing>
                               </packing>
                             </child>
+                            <child>
+                              <object class="GtkButton" id="btnProgress">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">Download progress</property>
+                                <property name="can_focus">True</property>
+                                <property name="focus_on_click">True</property>
+                                <signal handler="on_btn_progress_clicked" name="clicked"/>
+                                <property name="hexpand">True</property>
+                              </object>
+                              <packing>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="labelProgress">
+                                <property name="visible">False</property>
+                                <property name="use_markup">True</property>
+                              </object>
+                            </child>
                           </object>
                         </child>
                       </object>
@@ -271,6 +279,10 @@
                       </packing>
                     </child>
                     <child>
+                      <object class="GtkStack" id="right_pane_stack">
+                        <property name="visible">True</property>
+                        <property name="homogeneous">True</property>
+                        <child>
                       <object class="GtkGrid" id="vbox_episode_list">
                         <property name="visible">True</property>
                         <property name="row_spacing">6</property>
@@ -328,32 +340,9 @@
                           </object>
                         </child>
                       </object>
-                      <packing>
-                        <property name="shrink">False</property>
-                        <property name="resize">True</property>
-                      </packing>
                     </child>
-                  </object>
-                  <packing>
-                    <property name="tab_expand">False</property>
-                    <property name="tab_fill">True</property>
-                  </packing>
-                </child>
-                <child type="tab">
-                  <object class="GtkLabel" id="label2">
-                    <property name="visible">True</property>
-                    <property name="label" translatable="yes">Podcasts</property>
-                    <property name="use_underline">False</property>
-                    <property name="use_markup">False</property>
-                    <property name="wrap">False</property>
-                    <property name="selectable">False</property>
-                    <property name="width_chars">-1</property>
-                    <property name="single_line_mode">False</property>
-                  </object>
-                </child>
                 <child>
                   <object class="GtkGrid" id="vboxDownloadStatusWidgets">
-                    <property name="border_width">5</property>
                     <property name="visible">True</property>
                     <property name="row_spacing">5</property>
                     <property name="orientation">vertical</property>
@@ -461,24 +450,10 @@
                       </object>
                     </child>
                   </object>
-                  <packing>
-                    <property name="tab_expand">False</property>
-                    <property name="tab_fill">True</property>
-                  </packing>
                 </child>
-                <child type="tab">
-                  <object class="GtkLabel" id="labelDownloads">
-                    <property name="visible">True</property>
-                    <property name="label" translatable="yes">Progress</property>
-                    <property name="use_underline">False</property>
-                    <property name="use_markup">False</property>
-                    <property name="wrap">False</property>
-                    <property name="selectable">False</property>
-                    <property name="width_chars">-1</property>
-                    <property name="single_line_mode">False</property>
+                      </object>
+                    </child>
                   </object>
-                </child>
-              </object>
             </child>
           </object>
           <packing>

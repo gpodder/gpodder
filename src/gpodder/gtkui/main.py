@@ -129,7 +129,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         # Vertical paned for the episode list and shownotes
         self.vpaned = Gtk.Paned(orientation=Gtk.Orientation.VERTICAL)
-        paned = self.vbox_episode_list.get_parent()
+        stack = self.vbox_episode_list.get_parent()
         self.vbox_episode_list.reparent(self.vpaned)
         self.vpaned.child_set_property(self.vbox_episode_list, 'resize', True)
         self.vpaned.child_set_property(self.vbox_episode_list, 'shrink', False)
@@ -142,7 +142,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.config.connect_gtk_paned('ui.gtk.state.main_window.episode_list_size',
                 self.vpaned)
-        paned.add2(self.vpaned)
+        stack.add_named(self.vpaned, 'episodes_vpane')
 
         self.new_episodes_window = None
 
@@ -213,13 +213,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.user_apps_reader = UserAppsReader(['audio', 'video'])
         util.run_in_background(self.user_apps_reader.read)
 
+        self.message_area = None
+
         # Now, update the feed cache, when everything's in place
         if not self.application.want_headerbar:
             self.btnUpdateFeeds.show()
         self.feed_cache_update_cancelled = False
         self.update_podcast_list_model()
-
-        self.message_area = None
 
         self.partial_downloads_indicator = None
         util.run_in_background(self.find_partial_downloads)
@@ -375,7 +375,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     '%(count)d partial file', '%(count)d partial files',
                     count) % {'count': count})
 
-                util.idle_add(self.wNotebook.set_current_page, 1)
+                util.idle_add(self.on_btn_progress_clicked, self.btnProgress)
 
         def progress_callback(title, progress):
             self.partial_downloads_indicator.on_message(title)
@@ -401,8 +401,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                             (resume_all,))
                     self.vboxDownloadStatusWidgets.attach(self.message_area, 0, -1, 1, 1)
                     self.message_area.show_all()
-                else:
-                    util.idle_add(self.wNotebook.set_current_page, 0)
                 logger.debug("find_partial_downloads done, calling extensions")
                 gpodder.user_extensions.on_find_partial_downloads_done()
 
@@ -674,6 +672,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_find_podcast_activate(self, *args):
         if self._search_podcasts:
             self._search_podcasts.show_search()
+
+    def on_btn_progress_clicked(self, widget):
+        self.right_pane_stack.set_visible_child(self.vboxDownloadStatusWidgets)
+        self.treeChannels.get_selection().unselect_all()
+        self.on_treeChannels_cursor_changed(self.treeChannels)
+        self.toolDownload.set_sensitive(False)
+        self.toolPlay.set_sensitive(False)
+        self.toolCancel.set_sensitive(False)
 
     def init_podcast_list_treeview(self):
         size = cake_size_from_widget(self.treeChannels) * 2
@@ -1099,12 +1105,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # Update the downloads list one more time
         self.update_downloads_list(can_call_cleanup=False)
 
-    def on_tool_downloads_toggled(self, toolbutton):
-        if toolbutton.get_active():
-            self.wNotebook.set_current_page(1)
-        else:
-            self.wNotebook.set_current_page(0)
-
     def add_download_task_monitor(self, monitor):
         self.download_task_monitors.add(monitor)
         model = self.download_status_model
@@ -1170,7 +1170,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             # Remember which tasks we have seen after this run
             self.download_tasks_seen = download_tasks_seen
 
-            text = [_('Progress')]
             if downloading + failed + queued + synchronizing > 0:
                 s = []
                 if downloading > 0:
@@ -1181,8 +1180,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     s.append(N_('%(count)d failed', '%(count)d failed', failed) % {'count': failed})
                 if queued > 0:
                     s.append(N_('%(count)d queued', '%(count)d queued', queued) % {'count': queued})
-                text.append(' (' + ', '.join(s) + ')')
-            self.labelDownloads.set_text(''.join(text))
+                self.labelProgress.set_markup('<small>' + ', '.join(s) + '</small>')
+                self.labelProgress.show()
+            else:
+                self.labelProgress.hide()
 
             title = [self.default_title]
 
@@ -2137,10 +2138,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.episode_list_status_changed(episodes)
 
-    def play_or_download(self, current_page=None):
-        if current_page is None:
-            current_page = self.wNotebook.get_current_page()
-        if current_page > 0:
+    def play_or_download(self):
+        if self.is_showing_progress():
             self.toolCancel.set_sensitive(True)
             return (False, False, False, False, False)
 
@@ -3422,19 +3421,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if self.show_confirmation(message, title):
                 util.open_website('http://gpodder.org/downloads')
 
-    def on_wNotebook_switch_page(self, notebook, page, page_num):
-        if page_num == 0:
-            self.play_or_download(current_page=page_num)
-            # The message area in the downloads tab should be hidden
-            # when the user switches away from the downloads tab
-            if self.message_area is not None:
-                self.message_area.hide()
-                self.message_area = None
-        else:
-            self.toolDownload.set_sensitive(False)
-            self.toolPlay.set_sensitive(False)
-            self.toolCancel.set_sensitive(False)
-
     def on_treeChannels_row_activated(self, widget, path, *args):
         # double-click action of the podcast list or enter
         self.treeChannels.set_cursor(path)
@@ -3448,6 +3434,15 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             if self.active_channel == old_active_channel:
                 return
+
+            if old_active_channel is None:
+                self.right_pane_stack.set_visible_child(self.vpaned)
+                self.play_or_download()
+                # The message area in the downloads tab should be hidden
+                # when the user switches away from the downloads tab
+                if self.message_area is not None:
+                    self.message_area.hide()
+                    self.message_area = None
 
             # Dirty hack to check for "All episodes" (see gpodder.gtkui.model)
             if getattr(self.active_channel, 'ALL_EPISODES_PROXY', False):
@@ -3541,7 +3536,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.update_downloads_list()
 
     def on_item_cancel_download_activate(self, *params):
-        if self.wNotebook.get_current_page() == 0:
+        if not self.is_showing_progress:
             selection = self.treeAvailable.get_selection()
             (model, paths) = selection.get_selected_rows()
             urls = [model.get_value(model.get_iter(path),
@@ -3566,20 +3561,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.delete_episode_list(episodes)
 
     def on_key_press(self, widget, event):
-        # Allow tab switching with Ctrl + PgUp/PgDown/Tab
-        if event.get_state() & Gdk.ModifierType.CONTROL_MASK:
-            current_page = self.wNotebook.get_current_page()
-            if event.keyval in (Gdk.KEY_Page_Up, Gdk.KEY_ISO_Left_Tab):
-                if current_page == 0:
-                    current_page = self.wNotebook.get_n_pages()
-                self.wNotebook.set_current_page(current_page - 1)
-                return True
-            elif event.keyval in (Gdk.KEY_Page_Down, Gdk.KEY_Tab):
-                if current_page == self.wNotebook.get_n_pages() - 1:
-                    current_page = -1
-                self.wNotebook.set_current_page(current_page + 1)
-                return True
-        elif event.keyval == Gdk.KEY_Delete:
+        if event.keyval == Gdk.KEY_Delete:
             if isinstance(widget.get_focus(), Gtk.Entry):
                 logger.debug("Entry has focus, ignoring Delete")
             else:
@@ -3673,3 +3655,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_extension_disabled(self, extension):
         self.inject_extensions_menu()
+
+    def is_showing_progress(self):
+        return self.right_pane_stack.get_visible_child() == self.vboxDownloadStatusWidgets
