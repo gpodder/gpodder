@@ -294,7 +294,9 @@ class gPodderShownotesHTML(gPodderShownotes):
         stylesheet = self.get_stylesheet()
         if stylesheet:
             self.manager.add_style_sheet(stylesheet)
-        header_html = _('<h3>%s</h3>\n<p>from %s</p>\n') % (episode.title, episode.channel.title)
+        heading = html.escape(episode.title)
+        subheading = _('from %s') % (html.escape(episode.channel.title))
+        header_html = _('<div id="gpodder-title">\n<h3>%s</h3>\n<p>%s</p>\n</div>\n') % (heading, subheading)
         description_html = episode.description_html
         if not description_html:
             description_html = re.sub(r'\n', '<br>\n', episode.description)
@@ -404,7 +406,9 @@ class gPodderShownotesHTML(gPodderShownotes):
         if self.stylesheet is None:
             style = ("html { background: %s; color: %s;}"
                      " a { color: %s; }"
-                     " a:visited { color: %s; }") % \
+                     " a:visited { color: %s; }"
+                     " #gpodder-title h3, #gpodder-title p { margin: 0}"
+                     " #gpodder-title {margin-block-end: 1em;}") % \
                      (self.background_color.to_string(), self.foreground_color.to_string(),
                       self.link_color.to_string(), self.visited_color.to_string())
             self.stylesheet = WebKit2.UserStyleSheet(style, 0, 1, None, None)
