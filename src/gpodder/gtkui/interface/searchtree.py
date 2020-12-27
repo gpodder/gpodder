@@ -74,3 +74,40 @@ class SearchTree:
         if grab_focus:
             self.search_entry.grab_focus()
         self.search_entry.set_position(-1)
+
+
+class SearchTreeBar(SearchTree):
+    def __init__(self, search_box, search_entry, tree, model, config, toggle_button=None):
+        self.search_box = search_box
+        self.search_entry = search_entry
+        self.tree = tree
+        self.model = model
+        self.config = config
+        self.toggle_button = toggle_button
+        self._search_timeout = None
+        self.search_entry.connect('changed', self.on_entry_changed)
+        self.search_entry.connect('key-press-event', self.on_entry_key_press)
+        self.clicked_handler_id = None
+        if self.toggle_button is not None:
+            self.clicked_handler_id = self.toggle_button.connect("clicked",
+                self.on_search_button_clicked)
+
+    def on_search_button_clicked(self, *args):
+        if self.toggle_button.get_active():
+            self.show_search()
+        else:
+            self.hide_search()
+        return True
+
+    def hide_search(self, *args):
+        super().hide_search(*args)
+        if self.toggle_button is not None:
+            with self.toggle_button.handler_block(self.clicked_handler_id):
+                self.toggle_button.set_active(False)
+
+    def show_search(self, input_char=None, grab_focus=True):
+        super().show_search(input_char=input_char, grab_focus=grab_focus)
+        self.search_box.set_search_mode(True)
+        if self.toggle_button is not None:
+            with self.toggle_button.handler_block(self.clicked_handler_id):
+                self.toggle_button.set_active(True)

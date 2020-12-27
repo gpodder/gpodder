@@ -52,7 +52,8 @@ from .draw import (cake_size_from_widget, draw_cake_pixbuf,
 from .interface.addpodcast import gPodderAddPodcast
 from .interface.common import BuilderWidget, TreeViewHelper
 from .interface.progress import ProgressIndicator
-from .interface.searchtree import SearchTree
+#from .interface.searchtree import SearchTree
+from .interface.searchtree import SearchTreeBar
 from .model import EpisodeListModel, PodcastListModel
 from .services import CoverDownloader
 from .widgets import SimpleMessageArea
@@ -114,8 +115,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def new(self):
         if self.application.want_headerbar:
 #            self.header_bar = Gtk.HeaderBar()
+            # Search button
+            self.header_bar_search_button = Gtk.ToggleButton.new()
+            self.header_bar_search_button.set_image(Gtk.Image.new_from_icon_name('system-search-symbolic', Gtk.IconSize.SMALL_TOOLBAR))
+
             self.header_bar.pack_end(self.application.header_bar_menu_button)
             self.header_bar.pack_start(self.application.header_bar_refresh_button)
+            self.header_bar.pack_end(self.header_bar_search_button)
             self.header_bar.set_show_close_button(True)
             self.header_bar.show_all()
 
@@ -269,6 +275,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # Do the initial sync with the web service
         if self.mygpo_client.can_access_webservice():
             util.idle_add(self.mygpo_client.flush, True)
+
+        self.treeChannels.grab_focus()
 
         # First-time users should be asked if they want to see the OPML
         if self.options.subscribe:
@@ -840,6 +848,20 @@ class gPodder(BuilderWidget, dbus.service.Object):
 #                                           self.config)
 #        if self.config.ui.gtk.search_always_visible:
 #            self._search_podcasts.show_search(grab_focus=False)
+        self._search_podcasts = SearchTreeBar(self.channels_search_bar,
+                                           self.entry_search_channels,
+                                           self.treeChannels,
+                                           self.podcast_list_model,
+                                           self.config,
+                                           toggle_button=self.header_bar_search_button)
+        if self.config.ui.gtk.search_always_visible:
+            self._search_podcasts.show_search(grab_focus=False)
+
+    def on_entry_search_icon_release(self, entry, icon_pos, event):
+        """Delete icon on search entry clicked"""
+        if icon_pos == Gtk.EntryIconPosition.SECONDARY:
+            entry.set_text("")
+        return False
 
     def on_find_episode_activate(self, *args):
         if self._search_episodes:
@@ -1053,7 +1075,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.deck_back.grab_focus()
                 self.deck.navigate(Handy.NavigationDirection.FORWARD)
             elif event.keyval == Gdk.KEY_Escape:
-                if self.hbox_search_episodes.get_property('visible'):
+                if self._search_episodes.search_box.get_property('visible'):
                     self._search_episodes.hide_search()
 #                else:
 #                    self.shownotes_object.hide_pane()
@@ -1069,7 +1091,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 input_char = chr(unicode_char_id)
                 self._search_episodes.show_search(input_char)
             return True
-#        self.treeAvailable.connect('key-press-event', on_key_press)
+        self.treeAvailable.connect('key-press-event', on_key_press)
 
         self.treeAvailable.connect('popup-menu', self.treeview_available_show_context_menu)
 
@@ -1094,6 +1116,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
 #                                           self.config)
 #        if self.config.ui.gtk.search_always_visible:
 #            self._search_episodes.show_search(grab_focus=False)
+        self._search_episodes = SearchTreeBar(self.episodes_search_bar,
+                                           self.entry_search_episodes,
+                                           self.treeAvailable,
+                                           self.episode_list_model,
+                                           self.config,
+                                           toggle_button=self.episode_search_toggle)
+        if self.config.ui.gtk.search_always_visible:
+            self._search_episodes.show_search(grab_focus=False)
 
     def on_episode_list_selection_changed(self, selection):
         # Update the toolbar buttons
