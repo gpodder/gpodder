@@ -158,21 +158,17 @@ class UIConfig(config.Config):
 
         if cfg.width != -1 and cfg.height != -1:
             window.resize(cfg.width, cfg.height)
-        if cfg.x == -1 or cfg.y == -1:
-            window.set_position(Gtk.WindowPosition.CENTER_ON_PARENT)
-        else:
-            window.move(cfg.x, cfg.y)
+        window.set_position(Gtk.WindowPosition.CENTER_ON_PARENT)
 
         # Ignore events while we're connecting to the window
         self.__ignore_window_events = True
 
+        # Get window state, correct size comes from window.get_size(),
+        # see https://developer.gnome.org/SaveWindowState/
         def _receive_configure_event(widget, event):
-            x_pos, y_pos = event.x, event.y
-            width_size, height_size = event.width, event.height
+            width_size, height_size = widget.get_size()
             maximized = bool(event.window.get_state() & Gdk.WindowState.MAXIMIZED)
             if not self.__ignore_window_events and not maximized:
-                cfg.x = x_pos
-                cfg.y = y_pos
                 cfg.width = width_size
                 cfg.height = height_size
 
