@@ -76,20 +76,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def __init__(self, app, bus_name, gpodder_core, options):
         Handy.init()
-        # mapping from view_combobox id to EpisodeListModel view modes
-        self.id2view = {
-            'ALL': EpisodeListModel.VIEW_ALL,
-            'UNDELETED': EpisodeListModel.VIEW_UNDELETED,
-            'DOWNLOADED': EpisodeListModel.VIEW_DOWNLOADED,
-            'UNPLAYED': EpisodeListModel.VIEW_UNPLAYED,
+        self.menu2sort = {
+            "SORT_PUBLISHED": EpisodeListModel.C_PUBLISHED,
+            "SORT_TOTAL_TIME": EpisodeListModel.C_TOTAL_TIME,
+            "SORT_TITLE": EpisodeListModel.C_TITLE,
         }
-        self.view2id = { v: k for (k, v) in self.id2view.items() }
-        self.id2sort = {
-            "PUBLISHED": EpisodeListModel.C_PUBLISHED,
-            "DURATION": EpisodeListModel.C_TOTAL_TIME,
-            "TITLE": EpisodeListModel.C_TITLE,
-        }
-        self.sort2id = { v: k for (k, v) in self.id2sort.items() }
+        self.sort2menu = { v: k for (k, v) in self.menu2sort.items() }
         dbus.service.Object.__init__(self, object_path=gpodder.dbus_gui_object_path, bus_name=bus_name)
         self.podcasts_proxy = DBusPodcastsProxy(lambda: self.channels,
                 self.on_itemUpdate_activate,
@@ -319,6 +311,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
             'viewEpisodes', GLib.VariantType.new('s'),
             GLib.Variant.new_string(value))
         action.connect('activate', self.on_item_view_episodes_changed)
+        action.connect('activate', self.relabel_view_menubutton)
+        g.add_action(action)
+
+        value = self.sort2menu.get(self.config.ui.gtk.state.main_window.episode_column_sort_id, "SORT_PUBLISHED")
+        action = Gio.SimpleAction.new_stateful('sortEpisodes', GLib.VariantType.new('s'),
+            GLib.Variant.new_string(value))
+        action.connect('activate', self.on_episode_list_sort_changed)
+        action.connect('activate', self.relabel_sort_menubutton)
         g.add_action(action)
 
         action_defs = [
@@ -892,22 +892,38 @@ class gPodder(BuilderWidget, dbus.service.Object):
 #            (column.get_sort_order() is Gtk.SortType.ASCENDING)
 
     def episode_list_update_sort(self):
-        cboxid = self.sort_combobox.get_active_id()
-        column_id = self.id2sort.get(cboxid, EpisodeListModel.C_PUBLISHED)
+        column_id = self.config.ui.gtk.state.main_window.episode_column_sort_id
+        sorttype = Gtk.SortType.ASCENDING if self.config.ui.gtk.state.main_window.episode_column_sort_order else Gtk.SortType.DESCENDING
+        self.episode_list_model._sorter.set_sort_column_id(column_id, sorttype)
+
+    def on_episode_list_sort_changed(self, action, param):
+        column_id = self.menu2sort.get(param.get_string(), EpisodeListModel.C_PUBLISHED)
         desc = (column_id == EpisodeListModel.C_PUBLISHED)
         if self.sorttype_toggle.get_active():
             desc = not desc
-        sorttype = Gtk.SortType.DESCENDING if desc else Gtk.SortType.ASCENDING
-        self.episode_list_model._sorter.set_sort_column_id(column_id, sorttype)
         self.config.ui.gtk.state.main_window.episode_column_sort_id = column_id
-        self.config.ui.gtk.state.main_window.episode_column_sort_order = \
-            (sorttype is Gtk.SortType.ASCENDING)
-
-    def on_episode_list_sort_changed(self, cbox):
+        self.config.ui.gtk.state.main_window.episode_column_sort_order = not desc
+        action.set_state(param)
         self.episode_list_update_sort()
         return True
 
+    def relabel_sort_menubutton(self, action, param):
+        sort2text = {
+            EpisodeListModel.C_PUBLISHED: 'by date',
+            EpisodeListModel.C_TOTAL_TIME: 'by length',
+            EpisodeListModel.C_TITLE: 'by title',
+        }
+        label = self.sort_menubutton.get_child()
+        label.set_text(sort2text.get(
+            self.config.ui.gtk.state.main_window.episode_column_sort_id, 'by (unknown)'))
+        self.sort_popover.popdown()
+
     def on_episode_list_sorttype_toggled(self, toggle):
+        column_id = self.config.ui.gtk.state.main_window.episode_column_sort_id
+        desc = (column_id == EpisodeListModel.C_PUBLISHED)
+        if self.sorttype_toggle.get_active():
+            desc = not desc
+        self.config.ui.gtk.state.main_window.episode_column_sort_order = not desc
         self.episode_list_update_sort()
         return True
 
@@ -927,7 +943,16 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.deck.connect("notify::visible-child", self.on_deck_notify_visible_child)
 
         self.episode_list_model.set_view_mode(self.config.episode_list_view_mode)
-        self.view_combobox.set_active_id(self.view2id.get(self.config.episode_list_view_mode, 'ALL'))
+
+        self.view_popover = Gtk.Popover.new_from_model(self.view_menubutton,
+            self.application.builder.get_object('view-menu'))
+        self.view_menubutton.set_popover(self.view_popover)
+        self.relabel_view_menubutton(None, None)
+
+        self.sort_popover = Gtk.Popover.new_from_model(self.sort_menubutton,
+            self.application.builder.get_object('sort-menu'))
+        self.sort_menubutton.set_popover(self.sort_popover)
+        self.relabel_sort_menubutton(None, None)
 
         # Initialize progress icons
         cake_size = cake_size_from_widget(self.treeAvailable)
@@ -1023,8 +1048,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # Restore column sorting
         self.episode_list_model._sorter.set_sort_column_id(Gtk.TREE_SORTABLE_UNSORTED_SORT_COLUMN_ID,
             Gtk.SortType.DESCENDING)
-        cboxid = self.sort2id.get(self.config.ui.gtk.state.main_window.episode_column_sort_id, 'PUBLISHED')
-        self.sort_combobox.set_active_id(cboxid)
+        self.relabel_sort_menubutton(None, None)
         self.sorttype_toggle.set_active(self.config.ui.gtk.state.main_window.episode_column_sort_order)
         self.episode_list_update_sort()
 
@@ -3339,12 +3363,16 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.episode_list_model.set_view_mode(self.config.episode_list_view_mode)
         self.apply_podcast_list_hide_boring()
 
-    def on_episode_list_view_changed(self, combobox):
-        cboxid = self.view_combobox.get_active_id()
-        self.config.episode_list_view_mode = self.id2view.get(cboxid, EpisodeListModel.VIEW_ALL)
-        self.episode_list_model.set_view_mode(self.config.episode_list_view_mode)
-        self.apply_podcast_list_hide_boring()
-        return True
+    def relabel_view_menubutton(self, action, param):
+        view2text = {
+            EpisodeListModel.VIEW_ALL: 'All',
+            EpisodeListModel.VIEW_UNDELETED: 'Undeleted',
+            EpisodeListModel.VIEW_DOWNLOADED: 'Downloaded',
+            EpisodeListModel.VIEW_UNPLAYED: 'Unplayed',
+        }
+        label = self.view_menubutton.get_child()
+        label.set_text(view2text[self.config.episode_list_view_mode])
+        self.view_popover.popdown()
 
     def apply_podcast_list_hide_boring(self):
         if self.config.podcast_list_hide_boring:

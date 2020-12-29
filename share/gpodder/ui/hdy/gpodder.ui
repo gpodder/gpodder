@@ -217,17 +217,22 @@
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
                             <child>
-                              <object class="GtkComboBoxText" id="view_combobox">
+                              <object class="GtkMenuButton" id="view_menubutton">
                                 <property name="visible">True</property>
-                                <property name="can-focus">False</property>
-                                <property name="active">0</property>
-                                <items>
-                                  <item id="ALL" translatable="yes">All</item>
-                                  <item id="UNDELETED" translatable="yes">Undeleted</item>
-                                  <item id="DOWNLOADED" translatable="yes">Downloaded</item>
-                                  <item id="UNPLAYED" translatable="yes">Unplayed</item>
-                                </items>
-                                <signal name="changed" handler="on_episode_list_view_changed" swapped="no"/>
+                                <property name="can-focus">True</property>
+                                <property name="focus-on-click">False</property>
+                                <property name="receives-default">True</property>
+                                <child>
+                                  <object class="GtkLabel">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
+                                    <property name="label" translatable="yes">Downloaded</property>
+                                    <property name="justify">right</property>
+                                    <property name="ellipsize">end</property>
+                                    <property name="width-chars">9</property>
+                                    <property name="max-width-chars">9</property>
+                                  </object>
+                                </child>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -236,16 +241,21 @@
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkComboBoxText" id="sort_combobox">
+                              <object class="GtkMenuButton" id="sort_menubutton">
                                 <property name="visible">True</property>
-                                <property name="can-focus">False</property>
-                                <property name="active">0</property>
-                                <items>
-                                  <item id="PUBLISHED" translatable="yes">By date</item>
-                                  <item id="DURATION" translatable="yes">By length</item>
-                                  <item id="TITLE" translatable="yes">By name</item>
-                                </items>
-                                <signal name="changed" handler="on_episode_list_sort_changed" swapped="no"/>
+                                <property name="can-focus">True</property>
+                                <property name="focus-on-click">False</property>
+                                <property name="receives-default">True</property>
+                                <child>
+                                  <object class="GtkLabel">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
+                                    <property name="label" translatable="yes">by length</property>
+                                    <property name="ellipsize">end</property>
+                                    <property name="width-chars">7</property>
+                                    <property name="max-width-chars">7</property>
+                                  </object>
+                                </child>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -270,44 +280,13 @@
                               <packing>
                                 <property name="expand">False</property>
                                 <property name="fill">True</property>
-                                <property name="position">2</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkToggleButton" id="episode_search_toggle">
-                                <property name="visible">True</property>
-                                <property name="can-focus">True</property>
-                                <property name="receives-default">True</property>
-                                <child>
-                                  <object class="GtkImage">
-                                    <property name="visible">True</property>
-                                    <property name="can-focus">False</property>
-                                    <property name="icon-name">system-search-symbolic</property>
-                                  </object>
-                                </child>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">True</property>
                                 <property name="position">3</property>
                               </packing>
                             </child>
                           </object>
-                        </child>
-                        <child>
-                          <object class="GtkButton" id="episode_list_back">
-                            <property name="visible" bind-source="leaflet" bind-property="folded" bind-flags="sync-create">False</property>
-                            <property name="can-focus">False</property>
-                            <property name="receives-default">False</property>
-                            <signal name="clicked" handler="on_episode_list_back_clicked" swapped="no"/>
-                            <child>
-                              <object class="GtkImage">
-                                <property name="visible">True</property>
-                                <property name="can-focus">False</property>
-                                <property name="icon-name">go-previous-symbolic</property>
-                              </object>
-                            </child>
-                          </object>
+                          <packing>
+                            <property name="position">2</property>
+                          </packing>
                         </child>
                         <child>
                           <object class="GtkButton" id="episode_list_forward">
@@ -326,6 +305,42 @@
                           </object>
                           <packing>
                             <property name="pack-type">end</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkToggleButton" id="episode_search_toggle">
+                            <property name="visible">True</property>
+                            <property name="can-focus">True</property>
+                            <property name="receives-default">True</property>
+                            <child>
+                              <object class="GtkImage">
+                                <property name="visible">True</property>
+                                <property name="can-focus">False</property>
+                                <property name="icon-name">system-search-symbolic</property>
+                              </object>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="pack-type">end</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="episode_list_back">
+                            <property name="visible" bind-source="leaflet" bind-property="folded" bind-flags="sync-create">False</property>
+                            <property name="can-focus">False</property>
+                            <property name="receives-default">False</property>
+                            <signal name="clicked" handler="on_episode_list_back_clicked" swapped="no"/>
+                            <child>
+                              <object class="GtkImage">
+                                <property name="visible">True</property>
+                                <property name="can-focus">False</property>
+                                <property name="icon-name">go-previous-symbolic</property>
+                              </object>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="position">2</property>
                           </packing>
                         </child>
                       </object>

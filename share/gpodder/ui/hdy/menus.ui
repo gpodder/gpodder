@@ -211,5 +211,51 @@
       </submenu>
     </submenu>
   </menu>
+  <menu id="view-menu">
+    <item>
+      <attribute name="action">win.viewEpisodes</attribute>
+      <attribute name="label" translatable="yes">All episodes</attribute>
+      <attribute name="target">VIEW_ALL</attribute>
+      <attribute name="accel">&lt;Primary&gt;0</attribute>
+    </item>
+    <item>
+      <attribute name="action">win.viewEpisodes</attribute>
+      <attribute name="label" translatable="yes">Hide deleted episodes</attribute>
+      <attribute name="target">VIEW_UNDELETED</attribute>
+      <attribute name="accel">&lt;Primary&gt;1</attribute>
+    </item>
+    <item>
+      <attribute name="action">win.viewEpisodes</attribute>
+      <attribute name="label" translatable="yes">Downloaded episodes</attribute>
+      <attribute name="target">VIEW_DOWNLOADED</attribute>
+      <attribute name="accel">&lt;Primary&gt;2</attribute>
+    </item>
+    <item>
+      <attribute name="action">win.viewEpisodes</attribute>
+      <attribute name="label" translatable="yes">Unplayed episodes</attribute>
+      <attribute name="target">VIEW_UNPLAYED</attribute>
+      <attribute name="accel">&lt;Primary&gt;3</attribute>
+    </item>
+  </menu>
+  <menu id="sort-menu">
+    <item>
+      <attribute name="action">win.sortEpisodes</attribute>
+      <attribute name="label" translatable="yes">Sort by release date</attribute>
+      <attribute name="target">SORT_PUBLISHED</attribute>
+      <attribute name="accel">&lt;Primary&gt;0</attribute>
+    </item>
+    <item>
+      <attribute name="action">win.sortEpisodes</attribute>
+      <attribute name="label" translatable="yes">Sort by length</attribute>
+      <attribute name="target">SORT_TOTAL_TIME</attribute>
+      <attribute name="accel">&lt;Primary&gt;1</attribute>
+    </item>
+    <item>
+      <attribute name="action">win.sortEpisodes</attribute>
+      <attribute name="label" translatable="yes">Sort by title</attribute>
+      <attribute name="target">SORT_TITLE</attribute>
+      <attribute name="accel">&lt;Primary&gt;2</attribute>
+    </item>
+  </menu>
 </interface>
 <!-- :noTabs=true:tabSize=2:indentSize=2: -->
