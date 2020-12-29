@@ -264,23 +264,23 @@
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkToggleButton" id="sorttype_toggle">
+                              <object class="GtkButton" id="sortorder_button">
                                 <property name="visible">True</property>
                                 <property name="can-focus">True</property>
                                 <property name="receives-default">True</property>
-                                <signal name="toggled" handler="on_episode_list_sorttype_toggled" swapped="no"/>
+                                <signal name="clicked" handler="on_episode_list_sortorder_clicked" swapped="no"/>
                                 <child>
                                   <object class="GtkImage">
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
-                                    <property name="icon-name">go-up-symbolic</property>
+                                    <property name="icon-name">view-sort-ascending-symbolic</property>
                                   </object>
                                 </child>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
                                 <property name="fill">True</property>
-                                <property name="position">3</property>
+                                <property name="position">2</property>
                               </packing>
                             </child>
                           </object>

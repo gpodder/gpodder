@@ -898,11 +898,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_episode_list_sort_changed(self, action, param):
         column_id = self.menu2sort.get(param.get_string(), EpisodeListModel.C_PUBLISHED)
-        desc = (column_id == EpisodeListModel.C_PUBLISHED)
-        if self.sorttype_toggle.get_active():
-            desc = not desc
+        prev_id = self.config.ui.gtk.state.main_window.episode_column_sort_id
+        order = self.config.ui.gtk.state.main_window.episode_column_sort_order
+        if EpisodeListModel.C_PUBLISHED in [column_id, prev_id] and column_id != prev_id:
+            order = not order
         self.config.ui.gtk.state.main_window.episode_column_sort_id = column_id
-        self.config.ui.gtk.state.main_window.episode_column_sort_order = not desc
+        self.config.ui.gtk.state.main_window.episode_column_sort_order = order
         action.set_state(param)
         self.episode_list_update_sort()
         return True
@@ -918,12 +919,18 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.config.ui.gtk.state.main_window.episode_column_sort_id, 'by (unknown)'))
         self.sort_popover.popdown()
 
-    def on_episode_list_sorttype_toggled(self, toggle):
+    def set_sortorder_button_image(self):
+        order = self.config.ui.gtk.state.main_window.episode_column_sort_order
         column_id = self.config.ui.gtk.state.main_window.episode_column_sort_id
-        desc = (column_id == EpisodeListModel.C_PUBLISHED)
-        if self.sorttype_toggle.get_active():
-            desc = not desc
-        self.config.ui.gtk.state.main_window.episode_column_sort_order = not desc
+        order = not order if (column_id == EpisodeListModel.C_PUBLISHED) else order
+        image = self.sortorder_button.get_child()
+        icon = "view-sort-ascending-symbolic" if order else "view-sort-descending-symbolic"
+        image.set_from_icon_name(icon, Gtk.IconSize.BUTTON)
+
+    def on_episode_list_sortorder_clicked(self, button):
+        order = not self.config.ui.gtk.state.main_window.episode_column_sort_order
+        self.config.ui.gtk.state.main_window.episode_column_sort_order = order
+        self.set_sortorder_button_image()
         self.episode_list_update_sort()
         return True
 
@@ -1049,7 +1056,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.episode_list_model._sorter.set_sort_column_id(Gtk.TREE_SORTABLE_UNSORTED_SORT_COLUMN_ID,
             Gtk.SortType.DESCENDING)
         self.relabel_sort_menubutton(None, None)
-        self.sorttype_toggle.set_active(self.config.ui.gtk.state.main_window.episode_column_sort_order)
+        self.set_sortorder_button_image()
         self.episode_list_update_sort()
 
         # Restore column ordering
