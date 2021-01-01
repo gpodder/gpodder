@@ -99,6 +99,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.header_bar.pack_end(self.application.header_bar_menu_button)
             self.header_bar.pack_start(self.application.header_bar_refresh_button)
             self.header_bar.set_show_close_button(True)
+            self.update_header_bar_subtitle()
             self.header_bar.show_all()
 
             # Tweaks to the UI since we moved the refresh button into the header bar
@@ -327,6 +328,15 @@ class gPodder(BuilderWidget, dbus.service.Object):
             'showToolbar', None, GLib.Variant.new_boolean(self.config.show_toolbar))
         action.connect('activate', self.on_itemShowToolbar_activate)
         g.add_action(action)
+
+    def update_header_bar_subtitle(self, text=None):
+        if self.application.want_headerbar:
+            if text is None:
+                chs = self.db.get('SELECT COUNT(*) FROM %s' % self.db.TABLE_PODCAST)
+                eps = self.db.get('SELECT COUNT(*) FROM %s' % self.db.TABLE_EPISODE)
+                self.header_bar.set_subtitle("%s channels, %s episodes" % (chs, eps))
+            else:
+                self.header_bar.set_subtitle(text)
 
     def inject_extensions_menu(self):
         """
@@ -2535,6 +2545,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 assert channel is not None
                 worked.append(channel.url)
 
+            self.update_header_bar_subtitle()
             util.idle_add(on_after_update)
 
     def find_episode(self, podcast_url, episode_url):
@@ -2741,6 +2752,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                             self.pbFeedUpdate.set_text(message)
 
                     self.show_update_feeds_buttons()
+                    self.update_header_bar_subtitle()
 
             util.idle_add(update_feed_cache_finish_callback)
 
@@ -2835,6 +2847,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             self.update_episode_list_icons(episode_urls)
             self.update_podcast_list_model(channel_urls)
+            self.update_header_bar_subtitle()
             self.play_or_download()
 
         @util.run_in_background
@@ -3263,6 +3276,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             # Re-load the channels and select the desired new channel
             self.update_podcast_list_model(select_url=select_url)
+            self.update_header_bar_subtitle()
             progress.on_finished()
 
         @util.run_in_background
