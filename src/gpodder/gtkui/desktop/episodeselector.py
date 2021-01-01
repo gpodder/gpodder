@@ -89,7 +89,11 @@ class gPodderEpisodeSelector(BuilderWidget):
     COLUMN_ADDITIONAL = 3
 
     def new(self):
+        if hasattr(self, 'title'):
+            self.gPodderEpisodeSelector.set_title(self.title)
+
         self._config.connect_gtk_window(self.gPodderEpisodeSelector, 'episode_selector', True)
+
         if not hasattr(self, 'callback'):
             self.callback = None
 
@@ -125,9 +129,6 @@ class gPodderEpisodeSelector(BuilderWidget):
 
         if not hasattr(self, 'columns'):
             self.columns = (('title_markup', None, None, _('Episode')),)
-
-        if hasattr(self, 'title'):
-            self.gPodderEpisodeSelector.set_title(self.title)
 
         if hasattr(self, 'instructions'):
             self.labelInstructions.set_text(self.instructions)
