@@ -203,19 +203,19 @@ class gPodderApplication(Gtk.Application):
         dlg = Gtk.Dialog(_('About gPodder'), self.window.gPodder,
                 Gtk.DialogFlags.MODAL)
         dlg.add_button(Gtk.STOCK_CLOSE, Gtk.ResponseType.OK).show()
-        dlg.set_resizable(False)
+        dlg.set_resizable(True)
 
-        bg = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        bg = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6, margin=16)
         pb = GdkPixbuf.Pixbuf.new_from_file_at_size(gpodder.icon_file, 160, 160)
         bg.pack_start(Gtk.Image.new_from_pixbuf(pb), False, False, 0)
-        vb = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
-        label = Gtk.Label()
-        label.set_alignment(0, 0.5)
+        label = Gtk.Label(justify=Gtk.Justification.CENTER)
         label.set_markup('\n'.join(x.strip() for x in """
         <b>gPodder {version} ({date})</b>
 
         {copyright}
-        License: {license}
+
+        License:
+        {license}
 
         <a href="{url}">{tr_website}</a> · <a href="{bugs_url}">{tr_bugtracker}</a>
         """.format(version=gpodder.__version__,
@@ -227,8 +227,7 @@ class gPodderApplication(Gtk.Application):
                    tr_website=_('Website'),
                    tr_bugtracker=_('Bug Tracker')).strip().split('\n')))
 
-        vb.pack_start(label, False, False, 0)
-        bg.pack_start(vb, False, False, 0)
+        bg.pack_start(label, False, False, 0)
         bg.pack_start(Gtk.Label(), False, False, 0)
 
         dlg.vbox.pack_start(bg, False, False, 0)
