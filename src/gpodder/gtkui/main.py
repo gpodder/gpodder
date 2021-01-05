@@ -1104,11 +1104,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # Update the downloads list one more time
         self.update_downloads_list(can_call_cleanup=False)
 
-    def on_tool_downloads_toggled(self, toolbutton):
-        if toolbutton.get_active():
-            self.wNotebook.set_current_page(1)
-        else:
-            self.wNotebook.set_current_page(0)
+    def on_tool_show_podcasts(self, toolbutton):
+        self.wNotebook.set_current_page(0 if toolbutton.get_active() else 1)
+
+    def on_tool_show_progress(self, toolbutton):
+        self.wNotebook.set_current_page(1 if toolbutton.get_active() else 0)
 
     def add_download_task_monitor(self, monitor):
         self.download_task_monitors.add(monitor)
@@ -1179,15 +1179,15 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if downloading + failed + queued + synchronizing > 0:
                 s = []
                 if downloading > 0:
-                    s.append(N_('%(count)d active', '%(count)d active', downloading) % {'count': downloading})
+                    s.append(N_('%(count)d↓', '%(count)d↓', downloading) % {'count': downloading})
                 if synchronizing > 0:
-                    s.append(N_('%(count)d active', '%(count)d active', synchronizing) % {'count': synchronizing})
+                    s.append(N_('%(count)d⟲', '%(count)d⟲', synchronizing) % {'count': synchronizing})
                 if failed > 0:
-                    s.append(N_('%(count)d failed', '%(count)d failed', failed) % {'count': failed})
+                    s.append(N_('<span foreground="red">%(count)d!</span>', '<span foreground="red">%(count)d!</span>', failed) % {'count': failed})
                 if queued > 0:
-                    s.append(N_('%(count)d queued', '%(count)d queued', queued) % {'count': queued})
+                    s.append(N_('%(count)d..', '%(count)d..', queued) % {'count': queued})
                 text.append(' (' + ', '.join(s) + ')')
-            self.labelDownloads.set_text(''.join(text))
+            self.toolShowProgress.get_children()[0].get_children()[0].set_markup(''.join(text))
 
             title = [self.default_title]
 
@@ -3439,6 +3439,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.toolDownload.set_sensitive(False)
             self.toolPlay.set_sensitive(False)
             self.toolCancel.set_sensitive(False)
+        self.toolShowPodcasts.set_active(page_num == 0)
+        self.toolShowProgress.set_active(page_num == 1)
 
     def on_treeChannels_row_activated(self, widget, path, *args):
         # double-click action of the podcast list or enter

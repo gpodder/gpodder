@@ -38,6 +38,49 @@
           <object class="GtkToolbar" id="toolbar">
             <property name="visible">True</property>
             <property name="show_arrow">True</property>
+            <!--<child>
+              <object class="GtkToggleToolButton" id="toolShowPodcasts">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">Podcasts</property>
+                <property name="use_underline">True</property>
+                <property name="stock_id">gtk-list</property>
+                <property name="visible_horizontal">True</property>
+                <property name="visible_vertical">True</property>
+                <property name="is_important">True</property>
+                <property name="active">True</property>
+                <signal handler="on_tool_show_podcasts" name="toggled"/>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>-->
+            <child>
+              <object class="GtkToggleToolButton" id="toolShowProgress">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">Progress</property>
+                <property name="use_underline">True</property>
+                <property name="visible_horizontal">True</property>
+                <property name="visible_vertical">True</property>
+                <property name="is_important">True</property>
+                <signal handler="on_tool_show_progress" name="toggled"/>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkSeparatorToolItem" id="toolbutton1">
+                <property name="visible">True</property>
+                <property name="visible_horizontal">True</property>
+                <property name="visible_vertical">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">False</property>
+              </packing>
+            </child>
             <child>
               <object class="GtkToolButton" id="toolDownload">
                 <property name="visible">True</property>
@@ -152,7 +195,7 @@
               <object class="GtkNotebook" id="wNotebook">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
-                <property name="show_tabs">True</property>
+                <property name="show_tabs">False</property>
                 <property name="show_border">True</property>
                 <property name="tab_pos">GTK_POS_TOP</property>
                 <property name="scrollable">False</property>
