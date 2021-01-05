@@ -726,6 +726,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 model, it = selection.get_selected()
                 if it is None:
                     it = model.get_iter_first()
+                    if it is None:
+                        return False
                     step = 1
 
                 path = model.get_path(it)
