@@ -214,7 +214,6 @@ class gPodderApplication(Gtk.Application):
 
         {copyright}
 
-        License:
         {license}
 
         <a href="{url}">{tr_website}</a> · <a href="{bugs_url}">{tr_bugtracker}</a>
