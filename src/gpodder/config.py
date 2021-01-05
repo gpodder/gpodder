@@ -219,7 +219,6 @@ defaults = {
 
 # The sooner this goes away, the better
 gPodderSettings_LegacySupport = {
-    'player': 'player.audio',
     'videoplayer': 'player.video',
     'limit_rate': 'limit.bandwidth.enabled',
     'limit_rate_value': 'limit.bandwidth.kbps',

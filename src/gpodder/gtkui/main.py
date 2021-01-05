@@ -2059,9 +2059,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if file_type == 'video' and self.config.videoplayer and \
                 self.config.videoplayer != 'default':
             player = self.config.videoplayer
-        elif file_type == 'audio' and self.config.player and \
-                self.config.player != 'default':
-            player = self.config.player
+        elif file_type == 'audio' and self.config.player.audio and \
+                self.config.player.audio != 'default':
+            player = self.config.player.audio
         else:
             player = 'default'
         return player
@@ -2076,7 +2076,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if episode:
             player = self.episode_player(episode)
         else:
-            player = self.config.player
+            player = self.config.player.audio
         return player and player != 'default'
 
     def playback_episodes_for_real(self, episodes):

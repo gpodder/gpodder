@@ -196,7 +196,7 @@ class gPodderPreferences(BuilderWidget):
 
         self.audio_player_model = self.user_apps_reader.get_model('audio')
         self.combo_audio_player_app.set_model(self.audio_player_model)
-        index = self.audio_player_model.get_index(self._config.player)
+        index = self.audio_player_model.get_index(self._config.player.audio)
         self.combo_audio_player_app.set_active(index)
 
         self.video_player_model = self.user_apps_reader.get_model('video')
@@ -484,7 +484,7 @@ class gPodderPreferences(BuilderWidget):
 
     def on_combo_audio_player_app_changed(self, widget):
         index = self.combo_audio_player_app.get_active()
-        self._config.player = self.audio_player_model.get_command(index)
+        self._config.player.audio = self.audio_player_model.get_command(index)
 
     def on_combo_video_player_app_changed(self, widget):
         index = self.combo_video_player_app.get_active()
@@ -505,11 +505,11 @@ class gPodderPreferences(BuilderWidget):
     def on_button_audio_player_clicked(self, widget):
         result = self.show_text_edit_dialog(_('Configure audio player'),
                                             _('Command:'),
-                                            self._config.player)
+                                            self._config.player.audio)
 
         if result:
-            self._config.player = result
-            index = self.audio_player_model.get_index(self._config.player)
+            self._config.player.audio = result
+            index = self.audio_player_model.get_index(self._config.player.audio)
             self.combo_audio_player_app.set_active(index)
 
     def on_button_video_player_clicked(self, widget):
