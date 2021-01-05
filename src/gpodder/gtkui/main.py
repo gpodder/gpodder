@@ -3229,7 +3229,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_itemMassUnsubscribe_activate(self, action, param):
         columns = (
-            ('title', None, None, _('Podcast')),
+            ('title_markup', None, None, _('Podcast')),
         )
 
         # We're abusing the Episode Selector for selecting Podcasts here,
