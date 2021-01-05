@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: gPodder\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-11-24 17:28+0100\n"
-"PO-Revision-Date: 2020-11-10 16:12+0100\n"
+"PO-Revision-Date: 2021-01-02 02:30+0100\n"
 "Last-Translator: TZocker\n"
 "Language-Team: German (http://www.transifex.com/projects/p/gpodder/language/"
 "de/)\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 2.4.1\n"
+"X-Generator: Poedit 2.3\n"
 
 #: src/gpodder/config.py:54
 #, python-format
@@ -102,12 +102,13 @@ msgstr "Fehlender Inhalt vom Server"
 #, python-format
 msgid "Couldn't connect to server %(host)s:%(port)s"
 msgstr ""
+"Es konnte keine Verbindung mit dem Server %(host)s:%(port)s hergestellt "
+"werden"
 
 #: src/gpodder/download.py:873
-#, fuzzy, python-format
-#| msgid "Syntax error: %(error)s"
+#, python-format
 msgid "Request Error: %(error)s"
-msgstr "Syntax-Fehler: %(error)s"
+msgstr "Anforderungsfehler: %(error)s"
 
 #: src/gpodder/download.py:879
 #, python-format
@@ -1318,10 +1319,8 @@ msgid "Password"
 msgstr "Passwort"
 
 #: src/gpodder/gtkui/interface/common.py:192
-#, fuzzy
-#| msgid "Password"
 msgid "Show Password"
-msgstr "Passwort"
+msgstr "Passwort anzeigen"
 
 #: src/gpodder/gtkui/interface/common.py:229
 #: share/gpodder/ui/gtk/gpodderexporttolocalfolder.ui.h:1
@@ -2268,10 +2267,8 @@ msgid "Hide podcasts without episodes"
 msgstr "Podcasts ohne Episoden ausblenden"
 
 #: share/gpodder/ui/gtk/menus.ui.h:41
-#, fuzzy
-#| msgid "Always show Find entries"
 msgid "Always show New Episodes"
-msgstr "Gefundene Einträge immer Anzeigen"
+msgstr "Immer neue Episoden anzeigen"
 
 #: share/gpodder/ui/gtk/menus.ui.h:42
 msgid "Visible columns"
