@@ -201,7 +201,7 @@ class gPodderPreferences(BuilderWidget):
 
         self.video_player_model = self.user_apps_reader.get_model('video')
         self.combo_video_player_app.set_model(self.video_player_model)
-        index = self.video_player_model.get_index(self._config.videoplayer)
+        index = self.video_player_model.get_index(self._config.player.video)
         self.combo_video_player_app.set_active(index)
 
         self.preferred_youtube_format_model = YouTubeVideoFormatListModel(self._config)
@@ -488,7 +488,7 @@ class gPodderPreferences(BuilderWidget):
 
     def on_combo_video_player_app_changed(self, widget):
         index = self.combo_video_player_app.get_active()
-        self._config.videoplayer = self.video_player_model.get_command(index)
+        self._config.player.video = self.video_player_model.get_command(index)
 
     def on_combobox_preferred_youtube_format_changed(self, widget):
         index = self.combobox_preferred_youtube_format.get_active()
@@ -515,11 +515,11 @@ class gPodderPreferences(BuilderWidget):
     def on_button_video_player_clicked(self, widget):
         result = self.show_text_edit_dialog(_('Configure video player'),
                                             _('Command:'),
-                                            self._config.videoplayer)
+                                            self._config.player.video)
 
         if result:
-            self._config.videoplayer = result
-            index = self.video_player_model.get_index(self._config.videoplayer)
+            self._config.player.video = result
+            index = self.video_player_model.get_index(self._config.player.video)
             self.combo_video_player_app.set_active(index)
 
     def format_update_interval_value(self, scale, value):
