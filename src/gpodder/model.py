@@ -327,6 +327,10 @@ class PodcastEpisode(PodcastModelObject):
         if file_type is not None:
             return episode
 
+        # Check if any extensions (e.g. youtube-dl) support the link
+        if registry.custom_downloader.resolve(None, None, episode) is not None:
+            return episode
+
         return None
 
     def __init__(self, channel):
