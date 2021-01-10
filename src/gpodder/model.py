@@ -300,8 +300,8 @@ class PodcastEpisode(PodcastModelObject):
                 continue
 
             # If we have audio or video available later on, skip
-            # 'application/octet-stream' data types (fixes Linux Outlaws)
-            if episode.mime_type == 'application/octet-stream' and (audio_available or video_available):
+            # all 'application/*' data types (fixes Linux Outlaws and peertube feeds)
+            if episode.mime_type.startswith('application/') and (audio_available or video_available):
                 continue
 
             episode.url = util.normalize_feed_url(enclosure['url'])
