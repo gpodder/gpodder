@@ -53,6 +53,8 @@ PREFIX ?= /usr
 PYTHON ?= python3
 HELP2MAN ?= help2man
 
+PYTEST ?= $(shell which pytest || which pytest-3)
+
 ##########################################################################
 
 help:
@@ -61,8 +63,8 @@ help:
 ##########################################################################
 
 unittest:
-	LC_ALL=C PYTHONPATH=src/ pytest --ignore=tests --ignore=src/gpodder/utilwin32ctypes.py --doctest-modules src/gpodder/util.py src/gpodder/jsonconfig.py
-	LC_ALL=C PYTHONPATH=src/ pytest tests --ignore=src/gpodder/utilwin32ctypes.py --ignore=src/mygpoclient --cov=gpodder
+	LC_ALL=C PYTHONPATH=src/ $(PYTEST) --ignore=tests --ignore=src/gpodder/utilwin32ctypes.py --doctest-modules src/gpodder/util.py src/gpodder/jsonconfig.py
+	LC_ALL=C PYTHONPATH=src/ $(PYTEST) tests --ignore=src/gpodder/utilwin32ctypes.py --ignore=src/mygpoclient --cov=gpodder
 
 # ISORTOPTS := -c share src/gpodder tools bin/* *.py # for isort >= 5.0
 ISORTOPTS := -rc -c share src/gpodder tools bin/* *.py
