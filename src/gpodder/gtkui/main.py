@@ -107,6 +107,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def new(self):
         if self.application.want_headerbar:
 #            self.header_bar = Gtk.HeaderBar()
+
             # Search button
             self.header_bar_search_button = Gtk.ToggleButton.new()
             self.header_bar_search_button.set_image(Gtk.Image.new_from_icon_name('system-search-symbolic', Gtk.IconSize.SMALL_TOOLBAR))
@@ -135,6 +136,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
 #        self.config.connect_gtk_paned('ui.gtk.state.main_window.paned_position', self.channelPaned)
 #
+        self.progress_window.connect("delete-event", self.on_progress_close_button_clicked)
+        self.progress_window.hide()
+
         self.main_window.show()
 
         self.player_receiver = player.MediaPlayerDBusReceiver(self.on_played)
@@ -169,19 +173,19 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.download_status_model = DownloadStatusModel()
         self.download_queue_manager = download.DownloadQueueManager(self.config, self.download_status_model)
 
-#        self.config.connect_gtk_spinbutton('limit.downloads.concurrent', self.spinMaxDownloads,
-#                                           self.config.limit.downloads.concurrent_max)
-#        self.config.connect_gtk_togglebutton('max_downloads_enabled', self.cbMaxDownloads)
-#        self.config.connect_gtk_spinbutton('limit_rate_value', self.spinLimitDownloads)
-#        self.config.connect_gtk_togglebutton('limit_rate', self.cbLimitDownloads)
-#
-#        # When the amount of maximum downloads changes, notify the queue manager
-#        def changed_cb(spinbutton):
-#            return self.download_queue_manager.update_max_downloads()
-#
-#        self.spinMaxDownloads.connect('value-changed', changed_cb)
-#        self.cbMaxDownloads.connect('toggled', changed_cb)
-#
+        self.config.connect_gtk_spinbutton('limit.downloads.concurrent', self.spinMaxDownloads,
+                                           self.config.limit.downloads.concurrent_max)
+        self.config.connect_gtk_togglebutton('max_downloads_enabled', self.cbMaxDownloads)
+        self.config.connect_gtk_spinbutton('limit_rate_value', self.spinLimitDownloads)
+        self.config.connect_gtk_togglebutton('limit_rate', self.cbLimitDownloads)
+
+        # When the amount of maximum downloads changes, notify the queue manager
+        def changed_cb(spinbutton):
+            return self.download_queue_manager.update_max_downloads()
+
+        self.spinMaxDownloads.connect('value-changed', changed_cb)
+        self.cbMaxDownloads.connect('toggled', changed_cb)
+
         # Keep a reference to the last add podcast dialog instance
         self._add_podcast_dialog = None
 
@@ -212,7 +216,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # Init the treeviews that we use
         self.init_podcast_list_treeview()
         self.init_episode_list_treeview()
-#        self.init_download_list_treeview()
+        self.init_download_list_treeview()
 
         if self.leaflet.get_folded():
             self.leaflet.set_visible_child(self.channelsbox)
@@ -247,8 +251,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.feed_cache_update_cancelled = False
         self.update_podcast_list_model()
 
-#        self.message_area = None
-#
+        self.message_area = None
+
         self.partial_downloads_indicator = None
         util.run_in_background(self.find_partial_downloads)
 
@@ -343,6 +347,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             ('sync', self.on_sync_to_device_activate),
             ('findPodcast', self.on_find_podcast_activate),
             ('findEpisode', self.on_find_episode_activate),
+            ('showProgress', self.on_show_progress_activate),
         ]
 
         for name, callback in action_defs:
@@ -421,34 +426,36 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.partial_downloads_indicator.on_progress(progress)
 
         def finish_progress_callback(resumable_episodes):
-#            def offer_resuming():
-#                if resumable_episodes:
-#                    self.download_episode_list_paused(resumable_episodes)
-#                    resume_all = Gtk.Button(_('Resume all'))
-#
-#                    def on_resume_all(button):
-#                        selection = self.treeDownloads.get_selection()
-#                        selection.select_all()
-#                        selected_tasks, _, _, _, _, _ = self.downloads_list_get_selection()
-#                        selection.unselect_all()
-#                        self._for_each_task_set_status(selected_tasks, download.DownloadTask.QUEUED)
-#                        self.message_area.hide()
-#                    resume_all.connect('clicked', on_resume_all)
-#
-#                    self.message_area = SimpleMessageArea(
-#                            _('Incomplete downloads from a previous session were found.'),
-#                            (resume_all,))
-#                    self.vboxDownloadStatusWidgets.attach(self.message_area, 0, -1, 1, 1)
-#                    self.message_area.show_all()
-#                else:
+            def offer_resuming():
+                if resumable_episodes:
+                    self.download_episode_list_paused(resumable_episodes)
+                    resume_all = Gtk.Button(_('Resume all'))
+
+                    def on_resume_all(button):
+                        selection = self.treeDownloads.get_selection()
+                        selection.select_all()
+                        selected_tasks, _, _, _, _, _ = self.downloads_list_get_selection()
+                        selection.unselect_all()
+                        self._for_each_task_set_status(selected_tasks, download.DownloadTask.QUEUED)
+                        self.message_area.hide()
+                    resume_all.connect('clicked', on_resume_all)
+
+                    self.message_area = SimpleMessageArea(
+                            _('Incomplete downloads from a previous session were found.'),
+                            (resume_all,))
+                    self.vboxDownloadStatusWidgets.attach(self.message_area, 0, -1, 1, 1)
+                    self.message_area.show_all()
+                    self.on_show_progress_activate()
+                else:
 #                    util.idle_add(self.wNotebook.set_current_page, 0)
-#                logger.debug("find_partial_downloads done, calling extensions")
-#                gpodder.user_extensions.on_find_partial_downloads_done()
+                    pass
+                logger.debug("find_partial_downloads done, calling extensions")
+                gpodder.user_extensions.on_find_partial_downloads_done()
 
             if self.partial_downloads_indicator:
                 util.idle_add(self.partial_downloads_indicator.on_finished)
                 self.partial_downloads_indicator = None
-#            util.idle_add(offer_resuming)
+            util.idle_add(offer_resuming)
 
         common.find_partial_downloads(self.channels,
                 start_progress_callback,
@@ -724,12 +731,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
         else:
             return False
 
-#    def on_treeview_downloads_button_released(self, treeview, event):
-#        if event.window != treeview.get_bin_window():
-#            return False
-#
-#        return self.treeview_downloads_show_context_menu(treeview, event)
-#
+    def on_treeview_downloads_button_released(self, treeview, event):
+        if event.window != treeview.get_bin_window():
+            return False
+
+        return self.treeview_downloads_show_context_menu(treeview, event)
+
     def on_find_podcast_activate(self, *args):
         if self._search_podcasts:
             self._search_podcasts.show_search()
@@ -1166,47 +1173,47 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.episode_list_forward.set_sensitive(False)
         self.shownotes_object.set_episodes(eps)
 
-#    def init_download_list_treeview(self):
-#        # enable multiple selection support
-#        self.treeDownloads.get_selection().set_mode(Gtk.SelectionMode.MULTIPLE)
-#        self.treeDownloads.set_search_equal_func(TreeViewHelper.make_search_equal_func(DownloadStatusModel))
-#
-#        # columns and renderers for "download progress" tab
-#        # First column: [ICON] Episodename
-#        column = Gtk.TreeViewColumn(_('Episode'))
-#
-#        cell = Gtk.CellRendererPixbuf()
-#        cell.set_property('stock-size', Gtk.IconSize.BUTTON)
-#        column.pack_start(cell, False)
-#        column.add_attribute(cell, 'icon-name',
-#                DownloadStatusModel.C_ICON_NAME)
-#
-#        cell = Gtk.CellRendererText()
-#        cell.set_property('ellipsize', Pango.EllipsizeMode.END)
-#        column.pack_start(cell, True)
-#        column.add_attribute(cell, 'markup', DownloadStatusModel.C_NAME)
-#        column.set_sizing(Gtk.TreeViewColumnSizing.AUTOSIZE)
-#        column.set_expand(True)
-#        self.treeDownloads.append_column(column)
-#
-#        # Second column: Progress
-#        cell = Gtk.CellRendererProgress()
-#        cell.set_property('yalign', .5)
-#        cell.set_property('ypad', 6)
-#        column = Gtk.TreeViewColumn(_('Progress'), cell,
-#                value=DownloadStatusModel.C_PROGRESS,
-#                text=DownloadStatusModel.C_PROGRESS_TEXT)
-#        column.set_sizing(Gtk.TreeViewColumnSizing.AUTOSIZE)
-#        column.set_expand(False)
-#        self.treeDownloads.append_column(column)
-#        column.set_property('min-width', 150)
-#        column.set_property('max-width', 150)
-#
-#        self.treeDownloads.set_model(self.download_status_model)
-#        TreeViewHelper.set(self.treeDownloads, TreeViewHelper.ROLE_DOWNLOADS)
-#
-#        self.treeDownloads.connect('popup-menu', self.treeview_downloads_show_context_menu)
-#
+    def init_download_list_treeview(self):
+        # enable multiple selection support
+        self.treeDownloads.get_selection().set_mode(Gtk.SelectionMode.MULTIPLE)
+        self.treeDownloads.set_search_equal_func(TreeViewHelper.make_search_equal_func(DownloadStatusModel))
+
+        # columns and renderers for "download progress" tab
+        # First column: [ICON] Episodename
+        column = Gtk.TreeViewColumn(_('Episode'))
+
+        cell = Gtk.CellRendererPixbuf()
+        cell.set_property('stock-size', Gtk.IconSize.BUTTON)
+        column.pack_start(cell, False)
+        column.add_attribute(cell, 'icon-name',
+                DownloadStatusModel.C_ICON_NAME)
+
+        cell = Gtk.CellRendererText()
+        cell.set_property('ellipsize', Pango.EllipsizeMode.END)
+        column.pack_start(cell, True)
+        column.add_attribute(cell, 'markup', DownloadStatusModel.C_NAME)
+        column.set_sizing(Gtk.TreeViewColumnSizing.AUTOSIZE)
+        column.set_expand(True)
+        self.treeDownloads.append_column(column)
+
+        # Second column: Progress
+        cell = Gtk.CellRendererProgress()
+        cell.set_property('yalign', .5)
+        cell.set_property('ypad', 6)
+        column = Gtk.TreeViewColumn(_('Progress'), cell,
+                value=DownloadStatusModel.C_PROGRESS,
+                text=DownloadStatusModel.C_PROGRESS_TEXT)
+        column.set_sizing(Gtk.TreeViewColumnSizing.AUTOSIZE)
+        column.set_expand(False)
+        self.treeDownloads.append_column(column)
+        column.set_property('min-width', 150)
+        column.set_property('max-width', 150)
+
+        self.treeDownloads.set_model(self.download_status_model)
+        TreeViewHelper.set(self.treeDownloads, TreeViewHelper.ROLE_DOWNLOADS)
+
+        self.treeDownloads.connect('popup-menu', self.treeview_downloads_show_context_menu)
+
     def on_treeview_expose_event(self, treeview, ctx):
         model = treeview.get_model()
         if (model is not None and model.get_iter_first() is not None):
@@ -1238,6 +1245,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
             raise Exception('on_treeview_expose_event: unknown role')
 
         draw_text_box_centered(ctx, treeview, width, height, text, None, None)
+        return True
+
+    def on_show_progress_activate(self, *args):
+        self.progress_window.show_all()
+        self.progress_window.present()
+
+    def on_progress_close_button_clicked(self, *args):
+        self.progress_window.hide()
         return True
 
     def enable_download_list_update(self):
@@ -1354,7 +1369,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 if queued > 0:
                     s.append(N_('%(count)d queued', '%(count)d queued', queued) % {'count': queued})
                 text.append(' (' + ', '.join(s) + ')')
-#            self.labelDownloads.set_text(''.join(text))
+            #self.labelDownloads.set_text(''.join(text))
+            self.progress_window.set_title(''.join(text))
 
             title = [self.default_title]
 
@@ -1555,38 +1571,38 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         return model, paths
 
-#    def downloads_list_get_selection(self, model=None, paths=None):
-#        if model is None and paths is None:
-#            selection = self.treeDownloads.get_selection()
-#            model, paths = selection.get_selected_rows()
-#
-#        can_queue, can_cancel, can_pause, can_remove, can_force = (True,) * 5
-#        selected_tasks = [(Gtk.TreeRowReference.new(model, path),
-#                           model.get_value(model.get_iter(path),
-#                           DownloadStatusModel.C_TASK)) for path in paths]
-#
-#        for row_reference, task in selected_tasks:
-#            if task.status != download.DownloadTask.QUEUED:
-#                can_force = False
-#            if task.status not in (download.DownloadTask.PAUSED,
-#                    download.DownloadTask.FAILED,
-#                    download.DownloadTask.CANCELLED):
-#                can_queue = False
-#            if task.status not in (download.DownloadTask.PAUSED,
-#                    download.DownloadTask.QUEUED,
-#                    download.DownloadTask.DOWNLOADING,
-#                    download.DownloadTask.FAILED):
-#                can_cancel = False
-#            if task.status not in (download.DownloadTask.QUEUED,
-#                    download.DownloadTask.DOWNLOADING):
-#                can_pause = False
-#            if task.status not in (download.DownloadTask.CANCELLED,
-#                    download.DownloadTask.FAILED,
-#                    download.DownloadTask.DONE):
-#                can_remove = False
-#
-#        return selected_tasks, can_queue, can_cancel, can_pause, can_remove, can_force
-#
+    def downloads_list_get_selection(self, model=None, paths=None):
+        if model is None and paths is None:
+            selection = self.treeDownloads.get_selection()
+            model, paths = selection.get_selected_rows()
+
+        can_queue, can_cancel, can_pause, can_remove, can_force = (True,) * 5
+        selected_tasks = [(Gtk.TreeRowReference.new(model, path),
+                           model.get_value(model.get_iter(path),
+                           DownloadStatusModel.C_TASK)) for path in paths]
+
+        for row_reference, task in selected_tasks:
+            if task.status != download.DownloadTask.QUEUED:
+                can_force = False
+            if task.status not in (download.DownloadTask.PAUSED,
+                    download.DownloadTask.FAILED,
+                    download.DownloadTask.CANCELLED):
+                can_queue = False
+            if task.status not in (download.DownloadTask.PAUSED,
+                    download.DownloadTask.QUEUED,
+                    download.DownloadTask.DOWNLOADING,
+                    download.DownloadTask.FAILED):
+                can_cancel = False
+            if task.status not in (download.DownloadTask.QUEUED,
+                    download.DownloadTask.DOWNLOADING):
+                can_pause = False
+            if task.status not in (download.DownloadTask.CANCELLED,
+                    download.DownloadTask.FAILED,
+                    download.DownloadTask.DONE):
+                can_remove = False
+
+        return selected_tasks, can_queue, can_cancel, can_pause, can_remove, can_force
+
     def downloads_finished(self, download_tasks_seen):
         # Separate tasks into downloads & syncs
         # Since calling notify_as_finished or notify_as_failed clears the flag,
@@ -1691,7 +1707,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def _for_each_task_set_status(self, tasks, status, force_start=False):
         episode_urls = set()
-#        model = self.treeDownloads.get_model()
+        model = self.treeDownloads.get_model()
         for row_reference, task in tasks:
             if status == download.DownloadTask.QUEUED:
                 # Only queue task when its paused/failed/cancelled (or forced)
@@ -1718,7 +1734,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 # Remove the selected task - cancel downloading/queued tasks
                 if task.status in (task.QUEUED, task.DOWNLOADING):
                     task.status = task.CANCELLED
-#                model.remove(model.get_iter(row_reference.get_path()))
+                model.remove(model.get_iter(row_reference.get_path()))
                 # Remember the URL, so we can tell the UI to update
                 try:
                     # We don't "see" this task anymore - remove it;
@@ -1738,94 +1754,94 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # Update the tab title and downloads list
         self.update_downloads_list()
 
-#    def treeview_downloads_show_context_menu(self, treeview, event=None):
-#        model, paths = self.treeview_handle_context_menu_click(treeview, event)
-#        if not paths:
-#            return not treeview.is_rubber_banding_active()
-#
-#        if event is None or event.button == 3:
-#            selected_tasks, can_queue, can_cancel, can_pause, can_remove, can_force = \
-#                    self.downloads_list_get_selection(model, paths)
-#
-#            def make_menu_item(label, icon_name, tasks=None, status=None, sensitive=True, force_start=False, action=None):
-#                # This creates a menu item for selection-wide actions
-#                item = Gtk.ImageMenuItem.new_with_mnemonic(label)
-#                if icon_name is not None:
-#                    item.set_image(Gtk.Image.new_from_icon_name(icon_name, Gtk.IconSize.MENU))
-#                if action is not None:
-#                    item.connect('activate', action)
-#                else:
-#                    item.connect('activate', lambda item: self._for_each_task_set_status(tasks, status, force_start))
-#                item.set_sensitive(sensitive)
-#                return item
-#
-#            def move_selected_items_up(menu_item):
-#                selection = self.treeDownloads.get_selection()
-#                model, selected_paths = selection.get_selected_rows()
-#                for path in selected_paths:
-#                    index_above = path[0] - 1
-#                    if index_above < 0:
-#                        return
-#                    task = model.get_value(
-#                            model.get_iter(path),
-#                            DownloadStatusModel.C_TASK)
-#                    model.move_before(
-#                            model.get_iter(path),
-#                            model.get_iter((index_above,)))
-#
-#            def move_selected_items_down(menu_item):
-#                selection = self.treeDownloads.get_selection()
-#                model, selected_paths = selection.get_selected_rows()
-#                for path in reversed(selected_paths):
-#                    index_below = path[0] + 1
-#                    if index_below >= len(model):
-#                        return
-#                    task = model.get_value(
-#                            model.get_iter(path),
-#                            DownloadStatusModel.C_TASK)
-#                    model.move_after(
-#                            model.get_iter(path),
-#                            model.get_iter((index_below,)))
-#
-#            menu = Gtk.Menu()
-#
-#            if can_force:
-#                menu.append(make_menu_item(_('Start download now'), 'document-save',
-#                                           selected_tasks,
-#                                           download.DownloadTask.QUEUED,
-#                                           force_start=True))
-#            else:
-#                menu.append(make_menu_item(_('Download'), 'document-save',
-#                                           selected_tasks,
-#                                           download.DownloadTask.QUEUED,
-#                                           can_queue))
-#
-#            menu.append(make_menu_item(_('Cancel'), 'media-playback-stop',
-#                                       selected_tasks,
-#                                       download.DownloadTask.CANCELLED,
-#                                       can_cancel))
-#            menu.append(make_menu_item(_('Pause'), 'media-playback-pause',
-#                                       selected_tasks,
-#                                       download.DownloadTask.PAUSED, can_pause))
-#            menu.append(Gtk.SeparatorMenuItem())
-#            menu.append(make_menu_item(_('Move up'), 'go-up',
-#                                       action=move_selected_items_up))
-#            menu.append(make_menu_item(_('Move down'), 'go-down',
-#                                       action=move_selected_items_down))
-#            menu.append(Gtk.SeparatorMenuItem())
-#            menu.append(make_menu_item(_('Remove from list'), 'list-remove',
-#                                       selected_tasks, sensitive=can_remove))
-#
-#            menu.attach_to_widget(treeview)
-#            menu.show_all()
-#
-#            if event is None:
-#                func = TreeViewHelper.make_popup_position_func(treeview)
-#                menu.popup(None, None, func, None, 3, Gtk.get_current_event_time())
-#            else:
-#                menu.popup(None, None, None, None, event.button, event.time)
-#            return True
-#
+    def treeview_downloads_show_context_menu(self, treeview, event=None):
+        model, paths = self.treeview_handle_context_menu_click(treeview, event)
+        if not paths:
+            return not treeview.is_rubber_banding_active()
+
+        if event is None or event.button == 3:
+            selected_tasks, can_queue, can_cancel, can_pause, can_remove, can_force = \
+                    self.downloads_list_get_selection(model, paths)
+
+            def make_menu_item(label, icon_name, tasks=None, status=None, sensitive=True, force_start=False, action=None):
+                # This creates a menu item for selection-wide actions
+                item = Gtk.ImageMenuItem.new_with_mnemonic(label)
+                if icon_name is not None:
+                    item.set_image(Gtk.Image.new_from_icon_name(icon_name, Gtk.IconSize.MENU))
+                if action is not None:
+                    item.connect('activate', action)
+                else:
+                    item.connect('activate', lambda item: self._for_each_task_set_status(tasks, status, force_start))
+                item.set_sensitive(sensitive)
+                return item
+
+            def move_selected_items_up(menu_item):
+                selection = self.treeDownloads.get_selection()
+                model, selected_paths = selection.get_selected_rows()
+                for path in selected_paths:
+                    index_above = path[0] - 1
+                    if index_above < 0:
+                        return
+                    task = model.get_value(
+                            model.get_iter(path),
+                            DownloadStatusModel.C_TASK)
+                    model.move_before(
+                            model.get_iter(path),
+                            model.get_iter((index_above,)))
+
+            def move_selected_items_down(menu_item):
+                selection = self.treeDownloads.get_selection()
+                model, selected_paths = selection.get_selected_rows()
+                for path in reversed(selected_paths):
+                    index_below = path[0] + 1
+                    if index_below >= len(model):
+                        return
+                    task = model.get_value(
+                            model.get_iter(path),
+                            DownloadStatusModel.C_TASK)
+                    model.move_after(
+                            model.get_iter(path),
+                            model.get_iter((index_below,)))
+
+            menu = Gtk.Menu()
+
+            if can_force:
+                menu.append(make_menu_item(_('Start download now'), 'document-save',
+                                           selected_tasks,
+                                           download.DownloadTask.QUEUED,
+                                           force_start=True))
+            else:
+                menu.append(make_menu_item(_('Download'), 'document-save',
+                                           selected_tasks,
+                                           download.DownloadTask.QUEUED,
+                                           can_queue))
+
+            menu.append(make_menu_item(_('Cancel'), 'media-playback-stop',
+                                       selected_tasks,
+                                       download.DownloadTask.CANCELLED,
+                                       can_cancel))
+            menu.append(make_menu_item(_('Pause'), 'media-playback-pause',
+                                       selected_tasks,
+                                       download.DownloadTask.PAUSED, can_pause))
+            menu.append(Gtk.SeparatorMenuItem())
+            menu.append(make_menu_item(_('Move up'), 'go-up',
+                                       action=move_selected_items_up))
+            menu.append(make_menu_item(_('Move down'), 'go-down',
+                                       action=move_selected_items_down))
+            menu.append(Gtk.SeparatorMenuItem())
+            menu.append(make_menu_item(_('Remove from list'), 'list-remove',
+                                       selected_tasks, sensitive=can_remove))
+
+            menu.attach_to_widget(treeview)
+            menu.show_all()
+
+            if event is None:
+                func = TreeViewHelper.make_popup_position_func(treeview)
+                menu.popup(None, None, func, None, 3, Gtk.get_current_event_time())
+            else:
+                menu.popup(None, None, None, None, event.button, event.time)
+            return True
+
     def on_mark_episodes_as_old(self, item):
         self.channels_popover.popdown()
         assert self.active_channel is not None
@@ -2380,12 +2396,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         return (can_play, can_download, can_cancel, can_delete, open_instead_of_play)
 
-#    def on_cbMaxDownloads_toggled(self, widget, *args):
-#        self.spinMaxDownloads.set_sensitive(self.cbMaxDownloads.get_active())
-#
-#    def on_cbLimitDownloads_toggled(self, widget, *args):
-#        self.spinLimitDownloads.set_sensitive(self.cbLimitDownloads.get_active())
-#
+    def on_cbMaxDownloads_toggled(self, widget, *args):
+        self.spinMaxDownloads.set_sensitive(self.cbMaxDownloads.get_active())
+
+    def on_cbLimitDownloads_toggled(self, widget, *args):
+        self.spinLimitDownloads.set_sensitive(self.cbLimitDownloads.get_active())
+
     def episode_new_status_changed(self, urls):
         self.update_podcast_list_model()
         self.update_episode_list_icons(urls)
@@ -3827,26 +3843,26 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         return True
 
-#    def on_treeDownloads_row_activated(self, widget, *args):
-#        # Use the standard way of working on the treeview
-#        selection = self.treeDownloads.get_selection()
-#        (model, paths) = selection.get_selected_rows()
-#        selected_tasks = [(Gtk.TreeRowReference.new(model, path), model.get_value(model.get_iter(path), 0)) for path in paths]
-#
-#        for tree_row_reference, task in selected_tasks:
-#            if task.status in (task.DOWNLOADING, task.QUEUED):
-#                task.status = task.PAUSED
-#            elif task.status in (task.CANCELLED, task.PAUSED, task.FAILED):
-#                self.download_queue_manager.queue_task(task)
-#                self.enable_download_list_update()
-#            elif task.status == task.DONE:
-#                model.remove(model.get_iter(tree_row_reference.get_path()))
-#
-#        self.play_or_download()
-#
-#        # Update the tab title and downloads list
-#        self.update_downloads_list()
-#
+    def on_treeDownloads_row_activated(self, widget, *args):
+        # Use the standard way of working on the treeview
+        selection = self.treeDownloads.get_selection()
+        (model, paths) = selection.get_selected_rows()
+        selected_tasks = [(Gtk.TreeRowReference.new(model, path), model.get_value(model.get_iter(path), 0)) for path in paths]
+
+        for tree_row_reference, task in selected_tasks:
+            if task.status in (task.DOWNLOADING, task.QUEUED):
+                task.status = task.PAUSED
+            elif task.status in (task.CANCELLED, task.PAUSED, task.FAILED):
+                self.download_queue_manager.queue_task(task)
+                self.enable_download_list_update()
+            elif task.status == task.DONE:
+                model.remove(model.get_iter(tree_row_reference.get_path()))
+
+        self.play_or_download()
+
+        # Update the tab title and downloads list
+        self.update_downloads_list()
+
     def on_item_cancel_download_activate(self, *params):
         if self.wNotebook.get_current_page() == 0:
             selection = self.treeAvailable.get_selection()
