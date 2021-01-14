@@ -603,7 +603,7 @@ def is_html(text):
     >>> is_html('a < b < c')
     False
     """
-    html_test = re.compile('<[a-z][a-z0-9]*(?:\s.*?>|\/?>)', re.IGNORECASE | re.DOTALL)
+    html_test = re.compile(r'<[a-z][a-z0-9]*(?:\s.*?>|\/?>)', re.IGNORECASE | re.DOTALL)
     return bool(html_test.search(text))
 
 
@@ -617,18 +617,18 @@ def remove_html_tags(html):
         return None
 
     # If we would want more speed, we could make these global
-    re_strip_tags = re.compile('<[^>]*>')
-    re_unicode_entities = re.compile('&#(\d{2,4});')
-    re_html_entities = re.compile('&(.{2,8});')
-    re_newline_tags = re.compile('(<br[^>]*>|<[/]?ul[^>]*>|</li>)', re.I)
-    re_listing_tags = re.compile('<li[^>]*>', re.I)
+    re_strip_tags = re.compile(r'<[^>]*>')
+    re_unicode_entities = re.compile(r'&#(\d{2,4});')
+    re_html_entities = re.compile(r'&(.{2,8});')
+    re_newline_tags = re.compile(r'(<br[^>]*>|<[/]?ul[^>]*>|</li>)', re.I)
+    re_listing_tags = re.compile(r'<li[^>]*>', re.I)
 
     result = html
 
     # Convert common HTML elements to their text equivalent
     result = re_newline_tags.sub('\n', result)
     result = re_listing_tags.sub('\n * ', result)
-    result = re.sub('<[Pp]>', '\n\n', result)
+    result = re.sub(r'<[Pp]>', '\n\n', result)
 
     # Remove all HTML/XML tags from the string
     result = re_strip_tags.sub('', result)
@@ -640,7 +640,7 @@ def remove_html_tags(html):
     result = re_html_entities.sub(lambda x: entitydefs.get(x.group(1), ''), result)
 
     # Convert more than two newlines to two newlines
-    result = re.sub('([\r\n]{2})([\r\n])+', '\\1', result)
+    result = re.sub(r'([\r\n]{2})([\r\n])+', '\\1', result)
 
     return result.strip()
 
@@ -659,7 +659,7 @@ class HyperlinkExtracter(object):
         for target, parts in group_it:
             t = ''.join(text for _, text in parts if text is not None)
             # Remove trailing spaces
-            t = re.sub(' +\n', '\n', t)
+            t = re.sub(r' +\n', '\n', t)
             # Convert more than two newlines to two newlines
             t = t.replace('\r', '')
             t = re.sub(r'\n\n\n+', '\n\n', t)
@@ -1846,8 +1846,8 @@ def osx_get_active_interfaces():
     """
     process = Popen(['ifconfig'], close_fds=True, stdout=subprocess.PIPE)
     stdout, _ = process.communicate()
-    for i in re.split('\n(?!\t)', stdout.decode('utf-8'), re.MULTILINE):
-        b = re.match('(\\w+):.*status: (active|associated)$', i, re.MULTILINE | re.DOTALL)
+    for i in re.split(r'\n(?!\t)', stdout.decode('utf-8'), re.MULTILINE):
+        b = re.match(r'(\w+):.*status: (active|associated)$', i, re.MULTILINE | re.DOTALL)
         if b:
             yield b.group(1)
 
@@ -1861,8 +1861,8 @@ def unix_get_active_interfaces():
     """
     process = Popen(['ifconfig'], close_fds=True, stdout=subprocess.PIPE)
     stdout, _ = process.communicate()
-    for i in re.split('\n(?!\t)', stdout.decode(locale.getpreferredencoding()), re.MULTILINE):
-        b = re.match('(\\w+):.*status: (active|associated)$', i, re.MULTILINE | re.DOTALL)
+    for i in re.split(r'\n(?!\t)', stdout.decode(locale.getpreferredencoding()), re.MULTILINE):
+        b = re.match(r'(\w+):.*status: (active|associated)$', i, re.MULTILINE | re.DOTALL)
         if b:
             yield b.group(1)
 

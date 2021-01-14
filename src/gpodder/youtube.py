@@ -241,7 +241,7 @@ def get_real_download_url(url, allow_partial, preferred_fmt_ids=None):
                         manifest = manifest.decode().splitlines()
 
                         urls = [line for line in manifest if line[0] != '#']
-                        itag_re = re.compile('/itag/([0-9]+)/')
+                        itag_re = re.compile(r'/itag/([0-9]+)/')
                         for url in urls:
                             itag = itag_re.search(url).group(1)
                             yield int(itag), [url, None]
@@ -263,7 +263,7 @@ def get_real_download_url(url, allow_partial, preferred_fmt_ids=None):
             if error_message is not None:
                 raise YouTubeError('Cannot download video: %s' % error_message)
 
-            r4 = re.search('url_encoded_fmt_stream_map=([^&]+)', page)
+            r4 = re.search(r'url_encoded_fmt_stream_map=([^&]+)', page)
             if r4 is not None:
                 fmt_url_map = urllib.parse.unquote(r4.group(1))
                 for fmt_url_encoded in fmt_url_map.split(','):
@@ -273,7 +273,7 @@ def get_real_download_url(url, allow_partial, preferred_fmt_ids=None):
         fmt_id_url_map = sorted(find_urls(page), reverse=True)
 
         if not fmt_id_url_map:
-            drm = re.search('%22(cipher|signatureCipher)%22%3A', page)
+            drm = re.search(r'%22(cipher|signatureCipher)%22%3A', page)
             if drm is not None:
                 raise YouTubeError('Unsupported DRM content found for video ID "%s"' % vid)
             raise YouTubeError('No formats found for video ID "%s"' % vid)
@@ -282,7 +282,7 @@ def get_real_download_url(url, allow_partial, preferred_fmt_ids=None):
         fmt_id_url_map = dict(fmt_id_url_map)
 
         for id in preferred_fmt_ids:
-            if re.search('\+', str(id)):
+            if re.search(r'\+', str(id)):
                 # skip formats that contain a + (136+140)
                 continue
             id = int(id)
@@ -304,15 +304,15 @@ def get_real_download_url(url, allow_partial, preferred_fmt_ids=None):
 
 
 def get_youtube_id(url):
-    r = re.compile('http[s]?://(?:[a-z]+\.)?youtube\.com/v/(.*)\.swf', re.IGNORECASE).match(url)
+    r = re.compile(r'http[s]?://(?:[a-z]+\.)?youtube\.com/v/(.*)\.swf', re.IGNORECASE).match(url)
     if r is not None:
         return r.group(1)
 
-    r = re.compile('http[s]?://(?:[a-z]+\.)?youtube\.com/watch\?v=([^&]*)', re.IGNORECASE).match(url)
+    r = re.compile(r'http[s]?://(?:[a-z]+\.)?youtube\.com/watch\?v=([^&]*)', re.IGNORECASE).match(url)
     if r is not None:
         return r.group(1)
 
-    r = re.compile('http[s]?://(?:[a-z]+\.)?youtube\.com/v/(.*)[?]', re.IGNORECASE).match(url)
+    r = re.compile(r'http[s]?://(?:[a-z]+\.)?youtube\.com/v/(.*)[?]', re.IGNORECASE).match(url)
     if r is not None:
         return r.group(1)
 
@@ -335,13 +335,13 @@ def for_each_feed_pattern(func, url, fallback_result):
     func() returns None, return fallback_result.
     """
     CHANNEL_MATCH_PATTERNS = [
-        'http[s]?://(?:[a-z]+\.)?youtube\.com/user/([a-z0-9]+)',
-        'http[s]?://(?:[a-z]+\.)?youtube\.com/profile?user=([a-z0-9]+)',
-        'http[s]?://(?:[a-z]+\.)?youtube\.com/rss/user/([a-z0-9]+)/videos\.rss',
-        'http[s]?://(?:[a-z]+\.)?youtube\.com/channel/([-_a-z0-9]+)',
-        'http[s]?://(?:[a-z]+\.)?youtube\.com/feeds/videos.xml\?channel_id=([-_a-z0-9]+)',
-        'http[s]?://gdata.youtube.com/feeds/users/([^/]+)/uploads',
-        'http[s]?://gdata.youtube.com/feeds/base/users/([^/]+)/uploads',
+        r'http[s]?://(?:[a-z]+\.)?youtube\.com/user/([a-z0-9]+)',
+        r'http[s]?://(?:[a-z]+\.)?youtube\.com/profile?user=([a-z0-9]+)',
+        r'http[s]?://(?:[a-z]+\.)?youtube\.com/rss/user/([a-z0-9]+)/videos\.rss',
+        r'http[s]?://(?:[a-z]+\.)?youtube\.com/channel/([-_a-z0-9]+)',
+        r'http[s]?://(?:[a-z]+\.)?youtube\.com/feeds/videos.xml\?channel_id=([-_a-z0-9]+)',
+        r'http[s]?://gdata.youtube.com/feeds/users/([^/]+)/uploads',
+        r'http[s]?://gdata.youtube.com/feeds/base/users/([^/]+)/uploads',
     ]
 
     for pattern in CHANNEL_MATCH_PATTERNS:

@@ -400,7 +400,7 @@ class PodcastEpisode(PodcastModelObject):
         # "#001: Title" -> "001: Title"
         if (
                 not self.parent._common_prefix and
-                re.match('^#\d+: ', self.title) and
+                re.match(r'^#\d+: ', self.title) and
                 len(self.title) - 1 > LEFTOVER_MIN):
             return self.title[1:]
 
@@ -478,7 +478,7 @@ class PodcastEpisode(PodcastModelObject):
     def one_line_description(self):
         MAX_LINE_LENGTH = 120
         desc = util.remove_html_tags(self.description or '')
-        desc = re.sub('\s+', ' ', desc).strip()
+        desc = re.sub(r'\s+', ' ', desc).strip()
         if not desc:
             return _('No description available')
         else:
@@ -949,7 +949,7 @@ class PodcastChannel(PodcastModelObject):
     @classmethod
     def sort_key(cls, podcast):
         key = util.convert_bytes(podcast.title.lower())
-        return re.sub('^the ', '', key).translate(cls.UNICODE_TRANSLATE)
+        return re.sub(r'^the ', '', key).translate(cls.UNICODE_TRANSLATE)
 
     @classmethod
     def load(cls, model, url, create=True, authentication_tokens=None, max_episodes=0):
@@ -1007,7 +1007,7 @@ class PodcastChannel(PodcastModelObject):
 
     def _consume_updated_title(self, new_title):
         # Replace multi-space and newlines with single space (Maemo bug 11173)
-        new_title = re.sub('\s+', ' ', new_title).strip()
+        new_title = re.sub(r'\s+', ' ', new_title).strip()
 
         # Only update the podcast-supplied title when we
         # don't yet have a title, or if the title is the
