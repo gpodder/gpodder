@@ -438,8 +438,6 @@ class gPodderYoutubeDL(download.CustomDownloader):
             return None
         if self.is_supported_url(episode.url):
             return YoutubeCustomDownload(self, episode.url, episode)
-        elif self.is_supported_url(episode.link):
-            return YoutubeCustomDownload(self, episode.link, episode)
 
         return None
 
