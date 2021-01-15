@@ -71,6 +71,6 @@ class gPodderExportToLocalFolder(BuilderWidget):
             folder = self.gPodderExportToLocalFolder.get_current_folder()
             filename = self.gPodderExportToLocalFolder.get_filename()
         else:
-            folder = None
+            folder = initial_directory
             filename = None
         return (notCancelled, folder, filename, allRemainingDefault)
