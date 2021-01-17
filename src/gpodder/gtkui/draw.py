@@ -197,8 +197,11 @@ def draw_text_pill(left_text, right_text, x=0, y=0, border=2, radius=14, widget=
 
     text_height = max(height_left, height_right)
 
+    left_side_width = width_left + x_border * 2
+    right_side_width = width_right + x_border * 2
+
     image_height = int(y + text_height + border * 2)
-    image_width = int(x + width_left + width_right + x_border * 4 + padding_right)
+    image_width = int(x + left_side_width + right_side_width + padding_right)
 
     surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, image_width, image_height)
     ctx = cairo.Context(surface)
@@ -211,9 +214,6 @@ def draw_text_pill(left_text, right_text, x=0, y=0, border=2, radius=14, widget=
         left_text = None
     if right_text == '0':
         right_text = None
-
-    left_side_width = width_left + x_border * 2
-    right_side_width = width_right + x_border * 2
 
     rect_width = left_side_width + right_side_width
     rect_height = text_height + border * 2
