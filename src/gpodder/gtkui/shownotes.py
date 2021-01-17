@@ -256,6 +256,13 @@ class gPodderShownotesText(gPodderShownotes):
 
 
 class gPodderShownotesHTML(gPodderShownotes):
+
+    ctx = WebKit2.WebContext.get_default()
+    ctx.set_process_model(WebKit2.ProcessModel.MULTIPLE_SECONDARY_PROCESSES)
+    ctx.set_cache_model(WebKit2.CacheModel.DOCUMENT_VIEWER)
+    ctx.set_sandbox_enabled(True)
+    ctx.set_spell_checking_enabled(False)
+
     def init(self):
         self.episode = None
         self._base_uri = None
