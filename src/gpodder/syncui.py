@@ -91,7 +91,7 @@ class gPodderSyncUI(object):
         message = _('Please check logs and the settings in the preferences dialog.')
         self.notification(message, title, important=True)
 
-    def on_synchronize_episodes(self, channels, episodes=None, force_played=True, done_callback=None):
+    def on_synchronize_episodes(self, channels, episodes=None, force_played=True, done_callback=None, start_callback=None):
         device = sync.open_device(self)
 
         if device is None:
@@ -102,6 +102,9 @@ class gPodderSyncUI(object):
         else:
             # Only set if device is configured and opened successfully
             self.device = device
+
+        if start_callback is not None:
+            start_callback()
 
         if episodes is None:
             force_played = False
