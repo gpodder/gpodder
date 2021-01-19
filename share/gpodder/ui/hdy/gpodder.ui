@@ -9,527 +9,537 @@
     <property name="default-height">480</property>
     <signal name="delete-event" handler="on_gPodder_delete_event" swapped="no"/>
     <child>
-      <object class="HdyLeaflet" id="leaflet">
+      <object class="GtkOverlay" id="main_overlay">
         <property name="visible">True</property>
         <property name="can-focus">False</property>
-        <property name="visible-child">channelsbox</property>
-        <property name="can-swipe-back">True</property>
-        <property name="can-swipe-forward">True</property>
         <child>
-          <object class="GtkBox" id="channelsbox">
+          <object class="HdyLeaflet" id="leaflet">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
-            <property name="hexpand">True</property>
-            <property name="orientation">vertical</property>
+            <property name="visible-child">channelsbox</property>
+            <property name="can-swipe-back">True</property>
+            <property name="can-swipe-forward">True</property>
             <child>
-              <object class="HdyHeaderBar" id="header_bar">
+              <object class="GtkBox" id="channelsbox">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
+                <property name="hexpand">True</property>
+                <property name="orientation">vertical</property>
+                <child>
+                  <object class="HdyHeaderBar" id="header_bar">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
                     <property name="title" translatable="yes">gPodder adaptive</property>
-                <property name="show-close-button" bind-source="leaflet" bind-property="folded" bind-flags="sync-create">False</property>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <object class="GtkButton" id="channel_list_forward">
-                    <property name="visible" bind-source="leaflet" bind-property="folded" bind-flags="sync-create">False</property>
-                    <property name="sensitive" bind-source="leaflet" bind-property="can_swipe_forward" bind-flags="sync-create">False</property>
-                    <property name="can-focus">True</property>
-                    <property name="receives-default">False</property>
-                    <signal name="clicked" handler="on_channel_list_forward_clicked" swapped="no"/>
+                    <property name="show-close-button" bind-source="leaflet" bind-property="folded" bind-flags="sync-create">False</property>
                     <child>
-                      <object class="GtkImage">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="icon-name">go-next-symbolic</property>
-                      </object>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="pack-type">end</property>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="HdySearchBar" id="channels_search_bar">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <child>
-                  <object class="HdyClamp">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="maximum-size">400</property>
-                    <property name="tightening-threshold">200</property>
-                    <child>
-                      <object class="GtkEntry" id="entry_search_channels">
-                        <property name="visible">True</property>
-                        <property name="can-focus">True</property>
-                        <property name="shadow-type">none</property>
-                        <property name="secondary-icon-name">edit-delete-symbolic</property>
-                        <property name="primary-icon-activatable">False</property>
-                        <property name="primary-icon-sensitive">False</property>
-                        <property name="placeholder-text" translatable="yes">Search channels</property>
-                        <signal name="icon-release" handler="on_entry_search_icon_release" swapped="no"/>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">1</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkScrolledWindow">
-                <property name="visible">True</property>
-                <property name="can-focus">True</property>
-                <property name="vexpand">True</property>
-                <property name="shadow-type">in</property>
-                <child>
-                  <object class="GtkTreeView" id="treeChannels">
-                    <property name="height-request">-1</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                        <property name="has-tooltip">True</property>
-                    <property name="hexpand">True</property>
-                    <property name="headers-visible">False</property>
-                    <property name="enable-search">False</property>
-                    <property name="show-expanders">False</property>
-                    <property name="activate-on-single-click">True</property>
-                    <signal name="button-press-event" handler="on_treeview_button_pressed" swapped="no"/>
-                    <signal name="button-release-event" handler="on_treeview_podcasts_button_released" swapped="no"/>
-                    <signal name="cursor-changed" handler="on_treeChannels_cursor_changed" swapped="no"/>
-                    <signal name="draw" handler="on_treeview_expose_event" swapped="no"/>
-                        <signal name="query-tooltip" handler="on_treeview_query_tooltip" swapped="no"/>
-                    <signal name="row-activated" handler="on_treeChannels_row_activated" swapped="no"/>
-                    <child internal-child="selection">
-                      <object class="GtkTreeSelection"/>
-                    </child>
-                  </object>
-                </child>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">2</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkRevealer" id="update_revealer">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="transition-type">slide-up</property>
-                <property name="transition-duration">500</property>
-                <child>
-                  <object class="GtkBox" id="hboxUpdateFeeds">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <child>
-                      <object class="GtkProgressBar" id="pbFeedUpdate">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="hexpand">True</property>
-                        <property name="pulse-step">0.10000000149</property>
-                        <property name="show-text">True</property>
-                        <property name="ellipsize">middle</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
-                      </packing>
+                      <placeholder/>
                     </child>
                     <child>
-                      <object class="GtkButton" id="btnCancelFeedUpdate">
-                        <property name="visible">True</property>
+                      <object class="GtkButton" id="channel_list_forward">
+                        <property name="visible" bind-source="leaflet" bind-property="folded" bind-flags="sync-create">False</property>
+                        <property name="sensitive" bind-source="leaflet" bind-property="can_swipe_forward" bind-flags="sync-create">False</property>
                         <property name="can-focus">True</property>
                         <property name="receives-default">False</property>
-                            <signal name="clicked" handler="on_btnCancelFeedUpdate_clicked" swapped="no"/>
+                        <signal name="clicked" handler="on_channel_list_forward_clicked" swapped="no"/>
                         <child>
-                          <object class="GtkImage" id="image3209">
+                          <object class="GtkImage">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
-                            <property name="stock">gtk-cancel</property>
+                            <property name="icon-name">go-next-symbolic</property>
                           </object>
                         </child>
                       </object>
                       <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">1</property>
-                      </packing>
-                    </child>
-                  </object>
-                </child>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="pack-type">end</property>
-                <property name="position">3</property>
-              </packing>
-            </child>
-          </object>
-        </child>
-        <child>
-          <object class="GtkSeparator">
-            <property name="visible">True</property>
-            <property name="can-focus">False</property>
-          </object>
-          <packing>
-            <property name="navigatable">False</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkBox" id="contentbox">
-            <property name="visible">True</property>
-            <property name="can-focus">False</property>
-            <property name="hexpand">True</property>
-            <property name="orientation">vertical</property>
-            <child>
-              <object class="HdyDeck" id="deck">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="vexpand">True</property>
-                <property name="visible-child">episodesbox</property>
-                <property name="can-swipe-back">True</property>
-                <child>
-                  <object class="GtkBox" id="episodesbox">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="orientation">vertical</property>
-                    <child>
-                      <object class="HdyHeaderBar" id="episodes_header_bar">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="show-close-button">True</property>
-                        <child type="title">
-                          <object class="GtkBox">
-                            <property name="visible">True</property>
-                            <property name="can-focus">False</property>
-                            <child>
-                              <object class="GtkMenuButton" id="view_menubutton">
-                                <property name="visible">True</property>
-                                <property name="can-focus">True</property>
-                                <property name="focus-on-click">False</property>
-                                <property name="receives-default">True</property>
-                                <child>
-                                  <object class="GtkLabel">
-                                    <property name="visible">True</property>
-                                    <property name="can-focus">False</property>
-                                    <property name="label" translatable="yes">Downloaded</property>
-                                    <property name="justify">right</property>
-                                    <property name="ellipsize">end</property>
-                                    <property name="width-chars">9</property>
-                                    <property name="max-width-chars">9</property>
-                                  </object>
-                                </child>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">True</property>
-                                <property name="position">0</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkMenuButton" id="sort_menubutton">
-                                <property name="visible">True</property>
-                                <property name="can-focus">True</property>
-                                <property name="focus-on-click">False</property>
-                                <property name="receives-default">True</property>
-                                <child>
-                                  <object class="GtkLabel">
-                                    <property name="visible">True</property>
-                                    <property name="can-focus">False</property>
-                                    <property name="label" translatable="yes">by length</property>
-                                    <property name="ellipsize">end</property>
-                                    <property name="width-chars">7</property>
-                                    <property name="max-width-chars">7</property>
-                                  </object>
-                                </child>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">True</property>
-                                <property name="position">1</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkButton" id="sortorder_button">
-                                <property name="visible">True</property>
-                                <property name="can-focus">True</property>
-                                <property name="receives-default">True</property>
-                                <signal name="clicked" handler="on_episode_list_sortorder_clicked" swapped="no"/>
-                                <child>
-                                  <object class="GtkImage">
-                                    <property name="visible">True</property>
-                                    <property name="can-focus">False</property>
-                                    <property name="icon-name">view-sort-ascending-symbolic</property>
-                                  </object>
-                                </child>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">True</property>
-                                <property name="position">2</property>
-                              </packing>
-                            </child>
-                          </object>
-                          <packing>
-                            <property name="position">2</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkButton" id="episode_list_forward">
-                            <property name="visible">True</property>
-                            <property name="sensitive" bind-source="deck" bind-property="can_swipe_forward" bind-flags="sync-create">False</property>
-                            <property name="can-focus">True</property>
-                            <property name="receives-default">False</property>
-                            <signal name="clicked" handler="on_episode_list_forward_clicked" swapped="no"/>
-                            <child>
-                              <object class="GtkImage">
-                                <property name="visible">True</property>
-                                <property name="can-focus">False</property>
-                                <property name="icon-name">go-next-symbolic</property>
-                              </object>
-                            </child>
-                          </object>
-                          <packing>
-                            <property name="pack-type">end</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkToggleButton" id="episode_search_toggle">
-                            <property name="visible">True</property>
-                            <property name="can-focus">True</property>
-                            <property name="receives-default">True</property>
-                            <child>
-                              <object class="GtkImage">
-                                <property name="visible">True</property>
-                                <property name="can-focus">False</property>
-                                <property name="icon-name">system-search-symbolic</property>
-                              </object>
-                            </child>
-                          </object>
-                          <packing>
-                            <property name="pack-type">end</property>
-                            <property name="position">1</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkButton" id="episode_list_back">
-                            <property name="visible" bind-source="leaflet" bind-property="folded" bind-flags="sync-create">False</property>
-                            <property name="can-focus">False</property>
-                            <property name="receives-default">False</property>
-                            <signal name="clicked" handler="on_episode_list_back_clicked" swapped="no"/>
-                            <child>
-                              <object class="GtkImage">
-                                <property name="visible">True</property>
-                                <property name="can-focus">False</property>
-                                <property name="icon-name">go-previous-symbolic</property>
-                              </object>
-                            </child>
-                          </object>
-                          <packing>
-                            <property name="position">2</property>
-                          </packing>
-                        </child>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="HdySearchBar" id="episodes_search_bar">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <child>
-                          <object class="HdyClamp">
-                            <property name="visible">True</property>
-                            <property name="can-focus">False</property>
-                            <property name="maximum-size">400</property>
-                            <property name="tightening-threshold">200</property>
-                            <child>
-                              <object class="GtkEntry" id="entry_search_episodes">
-                                <property name="visible">True</property>
-                                <property name="can-focus">True</property>
-                                <property name="shadow-type">none</property>
-                                <property name="secondary-icon-name">edit-delete-symbolic</property>
-                                <property name="primary-icon-activatable">False</property>
-                                <property name="primary-icon-sensitive">False</property>
-                                <property name="placeholder-text" translatable="yes">Search episodes</property>
-                                <signal name="icon-release" handler="on_entry_search_icon_release" swapped="no"/>
-                              </object>
-                            </child>
-                          </object>
-                        </child>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">1</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkScrolledWindow">
-                        <property name="visible">True</property>
-                        <property name="can-focus">True</property>
-                        <property name="vexpand">True</property>
-                        <property name="shadow-type">in</property>
-                        <child>
-                          <object class="GtkTreeView" id="treeAvailable">
-                            <property name="visible">True</property>
-                            <property name="can-focus">True</property>
-                                <property name="has-tooltip">True</property>
-                            <property name="vexpand">False</property>
-                            <property name="headers-visible">False</property>
-                            <property name="enable-search">False</property>
-                            <property name="activate-on-single-click">True</property>
-                            <signal name="button-press-event" handler="on_treeview_button_pressed" swapped="no"/>
-                            <signal name="button-release-event" handler="on_treeview_episodes_button_released" swapped="no"/>
-                            <signal name="draw" handler="on_treeview_expose_event" swapped="no"/>
-                                <signal name="query-tooltip" handler="on_treeview_query_tooltip" swapped="no"/>
-                            <signal name="row-activated" handler="on_treeAvailable_row_activated" swapped="no"/>
-                            <child internal-child="selection">
-                              <object class="GtkTreeSelection"/>
-                            </child>
-                          </object>
-                        </child>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">2</property>
-                      </packing>
-                    </child>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkBox" id="detailsbox">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="hexpand">True</property>
-                    <property name="orientation">vertical</property>
-                    <child>
-                      <object class="HdyHeaderBar" id="details_header_bar">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="has-subtitle">False</property>
-                        <property name="show-close-button">True</property>
-                        <child type="title">
-                          <object class="GtkButtonBox">
-                            <property name="visible">True</property>
-                            <property name="can-focus">False</property>
-                            <property name="halign">center</property>
-                            <property name="layout-style">expand</property>
-                            <child>
-                              <object class="GtkButton" id="play_button">
-                                <property name="label" translatable="yes">Play</property>
-                                <property name="visible">True</property>
-                                <property name="can-focus">True</property>
-                                <property name="receives-default">True</property>
-                                <property name="hexpand">True</property>
-                                <signal name="clicked" handler="on_playback_selected_episodes" swapped="no"/>
-                              </object>
-                              <packing>
-                                <property name="expand">True</property>
-                                <property name="fill">True</property>
-                                <property name="position">0</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkButton" id="dl_del_button">
-                                <property name="label" translatable="yes">Download</property>
-                                <property name="visible">True</property>
-                                <property name="can-focus">True</property>
-                                <property name="receives-default">True</property>
-                                <property name="hexpand">True</property>
-                              </object>
-                              <packing>
-                                <property name="expand">True</property>
-                                <property name="fill">True</property>
-                                <property name="position">1</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkToggleButton" id="new_toggle">
-                                <property name="label" translatable="yes">New</property>
-                                <property name="visible">True</property>
-                                <property name="can-focus">True</property>
-                                <property name="receives-default">True</property>
-                                <signal name="toggled" handler="on_new_toggled" swapped="no"/>
-                              </object>
-                              <packing>
-                                <property name="expand">True</property>
-                                <property name="fill">True</property>
-                                <property name="position">2</property>
-                              </packing>
-                            </child>
-                          </object>
-                          <packing>
-                            <property name="pack-type">end</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkButton" id="deck_back">
-                            <property name="visible">True</property>
-                            <property name="can-focus">True</property>
-                            <property name="receives-default">True</property>
-                            <signal name="clicked" handler="on_deck_back_clicked" swapped="no"/>
-                            <child>
-                              <object class="GtkImage">
-                                <property name="visible">True</property>
-                                <property name="can-focus">False</property>
-                                <property name="icon-name">go-previous-symbolic</property>
-                              </object>
-                            </child>
-                          </object>
-                        </child>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkBox" id="shownotes_box">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="vexpand">True</property>
-                        <property name="orientation">vertical</property>
-                        <child>
-                          <placeholder/>
-                        </child>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
                         <property name="pack-type">end</property>
                         <property name="position">1</property>
                       </packing>
                     </child>
                   </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="HdySearchBar" id="channels_search_bar">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <child>
+                      <object class="HdyClamp">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="maximum-size">400</property>
+                        <property name="tightening-threshold">200</property>
+                        <child>
+                          <object class="GtkEntry" id="entry_search_channels">
+                            <property name="visible">True</property>
+                            <property name="can-focus">True</property>
+                            <property name="shadow-type">none</property>
+                            <property name="secondary-icon-name">edit-delete-symbolic</property>
+                            <property name="primary-icon-activatable">False</property>
+                            <property name="primary-icon-sensitive">False</property>
+                            <property name="placeholder-text" translatable="yes">Search channels</property>
+                            <signal name="icon-release" handler="on_entry_search_icon_release" swapped="no"/>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkScrolledWindow">
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="vexpand">True</property>
+                    <property name="shadow-type">in</property>
+                    <child>
+                      <object class="GtkTreeView" id="treeChannels">
+                        <property name="height-request">-1</property>
+                        <property name="visible">True</property>
+                        <property name="can-focus">True</property>
+                        <property name="has-tooltip">True</property>
+                        <property name="hexpand">True</property>
+                        <property name="headers-visible">False</property>
+                        <property name="enable-search">False</property>
+                        <property name="show-expanders">False</property>
+                        <property name="activate-on-single-click">True</property>
+                        <signal name="button-press-event" handler="on_treeview_button_pressed" swapped="no"/>
+                        <signal name="button-release-event" handler="on_treeview_podcasts_button_released" swapped="no"/>
+                        <signal name="cursor-changed" handler="on_treeChannels_cursor_changed" swapped="no"/>
+                        <signal name="draw" handler="on_treeview_expose_event" swapped="no"/>
+                        <signal name="query-tooltip" handler="on_treeview_query_tooltip" swapped="no"/>
+                        <signal name="row-activated" handler="on_treeChannels_row_activated" swapped="no"/>
+                        <child internal-child="selection">
+                          <object class="GtkTreeSelection"/>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkRevealer" id="update_revealer">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="transition-type">slide-up</property>
+                    <property name="transition-duration">500</property>
+                    <child>
+                      <object class="GtkBox" id="hboxUpdateFeeds">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <child>
+                          <object class="GtkProgressBar" id="pbFeedUpdate">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="hexpand">True</property>
+                            <property name="pulse-step">0.10000000149</property>
+                            <property name="show-text">True</property>
+                            <property name="ellipsize">middle</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="btnCancelFeedUpdate">
+                            <property name="visible">True</property>
+                            <property name="can-focus">True</property>
+                            <property name="receives-default">False</property>
+                            <signal name="clicked" handler="on_btnCancelFeedUpdate_clicked" swapped="no"/>
+                            <child>
+                              <object class="GtkImage" id="image3209">
+                                <property name="visible">True</property>
+                                <property name="can-focus">False</property>
+                                <property name="stock">gtk-cancel</property>
+                              </object>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="pack-type">end</property>
+                    <property name="position">3</property>
+                  </packing>
                 </child>
               </object>
+            </child>
+            <child>
+              <object class="GtkSeparator">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+              </object>
               <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">0</property>
+                <property name="navigatable">False</property>
               </packing>
             </child>
+            <child>
+              <object class="GtkBox" id="contentbox">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="hexpand">True</property>
+                <property name="orientation">vertical</property>
+                <child>
+                  <object class="HdyDeck" id="deck">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="vexpand">True</property>
+                    <property name="visible-child">episodesbox</property>
+                    <property name="can-swipe-back">True</property>
+                    <child>
+                      <object class="GtkBox" id="episodesbox">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="orientation">vertical</property>
+                        <child>
+                          <object class="HdyHeaderBar" id="episodes_header_bar">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="show-close-button">True</property>
+                            <child type="title">
+                              <object class="GtkBox">
+                                <property name="visible">True</property>
+                                <property name="can-focus">False</property>
+                                <child>
+                                  <object class="GtkMenuButton" id="view_menubutton">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">True</property>
+                                    <property name="focus-on-click">False</property>
+                                    <property name="receives-default">True</property>
+                                    <child>
+                                      <object class="GtkLabel">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="label" translatable="yes">Downloaded</property>
+                                        <property name="justify">right</property>
+                                        <property name="ellipsize">end</property>
+                                        <property name="width-chars">9</property>
+                                        <property name="max-width-chars">9</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkMenuButton" id="sort_menubutton">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">True</property>
+                                    <property name="focus-on-click">False</property>
+                                    <property name="receives-default">True</property>
+                                    <child>
+                                      <object class="GtkLabel">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="label" translatable="yes">by length</property>
+                                        <property name="ellipsize">end</property>
+                                        <property name="width-chars">7</property>
+                                        <property name="max-width-chars">7</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkButton" id="sortorder_button">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">True</property>
+                                    <property name="receives-default">True</property>
+                                    <signal name="clicked" handler="on_episode_list_sortorder_clicked" swapped="no"/>
+                                    <child>
+                                      <object class="GtkImage">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="icon-name">view-sort-ascending-symbolic</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">2</property>
+                                  </packing>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="position">2</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkButton" id="episode_list_forward">
+                                <property name="visible">True</property>
+                                <property name="sensitive" bind-source="deck" bind-property="can_swipe_forward" bind-flags="sync-create">False</property>
+                                <property name="can-focus">True</property>
+                                <property name="receives-default">False</property>
+                                <signal name="clicked" handler="on_episode_list_forward_clicked" swapped="no"/>
+                                <child>
+                                  <object class="GtkImage">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
+                                    <property name="icon-name">go-next-symbolic</property>
+                                  </object>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="pack-type">end</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkToggleButton" id="episode_search_toggle">
+                                <property name="visible">True</property>
+                                <property name="can-focus">True</property>
+                                <property name="receives-default">True</property>
+                                <child>
+                                  <object class="GtkImage">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
+                                    <property name="icon-name">system-search-symbolic</property>
+                                  </object>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="pack-type">end</property>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkButton" id="episode_list_back">
+                                <property name="visible" bind-source="leaflet" bind-property="folded" bind-flags="sync-create">False</property>
+                                <property name="can-focus">True</property>
+                                <property name="receives-default">False</property>
+                                <signal name="clicked" handler="on_episode_list_back_clicked" swapped="no"/>
+                                <child>
+                                  <object class="GtkImage">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
+                                    <property name="icon-name">go-previous-symbolic</property>
+                                  </object>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="position">2</property>
+                              </packing>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="HdySearchBar" id="episodes_search_bar">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <child>
+                              <object class="HdyClamp">
+                                <property name="visible">True</property>
+                                <property name="can-focus">False</property>
+                                <property name="maximum-size">400</property>
+                                <property name="tightening-threshold">200</property>
+                                <child>
+                                  <object class="GtkEntry" id="entry_search_episodes">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">True</property>
+                                    <property name="shadow-type">none</property>
+                                    <property name="secondary-icon-name">edit-delete-symbolic</property>
+                                    <property name="primary-icon-activatable">False</property>
+                                    <property name="primary-icon-sensitive">False</property>
+                                    <property name="placeholder-text" translatable="yes">Search episodes</property>
+                                    <signal name="icon-release" handler="on_entry_search_icon_release" swapped="no"/>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkScrolledWindow">
+                            <property name="visible">True</property>
+                            <property name="can-focus">True</property>
+                            <property name="vexpand">True</property>
+                            <property name="shadow-type">in</property>
+                            <child>
+                              <object class="GtkTreeView" id="treeAvailable">
+                                <property name="visible">True</property>
+                                <property name="can-focus">True</property>
+                                <property name="has-tooltip">True</property>
+                                <property name="vexpand">False</property>
+                                <property name="headers-visible">False</property>
+                                <property name="enable-search">False</property>
+                                <property name="activate-on-single-click">True</property>
+                                <signal name="button-press-event" handler="on_treeview_button_pressed" swapped="no"/>
+                                <signal name="button-release-event" handler="on_treeview_episodes_button_released" swapped="no"/>
+                                <signal name="draw" handler="on_treeview_expose_event" swapped="no"/>
+                                <signal name="query-tooltip" handler="on_treeview_query_tooltip" swapped="no"/>
+                                <signal name="row-activated" handler="on_treeAvailable_row_activated" swapped="no"/>
+                                <child internal-child="selection">
+                                  <object class="GtkTreeSelection"/>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">2</property>
+                          </packing>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkBox" id="detailsbox">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="hexpand">True</property>
+                        <property name="orientation">vertical</property>
+                        <child>
+                          <object class="HdyHeaderBar" id="details_header_bar">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="has-subtitle">False</property>
+                            <property name="show-close-button">True</property>
+                            <child type="title">
+                              <object class="GtkButtonBox">
+                                <property name="visible">True</property>
+                                <property name="can-focus">False</property>
+                                <property name="halign">center</property>
+                                <property name="homogeneous">True</property>
+                                <property name="layout-style">expand</property>
+                                <child>
+                                  <object class="GtkButton" id="play_button">
+                                    <property name="label" translatable="yes">Play</property>
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">True</property>
+                                    <property name="receives-default">True</property>
+                                    <property name="hexpand">True</property>
+                                    <signal name="clicked" handler="on_playback_selected_episodes" swapped="no"/>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">True</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkButton" id="dl_del_button">
+                                    <property name="label" translatable="yes">Download</property>
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">True</property>
+                                    <property name="receives-default">True</property>
+                                    <property name="hexpand">True</property>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">True</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkToggleButton" id="new_toggle">
+                                    <property name="label" translatable="yes">New</property>
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">True</property>
+                                    <property name="receives-default">True</property>
+                                    <signal name="toggled" handler="on_new_toggled" swapped="no"/>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">True</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">2</property>
+                                  </packing>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="pack-type">end</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkButton" id="deck_back">
+                                <property name="visible">True</property>
+                                <property name="can-focus">True</property>
+                                <property name="receives-default">True</property>
+                                <signal name="clicked" handler="on_deck_back_clicked" swapped="no"/>
+                                <child>
+                                  <object class="GtkImage">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
+                                    <property name="icon-name">go-previous-symbolic</property>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkBox" id="shownotes_box">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="vexpand">True</property>
+                            <property name="orientation">vertical</property>
+                            <child>
+                              <placeholder/>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="pack-type">end</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+              </object>
+            </child>
           </object>
+          <packing>
+            <property name="index">-1</property>
+          </packing>
         </child>
       </object>
     </child>
