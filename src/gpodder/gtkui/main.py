@@ -52,7 +52,6 @@ from .draw import (cake_size_from_widget, draw_cake_pixbuf,
 from .interface.addpodcast import gPodderAddPodcast
 from .interface.common import BuilderWidget, TreeViewHelper
 from .interface.progress import ProgressIndicator
-#from .interface.searchtree import SearchTree
 from .interface.searchtree import SearchTreeBar
 from .model import EpisodeListModel, PodcastListModel
 from .services import CoverDownloader
@@ -106,7 +105,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def new(self):
         if self.application.want_headerbar:
-#            self.header_bar = Gtk.HeaderBar()
             # Plus menu button
             self.header_bar_plus_button = Gtk.MenuButton.new()
             self.header_bar_plus_button.set_image(Gtk.Image.new_from_icon_name('list-add-symbolic', Gtk.IconSize.SMALL_TOOLBAR))
@@ -125,11 +123,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.header_bar.set_show_close_button(True)
             self.header_bar.show_all()
 
-            # Tweaks to the UI since we moved the refresh button into the header bar
-#            self.vboxChannelNavigator.set_row_spacing(0)
-
-#            self.main_window.set_titlebar(self.header_bar)
-
         self.transfer_button = Gtk.Button.new_with_label("Progress")
         self.transfer_button.connect("clicked", self.on_show_progress_activate)
         self.labelDownloads = self.transfer_button.get_child()
@@ -147,14 +140,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.dl_del_label.set_max_width_chars(8)
 
         gpodder.user_extensions.on_ui_object_available('gpodder-gtk', self)
-#        self.toolbar.set_property('visible', self.config.show_toolbar)
-#
+
         self.bluetooth_available = util.bluetooth_available()
 
         self.config.connect_gtk_window(self.main_window, 'main_window')
 
-#        self.config.connect_gtk_paned('ui.gtk.state.main_window.paned_position', self.channelPaned)
-#
         self.progress_window.connect("delete-event", self.on_progress_close_button_clicked)
         self.progress_window.hide()
 
@@ -162,8 +152,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.player_receiver = player.MediaPlayerDBusReceiver(self.on_played)
 
-#        self.gPodder.connect('key-press-event', self.on_key_press)
-#
+        self.gPodder.connect('key-press-event', self.on_key_press)
+
 #        self.episode_columns_menu = None
         self.config.add_observer(self.on_config_changed)
 
@@ -265,8 +255,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         util.run_in_background(self.user_apps_reader.read)
 
         # Now, update the feed cache, when everything's in place
-#        if not self.application.want_headerbar:
-#            self.btnUpdateFeeds.show()
         self.feed_cache_update_cancelled = False
         self.update_podcast_list_model()
 
@@ -438,7 +426,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     '%(count)d partial file', '%(count)d partial files',
                     count) % {'count': count})
 
-#                util.idle_add(self.wNotebook.set_current_page, 1)
+                self.on_show_progress_activate()
 
         def progress_callback(title, progress):
             self.partial_downloads_indicator.on_message(title)
@@ -465,9 +453,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     self.vboxDownloadStatusWidgets.attach(self.message_area, 0, -1, 1, 1)
                     self.message_area.show_all()
                     self.on_show_progress_activate()
-                else:
-#                    util.idle_add(self.wNotebook.set_current_page, 0)
-                    pass
                 logger.debug("find_partial_downloads done, calling extensions")
                 gpodder.user_extensions.on_find_partial_downloads_done()
 
@@ -867,13 +852,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         TreeViewHelper.set(self.treeChannels, TreeViewHelper.ROLE_PODCASTS)
 
-#        self._search_podcasts = SearchTree(self.hbox_search_podcasts,
-#                                           self.entry_search_podcasts,
-#                                           self.treeChannels,
-#                                           self.podcast_list_model,
-#                                           self.config)
-#        if self.config.ui.gtk.search_always_visible:
-#            self._search_podcasts.show_search(grab_focus=False)
         self._search_podcasts = SearchTreeBar(self.channels_search_bar,
                                            self.entry_search_channels,
                                            self.treeChannels,
@@ -912,10 +890,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.config.ui.gtk.state.main_window.episode_column_order = \
             [column.get_sort_column_id() for column in treeview.get_columns()]
 
-#    def on_episode_list_header_sorted(self, column):
-#        self.config.ui.gtk.state.main_window.episode_column_sort_id = column.get_sort_column_id()
-#        self.config.ui.gtk.state.main_window.episode_column_sort_order = \
-#            (column.get_sort_order() is Gtk.SortType.ASCENDING)
+    def on_episode_list_header_sorted(self, column):
+        self.config.ui.gtk.state.main_window.episode_column_sort_id = column.get_sort_column_id()
+        self.config.ui.gtk.state.main_window.episode_column_sort_order = \
+            (column.get_sort_order() is Gtk.SortType.ASCENDING)
 
     def episode_list_update_sort(self):
         column_id = self.config.ui.gtk.state.main_window.episode_column_sort_id
@@ -960,16 +938,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.episode_list_update_sort()
         return True
 
-#    def on_episode_list_header_clicked(self, button, event):
-#        if event.button != 3:
-#            return False
-#
-#        if self.episode_columns_menu is not None:
-#            self.episode_columns_menu.popup(None, None, None, None, event.button, event.time)
-#
-#        return False
+    def on_episode_list_header_clicked(self, button, event):
+        if event.button != 3:
+            return False
 
-        return True
+        if self.episode_columns_menu is not None:
+            self.episode_columns_menu.popup(None, None, None, None, event.button, event.time)
+
+        return False
 
     def init_episode_list_treeview(self):
         # connect the swipe hack
@@ -1013,10 +989,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
         namecolumn.add_attribute(iconcell, 'icon-name', EpisodeListModel.C_STATUS_ICON)
         namecolumn.pack_start(namecell, True)
         namecolumn.add_attribute(namecell, 'markup', EpisodeListModel.C_DESCRIPTION)
-#        namecolumn.set_sort_column_id(EpisodeListModel.C_DESCRIPTION)
-#        namecolumn.set_sizing(Gtk.TreeViewColumnSizing.AUTOSIZE)
-#        namecolumn.set_resizable(True)
-#        namecolumn.set_expand(True)
+        namecolumn.set_sort_column_id(EpisodeListModel.C_DESCRIPTION)
+        namecolumn.set_sizing(Gtk.TreeViewColumnSizing.AUTOSIZE)
+        namecolumn.set_resizable(True)
+        namecolumn.set_expand(True)
 
         lockcell = Gtk.CellRendererPixbuf()
         lockcell.set_fixed_size(40, -1)
@@ -1152,27 +1128,20 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.treeAvailable.connect('popup-menu', self.treeview_available_show_context_menu)
 
-#        self.treeAvailable.enable_model_drag_source(Gdk.ModifierType.BUTTON1_MASK,
-#                (('text/uri-list', 0, 0),), Gdk.DragAction.COPY)
+        self.treeAvailable.enable_model_drag_source(Gdk.ModifierType.BUTTON1_MASK,
+                (('text/uri-list', 0, 0),), Gdk.DragAction.COPY)
 
-#        def drag_data_get(tree, context, selection_data, info, timestamp):
-#            uris = ['file://' + e.local_filename(create=False)
-#                    for e in self.get_selected_episodes()
-#                    if e.was_downloaded(and_exists=True)]
-#            selection_data.set_uris(uris)
-#        self.treeAvailable.connect('drag-data-get', drag_data_get)
+        def drag_data_get(tree, context, selection_data, info, timestamp):
+            uris = ['file://' + e.local_filename(create=False)
+                    for e in self.get_selected_episodes()
+                    if e.was_downloaded(and_exists=True)]
+            selection_data.set_uris(uris)
+        self.treeAvailable.connect('drag-data-get', drag_data_get)
 
         selection = self.treeAvailable.get_selection()
         selection.set_mode(Gtk.SelectionMode.MULTIPLE)
         self.selection_handler_id = selection.connect('changed', self.on_episode_list_selection_changed)
 
-#        self._search_episodes = SearchTree(self.hbox_search_episodes,
-#                                           self.entry_search_episodes,
-#                                           self.treeAvailable,
-#                                           self.episode_list_model,
-#                                           self.config)
-#        if self.config.ui.gtk.search_always_visible:
-#            self._search_episodes.show_search(grab_focus=False)
         self._search_episodes = SearchTreeBar(self.episodes_search_bar,
                                            self.entry_search_episodes,
                                            self.treeAvailable,
@@ -2356,12 +2325,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.episode_list_status_changed(episodes)
 
     def play_or_download(self, current_page=None):
-#        if current_page is None:
-#            current_page = self.wNotebook.get_current_page()
-#        if current_page > 0:
-#            self.toolCancel.set_sensitive(True)
-#            return (False, False, False, False, False)
-
         (can_play, can_download, can_cancel, can_delete) = (False,) * 4
         (is_played, is_locked) = (False,) * 2
 
@@ -2401,14 +2364,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             can_download = can_download and not can_cancel
             can_play = streaming_possible or (can_play and not can_cancel and not can_download)
             can_delete = not can_cancel
-
-#        if open_instead_of_play:
-#            self.toolPlay.set_stock_id(Gtk.STOCK_OPEN)
-#        else:
-#            self.toolPlay.set_stock_id(Gtk.STOCK_MEDIA_PLAY)
-#        self.toolPlay.set_sensitive(can_play)
-#        self.toolDownload.set_sensitive(can_download)
-#        self.toolCancel.set_sensitive(can_cancel)
 
         self.cancel_action.set_enabled(can_cancel)
         self.download_action.set_enabled(can_download)
@@ -2814,9 +2769,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def show_update_feeds_buttons(self):
         # Make sure that the buttons for updating feeds
         # appear - this should happen after a feed update
-#        self.hboxUpdateFeeds.hide()
-#        if not self.application.want_headerbar:
-#            self.btnUpdateFeeds.show()
         self.update_action.set_enabled(True)
         self.update_channel_action.set_enabled(True)
 
@@ -2849,8 +2801,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.btnCancelFeedUpdate.show()
         self.btnCancelFeedUpdate.set_sensitive(True)
         self.btnCancelFeedUpdate.set_image(Gtk.Image.new_from_icon_name('process-stop', Gtk.IconSize.BUTTON))
-#        self.hboxUpdateFeeds.show_all()
-#        self.btnUpdateFeeds.hide()
         self.update_revealer.set_reveal_child(True)
 
         count = len(channels)
@@ -3685,19 +3635,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if self.show_confirmation(message, title):
                 util.open_website('http://gpodder.org/downloads')
 
-#    def on_wNotebook_switch_page(self, notebook, page, page_num):
-#        if page_num == 0:
-#            self.play_or_download(current_page=page_num)
-#            # The message area in the downloads tab should be hidden
-#            # when the user switches away from the downloads tab
-#            if self.message_area is not None:
-#                self.message_area.hide()
-#                self.message_area = None
-#        else:
-#            self.toolDownload.set_sensitive(False)
-#            self.toolPlay.set_sensitive(False)
-#            self.toolCancel.set_sensitive(False)
-#
     def on_treeChannels_row_activated(self, widget, path, *args):
         # double-click action of the podcast list or enter
         self.treeChannels.set_cursor(path)
@@ -3912,29 +3849,15 @@ class gPodder(BuilderWidget, dbus.service.Object):
         else:
             self.delete_episode_list(episodes)
 
-#    def on_key_press(self, widget, event):
-#        # Allow tab switching with Ctrl + PgUp/PgDown/Tab
-#        if event.get_state() & Gdk.ModifierType.CONTROL_MASK:
-#            current_page = self.wNotebook.get_current_page()
-#            if event.keyval in (Gdk.KEY_Page_Up, Gdk.KEY_ISO_Left_Tab):
-#                if current_page == 0:
-#                    current_page = self.wNotebook.get_n_pages()
-#                self.wNotebook.set_current_page(current_page - 1)
-#                return True
-#            elif event.keyval in (Gdk.KEY_Page_Down, Gdk.KEY_Tab):
-#                if current_page == self.wNotebook.get_n_pages() - 1:
-#                    current_page = -1
-#                self.wNotebook.set_current_page(current_page + 1)
-#                return True
-#        elif event.keyval == Gdk.KEY_Delete:
-#            if isinstance(widget.get_focus(), Gtk.Entry):
-#                logger.debug("Entry has focus, ignoring Delete")
-#            else:
-#                self.main_window.activate_action('delete')
-#                return True
-#
-#        return False
-#
+    def on_key_press(self, widget, event):
+        if event.keyval == Gdk.KEY_Delete:
+            if isinstance(widget.get_focus(), Gtk.Entry):
+                logger.debug("Entry has focus, ignoring Delete")
+            else:
+                self.main_window.activate_action('delete')
+                return True
+        return False
+
     def uniconify_main_window(self):
         if self.is_iconified():
             # We need to hide and then show the window in WMs like Metacity
