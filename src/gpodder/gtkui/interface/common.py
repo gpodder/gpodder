@@ -20,7 +20,7 @@
 import os
 import shutil
 
-from gi.repository import Gdk, Gtk
+from gi.repository import Gdk, Gtk, Gio
 
 import gpodder
 from gpodder import util
@@ -310,3 +310,34 @@ class TreeViewHelper(object):
 
             return (x, y, True)
         return position_func
+
+
+class ExtensionMenuHelper(object):
+    """A helper class to handle extension submenus"""
+
+    def __init__(self, gpodder, menu, action_prefix, gen_callback_func=None):
+        self.gPodder = gpodder
+        self.menu = menu
+        self.action_prefix = action_prefix
+        self.gen_callback_func = gen_callback_func
+        self.actions = []
+
+    def replace_entries(self, new_entries):
+        # remove previous menu entries
+        for a in self.actions:
+            self.gPodder.remove_action(a.get_property('name'))
+        self.actions = []
+        self.menu.remove_all()
+        # create new ones
+        new_entries = list(new_entries or [])
+        for i, (label, callback) in enumerate(new_entries):
+            action_id = self.action_prefix + str(i)
+            action = Gio.SimpleAction.new(action_id)
+            if self.gen_callback_func is None:
+                action.connect('activate', callback)
+            else:
+                action.connect('activate', self.gen_callback_func(callback))
+            self.actions.append(action)
+            self.gPodder.add_action(action)
+            itm = Gio.MenuItem.new(label, 'win.' + action_id)
+            self.menu.append_item(itm)

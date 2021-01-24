@@ -50,7 +50,7 @@ from .download import DownloadStatusModel
 from .draw import (cake_size_from_widget, draw_cake_pixbuf,
                    draw_text_box_centered)
 from .interface.addpodcast import gPodderAddPodcast
-from .interface.common import BuilderWidget, TreeViewHelper
+from .interface.common import BuilderWidget, TreeViewHelper, ExtensionMenuHelper
 from .interface.progress import ProgressIndicator
 from .interface.searchtree import SearchTreeBar
 from .model import EpisodeListModel, PodcastListModel
@@ -242,13 +242,19 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # Set up the first instance of MygPoClient
         self.mygpo_client = my.MygPoClient(self.config)
 
-#        self.inject_extensions_menu()
-#
-#        gpodder.user_extensions.on_ui_initialized(self.model,
-#                self.extensions_podcast_update_cb,
-#                self.extensions_episode_download_cb)
-#
-#        gpodder.user_extensions.on_application_started()
+        # Extensions section in app menu
+        extensions_menu = Gio.Menu()
+        self.application.app_menu.insert_section(2, "Extensions", extensions_menu)
+        self.extensions_menu_helper = ExtensionMenuHelper(self.gPodder,
+            extensions_menu, 'extensions.action_',
+            lambda fun: lambda action, param: fun())
+        self.extensions_menu_helper.replace_entries(gpodder.user_extensions.on_create_menu())
+
+        gpodder.user_extensions.on_ui_initialized(self.model,
+                self.extensions_podcast_update_cb,
+                self.extensions_episode_download_cb)
+
+        gpodder.user_extensions.on_application_started()
 
         # load list of user applications for audio playback
         self.user_apps_reader = UserAppsReader(['audio', 'video'])
@@ -774,8 +780,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
         selection = self.treeChannels.get_selection()
 
         # Set up context menu
-        self.channels_popover = Gtk.Popover.new_from_model(self.treeChannels,
-            self.application.builder.get_object('channels-context'))
+        menu = self.application.builder.get_object('channels-context')
+        # extensions section, updated in signal handler
+        extmenu = Gio.Menu()
+        menu.insert_section(3, None, extmenu)
+        self.channel_context_menu_helper = ExtensionMenuHelper(
+            self.gPodder, extmenu, 'channel_context_action_')
+        self.channels_popover = Gtk.Popover.new_from_model(self.treeChannels, menu)
         self.channels_popover.set_position(Gtk.PositionType.BOTTOM)
 
         # Long press gesture
@@ -1864,8 +1875,17 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return True
 
         if event is None or event.button == 3:
-            self.channels_popover_show(event.x, event.y, treeview)
-        return True
+            entries = [(label, lambda a, b: func(self.active_channel))
+                for label, func in list(gpodder.user_extensions.on_channel_context_menu(self.active_channel) or [])]
+            self.channel_context_menu_helper.replace_entries(entries)
+
+            if event is None:
+                func = TreeViewHelper.make_popup_position_func(treeview)
+                x, y, _ = func(None)
+                self.channels_popover_show(x, y, treeview)
+            else:
+                self.channels_popover_show(event.x, event.y, treeview)
+            return True
 #        if event is None or event.button == 3:
 #            menu = Gtk.Menu()
 #
@@ -3941,7 +3961,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             extension.on_ui_initialized(self.model,
                     self.extensions_podcast_update_cb,
                     self.extensions_episode_download_cb)
-        self.inject_extensions_menu()
+        self.extensions_menu_helper.replace_entries(gpodder.user_extensions.on_create_menu())
 
     def on_extension_disabled(self, extension):
-        self.inject_extensions_menu()
+        self.extensions_menu_helper.replace_entries(gpodder.user_extensions.on_create_menu())
