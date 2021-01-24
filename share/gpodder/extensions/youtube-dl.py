@@ -29,6 +29,9 @@ __only_for__ = 'gtk, cli'
 __authors__ = 'Eric Le Lay <elelay.fr:contact>'
 __doc__ = 'https://gpodder.github.io/docs/extensions/youtubedl.html'
 
+want_ytdl_version = '2020.11.12'
+want_ytdl_version_msg = _('Your version of youtube-dl %(have_version)s has known issues, please upgrade to %(want_version)s or newer.')
+
 DefaultConfig = {
     # youtube-dl downloads and parses each video page to get informations about it, which is very slow.
     # Set to False to fall back to the fast but limited (only 15 episodes) gpodder code
@@ -432,6 +435,12 @@ class gPodderExtension:
         registry.feed_handler.register(self.ytdl.fetch_channel)
         registry.custom_downloader.register(self.ytdl.custom_downloader)
 
+        logger.debug('Youtube-DL %s' % youtube_dl.version.__version__)
+
+        if youtube_dl.utils.version_tuple(youtube_dl.version.__version__) < youtube_dl.utils.version_tuple(want_ytdl_version):
+            logger.error(want_ytdl_version_msg
+                % {'have_version': youtube_dl.version.__version__, 'want_version': want_ytdl_version})
+
     def on_unload(self):
         logger.info('Unregistering youtube-dl.')
         try:
@@ -447,6 +456,11 @@ class gPodderExtension:
     def on_ui_object_available(self, name, ui_object):
         if name == 'gpodder-gtk':
             self.gpodder = ui_object
+
+            if youtube_dl.utils.version_tuple(youtube_dl.version.__version__) < youtube_dl.utils.version_tuple(want_ytdl_version):
+                ui_object.notification(want_ytdl_version_msg %
+                    {'have_version': youtube_dl.version.__version__, 'want_version': want_ytdl_version},
+                    _('Old Youtube-DL'), important=True, widget=ui_object.main_window)
 
     def on_episodes_context_menu(self, episodes):
         if not self.container.config.manage_downloads \

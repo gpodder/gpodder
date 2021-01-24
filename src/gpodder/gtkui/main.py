@@ -717,12 +717,17 @@ class gPodder(BuilderWidget, dbus.service.Object):
             elif event.keyval in (Gdk.KEY_Up, Gdk.KEY_Down):
                 # If section markers exist in the treeview, we want to
                 # "jump over" them when moving the cursor up and down
-                selection = self.treeChannels.get_selection()
-                model, it = selection.get_selected()
-
                 if event.keyval == Gdk.KEY_Up:
                     step = -1
                 else:
+                    step = 1
+
+                selection = self.treeChannels.get_selection()
+                model, it = selection.get_selected()
+                if it is None:
+                    it = model.get_iter_first()
+                    if it is None:
+                        return False
                     step = 1
 
                 path = model.get_path(it)
@@ -3224,7 +3229,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_itemMassUnsubscribe_activate(self, action, param):
         columns = (
-            ('title', None, None, _('Podcast')),
+            ('title_markup', None, None, _('Podcast')),
         )
 
         # We're abusing the Episode Selector for selecting Podcasts here,
