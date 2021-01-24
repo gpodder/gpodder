@@ -309,5 +309,29 @@
       <attribute name="accel">&lt;Primary&gt;2</attribute>
     </item>
   </menu>
+  <menu id="channels-context">
+    <item>
+      <attribute name="action">win.updateChannel</attribute>
+      <attribute name="label" translatable="yes">Refresh</attribute>
+      <attribute name="accel">&lt;Primary&gt;0</attribute>
+    </item>
+    <item>
+      <attribute name="action">win.markAsOld</attribute>
+      <attribute name="label" translatable="yes">Mark episodes as old</attribute>
+      <attribute name="accel">&lt;Primary&gt;1</attribute>
+    </item>
+    <item>
+      <attribute name="action">win.editChannel</attribute>
+      <attribute name="label" translatable="yes">Channel settings</attribute>
+      <attribute name="accel">&lt;Primary&gt;2</attribute>
+    </item>
+    <section>
+      <item>
+        <attribute name="action">win.removeChannel</attribute>
+        <attribute name="label" translatable="yes">Delete</attribute>
+        <attribute name="accel">&lt;Primary&gt;3</attribute>
+      </item>
+    </section>
+  </menu>
 </interface>
 <!-- :noTabs=true:tabSize=2:indentSize=2: -->

@@ -338,6 +338,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             ('removeOldEpisodes', self.on_itemRemoveOldEpisodes_activate),
             ('discover', self.on_itemImportChannels_activate),
             ('addChannel', self.on_itemAddChannel_activate),
+            ('removeChannel', self.on_itemRemoveChannel_activate),
             ('massUnsubscribe', self.on_itemMassUnsubscribe_activate),
             ('updateChannel', self.on_itemUpdateChannel_activate),
             ('editChannel', self.on_itemEditChannel_activate),
@@ -355,6 +356,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             ('findPodcast', self.on_find_podcast_activate),
             ('findEpisode', self.on_find_episode_activate),
             ('showProgress', self.on_show_progress_activate),
+            ('markAsOld', self.on_mark_episodes_as_old),
         ]
 
         for name, callback in action_defs:
@@ -704,10 +706,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
         return event.button == 3
 
     def channels_popover_show(self, x, y, treeview):
-        #self.treeChannels.handler_block_by_func(self.on_treeview_podcasts_button_released)
         path, column, cell_x, cell_y = treeview.get_path_at_pos(x, y)
-        self.channels_popover.set_pointing_to(treeview.get_cell_area(path, column))
-        self.channels_popover.set_relative_to(treeview)
+        rec = Gdk.Rectangle()
+        rec.x, rec.y = x, y
+        self.channels_popover.set_pointing_to(rec)
         self.channels_popover.popup()
 
     def on_treeview_podcasts_button_released(self, treeview, event):
@@ -720,10 +722,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_treeview_podcasts_long_press(self, gesture, x, y, treeview):
         self.channels_popover_show(x, y, treeview)
-        return True
-
-    def on_channels_popover_closed(self, *args):
-        #self.treeChannels.handler_unblock_by_func(self.on_treeview_podcasts_button_released)
         return True
 
     def on_treeview_episodes_button_released(self, treeview, event):
@@ -774,6 +772,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         # When no podcast is selected, clear the episode list model
         selection = self.treeChannels.get_selection()
+
+        # Set up context menu
+        self.channels_popover = Gtk.Popover.new_from_model(self.treeChannels,
+            self.application.builder.get_object('channels-context'))
+        self.channels_popover.set_position(Gtk.PositionType.BOTTOM)
 
         # Long press gesture
         lp = Gtk.GestureLongPress.new(self.treeChannels)
@@ -1835,8 +1838,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 menu.popup(None, None, None, None, event.button, event.time)
             return True
 
-    def on_mark_episodes_as_old(self, item):
-        self.channels_popover.popdown()
+    def on_mark_episodes_as_old(self, *args):
         assert self.active_channel is not None
 
         for episode in self.active_channel.get_all_episodes():
@@ -3149,7 +3151,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.update_episode_list_icons(all=True)
 
     def on_itemUpdateChannel_activate(self, *params):
-        self.channels_popover.popdown()
         if self.active_channel is None:
             title = _('No podcast selected')
             message = _('Please select a podcast in the podcasts list to update.')
@@ -3429,11 +3430,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 clear_cover_cache=self.podcast_list_model.clear_cover_cache,
                 _config=self.config)
 
-    def on_channels_about_clicked(self, button):
-        self.channels_popover.popdown()
-        self.on_itemEditChannel_activate(button)
-        return True
-
     def on_itemMassUnsubscribe_activate(self, action, param):
         columns = (
             ('title_markup', None, None, _('Podcast')),
@@ -3520,7 +3516,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             util.idle_add(finish_deletion, select_url)
 
     def on_itemRemoveChannel_activate(self, widget, *args):
-        self.channels_popover.popdown()
         if self.active_channel is None:
             title = _('No podcast selected')
             message = _('Please select a podcast in the podcasts list to remove.')
