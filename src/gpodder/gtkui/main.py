@@ -739,6 +739,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
         else:
             return False
 
+    def on_treeview_episodes_long_press(self, gesture, x, y, treeview):
+        self.treeview_available_show_context_menu(treeview, None)
+        return True
+
     def on_treeview_downloads_button_released(self, treeview, event):
         if event.window != treeview.get_bin_window():
             return False
@@ -976,6 +980,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.application.builder.get_object('sort-menu'))
         self.sort_menubutton.set_popover(self.sort_popover)
         self.relabel_sort_menubutton(None, None)
+
+        # Long press gesture
+        lp = Gtk.GestureLongPress.new(self.treeAvailable)
+        lp.set_touch_only(True)
+        lp.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
+        lp.connect("pressed", self.on_treeview_episodes_long_press, self.treeAvailable)
+        setattr(self.treeAvailable, "long-press-gesture", lp)
 
         # Initialize progress icons
         cake_size = cake_size_from_widget(self.treeAvailable)
