@@ -333,5 +333,41 @@
       </item>
     </section>
   </menu>
+  <menu id="episodes-context">
+    <item>
+      <attribute name="action">win.play</attribute>
+      <attribute name="label" translatable="yes">Play</attribute>
+      <attribute name="accel">&lt;Primary&gt;0</attribute>
+    </item>
+    <item>
+      <attribute name="action">win.download</attribute>
+      <attribute name="label" translatable="yes">Download</attribute>
+      <attribute name="accel">&lt;Primary&gt;1</attribute>
+    </item>
+    <item>
+      <attribute name="action">win.delete</attribute>
+      <attribute name="label" translatable="yes">Delete</attribute>
+      <attribute name="accel">&lt;Primary&gt;2</attribute>
+    </item>
+    <section>
+      <item>
+        <attribute name="action">win.episodeNew</attribute>
+        <attribute name="label" translatable="yes">New</attribute>
+        <attribute name="accel">&lt;Primary&gt;3</attribute>
+      </item>
+    </section>
+  </menu>
+  <menu id="episodes-context-send">
+    <item>
+      <attribute name="action">win.saveEpisodes</attribute>
+      <attribute name="label" translatable="yes">Local folder</attribute>
+      <attribute name="accel">&lt;Primary&gt;0</attribute>
+    </item>
+    <item>
+      <attribute name="action">win.bluetoothEpisodes</attribute>
+      <attribute name="label" translatable="yes">Bluetooth device</attribute>
+      <attribute name="accel">&lt;Primary&gt;1</attribute>
+    </item>
+  </menu>
 </interface>
 <!-- :noTabs=true:tabSize=2:indentSize=2: -->
