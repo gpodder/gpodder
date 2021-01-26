@@ -341,3 +341,9 @@ class ExtensionMenuHelper(object):
             self.gPodder.add_action(action)
             itm = Gio.MenuItem.new(label, 'win.' + action_id)
             self.menu.append_item(itm)
+
+
+class Dummy:
+    """A class for objects with arbitrary attributes (for imitating Gtk Events etc.)"""
+    def __init__(self, **kwds):
+        self.__dict__.update(kwds)

@@ -50,7 +50,8 @@ from .download import DownloadStatusModel
 from .draw import (cake_size_from_widget, draw_cake_pixbuf,
                    draw_text_box_centered)
 from .interface.addpodcast import gPodderAddPodcast
-from .interface.common import BuilderWidget, TreeViewHelper, ExtensionMenuHelper
+from .interface.common import (BuilderWidget, TreeViewHelper,
+                               ExtensionMenuHelper, Dummy)
 from .interface.progress import ProgressIndicator
 from .interface.searchtree import SearchTreeBar
 from .model import EpisodeListModel, PodcastListModel
@@ -727,8 +728,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return False
 
     def on_treeview_podcasts_long_press(self, gesture, x, y, treeview):
-        self.channels_popover_show(x, y, treeview)
-        return True
+        ev = Dummy(x=x, y=y, button=3)
+        return self.treeview_channels_show_context_menu(treeview, ev)
 
     def on_treeview_episodes_button_released(self, treeview, event):
         if event.window != treeview.get_bin_window():
@@ -740,8 +741,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return False
 
     def on_treeview_episodes_long_press(self, gesture, x, y, treeview):
-        self.treeview_available_show_context_menu(treeview, None)
-        return True
+        ev = Dummy(x=x, y=y, button=3, time=Gtk.get_current_event_time())
+        return self.treeview_available_show_context_menu(treeview, ev)
 
     def on_treeview_downloads_button_released(self, treeview, event):
         if event.window != treeview.get_bin_window():
