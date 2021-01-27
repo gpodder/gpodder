@@ -1324,16 +1324,17 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
                 box.add(Gtk.HSeparator())
 
+                channel_description = util.remove_html_tags(channel.description)
                 if channel._update_error is not None:
                     description = _('ERROR: %s') % channel._update_error
-                elif len(channel.description) < 500:
-                    description = channel.description
+                elif len(channel_description) < 500:
+                    description = channel_description
                 else:
-                    pos = channel.description.find('\n\n')
+                    pos = channel_description.find('\n\n')
                     if pos == -1 or pos > 500:
-                        description = channel.description[:498] + '[...]'
+                        description = channel_description[:498] + '[...]'
                     else:
-                        description = channel.description[:pos]
+                        description = channel_description[:pos]
 
                 description = Gtk.Label(label=description)
                 description.set_max_width_chars(60)
