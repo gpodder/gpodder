@@ -282,36 +282,37 @@ class gPodderEpisodeSelector(BuilderWidget):
         return False
 
     def treeview_episodes_button_pressed(self, treeview, event=None):
-        if event is None or event.triggers_context_menu():
-            menu = Gtk.Menu()
-
-            if len(self.selection_buttons):
-                for label in self.selection_buttons:
-                    item = Gtk.MenuItem(label)
-                    item.connect('activate', self.custom_selection_button_clicked, label)
-                    menu.append(item)
-                menu.append(Gtk.SeparatorMenuItem())
-
-            item = Gtk.MenuItem(_('Select all'))
-            item.connect('activate', self.on_btnCheckAll_clicked)
-            menu.append(item)
-
-            item = Gtk.MenuItem(_('Select none'))
-            item.connect('activate', self.on_btnCheckNone_clicked)
-            menu.append(item)
-
-            menu.show_all()
-            # Disable tooltips while we are showing the menu, so
-            # the tooltip will not appear over the menu
-            self.episode_list_can_tooltip = False
-            menu.connect('deactivate', lambda menushell: self.episode_list_allow_tooltips())
-            if event is None:
-                func = TreeViewHelper.make_popup_position_func(treeview)
-                menu.popup(None, None, func, None, 3, Gtk.get_current_event_time())
-            else:
-                menu.popup(None, None, None, None, event.button, event.time)
-
-            return True
+        pass
+#        if event is None or event.triggers_context_menu():
+#            menu = Gtk.Menu()
+#
+#            if len(self.selection_buttons):
+#                for label in self.selection_buttons:
+#                    item = Gtk.MenuItem(label)
+#                    item.connect('activate', self.custom_selection_button_clicked, label)
+#                    menu.append(item)
+#                menu.append(Gtk.SeparatorMenuItem())
+#
+#            item = Gtk.MenuItem(_('Select all'))
+#            item.connect('activate', self.on_btnCheckAll_clicked)
+#            menu.append(item)
+#
+#            item = Gtk.MenuItem(_('Select none'))
+#            item.connect('activate', self.on_btnCheckNone_clicked)
+#            menu.append(item)
+#
+#            menu.show_all()
+#            # Disable tooltips while we are showing the menu, so
+#            # the tooltip will not appear over the menu
+#            self.episode_list_can_tooltip = False
+#            menu.connect('deactivate', lambda menushell: self.episode_list_allow_tooltips())
+#            if event is None:
+#                func = TreeViewHelper.make_popup_position_func(treeview)
+#                menu.popup(None, None, func, None, 3, Gtk.get_current_event_time())
+#            else:
+#                menu.popup(None, None, None, None, event.button, event.time)
+#
+#            return True
 
     def episode_list_allow_tooltips(self):
         self.episode_list_can_tooltip = True
