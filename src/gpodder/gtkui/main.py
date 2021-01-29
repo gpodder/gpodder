@@ -161,6 +161,20 @@ class gPodder(BuilderWidget, dbus.service.Object):
 #        self.shownotes_pane = Gtk.Box()
         self.shownotes_object = shownotes.get_shownotes(self.config.ui.gtk.html_shownotes, self.shownotes_box)
 
+        def on_key_press_shownotes(widget, event):
+            # FIXME: Fix gPodderShownotesText keyboard event propagation
+            if event.keyval in (Gdk.KEY_Escape, Gdk.KEY_BackSpace, Gdk.KEY_Left):
+                self.deck.navigate(Handy.NavigationDirection.BACK)
+                self.treeAvailable.grab_focus()
+            elif event.keyval in (Gdk.KEY_p, Gdk.KEY_s):
+                self.play_button.emit("clicked")
+            elif event.keyval in (Gdk.KEY_c, Gdk.KEY_d):
+                self.dl_del_button.emit("clicked")
+            elif event.keyval == Gdk.KEY_n:
+                self.episode_new_action.activate()
+
+        self.detailsbox.connect('key-press-event', on_key_press_shownotes)
+
 #        # Vertical paned for the episode list and shownotes
 #        self.vpaned = Gtk.Paned(orientation=Gtk.Orientation.VERTICAL)
 #        paned = self.vbox_episode_list.get_parent()
@@ -822,9 +836,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         # Set up type-ahead find for the podcast list
         def on_key_press(treeview, event):
-            if event.keyval == Gdk.KEY_Right:
-                self.treeAvailable.grab_focus()
-                self.leaflet.navigate(Handy.NavigationDirection.FORWARD)
+            if event.keyval in (Gdk.KEY_Right, Gdk.KEY_Return) :
+                path, column = self.treeChannels.get_cursor()
+                self.on_treeChannels_row_activated(self.treeChannels, path)
             elif event.keyval in (Gdk.KEY_Up, Gdk.KEY_Down):
                 # If section markers exist in the treeview, we want to
                 # "jump over" them when moving the cursor up and down
@@ -875,7 +889,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 input_char = chr(unicode_char_id)
                 self._search_podcasts.show_search(input_char)
             return True
-        self.treeChannels.connect('key-press-event', on_key_press)
+
+        self.channelsbox.connect('key-press-event', on_key_press)
 
         self.treeChannels.connect('popup-menu', self.treeview_channels_show_context_menu)
 
@@ -1152,21 +1167,37 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         # Set up type-ahead find for the episode list
         def on_key_press(treeview, event):
-            if event.keyval == Gdk.KEY_Left:
-                self.treeChannels.grab_focus()
-                self.leaflet.navigate(Handy.NavigationDirection.BACK)
-            elif event.keyval == Gdk.KEY_Right:
-                self.deck_back.grab_focus()
-                self.deck.navigate(Handy.NavigationDirection.FORWARD)
-            elif event.keyval == Gdk.KEY_Escape:
-                if self._search_episodes.search_box.get_property('visible'):
+            if event.keyval in (Gdk.KEY_Left, Gdk.KEY_Escape, Gdk.KEY_BackSpace):
+                if event.keyval == Gdk.KEY_Escape and self._search_episodes.search_box.get_property('visible'):
                     self._search_episodes.hide_search()
-#                else:
-#                    self.shownotes_object.hide_pane()
+                else:
+                    self.treeChannels.grab_focus()
+                    self.leaflet.navigate(Handy.NavigationDirection.BACK)
+            elif event.keyval in (Gdk.KEY_Right, Gdk.KEY_Return):
+                path, column = self.treeAvailable.get_cursor()
+                self.on_treeAvailable_row_activated(self.treeAvailable, path, column)
             elif event.get_state() & Gdk.ModifierType.CONTROL_MASK:
                 # Don't handle type-ahead when control is pressed (so shortcuts
                 # with the Ctrl key still work, e.g. Ctrl+A, ...)
                 return False
+            elif event.keyval in (Gdk.KEY_Up, Gdk.KEY_Down):
+                path, column = self.treeAvailable.get_cursor()
+                step = -1 if event.keyval == Gdk.KEY_Up else 1
+                model = self.treeAvailable.get_model()
+                if path is None:
+                    if model is None or model.get_iter_first() is None:
+                        return True
+                    else:
+                        path = (0,)
+                else:
+                    path = (path[0] + step,)
+                if path[0] < 0:
+                    return True
+                try:
+                    it = model.get_iter(path)
+                except ValueError:
+                    return True
+                self.treeAvailable.set_cursor(path)
             else:
                 unicode_char_id = Gdk.keyval_to_unicode(event.keyval)
                 # < 32 to intercept Delete and Tab events
@@ -1175,7 +1206,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 input_char = chr(unicode_char_id)
                 self._search_episodes.show_search(input_char)
             return True
-        self.treeAvailable.connect('key-press-event', on_key_press)
+
+        self.episodesbox.connect('key-press-event', on_key_press)
 
         self.treeAvailable.connect('popup-menu', self.treeview_available_show_context_menu)
 
@@ -2621,10 +2653,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_episode_list_back_clicked(self, widget):
         self.leaflet.navigate(Handy.NavigationDirection.BACK)
+        self.channel_list_forward.grab_focus()
         return True
 
     def on_deck_back_clicked(self, widget):
         self.deck.navigate(Handy.NavigationDirection.BACK)
+        self.episode_list_forward.grab_focus()
         return True
 
     def on_deck_notify_visible_child(self, deck, value):
@@ -3758,6 +3792,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.treeChannels.set_cursor(path)
         self.deck.navigate(Handy.NavigationDirection.BACK)
         self.leaflet.set_can_swipe_forward(True)
+        path, column = self.treeAvailable.get_cursor()
+        if path is None or path[0] < 0:
+            path = (0,)
+            self.treeAvailable.set_cursor(path)
+        self.treeAvailable.grab_focus()
         self.leaflet.navigate(Handy.NavigationDirection.FORWARD)
         return True
 
@@ -3790,10 +3829,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_channel_list_forward_clicked(self, widget, *params):
         self.leaflet.navigate(Handy.NavigationDirection.FORWARD)
+        self.episode_list_back.grab_focus()
         return True
 
     def on_episode_list_forward_clicked(self, widget, *params):
         self.deck.navigate(Handy.NavigationDirection.FORWARD)
+        self.deck_back.grab_focus()
         return True
 
     def on_btnEditChannel_clicked(self, widget, *args):
@@ -3817,15 +3858,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.playback_episodes(self.get_selected_episodes())
 
     def on_new_toggled(self, button, *params):
-        if button.get_active():
-            self.mark_selected_episodes_new()
-        else:
-            self.mark_selected_episodes_old()
+        self.episode_new_action.activate()
         return True
 
     def on_new_state_changed(self, action, *params):
         state = action.get_state().get_boolean()
+        self.new_toggle.handler_block_by_func(self.on_new_toggled)
         self.new_toggle.set_active(state)
+        self.new_toggle.handler_unblock_by_func(self.on_new_toggled)
 
     def on_new_action(self, action, *params):
         state = not action.get_state().get_boolean()
@@ -3877,6 +3917,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.play_button.set_sensitive(self.streaming_possible(ep))
         self.shownotes_box.show()
         self.deck.navigate(Handy.NavigationDirection.FORWARD)
+        self.deck_back.grab_focus()
         return True
 
     def on_download_selected_episodes(self, action_or_widget, param=None):
