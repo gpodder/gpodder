@@ -744,7 +744,8 @@ class PodcastListModel(Gtk.ListStore):
         if channel._update_error is not None:
             description_markup = html.escape(_('ERROR: %s') % channel._update_error)
         elif not channel.pause_subscription:
-            description_markup = html.escape(util.get_first_line(channel.description) or ' ')
+            description_markup = html.escape(
+                util.get_first_line(util.remove_html_tags(channel.description)) or ' ')
         else:
             description_markup = html.escape(_('Subscription paused'))
         d = []

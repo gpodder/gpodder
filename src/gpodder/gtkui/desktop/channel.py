@@ -83,7 +83,7 @@ class gPodderChannel(BuilderWidget):
             err = '\n\nERROR: {}'.format(self.channel._update_error)
         else:
             err = ''
-        b.set_text(self.channel.description + err)
+        b.set_text(util.remove_html_tags(self.channel.description) + err)
         self.channel_description.set_buffer(b)
 
         # Add Drag and Drop Support
