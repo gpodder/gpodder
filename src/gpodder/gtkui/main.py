@@ -159,7 +159,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.config.add_observer(self.on_config_changed)
 
         def on_key_press_shownotes(widget, event):
-            if event.keyval in (Gdk.KEY_Escape, Gdk.KEY_BackSpace, Gdk.KEY_Left):
+            if event.keyval in (Gdk.KEY_Escape, Gdk.KEY_BackSpace, Gdk.KEY_Left, Gdk.KEY_h):
                 self.deck.navigate(Handy.NavigationDirection.BACK)
                 self.treeAvailable.grab_focus()
             elif event.keyval in (Gdk.KEY_p, Gdk.KEY_s):
@@ -835,13 +835,17 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         # Set up type-ahead find for the podcast list
         def on_key_press(treeview, event):
-            if event.keyval in (Gdk.KEY_Right, Gdk.KEY_Return) :
+            if event.get_state() & Gdk.ModifierType.CONTROL_MASK:
+                # Don't handle type-ahead when control is pressed (so shortcuts
+                # with the Ctrl key still work, e.g. Ctrl+A, ...)
+                return True
+            elif event.keyval in (Gdk.KEY_Right, Gdk.KEY_Return, Gdk.KEY_l) :
                 path, column = self.treeChannels.get_cursor()
                 self.on_treeChannels_row_activated(self.treeChannels, path)
-            elif event.keyval in (Gdk.KEY_Up, Gdk.KEY_Down):
+            elif event.keyval in (Gdk.KEY_Up, Gdk.KEY_Down, Gdk.KEY_j, Gdk.KEY_k):
                 # If section markers exist in the treeview, we want to
                 # "jump over" them when moving the cursor up and down
-                if event.keyval == Gdk.KEY_Up:
+                if event.keyval in (Gdk.KEY_Up, Gdk.KEY_k):
                     step = -1
                 else:
                     step = 1
@@ -874,10 +878,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.treeChannels.set_cursor(path)
             elif event.keyval == Gdk.KEY_Escape:
                 self._search_podcasts.hide_search()
-            elif event.get_state() & Gdk.ModifierType.CONTROL_MASK:
-                # Don't handle type-ahead when control is pressed (so shortcuts
-                # with the Ctrl key still work, e.g. Ctrl+A, ...)
-                return True
             elif event.keyval == Gdk.KEY_Delete:
                 return False
             elif event.keyval == Gdk.KEY_BackSpace and self._search_podcasts.search_box.get_property('visible'):
@@ -1170,7 +1170,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         # Set up type-ahead find for the episode list
         def on_key_press(treeview, event):
-            if event.keyval in (Gdk.KEY_Left, Gdk.KEY_Escape, Gdk.KEY_BackSpace):
+            if event.get_state() & Gdk.ModifierType.CONTROL_MASK:
+                # Don't handle type-ahead when control is pressed (so shortcuts
+                # with the Ctrl key still work, e.g. Ctrl+A, ...)
+                return False
+            elif event.keyval in (Gdk.KEY_Left, Gdk.KEY_Escape, Gdk.KEY_BackSpace, Gdk.KEY_h):
                 if event.keyval == Gdk.KEY_Escape and self._search_episodes.search_box.get_property('visible'):
                     self._search_episodes.hide_search()
                 elif event.keyval == Gdk.KEY_BackSpace and self._search_episodes.search_box.get_property('visible'):
@@ -1178,16 +1182,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 else:
                     self.treeChannels.grab_focus()
                     self.leaflet.navigate(Handy.NavigationDirection.BACK)
-            elif event.keyval in (Gdk.KEY_Right, Gdk.KEY_Return):
+            elif event.keyval in (Gdk.KEY_Right, Gdk.KEY_Return, Gdk.KEY_l):
                 path, column = self.treeAvailable.get_cursor()
                 self.on_treeAvailable_row_activated(self.treeAvailable, path, column)
-            elif event.get_state() & Gdk.ModifierType.CONTROL_MASK:
-                # Don't handle type-ahead when control is pressed (so shortcuts
-                # with the Ctrl key still work, e.g. Ctrl+A, ...)
-                return False
-            elif event.keyval in (Gdk.KEY_Up, Gdk.KEY_Down):
+            elif event.keyval in (Gdk.KEY_Up, Gdk.KEY_Down, Gdk.KEY_j, Gdk.KEY_k):
                 path, column = self.treeAvailable.get_cursor()
-                step = -1 if event.keyval == Gdk.KEY_Up else 1
+                step = -1 if event.keyval in (Gdk.KEY_Up, Gdk.KEY_k) else 1
                 model = self.treeAvailable.get_model()
                 if path is None:
                     if model is None or model.get_iter_first() is None:
