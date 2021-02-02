@@ -65,10 +65,10 @@ class GEpisode(model.PodcastEpisode):
             length_str = ''
         return ('<b>%s</b>\n<small>%s' + _('released %s') +
                 '; ' + _('from %s') + '</small>') % (
-                html.escape(re.sub('\s+', ' ', self.title)),
+                html.escape(re.sub(r'\s+', ' ', self.title)),
                 html.escape(length_str),
                 html.escape(self.pubdate_prop),
-                html.escape(re.sub('\s+', ' ', self.channel.title)))
+                html.escape(re.sub(r'\s+', ' ', self.channel.title)))
 
     @property
     def markup_delete_episodes(self):

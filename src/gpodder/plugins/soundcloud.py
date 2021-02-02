@@ -161,7 +161,7 @@ class SoundcloudUser(object):
 
 
 class SoundcloudFeed(model.Feed):
-    URL_REGEX = re.compile('https?://([a-z]+\.)?soundcloud\.com/([^/]+)$', re.I)
+    URL_REGEX = re.compile(r'https?://([a-z]+\.)?soundcloud\.com/([^/]+)$', re.I)
 
     @classmethod
     def fetch_channel(cls, channel, max_episodes=0):
@@ -218,7 +218,7 @@ class SoundcloudFeed(model.Feed):
 
 
 class SoundcloudFavFeed(SoundcloudFeed):
-    URL_REGEX = re.compile('https?://([a-z]+\.)?soundcloud\.com/([^/]+)/favorites', re.I)
+    URL_REGEX = re.compile(r'https?://([a-z]+\.)?soundcloud\.com/([^/]+)/favorites', re.I)
 
     def __init__(self, username):
         super(SoundcloudFavFeed, self).__init__(username)
