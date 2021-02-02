@@ -378,7 +378,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             ('play', self.on_playback_selected_episodes),
             ('open', self.on_playback_selected_episodes),
             ('download', self.on_download_selected_episodes),
-            ('cancel', self.on_item_cancel_download_activate),
+            ('cancelFromEpisodes', self.on_episodes_cancel_download_activate),
+            ('cancelFromProgress', self.on_progress_cancel_download_activate),
             ('delete', self.on_btnDownloadedDelete_clicked),
 #            ('toggleEpisodeNew', self.on_item_toggle_played_activate),
 #            ('toggleEpisodeLock', self.on_item_toggle_lock_activate),
@@ -403,7 +404,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.play_action = g.lookup_action('play')
         self.open_action = g.lookup_action('open')
         self.download_action = g.lookup_action('download')
-        self.cancel_action = g.lookup_action('cancel')
+        self.episodes_cancel_action = g.lookup_action('cancelFromEpisodes')
         self.delete_action = g.lookup_action('delete')
 #        self.toggle_episode_new_action = g.lookup_action('toggleEpisodeNew')
 #        self.toggle_episode_lock_action = g.lookup_action('toggleEpisodeLock')
@@ -2518,7 +2519,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             can_play = streaming_possible or (can_play and not can_cancel and not can_download)
             can_delete = not can_cancel
 
-        self.cancel_action.set_enabled(can_cancel)
+        self.episodes_cancel_action.set_enabled(can_cancel)
         self.download_action.set_enabled(can_download)
         self.open_action.set_enabled(can_play and open_instead_of_play)
         self.play_action.set_enabled(can_play and not open_instead_of_play)
@@ -3907,8 +3908,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.dl_del_button.set_sensitive(True)
         # ... then connect the correct handler
         if ep.downloading:
-            self.dl_del_label.set_text("Downloading")
-            self.dl_del_button.set_sensitive(False)
+            self.dl_del_label.set_text("Cancel Download")
+            self.dl_del_button.connect("clicked", self.on_episodes_cancel_download_activate)
         elif ep.was_downloaded(and_exists=True):
             self.dl_del_label.set_text("Delete")
             self.dl_del_button.connect("clicked", self.on_episode_delete_clicked)
@@ -4003,19 +4004,20 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # Update the tab title and downloads list
         self.update_downloads_list()
 
-    def on_item_cancel_download_activate(self, *params):
-        if self.wNotebook.get_current_page() == 0:
-            selection = self.treeAvailable.get_selection()
-            (model, paths) = selection.get_selected_rows()
-            urls = [model.get_value(model.get_iter(path),
-                    self.episode_list_model.C_URL) for path in paths]
-            selected_tasks = [task for task in self.download_tasks_seen
-                    if task.url in urls]
-        else:
-            selection = self.treeDownloads.get_selection()
-            (model, paths) = selection.get_selected_rows()
-            selected_tasks = [model.get_value(model.get_iter(path),
-                    self.download_status_model.C_TASK) for path in paths]
+    def on_episodes_cancel_download_activate(self, *params):
+        selection = self.treeAvailable.get_selection()
+        (model, paths) = selection.get_selected_rows()
+        urls = [model.get_value(model.get_iter(path),
+                self.episode_list_model.C_URL) for path in paths]
+        selected_tasks = [task for task in self.download_tasks_seen
+                if task.url in urls]
+        self.cancel_task_list(selected_tasks)
+
+    def on_progress_cancel_download_activate(self, *params):
+        selection = self.treeDownloads.get_selection()
+        (model, paths) = selection.get_selected_rows()
+        selected_tasks = [model.get_value(model.get_iter(path),
+                self.download_status_model.C_TASK) for path in paths]
         self.cancel_task_list(selected_tasks)
 
     def on_btnCancelAll_clicked(self, widget, *args):
