@@ -20,6 +20,7 @@
 import gi  # isort:skip
 gi.require_version('Gtk', '3.0')  # isort:skip
 from gi.repository import Gdk, GLib  # isort:skip
+from .common import TreeViewHelper
 
 
 class SearchTree:
@@ -42,6 +43,7 @@ class SearchTree:
     def set_search_term(self, text):
         self.model.set_search_term(text)
         self._search_timeout = None
+        TreeViewHelper.set_cursor_to_first(self.tree)
         return False
 
     def on_entry_changed(self, editable):

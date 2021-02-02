@@ -3802,8 +3802,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.leaflet.set_can_swipe_forward(True)
         path, column = self.treeAvailable.get_cursor()
         if path is None or path[0] < 0:
-            path = (0,)
-            self.treeAvailable.set_cursor(path)
+            TreeViewHelper.set_cursor_to_first(self.treeAvailable)
         self.treeAvailable.grab_focus()
         self.leaflet.navigate(Handy.NavigationDirection.FORWARD)
         return True
