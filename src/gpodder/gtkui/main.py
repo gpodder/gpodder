@@ -907,7 +907,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                                            self.treeChannels,
                                            self.podcast_list_model,
                                            self.config,
-                                           toggle_button=self.header_bar_search_button)
+                                           toggle_button=self.header_bar_search_button,
+                                           return_cb=lambda: self.on_channel_list_forward_clicked(None))
         if self.config.ui.gtk.search_always_visible:
             self._search_podcasts.show_search(grab_focus=False)
         else:
@@ -1236,7 +1237,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                                            self.treeAvailable,
                                            self.episode_list_model,
                                            self.config,
-                                           toggle_button=self.episode_search_toggle)
+                                           toggle_button=self.episode_search_toggle,
+                                           return_cb=lambda: self.on_episode_list_forward_clicked(None))
         if self.config.ui.gtk.search_always_visible:
             self._search_episodes.show_search(grab_focus=False)
         else:
@@ -3835,6 +3837,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         return True
 
     def on_channel_list_forward_clicked(self, widget, *params):
+        path, column = self.treeChannels.get_cursor()
+        self.on_treeChannels_row_activated(self.treeChannels, path)
         self.leaflet.navigate(Handy.NavigationDirection.FORWARD)
         self.episode_list_back.grab_focus()
         return True

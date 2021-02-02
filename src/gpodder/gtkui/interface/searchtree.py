@@ -79,7 +79,7 @@ class SearchTree:
 
 
 class SearchTreeBar(SearchTree):
-    def __init__(self, search_box, search_entry, tree, model, config, toggle_button=None):
+    def __init__(self, search_box, search_entry, tree, model, config, toggle_button=None, return_cb=None):
         self.search_box = search_box
         self.search_entry = search_entry
         self.tree = tree
@@ -93,6 +93,15 @@ class SearchTreeBar(SearchTree):
         if self.toggle_button is not None:
             self.clicked_handler_id = self.toggle_button.connect("clicked",
                 self.on_search_button_clicked)
+        self.return_cb = return_cb
+
+    def on_entry_key_press(self, editable, event):
+        if event.keyval == Gdk.KEY_Escape:
+            self.hide_search()
+            return True
+        elif event.keyval == Gdk.KEY_Return:
+            if self.return_cb is not None:
+                return self.return_cb()
 
     def on_search_button_clicked(self, *args):
         if self.toggle_button.get_active():
