@@ -369,5 +369,29 @@
       <attribute name="accel">&lt;Primary&gt;1</attribute>
     </item>
   </menu>
+  <menu id="downloads-context">
+    <item>
+      <attribute name="action">app.setDownloadQueued</attribute>
+      <attribute name="label" translatable="yes">Download</attribute>
+      <attribute name="accel">&lt;Primary&gt;0</attribute>
+    </item>
+    <item>
+      <attribute name="action">app.setDownloadCancelled</attribute>
+      <attribute name="label" translatable="yes">Cancel</attribute>
+      <attribute name="accel">&lt;Primary&gt;1</attribute>
+    </item>
+    <item>
+      <attribute name="action">app.setDownloadPaused</attribute>
+      <attribute name="label" translatable="yes">Pause</attribute>
+      <attribute name="accel">&lt;Primary&gt;2</attribute>
+    </item>
+    <section>
+      <item>
+        <attribute name="action">app.setDownloadRemove</attribute>
+        <attribute name="label" translatable="yes">Remove from list</attribute>
+        <attribute name="accel">&lt;Primary&gt;3</attribute>
+      </item>
+    </section>
+  </menu>
 </interface>
 <!-- :noTabs=true:tabSize=2:indentSize=2: -->

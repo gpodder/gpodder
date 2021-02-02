@@ -148,6 +148,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.progress_window.connect("delete-event", self.on_progress_close_button_clicked)
         self.progress_window.hide()
+        self.application.add_window(self.progress_window)
 
         self.main_window.show()
 
@@ -778,6 +779,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         return self.treeview_downloads_show_context_menu(treeview, event)
 
+    def on_treeview_downloads_long_press(self, gesture, x, y, treeview):
+        ev = Dummy(x=x, y=y, button=3)
+        return self.treeview_downloads_show_context_menu(treeview, ev)
+
     def on_find_podcast_activate(self, *args):
         if self._search_podcasts:
             self._search_podcasts.show_search()
@@ -1292,6 +1297,18 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.treeDownloads.set_model(self.download_status_model)
         TreeViewHelper.set(self.treeDownloads, TreeViewHelper.ROLE_DOWNLOADS)
+
+        # Set up context menu
+        menu = self.application.builder.get_object('downloads-context')
+        self.downloads_popover = Gtk.Popover.new_from_model(self.treeDownloads, menu)
+        self.downloads_popover.set_position(Gtk.PositionType.BOTTOM)
+
+        # Long press gesture
+        lp = Gtk.GestureLongPress.new(self.treeDownloads)
+        lp.set_touch_only(True)
+        lp.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
+        lp.connect("pressed", self.on_treeview_downloads_long_press, self.treeDownloads)
+        setattr(self.treeDownloads, "long-press-gesture", lp)
 
         self.treeDownloads.connect('popup-menu', self.treeview_downloads_show_context_menu)
 
@@ -1849,83 +1866,112 @@ class gPodder(BuilderWidget, dbus.service.Object):
             selected_tasks, can_queue, can_cancel, can_pause, can_remove, can_force = \
                     self.downloads_list_get_selection(model, paths)
 
-            def make_menu_item(label, icon_name, tasks=None, status=None, sensitive=True, force_start=False, action=None):
-                # This creates a menu item for selection-wide actions
-                item = Gtk.ImageMenuItem.new_with_mnemonic(label)
-                if icon_name is not None:
-                    item.set_image(Gtk.Image.new_from_icon_name(icon_name, Gtk.IconSize.MENU))
-                if action is not None:
-                    item.connect('activate', action)
-                else:
-                    item.connect('activate', lambda item: self._for_each_task_set_status(tasks, status, force_start))
-                item.set_sensitive(sensitive)
-                return item
+#            def make_menu_item(label, icon_name, tasks=None, status=None, sensitive=True, force_start=False, action=None):
+#                # This creates a menu item for selection-wide actions
+#                item = Gtk.ImageMenuItem.new_with_mnemonic(label)
+#                if icon_name is not None:
+#                    item.set_image(Gtk.Image.new_from_icon_name(icon_name, Gtk.IconSize.MENU))
+#                if action is not None:
+#                    item.connect('activate', action)
+#                else:
+#                    item.connect('activate', lambda item: self._for_each_task_set_status(tasks, status, force_start))
+#                item.set_sensitive(sensitive)
+#                return item
+#
+#            def move_selected_items_up(menu_item):
+#                selection = self.treeDownloads.get_selection()
+#                model, selected_paths = selection.get_selected_rows()
+#                for path in selected_paths:
+#                    index_above = path[0] - 1
+#                    if index_above < 0:
+#                        return
+#                    task = model.get_value(
+#                            model.get_iter(path),
+#                            DownloadStatusModel.C_TASK)
+#                    model.move_before(
+#                            model.get_iter(path),
+#                            model.get_iter((index_above,)))
+#
+#            def move_selected_items_down(menu_item):
+#                selection = self.treeDownloads.get_selection()
+#                model, selected_paths = selection.get_selected_rows()
+#                for path in reversed(selected_paths):
+#                    index_below = path[0] + 1
+#                    if index_below >= len(model):
+#                        return
+#                    task = model.get_value(
+#                            model.get_iter(path),
+#                            DownloadStatusModel.C_TASK)
+#                    model.move_after(
+#                            model.get_iter(path),
+#                            model.get_iter((index_below,)))
+#
+#            menu = Gtk.Menu()
+#
+#            if can_force:
+#                menu.append(make_menu_item(_('Start download now'), 'document-save',
+#                                           selected_tasks,
+#                                           download.DownloadTask.QUEUED,
+#                                           force_start=True))
+#            else:
+#                menu.append(make_menu_item(_('Download'), 'document-save',
+#                                           selected_tasks,
+#                                           download.DownloadTask.QUEUED,
+#                                           can_queue))
+#
+#            menu.append(make_menu_item(_('Cancel'), 'media-playback-stop',
+#                                       selected_tasks,
+#                                       download.DownloadTask.CANCELLED,
+#                                       can_cancel))
+#            menu.append(make_menu_item(_('Pause'), 'media-playback-pause',
+#                                       selected_tasks,
+#                                       download.DownloadTask.PAUSED, can_pause))
+#            menu.append(Gtk.SeparatorMenuItem())
+#            menu.append(make_menu_item(_('Move up'), 'go-up',
+#                                       action=move_selected_items_up))
+#            menu.append(make_menu_item(_('Move down'), 'go-down',
+#                                       action=move_selected_items_down))
+#            menu.append(Gtk.SeparatorMenuItem())
+#            menu.append(make_menu_item(_('Remove from list'), 'list-remove',
+#                                       selected_tasks, sensitive=can_remove))
+#
+#            menu.attach_to_widget(treeview)
+#            menu.show_all()
 
-            def move_selected_items_up(menu_item):
-                selection = self.treeDownloads.get_selection()
-                model, selected_paths = selection.get_selected_rows()
-                for path in selected_paths:
-                    index_above = path[0] - 1
-                    if index_above < 0:
-                        return
-                    task = model.get_value(
-                            model.get_iter(path),
-                            DownloadStatusModel.C_TASK)
-                    model.move_before(
-                            model.get_iter(path),
-                            model.get_iter((index_above,)))
+            def make_menu_item(label, action_name, tasks=None, status=None, sensitive=True, force_start=False):
+                self.application.remove_action(action_name)
+                action = Gio.SimpleAction.new(action_name)
+                action.connect("activate", 
+                        lambda _a, _b: self._for_each_task_set_status(
+                            tasks, status, force_start=force_start))
+                self.application.add_action(action)
+                action.set_enabled(sensitive)
+                return Gio.MenuItem.new(label, 'app.' + action_name)
 
-            def move_selected_items_down(menu_item):
-                selection = self.treeDownloads.get_selection()
-                model, selected_paths = selection.get_selected_rows()
-                for path in reversed(selected_paths):
-                    index_below = path[0] + 1
-                    if index_below >= len(model):
-                        return
-                    task = model.get_value(
-                            model.get_iter(path),
-                            DownloadStatusModel.C_TASK)
-                    model.move_after(
-                            model.get_iter(path),
-                            model.get_iter((index_below,)))
-
-            menu = Gtk.Menu()
-
+            menu = self.application.builder.get_object('downloads-context')
+            menu.remove_all()
             if can_force:
-                menu.append(make_menu_item(_('Start download now'), 'document-save',
-                                           selected_tasks,
-                                           download.DownloadTask.QUEUED,
-                                           force_start=True))
+                item = make_menu_item(_('Start download now'), 'setDownloadQueued',
+                    selected_tasks, download.DownloadTask.QUEUED, force_start=True)
             else:
-                menu.append(make_menu_item(_('Download'), 'document-save',
-                                           selected_tasks,
-                                           download.DownloadTask.QUEUED,
-                                           can_queue))
-
-            menu.append(make_menu_item(_('Cancel'), 'media-playback-stop',
-                                       selected_tasks,
-                                       download.DownloadTask.CANCELLED,
-                                       can_cancel))
-            menu.append(make_menu_item(_('Pause'), 'media-playback-pause',
-                                       selected_tasks,
-                                       download.DownloadTask.PAUSED, can_pause))
-            menu.append(Gtk.SeparatorMenuItem())
-            menu.append(make_menu_item(_('Move up'), 'go-up',
-                                       action=move_selected_items_up))
-            menu.append(make_menu_item(_('Move down'), 'go-down',
-                                       action=move_selected_items_down))
-            menu.append(Gtk.SeparatorMenuItem())
-            menu.append(make_menu_item(_('Remove from list'), 'list-remove',
-                                       selected_tasks, sensitive=can_remove))
-
-            menu.attach_to_widget(treeview)
-            menu.show_all()
+                item = make_menu_item(_('Download'), 'setDownloadQueued',
+                    selected_tasks, download.DownloadTask.QUEUED)
+            menu.append_item(item)
+            menu.append_item(make_menu_item(_('Cancel'), 'setDownloadCancelled',
+                selected_tasks, download.DownloadTask.CANCELLED))
+            menu.append_item(make_menu_item(_('Pause'), 'setDownloadPaused',
+                selected_tasks, download.DownloadTask.PAUSED))
+            rmenu = Gio.Menu()
+            rmenu.append_item(make_menu_item(_('Remove from list'), 'setDownloadRemove',
+                selected_tasks, sensitive=can_remove))
+            menu.append_section(None, rmenu)
 
             if event is None:
                 func = TreeViewHelper.make_popup_position_func(treeview)
-                menu.popup(None, None, func, None, 3, Gtk.get_current_event_time())
+                x, y, unused = func(None)
             else:
-                menu.popup(None, None, None, None, event.button, event.time)
+                x, y = event.x, event.y
+            self.context_popover_show(self.downloads_popover, x, y)
             return True
 
     def on_mark_episodes_as_old(self, *args):

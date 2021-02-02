@@ -111,6 +111,22 @@ class gPodderApplication(Gtk.Application):
         action.connect('activate', self.on_menu)
         self.add_action(action)
 
+        do_nothing = lambda x: False
+
+        action_defs = [
+            # Progress dialog actions
+            # Callbacks will be set when context menu is shown
+            ('setDownloadQueued', do_nothing),
+            ('setDownloadCancelled', do_nothing),
+            ('setDownloadPaused', do_nothing),
+            ('setDownloadRemove', do_nothing),
+        ]
+
+        for name, callback in action_defs:
+            action = Gio.SimpleAction.new(name, None)
+            action.connect('activate', callback)
+            self.add_action(action)
+
     def do_startup(self):
         Gtk.Application.do_startup(self)
 
