@@ -158,11 +158,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 #        self.episode_columns_menu = None
         self.config.add_observer(self.on_config_changed)
 
-#        self.shownotes_pane = Gtk.Box()
-        self.shownotes_object = shownotes.get_shownotes(self.config.ui.gtk.html_shownotes, self.shownotes_box)
-
         def on_key_press_shownotes(widget, event):
-            # FIXME: Fix gPodderShownotesText keyboard event propagation
             if event.keyval in (Gdk.KEY_Escape, Gdk.KEY_BackSpace, Gdk.KEY_Left):
                 self.deck.navigate(Handy.NavigationDirection.BACK)
                 self.treeAvailable.grab_focus()
@@ -172,6 +168,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.dl_del_button.emit("clicked")
             elif event.keyval == Gdk.KEY_n:
                 self.episode_new_action.activate()
+
+#        self.shownotes_pane = Gtk.Box()
+        self.shownotes_object = shownotes.get_shownotes(self.config.ui.gtk.html_shownotes, self.shownotes_box, on_key_press_shownotes)
 
         self.detailsbox.connect('key-press-event', on_key_press_shownotes)
 

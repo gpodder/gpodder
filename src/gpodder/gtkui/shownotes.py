@@ -47,16 +47,17 @@ except (ImportError, ValueError):
     logger.info('No WebKit2 gobject bindings, so no HTML shownotes')
 
 
-def get_shownotes(enable_html, pane):
+def get_shownotes(enable_html, pane, keyboard_callback=None):
     if enable_html and has_webkit2:
-        return gPodderShownotesHTML(pane)
+        return gPodderShownotesHTML(pane, keyboard_callback)
     else:
-        return gPodderShownotesText(pane)
+        return gPodderShownotesText(pane, keyboard_callback)
 
 
 class gPodderShownotes:
-    def __init__(self, shownotes_pane):
+    def __init__(self, shownotes_pane, keyboard_callback=None):
         self.shownotes_pane = shownotes_pane
+        self.keyboard_callback = keyboard_callback
 
         self.scrolled_window = Gtk.ScrolledWindow()
         self.scrolled_window.set_shadow_type(Gtk.ShadowType.IN)
@@ -223,6 +224,9 @@ class gPodderShownotesText(gPodderShownotes):
         if event.keyval == Gdk.KEY_Return:
             self.activate_links()
             return True
+        if self.keyboard_callback is not None:
+            self.keyboard_callback(widget, event)
+            return True
 
         return False
 
@@ -281,6 +285,7 @@ class gPodderShownotesHTML(gPodderShownotes):
         self.html_view.connect('context-menu', self.on_context_menu)
         self.html_view.connect('decide-policy', self.on_decide_policy)
         self.html_view.connect('authenticate', self.on_authenticate)
+        self.html_view.connect('key-press-event', self.on_key_press)
 
         return self.html_view
 
@@ -314,6 +319,12 @@ class gPodderShownotesHTML(gPodderShownotes):
         # uncomment to show web inspector
         # self.html_view.get_inspector().show()
         self.episode = episode
+
+    def on_key_press(self, widget, event):
+        if self.keyboard_callback is not None:
+            self.keyboard_callback(widget, event)
+            return True
+        return False
 
     def on_mouse_over(self, webview, hit_test_result, modifiers):
         if hit_test_result.context_is_link():
