@@ -43,7 +43,7 @@ from . import shownotes
 from .adaptive.channel import gPodderChannel
 from .adaptive.episodeselector import gPodderEpisodeSelector
 from .desktop.exportlocal import gPodderExportToLocalFolder
-from .desktop.podcastdirectory import gPodderPodcastDirectory
+from .adaptive.podcastdirectory import gPodderPodcastDirectory
 from .desktop.welcome import gPodderWelcome
 from .desktopfile import UserAppsReader
 from .download import DownloadStatusModel
