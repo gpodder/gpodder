@@ -292,144 +292,133 @@
               </packing>
             </child>
             <child>
-              <object class="GtkTable" id="mygpo_config">
-                <property name="border_width">6</property>
-                <property name="column_spacing">6</property>
-                <property name="n_columns">3</property>
-                <property name="n_rows">7</property>
-                <property name="row_spacing">6</property>
+              <object class="GtkBox" id="mygpo_config">
+                <property name="margin">12</property>
                 <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="orientation">vertical</property>
+                <property name="spacing">6</property>
                 <child>
                   <object class="GtkCheckButton" id="checkbutton_enable">
                     <property name="label" translatable="yes">Synchronize subscriptions and episode actions</property>
                     <property name="visible">True</property>
-                    <signal handler="on_enabled_toggled" name="toggled"/>
+                    <signal name="toggled" handler="on_enabled_toggled" swapped="no"/>
                   </object>
-                  <packing>
-                    <property name="bottom_attach">2</property>
-                    <property name="right_attach">3</property>
-                    <property name="top_attach">1</property>
-		    <property name="y_options"></property>
-                  </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="label_server">
-                    <property name="label" translatable="yes">Server:</property>
+                  <!-- n-columns=2 n-rows=4 -->
+                  <object class="GtkGrid">
                     <property name="visible">True</property>
-                    <property name="xalign">1.0</property>
+                    <property name="can-focus">False</property>
+                    <property name="column-spacing">12</property>
+                    <property name="row-spacing">6</property>
+                    <child>
+                      <object class="GtkLabel" id="label_server">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="label" translatable="yes">Server:</property>
+                        <property name="xalign">1</property>
+                      </object>
+                      <packing>
+                        <property name="left-attach">0</property>
+                        <property name="top-attach">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkEntry" id="entry_server">
+                        <property name="visible">True</property>
+                        <property name="hexpand">True</property>
+                        <property name="can-focus">True</property>
+                        <signal name="changed" handler="on_server_changed" swapped="no"/>
+                      </object>
+                      <packing>
+                        <property name="left-attach">1</property>
+                        <property name="top-attach">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="label_username">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="label" translatable="yes">Username:</property>
+                        <property name="xalign">1</property>
+                      </object>
+                      <packing>
+                        <property name="left-attach">0</property>
+                        <property name="top-attach">1</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkEntry" id="entry_username">
+                        <property name="visible">True</property>
+                        <property name="hexpand">True</property>
+                        <property name="can-focus">True</property>
+                        <signal name="changed" handler="on_username_changed" swapped="no"/>
+                      </object>
+                      <packing>
+                        <property name="left-attach">1</property>
+                        <property name="top-attach">1</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkEntry" id="entry_password">
+                        <property name="visible">True</property>
+                        <property name="hexpand">True</property>
+                        <property name="can-focus">True</property>
+                        <property name="visibility">False</property>
+                        <signal name="changed" handler="on_password_changed" swapped="no"/>
+                      </object>
+                      <packing>
+                        <property name="left-attach">1</property>
+                        <property name="top-attach">2</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="label_password">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="label" translatable="yes">Password:</property>
+                        <property name="xalign">1</property>
+                      </object>
+                      <packing>
+                        <property name="left-attach">0</property>
+                        <property name="top-attach">2</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="label_caption">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="label" translatable="yes">Device name:</property>
+                        <property name="xalign">1</property>
+                      </object>
+                      <packing>
+                        <property name="left-attach">0</property>
+                        <property name="top-attach">3</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkEntry" id="entry_caption">
+                        <property name="visible">True</property>
+                        <property name="hexpand">True</property>
+                        <property name="can-focus">True</property>
+                        <signal name="changed" handler="on_device_caption_changed" swapped="no"/>
+                      </object>
+                      <packing>
+                        <property name="left-attach">1</property>
+                        <property name="top-attach">3</property>
+                      </packing>
+                    </child>
                   </object>
-                  <packing>
-                    <property name="bottom_attach">3</property>
-                    <property name="top_attach">2</property>
-                    <property name="x_options">fill</property>
-		    <property name="y_options"></property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label_username">
-                    <property name="label" translatable="yes">Username:</property>
-                    <property name="visible">True</property>
-                    <property name="xalign">1.0</property>
-                  </object>
-                  <packing>
-                    <property name="bottom_attach">4</property>
-                    <property name="top_attach">3</property>
-                    <property name="x_options">fill</property>
-		    <property name="y_options"></property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label_password">
-                    <property name="label" translatable="yes">Password:</property>
-                    <property name="visible">True</property>
-                    <property name="xalign">1.0</property>
-                  </object>
-                  <packing>
-                    <property name="bottom_attach">5</property>
-                    <property name="top_attach">4</property>
-                    <property name="x_options">fill</property>
-		    <property name="y_options"></property>
-                  </packing>
                 </child>
                 <child>
                   <object class="GtkButton" id="button_overwrite">
                     <property name="label" translatable="yes">Replace list on server with local subscriptions</property>
                     <property name="visible">True</property>
-                    <signal handler="on_button_overwrite_clicked" name="clicked"/>
+                    <property name="can-focus">True</property>
+                    <property name="receives-default">False</property>
+                    <signal name="clicked" handler="on_button_overwrite_clicked" swapped="no"/>
                   </object>
-                  <packing>
-                    <property name="bottom_attach">7</property>
-                    <property name="right_attach">3</property>
-                    <property name="top_attach">6</property>
-		    <property name="y_options"></property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label_caption">
-                    <property name="label" translatable="yes">Device name:</property>
-                    <property name="visible">True</property>
-                    <property name="xalign">1.0</property>
-                  </object>
-                  <packing>
-                    <property name="bottom_attach">6</property>
-                    <property name="top_attach">5</property>
-                    <property name="x_options">fill</property>
-		    <property name="y_options"></property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkEntry" id="entry_server">
-                    <property name="visible">True</property>
-                    <signal handler="on_server_changed" name="changed"/>
-                  </object>
-                  <packing>
-                    <property name="bottom_attach">3</property>
-                    <property name="left_attach">1</property>
-                    <property name="right_attach">3</property>
-                    <property name="top_attach">2</property>
-		    <property name="y_options"></property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkEntry" id="entry_username">
-                    <property name="visible">True</property>
-                    <signal handler="on_username_changed" name="changed"/>
-                  </object>
-                  <packing>
-                    <property name="bottom_attach">4</property>
-                    <property name="left_attach">1</property>
-                    <property name="right_attach">3</property>
-                    <property name="top_attach">3</property>
-		    <property name="y_options"></property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkEntry" id="entry_password">
-                    <property name="visibility">False</property>
-                    <property name="is_focus">True</property>
-                    <property name="visible">True</property>
-                    <signal handler="on_password_changed" name="changed"/>
-                  </object>
-                  <packing>
-                    <property name="bottom_attach">5</property>
-                    <property name="left_attach">1</property>
-                    <property name="right_attach">3</property>
-                    <property name="top_attach">4</property>
-		    <property name="y_options"></property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkEntry" id="entry_caption">
-                    <property name="visible">True</property>
-                    <signal handler="on_device_caption_changed" name="changed"/>
-                  </object>
-                  <packing>
-                    <property name="bottom_attach">6</property>
-                    <property name="left_attach">1</property>
-                    <property name="right_attach">3</property>
-                    <property name="top_attach">5</property>
-		    <property name="y_options"></property>
-                  </packing>
                 </child>
               </object>
               <packing>
