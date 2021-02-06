@@ -158,13 +158,10 @@
                   </object>
                 </child>
                 <child>
-                  <object class="GtkHSeparator" id="hseparator_general">
+                  <object class="GtkSeparator" id="hseparator_general">
+                    <property name="orientation">horizontal</property>
                     <property name="visible">True</property>
                   </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="position">1</property>
-                  </packing>
                 </child>
                 <child>
                   <object class="GtkCheckButton" id="checkbutton_show_all_episodes">
@@ -510,7 +507,8 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkHSeparator" id="hseparator_updating">
+                  <object class="GtkSeparator" id="hseparator_updating">
+                    <property name="orientation">horizontal</property>
                     <property name="visible">True</property>
                   </object>
                   <packing>
@@ -550,7 +548,8 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkHSeparator" id="hseparator_updating2">
+                  <object class="GtkSeparator" id="hseparator_updating2">
+                    <property name="orientation">horizontal</property>
                     <property name="visible">True</property>
                   </object>
                   <packing>
