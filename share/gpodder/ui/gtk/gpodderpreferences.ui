@@ -51,85 +51,111 @@
                 <property name="visible">True</property>
                 <property name="orientation">vertical</property>
                 <child>
-                  <object class="GtkGrid" id="table_players">
-                    <property name="column_spacing">6</property>
-                    <property name="row_spacing">6</property>
+                  <object class="GtkBox" id="vbox_players">
                     <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="orientation">vertical</property>
                     <child>
-                      <object class="GtkLabel" id="label_audio_player">
-                        <property name="label" translatable="yes">Audio player:</property>
+                      <object class="GtkBox">
                         <property name="visible">True</property>
-                        <property name="xalign">0.0</property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkLabel" id="label_video_player">
-                        <property name="label" translatable="yes">Video player:</property>
-                        <property name="visible">True</property>
-                        <property name="xalign">0.0</property>
-                      </object>
-                      <packing>
-                        <property name="left_attach">0</property>
-                        <property name="top_attach">1</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkComboBox" id="combo_audio_player_app">
-                        <property name="visible">True</property>
-                        <property name="hexpand">True</property>
-                        <signal name="changed" handler="on_combo_audio_player_app_changed"/>
-                      </object>
-                      <packing>
-                        <property name="left_attach">1</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkComboBox" id="combo_video_player_app">
-                        <property name="visible">True</property>
-                        <property name="hexpand">True</property>
-                        <signal name="changed" handler="on_combo_video_player_app_changed"/>
-                      </object>
-                      <packing>
-                        <property name="left_attach">1</property>
-                        <property name="top_attach">1</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkButton" id="button_audio_player">
-                        <property name="visible">True</property>
-                        <signal name="clicked" handler="on_button_audio_player_clicked"/>
+                        <property name="can-focus">False</property>
+                        <property name="spacing">12</property>
                         <child>
-                          <object class="GtkImage" id="image3">
-                            <property name="stock">gtk-edit</property>
+                          <object class="GtkLabel" id="label_video_player">
                             <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="label" translatable="yes">Video player:</property>
+                            <property name="xalign">0</property>
                           </object>
+                          <packing>
+                            <property name="fill">True</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkComboBox" id="combo_video_player_app">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="hexpand">True</property>
+                            <signal name="changed" handler="on_combo_video_player_app_changed" swapped="no"/>
+                          </object>
+                          <packing>
+                            <property name="fill">True</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="button_video_player">
+                            <property name="visible">True</property>
+                            <property name="can-focus">True</property>
+                            <property name="receives-default">False</property>
+                            <signal name="clicked" handler="on_button_video_player_clicked" swapped="no"/>
+                            <child>
+                              <object class="GtkImage" id="image4">
+                                <property name="visible">True</property>
+                                <property name="can-focus">False</property>
+                                <property name="stock">gtk-edit</property>
+                              </object>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="fill">True</property>
+                          </packing>
                         </child>
                       </object>
                       <packing>
-                        <property name="left_attach">2</property>
-                        <property name="top_attach">0</property>
+                        <property name="fill">True</property>
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkButton" id="button_video_player">
+                      <object class="GtkBox">
                         <property name="visible">True</property>
-                        <signal name="clicked" handler="on_button_video_player_clicked"/>
+                        <property name="can-focus">False</property>
+                        <property name="spacing">12</property>
                         <child>
-                          <object class="GtkImage" id="image4">
-                            <property name="stock">gtk-edit</property>
+                          <object class="GtkLabel" id="label_audio_player">
                             <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="label" translatable="yes">Audio player:</property>
+                            <property name="xalign">0</property>
                           </object>
+                          <packing>
+                            <property name="fill">True</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkComboBox" id="combo_audio_player_app">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="hexpand">True</property>
+                            <signal name="changed" handler="on_combo_audio_player_app_changed" swapped="no"/>
+                          </object>
+                          <packing>
+                            <property name="fill">True</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="button_audio_player">
+                            <property name="visible">True</property>
+                            <property name="can-focus">True</property>
+                            <property name="receives-default">False</property>
+                            <signal name="clicked" handler="on_button_audio_player_clicked" swapped="no"/>
+                            <child>
+                              <object class="GtkImage" id="image3">
+                                <property name="visible">True</property>
+                                <property name="can-focus">False</property>
+                                <property name="stock">gtk-edit</property>
+                              </object>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="fill">True</property>
+                          </packing>
                         </child>
                       </object>
                       <packing>
-                        <property name="left_attach">2</property>
-                        <property name="top_attach">1</property>
+                        <property name="fill">True</property>
                       </packing>
                     </child>
                   </object>
-                  <packing>
-                    <property name="expand">False</property>
-                  </packing>
                 </child>
                 <child>
                   <object class="GtkHSeparator" id="hseparator_general">
