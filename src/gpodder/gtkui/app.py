@@ -32,7 +32,7 @@ from gpodder import core, util
 from gpodder.model import check_root_folder_path
 
 from .config import UIConfig
-from .desktop.preferences import gPodderPreferences
+from .adaptive.preferences import gPodderPreferences
 from .main import gPodder
 from .model import Model
 
