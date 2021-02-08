@@ -27,6 +27,7 @@
 import html
 import logging
 import os
+import time
 
 from gi.repository import GdkPixbuf, Gtk, Pango
 from gi.repository import Handy # isort:skip
@@ -120,7 +121,11 @@ class gPodderPodcastDirectory(BuilderWidget):
         self.on_tv_providers_row_activated(self.tv_providers, (0,), None)
 
         self.main_window.show()
-        util.idle_add(lambda: self.directory_flap.set_reveal_flap(True))
+
+        @util.run_in_background
+        def show_flap_soon():
+            time.sleep(0.5)
+            self.directory_flap.set_reveal_flap(True)
 
     def download_opml_file(self, filename):
         self.providers_model.add_provider(directory.FixedOpmlFileProvider(filename))
