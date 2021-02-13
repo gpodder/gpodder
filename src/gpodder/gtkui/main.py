@@ -1717,7 +1717,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 menu.append(Gtk.SeparatorMenuItem())
                 for label, callback in result:
                     item = Gtk.MenuItem(label)
-                    item.connect('activate', lambda item, callback: callback(self.active_channel), callback)
+                    if callback:
+                        item.connect('activate', lambda item, callback: callback(self.active_channel), callback)
+                    else:
+                        item.set_sensitive(False)
                     menu.append(item)
 
             menu.append(Gtk.SeparatorMenuItem())
@@ -1926,7 +1929,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 for label, callback in result:
                     key, sep, title = label.rpartition('/')
                     item = Gtk.ImageMenuItem(title)
-                    self._submenu_item_activate_hack(item, callback, episodes)
+                    if callback:
+                        self._submenu_item_activate_hack(item, callback, episodes)
+                    else:
+                        item.set_sensitive(False)
                     if key:
                         if key not in submenus:
                             sub_menu = self._add_sub_menu(menu, key)
