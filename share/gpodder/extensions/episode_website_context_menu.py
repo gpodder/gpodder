@@ -23,15 +23,21 @@ class gPodderExtension:
     def __init__(self, container):
         self.container = container
 
+    def has_website(self, episodes):
+        for episode in episodes:
+            if episode.link:
+                return True
+
     def open_website(self, episodes):
         for episode in episodes:
-            util.open_website(episode.link)
+            if episode.link:
+                util.open_website(episode.link)
 
     def open_channel_website(self, channel):
         util.open_website(channel.link)
 
     def on_episodes_context_menu(self, episodes):
-        return [(_('Open website'), self.open_website)]
+        return [(_('Open website'), self.open_website if self.has_website(episodes) else None)]
 
-    def on_channel_context_menu(self, episodes):
-        return [(_('Open website'), self.open_channel_website)]
+    def on_channel_context_menu(self, channel):
+        return [(_('Open website'), self.open_channel_website if channel.link else None)]
