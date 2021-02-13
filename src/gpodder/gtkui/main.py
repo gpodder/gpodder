@@ -4030,12 +4030,54 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.delete_episode_list(episodes)
 
     def on_key_press(self, widget, event):
+        views = {
+            Gdk.KEY_1: 'VIEW_ALL',
+            Gdk.KEY_2: 'VIEW_UNDELETED',
+            Gdk.KEY_3: 'VIEW_DOWNLOADED',
+            Gdk.KEY_4: 'VIEW_UNPLAYED',
+        }
+        sorts = {
+            Gdk.KEY_7: 'SORT_PUBLISHED',
+            Gdk.KEY_8: 'SORT_TOTAL_TIME',
+            Gdk.KEY_9: 'SORT_TITLE',
+        }
         if event.keyval == Gdk.KEY_Delete:
             if isinstance(widget.get_focus(), Gtk.Entry):
                 logger.debug("Entry has focus, ignoring Delete")
             else:
                 self.main_window.activate_action('delete')
                 return True
+        elif event.keyval == Gdk.KEY_plus:
+            self.header_bar_plus_button.emit("clicked")
+            return True
+        elif event.state & Gdk.ModifierType.CONTROL_MASK:
+            if event.keyval == Gdk.KEY_0:
+                self.sortorder_button.emit("clicked")
+            elif event.keyval in views.keys():
+                self.gPodder.lookup_action('viewEpisodes').activate(
+                    GLib.Variant.new_string(views[event.keyval]))
+            elif event.keyval in sorts.keys():
+                self.gPodder.lookup_action('sortEpisodes').activate(
+                    GLib.Variant.new_string(sorts[event.keyval]))
+            elif event.keyval == Gdk.KEY_e:
+                self.gPodder.lookup_action('episodeNew').activate()
+            elif event.keyval == Gdk.KEY_k:
+                self.gPodder.lookup_action('removeOldEpisodes').activate()
+            elif event.keyval == Gdk.KEY_l:
+                self.gPodder.lookup_action('addChannel').activate()
+            elif event.keyval == Gdk.KEY_m:
+                self.application.lookup_action('menu').activate()
+            elif event.keyval == Gdk.KEY_n:
+                self.gPodder.lookup_action('downloadAllNew').activate()
+            elif event.keyval == Gdk.KEY_r:
+                self.gPodder.lookup_action('update').activate()
+            elif event.keyval == Gdk.KEY_s:
+                self.sort_popover.popup()
+            elif event.keyval == Gdk.KEY_v:
+                self.view_popover.popup()
+            else:
+                return False
+            return True
         return False
 
     def uniconify_main_window(self):
