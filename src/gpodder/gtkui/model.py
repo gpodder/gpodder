@@ -480,10 +480,10 @@ class EpisodeListModel(Gtk.ListStore):
                 (self.C_FILESIZE, episode.file_size),
 
                 (self.C_TIME_AND_SIZE, "%s\n<small>%s</small>"
-                    % (episode.get_play_info_string(), self._format_filesize(episode) if episode.file_size else "")),
+                    % (episode.get_play_info_string(), self._format_filesize(episode) if episode.file_size > 0 else "")),
                 (self.C_TOTAL_TIME_AND_SIZE, episode.total_time),
                 (self.C_FILESIZE_AND_TIME_TEXT, "%s\n<small>%s</small>"
-                    % (self._format_filesize(episode) if episode.file_size else "", episode.get_play_info_string())),
+                    % (self._format_filesize(episode) if episode.file_size > 0 else "", episode.get_play_info_string())),
                 (self.C_FILESIZE_AND_TIME, episode.file_size),
         )
 
