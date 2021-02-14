@@ -874,6 +874,22 @@ class gPodder(BuilderWidget, dbus.service.Object):
         releasecolumn = Gtk.TreeViewColumn(_('Released'), releasecell, text=EpisodeListModel.C_PUBLISHED_TEXT)
         releasecolumn.set_sort_column_id(EpisodeListModel.C_PUBLISHED)
 
+        sizetimecell = Gtk.CellRendererText()
+        sizetimecell.set_property('xalign', 1)
+        sizetimecell.set_property('alignment', Pango.Alignment.RIGHT)
+        sizetimecolumn = Gtk.TreeViewColumn(_('Size+'))
+        sizetimecolumn.pack_start(sizetimecell, True)
+        sizetimecolumn.add_attribute(sizetimecell, 'markup', EpisodeListModel.C_FILESIZE_AND_TIME_TEXT)
+        sizetimecolumn.set_sort_column_id(EpisodeListModel.C_FILESIZE_AND_TIME)
+
+        timesizecell = Gtk.CellRendererText()
+        timesizecell.set_property('xalign', 1)
+        timesizecell.set_property('alignment', Pango.Alignment.RIGHT)
+        timesizecolumn = Gtk.TreeViewColumn(_('Duration+'))
+        timesizecolumn.pack_start(timesizecell, True)
+        timesizecolumn.add_attribute(timesizecell, 'markup', EpisodeListModel.C_TIME_AND_SIZE)
+        timesizecolumn.set_sort_column_id(EpisodeListModel.C_TOTAL_TIME_AND_SIZE)
+
         namecolumn.set_reorderable(True)
         self.treeAvailable.append_column(namecolumn)
 
@@ -881,7 +897,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if not self.config.ui.gtk.state.main_window.episode_column_sort_id:
             self.config.ui.gtk.state.main_window.episode_column_sort_id = EpisodeListModel.C_PUBLISHED
 
-        for itemcolumn in (sizecolumn, timecolumn, releasecolumn):
+        for itemcolumn in (sizecolumn, timecolumn, releasecolumn, sizetimecolumn, timesizecolumn):
             itemcolumn.set_reorderable(True)
             self.treeAvailable.append_column(itemcolumn)
             TreeViewHelper.register_column(self.treeAvailable, itemcolumn)
