@@ -446,7 +446,7 @@
                 <property name="orientation">vertical</property>
                 <child>
                   <object class="GtkBox" id="hbox_updating_interval">
-                    <property name="spacing">6</property>
+                    <property name="spacing">12</property>
                     <property name="visible">True</property>
                     <property name="orientation">horizontal</property>
                     <child>
@@ -645,6 +645,7 @@
                 <property name="spacing">6</property>
                 <property name="orientation">vertical</property>
                 <child>
+                  <!-- n-columns=2 n-rows=2 -->
                   <object class="GtkGrid">
                     <property name="visible">True</property>
                     <property name="column-spacing">12</property>
@@ -652,9 +653,8 @@
                     <child>
                       <object class="GtkLabel" id="label_device_type">
                         <property name="visible">True</property>
-                        <property name="xalign">1</property>
+                        <property name="xalign">0</property>
                         <property name="label" translatable="yes">Device type:</property>
-                        <property name="justify">right</property>
                       </object>
                       <packing>
                         <property name="left-attach">0</property>
@@ -675,7 +675,7 @@
                     <child>
                       <object class="GtkLabel" id="label_device_mount">
                         <property name="visible">True</property>
-                        <property name="xalign">1</property>
+                        <property name="xalign">0</property>
                         <property name="label" translatable="yes">Mountpoint:</property>
                       </object>
                       <packing>
@@ -713,8 +713,8 @@
                     <child>
                       <object class="GtkLabel" id="label_device_playlists">
                         <property name="visible">True</property>
+                        <property name="xalign">0</property>
                         <property name="label" translatable="yes">Playlists Folder:</property>
-                        <property name="xalign">1</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -751,9 +751,8 @@
                     <child>
                       <object class="GtkLabel" id="label_on_sync">
                         <property name="visible">True</property>
+                        <property name="xalign">0</property>
                         <property name="label" translatable="yes">After syncing an episode:</property>
-                        <property name="justify">right</property>
-                        <property name="xalign">1</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
