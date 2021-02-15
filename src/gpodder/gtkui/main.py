@@ -881,6 +881,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 return True
             elif event.keyval == Gdk.KEY_Delete:
                 return False
+            elif event.keyval == Gdk.KEY_BackSpace and self._search_podcasts.search_box.get_property('visible'):
+                self._search_podcasts.search_entry.grab_focus_without_selecting()
             else:
                 unicode_char_id = Gdk.keyval_to_unicode(event.keyval)
                 # < 32 to intercept Delete and Tab events
@@ -908,6 +910,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                                            toggle_button=self.header_bar_search_button)
         if self.config.ui.gtk.search_always_visible:
             self._search_podcasts.show_search(grab_focus=False)
+        else:
+            self._search_podcasts.hide_search()
 
     def on_entry_search_icon_release(self, entry, icon_pos, event):
         """Delete icon on search entry clicked"""
@@ -1170,6 +1174,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if event.keyval in (Gdk.KEY_Left, Gdk.KEY_Escape, Gdk.KEY_BackSpace):
                 if event.keyval == Gdk.KEY_Escape and self._search_episodes.search_box.get_property('visible'):
                     self._search_episodes.hide_search()
+                elif event.keyval == Gdk.KEY_BackSpace and self._search_episodes.search_box.get_property('visible'):
+                    self._search_episodes.search_entry.grab_focus_without_selecting()
                 else:
                     self.treeChannels.grab_focus()
                     self.leaflet.navigate(Handy.NavigationDirection.BACK)
@@ -1233,6 +1239,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                                            toggle_button=self.episode_search_toggle)
         if self.config.ui.gtk.search_always_visible:
             self._search_episodes.show_search(grab_focus=False)
+        else:
+            self._search_episodes.hide_search()
 
     def on_episode_list_selection_changed(self, selection):
         # Update the toolbar buttons
