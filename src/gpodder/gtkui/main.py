@@ -2000,7 +2000,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return True
 
         if event is None or event.button == 3:
-            entries = [(label, lambda a, b: func(self.active_channel))
+            entries = [(label, None if func is None else lambda a, b: func(self.active_channel))
                 for label, func in list(gpodder.user_extensions.on_channel_context_menu(self.active_channel) or [])]
             self.channel_context_menu_helper.replace_entries(entries)
 
@@ -2241,7 +2241,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.gPodder.lookup_action('episodeNew').change_state(GLib.Variant.new_boolean(any_new))
 
             # Extensions section
-            entries = [(label, lambda a, b: func(episodes))
+            entries = [(label, None if func is None else lambda a, b: func(episodes))
                 for label, func in list(gpodder.user_extensions.on_episodes_context_menu(episodes) or [])]
             self.episode_context_menu_helper.replace_entries(entries)
 

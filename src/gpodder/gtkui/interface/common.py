@@ -362,10 +362,12 @@ class ExtensionMenuHelper(object):
         for i, (label, callback) in enumerate(new_entries):
             action_id = self.action_prefix + str(i)
             action = Gio.SimpleAction.new(action_id)
-            if self.gen_callback_func is None:
-                action.connect('activate', callback)
-            else:
-                action.connect('activate', self.gen_callback_func(callback))
+            action.set_enabled(callback is not None)
+            if callback is not None:
+                if self.gen_callback_func is None:
+                    action.connect('activate', callback)
+                else:
+                    action.connect('activate', self.gen_callback_func(callback))
             self.actions.append(action)
             self.gPodder.add_action(action)
             itm = Gio.MenuItem.new(label, 'win.' + action_id)
