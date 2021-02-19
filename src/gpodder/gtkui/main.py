@@ -897,7 +897,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self._search_podcasts.show_search(input_char)
             return True
 
+        # Consume arrow keys before native TreeView keyboard handlers
+        def on_key_press_treeview(widget, event):
+            if event.keyval in (Gdk.KEY_Right, Gdk.KEY_Left, Gdk.KEY_Up, Gdk.KEY_Down):
+                return on_key_press(widget, event)
+            return False
+
         self.channelsbox.connect('key-press-event', on_key_press)
+        self.treeChannels.connect('key-press-event', on_key_press_treeview)
 
         self.treeChannels.connect('popup-menu', self.treeview_channels_show_context_menu)
 
@@ -1219,7 +1226,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self._search_episodes.show_search(input_char)
             return True
 
+        # Consume arrow keys before native TreeView keyboard handlers
+        def on_key_press_treeview(widget, event):
+            if event.keyval in (Gdk.KEY_Right, Gdk.KEY_Left, Gdk.KEY_Up, Gdk.KEY_Down):
+                return on_key_press(widget, event)
+            return False
+
         self.episodesbox.connect('key-press-event', on_key_press)
+        self.treeAvailable.connect('key-press-event', on_key_press_treeview)
 
         self.treeAvailable.connect('popup-menu', self.treeview_available_show_context_menu)
 
