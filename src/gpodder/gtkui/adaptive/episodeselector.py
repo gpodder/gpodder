@@ -19,8 +19,9 @@
 
 import gi
 gi.require_version('Gtk', '3.0')  # isort:skip
+gi.require_version('Gdk', '3.0')  # isort:skip
 gi.require_version('Handy', '1')  # isort:skip
-from gi.repository import Gtk, Pango
+from gi.repository import Gdk, Gtk, Pango
 from gi.repository import Handy # isort:skip
 
 import gpodder
@@ -154,8 +155,6 @@ class gPodderEpisodeSelector(BuilderWidget):
         toggle_column.set_clickable(True)
         self.treeviewEpisodes.append_column(toggle_column)
 
-        self.toggled = False
-
         next_column = self.COLUMN_ADDITIONAL
         for name, sort_name, sort_type, caption in self.columns:
             renderer = Gtk.CellRendererText()
@@ -225,12 +224,67 @@ class gPodderEpisodeSelector(BuilderWidget):
         self.last_tooltip_episode = None
         self.episode_list_can_tooltip = True
 
+        # Keyboard shortcuts
+        def on_key_press_episodes(widget, event):
+            if event.get_state() & Gdk.ModifierType.CONTROL_MASK:
+                return False
+            elif event.keyval == Gdk.KEY_a:
+                self.btnCheckAll.emit("clicked")
+            elif event.keyval == Gdk.KEY_n:
+                self.btnCheckNone.emit("clicked")
+            elif event.keyval in (Gdk.KEY_Escape, Gdk.KEY_BackSpace):
+                self.btnCancel.emit("clicked")
+            elif event.keyval in (Gdk.KEY_Right, Gdk.KEY_l):
+                path, column = self.treeviewEpisodes.get_cursor()
+                self.on_row_activated(self.treeviewEpisodes, path, column)
+            elif event.keyval in (Gdk.KEY_Up, Gdk.KEY_Down, Gdk.KEY_j, Gdk.KEY_k):
+                path, column = self.treeviewEpisodes.get_cursor()
+                step = -1 if event.keyval in (Gdk.KEY_Up, Gdk.KEY_k) else 1
+                model = self.treeviewEpisodes.get_model()
+                if path is None:
+                    if model is None or model.get_iter_first() is None:
+                        return True
+                    else:
+                        path = (0,)
+                else:
+                    path = (path[0] + step,)
+                if path[0] < 0:
+                    return True
+                try:
+                    it = model.get_iter(path)
+                except ValueError:
+                    return True
+                self.treeviewEpisodes.set_cursor(path, toggle_column)
+            else:
+                return False
+            return True
+
+        # Consume arrow keys before native TreeView keyboard handlers
+        def on_key_press_treeview(widget, event):
+            if event.keyval in (Gdk.KEY_Right, Gdk.KEY_Left, Gdk.KEY_Up, Gdk.KEY_Down):
+                return on_key_press_episodes(widget, event)
+            return False
+
+        self.new_episodes_box.connect('key-press-event', on_key_press_episodes)
+        self.treeviewEpisodes.connect('key-press-event', on_key_press_treeview)
+
+        def on_key_press_shownotes(widget, event):
+            if event.keyval in (Gdk.KEY_Escape, Gdk.KEY_BackSpace, Gdk.KEY_Left, Gdk.KEY_h):
+                self.new_deck.navigate(Handy.NavigationDirection.BACK)
+                self.treeviewEpisodes.grab_focus()
+            else:
+                return False
+            return True
+
+        self.detailsbox.connect('key-press-event', on_key_press_shownotes)
+
         self.treeviewEpisodes.connect('button-press-event', self.treeview_episodes_button_pressed)
         self.treeviewEpisodes.connect('popup-menu', self.treeview_episodes_button_pressed)
         self.treeviewEpisodes.set_rules_hint(True)
         self.treeviewEpisodes.set_model(self.model)
         self.treeviewEpisodes.columns_autosize()
 
+        TreeViewHelper.set_cursor_to_first(self.treeviewEpisodes)
         # Focus the toggle column for Tab-focusing (bug 503)
         path, column = self.treeviewEpisodes.get_cursor()
         if path is not None:
@@ -354,8 +408,6 @@ class gPodderEpisodeSelector(BuilderWidget):
     def toggle_cell_handler(self, cell, path):
         model = self.treeviewEpisodes.get_model()
         model[path][self.COLUMN_TOGGLE] = not model[path][self.COLUMN_TOGGLE]
-        self.toggled = True
-
         self.calculate_total_size()
 
     def custom_selection_button_clicked(self, button, label):
@@ -397,9 +449,6 @@ class gPodderEpisodeSelector(BuilderWidget):
             self.on_btnCancel_clicked(None)
 
     def on_row_activated(self, treeview, path, view_column):
-        if self.toggled:
-            self.toggled = False
-            return True
         model = treeview.get_model()
         itr = model.get_iter(path)
         epind = model.get_value(itr, 0)
@@ -409,6 +458,7 @@ class gPodderEpisodeSelector(BuilderWidget):
         self.new_episodes_forward.set_sensitive(True)
         self.shownotes_box.show()
         self.new_deck.set_can_swipe_forward(True)
+        self.notes_back.grab_focus()
         self.new_deck.navigate(Handy.NavigationDirection.FORWARD)
 
         self.calculate_total_size()
