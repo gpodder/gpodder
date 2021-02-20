@@ -155,6 +155,8 @@ class gPodderEpisodeSelector(BuilderWidget):
         toggle_column.set_clickable(True)
         self.treeviewEpisodes.append_column(toggle_column)
 
+        self.toggled = False
+
         next_column = self.COLUMN_ADDITIONAL
         for name, sort_name, sort_type, caption in self.columns:
             renderer = Gtk.CellRendererText()
@@ -235,6 +237,7 @@ class gPodderEpisodeSelector(BuilderWidget):
             elif event.keyval in (Gdk.KEY_Escape, Gdk.KEY_BackSpace):
                 self.btnCancel.emit("clicked")
             elif event.keyval in (Gdk.KEY_Right, Gdk.KEY_l):
+                self.toggled = False
                 path, column = self.treeviewEpisodes.get_cursor()
                 self.on_row_activated(self.treeviewEpisodes, path, column)
             elif event.keyval in (Gdk.KEY_Up, Gdk.KEY_Down, Gdk.KEY_j, Gdk.KEY_k):
@@ -408,6 +411,7 @@ class gPodderEpisodeSelector(BuilderWidget):
     def toggle_cell_handler(self, cell, path):
         model = self.treeviewEpisodes.get_model()
         model[path][self.COLUMN_TOGGLE] = not model[path][self.COLUMN_TOGGLE]
+        self.toggled = True
         self.calculate_total_size()
 
     def custom_selection_button_clicked(self, button, label):
@@ -449,6 +453,9 @@ class gPodderEpisodeSelector(BuilderWidget):
             self.on_btnCancel_clicked(None)
 
     def on_row_activated(self, treeview, path, view_column):
+        if self.toggled:
+            self.toggled = False
+            return True
         model = treeview.get_model()
         itr = model.get_iter(path)
         epind = model.get_value(itr, 0)
