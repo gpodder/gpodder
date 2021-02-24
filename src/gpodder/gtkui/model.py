@@ -617,12 +617,6 @@ class PodcastListModel(Gtk.ListStore):
     def get_search_term(self):
         return self._search_term
 
-    def enable_separators(self, channeltree):
-        channeltree.set_row_separator_func(self._show_row_separator)
-
-    def _show_row_separator(self, model, iter):
-        return model.get_value(iter, self.C_SEPARATOR)
-
     def set_max_image_size(self, size):
         self._max_image_side = size
         self._cover_cache = {}
