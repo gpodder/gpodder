@@ -3792,7 +3792,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         path, column = self.treeChannels.get_cursor()
         self.on_treeChannels_row_activated(self.treeChannels, path)
         self.leaflet.navigate(Handy.NavigationDirection.FORWARD)
-        self.episode_list_back.grab_focus()
+        self.treeAvailable.grab_focus()
         return True
 
     def on_episode_list_forward_clicked(self, widget, *params):
