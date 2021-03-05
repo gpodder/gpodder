@@ -85,7 +85,11 @@ class CoverDownloader(object):
 
             try:
                 logger.info('Downloading cover art: %s', cover_url)
-                data = util.urlopen(cover_url, timeout=self.TIMEOUT).content
+                response = util.urlopen(cover_url, timeout=self.TIMEOUT)
+                if response.status_code != 200:
+                    msg = '%s returned status code %d' % (cover_url, response.status_code)
+                    raise ValueError(msg)
+                data = response.content
             except Exception as e:
                 logger.warn('Cover art download failed: %s', e)
                 return self._fallback_filename(title)
