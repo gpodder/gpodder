@@ -214,7 +214,7 @@ class gPodderFetcher(feedcore.Fetcher):
             feed['headers'] = headers
             return feedcore.Result(status, PodcastParserFeed(feed, self, max_episodes))
         except ValueError as e:
-            raise feedcore.InvalidFeed('Could not parse feed: {msg}'.format(msg=e))
+            raise feedcore.InvalidFeed('Could not parse feed: {url}: {msg}'.format(url=url, msg=e))
 
 
 # Our podcast model:
