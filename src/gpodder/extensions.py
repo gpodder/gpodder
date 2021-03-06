@@ -55,6 +55,7 @@ CATEGORY_DICT = {
     'desktop-integration': _('Desktop Integration'),
     'interface': _('Interface'),
     'post-download': _('Post download'),
+    'custom-feeds': _('Special Podcast Format Support'),
 }
 DEFAULT_CATEGORY = _('Other')
 
