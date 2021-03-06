@@ -28,6 +28,7 @@ import logging
 import os
 import re
 import time
+from itertools import groupby
 
 from gi.repository import GdkPixbuf, GObject, Gtk
 
@@ -111,9 +112,6 @@ class Model(model.Model):
 class SeparatorMarker(object): pass
 
 
-class SectionMarker(object): pass
-
-
 class BackgroundUpdate(object):
     def __init__(self, model, episodes, include_description):
         self.model = model
@@ -191,8 +189,8 @@ class EpisodeListModel(Gtk.ListStore):
         self._search_term_eql = None
         self._filter.set_visible_func(self._filter_visible_func)
 
-        # Are we currently showing the "all episodes" view?
-        self._all_episodes_view = False
+        # Are we currently showing "all episodes"/section or a single channel?
+        self._section_view = False
 
         self.ICON_AUDIO_FILE = 'audio-x-generic'
         self.ICON_VIDEO_FILE = 'video-x-generic'
@@ -292,7 +290,7 @@ class EpisodeListModel(Gtk.ListStore):
 
         if include_description:
             yield '\n'
-            if self._all_episodes_view:
+            if self._section_view:
                 yield _('from %s') % html.escape(episode.channel.title)
             else:
                 description = episode.one_line_description()
@@ -311,7 +309,7 @@ class EpisodeListModel(Gtk.ListStore):
         # Remove old episodes in the list store
         self.clear()
 
-        self._all_episodes_view = getattr(channel, 'ALL_EPISODES_PROXY', False)
+        self._section_view = isinstance(channel, PodcastChannelProxy)
 
         # Avoid gPodder bug 1291
         if channel is None:
@@ -493,20 +491,26 @@ class EpisodeListModel(Gtk.ListStore):
             self.set(iter, *(x for pair in self.get_update_fields(episode, include_description) for x in pair))
 
 
-class PodcastChannelProxy(object):
-    ALL_EPISODES_PROXY = True
-
-    def __init__(self, db, config, channels):
+class PodcastChannelProxy:
+    """ a bag of podcasts: 'All Episodes' or each section """
+    def __init__(self, db, config, channels, section, model):
+        self.ALL_EPISODES_PROXY = not bool(section)
         self._db = db
         self._config = config
         self.channels = channels
-        self.title = _('All episodes')
-        self.description = _('from all podcasts')
+        if self.ALL_EPISODES_PROXY:
+            self.title = _('All episodes')
+            self.description = _('from all podcasts')
+            self.url = ''
+            self.cover_file = coverart.CoverDownloader.ALL_EPISODES_ID
+        else:
+            self.title = section
+            self.description = ''
+            self.url = '-'
+            self.cover_file = None
         # self.parse_error = ''
-        self.url = ''
-        self.section = ''
+        self.section = section
         self.id = None
-        self.cover_file = coverart.CoverDownloader.ALL_EPISODES_ID
         self.cover_url = None
         self.auth_username = None
         self.auth_password = None
@@ -514,17 +518,35 @@ class PodcastChannelProxy(object):
         self.sync_to_mp3_player = False
         self.cover_thumb = None
         self.auto_archive_episodes = False
+        self.model = model
 
         self._update_error = None
 
     def get_statistics(self):
-        # Get the total statistics for all channels from the database
-        return self._db.get_podcast_statistics()
+        if self.ALL_EPISODES_PROXY:
+            # Get the total statistics for all channels from the database
+            return self._db.get_podcast_statistics()
+        else:
+            # Calculate the stats over all podcasts of this section
+            if len(self.channels) == 0:
+                total = deleted = new = downloaded = unplayed = 0
+            else:
+                total, deleted, new, downloaded, unplayed = list(map(sum,
+                        list(zip(*[c.get_statistics() for c in self.channels]))))
+            return total, deleted, new, downloaded, unplayed
 
     def get_all_episodes(self):
         """Returns a generator that yields every episode"""
-        return Model.sort_episodes_by_pubdate((e for c in self.channels
-                for e in c.get_all_episodes()), True)
+        if self.model._search_term is not None:
+            def matches(channel):
+                columns = (getattr(channel, c) for c in PodcastListModel.SEARCH_ATTRS)
+                return any((key in c.lower() for c in columns if c is not None))
+            key = self.model._search_term
+        else:
+            def matches(e):
+                return True
+        return Model.sort_episodes_by_pubdate((e for c in self.channels if matches(c)
+            for e in c.get_all_episodes()), True)
 
     def save(self):
         pass
@@ -538,6 +560,7 @@ class PodcastListModel(Gtk.ListStore):
         C_DOWNLOADS, C_COVER_VISIBLE, C_SECTION = list(range(16))
 
     SEARCH_COLUMNS = (C_TITLE, C_DESCRIPTION, C_SECTION)
+    SEARCH_ATTRS = ('title', 'description', 'group_by')
 
     @classmethod
     def row_separator_func(cls, model, iter):
@@ -566,7 +589,7 @@ class PodcastListModel(Gtk.ListStore):
 
         # If searching is active, set visibility based on search text
         if self._search_term is not None:
-            if channel == SectionMarker:
+            if isinstance(channel, PodcastChannelProxy):
                 return True
             key = self._search_term.lower()
             columns = (model.get_value(iter, c) for c in self.SEARCH_COLUMNS)
@@ -776,12 +799,31 @@ class PodcastListModel(Gtk.ListStore):
         self.clear()
 
         def channel_to_row(channel, add_overlay=False):
+            # C_URL, C_TITLE, C_DESCRIPTION, C_PILL, C_CHANNEL
             return (channel.url, '', '', None, channel,
+                    # C_COVER, C_ERROR, C_PILL_VISIBLE,
                     self._get_cover_image(channel, add_overlay), '', True,
-                    True, True, True, True, False, 0, True, '')
+                    # C_VIEW_SHOW_UNDELETED, C_VIEW_SHOW_DOWNLOADED,
+                    True, True,
+                    # C_VIEW_SHOW_UNPLAYED, C_HAS_EPISODES, C_SEPARATOR
+                    True, True, False,
+                    # C_DOWNLOADS, C_COVER_VISIBLE, C_SECTION
+                    0, True, '')
+
+        def section_to_row(section):
+            # C_URL, C_TITLE, C_DESCRIPTION, C_PILL, C_CHANNEL
+            return (section.url, '', '', None, section,
+                    # C_COVER, C_ERROR, C_PILL_VISIBLE,
+                    None, '', True,
+                    # C_VIEW_SHOW_UNDELETED, C_VIEW_SHOW_DOWNLOADED,
+                    True, True,
+                    # C_VIEW_SHOW_UNPLAYED, C_HAS_EPISODES, C_SEPARATOR
+                    True, True, False,
+                    # C_DOWNLOADS, C_COVER_VISIBLE, C_SECTION
+                    0, False, section.title)
 
         if config.podcast_list_view_all and channels:
-            all_episodes = PodcastChannelProxy(db, config, channels)
+            all_episodes = PodcastChannelProxy(db, config, channels, '', self)
             iter = self.append(channel_to_row(all_episodes))
             self.update_by_iter(iter)
 
@@ -790,35 +832,29 @@ class PodcastListModel(Gtk.ListStore):
                 self.append(('', '', '', None, SeparatorMarker, None, '',
                     True, True, True, True, True, True, 0, False, ''))
 
-        def key_func(pair):
-            section, podcast = pair
-            return (section, model.Model.podcast_sort_key(podcast))
+        if config.podcast_list_sections:
+            def groupby_func(channel):
+                return channel.group_by
+        else:
+            def groupby_func(channel):
+                return None
 
         if config.podcast_list_sections:
-            def convert(channels):
-                for channel in channels:
-                    yield (channel.group_by, channel)
+            def key_func(channel):
+                return (channel.group_by, model.Model.podcast_sort_key(channel))
         else:
-            def convert(channels):
-                for channel in channels:
-                    yield (None, channel)
+            def key_func(channel):
+                return None
 
-        added_sections = []
-        old_section = None
-        for section, channel in sorted(convert(channels), key=key_func):
-            if old_section != section:
-                it = self.append(('-', section, '', None, SectionMarker, None,
-                    '', True, True, True, True, True, False, 0, False, section))
-                added_sections.append(it)
-                old_section = section
-
-            iter = self.append(channel_to_row(channel, True))
-            self.update_by_iter(iter)
-
-        # Update section header stats only after all podcasts
-        # have been added to the list to get the stats right
-        for it in added_sections:
-            self.update_by_iter(it)
+        for section, section_channels in groupby(sorted(channels, key=key_func), groupby_func):
+            section_channels = list(section_channels)
+            if section is not None:
+                section_obj = PodcastChannelProxy(db, config, section_channels, section, self)
+                iter = self.append(section_to_row(section_obj))
+                self.update_by_iter(iter)
+            for channel in section_channels:
+                iter = self.append(channel_to_row(channel, True))
+                self.update_by_iter(iter)
 
     def get_filter_path_from_url(self, url):
         # Return the path of the filtered model for a given URL
@@ -862,7 +898,7 @@ class PodcastListModel(Gtk.ListStore):
 
     def update_sections(self):
         for row in self:
-            if row[self.C_CHANNEL] is SectionMarker:
+            if isinstance(row[self.C_CHANNEL], PodcastChannelProxy) and not row[self.C_CHANNEL].ALL_EPISODES_PROXY:
                 self.update_by_iter(row.iter)
 
     def update_by_iter(self, iter):
@@ -872,47 +908,28 @@ class PodcastListModel(Gtk.ListStore):
         # Given a GtkTreeIter, update volatile information
         channel = self.get_value(iter, self.C_CHANNEL)
 
-        if channel is SectionMarker:
-            section = self.get_value(iter, self.C_TITLE)
+        total, deleted, new, downloaded, unplayed = channel.get_statistics()
 
-            # This row is a section header - update its visibility flags
-            channels = [c for c in (row[self.C_CHANNEL] for row in self)
-                    if isinstance(c, GPodcast) and c.section == section]
-
-            # Calculate the stats over all podcasts of this section
-            if len(channels) == 0:
-                total = deleted = new = downloaded = unplayed = 0
-            else:
-                total, deleted, new, downloaded, unplayed = list(map(sum,
-                        list(zip(*[c.get_statistics() for c in channels]))))
+        if isinstance(channel, PodcastChannelProxy) and not channel.ALL_EPISODES_PROXY:
+            section = channel.title
 
             # We could customized the section header here with the list
             # of channels and their stats (i.e. add some "new" indicator)
-            description = '<span size="16000"> </span><b>%s</b>' % (
+            description = '<b>%s</b>' % (
                     html.escape(section))
+            pill_image = None
+            cover_image = None
+        else:
+            description = self._format_description(channel, total, deleted, new,
+                    downloaded, unplayed)
 
-            self.set(
-                iter,
-                self.C_DESCRIPTION, description,
-                self.C_SECTION, section,
-                self.C_VIEW_SHOW_UNDELETED, total - deleted > 0,
-                self.C_VIEW_SHOW_DOWNLOADED, downloaded + new > 0,
-                self.C_VIEW_SHOW_UNPLAYED, unplayed + new > 0)
-
-        if (not isinstance(channel, GPodcast) and
-                not isinstance(channel, PodcastChannelProxy)):
-            return
-
-        total, deleted, new, downloaded, unplayed = channel.get_statistics()
-        description = self._format_description(channel, total, deleted, new,
-                downloaded, unplayed)
-
-        pill_image = self._get_pill_image(channel, downloaded, unplayed)
+            pill_image = self._get_pill_image(channel, downloaded, unplayed)
+            cover_image = self._get_cover_image(channel, True)
 
         self.set(iter,
                 self.C_TITLE, channel.title,
                 self.C_DESCRIPTION, description,
-                self.C_COVER, self._get_cover_image(channel, True),
+                self.C_COVER, cover_image,
                 self.C_SECTION, channel.section,
                 self.C_ERROR, self._format_error(channel),
                 self.C_PILL, pill_image,
