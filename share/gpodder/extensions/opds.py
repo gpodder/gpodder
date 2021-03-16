@@ -51,6 +51,7 @@ https://gallica.bnf.fr/services/engine/search/opds?operation=searchRetrieve&vers
 TODO:
  - opds catalog browser (eg. https://catalog.feedbooks.com/catalog/index.atom)
    in "discover new feeds dialog". Not sure if we support nesting in existing search providers...
+ - set preferred formats in settings
 """
 
 ATOM = 'http://www.w3.org/2005/Atom'
