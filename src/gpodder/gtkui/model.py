@@ -832,23 +832,15 @@ class PodcastListModel(Gtk.ListStore):
                 self.append(('', '', '', None, SeparatorMarker, None, '',
                     True, True, True, True, True, True, 0, False, ''))
 
-        if config.podcast_list_sections:
-            def groupby_func(channel):
-                return channel.group_by
-        else:
-            def groupby_func(channel):
-                return None
+        def groupby_func(channel):
+            return channel.group_by
 
-        if config.podcast_list_sections:
-            def key_func(channel):
-                return (channel.group_by, model.Model.podcast_sort_key(channel))
-        else:
-            def key_func(channel):
-                return None
+        def key_func(channel):
+            return (channel.group_by, model.Model.podcast_sort_key(channel))
 
         for section, section_channels in groupby(sorted(channels, key=key_func), groupby_func):
             section_channels = list(section_channels)
-            if section is not None:
+            if config.podcast_list_sections and section is not None:
                 section_obj = PodcastChannelProxy(db, config, section_channels, section, self)
                 iter = self.append(section_to_row(section_obj))
                 self.update_by_iter(iter)
