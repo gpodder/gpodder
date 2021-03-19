@@ -124,6 +124,12 @@ def main():
     from gpodder import log
     log.setup(options.verbose, options.quiet)
 
+    if (not (gpodder.ui.win32 or gpodder.ui.osx) and
+            os.environ.get('DISPLAY', '') == '' and
+            os.environ.get('WAYLAND_DISPLAY', '') == ''):
+        logger.error('Cannot start gPodder: $DISPLAY or $WAYLAND_DISPLAY is not set.')
+        sys.exit(1)
+
     if have_dbus:
         # Try to find an already-running instance of gPodder
         session_bus = dbus.SessionBus()
@@ -147,10 +153,6 @@ def main():
                 return
             except dbus.exceptions.DBusException as dbus_exception:
                 logger.info('Cannot connect to remote object.', exc_info=True)
-
-    if not gpodder.ui.win32 and os.environ.get('DISPLAY', '') == '':
-        logger.error('Cannot start gPodder: $DISPLAY is not set.')
-        sys.exit(1)
 
     if gpodder.ui.gtk:
         from gpodder.gtkui import app
