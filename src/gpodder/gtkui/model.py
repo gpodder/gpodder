@@ -900,6 +900,9 @@ class PodcastListModel(Gtk.ListStore):
         # Given a GtkTreeIter, update volatile information
         channel = self.get_value(iter, self.C_CHANNEL)
 
+        if channel is SeparatorMarker:
+            return
+
         total, deleted, new, downloaded, unplayed = channel.get_statistics()
 
         if isinstance(channel, PodcastChannelProxy) and not channel.ALL_EPISODES_PROXY:
