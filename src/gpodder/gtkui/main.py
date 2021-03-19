@@ -2817,6 +2817,15 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.application.remove_window(self.gPodder)
 
+    def format_delete_message(self, message, things, max_things, max_length):
+        titles = []
+        for index, thing in zip(range(max_things), things):
+            titles.append(thing.title if len(thing.title) <= max_length else thing.title[:max_length] + '...')
+        if len(things) > max_things:
+            titles.append('+%(count)d more ...' % {'count': len(things) - max_things})
+        titles.append(message)
+        return '\n\n'.join(titles)
+
     def delete_episode_list(self, episodes, confirm=True, callback=None):
         if not episodes:
             return False
@@ -2836,6 +2845,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         title = N_('Delete %(count)d episode?', 'Delete %(count)d episodes?',
                    count) % {'count': count}
         message = _('Deleting episodes removes downloaded files.')
+
+        message = self.format_delete_message(message, episodes, 8, 60)
 
         if confirm and not self.show_confirmation(message, title):
             return False
@@ -3268,6 +3279,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             title = _('Deleting podcasts')
             info = _('Please wait while the podcasts are deleted')
             message = _('These podcasts and all their episodes will be PERMANENTLY DELETED.\nAre you sure you want to continue?')
+
+        message = self.format_delete_message(message, channels, 8, 60)
 
         if confirm and not self.show_confirmation(message, title):
             return
