@@ -2820,7 +2820,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def format_delete_message(self, message, things, max_things, max_length):
         titles = []
         for index, thing in zip(range(max_things), things):
-            titles.append(thing.title if len(thing.title) <= max_length else thing.title[:max_length] + '...')
+            titles.append(html.escape(thing.title) if len(thing.title) <= max_length else html.escape(thing.title[:max_length]) + '...')
         if len(things) > max_things:
             titles.append('+%(count)d more ...' % {'count': len(things) - max_things})
         titles.append(message)
