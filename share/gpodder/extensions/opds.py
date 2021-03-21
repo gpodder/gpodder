@@ -51,7 +51,6 @@ https://gallica.bnf.fr/services/engine/search/opds?operation=searchRetrieve&vers
 TODO:
  - opds catalog browser (eg. https://catalog.feedbooks.com/catalog/index.atom)
    in "discover new feeds dialog". Not sure if we support nesting in existing search providers...
- - set preferred formats in settings
 """
 
 ATOM = 'http://www.w3.org/2005/Atom'
@@ -101,6 +100,9 @@ FORMAT_NAMES = {
     'image/vnd.djvu': 'djvu',
 }
 
+DefaultConfig = {
+    'formats': PREFERRED_FORMATS,  # list wanted formats by order of preference
+}
 
 class NotOPDSError(sax.SAXParseException, ValueError):
     """
@@ -113,9 +115,10 @@ class NotOPDSError(sax.SAXParseException, ValueError):
 
 class OPDSHandler(sax.handler.ContentHandler):
     """ ContentHandler building the podcast and episodes contents """
-    def __init__(self, url):
+    def __init__(self, url, preferred_formats):
         self.url = url
         self.base = url
+        self.preferred_formats = preferred_formats
         self.text = None
         self.episodes = []
         self.data = {
@@ -222,12 +225,13 @@ class OPDSHandler(sax.handler.ContentHandler):
 
         # set episode's attachment
         enclosure = None
-        for t in PREFERRED_FORMATS:
+        for t in self.preferred_formats:
             if not enclosure:
                 for e in entry['enclosures']:
                     if e['mime_type'] == t:
                         enclosure = e
         if not enclosure and entry['enclosures']:
+            logger.debug("couldn't find ebook with preferred format. Fallback on the first available")
             enclosure = entry['enclosures'][0]
         if enclosure:
             entry.update(enclosure)
@@ -467,7 +471,8 @@ class OPDSCustomChannel(Feed):
 
 
 class OPDSFetcher(feedcore.Fetcher):
-    def __init__(self):
+    def __init__(self, config):
+        self.config = config
         self.cache_file = os.path.join(gpodder.home, 'ELLOpds')
         if os.path.exists(self.cache_file):
             try:
@@ -494,7 +499,7 @@ class OPDSFetcher(feedcore.Fetcher):
                           max_episodes=max_episodes, channel=channel)
 
     def parse_feed(self, url, data_stream, headers, status, max_episodes=0, channel=None, **kwargs):
-        handler = OPDSHandler(url)
+        handler = OPDSHandler(url, self.config.formats)
         try:
             parser = sax.make_parser()
             parser.setFeature(sax.handler.feature_namespaces, True)
@@ -515,7 +520,11 @@ class OPDSFetcher(feedcore.Fetcher):
 class gPodderExtension:
     def __init__(self, container):
         self.container = container
-        self.fetcher = OPDSFetcher()
+        self.config = self.container.config
+        if not self.config.formats:
+            logger.info("no selected format, restoring defaults")
+            self.config.formats = PREFERRED_FORMATS
+        self.fetcher = OPDSFetcher(self.config)
 
     def on_load(self):
         logger.info('Registering OPDS.')
