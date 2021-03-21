@@ -100,8 +100,11 @@ FORMAT_NAMES = {
     'image/vnd.djvu': 'djvu',
 }
 
+# inverse map
+NAME_FORMATS = {v:k for k,v in FORMAT_NAMES.items()}
+
 DefaultConfig = {
-    'formats': PREFERRED_FORMATS,  # list wanted formats by order of preference
+    'formats': [FORMAT_NAMES[f] for f in PREFERRED_FORMATS],  # list wanted formats by order of preference
 }
 
 class NotOPDSError(sax.SAXParseException, ValueError):
@@ -118,7 +121,7 @@ class OPDSHandler(sax.handler.ContentHandler):
     def __init__(self, url, preferred_formats):
         self.url = url
         self.base = url
-        self.preferred_formats = preferred_formats
+        self.preferred_formats = self.load_formats(preferred_formats)
         self.text = None
         self.episodes = []
         self.data = {
@@ -132,6 +135,18 @@ class OPDSHandler(sax.handler.ContentHandler):
         self.xhtml = None
         self.xhtml_output = None
         self.xhtml_stack_len = None
+
+    @staticmethod
+    def load_formats(formats):
+        res = []
+        for f in formats:
+            if f in NAME_FORMATS:
+                res.append(NAME_FORMATS[f])
+            elif f in PREFERRED_FORMATS:
+                res.append(f)
+            else:
+                logger.warning("Unknown user format: '%s'. Is it correct?", f)
+                res.append(f)
 
     def set_base(self, base):
         self.base = base
@@ -523,7 +538,7 @@ class gPodderExtension:
         self.config = self.container.config
         if not self.config.formats:
             logger.info("no selected format, restoring defaults")
-            self.config.formats = PREFERRED_FORMATS
+            self.config.formats = [f for f in DefaultConfig['formats']]
         self.fetcher = OPDSFetcher(self.config)
 
     def on_load(self):
