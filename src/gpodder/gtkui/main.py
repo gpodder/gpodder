@@ -1891,7 +1891,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if event is None or event.button == 3:
             episodes = self.get_selected_episodes()
             any_locked = any(e.archive for e in episodes)
-            any_new = any(e.is_new for e in episodes)
+            any_new = any(e.is_new and e.state != gpodder.STATE_DELETED for e in episodes)
             downloaded = all(e.was_downloaded(and_exists=True) for e in episodes)
             downloading = any(e.downloading for e in episodes)
 
@@ -2937,17 +2937,17 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def mark_selected_episodes_new(self):
         for episode in self.get_selected_episodes():
-            episode.mark_new()
+            episode.mark(is_played=False)
         self.on_selected_episodes_status_changed()
 
     def mark_selected_episodes_old(self):
         for episode in self.get_selected_episodes():
-            episode.mark_old()
+            episode.mark(is_played=True)
         self.on_selected_episodes_status_changed()
 
     def on_item_toggle_played_activate(self, action, param):
         for episode in self.get_selected_episodes():
-            episode.mark(is_played=episode.is_new)
+            episode.mark(is_played=episode.is_new and episode.state != gpodder.STATE_DELETED)
         self.on_selected_episodes_status_changed()
 
     def on_item_toggle_lock_activate(self, unused, toggle=True, new_value=False):
