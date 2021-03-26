@@ -2845,7 +2845,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                    count) % {'count': count}
         message = _('Deleting episodes removes downloaded files.')
 
-        message = self.format_delete_message(message, episodes, 8, 60)
+        message = self.format_delete_message(message, episodes, 5, 60)
 
         if confirm and not self.show_confirmation(message, title):
             return False
@@ -3279,7 +3279,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             info = _('Please wait while the podcasts are deleted')
             message = _('These podcasts and all their episodes will be PERMANENTLY DELETED.\nAre you sure you want to continue?')
 
-        message = self.format_delete_message(message, channels, 8, 60)
+        message = self.format_delete_message(message, channels, 5, 60)
 
         if confirm and not self.show_confirmation(message, title):
             return
