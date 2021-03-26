@@ -287,7 +287,7 @@ class MygPoClient(object):
 
         The list might be empty. All these actions have to
         be processed. The user should confirm which of these
-        actions should be taken, the reest should be rejected.
+        actions should be taken, the rest should be rejected.
 
         Use confirm_received_actions and reject_received_actions
         to return and finalize the actions received by this
