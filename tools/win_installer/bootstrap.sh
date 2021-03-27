@@ -26,7 +26,9 @@ function main {
 
     pip3 install --user podcastparser mygpoclient \
 						pywin32-ctypes \
-						html5lib webencodings six
+						html5lib webencodings six \
+						requests PySocks certifi \
+						mutagen youtube_dl
 }
 
 main;
