@@ -4,13 +4,13 @@
 # Translators:
 # Thomas Perl <thp@perli.net>, 2006.
 # Torstein Adolf Winterseth <kvikende@fsfe.org>, 2009, 2010.
-# Karl Ove Hufthammer <karl@huftis.org>, 2019, 2020.
+# Karl Ove Hufthammer <karl@huftis.org>, 2019, 2020, 2021.
 msgid ""
 msgstr ""
 "Project-Id-Version: gPodder\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-03-26 21:24+0100\n"
-"PO-Revision-Date: 2020-11-11 21:29+0100\n"
+"PO-Revision-Date: 2021-03-28 19:18+0200\n"
 "Last-Translator: Karl Ove Hufthammer <karl@huftis.org>\n"
 "Language-Team: Norwegian Nynorsk <l10n-no@lister.huftis.org>\n"
 "Language: nn\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Lokalize 20.08.2\n"
+"X-Generator: Lokalize 20.12.3\n"
 
 #: src/gpodder/config.py:54
 #, python-format
@@ -102,12 +102,13 @@ msgstr "Manglar innhald frå tenaren"
 #, python-format
 msgid "Couldn't connect to server %(host)s:%(port)s"
 msgstr ""
+"Klarte ikkje kopla til tenaren %(host)s:%(port)s"
 
 #: src/gpodder/download.py:873
-#, fuzzy, python-format
+#, python-format
 #| msgid "Syntax error: %(error)s"
 msgid "Request Error: %(error)s"
-msgstr "Syntaksfeil: %(error)s"
+msgstr "Feil ved førespurnad: %(error)s"
 
 #: src/gpodder/download.py:879
 #, python-format
@@ -530,17 +531,15 @@ msgid "Released"
 msgstr "Publisert"
 
 #: src/gpodder/gtkui/main.py:871
-#, fuzzy
 #| msgid "Size"
 msgid "Size+"
-msgstr "Storleik"
+msgstr "Storleik+"
 
 # Tidslengd, altså kor lenge ein episode varer.
 #: src/gpodder/gtkui/main.py:879
-#, fuzzy
 #| msgid "Duration"
 msgid "Duration+"
-msgstr "Lengd"
+msgstr "Lengd+"
 
 #: src/gpodder/gtkui/main.py:1036 src/gpodder/gtkui/main.py:1185
 #: share/gpodder/ui/gtk/gpodder.ui.h:11
@@ -1294,6 +1293,10 @@ msgid ""
 "<p>%s</p>\n"
 "</div>\n"
 msgstr ""
+"<div id=\"gpodder-title\">\n"
+"<h3>%s</h3>\n"
+"<p>%s</p>\n"
+"</div>\n"
 
 #: src/gpodder/gtkui/shownotes.py:341
 msgid "Open shownotes in web browser"
@@ -1340,10 +1343,9 @@ msgid "Password"
 msgstr "Passord"
 
 #: src/gpodder/gtkui/interface/common.py:192
-#, fuzzy
 #| msgid "Password"
 msgid "Show Password"
-msgstr "Passord"
+msgstr "Vis passord"
 
 #: src/gpodder/gtkui/interface/common.py:229
 #: share/gpodder/ui/gtk/gpodderexporttolocalfolder.ui.h:1
@@ -1435,8 +1437,7 @@ msgstr "storleik: %s"
 #: src/gpodder/gtkui/desktop/exportlocal.py:57
 #, python-format
 msgid "Export remaining %(count)d episode to this folder with its default name"
-msgid_plural ""
-"Export remaining %(count)d episodes to this folder with their default name"
+msgid_plural "Export remaining %(count)d episodes to this folder with their default name"
 msgstr[0] ""
 "Eksporter gjenståande %(count)d episode til denne mappa, med standardnamn"
 msgstr[1] ""
@@ -1925,12 +1926,12 @@ msgid ""
 "Your version of youtube-dl %(have_version)s has known issues, please upgrade "
 "to %(want_version)s or newer."
 msgstr ""
+"Versjonen av youtube-dl som du har, versjon %(have_version)s, har fleire kjende feil. Oppgrader til versjon %(want_version)s eller nyare."
 
 #: share/gpodder/extensions/youtube-dl.py:463
-#, fuzzy
 #| msgid "Download with Youtube-DL"
 msgid "Old Youtube-DL"
-msgstr "Last ned med youtube-dl"
+msgstr "Gammal youtube-dl"
 
 #: share/gpodder/extensions/youtube-dl.py:468
 msgid "Download with Youtube-DL"
@@ -2304,10 +2305,9 @@ msgid "Hide podcasts without episodes"
 msgstr "Gøym podkastar utan episodar"
 
 #: share/gpodder/ui/gtk/menus.ui.h:41
-#, fuzzy
 #| msgid "Always show Find entries"
 msgid "Always show New Episodes"
-msgstr "Vis alltid filtreringsfelta"
+msgstr "Vis alltid nye episodar"
 
 #: share/gpodder/ui/gtk/menus.ui.h:42
 msgid "Visible columns"
