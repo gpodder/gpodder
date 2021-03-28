@@ -33,7 +33,10 @@ from gpodder import feedcore, model, registry, user_agent
 from gpodder.model import Feed, PodcastEpisode
 from gpodder.util import parse_mimetype, remove_html_tags
 
+
 logger = logging.getLogger(__name__)
+_ = gpodder.gettext
+N_ = gpodder.ngettext
 
 __title__ = 'OPDS Feeds'
 __description__ = 'Subscribe to Calibre or other ebook distribution channels'
@@ -522,6 +525,9 @@ class OPDSFetcher(feedcore.Fetcher):
             parser.setContentHandler(handler)
             source = sax.saxutils.prepare_input_source(data_stream, url)
             parser.parse(source)
+            if handler.data.get('episodes'):
+                self.cache[channel.url] = {"not_opds": False}
+                self.commit_cache()
             return feedcore.Result(status, OPDSCustomChannel(self, handler.data, headers, max_episodes))
         except NotOPDSError:
             logger.debug("%s is not an OPDS feed", handler.url)
@@ -531,6 +537,9 @@ class OPDSFetcher(feedcore.Fetcher):
         except sax.SAXParseException:
             logger.exception("error parsing %s", handler.url)
             return None
+
+    def is_opds(self, channel):
+        return self.cache.get(channel.url, {}).get('not_opds') is False
 
 
 class gPodderExtension:
@@ -555,3 +564,7 @@ class gPodderExtension:
 
     def on_podcast_delete(self, podcast):
         self.fetcher.on_podcast_delete(podcast)
+
+    def on_podcast_subscribe(self, podcast):
+        if self.fetcher.is_opds(podcast) and podcast.section == _('Other'):
+            podcast.section = _('eBooks')
