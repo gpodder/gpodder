@@ -147,6 +147,7 @@ class OPDSHandler(sax.handler.ContentHandler):
             else:
                 logger.warning("Unknown user format: '%s'. Is it correct?", f)
                 res.append(f)
+        return res
 
     def set_base(self, base):
         self.base = base
