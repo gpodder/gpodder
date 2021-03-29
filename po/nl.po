@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: gPodder\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-03-26 21:24+0100\n"
-"PO-Revision-Date: 2020-11-10 16:12+0100\n"
+"PO-Revision-Date: 2021-03-29 16:56+0200\n"
 "Last-Translator: Heimen Stoffels <vistausss@outlook.com>\n"
 "Language-Team: Dutch (http://www.transifex.com/projects/p/gpodder/language/"
 "nl/)\n"
@@ -21,7 +21,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 2.4.1\n"
+"X-Generator: Poedit 2.4.2\n"
 
 #: src/gpodder/config.py:54
 #, python-format
@@ -104,13 +104,12 @@ msgstr "Ontbrekende serverinhoud"
 #: src/gpodder/download.py:864
 #, python-format
 msgid "Couldn't connect to server %(host)s:%(port)s"
-msgstr ""
+msgstr "Kan niet verbinden met server %(host)s:%(port)s"
 
 #: src/gpodder/download.py:873
-#, fuzzy, python-format
-#| msgid "Syntax error: %(error)s"
+#, python-format
 msgid "Request Error: %(error)s"
-msgstr "Syntax-fout: %(error)s"
+msgstr "Verzoekfout: %(error)s"
 
 #: src/gpodder/download.py:879
 #, python-format
@@ -529,16 +528,12 @@ msgid "Released"
 msgstr "Uitgebracht"
 
 #: src/gpodder/gtkui/main.py:871
-#, fuzzy
-#| msgid "Size"
 msgid "Size+"
-msgstr "Grootte"
+msgstr "Grootte+"
 
 #: src/gpodder/gtkui/main.py:879
-#, fuzzy
-#| msgid "Duration"
 msgid "Duration+"
-msgstr "Duur"
+msgstr "Duur+"
 
 #: src/gpodder/gtkui/main.py:1036 src/gpodder/gtkui/main.py:1185
 #: share/gpodder/ui/gtk/gpodder.ui.h:11
@@ -1290,6 +1285,10 @@ msgid ""
 "<p>%s</p>\n"
 "</div>\n"
 msgstr ""
+"<div id=\"gpodder-title\">\n"
+"<h3>%s</h3>\n"
+"<p>%s</p>\n"
+"</div>\n"
 
 #: src/gpodder/gtkui/shownotes.py:341
 msgid "Open shownotes in web browser"
@@ -1336,10 +1335,8 @@ msgid "Password"
 msgstr "Wachtwoord"
 
 #: src/gpodder/gtkui/interface/common.py:192
-#, fuzzy
-#| msgid "Password"
 msgid "Show Password"
-msgstr "Wachtwoord"
+msgstr "Wachtwoord tonen"
 
 #: src/gpodder/gtkui/interface/common.py:229
 #: share/gpodder/ui/gtk/gpodderexporttolocalfolder.ui.h:1
@@ -1922,12 +1919,12 @@ msgid ""
 "Your version of youtube-dl %(have_version)s has known issues, please upgrade "
 "to %(want_version)s or newer."
 msgstr ""
+"Je versie van youtube-dl %(have_version)s bevat bekende problemen - werk "
+"deze bij naar %(want_version)s of nieuwer."
 
 #: share/gpodder/extensions/youtube-dl.py:463
-#, fuzzy
-#| msgid "Download with Youtube-DL"
 msgid "Old Youtube-DL"
-msgstr "Downloaden met youtube-dl"
+msgstr "Oude youtube-dl"
 
 #: share/gpodder/extensions/youtube-dl.py:468
 msgid "Download with Youtube-DL"
@@ -2301,10 +2298,8 @@ msgid "Hide podcasts without episodes"
 msgstr "Podcasts zonder afleveringen verbergen"
 
 #: share/gpodder/ui/gtk/menus.ui.h:41
-#, fuzzy
-#| msgid "Always show Find entries"
 msgid "Always show New Episodes"
-msgstr "Zoekbalken altijd tonen"
+msgstr "Altijd nieuwe afleveringen tonen"
 
 #: share/gpodder/ui/gtk/menus.ui.h:42
 msgid "Visible columns"
