@@ -86,7 +86,7 @@ function extract_installer {
 PIP_REQUIREMENTS="\
 podcastparser==0.6.6
 mygpoclient==1.8
-git+https://github.com/enthought/pywin32-ctypes.git@f27d6a0
+git+https://github.com/jaraco/pywin32-ctypes.git@f27d6a0
 html5lib==1.1
 webencodings==0.5.1
 certifi==2020.11.8
