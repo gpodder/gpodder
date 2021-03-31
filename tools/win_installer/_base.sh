@@ -91,7 +91,7 @@ html5lib==1.1
 webencodings==0.5.1
 certifi==2020.11.8
 mutagen==1.45.1
-youtube_dl==2020.11.21.1
+youtube_dl==2021.03.25
 requests==2.25.0
 PySocks==1.7.1
 "
