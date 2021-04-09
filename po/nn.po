@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gPodder\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-03-26 21:24+0100\n"
+"POT-Creation-Date: 2021-04-09 03:31-0600\n"
 "PO-Revision-Date: 2021-03-28 19:18+0200\n"
 "Last-Translator: Karl Ove Hufthammer <karl@huftis.org>\n"
 "Language-Team: Norwegian Nynorsk <l10n-no@lister.huftis.org>\n"
@@ -101,12 +101,10 @@ msgstr "Manglar innhald frå tenaren"
 #: src/gpodder/download.py:864
 #, python-format
 msgid "Couldn't connect to server %(host)s:%(port)s"
-msgstr ""
-"Klarte ikkje kopla til tenaren %(host)s:%(port)s"
+msgstr "Klarte ikkje kopla til tenaren %(host)s:%(port)s"
 
 #: src/gpodder/download.py:873
 #, python-format
-#| msgid "Syntax error: %(error)s"
 msgid "Request Error: %(error)s"
 msgstr "Feil ved førespurnad: %(error)s"
 
@@ -531,13 +529,11 @@ msgid "Released"
 msgstr "Publisert"
 
 #: src/gpodder/gtkui/main.py:871
-#| msgid "Size"
 msgid "Size+"
 msgstr "Storleik+"
 
 # Tidslengd, altså kor lenge ein episode varer.
 #: src/gpodder/gtkui/main.py:879
-#| msgid "Duration"
 msgid "Duration+"
 msgstr "Lengd+"
 
@@ -1343,7 +1339,6 @@ msgid "Password"
 msgstr "Passord"
 
 #: src/gpodder/gtkui/interface/common.py:192
-#| msgid "Password"
 msgid "Show Password"
 msgstr "Vis passord"
 
@@ -1437,7 +1432,8 @@ msgstr "storleik: %s"
 #: src/gpodder/gtkui/desktop/exportlocal.py:57
 #, python-format
 msgid "Export remaining %(count)d episode to this folder with its default name"
-msgid_plural "Export remaining %(count)d episodes to this folder with their default name"
+msgid_plural ""
+"Export remaining %(count)d episodes to this folder with their default name"
 msgstr[0] ""
 "Eksporter gjenståande %(count)d episode til denne mappa, med standardnamn"
 msgstr[1] ""
@@ -1926,16 +1922,47 @@ msgid ""
 "Your version of youtube-dl %(have_version)s has known issues, please upgrade "
 "to %(want_version)s or newer."
 msgstr ""
-"Versjonen av youtube-dl som du har, versjon %(have_version)s, har fleire kjende feil. Oppgrader til versjon %(want_version)s eller nyare."
+"Versjonen av youtube-dl som du har, versjon %(have_version)s, har fleire "
+"kjende feil. Oppgrader til versjon %(want_version)s eller nyare."
 
 #: share/gpodder/extensions/youtube-dl.py:463
-#| msgid "Download with Youtube-DL"
 msgid "Old Youtube-DL"
 msgstr "Gammal youtube-dl"
 
 #: share/gpodder/extensions/youtube-dl.py:468
 msgid "Download with Youtube-DL"
 msgstr "Last ned med youtube-dl"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:3
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:1
+#: share/gpodder/ui/gtk/menus.ui.h:1
+msgid "Preferences"
+msgstr "Innstillingar"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:5 share/gpodder/ui/gtk/menus.ui.h:8
+msgid "Check for new episodes"
+msgstr "Sjå etter nye episodar"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:6
+msgid "Filter:"
+msgstr "Filter:"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:7
+msgid "Podcasts"
+msgstr "Podkastar"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:8
+msgid "Limit rate to"
+msgstr "Avgrens nedlastingsfart til"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:9
+msgid "KiB/s"
+msgstr "KiB/s"
+
+# God plass, så går greitt med lang tekst her.
+#: share/gpodder/ui/gtk/gpodder.ui.h:10
+msgid "Limit downloads to"
+msgstr "Avgrens talet på samtidige nedlastingar til"
 
 #: share/gpodder/ui/gtk/gpodderaddpodcast.ui.h:1
 msgid "Add a new podcast"
@@ -2035,11 +2062,6 @@ msgstr "merkelapp"
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:5
 msgid "..."
 msgstr "…"
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:1
-#: share/gpodder/ui/gtk/gpodder.ui.h:3 share/gpodder/ui/gtk/menus.ui.h:1
-msgid "Preferences"
-msgstr "Innstillingar"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:2
 msgid "Video player:"
@@ -2158,31 +2180,6 @@ msgstr "Einingar"
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:35
 msgid "Edit config"
 msgstr "Rediger råoppsett"
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:5 share/gpodder/ui/gtk/menus.ui.h:8
-msgid "Check for new episodes"
-msgstr "Sjå etter nye episodar"
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:6
-msgid "Filter:"
-msgstr "Filter:"
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:7
-msgid "Podcasts"
-msgstr "Podkastar"
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:8
-msgid "Limit rate to"
-msgstr "Avgrens nedlastingsfart til"
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:9
-msgid "KiB/s"
-msgstr "KiB/s"
-
-# God plass, så går greitt med lang tekst her.
-#: share/gpodder/ui/gtk/gpodder.ui.h:10
-msgid "Limit downloads to"
-msgstr "Avgrens talet på samtidige nedlastingar til"
 
 #: share/gpodder/ui/gtk/gpodderwelcome.ui.h:2
 msgid "<big>Welcome to gPodder</big>"
@@ -2305,7 +2302,6 @@ msgid "Hide podcasts without episodes"
 msgstr "Gøym podkastar utan episodar"
 
 #: share/gpodder/ui/gtk/menus.ui.h:41
-#| msgid "Always show Find entries"
 msgid "Always show New Episodes"
 msgstr "Vis alltid nye episodar"
 
@@ -2559,6 +2555,10 @@ msgstr "abonner på kjelda på nettadressa"
 msgid "Mac OS X application process number"
 msgstr "Mac OS X-prosess-ID"
 
+#: share/applications/gpodder-url-handler.desktop.in.h:1
+msgid "gPodder (subscribe to feed)"
+msgstr "gPodder (abonner på kjelde)"
+
 #: share/applications/gpodder.desktop.in.h:2
 msgid "gPodder Podcast Client"
 msgstr "gPodder podkastklient"
@@ -2570,7 +2570,3 @@ msgstr "Podkastklient"
 #: share/applications/gpodder.desktop.in.h:4
 msgid "Subscribe to audio and video content from the web"
 msgstr "Abonner på lyd- og videoinnhald på Internett"
-
-#: share/applications/gpodder-url-handler.desktop.in.h:1
-msgid "gPodder (subscribe to feed)"
-msgstr "gPodder (abonner på kjelde)"
