@@ -8,7 +8,7 @@ import os
 import re
 import sys
 
-import magic
+import magic  # use python-magic (not compatible with filemagic)
 import requests
 from github3 import login
 from jinja2 import Template
@@ -165,15 +165,16 @@ def upload(repo, tag, previous_tag, circleci, appveyor):
     else:
         error_exit("E: updating release description")
     print("D: uploading items\n - %s" % "\n - ".join(items))
-    with magic.Magic(flags=magic.MAGIC_MIME_TYPE) as m:
-        for itm in items:
-            content_type = m.id_filename(itm)
-            print("I: uploading %s..." % itm)
-            with open(os.path.join("_build", itm), "rb") as f:
-                try:
-                    asset = release.upload_asset(content_type, itm, f)
-                except Exception as e:
-                    error_exit("Error uploading asset '%s' (%r)" % (itm, e))
+    m = magic.Magic(mime=True)
+    for itm in items:
+        filename = os.path.join("_build", itm)
+        content_type = m.from_file(filename)
+        print("I: uploading %s..." % itm)
+        with open(filename, "rb") as f:
+            try:
+                asset = release.upload_asset(content_type, itm, f)
+            except Exception as e:
+                error_exit("Error uploading asset '%s' (%r)" % (itm, e))
     print("I: upload success")
 
 
