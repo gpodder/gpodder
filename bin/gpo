@@ -828,21 +828,20 @@ class gPodderCli(object):
             line = input(msg)
             return not line or (line.lower() == _('yes'))
 
-        def _delete_episode_list(episodes, confirm=True, skip_locked=True, callback=None):
+        def _delete_episode_list(episodes, confirm=True, callback=None):
             if not episodes:
                 return False
 
-            if skip_locked:
-                episodes = [e for e in episodes if not e.archive]
+            episodes = [e for e in episodes if not e.archive]
 
-                if not episodes:
-                    title = _('Episodes are locked')
-                    message = _(
-                        'The selected episodes are locked. Please unlock the '
-                        'episodes that you want to delete before trying '
-                        'to delete them.')
-                    _notification(message, title)
-                    return False
+            if not episodes:
+                title = _('Episodes are locked')
+                message = _(
+                    'The selected episodes are locked. Please unlock the '
+                    'episodes that you want to delete before trying '
+                    'to delete them.')
+                _notification(message, title)
+                return False
 
             count = len(episodes)
             title = N_('Delete %(count)d episode?', 'Delete %(count)d episodes?',
@@ -863,7 +862,7 @@ class gPodderCli(object):
 
             episodes_status_update = []
             for idx, episode in enumerate(episodes):
-                if not episode.archive or not skip_locked:
+                if not episode.archive:
                     self._start_action(_('Deleting episode: %(episode)s') % {
                             'episode': episode.title})
                     episode.delete_from_disk()

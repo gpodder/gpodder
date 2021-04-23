@@ -2817,22 +2817,20 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.application.remove_window(self.gPodder)
 
-    def delete_episode_list(self, episodes, confirm=True, skip_locked=True,
-            callback=None):
+    def delete_episode_list(self, episodes, confirm=True, callback=None):
         if not episodes:
             return False
 
-        if skip_locked:
-            episodes = [e for e in episodes if not e.archive]
+        episodes = [e for e in episodes if not e.archive]
 
-            if not episodes:
-                title = _('Episodes are locked')
-                message = _(
-                    'The selected episodes are locked. Please unlock the '
-                    'episodes that you want to delete before trying '
-                    'to delete them.')
-                self.notification(message, title, widget=self.treeAvailable)
-                return False
+        if not episodes:
+            title = _('Episodes are locked')
+            message = _(
+                'The selected episodes are locked. Please unlock the '
+                'episodes that you want to delete before trying '
+                'to delete them.')
+            self.notification(message, title, widget=self.treeAvailable)
+            return False
 
         count = len(episodes)
         title = N_('Delete %(count)d episode?', 'Delete %(count)d episodes?',
@@ -2864,7 +2862,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             episodes_status_update = []
             for idx, episode in enumerate(episodes):
                 progress.on_progress(idx / len(episodes))
-                if not episode.archive or not skip_locked:
+                if not episode.archive:
                     progress.on_message(episode.title)
                     episode.delete_from_disk()
                     episode_urls.add(episode.url)
@@ -3579,10 +3577,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_btnDownloadedDelete_clicked(self, widget, *args):
         episodes = self.get_selected_episodes()
-        if len(episodes) == 1:
-            self.delete_episode_list(episodes, skip_locked=False)
-        else:
-            self.delete_episode_list(episodes)
+        self.delete_episode_list(episodes)
 
     def on_key_press(self, widget, event):
         # Allow tab switching with Ctrl + PgUp/PgDown/Tab
