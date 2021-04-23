@@ -1837,7 +1837,7 @@ def linux_get_active_interfaces():
     for record in re.split(r'^\d+: ',
                            data.decode(locale.getpreferredencoding()),
                            flags=re.MULTILINE):
-        mo = re.match(r'^([^:]*):.*inet.*brd', record, flags=re.DOTALL)
+        mo = re.match(r'^([^:]*):.*inet.*scope', record, flags=re.DOTALL)
         if mo:
             yield mo.group(1)
 

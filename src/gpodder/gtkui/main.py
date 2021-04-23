@@ -2611,7 +2611,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def update_feed_cache(self, channels=None,
                           show_new_episodes_dialog=True):
-        if not util.connection_available():
+        if self.config.check_connection and not util.connection_available():
             self.show_message(_('Please connect to a network, then try again.'),
                     _('No network connection'), important=True)
             return
@@ -3526,7 +3526,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     interval, self._on_auto_update_timer)
 
     def _on_auto_update_timer(self):
-        if not util.connection_available():
+        if self.config.check_connection and not util.connection_available():
             logger.debug('Skipping auto update (no connection available)')
             return True
 
