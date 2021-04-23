@@ -188,6 +188,9 @@ class ContentRange(object):
 class DownloadCancelledException(Exception): pass
 
 
+class DownloadNoURLException(Exception): pass
+
+
 class gPodderDownloadHTTPError(Exception):
     def __init__(self, url, error_code, error_message):
         self.url = url
@@ -777,6 +780,9 @@ class DownloadTask(object):
 
         url = self.__episode.url
         try:
+            if url == '':
+                raise DownloadNoURLException()
+
             if self.downloader:
                 downloader = self.downloader.custom_downloader(self._config, self.episode)
             else:
@@ -853,6 +859,9 @@ class DownloadTask(object):
                 util.delete_file(self.tempname)
                 self.progress = 0.0
                 self.speed = 0.0
+        except DownloadNoURLException:
+            self.status = DownloadTask.FAILED
+            self.error_message = _('Episode has no URL to download')
         except urllib.error.ContentTooShortError as ctse:
             self.status = DownloadTask.FAILED
             self.error_message = _('Missing content from server')
