@@ -1,6 +1,6 @@
 #!/bin/bash
 
-usage="Usage: $0 /path/to/gpodder-x.y.z_w.deps.zip"
+usage="Usage: $0 /path/to/pythonbase-x.y.z_w.zip"
 
 if [ -z "$1" ] ; then
 	echo "$usage"
@@ -27,6 +27,7 @@ checkout=$(dirname $(dirname "$mydir"))
 workspace="$mydir/_build"
 
 app="$workspace"/gPodder.app
+oldapp="$workspace/pythonbase.app"
 
 contents="$app"/Contents
 resources="$contents"/Resources
@@ -35,32 +36,40 @@ run_python="$macos"/run-python
 run_pip="$macos"/run-pip
 
 mkdir -p "$workspace"
-rm -rf "$app" "$workspace/gPodder.contents"
+rm -rf "$oldapp" "$app" "$workspace/gPodder.contents"
 cd "$workspace"
 unzip "$deps"
 
-if [ ! -e "$app/" ]; then
-	echo "E: unzipping deps didn't generate $app"
+
+
+if [ ! -e "$oldapp/" ]; then
+	echo "E: unzipping deps didn't generate $oldapp"
 	exit -1
 fi
 
+mv "$oldapp" "$app"
+
 # launcher scripts
-mv "$macos"/{gPodder,gpodder}
+mv "$macos"/{pythonbase,gpodder}
 CMDS="gpo gpodder-migrate2tres run-python run-pip"
 for cmd in ${CMDS}; do
+	if [ -e "$macos"/$cmd ]; then
+		unlink "$macos"/$cmd
+	fi
     cp -a "$macos"/{gpodder,$cmd}
-    if [ -e "$workspace/$cmd" ]; then
-        unlink "$workspace/$cmd"
-    fi
-    ln -s gPodder.app/Contents/MacOS/$cmd "$workspace/"
+	rm -f "$workspace/$cmd"
+    ln -s $(basename $app)/Contents/MacOS/$cmd "$workspace/"
 done
+
+cp -a "$checkout"/tools/mac-osx/launcher.py "$resources"/
+cp -a "$checkout"/tools/mac-osx/make_cert_pem.py "$resources"/bin
 
 # install gPodder hard dependencies
 $run_pip install setuptools wheel
 $run_pip install podcastparser==0.6.6 mygpoclient==1.8 requests[socks]==2.25.1
 
 # install extension dependencies; no explicit version for youtube_dl
-$run_pip install podcastparser==0.6.6 mygpoclient==1.8 mutagen==1.45.1 html5lib==1.1 youtube_dl
+$run_pip install mutagen==1.45.1 html5lib==1.1 youtube_dl
 
 cd "$checkout"
 touch share/applications/gpodder{,-url-handler}.desktop
