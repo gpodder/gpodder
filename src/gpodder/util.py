@@ -1824,17 +1824,22 @@ def run_in_background(function, daemon=False):
 
 
 def linux_get_active_interfaces():
-    """Get active network interfaces using 'ip link'
+    """Get active network interfaces using 'ip addr'
 
-    Returns a list of active network interfaces or an
-    empty list if the device is offline. The loopback
-    interface is not included.
+    A generator function yielding network interface
+    names with an inet (or inet6) and a broadcast
+    address, indicating an active network connection
     """
-    process = Popen(['ip', 'link'], close_fds=True, stdout=subprocess.PIPE)
-    data, _ = process.communicate()
-    for interface, _ in re.findall(r'\d+: ([^:]+):.*state (UP|DORMANT|UNKNOWN)', data.decode(locale.getpreferredencoding())):
-        if interface != 'lo':
-            yield interface
+    process = Popen(
+        ['ip', 'addr', 'show', 'scope', 'global', 'up'],
+        close_fds=True, stdout=subprocess.PIPE)
+    data, x = process.communicate()
+    for record in re.split(r'^\d+: ',
+                           data.decode(locale.getpreferredencoding()),
+                           flags=re.MULTILINE):
+        mo = re.match(r'^([^:]*):.*inet.*brd', record, flags=re.DOTALL)
+        if mo:
+            yield mo.group(1)
 
 
 def osx_get_active_interfaces():
@@ -1881,25 +1886,18 @@ def connection_available():
         elif gpodder.ui.osx:
             return len(list(osx_get_active_interfaces())) > 0
         else:
-            # By default, we assume we're not offline (bug 1730)
-            offline = False
+            # By default, we assume we're online (bug 1730)
+            online = True
 
-            if find_command('ifconfig') is not None:
+            if find_command('ip') is not None:
+                online = bool(list(linux_get_active_interfaces()))
+            elif find_command('ifconfig') is not None:
                 # If ifconfig is available, and it says we don't have
                 # any active interfaces, assume we're offline
-                if len(list(unix_get_active_interfaces())) == 0:
-                    offline = True
+                online = bool(list(unix_get_active_interfaces()))
 
-            # If we assume we're offline, try the "ip" command as fallback
-            if offline and find_command('ip') is not None:
-                if len(list(linux_get_active_interfaces())) == 0:
-                    offline = True
-                else:
-                    offline = False
+            return online
 
-            return not offline
-
-        return False
     except Exception as e:
         logger.warn('Cannot get connection status: %s', e, exc_info=True)
         # When we can't determine the connection status, act as if we're online (bug 1730)

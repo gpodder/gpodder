@@ -67,7 +67,7 @@ def get_metadata(url):
     headers_s = '\n'.join('%s:%s' % (k, v) for k, v in list(track_response.headers.items()))
     filename = util.get_header_param(track_response.headers, 'filename', 'content-disposition') \
         or os.path.basename(os.path.dirname(url))
-    track_fp.close()
+    track_response.close()
     return filesize, filetype, filename
 
 

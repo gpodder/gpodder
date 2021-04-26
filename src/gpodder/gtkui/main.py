@@ -54,7 +54,7 @@ from .interface.common import (BuilderWidget, TreeViewHelper,
                                ExtensionMenuHelper, Dummy)
 from .interface.progress import ProgressIndicator
 from .interface.searchtree import SearchTreeBar
-from .model import EpisodeListModel, PodcastListModel
+from .model import EpisodeListModel, PodcastChannelProxy, PodcastListModel
 from .services import CoverDownloader
 from .widgets import SimpleMessageArea
 
@@ -834,11 +834,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         lp.connect("pressed", self.on_treeview_podcasts_long_press, self.treeChannels)
         setattr(self.treeChannels, "long-press-gesture", lp)
 
-        def select_function(selection, model, path, path_currently_selected):
-            url = model.get_value(model.get_iter(path), PodcastListModel.C_URL)
-            return (url != '-')
-        selection.set_select_function(select_function)  # full=True)
-
         # Set up type-ahead find for the podcast list
         def on_key_press(treeview, event):
             if event.get_state() & Gdk.ModifierType.CONTROL_MASK:
@@ -865,21 +860,17 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     step = 1
 
                 path = model.get_path(it)
-                while True:
-                    path = (path[0] + step,)
+                path = (path[0] + step,)
 
-                    if path[0] < 0:
-                        # Valid paths must have a value >= 0
-                        return True
+                if path[0] < 0:
+                    # Valid paths must have a value >= 0
+                    return True
 
-                    try:
-                        it = model.get_iter(path)
-                    except ValueError:
-                        # Already at the end of the list
-                        return True
-
-                    if model.get_value(it, PodcastListModel.C_URL) != '-':
-                        break
+                try:
+                    it = model.get_iter(path)
+                except ValueError:
+                    # Already at the end of the list
+                    return True
 
                 self.treeChannels.set_cursor(path)
             elif event.keyval == Gdk.KEY_Escape:
@@ -2987,9 +2978,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 # Process received episode actions for all updated URLs
                 self.process_received_episode_actions()
 
-                # If we are currently viewing "All episodes", update its episode list now
+                # If we are currently viewing "All episodes" or a section, update its episode list now
                 if self.active_channel is not None and \
-                        getattr(self.active_channel, 'ALL_EPISODES_PROXY', False):
+                        isinstance(self.active_channel, PodcastChannelProxy):
                     self.update_episode_list_model()
 
                 if self.feed_cache_update_cancelled:
@@ -3771,8 +3762,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if self.active_channel == old_active_channel:
                 return
 
-            # Dirty hack to check for "All episodes" (see gpodder.gtkui.model)
-            if getattr(self.active_channel, 'ALL_EPISODES_PROXY', False):
+            # Dirty hack to check for "All episodes" or a section (see gpodder.gtkui.model)
+            if isinstance(self.active_channel, PodcastChannelProxy):
                 self.edit_channel_action.set_enabled(False)
             else:
                 self.edit_channel_action.set_enabled(True)
