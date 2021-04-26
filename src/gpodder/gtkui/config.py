@@ -158,7 +158,13 @@ class UIConfig(config.Config):
 
         if cfg.width != -1 and cfg.height != -1:
             window.resize(cfg.width, cfg.height)
-        window.set_position(Gtk.WindowPosition.CENTER_ON_PARENT)
+
+        # Not all platforms can natively restore position, gPodder must handle it.
+        # https://github.com/gpodder/gpodder/pull/933#issuecomment-818039693
+        if cfg.x == -1 or cfg.y == -1:
+            window.set_position(Gtk.WindowPosition.CENTER_ON_PARENT)
+        else:
+            window.move(cfg.x, cfg.y)
 
         # Ignore events while we're connecting to the window
         self.__ignore_window_events = True
@@ -166,9 +172,12 @@ class UIConfig(config.Config):
         # Get window state, correct size comes from window.get_size(),
         # see https://developer.gnome.org/SaveWindowState/
         def _receive_configure_event(widget, event):
+            x_pos, y_pos = widget.get_position()
             width_size, height_size = widget.get_size()
             maximized = bool(event.window.get_state() & Gdk.WindowState.MAXIMIZED)
             if not self.__ignore_window_events and not maximized:
+                cfg.x = x_pos
+                cfg.y = y_pos
                 cfg.width = width_size
                 cfg.height = height_size
 

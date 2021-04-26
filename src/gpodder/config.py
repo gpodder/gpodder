@@ -110,7 +110,7 @@ defaults = {
                 'main_window': {
                     'width': 700,
                     'height': 500,
-                    'maximized': False,
+                    'x': -1, 'y': -1, 'maximized': False,
 
                     'paned_position': 200,
                     'episode_list_size': 200,
@@ -122,27 +122,27 @@ defaults = {
                 'preferences': {
                     'width': -1,
                     'height': -1,
-                    'maximized': False,
+                    'x': -1, 'y': -1, 'maximized': False,
                 },
                 'config_editor': {
                     'width': -1,
                     'height': -1,
-                    'maximized': False,
+                    'x': -1, 'y': -1, 'maximized': False,
                 },
                 'episode_selector': {
                     'width': 600,
                     'height': 400,
-                    'maximized': False,
+                    'x': -1, 'y': -1, 'maximized': False,
                 },
                 'episode_window': {
                     'width': 500,
                     'height': 400,
-                    'maximized': False,
+                    'x': -1, 'y': -1, 'maximized': False,
                 },
                 'export_to_local_folder': {
                     'width': 500,
                     'height': 400,
-                    'maximized': False,
+                    'x': -1, 'y': -1, 'maximized': False,
                 }
             },
 
