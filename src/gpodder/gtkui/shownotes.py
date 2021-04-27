@@ -177,6 +177,12 @@ class gPodderShownotes:
                 self.text_buffer.create_tag('hyperlink',
                     foreground=self.link_color.to_string(),
                     underline=Pango.Underline.SINGLE)
+            elif hasattr(self, "label"):
+                self.label.override_color(Gtk.StateFlags.NORMAL, self.foreground_color)
+                self.label.override_color(Gtk.StateFlags.LINK, self.link_color)
+                self.label.override_color(Gtk.StateFlags.VISITED, self.visited_color)
+                self.label.override_background_color(Gtk.StateFlags.NORMAL, self.background_color)
+                self.label_bg.override_background_color(Gtk.StateFlags.NORMAL, self.background_color)
 
 
 class gPodderShownotesText(gPodderShownotes):
@@ -438,3 +444,61 @@ class gPodderShownotesHTML(gPodderShownotes):
                       self.link_color.to_string(), self.visited_color.to_string())
             self.stylesheet = WebKit2.UserStyleSheet(style, 0, 1, None, None)
         return self.stylesheet
+
+class gPodderShownotesLabel(gPodderShownotes):
+    def init(self):
+        self.label = Gtk.Label()
+        self.label.set_line_wrap(True)
+        self.label.set_property('margin', 10)
+        self.label.set_property('xalign', 0.0)
+        self.label.set_property('yalign', 0.0)
+        self.label.set_property('expand', True)
+        self.label.set_property('has-tooltip', True)
+#        self.label.connect('query-tooltip', self.on_query_tooltip)
+        self.label.connect('activate-link', self.on_activate_link)
+        self.label.connect('key-press-event', self.on_key_press)
+        # need an EventBox for an opaque background behind the label
+        box = Gtk.EventBox()
+        self.label_bg = box
+        box.add(self.label)
+        return self.label_bg
+
+    def update(self, episode):
+        heading = html.escape(episode.title)
+        subheading = _('from %s') % (html.escape(episode.channel.title))
+        self.define_colors()
+        ltext = ''
+        ltext += '<big><b>' + heading + '</b></big>\n'
+        ltext += subheading + '\n'
+        ltext += '<small>%s</small>\n\n' % html.escape(self.details_fmt % (
+            util.format_date(episode.published),
+            util.format_filesize(episode.file_size, digits=1)
+            if episode.file_size > 0 else "-",
+            episode.get_play_info_string()))
+        for target, text in util.extract_hyperlinked_text(episode.description_html or episode.description):
+            if target:
+                tesc = html.escape(target)
+                ltext += '<a href="%s" title="%s">%s</a>' % (tesc, tesc, html.escape(text))
+            else:
+                ltext += html.escape(text)
+        self.label.set_markup(ltext)
+
+    def on_button_release(self, widget, event):
+        if event.button == 1:
+            self.activate_links()
+
+    def on_key_press(self, widget, event):
+        if self.keyboard_callback is not None:
+            self.keyboard_callback(widget, event)
+            return True
+        return False
+
+    def on_activate_link(self, label, target):
+        if target is not None:
+            util.open_website(target)
+        return True
+
+#    def on_query_tooltip(self, label, x, y, keyboard_tooltip, tooltip):
+#        uri = label.get_current_uri()
+#        self.set_status(uri)
+#        return True
