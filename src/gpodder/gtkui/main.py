@@ -161,8 +161,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         def on_key_press_shownotes(widget, event):
             if event.keyval in (Gdk.KEY_Escape, Gdk.KEY_BackSpace, Gdk.KEY_Left, Gdk.KEY_h):
-                self.deck.navigate(Handy.NavigationDirection.BACK)
-                self.treeAvailable.grab_focus()
+                self.navigate_from_shownotes()
             elif event.keyval in (Gdk.KEY_p, Gdk.KEY_s):
                 self.play_button.emit("clicked")
             elif event.keyval in (Gdk.KEY_c, Gdk.KEY_d):
@@ -1189,7 +1188,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     self.leaflet.navigate(Handy.NavigationDirection.BACK)
             elif event.keyval in (Gdk.KEY_Right, Gdk.KEY_Return, Gdk.KEY_l):
                 path, column = self.treeAvailable.get_cursor()
-                self.on_treeAvailable_row_activated(self.treeAvailable, path, column)
+                if path is not None and path[0] >= 0:
+                    self.on_treeAvailable_row_activated(self.treeAvailable, path, column)
             elif event.keyval in (Gdk.KEY_Up, Gdk.KEY_Down, Gdk.KEY_j, Gdk.KEY_k):
                 path, column = self.treeAvailable.get_cursor()
                 step = -1 if event.keyval in (Gdk.KEY_Up, Gdk.KEY_k) else 1
@@ -2609,9 +2609,17 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.channel_list_forward.grab_focus()
         return True
 
-    def on_deck_back_clicked(self, widget):
+    def navigate_to_shownotes(self):
+        self.deck.navigate(Handy.NavigationDirection.FORWARD)
+        self.deck_back.grab_focus()
+
+    def navigate_from_shownotes(self):
         self.deck.navigate(Handy.NavigationDirection.BACK)
-        self.episode_list_forward.grab_focus()
+        self.shownotes_object.hide_pane()
+        self.treeAvailable.grab_focus()
+
+    def on_deck_back_clicked(self, widget):
+        self.navigate_from_shownotes()
         return True
 
     def on_deck_notify_visible_child(self, deck, value):
@@ -3743,11 +3751,17 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_treeChannels_row_activated(self, widget, path, *args):
         # double-click action of the podcast list or enter
         self.treeChannels.set_cursor(path)
-        self.deck.navigate(Handy.NavigationDirection.BACK)
+        self.navigate_from_shownotes()
         self.leaflet.set_can_swipe_forward(True)
-        path, column = self.treeAvailable.get_cursor()
-        if path is None or path[0] < 0:
-            TreeViewHelper.set_cursor_to_first(self.treeAvailable)
+        epath, ecolumn = self.treeAvailable.get_cursor()
+        have_eps = True
+        if epath is None or epath[0] < 0:
+            have_eps = TreeViewHelper.set_cursor_to_first(self.treeAvailable)
+        else:
+            self.treeAvailable.set_cursor(epath)
+        if have_eps:
+            self.deck.set_can_swipe_forward(True)
+            self.episode_list_forward.set_sensitive(True)
         self.treeAvailable.grab_focus()
         self.leaflet.navigate(Handy.NavigationDirection.FORWARD)
         return True
@@ -3787,8 +3801,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         return True
 
     def on_episode_list_forward_clicked(self, widget, *params):
-        self.deck.navigate(Handy.NavigationDirection.FORWARD)
-        self.deck_back.grab_focus()
+        self.on_shownotes_selected_episodes()
         return True
 
     def on_btnEditChannel_clicked(self, widget, *args):
@@ -3834,9 +3847,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_shownotes_selected_episodes(self, *params):
         episodes = self.get_selected_episodes()
         assert episodes
-        #self.shownotes_object.toggle_pane_visibility(episodes)
-        self.shownotes_object.pane_is_visible = True
-        self.shownotes_object.set_episodes(episodes)
+        self.shownotes_object.show_pane(episodes)
         ep = episodes[0]
         # New button
         self.new_toggle.set_active(ep.is_new)
@@ -3869,9 +3880,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         else:
             self.play_button.set_label("Stream")
             self.play_button.set_sensitive(self.streaming_possible(ep))
-        self.shownotes_box.show()
-        self.deck.navigate(Handy.NavigationDirection.FORWARD)
-        self.deck_back.grab_focus()
+        self.navigate_to_shownotes()
         return True
 
     def on_download_selected_episodes(self, action_or_widget, param=None):
@@ -3882,12 +3891,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.dl_del_label.set_text("Downloading")
         self.dl_del_button.set_sensitive(False)
         self.on_download_selected_episodes(button)
-        self.deck.navigate(Handy.NavigationDirection.BACK)
+        self.navigate_from_shownotes()
         return True
 
     def on_episode_delete_clicked(self, button, *args):
         self.on_btnDownloadedDelete_clicked(button, *args)
-        self.deck.navigate(Handy.NavigationDirection.BACK)
+        self.navigate_from_shownotes()
         return True
 
     def on_treeAvailable_row_activated(self, widget, path, view_column):
