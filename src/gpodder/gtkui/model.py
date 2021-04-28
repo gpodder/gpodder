@@ -590,7 +590,7 @@ class PodcastListModel(Gtk.ListStore):
         # If searching is active, set visibility based on search text
         if self._search_term is not None:
             if isinstance(channel, PodcastChannelProxy):
-                return True
+                return not channel.ALL_EPISODES_PROXY
             key = self._search_term.lower()
             columns = (model.get_value(iter, c) for c in self.SEARCH_COLUMNS)
             return any((key in c.lower() for c in columns if c is not None))
