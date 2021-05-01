@@ -11,7 +11,10 @@ jobs:
       - checkout
       - run: curl -o "pythonbase-$BUNDLE_TAG.zip" "https://github.com/gpodder/gpodder-osx-bundle/releases/download/$BUNDLE_TAG/pythonbase-$BUNDLE_TAG.zip"
       - run: curl -o "pythonbase-$BUNDLE_TAG.zip.sha256" "https://github.com/gpodder/gpodder-osx-bundle/releases/download/$BUNDLE_TAG/pythonbase-$BUNDLE_TAG.zip.sha256"
-      - run: shasum -a 256 -c "pythonbase-$BUNDLE_TAG.zip.sha256"
+      - run: >
+             saved_hash=$(awk '{print $1;}' < "pythonbase-$BUNDLE_TAG.zip.sha256");
+             comp_hash=$(openssl sha256 "pythonbase-$BUNDLE_TAG.zip" | awk '{print $2;}');
+             if [ "$saved_hash" != "$comp_hash" ]; then echo "E: $saved_hash != $comp_hash"; exit 1; else echo "valid hash"; fi
       - run: LANG=C.UTF-8 tools/mac-osx/release_on_mac.sh "pythonbase-$BUNDLE_TAG.zip"
       - run: rm -Rf tools/mac-osx/_build/{gPodder.app,*.deps.zip*,gPodder.contents,run-*,gpo,gpodder-migrate2tres}
       - store_artifacts:
