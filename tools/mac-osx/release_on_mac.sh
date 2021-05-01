@@ -36,7 +36,7 @@ run_python="$macos"/run-python
 run_pip="$macos"/run-pip
 
 mkdir -p "$workspace"
-rm -rf "$oldapp" "$app" "$workspace/gPodder.contents"
+rm -rf "$oldapp" "$app" "$workspace/gPodder.contents" "$workspace/pythonbase.contents"
 cd "$workspace"
 unzip "$deps"
 
@@ -48,6 +48,7 @@ if [ ! -e "$oldapp/" ]; then
 fi
 
 mv "$oldapp" "$app"
+mv "$workspace/pythonbase.contents" "$workspace/gPodder.contents"
 
 # launcher scripts
 mv "$macos"/{pythonbase,gpodder}

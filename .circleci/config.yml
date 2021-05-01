@@ -9,14 +9,14 @@ jobs:
       - BUNDLE_TAG: 21.4.27
     steps:
       - checkout
-      - run: curl -L -o "pythonbase-$BUNDLE_TAG.zip" "https://github.com/gpodder/gpodder-osx-bundle/releases/download/$BUNDLE_TAG/pythonbase-$BUNDLE_TAG.zip"
-      - run: curl -L -o "pythonbase-$BUNDLE_TAG.zip.sha256" "https://github.com/gpodder/gpodder-osx-bundle/releases/download/$BUNDLE_TAG/pythonbase-$BUNDLE_TAG.zip.sha256"
       - run: >
+             curl -L -o "pythonbase-$BUNDLE_TAG.zip" "https://github.com/gpodder/gpodder-osx-bundle/releases/download/$BUNDLE_TAG/pythonbase-$BUNDLE_TAG.zip"
+             curl -L -o "pythonbase-$BUNDLE_TAG.zip.sha256" "https://github.com/gpodder/gpodder-osx-bundle/releases/download/$BUNDLE_TAG/pythonbase-$BUNDLE_TAG.zip.sha256"
              saved_hash=$(awk '{print $1;}' < "pythonbase-$BUNDLE_TAG.zip.sha256");
              comp_hash=$(openssl sha256 "pythonbase-$BUNDLE_TAG.zip" | awk '{print $2;}');
              if [ "$saved_hash" != "$comp_hash" ]; then echo "E: $saved_hash != $comp_hash"; exit 1; else echo "valid hash"; fi
-      - run: LANG=C.UTF-8 tools/mac-osx/release_on_mac.sh "$(pwd)/pythonbase-$BUNDLE_TAG.zip"
-      - run: rm -Rf tools/mac-osx/_build/{gPodder.app,*.deps.zip*,gPodder.contents,run-*,gpo,gpodder-migrate2tres}
+             LC_ALL=C.UTF-8 LANG=C.UTF-8 tools/mac-osx/release_on_mac.sh "$(pwd)/pythonbase-$BUNDLE_TAG.zip"
+             rm -Rf tools/mac-osx/_build/{gPodder.app,*.deps.zip*,gPodder.contents,run-*,gpo,gpodder-migrate2tres}
       - store_artifacts:
           path: tools/mac-osx/_build/
 
