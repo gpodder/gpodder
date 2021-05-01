@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN"
-                       "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 	<dict>
 		<key>CFBundleName</key>
@@ -8,7 +7,7 @@
 		<key>CFBundleShortVersionString</key>
 		<string>__VERSION__</string>
 		<key>CFBundleGetInfoString</key>
-		<string>gPodder v__VERSION__</string>
+		<string>gPodder v__VERSION__ __COPYRIGHT__</string>
 		<key>CFBundleAllowMixedLocalizations</key>
 		<string>false</string>
 		<key>CFBundleInfoDictionaryVersion</key>
@@ -20,13 +19,21 @@
 		<key>CFBundlePackageType</key>
 		<string>APPL</string>
 		<key>CFBundleSignature</key>
-		<string>GPOD</string>
+		<string>????</string>
 		<key>CFBundleVersion</key>
 		<string>__VERSION__</string>
 		<key>CFBundleIconFile</key>
-		<string>icon.icns</string>
+		<string>gPodder.icns</string>
 		<key>CFBundleIdentifier</key>
 		<string>org.gpodder.gpodder</string>
+		<key>NSHumanReadableCopyright</key>
+		<string>__COPYRIGHT__</string>
+		<key>LSMinimumSystemVersion</key>
+		<string>10.6</string>
+		<key>NSHighResolutionCapable</key>
+		<true/>
+		<key>GtkOSXLaunchScriptFile</key>
+		<string>launcher.py</string>
 		<key>CFBundleDocumentTypes</key>
 		<array>
 			<dict>

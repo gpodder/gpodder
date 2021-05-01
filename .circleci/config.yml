@@ -1,28 +1,27 @@
 # :noTabs=true:mode=yaml:tabSize=2:indentSize=2:
 version: 2
 jobs:
-  release-from-linux:
-    docker:
-      # important: must be same as mac bundle's python
-      - image: python:3.8
-    environment:
-      - BUNDLE_TAG: base-5.2.4
+  release-from-macos:
+    macos:
+      xcode: "9.4.1"
     shell: /bin/bash --login -o pipefail
+    environment:
+      - BUNDLE_TAG: 21.4.27
     steps:
       - checkout
-      - run: apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y intltool unzip xsltproc zip
-      - run: git clone --depth 1 --branch master https://github.com/gpodder/gpodder-osx-bundle.git
-      - run: cd gpodder-osx-bundle && mkdir _build && cd _build
-      - run: cd gpodder-osx-bundle/_build && wget "https://github.com/gpodder/gpodder-osx-bundle/releases/download/$BUNDLE_TAG/gPodder-$BUNDLE_TAG.deps.zip"
-      - run: cd gpodder-osx-bundle/_build && wget "https://github.com/gpodder/gpodder-osx-bundle/releases/download/$BUNDLE_TAG/gPodder-$BUNDLE_TAG.deps.zip.sha256"
-      - run: cd gpodder-osx-bundle/_build && sha256sum -c "gPodder-$BUNDLE_TAG.deps.zip.sha256"
-      - run: cd gpodder-osx-bundle && LANG=C.UTF-8 ./release_on_linux.sh "/root/project/gpodder-osx-bundle/_build/gPodder-$BUNDLE_TAG.deps.zip" "/root/project"
-      - run: rm -Rf gpodder-osx-bundle/_build/gPodder.app/ gpodder-osx-bundle/_build/*.deps.zip* gpodder-osx-bundle/_build/gPodder.contents
+      - run: >
+             curl -L -o "pythonbase-$BUNDLE_TAG.zip" "https://github.com/gpodder/gpodder-osx-bundle/releases/download/$BUNDLE_TAG/pythonbase-$BUNDLE_TAG.zip";
+             curl -L -o "pythonbase-$BUNDLE_TAG.zip.sha256" "https://github.com/gpodder/gpodder-osx-bundle/releases/download/$BUNDLE_TAG/pythonbase-$BUNDLE_TAG.zip.sha256";
+             saved_hash=$(awk '{print $1;}' < "pythonbase-$BUNDLE_TAG.zip.sha256");
+             comp_hash=$(openssl sha256 "pythonbase-$BUNDLE_TAG.zip" | awk '{print $2;}');
+             if [ "$saved_hash" != "$comp_hash" ]; then echo "E: $saved_hash != $comp_hash"; exit 1; else echo "valid hash"; fi;
+             LC_CTYPE=C.UTF-8 LANG=C.UTF-8 tools/mac-osx/release_on_mac.sh "$(pwd)/pythonbase-$BUNDLE_TAG.zip";
+             rm -Rf tools/mac-osx/_build/{gPodder.app,*.deps.zip*,gPodder.contents,run-*,gpo,gpodder-migrate2tres}
       - store_artifacts:
-          path: /root/project/gpodder-osx-bundle/_build
+          path: tools/mac-osx/_build/
 
 workflows:
   version: 2
   build-bundle:
     jobs:
-      - release-from-linux
+      - release-from-macos
