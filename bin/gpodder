@@ -59,7 +59,8 @@ def main():
     locale_dir = os.path.join(prefix, 'share', 'locale')
     ui_folder = os.path.join(prefix, 'share', 'gpodder', 'ui')
     images_folder = os.path.join(prefix, 'share', 'gpodder', 'images')
-    icon_file = os.path.join(prefix, 'share', 'icons', 'hicolor', 'scalable', 'apps', 'gpodder.svg')
+    icons_folder = os.path.join(prefix, 'share', 'icons', 'hicolor', 'scalable')
+    icon_file = os.path.join(icons_folder, 'apps', 'gpodder.svg')
 
     if os.path.exists(os.path.join(src_dir, 'gpodder', '__init__.py')):
         # Run gPodder from local source folder (not installed)
@@ -88,6 +89,7 @@ def main():
     # Set up paths to folder with GtkBuilder files and gpodder.svg
 #    gpodder.ui_folders.append(ui_folder)
     gpodder.images_folder = images_folder
+    gpodder.icons_folder = icons_folder
     gpodder.icon_file = icon_file
 
     s_usage = 'usage: %%prog [options]\n\n%s' % (__doc__.strip())

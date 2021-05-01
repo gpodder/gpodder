@@ -42,6 +42,29 @@
             <property name="hexpand">True</property>
             <property name="layout-style">end</property>
             <child>
+              <object class="GtkToggleButton" id="flap_show">
+                <property name="visible">True</property>
+                <property name="sensitive" bind-source="prefs_flap" bind-property="folded" bind-flags="sync-create">False</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
+                <property name="active" bind-source="prefs_flap" bind-property="reveal-flap" bind-flags="sync-create">False</property>
+                <signal name="toggled" handler="on_flap_show_toggled" swapped="no"/>
+                <child>
+                  <object class="GtkImage" id="flap_show_image">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">0</property>
+                <property name="secondary">True</property>
+                <property name="non-homogeneous">True</property>
+              </packing>
+            </child>
+            <child>
               <object class="GtkButton" id="button_advanced">
                 <property name="label" translatable="yes">Edit config</property>
                 <property name="visible">True</property>
@@ -53,24 +76,7 @@
                 <property name="expand">True</property>
                 <property name="fill">True</property>
                 <property name="pack-type">end</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkToggleButton" id="flap_show">
-                <property name="label" translatable="yes">More...</property>
-                <property name="visible">True</property>
-                <property name="sensitive" bind-source="prefs_flap" bind-property="folded" bind-flags="sync-create">False</property>
-                <property name="can-focus">True</property>
-                <property name="receives-default">True</property>
-                <property name="active" bind-source="prefs_flap" bind-property="reveal-flap" bind-flags="sync-create">False</property>
-                <signal name="toggled" handler="on_flap_show_toggled" swapped="no"/>
-              </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
                 <property name="position">1</property>
-                <property name="secondary">True</property>
               </packing>
             </child>
             <child>

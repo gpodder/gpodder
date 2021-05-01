@@ -19,6 +19,7 @@
 
 import html
 import logging
+import os
 import urllib.parse
 
 from gi.repository import Gdk, Gtk, Pango
@@ -185,6 +186,9 @@ class gPodderPreferences(BuilderWidget):
     C_TOGGLE, C_LABEL, C_EXTENSION, C_SHOW_TOGGLE = list(range(4))
 
     def new(self):
+        self.flap_show_image.set_from_file(os.path.join(
+            gpodder.icons_folder, 'actions', 'view-sidebar-start-symbolic.svg'))
+
         for cb in (self.combo_audio_player_app, self.combo_video_player_app):
             cellrenderer = Gtk.CellRendererPixbuf()
             cb.pack_start(cellrenderer, False)
