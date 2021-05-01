@@ -73,6 +73,7 @@ $run_pip install mutagen==1.45.1 html5lib==1.1 youtube_dl
 
 cd "$checkout"
 touch share/applications/gpodder{,-url-handler}.desktop
+cp share/dbus-1/services/org.gpodder.service{.in,}
 export GPODDER_INSTALL_UIS="cli gtk"
 
 # compile translations
