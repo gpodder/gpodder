@@ -9,8 +9,8 @@ jobs:
       - BUNDLE_TAG: 21.4.27
     steps:
       - checkout
-      - run: curl -o "pythonbase-$BUNDLE_TAG.zip" "https://github.com/gpodder/gpodder-osx-bundle/releases/download/$BUNDLE_TAG/pythonbase-$BUNDLE_TAG.zip"
-      - run: curl -o "pythonbase-$BUNDLE_TAG.zip.sha256" "https://github.com/gpodder/gpodder-osx-bundle/releases/download/$BUNDLE_TAG/pythonbase-$BUNDLE_TAG.zip.sha256"
+      - run: curl -L -o "pythonbase-$BUNDLE_TAG.zip" "https://github.com/gpodder/gpodder-osx-bundle/releases/download/$BUNDLE_TAG/pythonbase-$BUNDLE_TAG.zip"
+      - run: curl -L -o "pythonbase-$BUNDLE_TAG.zip.sha256" "https://github.com/gpodder/gpodder-osx-bundle/releases/download/$BUNDLE_TAG/pythonbase-$BUNDLE_TAG.zip.sha256"
       - run: >
              saved_hash=$(awk '{print $1;}' < "pythonbase-$BUNDLE_TAG.zip.sha256");
              comp_hash=$(openssl sha256 "pythonbase-$BUNDLE_TAG.zip" | awk '{print $2;}');
