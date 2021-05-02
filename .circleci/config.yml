@@ -25,3 +25,7 @@ workflows:
   build-bundle:
     jobs:
       - release-from-macos
+        filters:
+          branches:
+            ignore:
+              - adaptive
