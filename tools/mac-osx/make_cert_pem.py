@@ -9,9 +9,9 @@
 import argparse
 import re
 import subprocess
-from subprocess import CalledProcessError, Popen, PIPE
 import sys
 import traceback
+from subprocess import PIPE, CalledProcessError, Popen
 
 
 def is_valid_cert(openssl, cert):

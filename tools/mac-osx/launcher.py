@@ -68,6 +68,7 @@ class MakeCertPem:
             print("I: updated %s with %i certificates" % (dest, len(certs)))
             return 0
 
+
 # print("launcher.py sys.argv=", sys.argv)
 bundlepath = sys.argv.pop(0)
 app = os.path.basename(sys.argv[0])
@@ -93,7 +94,7 @@ os.environ['PANGO_LIBDIR'] = bundle_lib
 os.environ['PANGO_RC_FILE'] = join(bundle_etc, 'pango', 'pangorc')
 os.environ['PANGO_SYSCONFDIR'] = bundle_etc
 os.environ['GDK_PIXBUF_MODULE_FILE'] = join(bundle_lib, 'gdk-pixbuf-2.0',
-                                                '2.10.0', 'loaders.cache')
+                                            '2.10.0', 'loaders.cache')
 if int(platform.release().split('.')[0]) > 10:
     os.environ['GTK_IM_MODULE_FILE'] = join(bundle_etc, 'gtk-3.0',
                                             'gtk.immodules')
@@ -102,10 +103,10 @@ os.environ['GI_TYPELIB_PATH'] = join(bundle_lib, 'girepository-1.0')
 
 # for forked python
 os.environ['PYTHONHOME'] = bundle_res
-#Set $PYTHON to point inside the bundle
+# Set $PYTHON to point inside the bundle
 PYVER = 'python3.8'
 sys.path.append(bundle_res)
-print('System Path:\n','\n'.join(sys.path))
+print('System Path:\n', '\n'.join(sys.path))
 
 # see https://gpodder.github.io/docs/user-manual.html#gpodder-home-folder-and-download-location
 # To override gPodder home and/or download directory:
@@ -119,7 +120,8 @@ print('System Path:\n','\n'.join(sys.path))
 # os.environ['GPODDER_DOWNLOAD_DIR'] = expanduser('~/gPodderDownloads')
 
 for k, v in os.environ.items():
-  print("%s=%s" % (k,v))
+    print("%s=%s" % (k, v))
+
 
 def gpodder_home():
     # don't inadvertently create the new gPodder home,
@@ -159,7 +161,7 @@ else:
 # /opt/local/etc/openssl/cert.pem, for instance.
 if not os.path.exists(cert_pem):
     os.symlink(os.path.basename(cert_gen), cert_pem)
-#Set path to CA files
+# Set path to CA files
 os.environ['SSL_CERT_FILE'] = cert_pem
 
 if app == 'run-python':
