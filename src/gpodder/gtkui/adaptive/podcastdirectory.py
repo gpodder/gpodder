@@ -27,9 +27,8 @@
 import html
 import logging
 import os
-import time
 
-from gi.repository import GdkPixbuf, Gtk, Pango
+from gi.repository import GdkPixbuf, GLib, Gtk, Pango
 from gi.repository import Handy # isort:skip
 
 import gpodder
@@ -122,10 +121,11 @@ class gPodderPodcastDirectory(BuilderWidget):
 
         self.main_window.show()
 
-        @util.run_in_background
-        def show_flap_soon():
-            time.sleep(0.5)
+        def show_flap(x):
             self.directory_flap.set_reveal_flap(True)
+            return False
+
+        GLib.timeout_add(500, show_flap, None)
 
     def download_opml_file(self, filename):
         self.providers_model.add_provider(directory.FixedOpmlFileProvider(filename))
