@@ -31,10 +31,11 @@ _ = gpodder.gettext
 
 
 class BuilderWidget(GtkBuilderWidget):
-    def __init__(self, parent, **kwargs):
+    def __init__(self, parent, ui_folder=None, **kwargs):
         self._window_iconified = False
 
-        GtkBuilderWidget.__init__(self, gpodder.ui_folders, gpodder.textdomain, parent, **kwargs)
+        ui_folders = [ui_folder] if ui_folder else gpodder.ui_folders
+        GtkBuilderWidget.__init__(self, ui_folders, gpodder.textdomain, parent, **kwargs)
 
         # Enable support for tracking iconified state
         if hasattr(self, 'on_iconify') and hasattr(self, 'on_uniconify'):
