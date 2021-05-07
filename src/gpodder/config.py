@@ -27,7 +27,6 @@
 import atexit
 import logging
 import os
-import shutil
 import time
 
 import gpodder
@@ -347,14 +346,17 @@ class Config(object):
         logger.info('Flushing settings to disk')
 
         try:
-            fp = open(filename + '.tmp', 'wt')
-            fp.write(repr(self.__json_config))
-            fp.close()
+            # revoke unix group/world permissions (this has no effect under windows)
+            umask = os.umask(0o077)
+            with open(filename + '.tmp', 'wt') as fp:
+                fp.write(repr(self.__json_config))
             util.atomic_rename(filename + '.tmp', filename)
         except:
             logger.error('Cannot write settings to %s', filename)
             util.delete_file(filename + '.tmp')
             raise
+        finally:
+            os.umask(umask)
 
         self.__save_thread = None
 
