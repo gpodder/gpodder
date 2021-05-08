@@ -216,7 +216,7 @@ class EpisodeListModel(Gtk.ListStore):
 
     def _filter_visible_func(self, model, iter, misc):
         # If searching is active, set visibility based on search text
-        if self._search_term is not None:
+        if self._search_term is not None and self._search_term != '':
             episode = model.get_value(iter, self.C_EPISODE)
             if episode is None:
                 return False
@@ -588,10 +588,12 @@ class PodcastListModel(Gtk.ListStore):
         channel = model.get_value(iter, self.C_CHANNEL)
 
         # If searching is active, set visibility based on search text
-        if self._search_term is not None:
-            if isinstance(channel, PodcastChannelProxy):
-                return True
+        if self._search_term is not None and self._search_term != '':
             key = self._search_term.lower()
+            if isinstance(channel, PodcastChannelProxy):
+                if channel.ALL_EPISODES_PROXY:
+                    return False
+                return any(key in getattr(ch, c).lower() for c in PodcastListModel.SEARCH_ATTRS for ch in channel.channels)
             columns = (model.get_value(iter, c) for c in self.SEARCH_COLUMNS)
             return any((key in c.lower() for c in columns if c is not None))
 
