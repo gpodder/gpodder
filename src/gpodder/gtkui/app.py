@@ -150,7 +150,7 @@ class gPodderApplication(Gtk.Application):
             sys.exit(1)
 
         self.menu_view_columns = builder.get_object('menuViewColumns')
-        if not gpodder.ui.hdy:
+        if not gpodder.ui.adaptive:
             self.set_menubar(menubar)
 
         # If $XDG_CURRENT_DESKTOP is set then it contains a colon-separated list of strings.
@@ -161,7 +161,9 @@ class gPodderApplication(Gtk.Application):
         # GTK_CSD=0 is used to disable client side decorations
         csd_disabled = os.environ.get('GTK_CSD') == '0'
 
-        self.want_headerbar = gpodder.ui.hdy or (('GNOME' in xdg_current_desktops) and not gpodder.ui.osx and not csd_disabled)
+        self.want_headerbar = (gpodder.ui.adaptive or
+                               (('GNOME' in xdg_current_desktops) and
+                                not gpodder.ui.osx and not csd_disabled))
 
         self.app_menu = builder.get_object('app-menu')
         if self.want_headerbar:

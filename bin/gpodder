@@ -116,7 +116,7 @@ def main():
     options, args = parser.parse_args(sys.argv)
 
     gpodder.ui.gtk = True
-    gpodder.ui.hdy = True
+    gpodder.ui.adaptive = True
     gpodder.ui.python3 = True
 
     desktop_session = os.environ.get('DESKTOP_SESSION', 'unknown').lower()
@@ -159,8 +159,8 @@ def main():
 
     if gpodder.ui.gtk:
         from gpodder.gtkui import app
-        if gpodder.ui.hdy:
-            gpodder.ui_folders.insert(0, os.path.join(ui_folder, 'hdy'))
+        if gpodder.ui.adaptive:
+            gpodder.ui_folders.insert(0, os.path.join(ui_folder, 'adaptive'))
         else:
             gpodder.ui_folders.insert(0, os.path.join(ui_folder, 'gtk'))
         app.main(options)
