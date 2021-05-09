@@ -2223,7 +2223,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if event is None or event.button == 3:
             episodes = self.get_selected_episodes()
             any_locked = any(e.archive for e in episodes)
-            any_new = any(e.is_new for e in episodes)
+            any_new = any(e.is_new and e.state != gpodder.STATE_DELETED for e in episodes)
             downloaded = all(e.was_downloaded(and_exists=True) for e in episodes)
             downloading = any(e.downloading for e in episodes)
             (can_play, can_download, can_cancel, can_delete, open_instead_of_play) = self.play_or_download()
@@ -2893,7 +2893,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def update_feed_cache(self, channels=None,
                           show_new_episodes_dialog=True):
-        if not util.connection_available():
+        if self.config.check_connection and not util.connection_available():
             self.show_message(_('Please connect to a network, then try again.'),
                     _('No network connection'), important=True)
             return
@@ -3104,27 +3104,35 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.application.remove_window(self.gPodder)
 
-    def delete_episode_list(self, episodes, confirm=True, skip_locked=True,
-            callback=None):
+    def format_delete_message(self, message, things, max_things, max_length):
+        titles = []
+        for index, thing in zip(range(max_things), things):
+            titles.append('• ' + (html.escape(thing.title if len(thing.title) <= max_length else thing.title[:max_length] + '...')))
+        if len(things) > max_things:
+            titles.append('+%(count)d more ...' % {'count': len(things) - max_things})
+        return '\n'.join(titles) + '\n\n' + message
+
+    def delete_episode_list(self, episodes, confirm=True, callback=None):
         if not episodes:
             return False
 
-        if skip_locked:
-            episodes = [e for e in episodes if not e.archive]
+        episodes = [e for e in episodes if not e.archive]
 
-            if not episodes:
-                title = _('Episodes are locked')
-                message = _(
-                    'The selected episodes are locked. Please unlock the '
-                    'episodes that you want to delete before trying '
-                    'to delete them.')
-                self.notification(message, title, widget=self.treeAvailable)
-                return False
+        if not episodes:
+            title = _('Episodes are locked')
+            message = _(
+                'The selected episodes are locked. Please unlock the '
+                'episodes that you want to delete before trying '
+                'to delete them.')
+            self.notification(message, title, widget=self.treeAvailable)
+            return False
 
         count = len(episodes)
         title = N_('Delete %(count)d episode?', 'Delete %(count)d episodes?',
                    count) % {'count': count}
         message = _('Deleting episodes removes downloaded files.')
+
+        message = self.format_delete_message(message, episodes, 5, 60)
 
         if confirm and not self.show_confirmation(message, title):
             return False
@@ -3151,7 +3159,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             episodes_status_update = []
             for idx, episode in enumerate(episodes):
                 progress.on_progress(idx / len(episodes))
-                if not episode.archive or not skip_locked:
+                if not episode.archive:
                     progress.on_message(episode.title)
                     episode.delete_from_disk()
                     episode_urls.add(episode.url)
@@ -3224,17 +3232,17 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def mark_selected_episodes_new(self):
         for episode in self.get_selected_episodes():
-            episode.mark_new()
+            episode.mark(is_played=False)
         self.on_selected_episodes_status_changed()
 
     def mark_selected_episodes_old(self):
         for episode in self.get_selected_episodes():
-            episode.mark_old()
+            episode.mark(is_played=True)
         self.on_selected_episodes_status_changed()
 
     def on_item_toggle_played_activate(self, action, param):
         for episode in self.get_selected_episodes():
-            episode.mark(is_played=episode.is_new)
+            episode.mark(is_played=episode.is_new and episode.state != gpodder.STATE_DELETED)
         self.on_selected_episodes_status_changed()
 
 #    def on_item_toggle_lock_activate(self, unused, toggle=True, new_value=False):
@@ -3577,6 +3585,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             title = _('Deleting podcasts')
             info = _('Please wait while the podcasts are deleted')
             message = _('These podcasts and all their episodes will be PERMANENTLY DELETED.\nAre you sure you want to continue?')
+
+        message = self.format_delete_message(message, channels, 5, 60)
 
         if confirm and not self.show_confirmation(message, title):
             return
@@ -3926,7 +3936,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     interval, self._on_auto_update_timer)
 
     def _on_auto_update_timer(self):
-        if not util.connection_available():
+        if self.config.check_connection and not util.connection_available():
             logger.debug('Skipping auto update (no connection available)')
             return True
 
@@ -3980,10 +3990,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_btnDownloadedDelete_clicked(self, widget, *args):
         episodes = self.get_selected_episodes()
-        if len(episodes) == 1:
-            self.delete_episode_list(episodes, skip_locked=False)
-        else:
-            self.delete_episode_list(episodes)
+        self.delete_episode_list(episodes)
 
     def on_key_press(self, widget, event):
         views = {
