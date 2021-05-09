@@ -24,8 +24,8 @@ workflows:
   version: 2
   build-bundle:
     jobs:
-      - release-from-macos
-        filters:
-          branches:
-            ignore:
-              - adaptive
+      - release-from-macos:
+          filters:
+            branches:
+              ignore:
+                - adaptive
