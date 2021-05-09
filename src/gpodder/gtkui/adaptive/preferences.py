@@ -259,6 +259,9 @@ class gPodderPreferences(BuilderWidget):
         self.combo_auto_download.add_attribute(cellrenderer, 'text', NewEpisodeActionList.C_CAPTION)
         self.combo_auto_download.set_active(self.auto_download_model.get_index())
 
+        self._config.connect_gtk_togglebutton('check_connection',
+                                              self.checkbutton_check_connection)
+
         if self._config.auto_remove_played_episodes:
             adjustment_expiration = self.hscale_expiration.get_adjustment()
             if self._config.episode_old_age > adjustment_expiration.get_upper():
