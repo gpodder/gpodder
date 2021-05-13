@@ -179,7 +179,7 @@ class gPodderChannel(BuilderWidget):
 
         file = files[0]
 
-        if file.startswith('file://') or file.startswith('http://'):
+        if file.startswith('file://') or file.startswith('http://') or file.startswith('https://'):
             self.clear_cover_cache(self.channel.url)
             self.cover_downloader.replace_cover(self.channel, custom_url=file)
             return
