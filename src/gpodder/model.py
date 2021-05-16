@@ -313,22 +313,23 @@ class PodcastEpisode(PodcastModelObject):
         media_available = audio_available or video_available or link_has_media
 
         for enclosure in entry['enclosures']:
-            episode.mime_type = enclosure['mime_type']
+            mime_type = enclosure['mime_type']
 
             # Skip images in feeds if audio or video is available (bug 979)
             # This must (and does) also look in Media RSS enclosures (bug 1430)
-            if episode.mime_type.startswith('image/') and media_available:
+            if mime_type.startswith('image/') and media_available:
                 continue
 
             # If we have audio or video available later on, skip
             # all 'application/*' data types (fixes Linux Outlaws and peertube feeds)
-            if episode.mime_type.startswith('application/') and media_available:
+            if mime_type.startswith('application/') and media_available:
                 continue
 
             episode.url = util.normalize_feed_url(enclosure['url'])
             if not episode.url:
                 continue
 
+            episode.mime_type = mime_type
             episode.file_size = enclosure['file_size']
             return episode
 
@@ -338,6 +339,7 @@ class PodcastEpisode(PodcastModelObject):
             return None
 
         if any(mod.is_video_link(episode.url) for mod in (youtube, vimeo)):
+            episode.mime_type = 'application/x-gpodder-videoplugin'
             return episode
 
         # Check if we can resolve this link to a audio/video file
@@ -346,9 +348,11 @@ class PodcastEpisode(PodcastModelObject):
 
         # The link points to a audio or video file - use it!
         if file_type is not None:
+            episode.mime_type = util.mimetype_from_extension(extension)
             return episode
 
         if link_has_media:
+            episode.mime_type = 'application/x-gpodder-customdl'
             return episode
 
         return None
@@ -578,6 +582,19 @@ class PodcastEpisode(PodcastModelObject):
 
         self._download_error = None
         self.set_state(gpodder.STATE_DELETED)
+
+        # Try to determine original mime_type from URL
+        if any(mod.is_video_link(self.url) for mod in (youtube, vimeo)):
+            self.mime_type = 'application/x-gpodder-videoplugin'
+            return
+        filename, extension = util.filename_from_url(self.url)
+        file_type = util.file_type_by_extension(extension)
+        if file_type is not None:
+            self.mime_type = util.mimetype_from_extension(extension)
+            return
+        if registry.custom_downloader.resolve(None, None, self) is not None:
+            self.mime_type = 'application/x-gpodder-customdl'
+            return
 
     def get_playback_url(self, config=None, allow_partial=False):
         """Local (or remote) playback/streaming filename/URL
