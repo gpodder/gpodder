@@ -3054,6 +3054,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         for episode in episodes:
             logger.debug('Downloading episode: %s', episode.title)
             if not episode.was_downloaded(and_exists=True):
+                episode._download_error = None
                 task_exists = False
                 for task in self.download_tasks_seen:
                     if episode.url == task.url:
@@ -3075,6 +3076,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 try:
                     task = download.DownloadTask(episode, self.config, downloader=downloader)
                 except Exception as e:
+                    episode._download_error = str(e)
                     d = {'episode': html.escape(episode.title), 'message': html.escape(str(e))}
                     message = _('Download error while downloading %(episode)s: %(message)s')
                     self.show_message(message % d, _('Download error'), important=True)

@@ -898,6 +898,9 @@ class DownloadTask(object):
             logger.error('Download failed: %s', str(e), exc_info=True)
             self.error_message = _('Error: %s') % (str(e),)
 
+        if self.status == DownloadTask.FAILED:
+            self.__episode._download_error = self.error_message
+
         if self.status == DownloadTask.DOWNLOADING:
             # Everything went well - we're done
             self.status = DownloadTask.DONE

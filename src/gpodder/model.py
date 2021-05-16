@@ -262,7 +262,7 @@ class PodcastEpisode(PodcastModelObject):
     MAX_FILENAME_LENGTH = 120  # without extension
     MAX_FILENAME_WITH_EXT_LENGTH = 140 - len(".partial.webm")  # with extension
 
-    __slots__ = schema.EpisodeColumns
+    __slots__ = schema.EpisodeColumns + ('_download_error',)
 
     def _deprecated(self):
         raise Exception('Property is deprecated!')
@@ -358,6 +358,8 @@ class PodcastEpisode(PodcastModelObject):
 
         # Timestamp of last playback time
         self.last_playback = 0
+
+        self._download_error = None
 
     @property
     def channel(self):
@@ -496,6 +498,7 @@ class PodcastEpisode(PodcastModelObject):
             gpodder.user_extensions.on_episode_delete(self, filename)
             util.delete_file(filename)
 
+        self._download_error = None
         self.set_state(gpodder.STATE_DELETED)
 
     def get_playback_url(self, config=None, allow_partial=False):
