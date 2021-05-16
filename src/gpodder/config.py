@@ -39,6 +39,9 @@ defaults = {
     'player': {
         'audio': 'default',
         'video': 'default',
+        # If true, CustomDownload compatible URLs
+        # will be streamed with the video player
+        'videoplayer_customdl_support': False,
     },
 
     # gpodder.net settings

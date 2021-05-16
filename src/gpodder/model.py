@@ -458,7 +458,11 @@ class PodcastEpisode(PodcastModelObject):
         return task.status in (task.DOWNLOADING, task.QUEUED, task.PAUSING, task.PAUSED, task.CANCELLING)
 
     def get_player(self, config):
-        file_type = self.file_type()
+        if self.is_streamable_customdl(config):
+            file_type = 'video'
+        else:
+            file_type = self.file_type()
+
         if file_type == 'video' and config.player.video and config.player.video != 'default':
             player = config.player.video
         elif file_type == 'audio' and config.player.audio and config.player.audio != 'default':
@@ -612,8 +616,11 @@ class PodcastEpisode(PodcastModelObject):
             return url + '.partial'
 
         if url is None or not os.path.exists(url):
-            # FIXME: may custom downloaders provide the real url ?
-            url = registry.download_url.resolve(config, self.url, self, allow_partial)
+            if self.is_streamable_customdl(config):
+                url = self.url
+            else:
+                # FIXME: may custom downloaders provide the real url ?
+                url = registry.download_url.resolve(config, self.url, self, allow_partial)
         return url
 
     def find_unique_file_name(self, filename, extension):
