@@ -285,6 +285,10 @@ class gPodderYoutubeDL(download.CustomDownloader):
             self._ydl_opts['verbose'] = True
         else:
             self._ydl_opts['quiet'] = True
+        # Don't create downloaders for URLs supported by these youtube-dl extractors
+        self.ie_blacklist = ["Generic"]
+        # Cache URL regexes from youtube-dl matches here, seed with youtube regex
+        self.regex_cache = [re.compile(r'https://www.youtube.com/watch\?v=.+')]
         # #686 on windows without a console, sys.stdout is None, causing exceptions
         # when adding podcasts.
         # See https://docs.python.org/3/library/sys.html#sys.__stderr__ Note
@@ -411,16 +415,30 @@ class gPodderYoutubeDL(download.CustomDownloader):
             return self.refresh(url, channel.url, max_episodes)
         return None
 
+    def is_supported_url(self, url):
+        if self.regex_cache[0].match(url) is not None:
+            return True
+        for r in self.regex_cache[1:]:
+            if r.match(url) is not None:
+                self.regex_cache.remove(r)
+                self.regex_cache.insert(0, r)
+                return True
+        with youtube_dl.YoutubeDL(self._ydl_opts) as ydl:
+            for ie in ydl._ies:
+                if ie.suitable(url) and ie.ie_key() not in self.ie_blacklist:
+                    self.regex_cache.insert(0, ie._VALID_URL_RE)
+                    return True
+        return False
+
     def custom_downloader(self, unused_config, episode):
         """
         called from registry.custom_downloader.resolve
         """
         if not self.force and not self.my_config.manage_downloads:
             return None
-        if re.match(r'''https://www.youtube.com/watch\?v=.+''', episode.url):
+        if self.is_supported_url(episode.url):
             return YoutubeCustomDownload(self, episode.url, episode)
-        elif re.match(r'''https://www.youtube.com/watch\?v=.+''', episode.link):
-            return YoutubeCustomDownload(self, episode.link, episode)
+
         return None
 
 
