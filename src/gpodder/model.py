@@ -262,7 +262,7 @@ class PodcastEpisode(PodcastModelObject):
     MAX_FILENAME_LENGTH = 120  # without extension
     MAX_FILENAME_WITH_EXT_LENGTH = 140 - len(".partial.webm")  # with extension
 
-    __slots__ = schema.EpisodeColumns
+    __slots__ = schema.EpisodeColumns + ('_download_error',)
 
     def _deprecated(self):
         raise Exception('Property is deprecated!')
@@ -290,18 +290,26 @@ class PodcastEpisode(PodcastModelObject):
 
         audio_available = any(enclosure['mime_type'].startswith('audio/') for enclosure in entry['enclosures'])
         video_available = any(enclosure['mime_type'].startswith('video/') for enclosure in entry['enclosures'])
+        link_has_media = False
+        if not (audio_available or video_available):
+            _url = episode.url
+            episode.url = util.normalize_feed_url(entry['link'])
+            # Check if any extensions (e.g. youtube-dl) support the link
+            link_has_media = registry.custom_downloader.resolve(None, None, episode) is not None
+            episode.url = _url
+        media_available = audio_available or video_available or link_has_media
 
         for enclosure in entry['enclosures']:
             episode.mime_type = enclosure['mime_type']
 
             # Skip images in feeds if audio or video is available (bug 979)
             # This must (and does) also look in Media RSS enclosures (bug 1430)
-            if episode.mime_type.startswith('image/') and (audio_available or video_available):
+            if episode.mime_type.startswith('image/') and media_available:
                 continue
 
             # If we have audio or video available later on, skip
             # all 'application/*' data types (fixes Linux Outlaws and peertube feeds)
-            if episode.mime_type.startswith('application/') and (audio_available or video_available):
+            if episode.mime_type.startswith('application/') and media_available:
                 continue
 
             episode.url = util.normalize_feed_url(enclosure['url'])
@@ -325,6 +333,9 @@ class PodcastEpisode(PodcastModelObject):
 
         # The link points to a audio or video file - use it!
         if file_type is not None:
+            return episode
+
+        if link_has_media:
             return episode
 
         return None
@@ -358,6 +369,8 @@ class PodcastEpisode(PodcastModelObject):
 
         # Timestamp of last playback time
         self.last_playback = 0
+
+        self._download_error = None
 
     @property
     def channel(self):
@@ -496,6 +509,7 @@ class PodcastEpisode(PodcastModelObject):
             gpodder.user_extensions.on_episode_delete(self, filename)
             util.delete_file(filename)
 
+        self._download_error = None
         self.set_state(gpodder.STATE_DELETED)
 
     def get_playback_url(self, config=None, allow_partial=False):

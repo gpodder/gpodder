@@ -58,6 +58,7 @@ class gPodderShownotes:
     def __init__(self, shownotes_pane, keyboard_callback=None):
         self.shownotes_pane = shownotes_pane
         self.keyboard_callback = keyboard_callback
+        self.details_fmt = _('%s | %s | %s')
 
         self.scrolled_window = Gtk.ScrolledWindow()
         self.scrolled_window.set_shadow_type(Gtk.ShadowType.IN)
@@ -187,6 +188,7 @@ class gPodderShownotesText(gPodderShownotes):
         self.text_buffer = Gtk.TextBuffer()
         self.text_buffer.create_tag('heading', scale=1.2, weight=Pango.Weight.BOLD)
         self.text_buffer.create_tag('subheading', scale=1.0)
+        self.text_buffer.create_tag('details', scale=0.9)
         self.text_view.set_buffer(self.text_buffer)
         self.text_view.set_property('expand', True)
         self.text_view.connect('button-release-event', self.on_button_release)
@@ -197,12 +199,19 @@ class gPodderShownotesText(gPodderShownotes):
     def update(self, episode):
         heading = episode.title
         subheading = _('from %s') % (episode.channel.title)
+        details = self.details_fmt % (
+            util.format_date(episode.published),
+            util.format_filesize(episode.file_size, digits=1)
+            if episode.file_size > 0 else "-",
+            episode.get_play_info_string())
         self.define_colors()
         hyperlinks = [(0, None)]
         self.text_buffer.set_text('')
         self.text_buffer.insert_with_tags_by_name(self.text_buffer.get_end_iter(), heading, 'heading')
         self.text_buffer.insert_at_cursor('\n')
         self.text_buffer.insert_with_tags_by_name(self.text_buffer.get_end_iter(), subheading, 'subheading')
+        self.text_buffer.insert_at_cursor('\n')
+        self.text_buffer.insert_with_tags_by_name(self.text_buffer.get_end_iter(), details, 'details')
         self.text_buffer.insert_at_cursor('\n\n')
         for target, text in util.extract_hyperlinked_text(episode.description_html or episode.description):
             hyperlinks.append((self.text_buffer.get_char_count(), target))
@@ -299,9 +308,14 @@ class gPodderShownotesHTML(gPodderShownotes):
         stylesheet = self.get_stylesheet()
         if stylesheet:
             self.manager.add_style_sheet(stylesheet)
-        heading = html.escape(episode.title)
-        subheading = _('from %s') % (html.escape(episode.channel.title))
-        header_html = _('<div id="gpodder-title">\n<h3>%s</h3>\n<p>%s</p>\n</div>\n') % (heading, subheading)
+        heading = '<h3>%s</h3>' % html.escape(episode.title)
+        subheading = _('from %s') % html.escape(episode.channel.title)
+        details = '<small>%s</small>' % html.escape(self.details_fmt % (
+            util.format_date(episode.published),
+            util.format_filesize(episode.file_size, digits=1)
+            if episode.file_size > 0 else "-",
+            episode.get_play_info_string()))
+        header_html = _('<div id="gpodder-title">\n%s\n<p>%s</p>\n<p>%s</p></div>\n') % (heading, subheading, details)
         description_html = episode.description_html
         if not description_html:
             description_html = re.sub(r'\n', '<br>\n', episode.description)

@@ -170,7 +170,7 @@ class gPodderChannel(BuilderWidget):
         util.idle_add(set_cover, channel, pixbuf)
 
     def drag_data_received(self, widget, content, x, y, sel, ttype, time):
-        files = sel.data.strip().split('\n')
+        files = sel.get_text().strip().split('\n')
         if len(files) != 1:
             self.show_message(
                 _('You can only drop a single image or URL here.'),
@@ -179,7 +179,7 @@ class gPodderChannel(BuilderWidget):
 
         file = files[0]
 
-        if file.startswith('file://') or file.startswith('http://'):
+        if file.startswith('file://') or file.startswith('http://') or file.startswith('https://'):
             self.clear_cover_cache(self.channel.url)
             self.cover_downloader.replace_cover(self.channel, custom_url=file)
             return

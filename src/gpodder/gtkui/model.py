@@ -200,6 +200,7 @@ class EpisodeListModel(Gtk.ListStore):
         self.ICON_GENERIC_FILE = 'text-x-generic'
         self.ICON_DOWNLOADING = Gtk.STOCK_GO_DOWN
         self.ICON_DELETED = 'edit-delete'
+        self.ICON_ERROR = 'dialog-error'
 
         self.background_update = None
         self.background_update_tag = None
@@ -393,11 +394,6 @@ class EpisodeListModel(Gtk.ListStore):
                 tooltip.append(_('Deleted'))
                 status_icon = self.ICON_DELETED
                 view_show_undeleted = False
-            elif episode.state == gpodder.STATE_NORMAL and \
-                    episode.is_new:
-                tooltip.append(_('New episode'))
-                view_show_downloaded = self._config.ui.gtk.episode_list.always_show_new
-                view_show_unplayed = True
             elif episode.state == gpodder.STATE_DOWNLOADED:
                 tooltip = []
                 view_show_downloaded = True
@@ -456,6 +452,16 @@ class EpisodeListModel(Gtk.ListStore):
                 if episode.total_time > 0 and episode.current_position:
                     tooltip.append('%d%%' % (100. * float(episode.current_position) /
                                              float(episode.total_time),))
+            elif episode._download_error is not None:
+                tooltip.append(_('ERROR: %s') % episode._download_error)
+                status_icon = self.ICON_ERROR
+                if episode.state == gpodder.STATE_NORMAL and episode.is_new:
+                    view_show_downloaded = self._config.ui.gtk.episode_list.always_show_new
+                    view_show_unplayed = True
+            elif episode.state == gpodder.STATE_NORMAL and episode.is_new:
+                tooltip.append(_('New episode'))
+                view_show_downloaded = self._config.ui.gtk.episode_list.always_show_new
+                view_show_unplayed = True
 
         if episode.total_time:
             total_time = util.format_time(episode.total_time)
