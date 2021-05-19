@@ -1228,15 +1228,15 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.treeAvailable.connect('popup-menu', self.treeview_available_show_context_menu)
 
-        self.treeAvailable.enable_model_drag_source(Gdk.ModifierType.BUTTON1_MASK,
-                (('text/uri-list', 0, 0),), Gdk.DragAction.COPY)
-
-        def drag_data_get(tree, context, selection_data, info, timestamp):
-            uris = ['file://' + e.local_filename(create=False)
-                    for e in self.get_selected_episodes()
-                    if e.was_downloaded(and_exists=True)]
-            selection_data.set_uris(uris)
-        self.treeAvailable.connect('drag-data-get', drag_data_get)
+#        self.treeAvailable.enable_model_drag_source(Gdk.ModifierType.BUTTON1_MASK,
+#                (('text/uri-list', 0, 0),), Gdk.DragAction.COPY)
+#
+#        def drag_data_get(tree, context, selection_data, info, timestamp):
+#            uris = ['file://' + e.local_filename(create=False)
+#                    for e in self.get_selected_episodes()
+#                    if e.was_downloaded(and_exists=True)]
+#            selection_data.set_uris(uris)
+#        self.treeAvailable.connect('drag-data-get', drag_data_get)
 
         selection = self.treeAvailable.get_selection()
         selection.set_mode(Gtk.SelectionMode.MULTIPLE)
