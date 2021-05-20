@@ -2073,14 +2073,20 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def playback_episodes_for_real(self, episodes):
         groups = collections.defaultdict(list)
         for episode in episodes:
+            episode._download_error = None
+
             player = self.episode_player(episode)
+
+            try:
+                allow_partial = (player != 'default')
+                filename = episode.get_playback_url(self.config, allow_partial)
+            except Exception as e:
+                episode._download_error = str(e)
+                continue
 
             # Mark episode as played in the database
             episode.playback_mark()
             self.mygpo_client.on_playback([episode])
-
-            allow_partial = (player != 'default')
-            filename = episode.get_playback_url(self.config, allow_partial)
 
             # Determine the playback resume position - if the file
             # was played 100%, we simply start from the beginning
