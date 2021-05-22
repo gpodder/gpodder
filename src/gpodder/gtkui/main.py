@@ -1715,6 +1715,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
             item.connect('activate', self.on_channel_toggle_lock_activate)
             menu.append(item)
 
+            item = Gtk.ImageMenuItem(_('Refresh image'))
+            item.connect('activate', self.on_itemRefreshCover_activate)
+            menu.append(item)
+
             item = Gtk.ImageMenuItem(_('Delete podcast'))
             item.set_image(Gtk.Image.new_from_icon_name('edit-delete', Gtk.IconSize.MENU))
             item.connect('activate', self.on_itemRemoveChannel_activate)
@@ -3338,6 +3342,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             # The remaining stuff is to be done in the GTK main thread
             util.idle_add(finish_deletion, select_url)
+
+    def on_itemRefreshCover_activate(self, widget, *args):
+        assert self.active_channel is not None
+
+        self.podcast_list_model.clear_cover_cache(self.active_channel.url)
+        self.cover_downloader.replace_cover(self.active_channel, custom_url=False)
 
     def on_itemRemoveChannel_activate(self, widget, *args):
         if self.active_channel is None:
