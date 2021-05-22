@@ -261,7 +261,7 @@ def get_real_download_url(url, allow_partial, preferred_fmt_ids=None):
                     return
 
             if error_message is not None:
-                raise YouTubeError('Cannot download video: %s' % error_message)
+                raise YouTubeError(('Cannot stream video: %s' if allow_partial else 'Cannot download video: %s') % error_message)
 
             r4 = re.search(r'url_encoded_fmt_stream_map=([^&]+)', page)
             if r4 is not None:
