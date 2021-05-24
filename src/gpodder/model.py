@@ -596,7 +596,7 @@ class PodcastEpisode(PodcastModelObject):
             self.mime_type = 'application/x-gpodder-customdl'
             return
 
-    def get_playback_url(self, config=None, allow_partial=False):
+    def get_playback_url(self, config, allow_partial=False):
         """Local (or remote) playback/streaming filename/URL
 
         Returns either the local filename or a streaming URL that
