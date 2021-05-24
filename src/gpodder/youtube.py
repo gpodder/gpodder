@@ -29,6 +29,8 @@ import xml.etree.ElementTree
 from html.parser import HTMLParser
 from urllib.parse import parse_qs
 
+import requests
+
 import gpodder
 from gpodder import registry, util
 
@@ -195,31 +197,41 @@ def get_real_download_url(url, allow_partial, preferred_fmt_ids=None):
 
     vid = get_youtube_id(url)
     if vid is not None:
-        page = None
-        url = 'https://www.youtube.com/get_video_info?&el=detailpage&video_id=' + vid
+        # TODO: changing 'detailpage' to 'embedded' allows age-restricted content
+        url = 'https://www.youtube.com/get_video_info?html5=1&el=detailpage&video_id=' + vid
+        r = requests.get(url)
+        if not r.ok:
+            logger.warning('Youtube get_video_info: %d %s' % (r.status_code, r.reason))
 
-        while page is None:
-            req = util.http_request(url, method='GET')
-            if 'location' in req.msg:
-                url = req.msg['location']
-            else:
-                page = req.read()
+            # TODO: watch URL does not work in europe due to GDPR cookie consent
+            url = 'https://www.youtube.com/watch?bpctr=9999999999&has_verified=1&v=' + vid
+            r = requests.get(url)
+            if not r.ok:
+                raise YouTubeError('%d %s' % (r.status_code, r.reason))
 
-        page = page.decode()
-        # Try to find the best video format available for this video
-        # (http://forum.videohelp.com/topic336882-1800.html#1912972)
+            ipr = re.search(r'ytInitialPlayerResponse\s*=\s*({.+?})\s*;', r.text)
+            if ipr is None:
+                raise YouTubeError('No ytInitialPlayerResponse found')
 
-        def find_urls(page):
+            old_page = None
+            new_page = ipr.group(1)
+        else:
+            old_page = r.text
+            new_page = None
+
+        def find_urls(old_page, new_page):
             # streamingData is preferable to url_encoded_fmt_stream_map
             # streamingData.formats are the same as url_encoded_fmt_stream_map
             # streamingData.adaptiveFormats are audio-only and video-only formats
-            x = parse_qs(page)
+
+            x = parse_qs(old_page) if old_page else json.loads(new_page)
+            player_response = json.loads(x['player_response'][0]) if old_page and 'player_response' in x else x
             error_message = None
 
             if 'reason' in x:
+                # TODO: unknown if this is valid for new_page
                 error_message = util.remove_html_tags(x['reason'][0])
-            elif 'player_response' in x:
-                player_response = json.loads(x['player_response'][0])
+            elif 'playabilityStatus' in player_response:
                 playabilityStatus = player_response['playabilityStatus']
 
                 if 'reason' in playabilityStatus:
@@ -230,15 +242,10 @@ def get_real_download_url(url, allow_partial, preferred_fmt_ids=None):
                     # playabilityStatus.liveStreamability.liveStreamabilityRenderer.displayEndscreen -- video has ended if present
 
                     if allow_partial and 'streamingData' in player_response and 'hlsManifestUrl' in player_response['streamingData']:
-                        manifest = None
-                        url = player_response['streamingData']['hlsManifestUrl']
-                        while manifest is None:
-                            req = util.http_request(url, method='GET')
-                            if 'location' in req.msg:
-                                url = req.msg['location']
-                            else:
-                                manifest = req.read()
-                        manifest = manifest.decode().splitlines()
+                        r = requests.get(player_response['streamingData']['hlsManifestUrl'])
+                        if not r.ok:
+                            raise YouTubeError('HLS Manifest: %d %s' % (r.status_code, r.reason))
+                        manifest = r.text.splitlines()
 
                         urls = [line for line in manifest if line[0] != '#']
                         itag_re = re.compile(r'/itag/([0-9]+)/')
@@ -249,34 +256,34 @@ def get_real_download_url(url, allow_partial, preferred_fmt_ids=None):
 
                     error_message = 'live stream'
                 elif 'streamingData' in player_response:
-                    # DRM videos store url inside a cipher key - not supported
                     if 'formats' in player_response['streamingData']:
                         for f in player_response['streamingData']['formats']:
-                            if 'url' in f:
+                            if 'url' in f:  # DRM videos store url inside a signatureCipher key
                                 yield int(f['itag']), [f['url'], f.get('approxDurationMs')]
                     if 'adaptiveFormats' in player_response['streamingData']:
                         for f in player_response['streamingData']['adaptiveFormats']:
-                            if 'url' in f:
+                            if 'url' in f:  # DRM videos store url inside a signatureCipher key
                                 yield int(f['itag']), [f['url'], f.get('approxDurationMs')]
                     return
 
             if error_message is not None:
                 raise YouTubeError(('Cannot stream video: %s' if allow_partial else 'Cannot download video: %s') % error_message)
 
-            r4 = re.search(r'url_encoded_fmt_stream_map=([^&]+)', page)
-            if r4 is not None:
-                fmt_url_map = urllib.parse.unquote(r4.group(1))
-                for fmt_url_encoded in fmt_url_map.split(','):
-                    video_info = parse_qs(fmt_url_encoded)
-                    yield int(video_info['itag'][0]), [video_info['url'][0], None]
+            if old_page:
+                r4 = re.search(r'url_encoded_fmt_stream_map=([^&]+)', old_page)
+                if r4 is not None:
+                    fmt_url_map = urllib.parse.unquote(r4.group(1))
+                    for fmt_url_encoded in fmt_url_map.split(','):
+                        video_info = parse_qs(fmt_url_encoded)
+                        yield int(video_info['itag'][0]), [video_info['url'][0], None]
 
-        fmt_id_url_map = sorted(find_urls(page), reverse=True)
+        fmt_id_url_map = sorted(find_urls(old_page, new_page), reverse=True)
 
         if not fmt_id_url_map:
-            drm = re.search(r'%22(cipher|signatureCipher)%22%3A', page)
+            drm = re.search(r'(%22(cipher|signatureCipher)%22%3A|"signatureCipher"):', old_page or new_page)
             if drm is not None:
-                raise YouTubeError('Unsupported DRM content found for video ID "%s"' % vid)
-            raise YouTubeError('No formats found for video ID "%s"' % vid)
+                raise YouTubeError('Unsupported DRM content')
+            raise YouTubeError('No formats found')
 
         formats_available = set(fmt_id for fmt_id, url in fmt_id_url_map)
         fmt_id_url_map = dict(fmt_id_url_map)
@@ -298,7 +305,7 @@ def get_real_download_url(url, allow_partial, preferred_fmt_ids=None):
                 url, duration = fmt_id_url_map[id]
                 break
         else:
-            raise YouTubeError('No preferred formats found for video ID "%s"' % vid)
+            raise YouTubeError('No preferred formats found')
 
     return url, duration
 
