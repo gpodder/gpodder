@@ -871,6 +871,10 @@ class PodcastEpisode(PodcastModelObject):
         if self.state != gpodder.STATE_DOWNLOADED:
             setattr(self, 'file_size', getattr(episode, 'file_size'))
 
+    def is_streamable_customdl(self, config):
+        return (config.player.videoplayer_customdl_support and
+            self.mime_type == 'application/x-gpodder-customdl')
+
 
 class PodcastChannel(PodcastModelObject):
     __slots__ = schema.PodcastColumns + ('_common_prefix', '_update_error',)
