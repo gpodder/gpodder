@@ -3226,7 +3226,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.main_window, title=_('Delete episodes'),
             instructions=instructions,
             episodes=episodes, selected=selected, columns=columns,
-            stock_ok_button='edit-delete', callback=self.delete_episode_list,
+            stock_ok_button=_('Delete'), callback=self.delete_episode_list,
             selection_buttons=selection_buttons, _config=self.config)
 
     def on_selected_episodes_status_changed(self):
