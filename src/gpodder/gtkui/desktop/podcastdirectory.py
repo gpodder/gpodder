@@ -127,6 +127,7 @@ class gPodderPodcastDirectory(BuilderWidget):
     def setup_podcasts_treeview(self):
         column = Gtk.TreeViewColumn('')
         cell = Gtk.CellRendererToggle()
+        cell.set_fixed_size(48, -1)
         column.pack_start(cell, False)
         column.add_attribute(cell, 'active', DirectoryPodcastsModel.C_SELECTED)
         cell.connect('toggled', lambda cell, path: self.podcasts_model.toggle(path))
