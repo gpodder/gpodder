@@ -961,7 +961,8 @@ class gPodderCli(object):
                                 _not_applicable,
                                 self._db.commit,
                                 _delete_episode_list,
-                                _episode_selector)
+                                _episode_selector,
+                                _not_applicable)
         done_lock.acquire()
         sync_ui.on_synchronize_episodes(self._model.get_podcasts(), episodes=None, force_played=True, done_callback=done_lock.release)
         done_lock.acquire()  # block until done

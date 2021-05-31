@@ -182,6 +182,7 @@ defaults = {
         'one_folder_per_podcast': True,
         'skip_played_episodes': True,
         'delete_played_episodes': False,
+        'delete_deleted_episodes': False,
 
         'max_filename_length': 120,
 

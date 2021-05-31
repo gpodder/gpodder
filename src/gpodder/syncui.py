@@ -44,7 +44,8 @@ class gPodderSyncUI(object):
                  enable_download_list_update,
                  commit_changes_to_database,
                  delete_episode_list,
-                 select_episodes_to_delete):
+                 select_episodes_to_delete,
+                 mount_volume_for_file):
         self.device = None
 
         self._config = config
@@ -60,6 +61,7 @@ class gPodderSyncUI(object):
         self.commit_changes_to_database = commit_changes_to_database
         self.delete_episode_list = delete_episode_list
         self.select_episodes_to_delete = select_episodes_to_delete
+        self.mount_volume_for_file = mount_volume_for_file
 
     def _filter_sync_episodes(self, channels, only_downloaded=False):
         """Return a list of episodes for device synchronization
@@ -295,8 +297,9 @@ class gPodderSyncUI(object):
         def cleanup_episodes():
             # 'skip_played_episodes' must be used or else all the
             # played tracks will be copied then immediately deleted
-            if (self._config.device_sync.delete_played_episodes and
-                    self._config.device_sync.skip_played_episodes):
+            if (self._config.device_sync.delete_deleted_episodes or
+                (self._config.device_sync.delete_played_episodes and
+                 self._config.device_sync.skip_played_episodes)):
                 all_episodes = self._filter_sync_episodes(
                     channels, only_downloaded=False)
                 for local_episode in all_episodes:

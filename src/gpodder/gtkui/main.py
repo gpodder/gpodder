@@ -3695,6 +3695,26 @@ class gPodder(BuilderWidget, dbus.service.Object):
         logger.debug('extension_episode_download_cb(%s)', episode)
         self.download_episode_list(episodes=[episode])
 
+    def mount_volume_cb(self, file, res, mount_result):
+        result = True
+        try:
+            file.mount_enclosing_volume_finish(res)
+        except GLib.Error as err:
+            if (not err.matches(Gio.io_error_quark(), Gio.IOErrorEnum.NOT_SUPPORTED) and
+                not err.matches(Gio.io_error_quark(), Gio.IOErrorEnum.ALREADY_MOUNTED)):
+                logger.error('mounting volume %s failed: %s' % (file.get_uri(), err.message));
+                result = False
+        finally:
+            mount_result["result"] = result
+            Gtk.main_quit()
+
+    def mount_volume_for_file(self, file):
+        mount_result = {}
+        op = Gtk.MountOperation.new(self.main_window)
+        file.mount_enclosing_volume(Gio.MountMountFlags.NONE, op, None, self.mount_volume_cb, mount_result)
+        Gtk.main()
+        return mount_result["result"]
+
     def on_sync_to_device_activate(self, widget, episodes=None, force_played=True):
         self.sync_ui = gPodderSyncUI(self.config, self.notification,
                 self.main_window,
@@ -3706,7 +3726,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.enable_download_list_update,
                 self.commit_changes_to_database,
                 self.delete_episode_list,
-                gPodderEpisodeSelector)
+                gPodderEpisodeSelector,
+                self.mount_volume_for_file)
 
         self.sync_ui.on_synchronize_episodes(self.channels, episodes, force_played,
                                              self.enable_download_list_update)

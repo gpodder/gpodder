@@ -31,6 +31,7 @@ import time
 
 import gpodder
 from gpodder import download, services, util
+from gi.repository import GLib, Gio, Gst, Gtk
 
 logger = logging.getLogger(__name__)
 
@@ -120,7 +121,8 @@ def open_device(gui):
     elif device_type == 'filesystem':
         return MP3PlayerDevice(config,
                 gui.download_status_model,
-                gui.download_queue_manager)
+                gui.download_queue_manager,
+                gui.mount_volume_for_file)
 
     return None
 
@@ -559,21 +561,43 @@ class iPodDevice(Device):
 class MP3PlayerDevice(Device):
     def __init__(self, config,
             download_status_model,
-            download_queue_manager):
+            download_queue_manager,
+            mount_volume_for_file):
         Device.__init__(self, config)
-        self.destination = self._config.device_sync.device_folder
-        self.buffer_size = 1024 * 1024  # 1 MiB
+
+        # self.destination = self._config.device_sync.device_folder
+        folder = self._config.device_sync.device_folder
+        if Gst.Uri.is_valid(folder):
+            self.destination = Gio.File.new_for_uri(folder)
+        else:
+            self.destination = Gio.File.new_for_path(folder)
+        self.mount_volume_for_file = mount_volume_for_file
         self.download_status_model = download_status_model
         self.download_queue_manager = download_queue_manager
 
     def get_free_space(self):
-        return util.get_free_disk_space(self.destination)
+        info = self.destination.query_filesystem_info(Gio.FILE_ATTRIBUTE_FILESYSTEM_FREE, None)
+        return info.get_attribute_uint64(Gio.FILE_ATTRIBUTE_FILESYSTEM_FREE)
 
     def open(self):
         Device.open(self)
         self.notify('status', _('Opening MP3 player'))
 
-        if util.directory_is_writable(self.destination):
+        if not self.mount_volume_for_file(self.destination):
+            return False
+
+        info = self.destination.query_info(
+            Gio.FILE_ATTRIBUTE_ACCESS_CAN_WRITE + "," +
+            Gio.FILE_ATTRIBUTE_STANDARD_TYPE,
+            Gio.FileQueryInfoFlags.NONE,
+            None)
+
+        # open is ok if the target is a directory, and it can be written to
+        # for smb, query_info doesn't return FILE_ATTRIBUTE_ACCESS_CAN_WRITE,
+        # -- if that's the case, just assume that it's writable
+        if (info.get_file_type() == Gio.FileType.DIRECTORY and (
+            not info.has_attribute(Gio.FILE_ATTRIBUTE_ACCESS_CAN_WRITE) or
+                info.get_attribute_boolean(Gio.FILE_ATTRIBUTE_ACCESS_CAN_WRITE))):
             self.notify('status', _('MP3 player opened'))
             self.tracks_list = self.get_all_tracks()
             return True
@@ -583,7 +607,7 @@ class MP3PlayerDevice(Device):
     def get_episode_folder_on_device(self, episode):
         folder = episode_foldername_on_device(self._config, episode)
         if folder:
-            folder = os.path.join(self.destination, folder)
+            folder = self.destination.get_child(folder)
         else:
             folder = self.destination
 
@@ -617,95 +641,66 @@ class MP3PlayerDevice(Device):
 
         # get the filename that will be used on the device
         to_file = self.get_episode_file_on_device(episode)
-        to_file = os.path.join(folder, to_file)
+        to_file = folder.get_child(to_file)
 
-        if not os.path.exists(folder):
+        if not folder.query_exists(None):
             try:
-                os.makedirs(folder)
-            except:
-                logger.error('Cannot create folder on MP3 player: %s', folder)
+                folder.make_directory_with_parents(None)
+            except GLib.Error as err:
+                logger.error('Cannot create folder %s on MP3 player: %s', (folder % err.message))
+                self.cancel()
                 return False
 
-        if not os.path.exists(to_file):
+        if not to_file.query_exists(None):
             logger.info('Copying %s => %s',
                     os.path.basename(from_file),
                     to_file)
-            self.copy_file_progress(from_file, to_file, reporthook)
-
-        return True
-
-    def copy_file_progress(self, from_file, to_file, reporthook=None):
-        try:
-            out_file = open(to_file, 'wb')
-        except IOError as ioerror:
-            d = {'filename': ioerror.filename, 'message': ioerror.strerror}
-            self.errors.append(_('Error opening %(filename)s: %(message)s') % d)
-            self.cancel()
-            return False
-
-        try:
-            in_file = open(from_file, 'rb')
-        except IOError as ioerror:
-            d = {'filename': ioerror.filename, 'message': ioerror.strerror}
-            self.errors.append(_('Error opening %(filename)s: %(message)s') % d)
-            self.cancel()
-            return False
-
-        in_file.seek(0, os.SEEK_END)
-        total_bytes = in_file.tell()
-        in_file.seek(0)
-
-        bytes_read = 0
-        s = in_file.read(self.buffer_size)
-        while s:
-            bytes_read += len(s)
+            from_file = Gio.File.new_for_path(from_file)
             try:
-                out_file.write(s)
-            except IOError as ioerror:
-                self.errors.append(ioerror.strerror)
-                try:
-                    out_file.close()
-                except:
-                    pass
-                try:
-                    logger.info('Trying to remove partially copied file: %s' % to_file)
-                    os.unlink(to_file)
-                    logger.info('Yeah! Unlinked %s at least..' % to_file)
-                except:
-                    logger.error('Error while trying to unlink %s. OH MY!' % to_file)
+                hookconvert = lambda current_bytes, total_bytes, user_data : reporthook(current_bytes, 1, total_bytes)
+                from_file.copy(to_file, Gio.FileCopyFlags.OVERWRITE, None, hookconvert, None)
+            except GLib.Error as err:
+                d = {'from_file': from_file, 'to_file': to_file, 'message': err.message}
+                self.errors.append(_('Error copying %(from_file)s to %(to_file)s: %(message)s') % d)
                 self.cancel()
                 return False
-            reporthook(bytes_read, 1, total_bytes)
-            s = in_file.read(self.buffer_size)
-        out_file.close()
-        in_file.close()
 
         return True
+
+    def add_sync_track(self, tracks, file, info, podcast_name):
+        (title, extension) = os.path.splitext(info.get_name())
+        timestamp = info.get_modification_time()
+        modified = util.format_date(timestamp.tv_sec)
+
+        t = SyncTrack(title, info.get_size(), modified,
+                modified_sort=timestamp,
+                filename=file.get_uri(),
+                podcast=podcast_name)
+        tracks.append(t)
 
     def get_all_tracks(self):
         tracks = []
 
-        if self._config.one_folder_per_podcast:
-            files = glob.glob(os.path.join(self.destination, '*', '*'))
-        else:
-            files = glob.glob(os.path.join(self.destination, '*'))
+        attributes = (
+            Gio.FILE_ATTRIBUTE_STANDARD_NAME + "," +
+            Gio.FILE_ATTRIBUTE_STANDARD_TYPE + "," +
+            Gio.FILE_ATTRIBUTE_STANDARD_SIZE + "," +
+            Gio.FILE_ATTRIBUTE_TIME_MODIFIED)
 
-        for filename in files:
-            (title, extension) = os.path.splitext(os.path.basename(filename))
-            length = util.calculate_size(filename)
-
-            timestamp = util.file_modification_timestamp(filename)
-            modified = util.format_date(timestamp)
+        root_path = self.destination
+        for path_info in root_path.enumerate_children(attributes, Gio.FileQueryInfoFlags.NONE, None):
             if self._config.one_folder_per_podcast:
-                podcast_name = os.path.basename(os.path.dirname(filename))
-            else:
-                podcast_name = None
+                if path_info.get_file_type() == Gio.FileType.DIRECTORY:
+                    path_file = root_path.get_child(path_info.get_name())
+                    for child_info in path_file.enumerate_children(attributes, Gio.FileQueryInfoFlags.NONE, None):
+                        if child_info.get_file_type() == Gio.FileType.REGULAR:
+                            child_file = path_file.get_child(child_info.get_name())
+                            self.add_sync_track(tracks, child_file, child_info, path_info.get_name())
 
-            t = SyncTrack(title, length, modified,
-                    modified_sort=timestamp,
-                    filename=filename,
-                    podcast=podcast_name)
-            tracks.append(t)
+            else:
+                if path_info.get_file_type() == Gio.FileTypeFlags.REGULAR:
+                    path_file = root_path.get_child(path_info.get_name())
+                    self.add_sync_track(tracks, path_file, path_info, None)
         return tracks
 
     def episode_on_device(self, episode):
@@ -717,18 +712,27 @@ class MP3PlayerDevice(Device):
 
     def remove_track(self, track):
         self.notify('status', _('Removing %s') % track.title)
-        util.delete_file(track.filename)
-        directory = os.path.dirname(track.filename)
-        if self.directory_is_empty(directory) and self._config.one_folder_per_podcast:
+
+        # get the folder on the device
+        file = Gio.File.new_for_uri(track.filename)
+        folder = file.get_parent()
+        if file.query_exists(None):
             try:
-                os.rmdir(directory)
-            except:
-                logger.error('Cannot remove %s', directory)
+                file.delete(None)
+            except GLib.Error as err:
+                logger.error('deleting file %s failed: %s', (file.get_uri() % err.message))
+                return
+
+        if self._config.one_folder_per_podcast and self.directory_is_empty(folder):
+            try:
+                folder.delete(None)
+            except GLib.Error as err:
+                logger.error('deleting folder %s failed: %s', (folder.get_uri() % err.message))
 
     def directory_is_empty(self, directory):
-        files = glob.glob(os.path.join(directory, '*'))
-        dotfiles = glob.glob(os.path.join(directory, '.*'))
-        return len(files + dotfiles) == 0
+        for child in directory.enumerate_children(Gio.FILE_ATTRIBUTE_STANDARD_NAME, Gio.FileQueryInfoFlags.NONE, None):
+            return False
+        return True
 
 
 class MTPDevice(Device):
