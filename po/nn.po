@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: gPodder\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-06-01 02:20-0600\n"
-"PO-Revision-Date: 2021-03-28 19:18+0200\n"
+"PO-Revision-Date: 2021-06-02 17:31+0200\n"
 "Last-Translator: Karl Ove Hufthammer <karl@huftis.org>\n"
 "Language-Team: Norwegian Nynorsk <l10n-no@lister.huftis.org>\n"
 "Language: nn\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Lokalize 20.12.3\n"
+"X-Generator: Lokalize 21.04.1\n"
 
 #: src/gpodder/config.py:53
 #, python-format
@@ -95,10 +95,9 @@ msgid "Paused"
 msgstr "Sett på pause"
 
 #: src/gpodder/download.py:864
-#, fuzzy
 #| msgid "Select the episodes you want to download:"
 msgid "Episode has no URL to download"
-msgstr "Vel episodane du vil lasta ned:"
+msgstr "Episoden manglar nedlastingslenkje"
 
 #: src/gpodder/download.py:867
 msgid "Missing content from server"
@@ -711,11 +710,11 @@ msgstr "Merk episodar som gamle"
 msgid "Archive"
 msgstr "Arkivert"
 
+# Er snakk om omslagbilete (cover image).
 #: src/gpodder/gtkui/main.py:1718
-#, fuzzy
 #| msgid "_Refresh"
 msgid "Refresh image"
-msgstr "O_ppdater"
+msgstr "Oppdater bilete"
 
 #: src/gpodder/gtkui/main.py:1722
 msgid "Delete podcast"
@@ -1301,13 +1300,14 @@ msgstr "Abonnement sett på pause"
 #, python-format
 msgid "%s | %s | %s"
 msgstr ""
+"%s | %s | %s"
 
 #: src/gpodder/gtkui/shownotes.py:147
 msgid "Please select an episode"
 msgstr "Vel episode"
 
 #: src/gpodder/gtkui/shownotes.py:313
-#, fuzzy, python-format
+#, python-format
 #| msgid ""
 #| "<div id=\"gpodder-title\">\n"
 #| "<h3>%s</h3>\n"
@@ -1320,9 +1320,9 @@ msgid ""
 "<p>%s</p></div>\n"
 msgstr ""
 "<div id=\"gpodder-title\">\n"
-"<h3>%s</h3>\n"
+"%s\n"
 "<p>%s</p>\n"
-"</div>\n"
+"<p>%s</p></div>\n"
 
 #: src/gpodder/gtkui/shownotes.py:355
 msgid "Open shownotes in web browser"
@@ -1462,8 +1462,7 @@ msgstr "storleik: %s"
 #: src/gpodder/gtkui/desktop/exportlocal.py:57
 #, python-format
 msgid "Export remaining %(count)d episode to this folder with its default name"
-msgid_plural ""
-"Export remaining %(count)d episodes to this folder with their default name"
+msgid_plural "Export remaining %(count)d episodes to this folder with their default name"
 msgstr[0] ""
 "Eksporter gjenståande %(count)d episode til denne mappa, med standardnamn"
 msgstr[1] ""
@@ -2089,10 +2088,9 @@ msgid "Select None"
 msgstr "Vel ingen"
 
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:7
-#, fuzzy
 #| msgid "Added"
 msgid "Add"
-msgstr "Lagd til"
+msgstr "Legg til"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:2
 msgid "Video player:"
@@ -2156,7 +2154,7 @@ msgstr "Når det kjem nye episodar:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:22
 msgid "Check connection before updating (if supported)"
-msgstr ""
+msgstr "Kontroller nettilkopling før oppdatering (viss støtta)"
 
 # Faneoverskrift i innstillingane.
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:23
