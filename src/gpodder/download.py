@@ -439,8 +439,9 @@ class DownloadQueueManager(object):
                 spawn_limit = max_downloads - len(self.worker_threads)
             else:
                 spawn_limit = self._config.limit.downloads.concurrent_max
-            logger.info('%r tasks to do, can start at most %r threads', work_count, spawn_limit)
-            for i in range(0, min(work_count, spawn_limit)):
+            running = len(self.worker_threads)
+            logger.info('%r tasks to do, can start at most %r threads, %r threads currently running', work_count, spawn_limit, running)
+            for i in range(0, min(work_count, spawn_limit - running)):
                 # We have to create a new thread here, there's work to do
                 logger.info('Starting new worker thread.')
 

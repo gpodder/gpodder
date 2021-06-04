@@ -650,9 +650,11 @@ class MP3PlayerDevice(Device):
             try:
                 folder.make_directory_with_parents(None)
             except GLib.Error as err:
-                logger.error('Cannot create folder %s on MP3 player: %s', (folder % err.message))
-                self.cancel()
-                return False
+                # The sync might be multithreaded, so directories can be created by other threads
+                if not err.matches(Gio.io_error_quark(), Gio.IOErrorEnum.EXISTS):
+                    logger.error('Cannot create folder %s on MP3 player: %s', (folder.get_uri() % err.message))
+                    self.cancel()
+                    return False
 
         if not to_file.query_exists(None):
             logger.info('Copying %s => %s',
@@ -663,7 +665,7 @@ class MP3PlayerDevice(Device):
                 hookconvert = lambda current_bytes, total_bytes, user_data : reporthook(current_bytes, 1, total_bytes)
                 from_file.copy(to_file, Gio.FileCopyFlags.OVERWRITE, None, hookconvert, None)
             except GLib.Error as err:
-                d = {'from_file': from_file, 'to_file': to_file, 'message': err.message}
+                d = {'from_file': from_file.get_uri(), 'to_file': to_file.get_uri(), 'message': err.message}
                 self.errors.append(_('Error copying %(from_file)s to %(to_file)s: %(message)s') % d)
                 self.cancel()
                 return False
