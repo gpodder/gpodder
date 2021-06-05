@@ -568,7 +568,6 @@ class MP3PlayerDevice(Device):
             mount_volume_for_file):
         Device.__init__(self, config)
 
-        # self.destination = self._config.device_sync.device_folder
         folder = self._config.device_sync.device_folder
         if Gst.Uri.is_valid(folder):
             self.destination = Gio.File.new_for_uri(folder)
@@ -652,19 +651,20 @@ class MP3PlayerDevice(Device):
             except GLib.Error as err:
                 # The sync might be multithreaded, so directories can be created by other threads
                 if not err.matches(Gio.io_error_quark(), Gio.IOErrorEnum.EXISTS):
-                    logger.error('Cannot create folder %s on MP3 player: %s', (folder.get_uri() % err.message))
+                    logger.error('Cannot create folder %s on MP3 player: %s', folder.get_uri(), err.message)
                     self.cancel()
                     return False
 
         if not to_file.query_exists(None):
             logger.info('Copying %s => %s',
                     os.path.basename(from_file),
-                    to_file)
+                    to_file.get_uri())
             from_file = Gio.File.new_for_path(from_file)
             try:
                 hookconvert = lambda current_bytes, total_bytes, user_data : reporthook(current_bytes, 1, total_bytes)
                 from_file.copy(to_file, Gio.FileCopyFlags.OVERWRITE, None, hookconvert, None)
             except GLib.Error as err:
+                logger.error('Error copying %s to %s: %s', from_file.get_uri(), to_file.get_uri(), err.message)
                 d = {'from_file': from_file.get_uri(), 'to_file': to_file.get_uri(), 'message': err.message}
                 self.errors.append(_('Error copying %(from_file)s to %(to_file)s: %(message)s') % d)
                 self.cancel()
@@ -725,20 +725,25 @@ class MP3PlayerDevice(Device):
             try:
                 file.delete(None)
             except GLib.Error as err:
-                logger.error('deleting file %s failed: %s', (file.get_uri() % err.message))
+                # if the file went away don't worry about it
+                if not err.matches(Gio.io_error_quark(), Gio.IOErrorEnum.NOT_FOUND):
+                    logger.error('deleting file %s failed: %s', file.get_uri(), err.message)
                 return
 
-        if self._config.one_folder_per_podcast and self.directory_is_empty(folder):
+        if self._config.one_folder_per_podcast:
             try:
-                folder.delete(None)
+                if self.directory_is_empty(folder):
+                    folder.delete(None)
             except GLib.Error as err:
-                logger.error('deleting folder %s failed: %s', (folder.get_uri() % err.message))
+                # if the folder went away don't worry about it (multiple threads could
+                # make this happen if they both notice the folder is empty simultaneously)
+                if not err.matches(Gio.io_error_quark(), Gio.IOErrorEnum.NOT_FOUND):
+                    logger.error('deleting folder %s failed: %s', folder.get_uri(), err.message)
 
     def directory_is_empty(self, directory):
         for child in directory.enumerate_children(Gio.FILE_ATTRIBUTE_STANDARD_NAME, Gio.FileQueryInfoFlags.NONE, None):
             return False
         return True
-
 
 class MTPDevice(Device):
     def __init__(self, config):
