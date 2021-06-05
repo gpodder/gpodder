@@ -383,14 +383,14 @@ class DownloadQueueWorker(object):
             if not self.continue_check_callback(self):
                 return
 
-            try:
-                task = self.queue.get_next()
-                logger.info('%s is processing: %s', self, task)
-                task.run()
-                task.recycle()
-            except StopIteration as e:
+            task = self.queue.get_next()
+            if not task:
                 logger.info('No more tasks for %s to carry out.', self)
                 break
+            logger.info('%s is processing: %s', self, task)
+            task.run()
+            task.recycle()
+
         self.exit_callback(self)
 
 
@@ -461,7 +461,6 @@ class DownloadQueueManager(object):
     def queue_task(self, task):
         """Marks a task as queued
         """
-        task.status = DownloadTask.QUEUED
         self.__spawn_threads()
 
 

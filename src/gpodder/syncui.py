@@ -35,13 +35,16 @@ logger = logging.getLogger(__name__)
 
 
 class gPodderSyncUI(object):
+    # download list states
+    (DL_ONEOFF, DL_ADDING_TASKS, DL_ADDED_TASKS) = list(range(3))
+
     def __init__(self, config, notification, parent_window,
                  show_confirmation,
                  show_preferences,
                  channels,
                  download_status_model,
                  download_queue_manager,
-                 enable_download_list_update,
+                 set_download_list_state,
                  commit_changes_to_database,
                  delete_episode_list,
                  select_episodes_to_delete,
@@ -57,7 +60,7 @@ class gPodderSyncUI(object):
         self.channels = channels
         self.download_status_model = download_status_model
         self.download_queue_manager = download_queue_manager
-        self.enable_download_list_update = enable_download_list_update
+        self.set_download_list_state = set_download_list_state
         self.commit_changes_to_database = commit_changes_to_database
         self.delete_episode_list = delete_episode_list
         self.select_episodes_to_delete = select_episodes_to_delete
@@ -146,7 +149,7 @@ class gPodderSyncUI(object):
                     return
 
             # enable updating of UI
-            self.enable_download_list_update()
+            self.set_download_list_state(gPodderSyncUI.DL_ONEOFF)
 
             """Update device playlists
             General approach is as follows:
@@ -196,20 +199,26 @@ class gPodderSyncUI(object):
                             episodes_for_playlist = [ep for ep in episodes_for_playlist if ep.is_new]
                         playlist.write_m3u(episodes_for_playlist)
 
-                # enable updating of UI
-                self.enable_download_list_update()
+                # enable updating of UI, but mark it as tasks being added so that a
+                # adding a single task that completes immediately doesn't turn off the
+                # ui updates again
+                self.set_download_list_state(gPodderSyncUI.DL_ADDING_TASKS)
 
                 if (self._config.device_sync.device_type == 'filesystem' and self._config.device_sync.playlists.create):
                     title = _('Update successful')
                     message = _('The playlist on your MP3 player has been updated.')
                     self.notification(message, title)
 
+                # called from the main thread to complete adding tasks_
+                def add_downloads_complete():
+                    self.set_download_list_state(gPodderSyncUI.DL_ADDED_TASKS)
+
                 # Finally start the synchronization process
                 @util.run_in_background
                 def sync_thread_func():
                     device.add_sync_tasks(episodes, force_played=force_played,
                                           done_callback=done_callback)
-
+                    util.idle_add(add_downloads_complete)
                 return
 
             if self._config.device_sync.playlists.create:
