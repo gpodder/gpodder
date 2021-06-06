@@ -116,6 +116,10 @@ class YoutubeCustomDownload(download.CustomDownload):
                         break
             ext_filetype = mimetype_from_extension(dot_ext)
             if ext_filetype:
+                # Youtube weba formats have a webm extension and get a video/webm mime-type
+                # but audio content has no width or height, so change it to audio/webm for correct icon and player
+                if ext_filetype.startswith('video/') and ('height' not in res or res['height'] is None):
+                    ext_filetype = ext_filetype.replace('video/', 'audio/')
                 headers['content-type'] = ext_filetype
         return headers, res.get('url', self._url)
 
