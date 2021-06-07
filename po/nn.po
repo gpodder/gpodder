@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gPodder\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-06-01 02:20-0600\n"
+"POT-Creation-Date: 2021-06-06 20:20-0600\n"
 "PO-Revision-Date: 2021-06-02 17:31+0200\n"
 "Last-Translator: Karl Ove Hufthammer <karl@huftis.org>\n"
 "Language-Team: Norwegian Nynorsk <l10n-no@lister.huftis.org>\n"
@@ -95,7 +95,6 @@ msgid "Paused"
 msgstr "Sett på pause"
 
 #: src/gpodder/download.py:864
-#| msgid "Select the episodes you want to download:"
 msgid "Episode has no URL to download"
 msgstr "Episoden manglar nedlastingslenkje"
 
@@ -166,9 +165,9 @@ msgstr "Treng minst éin av desse kommandoane: %(list_of_commands)s"
 msgid "Python module not found: %(module)s"
 msgstr "Fann ikkje Python-modul: %(module)s"
 
-#: src/gpodder/model.py:496 src/gpodder/youtube.py:452
+#: src/gpodder/model.py:496 src/gpodder/youtube.py:457
 #: src/gpodder/plugins/soundcloud.py:152
-#: share/gpodder/extensions/youtube-dl.py:211
+#: share/gpodder/extensions/youtube-dl.py:215
 msgid "No description available"
 msgstr "Inga skildring tilgjengeleg"
 
@@ -712,7 +711,6 @@ msgstr "Arkivert"
 
 # Er snakk om omslagbilete (cover image).
 #: src/gpodder/gtkui/main.py:1718
-#| msgid "_Refresh"
 msgid "Refresh image"
 msgstr "Oppdater bilete"
 
@@ -1299,8 +1297,7 @@ msgstr "Abonnement sett på pause"
 #: src/gpodder/gtkui/shownotes.py:60
 #, python-format
 msgid "%s | %s | %s"
-msgstr ""
-"%s | %s | %s"
+msgstr "%s | %s | %s"
 
 #: src/gpodder/gtkui/shownotes.py:147
 msgid "Please select an episode"
@@ -1308,11 +1305,6 @@ msgstr "Vel episode"
 
 #: src/gpodder/gtkui/shownotes.py:313
 #, python-format
-#| msgid ""
-#| "<div id=\"gpodder-title\">\n"
-#| "<h3>%s</h3>\n"
-#| "<p>%s</p>\n"
-#| "</div>\n"
 msgid ""
 "<div id=\"gpodder-title\">\n"
 "%s\n"
@@ -1462,7 +1454,8 @@ msgstr "storleik: %s"
 #: src/gpodder/gtkui/desktop/exportlocal.py:57
 #, python-format
 msgid "Export remaining %(count)d episode to this folder with its default name"
-msgid_plural "Export remaining %(count)d episodes to this folder with their default name"
+msgid_plural ""
+"Export remaining %(count)d episodes to this folder with their default name"
 msgstr[0] ""
 "Eksporter gjenståande %(count)d episode til denne mappa, med standardnamn"
 msgstr[1] ""
@@ -1949,11 +1942,11 @@ msgstr ""
 "Versjonen av youtube-dl som du har, versjon %(have_version)s, har fleire "
 "kjende feil. Oppgrader til versjon %(want_version)s eller nyare."
 
-#: share/gpodder/extensions/youtube-dl.py:481
+#: share/gpodder/extensions/youtube-dl.py:485
 msgid "Old Youtube-DL"
 msgstr "Gammal youtube-dl"
 
-#: share/gpodder/extensions/youtube-dl.py:486
+#: share/gpodder/extensions/youtube-dl.py:490
 msgid "Download with Youtube-DL"
 msgstr "Last ned med youtube-dl"
 
@@ -2088,7 +2081,6 @@ msgid "Select None"
 msgstr "Vel ingen"
 
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:7
-#| msgid "Added"
 msgid "Add"
 msgstr "Legg til"
 
