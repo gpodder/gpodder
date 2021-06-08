@@ -34,7 +34,8 @@ POFILES = $(wildcard po/*.po)
 LOCALEDIR = share/locale
 MOFILES = $(patsubst po/%.po,$(LOCALEDIR)/%/LC_MESSAGES/gpodder.mo, $(POFILES))
 
-UIFILES=$(wildcard share/gpodder/ui/gtk/*.ui)
+UIFILES=$(wildcard share/gpodder/ui/gtk/*.ui \
+		   share/gpodder/ui/adaptive/*.ui)
 UIFILES_H=$(subst .ui,.ui.h,$(UIFILES))
 GETTEXT_SOURCE=$(wildcard src/gpodder/*.py \
 		          src/gpodder/gtkui/*.py \
