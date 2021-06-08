@@ -28,13 +28,14 @@ import glob
 import logging
 import os.path
 import time
+from urllib.parse import urlparse
 
 import gpodder
 from gpodder import download, services, util
 import gi  # isort:skip
 gi.require_version('Gtk', '3.0')  # isort:skip
-gi.require_version('Gst', '1.0')  # isort:skip
-from gi.repository import GLib, Gio, Gst, Gtk  # isort:skip
+from gi.repository import GLib, Gio, Gtk  # isort:skip
+
 
 logger = logging.getLogger(__name__)
 
@@ -560,6 +561,12 @@ class iPodDevice(Device):
         except:
             logger.warning('Seems like your python-gpod is out-of-date.')
 
+def is_url(url):
+    try:
+        parsed = urlparse(url)
+        return not not parsed.scheme
+    except ValueError:
+        return False
 
 class MP3PlayerDevice(Device):
     def __init__(self, config,
@@ -569,7 +576,7 @@ class MP3PlayerDevice(Device):
         Device.__init__(self, config)
 
         folder = self._config.device_sync.device_folder
-        if Gst.Uri.is_valid(folder):
+        if is_url(folder):
             self.destination = Gio.File.new_for_uri(folder)
         else:
             self.destination = Gio.File.new_for_path(folder)
