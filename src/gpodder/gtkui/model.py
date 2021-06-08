@@ -605,6 +605,11 @@ class PodcastListModel(Gtk.ListStore):
             columns = (model.get_value(iter, c) for c in self.SEARCH_COLUMNS)
             return any((key in c.lower() for c in columns if c is not None))
 
+        # Show section if any of its channels have an update error
+        if isinstance(channel, PodcastChannelProxy) and not channel.ALL_EPISODES_PROXY:
+            if any(c._update_error is not None for c in channel.channels):
+                return True
+
         if model.get_value(iter, self.C_SEPARATOR):
             return True
         elif getattr(channel, '_update_error', None) is not None:
