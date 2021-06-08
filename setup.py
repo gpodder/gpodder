@@ -199,7 +199,7 @@ except MissingFile as mf:
 
 
 setup(
-    name='gpodder',
+    name='gpodder-adaptive',
     version=metadata['version'],
     description=metadata['tagline'],
     license=metadata['license'],
