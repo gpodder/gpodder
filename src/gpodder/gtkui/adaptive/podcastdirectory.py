@@ -100,6 +100,9 @@ class DirectoryProvidersModel(Gtk.ListStore):
 
 class gPodderPodcastDirectory(BuilderWidget):
     def new(self):
+        self.flap_show_image.set_from_file(os.path.join(
+            gpodder.icons_folder, 'actions', 'view-sidebar-end-symbolic.svg'))
+
         if hasattr(self, 'custom_title'):
             self.main_window.set_title(self.custom_title)
 
