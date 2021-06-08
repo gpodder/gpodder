@@ -3137,6 +3137,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if confirm and not self.show_confirmation(message, title):
             return False
 
+        self.on_episodes_cancel_download_activate(force=True)
+
         progress = ProgressIndicator(_('Deleting episodes'),
                 _('Please wait while episodes are deleted'),
                 parent=self.get_dialog_parent())
@@ -3386,7 +3388,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # Executes after tasks have been registered
         util.idle_add(queue_tasks, new_tasks, queued_existing_task)
 
-    def cancel_task_list(self, tasks):
+    def cancel_task_list(self, tasks, force=False):
         if not tasks:
             return
 
@@ -3397,6 +3399,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 task.status = task.CANCELLED
                 # Call run, so the partial file gets deleted
                 task.run()
+            elif force:
+                task.status = task.CANCELLED
 
         self.update_episode_list_icons([task.url for task in tasks])
         self.play_or_download()
@@ -3971,21 +3975,21 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # Update the tab title and downloads list
         self.update_downloads_list()
 
-    def on_episodes_cancel_download_activate(self, *params):
+    def on_episodes_cancel_download_activate(self, *params, force=False):
         selection = self.treeAvailable.get_selection()
         (model, paths) = selection.get_selected_rows()
         urls = [model.get_value(model.get_iter(path),
                 self.episode_list_model.C_URL) for path in paths]
         selected_tasks = [task for task in self.download_tasks_seen
                 if task.url in urls]
-        self.cancel_task_list(selected_tasks)
+        self.cancel_task_list(selected_tasks, force=force)
 
-    def on_progress_cancel_download_activate(self, *params):
+    def on_progress_cancel_download_activate(self, *params, force=False):
         selection = self.treeDownloads.get_selection()
         (model, paths) = selection.get_selected_rows()
         selected_tasks = [model.get_value(model.get_iter(path),
                 self.download_status_model.C_TASK) for path in paths]
-        self.cancel_task_list(selected_tasks)
+        self.cancel_task_list(selected_tasks, force=force)
 
     def on_btnCancelAll_clicked(self, widget, *args):
         self.cancel_task_list(self.download_tasks_seen)
