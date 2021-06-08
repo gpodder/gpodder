@@ -153,7 +153,7 @@ class SoundcloudUser(object):
                     'url': url,
                     'file_size': int(filesize),
                     'mime_type': filetype,
-                    'guid': track.get('permalink', track.get('id')),
+                    'guid': str(track.get('permalink', track.get('id'))),
                     'published': soundcloud_parsedate(track.get('created_at', None)),
                 }
         finally:
