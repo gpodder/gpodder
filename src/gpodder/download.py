@@ -901,6 +901,10 @@ class DownloadTask(object):
         if self.status == DownloadTask.FAILED:
             self.__episode._download_error = self.error_message
 
+            # Delete empty partial files, they prevent streaming after a download failure (live stream)
+            if util.calculate_size(self.filename) == 0:
+                util.delete_file(self.tempname)
+
         if self.status == DownloadTask.DOWNLOADING:
             # Everything went well - we're done
             self.status = DownloadTask.DONE

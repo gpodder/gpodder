@@ -2340,14 +2340,20 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def playback_episodes_for_real(self, episodes):
         groups = collections.defaultdict(list)
         for episode in episodes:
+            episode._download_error = None
+
             player = self.episode_player(episode)
+
+            try:
+                allow_partial = (player != 'default')
+                filename = episode.get_playback_url(self.config, allow_partial)
+            except Exception as e:
+                episode._download_error = str(e)
+                continue
 
             # Mark episode as played in the database
             episode.playback_mark()
             self.mygpo_client.on_playback([episode])
-
-            allow_partial = (player != 'default')
-            filename = episode.get_playback_url(self.config, allow_partial)
 
             # Determine the playback resume position - if the file
             # was played 100%, we simply start from the beginning
@@ -3648,6 +3654,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             # The remaining stuff is to be done in the GTK main thread
             util.idle_add(finish_deletion, select_url)
+
+    def on_itemRefreshCover_activate(self, widget, *args):
+        assert self.active_channel is not None
+
+        self.podcast_list_model.clear_cover_cache(self.active_channel.url)
+        self.cover_downloader.replace_cover(self.active_channel, custom_url=False)
 
     def on_itemRemoveChannel_activate(self, widget, *args):
         if self.active_channel is None:

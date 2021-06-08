@@ -219,4 +219,4 @@ check if the bug still appears to see if an extension causes the bug.
 - Homepage:                         http://gpodder.org/
 - Bug tracker:                      https://github.com/gpodder/gpodder/issues
 - Mailing list:                     http://freelists.org/list/gpodder
-- IRC channel:                      #gpodder on irc.freenode.net
+- IRC channel:                      #gpodder on irc.libera.chat
