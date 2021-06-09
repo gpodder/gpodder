@@ -80,7 +80,7 @@ class gPodderChannel(BuilderWidget):
 
         b = Gtk.TextBuffer()
         if self.channel._update_error:
-            err = '\n\nERROR: {}'.format(self.channel._update_error)
+            err = '\n\n' + (_('ERROR: %s') % self.channel._update_error)
         else:
             err = ''
         b.set_text(util.remove_html_tags(self.channel.description) + err)

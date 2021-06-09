@@ -289,8 +289,8 @@ def get_real_download_url(url, allow_partial, preferred_fmt_ids=None):
         fmt_id_url_map = dict(fmt_id_url_map)
 
         for id in preferred_fmt_ids:
-            if re.search(r'\+', str(id)):
-                # skip formats that contain a + (136+140)
+            if re.search(r'(^best|\+)', str(id)):
+                # skip formats that contain 'best.*' or a + (136+140)
                 continue
             id = int(id)
             if id in formats_available:
@@ -373,10 +373,15 @@ def get_real_channel_url(url):
 def get_channel_id_url(url):
     if 'youtube.com' in url:
         try:
-            channel_url = ''
-            raw_xml_data = io.BytesIO(util.urlopen(url).content)
-            xml_data = xml.etree.ElementTree.parse(raw_xml_data)
-            channel_id = xml_data.find("{http://www.youtube.com/xml/schemas/2015}channelId").text
+            req = util.urlopen(url)
+            # video page may contain corrupt HTML/XML, search for tag to avoid exception
+            m = re.search(r'<meta itemprop="channelId" content="([^"]+)">', req.text)
+            if m:
+                channel_id = m.group(1)
+            else:
+                raw_xml_data = io.BytesIO(req.content)
+                xml_data = xml.etree.ElementTree.parse(raw_xml_data)
+                channel_id = xml_data.find("{http://www.youtube.com/xml/schemas/2015}channelId").text
             channel_url = 'https://www.youtube.com/channel/{}'.format(channel_id)
             return channel_url
 
@@ -480,27 +485,34 @@ def parse_youtube_url(url):
     scheme, netloc, path, query, fragment = urllib.parse.urlsplit(url)
     logger.debug("Analyzing URL: {}".format(" ".join([scheme, netloc, path, query, fragment])))
 
-    if 'youtube.com' in netloc and ('/user/' in path or '/channel/' in path or 'list=' in query):
-        logger.debug("Valid Youtube URL detected. Parsing...")
+    if 'youtube.com' in netloc:
+        if '/user/' in path or '/channel/' in path or 'list=' in query:
+            logger.debug("Valid Youtube URL detected. Parsing...")
 
-        if path.startswith('/user/'):
-            user_id = path.split('/')[2]
-            query = 'user={user_id}'.format(user_id=user_id)
+            if path.startswith('/user/'):
+                user_id = path.split('/')[2]
+                query = 'user={user_id}'.format(user_id=user_id)
 
-        if path.startswith('/channel/'):
-            channel_id = path.split('/')[2]
-            query = 'channel_id={channel_id}'.format(channel_id=channel_id)
+            if path.startswith('/channel/'):
+                channel_id = path.split('/')[2]
+                query = 'channel_id={channel_id}'.format(channel_id=channel_id)
 
-        if 'list=' in query:
-            playlist_query = [query_value for query_value in query.split("&") if 'list=' in query_value][0]
-            playlist_id = playlist_query[5:]
-            query = 'playlist_id={playlist_id}'.format(playlist_id=playlist_id)
+            if 'list=' in query:
+                playlist_query = [query_value for query_value in query.split("&") if 'list=' in query_value][0]
+                playlist_id = playlist_query[5:]
+                query = 'playlist_id={playlist_id}'.format(playlist_id=playlist_id)
 
-        path = '/feeds/videos.xml'
+            path = '/feeds/videos.xml'
 
-        new_url = urllib.parse.urlunsplit((scheme, netloc, path, query, fragment))
-        logger.debug("New Youtube URL: {}".format(new_url))
-        return new_url
-    else:
-        logger.debug("Not a valid Youtube URL: {}".format(url))
-        return url
+            new_url = urllib.parse.urlunsplit((scheme, netloc, path, query, fragment))
+            logger.debug("New Youtube URL: {}".format(new_url))
+            return new_url
+
+        # look for channel URL in page
+        new_url = get_channel_id_url(url)
+        if new_url:
+            logger.debug("New Youtube URL: {}".format(new_url))
+            return new_url
+
+    logger.debug("Not a valid Youtube URL: {}".format(url))
+    return url
