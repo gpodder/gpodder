@@ -40,7 +40,7 @@ from gpodder.model import Model, PodcastEpisode
 from gpodder.syncui import gPodderSyncUI
 
 from . import shownotes
-from .adaptive.channel import gPodderChannel
+from .desktop.channel import gPodderChannel
 from .adaptive.episodeselector import gPodderEpisodeSelector
 from .desktop.exportlocal import gPodderExportToLocalFolder
 from .adaptive.podcastdirectory import gPodderPodcastDirectory
@@ -3561,6 +3561,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return
 
         gPodderChannel(self.main_window,
+                ui_folder=os.path.join(
+                    gpodder.ui_folders[0], '..', 'gtk'),
                 channel=self.active_channel,
                 update_podcast_list_model=self.update_podcast_list_model,
                 cover_downloader=self.cover_downloader,
