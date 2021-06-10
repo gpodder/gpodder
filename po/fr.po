@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: gPodder\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-06-10 10:28+0200\n"
-"PO-Revision-Date: 2021-03-27 14:15+0100\n"
+"PO-Revision-Date: 2021-06-10 10:33+0200\n"
 "Last-Translator: Eric Le Lay <elelay@macports.org>\n"
 "Language-Team: French (http://www.transifex.com/projects/p/gpodder/language/"
 "fr/)\n"
@@ -19,7 +19,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Poedit 2.4.1\n"
+"X-Generator: Poedit 3.0\n"
 
 #: src/gpodder/config.py:53
 #, python-format
@@ -96,10 +96,8 @@ msgid "Paused"
 msgstr "En pause"
 
 #: src/gpodder/download.py:864
-#, fuzzy
-#| msgid "Select the episodes you want to download:"
 msgid "Episode has no URL to download"
-msgstr "Sélectionner les épisodes que vous voulez télécharger : "
+msgstr "Cet épisode ne contient pas de fichier à télécharger"
 
 #: src/gpodder/download.py:867
 msgid "Missing content from server"
@@ -108,7 +106,7 @@ msgstr "Contenu manquant sur le serveur"
 #: src/gpodder/download.py:873
 #, python-format
 msgid "Couldn't connect to server %(host)s:%(port)s"
-msgstr ""
+msgstr "Impossible de se connecter au serveur %(host)s:%(port)s"
 
 #: src/gpodder/download.py:882
 #, python-format
@@ -715,10 +713,8 @@ msgid "Archive"
 msgstr "Archiver"
 
 #: src/gpodder/gtkui/main.py:1718
-#, fuzzy
-#| msgid "_Refresh"
 msgid "Refresh image"
-msgstr "Rafraîchir"
+msgstr "Rafraîchir l'image"
 
 #: src/gpodder/gtkui/main.py:1722
 msgid "Delete podcast"
@@ -1309,7 +1305,7 @@ msgstr "Abonnement en pause"
 #: src/gpodder/gtkui/shownotes.py:60
 #, python-format
 msgid "%(date)s | %(size)s | %(duration)s"
-msgstr ""
+msgstr "%(date)s | %(size)s | %(duration)s"
 
 #: src/gpodder/gtkui/shownotes.py:147
 msgid "Please select an episode"
@@ -1323,6 +1319,10 @@ msgid ""
 "<p>%(subheading)s</p>\n"
 "<p>%(details)s</p></div>\n"
 msgstr ""
+"<div id=\"gpodder-title\">\n"
+"%(heading)s\n"
+"<p>%(subheading)s</p>\n"
+"<p>%(details)s</p></div>\n"
 
 #: src/gpodder/gtkui/shownotes.py:356
 msgid "Open shownotes in web browser"
@@ -1957,6 +1957,8 @@ msgid ""
 "Your version of youtube-dl %(have_version)s has known issues, please upgrade "
 "to %(want_version)s or newer."
 msgstr ""
+"Votre version de youtube-dl %(have_version)s ne fonctionne pas bien. Merci "
+"de la mettre à jour en %(want_version)s ou plus récent."
 
 #: share/gpodder/extensions/youtube-dl.py:485
 msgid "Old Youtube-DL"
@@ -2066,10 +2068,8 @@ msgid "Select None"
 msgstr "Ne rien sélectionner"
 
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:7
-#, fuzzy
-#| msgid "Added"
 msgid "Add"
-msgstr "Ajouté"
+msgstr "Ajouter"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:1
 #: share/gpodder/ui/gtk/gpodder.ui.h:3 share/gpodder/ui/gtk/menus.ui.h:1
@@ -2138,7 +2138,7 @@ msgstr "Lorsque de nouveaux épisodes sont trouvés : "
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:22
 msgid "Check connection before updating (if supported)"
-msgstr ""
+msgstr "Vérifier la connectivité à Internet avant la mise à jour (si possible)"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:23
 msgid "Updating"
