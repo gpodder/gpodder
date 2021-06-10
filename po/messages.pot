@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-06-06 20:20-0600\n"
+"POT-Creation-Date: 2021-06-10 10:28+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -655,9 +655,9 @@ msgstr ""
 msgid "Download"
 msgstr ""
 
-#: src/gpodder/gtkui/main.py:1642 share/gpodder/ui/gtk/gpodder.ui.h:2
+#: src/gpodder/gtkui/main.py:1642
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:6
-#: share/gpodder/ui/gtk/menus.ui.h:24
+#: share/gpodder/ui/gtk/gpodder.ui.h:2 share/gpodder/ui/gtk/menus.ui.h:24
 msgid "Cancel"
 msgstr ""
 
@@ -1263,7 +1263,7 @@ msgstr ""
 
 #: src/gpodder/gtkui/shownotes.py:60
 #, python-format
-msgid "%s | %s | %s"
+msgid "%(date)s | %(size)s | %(duration)s"
 msgstr ""
 
 #: src/gpodder/gtkui/shownotes.py:147
@@ -1274,16 +1274,16 @@ msgstr ""
 #, python-format
 msgid ""
 "<div id=\"gpodder-title\">\n"
-"%s\n"
-"<p>%s</p>\n"
-"<p>%s</p></div>\n"
+"%(heading)s\n"
+"<p>%(subheading)s</p>\n"
+"<p>%(details)s</p></div>\n"
 msgstr ""
 
-#: src/gpodder/gtkui/shownotes.py:355
+#: src/gpodder/gtkui/shownotes.py:356
 msgid "Open shownotes in web browser"
 msgstr ""
 
-#: src/gpodder/gtkui/shownotes.py:361
+#: src/gpodder/gtkui/shownotes.py:362
 msgid "Open link in web browser"
 msgstr ""
 
@@ -1890,36 +1890,6 @@ msgstr ""
 msgid "Download with Youtube-DL"
 msgstr ""
 
-#: share/gpodder/ui/gtk/gpodder.ui.h:3
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:1
-#: share/gpodder/ui/gtk/menus.ui.h:1
-msgid "Preferences"
-msgstr ""
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:5 share/gpodder/ui/gtk/menus.ui.h:8
-msgid "Check for new episodes"
-msgstr ""
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:6
-msgid "Filter:"
-msgstr ""
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:7
-msgid "Podcasts"
-msgstr ""
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:8
-msgid "Limit rate to"
-msgstr ""
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:9
-msgid "KiB/s"
-msgstr ""
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:10
-msgid "Limit downloads to"
-msgstr ""
-
 #: share/gpodder/ui/gtk/gpodderaddpodcast.ui.h:1
 msgid "Add a new podcast"
 msgstr ""
@@ -2021,6 +1991,11 @@ msgstr ""
 
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:7
 msgid "Add"
+msgstr ""
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:1
+#: share/gpodder/ui/gtk/gpodder.ui.h:3 share/gpodder/ui/gtk/menus.ui.h:1
+msgid "Preferences"
 msgstr ""
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:2
@@ -2141,6 +2116,30 @@ msgstr ""
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:36
 msgid "Edit config"
+msgstr ""
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:5 share/gpodder/ui/gtk/menus.ui.h:8
+msgid "Check for new episodes"
+msgstr ""
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:6
+msgid "Filter:"
+msgstr ""
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:7
+msgid "Podcasts"
+msgstr ""
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:8
+msgid "Limit rate to"
+msgstr ""
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:9
+msgid "KiB/s"
+msgstr ""
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:10
+msgid "Limit downloads to"
 msgstr ""
 
 #: share/gpodder/ui/gtk/gpodderwelcome.ui.h:2
@@ -2514,10 +2513,6 @@ msgstr ""
 msgid "Mac OS X application process number"
 msgstr ""
 
-#: share/applications/gpodder-url-handler.desktop.in.h:1
-msgid "gPodder (subscribe to feed)"
-msgstr ""
-
 #: share/applications/gpodder.desktop.in.h:2
 msgid "gPodder Podcast Client"
 msgstr ""
@@ -2528,4 +2523,8 @@ msgstr ""
 
 #: share/applications/gpodder.desktop.in.h:4
 msgid "Subscribe to audio and video content from the web"
+msgstr ""
+
+#: share/applications/gpodder-url-handler.desktop.in.h:1
+msgid "gPodder (subscribe to feed)"
 msgstr ""

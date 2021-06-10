@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gPodder\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-06-06 20:20-0600\n"
+"POT-Creation-Date: 2021-06-10 10:28+0200\n"
 "PO-Revision-Date: 2021-06-02 17:31+0200\n"
 "Last-Translator: Karl Ove Hufthammer <karl@huftis.org>\n"
 "Language-Team: Norwegian Nynorsk <l10n-no@lister.huftis.org>\n"
@@ -670,9 +670,9 @@ msgstr "Start nedlasting no"
 msgid "Download"
 msgstr "Last ned"
 
-#: src/gpodder/gtkui/main.py:1642 share/gpodder/ui/gtk/gpodder.ui.h:2
+#: src/gpodder/gtkui/main.py:1642
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:6
-#: share/gpodder/ui/gtk/menus.ui.h:24
+#: share/gpodder/ui/gtk/gpodder.ui.h:2 share/gpodder/ui/gtk/menus.ui.h:24
 msgid "Cancel"
 msgstr "Avbryt"
 
@@ -1296,31 +1296,36 @@ msgstr "Abonnement sett på pause"
 
 #: src/gpodder/gtkui/shownotes.py:60
 #, python-format
-msgid "%s | %s | %s"
-msgstr "%s | %s | %s"
+msgid "%(date)s | %(size)s | %(duration)s"
+msgstr ""
 
 #: src/gpodder/gtkui/shownotes.py:147
 msgid "Please select an episode"
 msgstr "Vel episode"
 
 #: src/gpodder/gtkui/shownotes.py:313
-#, python-format
+#, fuzzy, python-format
+#| msgid ""
+#| "<div id=\"gpodder-title\">\n"
+#| "%s\n"
+#| "<p>%s</p>\n"
+#| "<p>%s</p></div>\n"
 msgid ""
 "<div id=\"gpodder-title\">\n"
-"%s\n"
-"<p>%s</p>\n"
-"<p>%s</p></div>\n"
+"%(heading)s\n"
+"<p>%(subheading)s</p>\n"
+"<p>%(details)s</p></div>\n"
 msgstr ""
 "<div id=\"gpodder-title\">\n"
 "%s\n"
 "<p>%s</p>\n"
 "<p>%s</p></div>\n"
 
-#: src/gpodder/gtkui/shownotes.py:355
+#: src/gpodder/gtkui/shownotes.py:356
 msgid "Open shownotes in web browser"
 msgstr "Opna programnotat i nettlesar"
 
-#: src/gpodder/gtkui/shownotes.py:361
+#: src/gpodder/gtkui/shownotes.py:362
 msgid "Open link in web browser"
 msgstr "Opna lenkje i nettlesar"
 
@@ -1950,37 +1955,6 @@ msgstr "Gammal youtube-dl"
 msgid "Download with Youtube-DL"
 msgstr "Last ned med youtube-dl"
 
-#: share/gpodder/ui/gtk/gpodder.ui.h:3
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:1
-#: share/gpodder/ui/gtk/menus.ui.h:1
-msgid "Preferences"
-msgstr "Innstillingar"
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:5 share/gpodder/ui/gtk/menus.ui.h:8
-msgid "Check for new episodes"
-msgstr "Sjå etter nye episodar"
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:6
-msgid "Filter:"
-msgstr "Filter:"
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:7
-msgid "Podcasts"
-msgstr "Podkastar"
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:8
-msgid "Limit rate to"
-msgstr "Avgrens nedlastingsfart til"
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:9
-msgid "KiB/s"
-msgstr "KiB/s"
-
-# God plass, så går greitt med lang tekst her.
-#: share/gpodder/ui/gtk/gpodder.ui.h:10
-msgid "Limit downloads to"
-msgstr "Avgrens talet på samtidige nedlastingar til"
-
 #: share/gpodder/ui/gtk/gpodderaddpodcast.ui.h:1
 msgid "Add a new podcast"
 msgstr "Legg til ny podkast"
@@ -2083,6 +2057,11 @@ msgstr "Vel ingen"
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:7
 msgid "Add"
 msgstr "Legg til"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:1
+#: share/gpodder/ui/gtk/gpodder.ui.h:3 share/gpodder/ui/gtk/menus.ui.h:1
+msgid "Preferences"
+msgstr "Innstillingar"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:2
 msgid "Video player:"
@@ -2205,6 +2184,31 @@ msgstr "Einingar"
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:36
 msgid "Edit config"
 msgstr "Rediger råoppsett"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:5 share/gpodder/ui/gtk/menus.ui.h:8
+msgid "Check for new episodes"
+msgstr "Sjå etter nye episodar"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:6
+msgid "Filter:"
+msgstr "Filter:"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:7
+msgid "Podcasts"
+msgstr "Podkastar"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:8
+msgid "Limit rate to"
+msgstr "Avgrens nedlastingsfart til"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:9
+msgid "KiB/s"
+msgstr "KiB/s"
+
+# God plass, så går greitt med lang tekst her.
+#: share/gpodder/ui/gtk/gpodder.ui.h:10
+msgid "Limit downloads to"
+msgstr "Avgrens talet på samtidige nedlastingar til"
 
 #: share/gpodder/ui/gtk/gpodderwelcome.ui.h:2
 msgid "<big>Welcome to gPodder</big>"
@@ -2580,10 +2584,6 @@ msgstr "abonner på kjelda på nettadressa"
 msgid "Mac OS X application process number"
 msgstr "Mac OS X-prosess-ID"
 
-#: share/applications/gpodder-url-handler.desktop.in.h:1
-msgid "gPodder (subscribe to feed)"
-msgstr "gPodder (abonner på kjelde)"
-
 #: share/applications/gpodder.desktop.in.h:2
 msgid "gPodder Podcast Client"
 msgstr "gPodder podkastklient"
@@ -2595,3 +2595,7 @@ msgstr "Podkastklient"
 #: share/applications/gpodder.desktop.in.h:4
 msgid "Subscribe to audio and video content from the web"
 msgstr "Abonner på lyd- og videoinnhald på Internett"
+
+#: share/applications/gpodder-url-handler.desktop.in.h:1
+msgid "gPodder (subscribe to feed)"
+msgstr "gPodder (abonner på kjelde)"
