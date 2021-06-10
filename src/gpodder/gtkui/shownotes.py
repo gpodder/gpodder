@@ -57,7 +57,7 @@ def get_shownotes(enable_html, pane):
 class gPodderShownotes:
     def __init__(self, shownotes_pane):
         self.shownotes_pane = shownotes_pane
-        self.details_fmt = _('%s | %s | %s')
+        self.details_fmt = _('%(date)s | %(size)s | %(duration)s')
 
         self.scrolled_window = Gtk.ScrolledWindow()
         self.scrolled_window.set_shadow_type(Gtk.ShadowType.IN)
@@ -198,11 +198,11 @@ class gPodderShownotesText(gPodderShownotes):
     def update(self, episode):
         heading = episode.title
         subheading = _('from %s') % (episode.channel.title)
-        details = self.details_fmt % (
-            util.format_date(episode.published),
-            util.format_filesize(episode.file_size, digits=1)
+        details = self.details_fmt % {
+            'date': util.format_date(episode.published),
+            'size': util.format_filesize(episode.file_size, digits=1)
             if episode.file_size > 0 else "-",
-            episode.get_play_info_string())
+            'duration': episode.get_play_info_string()}
         self.define_colors()
         hyperlinks = [(0, None)]
         self.text_buffer.set_text('')
@@ -305,12 +305,13 @@ class gPodderShownotesHTML(gPodderShownotes):
             self.manager.add_style_sheet(stylesheet)
         heading = '<h3>%s</h3>' % html.escape(episode.title)
         subheading = _('from %s') % html.escape(episode.channel.title)
-        details = '<small>%s</small>' % html.escape(self.details_fmt % (
-            util.format_date(episode.published),
-            util.format_filesize(episode.file_size, digits=1)
+        details = '<small>%s</small>' % html.escape(self.details_fmt % {
+            'date': util.format_date(episode.published),
+            'size': util.format_filesize(episode.file_size, digits=1)
             if episode.file_size > 0 else "-",
-            episode.get_play_info_string()))
-        header_html = _('<div id="gpodder-title">\n%s\n<p>%s</p>\n<p>%s</p></div>\n') % (heading, subheading, details)
+            'duration': episode.get_play_info_string()})
+        header_html = _('<div id="gpodder-title">\n%(heading)s\n<p>%(subheading)s</p>\n<p>%(details)s</p></div>\n') \
+            % dict(heading=heading, subheading=subheading, details=details)
         description_html = episode.description_html
         if not description_html:
             description_html = re.sub(r'\n', '<br>\n', episode.description)
