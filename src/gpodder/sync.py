@@ -279,7 +279,7 @@ class Device(services.ObservableService):
         if tracklist:
             for track in sorted(tracklist, key=lambda e: e.pubdate_prop):
                 if self.cancelled:
-                    return False
+                    break
 
                 # XXX: need to check if track is added properly?
                 sync_task = SyncTask(track)
@@ -595,11 +595,16 @@ class MP3PlayerDevice(Device):
         if not self.mount_volume_for_file(self.destination):
             return False
 
-        info = self.destination.query_info(
-            Gio.FILE_ATTRIBUTE_ACCESS_CAN_WRITE + "," +
-            Gio.FILE_ATTRIBUTE_STANDARD_TYPE,
-            Gio.FileQueryInfoFlags.NONE,
-            None)
+        try:
+            info = self.destination.query_info(
+                Gio.FILE_ATTRIBUTE_ACCESS_CAN_WRITE + "," +
+                Gio.FILE_ATTRIBUTE_STANDARD_TYPE,
+                Gio.FileQueryInfoFlags.NONE,
+                None)
+        except GLib.Error as err:
+            logger.error('querying destination info for %s failed with %s',
+                self.destination.get_uri(), err.message)
+            return False
 
         # open is ok if the target is a directory, and it can be written to
         # for smb, query_info doesn't return FILE_ATTRIBUTE_ACCESS_CAN_WRITE,
@@ -674,7 +679,6 @@ class MP3PlayerDevice(Device):
                 logger.error('Error copying %s to %s: %s', from_file.get_uri(), to_file.get_uri(), err.message)
                 d = {'from_file': from_file.get_uri(), 'to_file': to_file.get_uri(), 'message': err.message}
                 self.errors.append(_('Error copying %(from_file)s to %(to_file)s: %(message)s') % d)
-                self.cancel()
                 return False
 
         return True

@@ -43,9 +43,6 @@ class TaskQueue:
         with self.lock:
             return len(self.tasks)
 
-    def is_empty(self):
-        return len(self) > 0
-
     def add_task(self, task):
         with self.lock:
             self.tasks.append(task)

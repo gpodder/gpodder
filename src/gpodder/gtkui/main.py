@@ -3703,13 +3703,19 @@ class gPodder(BuilderWidget, dbus.service.Object):
         except GLib.Error as err:
             if (not err.matches(Gio.io_error_quark(), Gio.IOErrorEnum.NOT_SUPPORTED) and
                 not err.matches(Gio.io_error_quark(), Gio.IOErrorEnum.ALREADY_MOUNTED)):
-                logger.error('mounting volume %s failed: %s' % (file.get_uri(), err.message));
+                logger.error('mounting volume %s failed: %s' % (file.get_uri(), err.message))
                 result = False
         finally:
             mount_result["result"] = result
             Gtk.main_quit()
 
     def mount_volume_for_file(self, file):
+        op = Gtk.MountOperation.new(self.main_window)
+        result, message = util.mount_volume_for_file(file, op)
+        if not result:
+            logger.error('mounting volume %s failed: %s' % (file.get_uri(), message))
+        return result
+
         mount_result = {}
         op = Gtk.MountOperation.new(self.main_window)
         file.mount_enclosing_volume(Gio.MountMountFlags.NONE, op, None, self.mount_volume_cb, mount_result)

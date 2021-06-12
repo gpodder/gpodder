@@ -61,6 +61,10 @@ import xml.dom.minidom
 from html.entities import entitydefs, name2codepoint
 from html.parser import HTMLParser
 
+import gi
+gi.require_version('Gtk', '3.0')  # isort:skip
+from gi.repository import Gio, GLib, Gtk # isort:skip
+
 import requests
 import requests.exceptions
 from requests.packages.urllib3.util.retry import Retry
@@ -2212,3 +2216,29 @@ def response_text(response, default_encoding='utf-8'):
         return response.text
     else:
         return response.content.decode(default_encoding)
+
+
+def mount_volume_for_file(file, op = None):
+    """
+    Utility method to mount the enclosing volume for the given file in a blocking
+    fashion
+    """
+    result = True
+    message = None
+
+    def callback(file, res):
+        nonlocal result, message
+        try:
+            file.mount_enclosing_volume_finish(res)
+            result = True
+        except GLib.Error as err:
+            if (not err.matches(Gio.io_error_quark(), Gio.IOErrorEnum.NOT_SUPPORTED) and
+                not err.matches(Gio.io_error_quark(), Gio.IOErrorEnum.ALREADY_MOUNTED)):
+                message = err.message
+                result = False
+        finally:
+            Gtk.main_quit()
+
+    file.mount_enclosing_volume(Gio.MountMountFlags.NONE, op, None, callback)
+    Gtk.main()
+    return result, message

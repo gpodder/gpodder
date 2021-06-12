@@ -100,10 +100,16 @@ class gPodderSyncUI(object):
         device = sync.open_device(self)
 
         if device is None:
-            return self._show_message_unconfigured()
+            self._show_message_unconfigured()
+            if done_callback:
+                done_callback()
+            return
 
         if not device.open():
-            return self._show_message_cannot_open()
+            self._show_message_cannot_open()
+            if done_callback:
+                done_callback()
+            return
         else:
             # Only set if device is configured and opened successfully
             self.device = device
