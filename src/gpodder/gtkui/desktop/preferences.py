@@ -667,10 +667,6 @@ class gPodderPreferences(BuilderWidget):
                 label = children.pop()
                 label.set_alignment(0., .5)
 
-        else:
-            # TODO: Add support for iPod and MTP devices
-            pass
-
     def on_btn_device_mountpoint_clicked(self, widget):
         fs = Gtk.FileChooserDialog(title=_('Select folder for mount point'),
                 action=Gtk.FileChooserAction.SELECT_FOLDER)
