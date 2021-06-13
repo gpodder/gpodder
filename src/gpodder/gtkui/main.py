@@ -3893,20 +3893,20 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.dl_del_button.set_sensitive(True)
         # ... then connect the correct handler
         if ep.downloading:
-            self.dl_del_label.set_text("Cancel Download")
+            self.dl_del_label.set_text(_("Cancel"))
             self.dl_del_button.connect("clicked", self.on_episodes_cancel_download_activate)
         elif ep.was_downloaded(and_exists=True):
-            self.dl_del_label.set_text("Delete")
+            self.dl_del_label.set_text(_("Delete"))
             self.dl_del_button.connect("clicked", self.on_episode_delete_clicked)
         else:
-            self.dl_del_label.set_text("Download")
+            self.dl_del_label.set_text(_("Download"))
             self.dl_del_button.connect("clicked", self.on_episode_download_clicked)
         # Play / Stream button
         if ep.was_downloaded(and_exists=True):
-            self.play_button.set_label("Play")
+            self.play_button.set_label(_("Play"))
             self.play_button.set_sensitive(True)
         else:
-            self.play_button.set_label("Stream")
+            self.play_button.set_label(_("Stream"))
             self.play_button.set_sensitive(self.streaming_possible(ep))
         self.navigate_to_shownotes()
         return True
