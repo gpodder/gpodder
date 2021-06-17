@@ -135,6 +135,13 @@ class gPodderExtension:
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
         box.set_border_width(10)
 
+        # note about Cancel
+        note = Gtk.Label(use_markup=True, wrap=True, label=_(
+            '<b>Note:</b> The Cancel button does <b>not</b> return the '
+            'filter settings to the values they had before. '
+            'The changes are saved immediately after they are made.'))
+        box.add(note)
+
         # block widgets
         self.block_widget = BlockExceptFrame(value=block,
                                              enable_re=self.key('block_re') is not False,
@@ -163,9 +170,14 @@ class gPodderExtension:
         box.add(label)
 
         # re-filter
-        button = Gtk.Button(_('Filter episodes now (undoes any episodes you marked as old)'))
+        separator = Gtk.HSeparator()
+        box.add(separator)
+        button = Gtk.Button(_('Filter episodes now'))
         button.connect('clicked', self.refilter_podcast)
         box.add(button)
+
+        label2 = Gtk.Label(_('Undoes any episodes you marked as old.'))
+        box.add(label2)
 
         box.show_all()
         return box
