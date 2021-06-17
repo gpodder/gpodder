@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gPodder\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-06-06 20:20-0600\n"
+"POT-Creation-Date: 2021-06-10 10:28+0200\n"
 "PO-Revision-Date: 2019-09-11 14:42+0200\n"
 "Last-Translator: Karol Bieńkowski <karolbienkowski@protonmail.com>\n"
 "Language-Team: Polish <>\n"
@@ -685,9 +685,9 @@ msgstr "Rozpocznij pobieranie"
 msgid "Download"
 msgstr "Pobierz"
 
-#: src/gpodder/gtkui/main.py:1642 share/gpodder/ui/gtk/gpodder.ui.h:2
+#: src/gpodder/gtkui/main.py:1642
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:6
-#: share/gpodder/ui/gtk/menus.ui.h:24
+#: share/gpodder/ui/gtk/gpodder.ui.h:2 share/gpodder/ui/gtk/menus.ui.h:24
 msgid "Cancel"
 msgstr "Anuluj"
 
@@ -1320,7 +1320,7 @@ msgstr "Subskrypcja wstrzymana"
 
 #: src/gpodder/gtkui/shownotes.py:60
 #, python-format
-msgid "%s | %s | %s"
+msgid "%(date)s | %(size)s | %(duration)s"
 msgstr ""
 
 #: src/gpodder/gtkui/shownotes.py:147
@@ -1331,16 +1331,16 @@ msgstr "Wybierz odcinek"
 #, python-format
 msgid ""
 "<div id=\"gpodder-title\">\n"
-"%s\n"
-"<p>%s</p>\n"
-"<p>%s</p></div>\n"
+"%(heading)s\n"
+"<p>%(subheading)s</p>\n"
+"<p>%(details)s</p></div>\n"
 msgstr ""
 
-#: src/gpodder/gtkui/shownotes.py:355
+#: src/gpodder/gtkui/shownotes.py:356
 msgid "Open shownotes in web browser"
 msgstr "Otwórz notatki z podcastu w przeglądarce"
 
-#: src/gpodder/gtkui/shownotes.py:361
+#: src/gpodder/gtkui/shownotes.py:362
 msgid "Open link in web browser"
 msgstr "Otwórz link w przeglądarce"
 
@@ -1973,36 +1973,6 @@ msgstr "Pobieraj do:"
 msgid "Download with Youtube-DL"
 msgstr "Pobieraj do:"
 
-#: share/gpodder/ui/gtk/gpodder.ui.h:3
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:1
-#: share/gpodder/ui/gtk/menus.ui.h:1
-msgid "Preferences"
-msgstr "Preferencje"
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:5 share/gpodder/ui/gtk/menus.ui.h:8
-msgid "Check for new episodes"
-msgstr "Poszukaj nowych odcinków"
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:6
-msgid "Filter:"
-msgstr "Filtr:"
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:7
-msgid "Podcasts"
-msgstr "Podcasty"
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:8
-msgid "Limit rate to"
-msgstr "Ogranicz prędkość do"
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:9
-msgid "KiB/s"
-msgstr "KiB/s"
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:10
-msgid "Limit downloads to"
-msgstr "Ogranicz liczbę pobrań do"
-
 #: share/gpodder/ui/gtk/gpodderaddpodcast.ui.h:1
 msgid "Add a new podcast"
 msgstr "Dodaj nowy podcast"
@@ -2107,6 +2077,11 @@ msgstr "Odznacz wszystko"
 #| msgid "Added"
 msgid "Add"
 msgstr "Dodane"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:1
+#: share/gpodder/ui/gtk/gpodder.ui.h:3 share/gpodder/ui/gtk/menus.ui.h:1
+msgid "Preferences"
+msgstr "Preferencje"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:2
 msgid "Video player:"
@@ -2229,6 +2204,30 @@ msgstr "Urządzenia"
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:36
 msgid "Edit config"
 msgstr "Zmodyfikuj konfigurację"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:5 share/gpodder/ui/gtk/menus.ui.h:8
+msgid "Check for new episodes"
+msgstr "Poszukaj nowych odcinków"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:6
+msgid "Filter:"
+msgstr "Filtr:"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:7
+msgid "Podcasts"
+msgstr "Podcasty"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:8
+msgid "Limit rate to"
+msgstr "Ogranicz prędkość do"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:9
+msgid "KiB/s"
+msgstr "KiB/s"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:10
+msgid "Limit downloads to"
+msgstr "Ogranicz liczbę pobrań do"
 
 #: share/gpodder/ui/gtk/gpodderwelcome.ui.h:2
 msgid "<big>Welcome to gPodder</big>"
@@ -2620,10 +2619,6 @@ msgstr "subskrybuj się do kanału pod URLem"
 msgid "Mac OS X application process number"
 msgstr "Numer procesu aplikacji Mac OS X"
 
-#: share/applications/gpodder-url-handler.desktop.in.h:1
-msgid "gPodder (subscribe to feed)"
-msgstr "gPodder (subskrybuj kanał)"
-
 #: share/applications/gpodder.desktop.in.h:2
 msgid "gPodder Podcast Client"
 msgstr "Klient Podcastów gPodder"
@@ -2635,3 +2630,7 @@ msgstr "Klient Podcastów"
 #: share/applications/gpodder.desktop.in.h:4
 msgid "Subscribe to audio and video content from the web"
 msgstr "Subskrybuj audio i wideo z sieci"
+
+#: share/applications/gpodder-url-handler.desktop.in.h:1
+msgid "gPodder (subscribe to feed)"
+msgstr "gPodder (subskrybuj kanał)"

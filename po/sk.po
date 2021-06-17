@@ -1,52 +1,52 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
+# Translators:
 msgid ""
 msgstr ""
-"Project-Id-Version: \n"
+"Project-Id-Version: gPodder\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-06-10 10:28+0200\n"
-"PO-Revision-Date: 2016-01-01 21:09+0900\n"
-"Last-Translator: \n"
-"Language-Team: \n"
-"Language: ko_KR\n"
+"PO-Revision-Date: 2021-06-15 13:37+0200\n"
+"Last-Translator: Thomas Perl <m@thp.io>\n"
+"Language-Team: Slovak (http://www.transifex.com/projects/p/"
+"gpodder/language/sk/)\n"
+"Language: sk\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Poedit 1.8.6\n"
+"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
 
 #: src/gpodder/config.py:53
 #, python-format
 msgid "gPodder on %s"
-msgstr "gPodder on %s"
+msgstr "gPodder na %s"
 
 #: src/gpodder/deviceplaylist.py:98
 #, python-format
 msgid "Folder %s could not be created."
-msgstr "%s 폴더를 만들 수 없습니다"
+msgstr "Priečinok %s nebolo možné vytvoriť."
 
 #: src/gpodder/deviceplaylist.py:98
 msgid "Error writing playlist"
-msgstr "플레이 리스트 저장 에러"
+msgstr "Chyba pri zapisovaní zoznamu"
 
 #: src/gpodder/directory.py:97
 msgid "gpodder.net search"
-msgstr "gpodder.net 에서 검색"
+msgstr "Vyhľadávanie na gpodder.net"
 
 #: src/gpodder/directory.py:107
 msgid "OPML from web"
-msgstr "웹에서 OPML가져오기"
+msgstr "Súbory OPML z webu"
 
 #: src/gpodder/directory.py:117
 msgid "OPML file"
-msgstr "OPML 파일"
+msgstr "Súbor OPML"
 
 #: src/gpodder/directory.py:127 share/gpodder/ui/gtk/gpodderwelcome.ui.h:1
 msgid "Getting started"
-msgstr "시작하기"
+msgstr "Začíname"
 
 #: src/gpodder/directory.py:137
 msgid "gpodder.net Top 50"
@@ -54,144 +54,139 @@ msgstr "gpodder.net Top 50"
 
 #: src/gpodder/directory.py:147
 msgid "gpodder.net Tags"
-msgstr "gpodder.net 태그"
+msgstr "gpodder.net Tagy"
 
 #: src/gpodder/directory.py:160
 msgid "Soundcloud search"
-msgstr "Soundcloud에서 검색"
+msgstr "Vyhľadávanie na Soundcloud"
 
 #: src/gpodder/directory.py:174
 msgid "Imported OPML file"
-msgstr "가져온 파일"
+msgstr "Importovať OPML súbor"
 
 #: src/gpodder/download.py:541 src/gpodder/sync.py:974
 msgid "Added"
-msgstr "추가"
+msgstr "Pridané"
 
 #: src/gpodder/download.py:541 src/gpodder/sync.py:974
 msgid "Queued"
-msgstr "대기중"
+msgstr "Zaradené do poradia"
 
 #: src/gpodder/download.py:541 src/gpodder/gtkui/model.py:382
 msgid "Downloading"
-msgstr "다운로드중"
+msgstr "Sťahovanie"
 
 #: src/gpodder/download.py:542 src/gpodder/model.py:772 src/gpodder/sync.py:975
 msgid "Finished"
-msgstr "완료"
+msgstr "Dokončené"
 
 #: src/gpodder/download.py:542 src/gpodder/sync.py:975
 msgid "Failed"
-msgstr "실패"
+msgstr "Zlyhalo"
 
 #: src/gpodder/download.py:542 src/gpodder/sync.py:975
 msgid "Cancelled"
-msgstr "취소됨"
+msgstr "Zrušené"
 
 #: src/gpodder/download.py:542 src/gpodder/sync.py:975
 msgid "Paused"
-msgstr "잠시멈춤"
+msgstr "Pozastavené"
 
 #: src/gpodder/download.py:864
-#, fuzzy
-#| msgid "Select the episodes you want to download:"
 msgid "Episode has no URL to download"
-msgstr "다운로드 하려는 에피소드를 선택하세요"
+msgstr "Epizóda nemá URL adresu na stiahnutie"
 
 #: src/gpodder/download.py:867
 msgid "Missing content from server"
-msgstr "서버에서 컨텐츠를 찾을 수 없음"
+msgstr "Chýbajuci obsah zo servera"
 
 #: src/gpodder/download.py:873
 #, python-format
 msgid "Couldn't connect to server %(host)s:%(port)s"
-msgstr ""
+msgstr "Nepodarilo sa pripojiť k serveru %(host)s:%(port)s"
 
 #: src/gpodder/download.py:882
-#, fuzzy, python-format
-#| msgid "Syntax error: %(error)s"
+#, python-format
 msgid "Request Error: %(error)s"
-msgstr "Syntax 에러: %(error)s"
+msgstr "Chyba požiadavky: %(error)s"
 
 #: src/gpodder/download.py:888
 #, python-format
 msgid "I/O Error: %(error)s: %(filename)s"
-msgstr "I/O 에러: %(error)s: %(filename)s"
+msgstr "Chyba vstupu/výstupu: %(error)s: %(filename)s"
 
 #: src/gpodder/download.py:895
 #, python-format
 msgid "HTTP Error %(code)s: %(message)s"
-msgstr "HTTP 에러 %(code)s: %(message)s"
+msgstr "Chyba HTTP %(code)s: %(message)s"
 
 #: src/gpodder/download.py:899 src/gpodder/sync.py:1130
 #, python-format
 msgid "Error: %s"
-msgstr "에러: %s"
+msgstr "Chyba: %s"
 
 #: src/gpodder/extensions.py:55
 msgid "Desktop Integration"
-msgstr "데스크탑 통합"
+msgstr "Integrácia"
 
 #: src/gpodder/extensions.py:56
 msgid "Interface"
-msgstr "인터페이스"
+msgstr "Rozhranie"
 
-# Need more context to translate it
 #: src/gpodder/extensions.py:57
 msgid "Post download"
-msgstr "Post download"
+msgstr "Po stiahnutí"
 
 #: src/gpodder/extensions.py:59 src/gpodder/model.py:836
 #: src/gpodder/model.py:1250
 msgid "Other"
-msgstr "다른"
+msgstr "Iné"
 
 #: src/gpodder/extensions.py:100
 msgid "No description for this extension."
-msgstr "확장기능에 대한 설명이 없습니다."
+msgstr "Pre toto rozšírenie nie je dostupný popis."
 
 #: src/gpodder/extensions.py:220
 #, python-format
 msgid "Command not found: %(command)s"
-msgstr "명령어를 찾지 못했습니다: %(command)s"
+msgstr "Príkaz %(command)s nebol nájdený"
 
 #: src/gpodder/extensions.py:236
 #, python-format
 msgid "Need at least one of the following commands: %(list_of_commands)s"
-msgstr ""
-"아래 명령어중에서 최소한 하나의 명령어가 픽요합니다: %(list_of_commands)s"
+msgstr "Potrebný aspoň jeden z nasledujúcich príkazov: %(list_of_commands)s"
 
 #: src/gpodder/extensions.py:273
 #, python-format
 msgid "Python module not found: %(module)s"
-msgstr "파이썬 모듈을 찾지 못했습니다: %(module)s"
+msgstr "Pythonový modul %(module)s nebol nájdený"
 
 #: src/gpodder/model.py:496 src/gpodder/youtube.py:457
 #: src/gpodder/plugins/soundcloud.py:152
 #: share/gpodder/extensions/youtube-dl.py:215
 msgid "No description available"
-msgstr "사용가능한 설명이 없습니다"
+msgstr "Popis nie je k dispozícii"
 
 #: src/gpodder/model.py:730
 msgid "unknown"
-msgstr "알수없는"
+msgstr "neznáme"
 
 #: src/gpodder/model.py:801
 msgid "Default"
-msgstr "기본"
+msgstr "Predvolené"
 
 #: src/gpodder/model.py:802
 msgid "Only keep latest"
-msgstr "최신으로 유지"
+msgstr "Zachovať iba najnovšie"
 
 #: src/gpodder/model.py:1233 src/gpodder/model.py:1248
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:10
 msgid "Video"
-msgstr "비디오"
+msgstr "Video"
 
 #: src/gpodder/model.py:1246
 msgid "Audio"
-msgstr "오디오"
+msgstr "Audio"
 
 #: src/gpodder/model.py:1425
 #, python-format
@@ -199,132 +194,134 @@ msgid ""
 "Warning: path to gPodder home (%(root)s) is very long and can result in "
 "failure to download files.\n"
 msgstr ""
+"Upozornenie: cesta k domovskému priečinku gPodderu (%(root)s) je veľmi "
+"dlhá a môže spôsobiť zlyhanie stiahnutia súborov.\n"
 
 #: src/gpodder/model.py:1427
 msgid "You're advised to set it to a shorter path."
-msgstr ""
+msgstr "Odporúča sa nastaviť kratšiu cestu."
 
 #: src/gpodder/my.py:179
 #, python-format
 msgid "Add %s"
-msgstr "%s 추가"
+msgstr "Pridať %s"
 
 #: src/gpodder/my.py:181
 #, python-format
 msgid "Remove %s"
-msgstr "%s 삭제"
+msgstr "Odstrániť %s"
 
 #: src/gpodder/sync.py:251
 msgid "Cancelled by user"
-msgstr "사용자 취소"
+msgstr "Zrušené používateľom"
 
 #: src/gpodder/sync.py:254
 msgid "Writing data to disk"
-msgstr "디스크에 기록중입니다"
+msgstr "Zápis dát na disk"
 
 #: src/gpodder/sync.py:354
 msgid "Opening iPod database"
-msgstr "아이팟 데이터베이스를 열고 있습니다"
+msgstr "Otváranie databázy iPodu"
 
 #: src/gpodder/sync.py:364
 msgid "iPod opened"
-msgstr "아이팟 연결됨"
+msgstr "iPod bol otvorený"
 
 #: src/gpodder/sync.py:375
 msgid "Saving iPod database"
-msgstr "아이팟 데이터베이스에 저장하고 있습니다"
+msgstr "Ukladanie databázy iPodu"
 
 #: src/gpodder/sync.py:380
 msgid "Writing extended gtkpod database"
-msgstr "확장된 gtkpod 데이터베이스에 기록하고 있습니다"
+msgstr "Zápis rozšírenej gtkpod databázy"
 
 #: src/gpodder/sync.py:456 src/gpodder/sync.py:719 src/gpodder/sync.py:920
 #, python-format
 msgid "Removing %s"
-msgstr "%s 삭제중"
+msgstr "Odstránenie %s"
 
 #: src/gpodder/sync.py:471 src/gpodder/sync.py:596
 #, python-format
 msgid "Adding %s"
-msgstr "추가중 %s"
+msgstr "Pridávanie %s"
 
 #: src/gpodder/sync.py:489
 #, python-format
 msgid "Error copying %(episode)s: Not enough free space on %(mountpoint)s"
-msgstr "%(episode)s 복사중 에러: %(mountpoint)s 에 공간이 부족합니다"
+msgstr "Chyba pri kopírovaní %(episode)s: Nedostatok voľného miesta na %(mountpoint)s"
 
 #: src/gpodder/sync.py:574
 msgid "Opening MP3 player"
-msgstr "MP3 플레이어 연결중"
+msgstr "Otváranie MP3 prehrávača"
 
 #: src/gpodder/sync.py:577
 msgid "MP3 player opened"
-msgstr "MP3 플레이어가 연결됨"
+msgstr "MP3 prehrávač bol otvorený"
 
 #: src/gpodder/sync.py:615
 #, python-format
 msgid ""
 "Not enough space in %(path)s: %(free)s available, but need at least %(need)s"
 msgstr ""
+"Nedostatok voľného miesta na %(path)s: %(free)s voľného miesta, potrebných "
+"je aspoň %(need)s"
 
 #: src/gpodder/sync.py:642 src/gpodder/sync.py:650
 #, python-format
 msgid "Error opening %(filename)s: %(message)s"
-msgstr "파일여는중 에러 %(filename)s: %(message)s"
+msgstr "Chyba pri otváraní %(filename)s: %(message)s"
 
 #: src/gpodder/sync.py:821 src/gpodder/sync.py:828
 msgid "MTP device"
-msgstr "MTP디바이스"
+msgstr "Zariadenie MTP"
 
 #: src/gpodder/sync.py:835
 msgid "Opening the MTP device"
-msgstr "MTP디바이스를 연결중입니다"
+msgstr "Otváranie MTP zariadenia"
 
 #: src/gpodder/sync.py:845
 #, python-format
 msgid "%s opened"
-msgstr "%s 열렸습니다"
+msgstr "Zariadenie %s bolo otvorené"
 
 #: src/gpodder/sync.py:850
 #, python-format
 msgid "Closing %s"
-msgstr "%s 종료중"
+msgstr "Zatváranie %s"
 
 #: src/gpodder/sync.py:858
 #, python-format
 msgid "%s closed"
-msgstr "%s 완료됨"
+msgstr "Zariadenie %s bolo zavreté"
 
 #: src/gpodder/sync.py:863 bin/gpo:784
 #, python-format
 msgid "Adding %s..."
-msgstr "%s 추가중..."
+msgstr "Pridávanie %s..."
 
 #: src/gpodder/sync.py:974
 msgid "Synchronizing"
-msgstr "동기화중"
+msgstr "Synchronizácia"
 
 #: src/gpodder/syncui.py:84
 msgid "No device configured"
-msgstr "설정된 디바이스가 없습니다"
+msgstr "Žiadne nakonfigurované zariadenia"
 
 #: src/gpodder/syncui.py:85
 msgid "Please set up your device in the preferences dialog."
-msgstr "환경설정 다이얼로그에서 디바이스를 셋업하세요"
+msgstr "Konfigurujte vaše zariadenie v okne Nastavenia."
 
 #: src/gpodder/syncui.py:90
 msgid "Cannot open device"
-msgstr "디바이스를 열 수 없습니다"
+msgstr "Zariadenie nie je možné otvoriť"
 
 #: src/gpodder/syncui.py:91
-#, fuzzy
-#| msgid "Please check the settings in the preferences dialog."
 msgid "Please check logs and the settings in the preferences dialog."
-msgstr "환경설정 다이얼로그를 확인하세요"
+msgstr "Skontrolujte záznam a konfiguráciu v okne Nastavenia."
 
 #: src/gpodder/syncui.py:138
 msgid "Not enough space left on device"
-msgstr "디바이스에 공간이 부족합니다"
+msgstr "Na zariadení nie je dostatok miesta"
 
 #: src/gpodder/syncui.py:139
 #, python-format
@@ -332,390 +329,408 @@ msgid ""
 "Additional free space required: %(required_space)s\n"
 "Do you want to continue?"
 msgstr ""
-"저장 공간이 %(required_space)s 만큼 필요합니다\n"
-"계속하시겠습니까?"
+"Je vyžadované ďalšie voľné miesto: %(required_space)s\n"
+"Chcete pokračovať?"
 
 #: src/gpodder/syncui.py:201
 msgid "Update successful"
-msgstr "업데이트했습니다"
+msgstr "Aktualizácia bola úspešná"
 
 #: src/gpodder/syncui.py:202
 msgid "The playlist on your MP3 player has been updated."
-msgstr "MP3 플레이어에 있는 플레이리스트를 업데이트 했습니다"
+msgstr "Zoznam na vašom MP3 prehrávači bol aktualizovaný."
 
 #: src/gpodder/syncui.py:270 src/gpodder/gtkui/main.py:837
 #: src/gpodder/gtkui/main.py:1016 src/gpodder/gtkui/main.py:2917
 #: src/gpodder/gtkui/main.py:3128
 #: src/gpodder/gtkui/desktop/episodeselector.py:131
 msgid "Episode"
-msgstr "에피소드"
+msgstr "Epizóda"
 
 #: src/gpodder/syncui.py:275
 msgid "Episodes have been deleted on device"
-msgstr "디바에스에 있는 에피소드를 삭제했습니다"
+msgstr "Epizódy boli odstránené zo zariadenia"
 
 #: src/gpodder/syncui.py:287
 msgid "Error writing playlist files"
-msgstr "플레이리스트 저장중 에러"
+msgstr "Chyba pri zapisovaní zoznamov"
 
 #: src/gpodder/util.py:441
 #, python-format
 msgid "%(count)d day ago"
 msgid_plural "%(count)d days ago"
-msgstr[0] "%(count)d 일 전"
+msgstr[0] "Pred %(count)d dňom"
+msgstr[1] "Pred %(count)d dňami"
+msgstr[2] "Pred %(count)d dňami"
 
 #: src/gpodder/util.py:520
 msgid "Today"
-msgstr "오늘"
+msgstr "Dnes"
 
 #: src/gpodder/util.py:522
 msgid "Yesterday"
-msgstr "어제"
+msgstr "Včera"
 
 #: src/gpodder/util.py:565 src/gpodder/util.py:568
 msgid "(unknown)"
-msgstr "알수없는"
+msgstr "(neznáme)"
 
 #: src/gpodder/util.py:1377 src/gpodder/util.py:1399
 #, python-format
 msgid "%(count)d second"
 msgid_plural "%(count)d seconds"
-msgstr[0] "%(count)d 초"
+msgstr[0] "%(count)d sekunda"
+msgstr[1] "%(count)d sekundy"
+msgstr[2] "%(count)d sekúnd"
 
 #: src/gpodder/util.py:1391
 #, python-format
 msgid "%(count)d hour"
 msgid_plural "%(count)d hours"
-msgstr[0] "%(count)d 시간"
+msgstr[0] "%(count)d hodina"
+msgstr[1] "%(count)d hodiny"
+msgstr[2] "%(count)d hodín"
 
 #: src/gpodder/util.py:1395
 #, python-format
 msgid "%(count)d minute"
 msgid_plural "%(count)d minutes"
-msgstr[0] "%(count)d 분"
+msgstr[0] "%(count)d minúta"
+msgstr[1] "%(count)d minúty"
+msgstr[2] "%(count)d minút"
 
 #: src/gpodder/util.py:1403
 msgid "and"
-msgstr "그리고"
+msgstr "a"
 
 #: src/gpodder/gtkui/app.py:176
 msgid "Cannot start gPodder"
-msgstr "gPodder를 시작할 수 없습니다"
+msgstr "gPodder nie je možné spustiť"
 
 #: src/gpodder/gtkui/app.py:177
 #, python-format
 msgid "D-Bus error: %s"
-msgstr "D-Bus 에러: %s"
+msgstr "Chyba D-Bus: %s"
 
 #: src/gpodder/gtkui/app.py:203
 msgid "About gPodder"
-msgstr "gPodder에 대해서"
+msgstr "O aplikácii gPodder"
 
 #: src/gpodder/gtkui/app.py:226
-#, fuzzy
 msgid "Website"
-msgstr "웹사이트:"
+msgstr "Webová stránka"
 
 #: src/gpodder/gtkui/app.py:227
 msgid "Bug Tracker"
-msgstr ""
+msgstr "Nahlasovanie chýb"
 
 #: src/gpodder/gtkui/app.py:277
 msgid "Path to gPodder home is too long"
-msgstr ""
+msgstr "Cesta k domovskému priečinku gPodderu je príliš dlhá"
 
 #: src/gpodder/gtkui/config.py:50
 msgid "Integer"
-msgstr "숫자"
+msgstr "Celé číslo"
 
 #: src/gpodder/gtkui/config.py:52
 msgid "Float"
-msgstr "소수점 숫자"
+msgstr "Desatinné číslo"
 
 #: src/gpodder/gtkui/config.py:54
 msgid "Boolean"
-msgstr "불(참/거짓)"
+msgstr "Logická hodnota"
 
 #: src/gpodder/gtkui/config.py:56
 msgid "String"
-msgstr "문자열"
+msgstr "Reťazec"
 
 #: src/gpodder/gtkui/desktopfile.py:70
 #, python-format
 msgid "Command: %s"
-msgstr "명령어: %s"
+msgstr "Príkaz: %s"
 
 #: src/gpodder/gtkui/desktopfile.py:156
 msgid "Default application"
-msgstr "기본 어플리케이션"
+msgstr "Predvolená aplikácia"
 
 #: src/gpodder/gtkui/main.py:169 share/applications/gpodder.desktop.in.h:1
 msgid "gPodder"
-msgstr "지파더"
+msgstr ""
 
 #: src/gpodder/gtkui/main.py:350 share/gpodder/ui/gtk/menus.ui.h:30
 msgid "E_xtras"
-msgstr "E_xtras"
+msgstr "_Doplnky"
 
 #: src/gpodder/gtkui/main.py:351
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:11
 msgid "Extensions"
-msgstr "확장기능"
+msgstr "Rozšírenia"
 
 #: src/gpodder/gtkui/main.py:371
 msgid "Loading incomplete downloads"
-msgstr "완료되지 않은 파일들을 로딩중"
+msgstr "Načítanie nedokončených sťahovaní"
 
 #: src/gpodder/gtkui/main.py:372
 msgid "Some episodes have not finished downloading in a previous session."
-msgstr "이전 세션에서, 모든 에피소드를 다운로드 하지 못했습니다"
+msgstr "Sťahovanie niektorých epizód nebolo pri poslednom spustení dokončené."
 
 #: src/gpodder/gtkui/main.py:375 bin/gpo:608
 #, python-format
 msgid "%(count)d partial file"
 msgid_plural "%(count)d partial files"
-msgstr[0] "%(count)d 부분 파일"
+msgstr[0] "%(count)d neúplný súbor"
+msgstr[1] "%(count)d neúplné súbory"
+msgstr[2] "%(count)d neúplných súborov"
 
 #: src/gpodder/gtkui/main.py:388
 msgid "Resume all"
-msgstr "모두 다시 시작"
+msgstr "Pokračovať vo všetkých"
 
 #: src/gpodder/gtkui/main.py:400
 msgid "Incomplete downloads from a previous session were found."
-msgstr "이전 세션에서 전부 다운로드 되지 못한 파일이 있습니다"
+msgstr "Boli nájdené nedokončené sťahovania z minulého spustenia."
 
 #: src/gpodder/gtkui/main.py:510
 msgid "Action"
-msgstr "액션"
+msgstr "Akcia"
 
 #: src/gpodder/gtkui/main.py:557
 msgid "Confirm changes from gpodder.net"
-msgstr "gpodder.net 에서 변경사항 확인"
+msgstr "Potvrdiť zmeny z gpodder.net"
 
 #: src/gpodder/gtkui/main.py:558
 msgid "Select the actions you want to carry out."
-msgstr "수행할 액션을 선택하세요"
+msgstr "Vyberte akciu, kterou chcete vykonať."
 
 #: src/gpodder/gtkui/main.py:598
 msgid "Uploading subscriptions"
-msgstr "구독내역을 업로드중"
+msgstr "Nahrávánie odberov"
 
 #: src/gpodder/gtkui/main.py:599
 msgid "Your subscriptions are being uploaded to the server."
-msgstr "구독내역을 서버에 업로드 하고 있습니다"
+msgstr "Vaše odbery sú nahrávané na server."
 
 #: src/gpodder/gtkui/main.py:604
 msgid "List uploaded successfully."
-msgstr "리스트를 업로드 했습니다"
+msgstr "Zoznam bol úspešne nahraný na server."
 
 #: src/gpodder/gtkui/main.py:611
 msgid "Error while uploading"
-msgstr "업로드중 에러"
+msgstr "Pri nahrávaní došlo k chybe"
 
 #: src/gpodder/gtkui/main.py:856
 msgid "Size"
-msgstr "사이즈"
+msgstr "Veľkosť"
 
 #: src/gpodder/gtkui/main.py:861
 msgid "Duration"
-msgstr "기간"
+msgstr "Dĺžka"
 
 #: src/gpodder/gtkui/main.py:865
 msgid "Released"
-msgstr "배포"
+msgstr "Vydané"
 
 #: src/gpodder/gtkui/main.py:871
-#, fuzzy
-#| msgid "Size"
 msgid "Size+"
-msgstr "사이즈"
+msgstr "Veľkosť+"
 
 #: src/gpodder/gtkui/main.py:879
-#, fuzzy
-#| msgid "Duration"
 msgid "Duration+"
-msgstr "기간"
+msgstr "Dĺžka+"
 
 #: src/gpodder/gtkui/main.py:1036 src/gpodder/gtkui/main.py:1185
 #: share/gpodder/ui/gtk/gpodder.ui.h:11
 msgid "Progress"
-msgstr "진행상황"
+msgstr "Priebeh"
 
 #: src/gpodder/gtkui/main.py:1064
 msgid "No episodes in current view"
-msgstr "현재뷰에 에피소드가 없습니다"
+msgstr "Žiadne epizódy v aktuálnom zobrazení"
 
 #: src/gpodder/gtkui/main.py:1066
 msgid "No episodes available"
-msgstr "에피소드가 없습니다"
+msgstr "Žiadne dostupné epizódy"
 
 #: src/gpodder/gtkui/main.py:1072
 msgid "No podcasts in this view"
-msgstr "현재 뷰에 팟캐스트가 없습니다"
+msgstr "Žiadne podcasty v tomto zobrazení"
 
 #: src/gpodder/gtkui/main.py:1074
 msgid "No subscriptions"
-msgstr "설명이 없습니다"
+msgstr "Žiadne odbery"
 
 #: src/gpodder/gtkui/main.py:1076
 msgid "No active tasks"
-msgstr "동작중인 태스크가 없습니다"
+msgstr "Žiadne aktívne úlohy"
 
 #: src/gpodder/gtkui/main.py:1189 src/gpodder/gtkui/main.py:1191
 #, python-format
 msgid "%(count)d active"
 msgid_plural "%(count)d active"
-msgstr[0] "%(count)d 실행중"
+msgstr[0] "%(count)d aktívny"
+msgstr[1] "%(count)d aktívne"
+msgstr[2] "%(count)d aktívnych"
 
 #: src/gpodder/gtkui/main.py:1193
 #, python-format
 msgid "%(count)d failed"
 msgid_plural "%(count)d failed"
-msgstr[0] "%(count)d 실패"
+msgstr[0] "%(count)d zlyhal"
+msgstr[1] "%(count)d zlyhali"
+msgstr[2] "%(count)d zlyhalo"
 
 #: src/gpodder/gtkui/main.py:1195
 #, python-format
 msgid "%(count)d queued"
 msgid_plural "%(count)d queued"
-msgstr[0] "%(count)d 대기중"
+msgstr[0] "%(count)d v poradí"
+msgstr[1] "%(count)d v poradí"
+msgstr[2] "%(count)d v poradí"
 
 #: src/gpodder/gtkui/main.py:1208
 #, python-format
 msgid "downloading %(count)d file"
 msgid_plural "downloading %(count)d files"
-msgstr[0] "%(count)d 파일을 다운로드 중"
+msgstr[0] "sťahuje sa %(count)d súbor"
+msgstr[1] "sťahujú sa %(count)d súbory"
+msgstr[2] "sťahuje sa %(count)d súborov"
 
 #: src/gpodder/gtkui/main.py:1220
 #, python-format
 msgid "synchronizing %(count)d file"
 msgid_plural "synchronizing %(count)d files"
-msgstr[0] "%(count)d 파일을 동기화중"
+msgstr[0] "synchronizácia %(count)d súboru"
+msgstr[1] "synchronizácia %(count)d súborov"
+msgstr[2] "synchronizácia %(count)d súborov"
 
 #: src/gpodder/gtkui/main.py:1224
 #, python-format
 msgid "%(queued)d task queued"
 msgid_plural "%(queued)d tasks queued"
-msgstr[0] "%(queued)d 태스크 대기중"
+msgstr[0] "%(queued)d úloha v poradí"
+msgstr[1] "%(queued)d úlohy v poradí"
+msgstr[2] "%(queued)d úloh v poradí"
 
 #: src/gpodder/gtkui/main.py:1251
 msgid "Please report this problem and restart gPodder:"
-msgstr "이 문제점을 보고하고, 지파더를 다시 시작합니다"
+msgstr "Nahláste prosím tento problém a reštartujte gPodder:"
 
 #: src/gpodder/gtkui/main.py:1252
 msgid "Unhandled exception"
-msgstr "처리되지 않은 예외"
+msgstr "Neošetrená výnimka"
 
 #: src/gpodder/gtkui/main.py:1320
 #, python-format
 msgid "Feedparser error: %s"
-msgstr "피드파서 에러: %s"
+msgstr "Chyba pri spracovaní zdroja: %s"
 
 #: src/gpodder/gtkui/main.py:1336 src/gpodder/gtkui/model.py:454
 #: src/gpodder/gtkui/model.py:783 src/gpodder/gtkui/desktop/channel.py:83
 #, python-format
 msgid "ERROR: %s"
-msgstr ""
+msgstr "CHYBA: %s"
 
 #: src/gpodder/gtkui/main.py:1457
 msgid "Could not download some episodes:"
-msgstr "에피소드 몇개를 다운로드 하지 못 했습니다"
+msgstr "Niektoré epizódy nie je možné stiahnuť:"
 
 #: src/gpodder/gtkui/main.py:1459 src/gpodder/gtkui/main.py:1462
 msgid "Downloads finished"
-msgstr "다운로드 완료"
+msgstr "Sťahovanie bolo dokončené"
 
 #: src/gpodder/gtkui/main.py:1465
 msgid "Downloads failed"
-msgstr "다운로드 실패"
+msgstr "Sťahovanie zlyhalo"
 
 #: src/gpodder/gtkui/main.py:1470
 msgid "Could not sync some episodes:"
-msgstr "에피소드 몇개를 동기화하지 못했습니다"
+msgstr "Niektoré epizódy nie je možné synchronizovať:"
 
 #: src/gpodder/gtkui/main.py:1473 src/gpodder/gtkui/main.py:1477
 msgid "Device synchronization finished"
-msgstr "디바이스 동기화가 완료되었습니다"
+msgstr "Synchronizácia so zariadením bola dokončená"
 
 #: src/gpodder/gtkui/main.py:1481
 msgid "Device synchronization failed"
-msgstr "디바이스 동기화 실패"
+msgstr "Synchronizácia so zariadením zlyhala"
 
 #: src/gpodder/gtkui/main.py:1524
 #, python-format
 msgid "%(count)d more episode"
 msgid_plural "%(count)d more episodes"
-msgstr[0] "추가 에피소드 %(count)d 개"
+msgstr[0] "%(count)d ďalšia epizóda"
+msgstr[1] "%(count)d ďalšie epizódy"
+msgstr[2] "%(count)d ďalších epizód"
 
 #: src/gpodder/gtkui/main.py:1632
 msgid "Start download now"
-msgstr "지금 다운로드 시작"
+msgstr "Spustiť sťahovanie"
 
 #: src/gpodder/gtkui/main.py:1637 src/gpodder/gtkui/main.py:1924
 #: src/gpodder/gtkui/desktop/episodeselector.py:140
 #: src/gpodder/gtkui/desktop/podcastdirectory.py:193
 #: share/gpodder/ui/gtk/gpodder.ui.h:1 share/gpodder/ui/gtk/menus.ui.h:23
 msgid "Download"
-msgstr "다운로드"
+msgstr "Stiahnuť"
 
 #: src/gpodder/gtkui/main.py:1642
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:6
 #: share/gpodder/ui/gtk/gpodder.ui.h:2 share/gpodder/ui/gtk/menus.ui.h:24
 msgid "Cancel"
-msgstr "취소"
+msgstr "Zrušiť"
 
 #: src/gpodder/gtkui/main.py:1646
 msgid "Pause"
-msgstr "잠시멈춤"
+msgstr "Pozastaviť"
 
 #: src/gpodder/gtkui/main.py:1650
 msgid "Move up"
-msgstr ""
+msgstr "Posunúť nahor"
 
 #: src/gpodder/gtkui/main.py:1652
 msgid "Move down"
-msgstr ""
+msgstr "Posunúť nadol"
 
 #: src/gpodder/gtkui/main.py:1655
 msgid "Remove from list"
-msgstr "리스트에서 삭제"
+msgstr "Odstrániť zo zoznamu"
 
 #: src/gpodder/gtkui/main.py:1696 share/gpodder/ui/gtk/menus.ui.h:16
 msgid "Update podcast"
-msgstr "팟캐스트 업데이트"
+msgstr "Aktualizovať podcast"
 
 #: src/gpodder/gtkui/main.py:1703
 msgid "Open download folder"
-msgstr "다운로드 폴더 열기"
+msgstr "Otvoriť priečinok"
 
 #: src/gpodder/gtkui/main.py:1709
 msgid "Mark episodes as old"
-msgstr "읽은 에피소드로 표시"
+msgstr "Označiť epizódy ako staré"
 
 #: src/gpodder/gtkui/main.py:1713 src/gpodder/gtkui/main.py:1985
 msgid "Archive"
-msgstr "보관"
+msgstr "Archivovať"
 
 #: src/gpodder/gtkui/main.py:1718
 msgid "Refresh image"
-msgstr ""
+msgstr "Obnoviť obrázok"
 
 #: src/gpodder/gtkui/main.py:1722
-#, fuzzy
 msgid "Delete podcast"
-msgstr "에피소드 삭제"
+msgstr "Odstrániť podcast"
 
 #: src/gpodder/gtkui/main.py:1740 share/gpodder/ui/gtk/menus.ui.h:17
 msgid "Podcast settings"
-msgstr "팟캐스트 세팅"
+msgstr "Nastavenia podcastu"
 
 #: src/gpodder/gtkui/main.py:1785
 msgid "File already exist"
-msgstr ""
+msgstr "Súbor už existuje"
 
 #: src/gpodder/gtkui/main.py:1787
 #, python-format
 msgid "A file named \"%(filename)s\" already exist. Do you want to replace it?"
-msgstr ""
+msgstr "Súbor s názvom \"%(filename)s\" už existuje. Chcete ho nahradiť?"
 
 #: src/gpodder/gtkui/main.py:1829
 #, python-format
@@ -723,557 +738,566 @@ msgid ""
 "Error saving to local folder: %(error)r.\n"
 "Would you like to continue?"
 msgstr ""
+"Chyba pri ukladaní do lokálneho priečinka: %(error)r.\n"
+"Chcete pokračovať?"
 
 #: src/gpodder/gtkui/main.py:1831 src/gpodder/gtkui/main.py:1836
-#, fuzzy
 msgid "Error saving to local folder"
-msgstr "플레이리스트 저장중 에러"
+msgstr "Chyba pri ukladaní do lokálneho priečinka"
 
 #: src/gpodder/gtkui/main.py:1835
 #, python-format
 msgid "Error saving to local folder: %(error)r"
-msgstr ""
+msgstr "Chyba pri ukladaní do lokálneho priečinka: %(error)r"
 
 #: src/gpodder/gtkui/main.py:1856
 msgid "Error converting file."
-msgstr "파일 변환 에러"
+msgstr "Chyba pri prevode súboru."
 
 #: src/gpodder/gtkui/main.py:1856
 msgid "Bluetooth file transfer"
-msgstr "블루투스로 파일 전송"
+msgstr "Prenos súborov cez Bluetooth"
 
 #: src/gpodder/gtkui/main.py:1907
 #: src/gpodder/gtkui/desktop/podcastdirectory.py:196
 #: share/gpodder/ui/gtk/menus.ui.h:22
 msgid "Open"
-msgstr "열기"
+msgstr "Otvoriť"
 
 #: src/gpodder/gtkui/main.py:1910 share/gpodder/ui/gtk/menus.ui.h:21
 msgid "Play"
-msgstr "재생"
+msgstr "Prehrať"
 
 #: src/gpodder/gtkui/main.py:1914
 msgid "Preview"
-msgstr "미리보기"
+msgstr "Ukážka"
 
 #: src/gpodder/gtkui/main.py:1916
 msgid "Stream"
-msgstr "스트림"
+msgstr "Prehrať zo siete"
 
 #: src/gpodder/gtkui/main.py:1929
-#, fuzzy
 msgid "_Cancel"
-msgstr "취소"
+msgstr "_Zrušiť"
 
 #: src/gpodder/gtkui/main.py:1933
-#, fuzzy
 msgid "_Delete"
-msgstr "삭제"
+msgstr "_Odstrániť"
 
 #: src/gpodder/gtkui/main.py:1962
 msgid "Send to"
-msgstr "보내기"
+msgstr "Odoslať kam"
 
-# local 을 번역할 적절한 단어를 추천해주세요
 #: src/gpodder/gtkui/main.py:1964
 msgid "Local folder"
-msgstr "Local 폴더"
+msgstr "Lokálny priečinok"
 
 #: src/gpodder/gtkui/main.py:1969
 msgid "Bluetooth device"
-msgstr "블루투스 장치"
+msgstr "Zariadenie Bluetooth"
 
 #: src/gpodder/gtkui/main.py:1976
 msgid "New"
-msgstr "새"
+msgstr "Nové"
 
 #: src/gpodder/gtkui/main.py:1994 share/gpodder/ui/gtk/menus.ui.h:29
 msgid "Episode details"
-msgstr "에피소드 설명"
+msgstr "Detaily epizódy"
 
 #: src/gpodder/gtkui/main.py:2165
 msgid "Please check your media player settings in the preferences dialog."
-msgstr "환경설정에서 미디어 플레이어 설정을 확인해주세요"
+msgstr "Skontrolujte konfiguráciu vášho prehrávača médií v okne Nastavenia."
 
 #: src/gpodder/gtkui/main.py:2166
 msgid "Error opening player"
-msgstr "플레이어 에러"
+msgstr "Chyba pri otváraní prehrávača"
 
 #: src/gpodder/gtkui/main.py:2426
 msgid "Adding podcasts"
-msgstr "팟캐스트 추가"
+msgstr "Pridávanie podcastov"
 
 #: src/gpodder/gtkui/main.py:2427
 msgid "Please wait while episode information is downloaded."
-msgstr "기다려주세요. 에피소드 정보를 다운로드 중입니다."
+msgstr "Počkajte, kým budú informácie o epizódach stiahnuté."
 
 #: src/gpodder/gtkui/main.py:2434
 msgid "Existing subscriptions skipped"
-msgstr "구독중인것은 건너뜀니다"
+msgstr "Existujúce odbery boli preskočené"
 
 #: src/gpodder/gtkui/main.py:2435
 msgid "You are already subscribed to these podcasts:"
-msgstr "구독하고 있는 팟캐스트입니다"
+msgstr "Tieto podcasty už odoberáte:"
 
 #: src/gpodder/gtkui/main.py:2443 bin/gpo:344
 msgid "Podcast requires authentication"
-msgstr "인증이 필요합니다"
+msgstr "Podcast požaduje overenie"
 
 #: src/gpodder/gtkui/main.py:2444 bin/gpo:345
 #, python-format
 msgid "Please login to %s:"
-msgstr "%s 에 로그인하세요"
+msgstr "Prihláste sa na %s:"
 
 #: src/gpodder/gtkui/main.py:2452 src/gpodder/gtkui/main.py:2548
 msgid "Authentication failed"
-msgstr "인증 실패"
+msgstr "Overenie zlyhalo"
 
 #: src/gpodder/gtkui/main.py:2458
 msgid "Website redirection detected"
-msgstr "웹사이트 리다이렉션 검출됨"
+msgstr "Bolo zistené presmerovanie webovej stránky"
 
 #: src/gpodder/gtkui/main.py:2459
 #, python-format
 msgid "The URL %(url)s redirects to %(target)s."
-msgstr "%(url)s 이 %(target)s 으로 리다이렉션 됩니다"
+msgstr "URL adresa %(url)s je presmerovaná na %(target)s."
 
 #: src/gpodder/gtkui/main.py:2460
 msgid "Do you want to visit the website now?"
-msgstr "웹사이트에 방문하시겠습니까?"
+msgstr "Chcete navštíviť webovú stránku?"
 
 #: src/gpodder/gtkui/main.py:2469
 msgid "Could not add some podcasts"
-msgstr "팟캐스트를 추가하지 못했습니다"
+msgstr "Niektoré podcasty nebolo možné pridať"
 
 #: src/gpodder/gtkui/main.py:2470
 msgid "Some podcasts could not be added to your list:"
-msgstr "팟캐스트를 리스트에 추가하지 못했습니다"
+msgstr "Niektoré podcasty nebolo možné pridať do vášho zoznamu:"
 
 #: src/gpodder/gtkui/main.py:2473
 msgid "Unknown"
-msgstr "알수없는"
+msgstr "Neznáme"
 
 #: src/gpodder/gtkui/main.py:2557
 msgid "Redirection detected"
-msgstr "웹사이트 리다이렉션 검출됨"
+msgstr "Bolo zistené presmerovanie"
 
 #: src/gpodder/gtkui/main.py:2591
 msgid "Merging episode actions"
-msgstr "에피소드 액션을 합치는 중"
+msgstr "Zlúčenie akcií epizód"
 
 #: src/gpodder/gtkui/main.py:2592
 msgid "Episode actions from gpodder.net are merged."
-msgstr "gpodder.net의 에피소드 액션을 합쳤습니다"
+msgstr "Akcie epizód z gpodder.net sú zlúčené"
 
 #: src/gpodder/gtkui/main.py:2617
 msgid "Cancelling..."
-msgstr "취소중"
+msgstr "Rušenie..."
 
 #: src/gpodder/gtkui/main.py:2626
 msgid "Please connect to a network, then try again."
-msgstr "네트웍에 연결한 후, 다시 시도하세요"
+msgstr "Pripojte sa k sieti a skúste to znovu."
 
 #: src/gpodder/gtkui/main.py:2627
 msgid "No network connection"
-msgstr "네트웍에 연결되어 있지 않습니다"
+msgstr "Žiadne sieťové pripojenie"
 
 #: src/gpodder/gtkui/main.py:2648
 #, python-format
 msgid "Updating %(count)d feed..."
 msgid_plural "Updating %(count)d feeds..."
-msgstr[0] " %(count)d 피드를 업데이트 중"
+msgstr[0] "Aktualizácia %(count)d zdroja..."
+msgstr[1] "Aktualizácia %(count)d zdrojov..."
+msgstr[2] "Aktualizácia %(count)d zdrojov..."
 
 #: src/gpodder/gtkui/main.py:2664
-#, fuzzy, python-format
+#, python-format
 msgid "Updating %(podcast)s (%(position)d/%(total)d)"
-msgstr "업데이트됨 %(podcast)s (%(position)d/%(total)d)"
+msgstr "Aktualizácia %(podcast)s (%(position)d z %(total)d)"
 
 #: src/gpodder/gtkui/main.py:2710
-#, fuzzy, python-format
-#| msgid "%(count)d failed"
-#| msgid_plural "%(count)d failed"
+#, python-format
 msgid "%(count)d channel failed to update"
 msgid_plural "%(count)d channels failed to update"
-msgstr[0] "%(count)d 실패"
+msgstr[0] "Zlyhala aktualizácia %(count)d zdroja"
+msgstr[1] "Zlyhala aktualizácia %(count)d zdrojov"
+msgstr[2] "Zlyhala aktualizácia %(count)d zdrojov"
 
 #: src/gpodder/gtkui/main.py:2713
-#, fuzzy
-#| msgid "Error while updating feed"
 msgid "Error while updating feeds"
-msgstr "피드를 업데이트하는 중 에러"
+msgstr "Chyba pri aktualizácii zdrojov"
 
 #: src/gpodder/gtkui/main.py:2739
 msgid "No new episodes"
-msgstr "새 에피소드가 없습니다"
+msgstr "Žiadne nové epizódy"
 
 #: src/gpodder/gtkui/main.py:2752
 #, python-format
 msgid "Downloading %(count)d new episode."
 msgid_plural "Downloading %(count)d new episodes."
-msgstr[0] "새 에피소드 %(count)d 개를 다운로드 중"
+msgstr[0] "Sťahovanie %(count)d novej epizódy"
+msgstr[1] "Sťahovanie %(count)d nových epizód"
+msgstr[2] "Sťahovanie %(count)d nových epizód"
 
 #: src/gpodder/gtkui/main.py:2755 src/gpodder/gtkui/main.py:2762
 #: src/gpodder/gtkui/main.py:3146
 msgid "New episodes available"
-msgstr "새 에피소드가 있습니다"
+msgstr "Sú dostupné nové epizódy"
 
 #: src/gpodder/gtkui/main.py:2759
 #, python-format
 msgid "%(count)d new episode added to download list."
 msgid_plural "%(count)d new episodes added to download list."
-msgstr[0] "다운로드 리스트에, 새로운 에피소드 %(count)d개를 추가합니다"
+msgstr[0] "%(count)d nová epizóda bola pridaná do zoznamu sťahovaní"
+msgstr[1] "%(count)d nové epizódy boli pridané do zoznamu sťahovaní"
+msgstr[2] "%(count)d nových epizód bolo pridaných do zoznamu sťahovaní"
 
 #: src/gpodder/gtkui/main.py:2768
 #, python-format
 msgid "%(count)d new episode available"
 msgid_plural "%(count)d new episodes available"
-msgstr[0] "새 에피소드 %(count)d 개가 있습니다"
+msgstr[0] "Dostupná %(count)d nová epizóda"
+msgstr[1] "Dostupné %(count)d nové epizódy"
+msgstr[2] "Dostupných %(count)d nových epizód"
 
 #: src/gpodder/gtkui/main.py:2799
 msgid "Quit gPodder"
-msgstr "지파더 종료"
+msgstr "Ukončiť gPodder"
 
 #: src/gpodder/gtkui/main.py:2800
 msgid ""
 "You are downloading episodes. You can resume downloads the next time you "
 "start gPodder. Do you want to quit now?"
 msgstr ""
-"에피소드 다운로드 중입니다. 종료 후에, 지파더를 실행했을 때, 다운로드를 다시 "
-"시작할 수 있습니다. 종료 할까요?"
+"Prebieha sťahovanie epizód. Sťahovanie možno obnoviť pri budúcom spustení gPodderu."
+"Naozaj chcete aplikáciu ukončiť?"
 
 #: src/gpodder/gtkui/main.py:2846 bin/gpo:838
 msgid "Episodes are locked"
-msgstr "에피소드가 잠겼습니다"
+msgstr "Epizódy sú uzamknuté"
 
 #: src/gpodder/gtkui/main.py:2848 bin/gpo:840
 msgid ""
 "The selected episodes are locked. Please unlock the episodes that you want "
 "to delete before trying to delete them."
-msgstr "선택한 에피소드들은 잠겨 있습니다. 삭제하려면, 잠금을 해제해주세요."
+msgstr ""
+"Označené epizódy sú uzamknuté. Pre ich vymazanie je tieto najprv epizódy potrebné "
+"odomknúť."
 
 #: src/gpodder/gtkui/main.py:2855 bin/gpo:847
 #, python-format
 msgid "Delete %(count)d episode?"
 msgid_plural "Delete %(count)d episodes?"
-msgstr[0] "%(count)d 개의 에피소드를 삭제합니까?"
+msgstr[0] "Odstrániť %(count)d epizódu?"
+msgstr[1] "Odstrániť %(count)d epizódy?"
+msgstr[2] "Odstrániť %(count)d epizód?"
 
 #: src/gpodder/gtkui/main.py:2857 bin/gpo:849
 msgid "Deleting episodes removes downloaded files."
-msgstr "에피소드와 다운로드된 파일을 삭제하고 있습니다"
+msgstr "Odstránenie epizód zmaže stiahnuté súbory."
 
 #: src/gpodder/gtkui/main.py:2866
 msgid "Deleting episodes"
-msgstr "에피소드 삭제중"
+msgstr "Odstránenie epizód"
 
 #: src/gpodder/gtkui/main.py:2867 bin/gpo:854
 msgid "Please wait while episodes are deleted"
-msgstr "에피소드를 삭제하고 있습니다. 잠시만 기다려주세요"
+msgstr "Počkajte, kým budú epizódy odstránené"
 
 #: src/gpodder/gtkui/main.py:2920
 #, python-format
 msgid "Select older than %(count)d day"
 msgid_plural "Select older than %(count)d days"
-msgstr[0] "%(count)d 일이 넘은 것들 선택"
+msgstr[0] "Vybrať staršie ako %(count)d deň"
+msgstr[1] "Vybrať staršie ako %(count)d dni"
+msgstr[2] "Vybrať staršie ako %(count)d dní"
 
 #: src/gpodder/gtkui/main.py:2922
 msgid "Select played"
-msgstr "재생한것 선택"
+msgstr "Vybrať prehrané"
 
 #: src/gpodder/gtkui/main.py:2923
 msgid "Select finished"
-msgstr "완료된것 선택"
+msgstr "Vybrať dokončené"
 
 #: src/gpodder/gtkui/main.py:2927
 msgid "Select the episodes you want to delete:"
-msgstr "삭제할 에피소드를 선택하세요"
+msgstr "Vyberte epizódy, ktoré chcete odstrániť:"
 
 #: src/gpodder/gtkui/main.py:2944 share/gpodder/ui/gtk/menus.ui.h:10
 msgid "Delete episodes"
-msgstr "에피소드 삭제"
+msgstr "Odstrániť epizódy"
 
 #: src/gpodder/gtkui/main.py:2998 src/gpodder/gtkui/main.py:3256
 #: src/gpodder/gtkui/main.py:3364
 msgid "No podcast selected"
-msgstr "팟캐스트가 선택되지 않았습니다"
+msgstr "Nevybraný žiaden podcast"
 
 #: src/gpodder/gtkui/main.py:2999
 msgid "Please select a podcast in the podcasts list to update."
-msgstr "업데이트할 팟캐스트를 팟캐스트 리스트에서 선택하세요"
+msgstr "Vyberte podcast, ktorý chcete aktualizovať."
 
 #: src/gpodder/gtkui/main.py:3094
 #, python-format
 msgid "Download error while downloading %(episode)s: %(message)s"
-msgstr "%(episode)s 다운로드 중 에러 %(message)s"
+msgstr "Chyba sťahovania pri sťahovaní %(episode)s: %(message)s"
 
 #: src/gpodder/gtkui/main.py:3095
 msgid "Download error"
-msgstr "다운로드 에러"
+msgstr "Chyba sťahovania"
 
 #: src/gpodder/gtkui/main.py:3131
 msgid "Select the episodes you want to download:"
-msgstr "다운로드 하려는 에피소드를 선택하세요"
+msgstr "Vyberte epizódy, ktoré chcete stiahnuť:"
 
 #: src/gpodder/gtkui/main.py:3154
 msgid "Mark as old"
-msgstr "재생한 것으로 표시"
+msgstr "Označiť ako staré"
 
 #: src/gpodder/gtkui/main.py:3161
 msgid "Please check for new episodes later."
-msgstr "새로운 에피소드를 위해 나중에 확인 하세요"
+msgstr "Skontrolujte prosím nové epizódy neskôr."
 
 #: src/gpodder/gtkui/main.py:3162
 msgid "No new episodes available"
-msgstr "새로운 에피소드가 없습니다"
+msgstr "Žiadne nové epizódy"
 
 #: src/gpodder/gtkui/main.py:3219
-#, fuzzy, python-format
+#, python-format
 msgid "Subscriptions on %(server)s"
-msgstr "gpodder.net에서 구독합니다"
+msgstr "Odbery na %(server)s"
 
 #: src/gpodder/gtkui/main.py:3230
 msgid "Login to gpodder.net"
-msgstr "gpodder.net에 로그인"
+msgstr "Prihlásenie na gpodder.net"
 
 #: src/gpodder/gtkui/main.py:3231
 msgid "Please login to download your subscriptions."
-msgstr "구독한 팟캐스트를 다운로드 하려면 로그인하세요"
+msgstr "Prihláste sa na stiahnutie vašich odberov."
 
 #: src/gpodder/gtkui/main.py:3257
 msgid "Please select a podcast in the podcasts list to edit."
-msgstr "팟캐스트리스트에서 수정할 팟캣트를 선택하세요"
+msgstr "Vyberte podcast, ktorý chcete upraviť."
 
 #: src/gpodder/gtkui/main.py:3271
 msgid "Podcast"
-msgstr "팟캐스트"
+msgstr ""
 
 #: src/gpodder/gtkui/main.py:3277 share/gpodder/ui/gtk/menus.ui.h:15
-#, fuzzy
 msgid "Delete podcasts"
-msgstr "팟캐스트 삭제"
+msgstr "Odstrániť podcasty"
 
 #: src/gpodder/gtkui/main.py:3278
-#, fuzzy
 msgid "Select the podcast you want to delete."
-msgstr "삭제할 팟캐스트를 선택하세요"
+msgstr "Vyberte podcast, ktorý chcete odstrániť."
 
 #: src/gpodder/gtkui/main.py:3282 share/gpodder/ui/gtk/menus.ui.h:25
 msgid "Delete"
-msgstr "삭제"
+msgstr "Odstrániť"
 
 #: src/gpodder/gtkui/main.py:3291
-#, fuzzy
 msgid "Deleting podcast"
-msgstr "에피소드 삭제중"
+msgstr "Odstránenie podcastu"
 
 #: src/gpodder/gtkui/main.py:3292
-#, fuzzy
 msgid "Please wait while the podcast is deleted"
-msgstr "팟캐스트를 삭제하고 있습니다. 잠시 기다려주세요"
+msgstr "Počkajte, kým bude podcast odstránený"
 
 #: src/gpodder/gtkui/main.py:3293
 msgid ""
 "This podcast and all its episodes will be PERMANENTLY DELETED.\n"
 "Are you sure you want to continue?"
 msgstr ""
+"Tento podcast a všetky jeho epizódy budú TRVALO ODSTRÁNENÉ.\n"
+"Ste si istý, že chcete pokračovať?"
 
 #: src/gpodder/gtkui/main.py:3295
-#, fuzzy
 msgid "Deleting podcasts"
-msgstr "팟캐스트 삭제중"
+msgstr "Odstránenie podcastov"
 
 #: src/gpodder/gtkui/main.py:3296
-#, fuzzy
 msgid "Please wait while the podcasts are deleted"
-msgstr "팟캐스트를 삭제하고 있습니다. 잠시만 기다려주세요"
+msgstr "Počkajte, kým budú podcasty odstránené"
 
 #: src/gpodder/gtkui/main.py:3297
 msgid ""
 "These podcasts and all their episodes will be PERMANENTLY DELETED.\n"
 "Are you sure you want to continue?"
 msgstr ""
+"Tieto podcasty a všetky ich epizódy budú TRVALO ODSTRÁNENÉ.\n"
+"Ste si istý, že chcete pokračovať?"
 
 #: src/gpodder/gtkui/main.py:3365
 msgid "Please select a podcast in the podcasts list to remove."
-msgstr "팟캐스트 리스트에서 삭제할 팟캐스트를 선택하세요."
+msgstr "Vyberte podcast, ktorý chcete odstrániť."
 
 #: src/gpodder/gtkui/main.py:3375
 msgid "OPML files"
-msgstr "OPML 파일"
+msgstr "Súbory OPML"
 
 #: src/gpodder/gtkui/main.py:3380
 msgid "Import from OPML"
-msgstr "OPML 파일에서 불러오기"
+msgstr "Importovať z OPML"
 
 #: src/gpodder/gtkui/main.py:3394
 msgid "Import podcasts from OPML file"
-msgstr "OPML파일에서 팟캐스트를 불러오기"
+msgstr "Importovať podcasty z OPML súboru"
 
 #: src/gpodder/gtkui/main.py:3401
 msgid "Nothing to export"
-msgstr "내보낼 것이 없습니다"
+msgstr "Niet čo exportovať"
 
 #: src/gpodder/gtkui/main.py:3402
 msgid ""
 "Your list of podcast subscriptions is empty. Please subscribe to some "
 "podcasts first before trying to export your subscription list."
 msgstr ""
-"구독하고 있는 팟캐스트가 없습니다. 구독 목록을 외부파일에 저장하기 전에 팟캐"
-"스트를 구독하세요"
+"Váš zoznam podcastov je prázdny. Pred exportovaním zoznamu podcastov "
+"sa prihláste na odber nejakého podcastu."
 
 #: src/gpodder/gtkui/main.py:3408
 msgid "Export to OPML"
-msgstr "OPML로 내보내기"
+msgstr "Exportovať do OPML"
 
 #: src/gpodder/gtkui/main.py:3421
 #, python-format
 msgid "%(count)d subscription exported"
 msgid_plural "%(count)d subscriptions exported"
-msgstr[0] "%(count)d 개 구독목록을 내보냈습니다"
+msgstr[0] "Bol exportovaný %(count)d podcast"
+msgstr[1] "Boli exportované %(count)d podcasty"
+msgstr[2] "Bolo exportovaných %(count)d podcastov"
 
 #: src/gpodder/gtkui/main.py:3424
 msgid "Your podcast list has been successfully exported."
-msgstr "팟캐스트 리스트를 내보냈습니다"
+msgstr "Zoznam vašich podcastov bol úspešne exportovaný."
 
 #: src/gpodder/gtkui/main.py:3428
 msgid "Could not export OPML to file. Please check your permissions."
-msgstr "OPML파일을 내보내지 못했습니다. 권한을 확인해주세요"
+msgstr "Nebolo možné exportovať OPML do súboru. Skontrolujte svoje oprávnenia."
 
 #: src/gpodder/gtkui/main.py:3430
 msgid "OPML export failed"
-msgstr "OPML 내보내기 실패"
+msgstr "Export do OPML zlyhal"
 
 #: src/gpodder/gtkui/main.py:3454
-#, fuzzy
 msgid "Could not check for updates"
-msgstr "팟캐스트를 추가하지 못했습니다"
+msgstr "Nebolo možné skontrolovať aktualizácie"
 
 #: src/gpodder/gtkui/main.py:3455
 msgid "Please try again later."
-msgstr ""
+msgstr "Skúste neskôr prosím."
 
 #: src/gpodder/gtkui/main.py:3460
 msgid "No updates available"
-msgstr "업데이트가 없습니다"
+msgstr "Žiadne aktualizácie nie sú k dispozícii"
 
 #: src/gpodder/gtkui/main.py:3461
 msgid "You have the latest version of gPodder."
-msgstr "gPodder 최신버전을 사용중입니다"
+msgstr "Máte najnovšiu verziu gPodderu."
 
 #: src/gpodder/gtkui/main.py:3465
 msgid "New version available"
-msgstr "새 버전이 있습니다"
+msgstr "Nová verzia je k dispozícii"
 
 #: src/gpodder/gtkui/main.py:3467
 #, python-format
 msgid "Installed version: %s"
-msgstr "설치된 버전 : %s"
+msgstr "Nainštalovaná verzia: %s"
 
 #: src/gpodder/gtkui/main.py:3468
 #, python-format
 msgid "Newest version: %s"
-msgstr "최신버전: %s"
+msgstr "Najnovšia verzia: %s"
 
 #: src/gpodder/gtkui/main.py:3469
 #, python-format
 msgid "Release date: %s"
-msgstr "배포 날짜: %s"
+msgstr "Dátum vydania: %s"
 
 #: src/gpodder/gtkui/main.py:3471
 msgid "Download the latest version from gpodder.org?"
-msgstr "gpodder.org에서 최신버전을 다운로드하겠습니까?"
+msgstr "Stiahnuť najnovšiu verziu z gpodder.org?"
 
 #: src/gpodder/gtkui/model.py:67
 #, python-format
 msgid "released %s"
-msgstr "배포 %s"
+msgstr "vydané %s"
 
 #: src/gpodder/gtkui/model.py:68 src/gpodder/gtkui/model.py:86
 #: src/gpodder/gtkui/model.py:295 src/gpodder/gtkui/shownotes.py:200
 #: src/gpodder/gtkui/shownotes.py:307
 #, python-format
 msgid "from %s"
-msgstr "%s 에서"
+msgstr "od %s"
 
 #: src/gpodder/gtkui/model.py:79 src/gpodder/gtkui/model.py:444
 msgid "played"
-msgstr "재생됨"
+msgstr "prehrané"
 
 #: src/gpodder/gtkui/model.py:81
 msgid "unplayed"
-msgstr "재생전"
+msgstr "neprehrané"
 
 #: src/gpodder/gtkui/model.py:84
 msgid "today"
-msgstr "오늘"
+msgstr "dnes"
 
 #: src/gpodder/gtkui/model.py:85
 #, python-format
 msgid "downloaded %s"
-msgstr "다운로드됨 %s"
+msgstr "stiahnuté %s"
 
 #: src/gpodder/gtkui/model.py:392
 msgid "Deleted"
-msgstr "삭제"
+msgstr "Odstránené"
 
 #: src/gpodder/gtkui/model.py:406
 msgid "Downloaded episode"
-msgstr "다운로드한 에피소드"
+msgstr "Stiahnutá epizóda"
 
 #: src/gpodder/gtkui/model.py:409
 msgid "Downloaded video episode"
-msgstr "다운로드한 비디오 에피소드"
+msgstr "Stiahnutá video epizóda"
 
 #: src/gpodder/gtkui/model.py:412
 msgid "Downloaded image"
-msgstr "다운로드한 이미지"
+msgstr "Stiahnutý obrázok"
 
 #: src/gpodder/gtkui/model.py:415
 msgid "Downloaded file"
-msgstr "다운로드한 파일"
+msgstr "Stiahnutý súbor"
 
 #: src/gpodder/gtkui/model.py:431
 msgid "missing file"
-msgstr "찾을 수 없는 파일"
+msgstr "chýbajúci súbor"
 
 #: src/gpodder/gtkui/model.py:435
 msgid "never displayed"
-msgstr "디스플레이 하기 전"
+msgstr "nikdy nezobrazené"
 
 #: src/gpodder/gtkui/model.py:437
 msgid "never played"
-msgstr "재생하기 전"
+msgstr "nikdy neprehrané"
 
 #: src/gpodder/gtkui/model.py:439
 msgid "never opened"
-msgstr "열리기 전"
+msgstr "nikdy neotvorené"
 
 #: src/gpodder/gtkui/model.py:442
 msgid "displayed"
-msgstr "디스플레이됨"
+msgstr "zobrazené"
 
 #: src/gpodder/gtkui/model.py:446
 msgid "opened"
-msgstr "열림"
+msgstr "otvorené"
 
 #: src/gpodder/gtkui/model.py:448
 msgid "deletion prevented"
-msgstr "삭제 방지됨"
+msgstr "zabránené vymazaniu"
 
 #: src/gpodder/gtkui/model.py:460
 msgid "New episode"
-msgstr "새로운 에피소드"
+msgstr "Nová epizóda"
 
 #: src/gpodder/gtkui/model.py:508 share/gpodder/ui/gtk/menus.ui.h:36
 msgid "All episodes"
-msgstr "모든 에피소드"
+msgstr "Všetky epizódy"
 
 #: src/gpodder/gtkui/model.py:509
 msgid "from all podcasts"
-msgstr "모든 팟캐스트에서"
+msgstr "zo všetkých podcastov"
 
 #: src/gpodder/gtkui/model.py:788
 msgid "Subscription paused"
-msgstr "구독 중지됨"
+msgstr "Pozastavený odber"
 
 #: src/gpodder/gtkui/shownotes.py:60
 #, python-format
@@ -1282,7 +1306,7 @@ msgstr ""
 
 #: src/gpodder/gtkui/shownotes.py:147
 msgid "Please select an episode"
-msgstr "에피소드를 선택하세요"
+msgstr "Vyberte epizódu"
 
 #: src/gpodder/gtkui/shownotes.py:313
 #, python-format
@@ -1295,39 +1319,39 @@ msgstr ""
 
 #: src/gpodder/gtkui/shownotes.py:356
 msgid "Open shownotes in web browser"
-msgstr ""
+msgstr "Otvoriť poznámky k epizóde v prehliadači"
 
 #: src/gpodder/gtkui/shownotes.py:362
 msgid "Open link in web browser"
-msgstr ""
+msgstr "Otvoriť odkaz v prehliadači"
 
 #: src/gpodder/gtkui/interface/addpodcast.py:76
 msgid "Nothing to paste."
-msgstr "붙여넣기 할 내용 없음"
+msgstr "Niet čo vložiť."
 
 #: src/gpodder/gtkui/interface/addpodcast.py:76
 msgid "Clipboard is empty"
-msgstr "클립보드가 비었습니다"
+msgstr "Schránka je prázdna"
 
 #: src/gpodder/gtkui/interface/common.py:141
 msgid "Username"
-msgstr "사용자 이름"
+msgstr "Používateľské meno"
 
 #: src/gpodder/gtkui/interface/common.py:144
 msgid "New user"
-msgstr "새 유저"
+msgstr "Nový používateľ"
 
 #: src/gpodder/gtkui/interface/common.py:151
 msgid "Login"
-msgstr "로그인"
+msgstr "Prihlásiť"
 
 #: src/gpodder/gtkui/interface/common.py:153
 msgid "Authentication required"
-msgstr "인증이 필요합니다"
+msgstr "Požadované overenie"
 
 #: src/gpodder/gtkui/interface/common.py:162
 msgid "hostname or root URL (e.g. https://gpodder.net)"
-msgstr ""
+msgstr "meno hostiteľa alebo koreňová adresa URL (napr. https://gpodder.net)"
 
 #: src/gpodder/gtkui/interface/common.py:183
 msgid "Server"
@@ -1335,100 +1359,98 @@ msgstr ""
 
 #: src/gpodder/gtkui/interface/common.py:189
 msgid "Password"
-msgstr "암호"
+msgstr "Heslo"
 
 #: src/gpodder/gtkui/interface/common.py:192
-#, fuzzy
-#| msgid "Password"
 msgid "Show Password"
-msgstr "암호"
+msgstr "Ukázať heslo"
 
 #: src/gpodder/gtkui/interface/common.py:229
 #: share/gpodder/ui/gtk/gpodderexporttolocalfolder.ui.h:1
 msgid "Select destination"
-msgstr "대상을 선택하세요"
+msgstr "Vybrať umiestnenie"
 
 #: src/gpodder/gtkui/interface/configeditor.py:33
 msgid "Setting"
-msgstr "셋팅"
+msgstr "Nastavenie"
 
 #: src/gpodder/gtkui/interface/configeditor.py:41
 msgid "Set to"
-msgstr "Set to"
+msgstr "Nastaviť na"
 
 #: src/gpodder/gtkui/interface/configeditor.py:86
 #, python-format
 msgid "Cannot set %(field)s to %(value)s. Needed data type: %(datatype)s"
 msgstr ""
-"%(field)s 필드에 %(value)s 값을 저장할 수 없습니다. 데이터 타입 필요: "
-"%(datatype)s"
+"%(field)s nemohlo byť nastavené na %(value)s. Požadovaný typ: %(datatype)s"
 
 #: src/gpodder/gtkui/interface/configeditor.py:90
 msgid "Error setting option"
-msgstr "셋팅 옵션 에러"
+msgstr "Chyba pri nastavovaní možnosti"
 
 #: src/gpodder/gtkui/desktop/channel.py:109
 msgid "Add section"
-msgstr "섹션 추가"
+msgstr "Pridať sekciu"
 
 #: src/gpodder/gtkui/desktop/channel.py:109
 msgid "New section:"
-msgstr "새 섹션:"
+msgstr "Nová sekcia:"
 
 #: src/gpodder/gtkui/desktop/channel.py:127
-#, fuzzy
 msgid "_Open"
-msgstr "열기"
+msgstr "_Otvoriť"
 
 #: src/gpodder/gtkui/desktop/channel.py:131
 msgid "_Refresh"
-msgstr ""
+msgstr "Ob_noviť"
 
 #: src/gpodder/gtkui/desktop/channel.py:144
 msgid "Select new podcast cover artwork"
-msgstr "새 팟캐스트 커버 아트웍을 선택하세요"
+msgstr "Vyberte nový obal podcastu"
 
 #: src/gpodder/gtkui/desktop/channel.py:176
 msgid "You can only drop a single image or URL here."
-msgstr "이미지 또는 URL을 한개만 놓을 수 있습니다"
+msgstr "Sem môžete umiestniť iba jeden obrázok alebo adresu URL."
 
 #: src/gpodder/gtkui/desktop/channel.py:177
 #: src/gpodder/gtkui/desktop/channel.py:189
 msgid "Drag and drop"
-msgstr "드래그 앤 드랍"
+msgstr "Presunutie myšou"
 
 #: src/gpodder/gtkui/desktop/channel.py:188
 msgid "You can only drop local files and http:// URLs here."
-msgstr "로컬 파일 과 URL을 한개만 놓을 수 있습니다"
+msgstr "Sem môžete umiestniť iba lokálne súbory a http:// adresy."
 
 #: src/gpodder/gtkui/desktop/episodeselector.py:104
 msgid "Remove"
-msgstr "삭제"
+msgstr "Odstrániť"
 
 #: src/gpodder/gtkui/desktop/episodeselector.py:284
 #: share/gpodder/ui/gtk/gpodderepisodeselector.ui.h:2
 msgid "Select all"
-msgstr "전부 선택"
+msgstr "Vybrať všetko"
 
 #: src/gpodder/gtkui/desktop/episodeselector.py:288
 #: share/gpodder/ui/gtk/gpodderepisodeselector.ui.h:3
 msgid "Select none"
-msgstr "모두 선택 해제"
+msgstr "Nevybrať žiadne"
 
 #: src/gpodder/gtkui/desktop/episodeselector.py:320
 msgid "Nothing selected"
-msgstr "선택된 것 없음"
+msgstr "Nič nevybrané"
 
 #: src/gpodder/gtkui/desktop/episodeselector.py:321
 #, python-format
 msgid "%(count)d episode"
 msgid_plural "%(count)d episodes"
-msgstr[0] "%(count)d 개의 에피소드"
+msgstr[0] "%(count)d epizóda"
+msgstr[1] "%(count)d epizódy"
+msgstr[2] "%(count)d epizód"
 
 #: src/gpodder/gtkui/desktop/episodeselector.py:324
 #, python-format
 msgid "size: %s"
-msgstr "크기: %s"
+msgstr "veľkosť: %s"
 
 #: src/gpodder/gtkui/desktop/exportlocal.py:57
 #, python-format
@@ -1436,306 +1458,307 @@ msgid "Export remaining %(count)d episode to this folder with its default name"
 msgid_plural ""
 "Export remaining %(count)d episodes to this folder with their default name"
 msgstr[0] ""
+"Exportovať zvyšnú %(count)d epizódu do tohto priečinka pod jej predvoleným "
+"menom"
+msgstr[1] ""
+"Exportovať zvyšné %(count)d epizódy do tohto priečinka pod ich predvoleným "
+"menom"
+msgstr[2] ""
+"Exportovať zvyšných %(count)d epizód do tohto priečinka pod ich predvoleným "
+"menom"
 
 #: src/gpodder/gtkui/desktop/podcastdirectory.py:189
-#, fuzzy
 msgid "Search:"
-msgstr "검색:"
+msgstr "Hľadať:"
 
 #: src/gpodder/gtkui/desktop/podcastdirectory.py:190
-#, fuzzy
 msgid "Search"
-msgstr "검색:"
+msgstr "Hľadať"
 
 #: src/gpodder/gtkui/desktop/podcastdirectory.py:192
 #: share/gpodder/ui/gtk/gpodderaddpodcast.ui.h:2
 msgid "URL:"
-msgstr "URL:"
+msgstr "URL adresa:"
 
 #: src/gpodder/gtkui/desktop/podcastdirectory.py:195
-#, fuzzy
 msgid "Filename:"
-msgstr "사용자 이름:"
+msgstr "Meno súboru:"
 
 #: src/gpodder/gtkui/desktop/podcastdirectory.py:237
 msgid "Loading podcasts"
-msgstr "팟캐스트 로딩"
+msgstr "Načítavanie podcastov"
 
 #: src/gpodder/gtkui/desktop/podcastdirectory.py:238
 msgid "Please wait while the podcast list is downloaded"
-msgstr "팟캐스트 리스트를 다운로드 하고 있습니다. 잠시만 기다려주세요"
+msgstr "Počkajte, kým bude zoznam podcastov stiahnutý."
 
 #: src/gpodder/gtkui/desktop/preferences.py:46
 #: src/gpodder/gtkui/desktop/preferences.py:89
 msgid "Do nothing"
-msgstr "아무것도 하지 않기"
+msgstr "Nerobiť nič"
 
 #: src/gpodder/gtkui/desktop/preferences.py:47
 msgid "Show episode list"
-msgstr "에피소드 리스트 표시"
+msgstr "Zobraziť zoznam epizód"
 
 #: src/gpodder/gtkui/desktop/preferences.py:48
 msgid "Add to download list"
-msgstr "다운로드 리스트에 추가"
+msgstr "Pridať do zoznamu sťahovaných"
 
 #: src/gpodder/gtkui/desktop/preferences.py:49
 msgid "Download immediately"
-msgstr "즉시 다운로드"
+msgstr "Stiahnuť ihneď"
 
 #: src/gpodder/gtkui/desktop/preferences.py:68
 msgid "None"
-msgstr "없음"
+msgstr "Žiadne"
 
 #: src/gpodder/gtkui/desktop/preferences.py:69
 msgid "iPod"
-msgstr "아이팟"
+msgstr ""
 
 #: src/gpodder/gtkui/desktop/preferences.py:70
 msgid "Filesystem-based"
-msgstr "파일시스템 기반"
+msgstr "Používajúce súborový systém"
 
 #: src/gpodder/gtkui/desktop/preferences.py:90
 msgid "Mark as played"
-msgstr "재생한 것으로 표시"
+msgstr "Označiť ako prehrané"
 
 #: src/gpodder/gtkui/desktop/preferences.py:91
 msgid "Delete from gPodder"
-msgstr "gPodder에서 삭제"
+msgstr "Odstrániť z gPodderu"
 
 #: src/gpodder/gtkui/desktop/preferences.py:117
 #: src/gpodder/gtkui/desktop/preferences.py:143
 #, python-format
 msgid "Custom (%(format_ids)s)"
-msgstr "커스텀 (%(format_ids)s)"
+msgstr "Vlastné (%(format_ids)s)"
 
 #: src/gpodder/gtkui/desktop/preferences.py:351
 msgid "Name"
-msgstr "이름"
+msgstr "Meno"
 
 #: src/gpodder/gtkui/desktop/preferences.py:403
 msgid "Documentation"
-msgstr "문서화"
+msgstr "Dokumentácia"
 
 #: src/gpodder/gtkui/desktop/preferences.py:408
 msgid "Extension info"
-msgstr "확장 정보"
+msgstr "Informácie o rozšírení"
 
 #: src/gpodder/gtkui/desktop/preferences.py:413
 msgid "Support the author"
-msgstr "저자를 후원하기"
+msgstr "Podporiť"
 
 #: src/gpodder/gtkui/desktop/preferences.py:455 bin/gpo:1032
 msgid "Extension cannot be activated"
-msgstr "확장기능을 사용할 수 없습니다"
+msgstr "Rozšírenie nie je možné aktivovať"
 
 #: src/gpodder/gtkui/desktop/preferences.py:468
 msgid "Extension module info"
-msgstr "확장 모듈 정보"
+msgstr "Informácie o rozširujúcom module"
 
 #: src/gpodder/gtkui/desktop/preferences.py:509
 msgid "Configure audio player"
-msgstr "오디오 플레이어 설정"
+msgstr "Nastaviť prehrávač audia"
 
 #: src/gpodder/gtkui/desktop/preferences.py:510
 #: src/gpodder/gtkui/desktop/preferences.py:520
 msgid "Command:"
-msgstr "명렁어:"
+msgstr "Príkaz:"
 
 #: src/gpodder/gtkui/desktop/preferences.py:519
 msgid "Configure video player"
-msgstr "비디오 플레이어 설정"
+msgstr "Nastaviť prehrávač videa"
 
 #: src/gpodder/gtkui/desktop/preferences.py:532
 #: src/gpodder/gtkui/desktop/preferences.py:556
 msgid "manually"
-msgstr "수동으로"
+msgstr "manuálne"
 
 #: src/gpodder/gtkui/desktop/preferences.py:558
 #, python-format
 msgid "after %(count)d day"
 msgid_plural "after %(count)d days"
-msgstr[0] "%(count)d 일 후에"
+msgstr[0] "po %(count)d dni"
+msgstr[1] "po %(count)d dňoch"
+msgstr[2] "po %(count)d dňoch"
 
 #: src/gpodder/gtkui/desktop/preferences.py:592
 msgid "Replace subscription list on server"
-msgstr "서버에 있는 구독목록과 교체합니다"
+msgstr "Nahradiť zoznam podcastov na serveri"
 
 #: src/gpodder/gtkui/desktop/preferences.py:593
 msgid ""
 "Remote podcasts that have not been added locally will be removed on the "
 "server. Continue?"
 msgstr ""
-"서버에 저장되어 있는 팟캐스트(이 컴퓨터에 저장되어 있지 않음)를 삭제 하시겠습"
-"니까?"
+"Podcasty na serveri, ktoré neboli pridané lokálne, budú odstránené. "
+"Pokračovať?"
 
 #: src/gpodder/gtkui/desktop/preferences.py:672
 msgid "Select folder for mount point"
-msgstr "마운트 포인트로 사용할 폴더를 선택하세요"
+msgstr "Vyberte priečinok pre prípojný bod"
 
 #: src/gpodder/gtkui/desktop/preferences.py:689
 msgid "Select folder for playlists"
-msgstr "플레이리스트를 위한 폴더를 선택하세요"
+msgstr "Vyberte priečinok pre zoznamy skladieb"
 
 #: src/gpodder/plugins/soundcloud.py:150
 msgid "Unknown track"
-msgstr "알수 없는 트랙"
+msgstr "Neznáma stopa"
 
 #: src/gpodder/plugins/soundcloud.py:184
 #, python-format
 msgid "%s on Soundcloud"
-msgstr "Soundcloud에서 %s "
+msgstr "%s na Soundcloud"
 
 #: src/gpodder/plugins/soundcloud.py:193
 #, python-format
 msgid "Tracks published by %s on Soundcloud."
-msgstr "트랙은 %s 가 사운드 클라우드에서 게재했습니다"
+msgstr "Skladby zverejnené používateľom %s na Soundcloud."
 
 #: src/gpodder/plugins/soundcloud.py:227
 #, python-format
 msgid "%s's favorites on Soundcloud"
-msgstr "%s의 Soundcloud에 있는 즐겨찾기"
+msgstr "Obľúbené skladby používateľa %s na Soundcloud"
 
 #: src/gpodder/plugins/soundcloud.py:233
 #, python-format
 msgid "Tracks favorited by %s on Soundcloud."
-msgstr "%s이 Soundcloud에서 즐겨찾는 트랙"
+msgstr "Skladby označené ako obľúbené používateľom %s na Soundcloud."
 
 #: share/gpodder/extensions/audio_converter.py:20
 msgid "Convert audio files"
-msgstr "오디오 파일 변환"
+msgstr "Prevod audio súborov"
 
 #: share/gpodder/extensions/audio_converter.py:21
 msgid "Transcode audio files to mp3/ogg"
-msgstr "오디오 파일을 mp3/ogg로 변환"
+msgstr "Prekódovať audio súbory na mp3/ogg"
 
 #: share/gpodder/extensions/audio_converter.py:93
 #: share/gpodder/extensions/video_converter.py:84
 #, python-format
 msgid "Convert to %(format)s"
-msgstr "%(format)s으로 변환"
+msgstr "Previesť na %(format)s"
 
 #: share/gpodder/extensions/audio_converter.py:134
 #: share/gpodder/extensions/rockbox_convert2mp4.py:66
 #: share/gpodder/extensions/video_converter.py:115
 msgid "File converted"
-msgstr "파일 변환됨"
+msgstr "Súbor bol prevedený"
 
 #: share/gpodder/extensions/audio_converter.py:137
 #: share/gpodder/extensions/video_converter.py:118
 msgid "Conversion failed"
-msgstr "변환 실패"
+msgstr "Pri prevode došlo k chybe"
 
 #: share/gpodder/extensions/command_on_download.py:18
 msgid "Run a Command on Download"
-msgstr ""
+msgstr "Spustiť príkaz po stiahnutí"
 
 #: share/gpodder/extensions/command_on_download.py:19
 msgid "Run a predefined external command upon download completion."
-msgstr ""
+msgstr "Spustiť preddefinovaný externý príkaz po dokončení sťahovania."
 
 #: share/gpodder/extensions/concatenate_videos.py:20
 #: share/gpodder/extensions/concatenate_videos.py:102
 msgid "Concatenate videos"
-msgstr "관련있는 비디오"
+msgstr "Zreťaziť videá"
 
 #: share/gpodder/extensions/concatenate_videos.py:21
 msgid "Add a context menu item for concatenating multiple videos"
-msgstr "여러개의 비디오를 연결하기 위한, 컨텍스트 메뉴 아이템 추가"
+msgstr "Pridať položku kontextového menu pre zreťazenie viacerých videí"
 
 #: share/gpodder/extensions/concatenate_videos.py:38
 msgid "Save video"
-msgstr "비디오 저장"
+msgstr "Uložiť video"
 
 #: share/gpodder/extensions/concatenate_videos.py:67
 msgid "Concatenating video files"
-msgstr "연결된 비디오 파일"
+msgstr "Zreťazovanie videí"
 
 #: share/gpodder/extensions/concatenate_videos.py:68
 #, python-format
 msgid "Writing %(filename)s"
-msgstr "%(filename)s 저장중"
+msgstr "Zapisovanie %(filename)s"
 
 #: share/gpodder/extensions/concatenate_videos.py:80
 msgid "Videos successfully converted"
-msgstr "비디오 파일을 변환했습니다"
+msgstr "Videá boli úspešne prevedené"
 
 #: share/gpodder/extensions/concatenate_videos.py:81
 msgid "Error converting videos"
-msgstr "비디오 변환 에러"
+msgstr "Chyba pri prevode videí"
 
 #: share/gpodder/extensions/concatenate_videos.py:82
 msgid "Concatenation result"
-msgstr "연결 결과"
+msgstr "Výsledok zreťazenia"
 
 #: share/gpodder/extensions/enqueue_in_mediaplayer.py:17
-#, fuzzy
 msgid "Enqueue/Resume in media players"
-msgstr "미디어 플레이어의 대기열에 추가함"
+msgstr "Pridať do poradia/Pokračovať v prehrávačoch medií"
 
 #: share/gpodder/extensions/enqueue_in_mediaplayer.py:18
-#, fuzzy
 msgid ""
 "Add a context menu item for enqueueing/resuming playback of episodes in "
 "installed media players"
 msgstr ""
-"미디어 플레이어의 대기열에 에피소드를 추가하기 위한 컨텍스트 메뉴 아이템 추가"
+"Pridať položku kontextového menu pre pridanie do poradia/pokračovanie v "
+"prehrávaní v nainštalovaných prehrávačoch médií"
 
 #: share/gpodder/extensions/enqueue_in_mediaplayer.py:36
 msgid "Enqueue in"
-msgstr "대기열에 추가"
+msgstr "Pridať do poradia v"
 
 #: share/gpodder/extensions/enqueue_in_mediaplayer.py:97
-#, fuzzy
 msgid "Resume in"
-msgstr "모두 다시 시작"
+msgstr "Pokračovať v"
 
 #: share/gpodder/extensions/episode_website_context_menu.py:15
-#, fuzzy
 msgid "\"Open website\" episode and podcast context menu"
-msgstr "에피소드 컨텍스트 메뉴에서 \"웹사이트 열기\""
+msgstr "\"Otvoriť webovú stránku\" kontextové menu epizódy a podcastu"
 
 #: share/gpodder/extensions/episode_website_context_menu.py:16
-#, fuzzy
 msgid ""
 "Add a context menu item for opening the website of an episode or podcast"
-msgstr "에피소드의 웹사이트를 열기 위해서, 컨텍스트 메뉴 아이템 추가"
+msgstr ""
+"Pridať položku kontextového menu pre otvorenie webovej stránky epizódy "
+"alebo podcastu"
 
 #: share/gpodder/extensions/episode_website_context_menu.py:40
 #: share/gpodder/extensions/episode_website_context_menu.py:43
 msgid "Open website"
-msgstr "웹사이트 열기"
+msgstr "Webová stránka:"
 
 #: share/gpodder/extensions/filter.py:15
-#, fuzzy
-#| msgid "Delete episodes"
 msgid "Filter Episodes"
-msgstr "에피소드 삭제"
+msgstr "Filtrovať epizódy"
 
 #: share/gpodder/extensions/filter.py:16
 msgid "Disable automatic downloads based on episode title."
-msgstr ""
+msgstr "Zakázať automatické sťahovania na základe názvu epizódy."
 
 #: share/gpodder/extensions/filter.py:53
 msgid "Regular Expression"
-msgstr ""
+msgstr "Regulárny výraz"
 
 #: share/gpodder/extensions/filter.py:56
 msgid "Ignore Case"
-msgstr ""
+msgstr "Nerozlišovať veľké/malé písmená"
 
 #: share/gpodder/extensions/filter.py:126
-#, fuzzy
-#| msgid "Filter:"
 msgid "Filter"
-msgstr "필터:"
+msgstr ""
 
 #: share/gpodder/extensions/filter.py:143
 msgid "Block"
-msgstr ""
+msgstr "Blokovať"
 
 #: share/gpodder/extensions/filter.py:152
 msgid "Except"
-msgstr ""
+msgstr "Výnimky"
 
 #: share/gpodder/extensions/filter.py:159
 msgid ""
@@ -1744,167 +1767,172 @@ msgid ""
 "episode title, and an empty pattern matches any title.  The except pattern "
 "unblocks blocked episodes (to block all then unblock some)."
 msgstr ""
+"Ak zaškrtnete políčko blokovať a ponecháte ho prázdne, zakážete automatické "
+"sťahovanie pre všetky epizódy tohto zdroja. Výrazom zodpovedá neúplný text "
+"v názve epizódy, a prázdnemu výrazu zodpovedá akýkoľvek názov. Výraz výnimky "
+"odblokuje blokované epizódy (na zablokovanie všetkých a násladné odblokovanie"
+" niektorých)."
 
 #: share/gpodder/extensions/filter.py:166
 msgid "Filter episodes now (undoes any episodes you marked as old)"
-msgstr ""
+msgstr "Filtrovať epizódy (vráti späť označenie epizód ako staré)"
 
 #: share/gpodder/extensions/gtk_statusicon.py:19
 msgid "Gtk Status Icon"
-msgstr "Gtk 상태 아이콘"
+msgstr "Stavová ikona Gtk"
 
 #: share/gpodder/extensions/gtk_statusicon.py:20
 msgid "Show a status icon for Gtk-based Desktops."
-msgstr " Gtk 기반의 데스크탑을 위해서, 상태메뉴 보이기"
+msgstr "Zobraziť stavovú ikonu pro desktopy založené na Gtk"
 
 #: share/gpodder/extensions/minimize_on_start.py:11
 msgid "Minimize on start"
-msgstr "최소화된 상태로 실행함"
+msgstr "Minimalizovať pri štarte"
 
 #: share/gpodder/extensions/minimize_on_start.py:12
 msgid "Minimizes the gPodder window on startup."
-msgstr "윈도우 부팅할 때, gPodder 윈도우를 최소화한 상태로 실행함"
+msgstr "Minimalizuje okno aplikácie gPodder pri štarte."
 
 #: share/gpodder/extensions/mpris-listener.py:36
 msgid "MPRIS Listener"
-msgstr "MPRIS Listener"
+msgstr "Integrácia MPRIS"
 
 #: share/gpodder/extensions/mpris-listener.py:37
 msgid "Convert MPRIS notifications to gPodder Media Player D-Bus API"
-msgstr "MPRIS 알림을 gPodder 미디어 플레이어 D-Bus API로 변환"
+msgstr "Previesť oznámenia MPRIS na gPodder Media Player D-Bus API"
 
 #: share/gpodder/extensions/normalize_audio.py:21
 msgid "Normalize audio with re-encoding"
-msgstr "재 인코딩을 해서 볼륨을 재조정함"
+msgstr "Normalizovať audio opätovným kódovaním"
 
 #: share/gpodder/extensions/normalize_audio.py:22
 msgid "Normalize the volume of audio files with normalize-audio"
-msgstr "재조정된 오디오로를 사용해서, 오디오 파일의 볼륨을 재조정함"
+msgstr "Normalizovať úroveň hlasitosti"
 
 #: share/gpodder/extensions/normalize_audio.py:105
 msgid "File normalized"
-msgstr "파일 볼륨 재조정됨"
+msgstr "Súbor bol normalizovaný"
 
 #: share/gpodder/extensions/notification-win32.py:55
 msgid "Notification Bubbles for Windows"
-msgstr ""
+msgstr "Bublinové oznámenia pre Windows"
 
 #: share/gpodder/extensions/notification-win32.py:56
 msgid "Display notification bubbles for different events."
-msgstr ""
+msgstr "Zobraziť bublinové oznámenia pre rôzne udalosti."
 
 #: share/gpodder/extensions/rename_download.py:17
 msgid "Rename episodes after download"
-msgstr "다운로드한뒤 에피소드 이름 변경"
+msgstr "Premenovať epizódy po stiahnutí"
 
 #: share/gpodder/extensions/rename_download.py:18
 msgid "Rename episodes to \"<Episode Title>.<ext>\" on download"
-msgstr "다운로드후에 에피소드 이름을 \"<Episode Title>.<ext>\"로 변경"
+msgstr "Premenovať epizódy po stiahnutí na \"<Názov epizódy>.<prípona>\""
 
 #: share/gpodder/extensions/rm_ogg_cover.py:38
 msgid "Remove cover art from OGG files"
-msgstr "OGG 파일에서 커버아트 삭제"
+msgstr "Odstrániť obal zo súborov OGG"
 
 #: share/gpodder/extensions/rm_ogg_cover.py:39
 msgid "removes coverart from all downloaded ogg files"
-msgstr "다운로드한 모든 ogg 파일에서 커버아트를 모두 삭제"
+msgstr "Odstráni obal zo všetkých stiahnutých súborov OGG"
 
 #: share/gpodder/extensions/rm_ogg_cover.py:68
 msgid "Remove cover art"
-msgstr "커버아트 삭제"
+msgstr "Odstrániť obal"
 
 #: share/gpodder/extensions/rockbox_convert2mp4.py:27
 msgid "Convert video files to MP4 for Rockbox"
-msgstr "Rockbox용 mp4 파일로 비디오 파일을 변환"
+msgstr "Previesť videosúbory do MP4 pre Rockbox"
 
 #: share/gpodder/extensions/rockbox_convert2mp4.py:28
 msgid "Converts all videos to a Rockbox-compatible format"
-msgstr "모든 비디오 파일을 Rockbox 에서 재생가능한 포맷으로 변환"
+msgstr "Prevedie všetky videá na kompatibilný formát pre Rockbox"
 
 #: share/gpodder/extensions/rockbox_coverart.py:18
 msgid "Rockbox Cover Art Sync"
-msgstr ""
+msgstr "Synchronizovať obaly s prehrávačom médií Rockbox"
 
 #: share/gpodder/extensions/rockbox_coverart.py:19
 msgid "Copy Cover Art To Rockboxed Media Player"
-msgstr ""
+msgstr "Kopírovať obaly na prehrávač médií Rockbox"
 
 #: share/gpodder/extensions/sonos.py:19 share/gpodder/extensions/sonos.py:81
 msgid "Stream to Sonos"
-msgstr "Sonos에서 재생"
+msgstr "Prehrať v reproduktoroch Sonos"
 
 #: share/gpodder/extensions/sonos.py:20
 msgid "Stream podcasts to Sonos speakers"
-msgstr "팟캐스트를 Sonos 스피커에서 재생"
+msgstr "Prehrať podcasty v reproduktoroch Sonos"
 
 #: share/gpodder/extensions/tagging.py:52
 msgid "Tag downloaded files using Mutagen"
-msgstr "Mutagen으로 다운로드 파일 태그함"
+msgstr "Tagovať stiahnuté súbory pomocou Mutagenu"
 
 #: share/gpodder/extensions/tagging.py:53
 msgid "Add episode and podcast titles to MP3/OGG tags"
-msgstr "에피소드와 팟캐스트 제목을 MP3/OGG 태그에 추가"
+msgstr "Pridať názvy epizód a podcastov do MP3/OGG tagov"
 
 #: share/gpodder/extensions/taskbar_progress.py:36
 msgid "Show download progress on the taskbar"
-msgstr "태스크바에 다운로드 진행상황 표시"
+msgstr "Zobraziť priebeh sťahovania na paneli úloh"
 
 #: share/gpodder/extensions/taskbar_progress.py:37
 msgid "Displays the progress on the Windows taskbar."
-msgstr "윈도우 태스바에 진행상황 표시"
+msgstr "Zobrazí priebeh sťahovania na paneli úloh systému Windows."
 
 #: share/gpodder/extensions/ted_subtitles.py:17
 msgid "Subtitle Downloader for TED Talks"
-msgstr "TED Talks 비디오을 위한 자막 다운로더"
+msgstr "Sťahovanie titulkov pre TED Talks"
 
 #: share/gpodder/extensions/ted_subtitles.py:18
 msgid "Downloads .srt subtitles for TED Talks Videos"
-msgstr "TED Talks 비디오의 .srt 자막 다운로드"
+msgstr "Stiahne .srt titulky pre videá TED Talks"
 
 #: share/gpodder/extensions/ubuntu_appindicator.py:15
 msgid "Ubuntu App Indicator"
-msgstr "우분투 앱 인디케이터"
+msgstr "Ubuntu App indikátor"
 
 #: share/gpodder/extensions/ubuntu_appindicator.py:16
 msgid "Show a status indicator in the top bar."
-msgstr "탑바에 상태 인디케이터 표시"
+msgstr "Zobraziť stavový indikátor na hornom paneli."
 
 #: share/gpodder/extensions/ubuntu_appindicator.py:47
 msgid "Show main window"
-msgstr "메인윈도우 표시"
+msgstr "Zobraziť hlavné okno"
 
 #: share/gpodder/extensions/ubuntu_appindicator.py:58
 #: share/gpodder/ui/gtk/gpodder.ui.h:4 share/gpodder/ui/gtk/menus.ui.h:6
 msgid "Quit"
-msgstr "종료"
+msgstr "Ukončiť"
 
 #: share/gpodder/extensions/ubuntu_unity.py:22
 msgid "Ubuntu Unity Integration"
-msgstr "우분투 유니티 통합"
+msgstr "Integrácia s Ubuntu Unity"
 
 #: share/gpodder/extensions/ubuntu_unity.py:23
 msgid "Show download progress in the Unity Launcher icon."
-msgstr "유니티 런처 아이콘에 다운로드 진행상황 표시"
+msgstr "Zobraziť priebeh sťahovania na ikone spúštača Unity."
 
 #: share/gpodder/extensions/update_feeds_on_startup.py:15
 msgid "Search for new episodes on startup"
-msgstr "실행할 때 마다, 새로운 에피소드 확인"
+msgstr "Hľadať nové epizódy pri štarte"
 
 #: share/gpodder/extensions/update_feeds_on_startup.py:16
 msgid "Starts the search for new episodes on startup"
-msgstr "실행할 때 마다, 새로운 에피소드 확인"
+msgstr "Začne hľadanie nových epizód pri štarte"
 
 #: share/gpodder/extensions/video_converter.py:20
 msgid "Convert video files"
-msgstr "비디오 파일 변환"
+msgstr "Previesť videosúbory"
 
 #: share/gpodder/extensions/video_converter.py:21
 msgid "Transcode video files to avi/mp4/m4v"
-msgstr "비디오 파일을 avi/mp4/m4v로 변환"
+msgstr "Prekódovať videosúbory na avi/mp4/m4v"
 
 #: share/gpodder/extensions/youtube-dl.py:27
 msgid "Manage Youtube subscriptions using youtube-dl (pip install youtube_dl)"
-msgstr ""
+msgstr "Spravovať odbery na Youtube pomocou youtube-dl (pip install youtube_dl)"
 
 #: share/gpodder/extensions/youtube-dl.py:33
 #, python-format
@@ -1912,163 +1940,156 @@ msgid ""
 "Your version of youtube-dl %(have_version)s has known issues, please upgrade "
 "to %(want_version)s or newer."
 msgstr ""
+"Vaše youtube-dl verzie %(have_version)s má známe problémy, aktualizujte "
+"prosím na verziu %(want_version)s alebo novšiu."
 
 #: share/gpodder/extensions/youtube-dl.py:485
-#, fuzzy
-#| msgid "Download to:"
 msgid "Old Youtube-DL"
-msgstr "다운로드 장소:"
+msgstr "Staré Youtube-DL"
 
 #: share/gpodder/extensions/youtube-dl.py:490
-#, fuzzy
-#| msgid "Download to:"
 msgid "Download with Youtube-DL"
-msgstr "다운로드 장소:"
+msgstr "Stiahnuť s Youtube-DL"
 
 #: share/gpodder/ui/gtk/gpodderaddpodcast.ui.h:1
 msgid "Add a new podcast"
-msgstr "새로운 팟캐스트 추가"
+msgstr "Pridať nový podcast"
 
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:1
 msgid "gPodder Podcast Editor"
-msgstr "gPodder 팟캐스트 에디터"
+msgstr "Editor podcastov gPodder"
 
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:2
 msgid "Section:"
-msgstr "섹션:"
+msgstr "Sekcia:"
 
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:3
 msgid "Disable feed updates (pause subscription)"
-msgstr "피드 업데이트 중지 (구독을 잠시 멈춤)"
+msgstr "Zakázať aktualizácie zdroja (pozastaviť odber)"
 
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:4
 msgid "Synchronize to MP3 player devices"
-msgstr "MP3 플레이어 디바이스와 동기화"
+msgstr "Synchronizovať s MP3 prehrávačmi"
 
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:5
 msgid "Strategy:"
-msgstr "계획:"
+msgstr "Stratégia:"
 
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:6
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:6
 msgid "General"
-msgstr "일반적인"
+msgstr "Všeobecné"
 
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:7
 msgid "<b>HTTP/FTP Authentication</b>"
-msgstr "<b>HTTP/FTP 인증</b>"
+msgstr "<b>HTTP/FTP overenie</b>"
 
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:8
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:14
 msgid "Username:"
-msgstr "사용자 이름:"
+msgstr "Používateľské meno:"
 
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:9
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:15 bin/gpo:348
 msgid "Password:"
-msgstr "암호:"
+msgstr "Heslo:"
 
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:10
 msgid "<b>Locations</b>"
-msgstr "<b>위치</b>"
+msgstr "<b>Umiestnenia</b>"
 
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:11
 msgid "Download to:"
-msgstr "다운로드 장소:"
+msgstr "Stiahnuť do:"
 
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:12
 msgid "Website:"
-msgstr "웹사이트:"
+msgstr "Webová stránka:"
 
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:13
 msgid "website label"
-msgstr "웹사이트 라벨"
+msgstr "štítok webovej stránky"
 
-# 문맥을 알수가 없어서, 그냥 영어로 둠
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:14
 msgid "Advanced"
-msgstr "Advanced"
+msgstr "Pokročilé"
 
 #: share/gpodder/ui/gtk/gpodderconfigeditor.ui.h:1
 msgid "gPodder Configuration Editor"
-msgstr "gPodder 설정 에디터"
+msgstr "Editor konfigurácie gPodder"
 
 #: share/gpodder/ui/gtk/gpodderconfigeditor.ui.h:2
 msgid "Search for:"
-msgstr "검색:"
+msgstr "Hľadať:"
 
 #: share/gpodder/ui/gtk/gpodderconfigeditor.ui.h:3
 msgid "Show All"
-msgstr "모두 표시"
+msgstr "Zobraziť všetko"
 
 #: share/gpodder/ui/gtk/gpodderepisodeselector.ui.h:1
 msgid "Select episodes"
-msgstr "에피소드 선택"
+msgstr "Vybrať epizódy"
 
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:1
 msgid "Find new podcasts"
-msgstr "새로운 팟캐스트 찾기"
+msgstr "Nájsť nové podcasty"
 
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:2
 msgid "label"
-msgstr "라벨"
+msgstr "štítok"
 
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:3
 msgid "..."
-msgstr "..."
+msgstr ""
 
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:4
 msgid "Select All"
-msgstr "모두 선택"
+msgstr "Vybrať všetko"
 
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:5
 msgid "Select None"
-msgstr "선택 안함"
+msgstr "Nevybrať žiadne"
 
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:7
-#, fuzzy
-#| msgid "Added"
 msgid "Add"
-msgstr "추가"
+msgstr "Pridať"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:1
 #: share/gpodder/ui/gtk/gpodder.ui.h:3 share/gpodder/ui/gtk/menus.ui.h:1
 msgid "Preferences"
-msgstr "환경설정"
+msgstr "Nastavenia"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:2
 msgid "Video player:"
-msgstr "비디오 플레이어:"
+msgstr "Prehrávač videa:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:3
 msgid "Audio player:"
-msgstr "오디오 플레이어:"
+msgstr "Prehrávač audia:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:4
 msgid "\"All episodes\" in podcast list"
-msgstr "팟캐스트 리스트의 모든 에피소드"
+msgstr "\"Všetky epizódy\" v zozname podcastov"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:5
 msgid "Use sections for podcast list"
-msgstr "팟캐스트 리스트에 섹션을 사용"
+msgstr "Používať sekcie v zozname podcastov"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:7
 msgid "Preferred YouTube format:"
-msgstr "기본 유튜브 포맷:"
+msgstr "Preferovaný formát pre YouTube:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:8
-#, fuzzy
-#| msgid "Preferred YouTube format:"
 msgid "Preferred YouTube HLS format:"
-msgstr "기본 유튜브 포맷:"
+msgstr "Preferovaný formát pre YouTube HLS:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:9
 msgid "Preferred Vimeo format:"
-msgstr "기본 Vimeo 포맷:"
+msgstr "Preferovaný formát pre Vimeo:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:12
 msgid "Synchronize subscriptions and episode actions"
-msgstr "구독목록/에피소드의 액션을 동기화"
+msgstr "Synchronizovať odbery a akcie epizód"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:13
 msgid "Server:"
@@ -2076,518 +2097,498 @@ msgstr ""
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:16
 msgid "Device name:"
-msgstr "디바이스 이름:"
+msgstr "Meno zariadenia:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:17
 msgid "Replace list on server with local subscriptions"
-msgstr "서버에 있는 구독목록을 현재 구독목록으로 고체합니다"
+msgstr "Nahradiť zoznam na serveri lokálnymi odbermi"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:18
 msgid "gpodder.net"
-msgstr "gpodder.net"
+msgstr ""
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:19
 msgid "Update interval:"
-msgstr "엡데이트 간격:"
+msgstr "Interval aktualizácie:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:20
 msgid "Maximum number of episodes per podcast:"
-msgstr "팟캐스트 하나당 최대 에피소드 갯수:"
+msgstr "Maximálny počet epizód podcastu:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:21
 msgid "When new episodes are found:"
-msgstr "새 에피소드가 확인되면:"
+msgstr "Keď budú nájdené nové epizódy:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:22
 msgid "Check connection before updating (if supported)"
-msgstr ""
+msgstr "Skontrolovať pripojenie pred aktualizáciou (ak je to podporované)"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:23
 msgid "Updating"
-msgstr "업데이트"
+msgstr "Aktualizuje sa"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:24
 msgid "Delete played episodes:"
-msgstr "재생한 에피소드 삭제"
+msgstr "Odstrániť prehrané epizódy:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:25
 msgid "Remove played episodes even if unfinished"
-msgstr "끝까지 다 보지 않은 에피소드 삭제"
+msgstr "Odstrániť prehraté epizódy, aj keď neboli dokončené"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:26
 msgid "Also remove unplayed episodes"
-msgstr "재생하지 않은 에피소드도 삭제"
+msgstr "Odstrániť aj neprehrané epizódy"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:27
 msgid "Clean-up"
-msgstr "청소"
+msgstr "Čistenie"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:28
 msgid "Device type:"
-msgstr "디바이스 종류:"
+msgstr "Typ zariadenia:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:29
 msgid "Mountpoint:"
-msgstr "마운트포인트:"
+msgstr "Prípojný bod:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:30
 msgid "Create playlists on device"
-msgstr "디바이스에 플레이 리스트 만들기"
+msgstr "Vytvoriť zoznam na zariadení"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:31
 msgid "Playlists Folder:"
-msgstr "플레이리스트 폴더:"
+msgstr "Priečinok zoznamov skladieb:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:32
 msgid "Remove episodes deleted on device from gPodder"
-msgstr "디바이스에서 삭제한 에피소드가 gPodder에 있다면 삭제함"
+msgstr "Odstrániť epizódy vymazané zo zariadenia z gPodderu"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:33
 msgid "After syncing an episode:"
-msgstr "에피소드 동기화 후:"
+msgstr "Po synchronizácii epizódy:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:34
 msgid "Only sync unplayed episodes"
-msgstr "재생하지 않은 에피소드만 동기화"
+msgstr "Synchronizovať iba neprehrané epizódy"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:35
 msgid "Devices"
-msgstr "디바이스"
+msgstr "Zariadenia"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:36
 msgid "Edit config"
-msgstr "설정파일 수정"
+msgstr "Upraviť nastavenia"
 
 #: share/gpodder/ui/gtk/gpodder.ui.h:5 share/gpodder/ui/gtk/menus.ui.h:8
 msgid "Check for new episodes"
-msgstr "새 에피소드 확인"
+msgstr "Skontrolovať nové epizódy"
 
 #: share/gpodder/ui/gtk/gpodder.ui.h:6
 msgid "Filter:"
-msgstr "필터:"
+msgstr ""
 
 #: share/gpodder/ui/gtk/gpodder.ui.h:7
 msgid "Podcasts"
-msgstr "팟캐스트"
+msgstr "Podcasty"
 
 #: share/gpodder/ui/gtk/gpodder.ui.h:8
 msgid "Limit rate to"
-msgstr "제한 비율"
+msgstr "Obmedziť rýchlosť na"
 
 #: share/gpodder/ui/gtk/gpodder.ui.h:9
 msgid "KiB/s"
-msgstr "KiB/s"
+msgstr ""
 
 #: share/gpodder/ui/gtk/gpodder.ui.h:10
 msgid "Limit downloads to"
-msgstr "다운로드 제한함"
+msgstr "Obmedziť počet sťahovaní na"
 
 #: share/gpodder/ui/gtk/gpodderwelcome.ui.h:2
 msgid "<big>Welcome to gPodder</big>"
-msgstr "<big>gPodder 환영합니다</big>"
+msgstr "<big>Vitajte v aplikácii gPodder</big>"
 
 #: share/gpodder/ui/gtk/gpodderwelcome.ui.h:3
 msgid "Your podcast list is empty."
-msgstr "팟캐스트 리스트가 비어 있습니다"
+msgstr "Váš zoznam podcastov je prázdny."
 
 #: share/gpodder/ui/gtk/gpodderwelcome.ui.h:4
 msgid "Choose from a list of example podcasts"
-msgstr "예제 팟캐스트에서 선택하기"
+msgstr "Vybrať zo zoznamu ukážkových podcastov"
 
 #: share/gpodder/ui/gtk/gpodderwelcome.ui.h:5
 msgid "Add a podcast by entering its URL"
-msgstr "URL로 팟캐스트 추가"
+msgstr "Pridať podcast zadaním jeho URL adresy"
 
 #: share/gpodder/ui/gtk/gpodderwelcome.ui.h:6
 msgid "Restore my subscriptions from gpodder.net"
-msgstr "gpodder.net에 있는 구독목록으로 복원함"
+msgstr "Obnoviť moje odbery z gpodder.net"
 
 #: share/gpodder/ui/gtk/menus.ui.h:2
 msgid "Go to gpodder.net"
-msgstr "gpodder.net 열기"
+msgstr "Ísť na gpodder.net"
 
 #: share/gpodder/ui/gtk/menus.ui.h:3
 msgid "Software updates"
-msgstr "소프트웨어 업데이트"
+msgstr "Aktualizácie softvéru"
 
 #: share/gpodder/ui/gtk/menus.ui.h:4
-#, fuzzy
 msgid "Help"
-msgstr "_Help"
+msgstr "Pomocník"
 
 #: share/gpodder/ui/gtk/menus.ui.h:5
 msgid "About"
-msgstr ""
+msgstr "O aplikácii"
 
 #: share/gpodder/ui/gtk/menus.ui.h:7
-#, fuzzy
 msgid "_Podcasts"
-msgstr "팟캐스트"
+msgstr "_Podcasty"
 
 #: share/gpodder/ui/gtk/menus.ui.h:9
 msgid "Download new episodes"
-msgstr "새 에피소드 다운로드"
+msgstr "Stiahnuť nové epizódy"
 
 #: share/gpodder/ui/gtk/menus.ui.h:11
-#, fuzzy
-#| msgid "Find new podcasts"
 msgid "Find Podcast"
-msgstr "새로운 팟캐스트 찾기"
+msgstr "Nájsť podcast"
 
 #: share/gpodder/ui/gtk/menus.ui.h:12
-#, fuzzy
 msgid "_Subscriptions"
-msgstr "설명이 없습니다"
+msgstr "_Odbery"
 
 #: share/gpodder/ui/gtk/menus.ui.h:13
 msgid "Discover new podcasts"
-msgstr "새 에피소드 찾기"
+msgstr "Objaviť nové podcasty"
 
 #: share/gpodder/ui/gtk/menus.ui.h:14
 msgid "Add podcast via URL"
-msgstr "팟캐스트의 URL 추가"
+msgstr "Pridať URL adresu podcastu"
 
 #: share/gpodder/ui/gtk/menus.ui.h:18
 msgid "Import from OPML file"
-msgstr "OPML파일에서 불러오기"
+msgstr "Importovať z OPML súboru"
 
 #: share/gpodder/ui/gtk/menus.ui.h:19
 msgid "Export to OPML file"
-msgstr "OPML파일로 내보내기"
+msgstr "Exportovať do OPML súboru"
 
 #: share/gpodder/ui/gtk/menus.ui.h:20
-#, fuzzy
 msgid "_Episodes"
-msgstr "에피소드"
+msgstr "_Epizódy"
 
 #: share/gpodder/ui/gtk/menus.ui.h:26
 msgid "Toggle new status"
-msgstr "새 상태 토글"
+msgstr "Zmeniť stav \"Nové\""
 
 #: share/gpodder/ui/gtk/menus.ui.h:27
 msgid "Change delete lock"
-msgstr "삭제 잠금 변경"
+msgstr "Zmeniť zámok vymazania"
 
 #: share/gpodder/ui/gtk/menus.ui.h:28
-#, fuzzy
-#| msgid "Delete episodes"
 msgid "Find Episode"
-msgstr "에피소드 삭제"
+msgstr "Nájsť epizódu"
 
 #: share/gpodder/ui/gtk/menus.ui.h:31
 msgid "Sync to device"
-msgstr "디바이스와 동기화"
+msgstr "Synchronizovať so zariadením"
 
 #: share/gpodder/ui/gtk/menus.ui.h:32
 msgid "_View"
-msgstr ""
+msgstr "_Zobraziť"
 
 #: share/gpodder/ui/gtk/menus.ui.h:33
 msgid "Toolbar"
-msgstr "툴바"
+msgstr "Panel nástrojov"
 
 #: share/gpodder/ui/gtk/menus.ui.h:34
 msgid "Episode descriptions"
-msgstr "에피소드 설명"
+msgstr "Popis epizód"
 
 #: share/gpodder/ui/gtk/menus.ui.h:35
 msgid "Always show Find entries"
-msgstr ""
+msgstr "Vždy zobraziť panel hľadania"
 
 #: share/gpodder/ui/gtk/menus.ui.h:37
 msgid "Hide deleted episodes"
-msgstr "삭제한 에피소드 숨김"
+msgstr "Skryť odstránené epizódy"
 
 #: share/gpodder/ui/gtk/menus.ui.h:38
 msgid "Downloaded episodes"
-msgstr "다운로드한 에피소드"
+msgstr "Stiahnuté epizódy"
 
 #: share/gpodder/ui/gtk/menus.ui.h:39
 msgid "Unplayed episodes"
-msgstr "재생되지 않은 에피소드"
+msgstr "Neprehrané epizódy"
 
 #: share/gpodder/ui/gtk/menus.ui.h:40
 msgid "Hide podcasts without episodes"
-msgstr "팟캐스트만 숨김 (에피소드는 숨기지 않음)"
+msgstr "Skryť podcasty bez epizód"
 
 #: share/gpodder/ui/gtk/menus.ui.h:41
-#, fuzzy
-#| msgid "No new episodes"
 msgid "Always show New Episodes"
-msgstr "새 에피소드가 없습니다"
+msgstr "Vždy zobraziť nové epizódy"
 
 #: share/gpodder/ui/gtk/menus.ui.h:42
 msgid "Visible columns"
-msgstr "보이는 컬럼"
+msgstr "Viditeľné stĺpce"
 
 #: bin/gpo:267
 msgid "Podcast update requested by extensions."
-msgstr "확장기능에서 팟캐스트 업데이트 함"
+msgstr "Aktualizácia podcastov bola vyžiadaná rozšírením."
 
-# extensions이 확장기능이 맞는지 좀 헷갈리네요
 #: bin/gpo:271
 msgid "Episode download requested by extensions."
-msgstr "확장기능에서 에피소드 다운로드 함"
+msgstr "Stiahnutie epizódy bolo vyžiadané rozšírením."
 
 #: bin/gpo:324
 #, python-format
 msgid "Invalid url: %s"
-msgstr "잘못된 url: %s"
+msgstr "Neplatná URL adresa: %s"
 
 #: bin/gpo:341
 msgid "Wrong username/password"
-msgstr "잘못된 사용자이름/암호"
+msgstr "Nesprávne používateľské meno/heslo"
 
 #: bin/gpo:346
-#, fuzzy
 msgid "User name:"
-msgstr "사용자 이름:"
+msgstr "Používateľské meno:"
 
 #: bin/gpo:363 bin/gpo:439 bin/gpo:477 bin/gpo:676 bin/gpo:698 bin/gpo:713
 #: bin/gpo:793
 #, python-format
 msgid "You are not subscribed to %s."
-msgstr "%s를 구독하고 있지 않습니다"
+msgstr "Nie ste prihlásený na odber %s."
 
 #: bin/gpo:369
 #, python-format
 msgid "Already subscribed to %s."
-msgstr "%s는 이미 구독중"
+msgstr "%s už odoberáte."
 
 #: bin/gpo:375
 #, python-format
 msgid "Cannot subscribe to %s."
-msgstr "%s를 구독할 수 없습"
+msgstr "Nie je možné sa prihlásiť na odber %s."
 
 #: bin/gpo:391
 #, python-format
 msgid "Successfully added %s."
-msgstr "%s 이 추가됨"
+msgstr "Podcast %s bol úspešne pridaný."
 
 #: bin/gpo:409
 msgid "This configuration option does not exist."
-msgstr "설정 옵션이 없습니다"
+msgstr "Táto možnosť nastavenia neexistuje."
 
 #: bin/gpo:413
 msgid "Can only set leaf configuration nodes."
-msgstr "가장 끝 설정 노드에만 지정가능함"
+msgstr "Je možné nastaviť len koncové vetvy konfigurácie."
 
 #: bin/gpo:427
 #, python-format
 msgid "Renamed %(old_title)s to %(new_title)s."
-msgstr "이르을 %(old_title)s 에서 %(new_title)s 변경합니다."
+msgstr "Podcast %(old_title)s bol premenovaný na %(new_title)s."
 
 #: bin/gpo:443
 #, python-format
 msgid "Unsubscribed from %s."
-msgstr "%s 에서 구독 중지"
+msgstr "Zrušený odber %s."
 
 #: bin/gpo:509
-#, fuzzy
 msgid "Invalid command."
-msgstr "잘 못 된 값"
+msgstr "Neplatný príkaz."
 
 #: bin/gpo:514
-#, fuzzy, python-format
+#, python-format
 msgid "Invalid option: %s."
-msgstr "잘못된 url: %s"
+msgstr "Neplatná voľba: %s."
 
 #: bin/gpo:539
 msgid "Updates disabled"
-msgstr "금지된 항목들 업데이트"
+msgstr "Aktualizácie boli zakázané"
 
 #: bin/gpo:550
 #, python-format
 msgid "%(count)d new episode"
 msgid_plural "%(count)d new episodes"
-msgstr[0] "새로운 에피소드 %(count)d 개"
+msgstr[0] "%(count)d nová epizóda"
+msgstr[1] "%(count)d nové epizódy"
+msgstr[2] "%(count)d nových epizód"
 
 #: bin/gpo:556
 msgid "Checking for new episodes"
-msgstr "새 에피소드 확인"
+msgstr "Kontrola nových epizód"
 
 #: bin/gpo:565
 #, python-format
 msgid "Skipping %(podcast)s"
-msgstr "%(podcast)s 를 건너뜀"
+msgstr "Preskočenie %(podcast)s"
 
 #: bin/gpo:683
 msgid "No episode with the specified GUID found."
-msgstr ""
+msgstr "Neboli nájdené žiadne epizódy so zadaným GUID."
 
 #: bin/gpo:687
-#, fuzzy, python-format
+#, python-format
 msgid "Deleted episode \"%s\"."
-msgstr "에피소드 삭제"
+msgstr "Epizóda \"%s\" bola odstránená."
 
 #: bin/gpo:689
-#, fuzzy
 msgid "Episode has already been deleted."
-msgstr "디바에스에 있는 에피소드를 삭제했습니다"
+msgstr "Epizóda už bola odstránená."
 
 #: bin/gpo:704
 #, python-format
 msgid "Disabling feed update from %s."
-msgstr "%s에서 피드 업데이트 금지"
+msgstr "Zakázanie aktualizácie zdroja pre %s."
 
 #: bin/gpo:719
 #, python-format
 msgid "Enabling feed update from %s."
-msgstr "%s에서 피드 업데이트 허용"
+msgstr "Povolenie aktualizácie zdroja pre %s."
 
 #: bin/gpo:748
 msgid "No podcasts found."
-msgstr "에피소드가 없습니다"
+msgstr "Neboli nájdené žiadne podcasty."
 
 #: bin/gpo:762
 msgid "Enter index to subscribe, ? for list"
-msgstr "? 의 순번을 입력하세요, 리스트에 사용됩니다"
+msgstr "Pre prihlásenie sa na odber zadajte číslo podcastu, ? vypíše zoznam"
 
 #: bin/gpo:776 bin/gpo:780 bin/gpo:921 bin/gpo:925
 msgid "Invalid value."
-msgstr "잘 못 된 값"
+msgstr "Neplatná hodnota."
 
 #: bin/gpo:797
 #, python-format
 msgid "Invalid URL: %s"
-msgstr "잘못된 URL: %s"
+msgstr "Neplatná URL adresa: %s"
 
 #: bin/gpo:800
 #, python-format
 msgid "Changed URL from %(old_url)s to %(new_url)s."
-msgstr "%(old_url)s 을 %(new_url)s 로 변경함"
+msgstr "URL adresa bola zmenená z %(old_url)s na %(new_url)s."
 
 #: bin/gpo:825
 #, python-format
 msgid "%(title)s: %(msg)s ([yes]/no): "
-msgstr ""
+msgstr "%(title)s: %(msg)s ([ano]/nie): "
 
 #: bin/gpo:829 bin/gpo:997
 msgid "yes"
-msgstr ""
+msgstr "ano"
 
 #: bin/gpo:866
-#, fuzzy, python-format
+#, python-format
 msgid "Deleting episode: %(episode)s"
-msgstr "에피소드 삭제중"
+msgstr "Odstránenie epizódy: %(episode)s"
 
 #: bin/gpo:899
 msgid ""
 "Enter episode index to toggle, ? for list, X to select all, space to select "
 "none, empty when ready"
 msgstr ""
+"Zadajte číslo epizódy, ktorá má byť zmenená, ? vypíše zoznam, X vyberie "
+"všetky, medzerník nevyberie žiadne, nechajte prázdne pre pokračovanie"
 
 #: bin/gpo:931
-#, fuzzy, python-format
+#, python-format
 msgid "Will delete %(episode)s"
-msgstr "삭제한 에피소드 숨김"
+msgstr "Vymaže %(episode)s"
 
 #: bin/gpo:933
-#, fuzzy, python-format
+#, python-format
 msgid "Won't delete %(episode)s"
-msgstr "에피소드 삭제"
+msgstr "Nevymaže %(episode)s"
 
 #: bin/gpo:946
-#, fuzzy, python-format
+#, python-format
 msgid "Syncing %s"
-msgstr "추가중 %s"
+msgstr "Synchronizácia %s"
 
 #: bin/gpo:980
 msgid "(enabled)"
-msgstr ""
+msgstr "(povolené)"
 
 #: bin/gpo:991
 msgid "Title:"
-msgstr ""
+msgstr "Názov:"
 
 #: bin/gpo:992
-#, fuzzy
-#| msgid "Strategy:"
 msgid "Category:"
-msgstr "계획:"
+msgstr "Kategória:"
 
 #: bin/gpo:993
-#, fuzzy
-#| msgid "Section:"
 msgid "Description:"
-msgstr "섹션:"
+msgstr "Popis:"
 
 #: bin/gpo:994
 msgid "Authors:"
-msgstr ""
+msgstr "Autori:"
 
 #: bin/gpo:996
-#, fuzzy
-#| msgid "Documentation"
 msgid "Documentation:"
-msgstr "문서화"
+msgstr "Dokumentácia:"
 
 #: bin/gpo:997
 msgid "Enabled:"
-msgstr ""
+msgstr "Povolené:"
 
 #: bin/gpo:997
 msgid "no"
-msgstr ""
+msgstr "nie"
 
 #: bin/gpo:1022
 msgid "enabled"
-msgstr ""
+msgstr "povolené"
 
 #: bin/gpo:1022
-#, fuzzy
-#| msgid "Updates disabled"
 msgid "disabled"
-msgstr "금지된 항목들 업데이트"
+msgstr "zakázané"
 
 #: bin/gpo:1025
 #, python-format
 msgid "Extension %(name)s (%(title)s) %(enabled)s"
-msgstr ""
+msgstr "Rozšírenie %(name)s (%(title)s) %(enabled)s"
 
 #: bin/gpo:1105
 #, python-format
 msgid "Syntax error: %(error)s"
-msgstr "Syntax 에러: %(error)s"
+msgstr "Chyba syntaxe: %(error)s"
 
 #: bin/gpo:1223
 msgid "Ambiguous command. Did you mean.."
-msgstr "불분명한 명령어입니다"
+msgstr "Nejednoznačný príkaz. Mysleli ste..."
 
 #: bin/gpo:1227
 msgid "The requested function is not available."
-msgstr "해당 기능을 사용할 수 없습니다"
+msgstr "Požadovaná funkcia nie je k dispozícii."
 
 #: bin/gpodder:100
 msgid "print logging output on the console"
-msgstr "콘솔에 로그를 축력합니다"
+msgstr "vypísať záznam do konzoly"
 
 #: bin/gpodder:104
-#, fuzzy
-#| msgid "print logging output on the console"
 msgid "reduce warnings on the console"
-msgstr "콘솔에 로그를 축력합니다"
+msgstr "znížiť počet varovaní v konzole"
 
 #: bin/gpodder:107
 msgid "subscribe to the feed at URL"
-msgstr "URL에 있는 피드를 구독합니다"
+msgstr "prihlásiť sa na odber na adrese URL"
 
 #: bin/gpodder:112
 msgid "Mac OS X application process number"
-msgstr "맥 OS X 어플리케이션 프로세스 번호"
+msgstr "číslo procesu aplikácie v Mac OS X"
 
 #: share/applications/gpodder.desktop.in.h:2
 msgid "gPodder Podcast Client"
-msgstr "gPodder 팟캐스트 클라이언트"
+msgstr "Podcastový klient gPodder"
 
 #: share/applications/gpodder.desktop.in.h:3
 msgid "Podcast Client"
-msgstr "팟캐스트 클라이언트"
+msgstr "Podcastový klient"
 
 #: share/applications/gpodder.desktop.in.h:4
 msgid "Subscribe to audio and video content from the web"
-msgstr "웹에서 오디오와 비디오 건텐츠를 구독합니다"
+msgstr "Odoberať audio a video obsah z internetu"
 
 #: share/applications/gpodder-url-handler.desktop.in.h:1
 msgid "gPodder (subscribe to feed)"
-msgstr "gPodder (구독하기)"
+msgstr "gPodder (prihlásiť sa na odber)"

@@ -280,7 +280,7 @@ def get_real_download_url(url, allow_partial, preferred_fmt_ids=None):
         fmt_id_url_map = sorted(find_urls(old_page, new_page), reverse=True)
 
         if not fmt_id_url_map:
-            drm = re.search(r'(%22(cipher|signatureCipher)%22%3A|"signatureCipher"):', old_page or new_page)
+            drm = re.search(r'(%22(cipher|signatureCipher)%22%3A|"signatureCipher":)', old_page or new_page)
             if drm is not None:
                 raise YouTubeError('Unsupported DRM content')
             raise YouTubeError('No formats found')
