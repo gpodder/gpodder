@@ -3716,12 +3716,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             logger.error('mounting volume %s failed: %s' % (file.get_uri(), message))
         return result
 
-        mount_result = {}
-        op = Gtk.MountOperation.new(self.main_window)
-        file.mount_enclosing_volume(Gio.MountMountFlags.NONE, op, None, self.mount_volume_cb, mount_result)
-        Gtk.main()
-        return mount_result["result"]
-
     def on_sync_to_device_activate(self, widget, episodes=None, force_played=True):
         self.sync_ui = gPodderSyncUI(self.config, self.notification,
                 self.main_window,
