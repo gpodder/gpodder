@@ -212,6 +212,9 @@ PLAYERS = [
     # Clementine, http://www.clementine-player.org/
     FreeDesktopPlayer('clementine', 'Clementine', ['clementine', '--append']),
 
+    # Strawberry, https://www.strawberrymusicplayer.org/
+    FreeDesktopPlayer('strawberry', 'Strawberry', ['strawberry', '--append']),
+
     # Parole, http://docs.xfce.org/apps/parole/start
     FreeDesktopPlayer('parole', 'Parole', ['parole', '-a']),
 
