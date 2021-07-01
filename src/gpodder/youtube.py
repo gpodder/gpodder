@@ -486,6 +486,9 @@ def parse_youtube_url(url):
     logger.debug("Analyzing URL: {}".format(" ".join([scheme, netloc, path, query, fragment])))
 
     if 'youtube.com' in netloc:
+        if path == '/feeds/videos.xml' and re.search(r'^(user|channel|playlist)_id=.*', query):
+            return url
+
         if '/user/' in path or '/channel/' in path or 'list=' in query:
             logger.debug("Valid Youtube URL detected. Parsing...")
 
