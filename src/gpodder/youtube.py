@@ -203,7 +203,6 @@ def get_real_download_url(url, allow_partial, preferred_fmt_ids=None):
         if not r.ok:
             logger.warning('Youtube get_video_info: %d %s' % (r.status_code, r.reason))
 
-            # TODO: watch URL does not work in europe due to GDPR cookie consent
             url = 'https://www.youtube.com/watch?bpctr=9999999999&has_verified=1&v=' + vid
             r = requests.get(url)
             if not r.ok:
@@ -211,8 +210,15 @@ def get_real_download_url(url, allow_partial, preferred_fmt_ids=None):
 
             ipr = re.search(r'ytInitialPlayerResponse\s*=\s*({.+?})\s*;', r.text)
             if ipr is None:
+                url = get_gdpr_consent_url(r.text)
+                r = requests.get(url)
+                if not r.ok:
+                    raise YouTubeError('%d %s' % (r.status_code, r.reason))
+                    
+            ipr = re.search(r'ytInitialPlayerResponse\s*=\s*({.+?})\s*;', r.text)
+            if ipr is None:
                 raise YouTubeError('No ytInitialPlayerResponse found')
-
+	    	
             old_page = None
             new_page = ipr.group(1)
         else:
@@ -425,6 +431,46 @@ def get_cover(url):
         except Exception:
             logger.warning('Could not retrieve cover art', exc_info=True)
 
+def get_gdpr_consent_url(html_data):
+    """
+    Creates the URL for automatically accepting GDPR consents
+    EU GDPR redirects to a form that needs to be posted to be redirected to a get request
+    with the form data as input to the youtube video URL. This extracts that form data from
+    the GDPR from and builds up the URL the posted form results.
+    """
+    class ConsentHTML(HTMLParser):
+        def __init__(self):
+                super().__init__()
+                self.url = ''
+                self.consentForm = False
+                
+        def handle_starttag(self, tag, attributes):
+            attribute_dict = {attribute[0]: attribute[1] for attribute in attributes}
+            if tag == 'form' and attribute_dict['action'] == 'https://consent.youtube.com/s':
+                self.consentForm = True
+                self.url = 'https://consent.google.com/s?' 
+            # Get GDPR form elements
+            if self.consentForm and tag == 'input' and attribute_dict['type'] == 'hidden':
+            	self.url += '&' + attribute_dict['name'] + '=' + urllib.parse.quote_plus(attribute_dict['value'])
+            	
+        def handle_endtag(self, tag):
+            if tag == 'form':
+                self.consentForm = False
+                
+    try:
+        parser = ConsentHTML()
+        parser.feed(html_data)
+        
+        if parser.url:
+            logger.debug('YouTube GDPR accept consent URL is: %s', parser.url)
+            return parser.url
+        else:
+           logger.debug('YouTube GDPR accepted consent URL could not be resolved.', parser.url)
+           return _('No acceptable GDPR consent URL')
+    
+    except Exception:
+        logger.warning('Could not retrieve GDPR accepted consent URL', exc_info=True)
+            
 
 def get_channel_desc(url):
     if 'youtube.com' in url:
