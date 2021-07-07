@@ -295,8 +295,8 @@ def get_real_download_url(url, allow_partial, preferred_fmt_ids=None):
         fmt_id_url_map = dict(fmt_id_url_map)
 
         for id in preferred_fmt_ids:
-            if re.search(r'(^best|\+)', str(id)):
-                # skip formats that contain 'best.*' or a + (136+140)
+            if not re.search(r'^[0-9]+$', str(id)):
+                # skip non-integer formats 'best', '136+140' or twitch '720p'
                 continue
             id = int(id)
             if id in formats_available:
