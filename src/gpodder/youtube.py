@@ -189,6 +189,39 @@ def youtube_real_download_url(config, episode, allow_partial):
     return None if res == episode.url else res
 
 
+def youtube_get_old_endpoint(vid):
+    # TODO: changing 'detailpage' to 'embedded' allows age-restricted content
+    url = 'https://www.youtube.com/get_video_info?html5=1&c=TVHTML5&cver=6.20180913&el=detailpage&video_id=' + vid
+    r = requests.get(url)
+    if not r.ok:
+        raise YouTubeError('Youtube "%s": %d %s' % (url, r.status_code, r.reason))
+    else:
+        return r.text, None
+
+
+def youtube_get_new_endpoint(vid):
+    url = 'https://www.youtube.com/watch?bpctr=9999999999&has_verified=1&v=' + vid
+    r = requests.get(url)
+    if not r.ok:
+        raise YouTubeError('Youtube "%s": %d %s' % (url, r.status_code, r.reason))
+
+    ipr = re.search(r'ytInitialPlayerResponse\s*=\s*({.+?})\s*;', r.text)
+    if ipr is None:
+        try:
+            url = get_gdpr_consent_url(r.text)
+        except YouTubeError as e:
+            raise YouTubeError('Youtube "%s": No ytInitialPlayerResponse found and %s' % (url, str(e)))
+        r = requests.get(url)
+        if not r.ok:
+            raise YouTubeError('Youtube "%s": %d %s' % (url, r.status_code, r.reason))
+
+        ipr = re.search(r'ytInitialPlayerResponse\s*=\s*({.+?})\s*;', r.text)
+        if ipr is None:
+            raise YouTubeError('Youtube "%s": No ytInitialPlayerResponse found' % url)
+
+    return None, ipr.group(1)
+
+
 def get_real_download_url(url, allow_partial, preferred_fmt_ids=None):
     if not preferred_fmt_ids:
         preferred_fmt_ids, _, _ = formats_dict[22]  # MP4 720p
@@ -197,33 +230,11 @@ def get_real_download_url(url, allow_partial, preferred_fmt_ids=None):
 
     vid = get_youtube_id(url)
     if vid is not None:
-        # TODO: changing 'detailpage' to 'embedded' allows age-restricted content
-        url = 'https://www.youtube.com/get_video_info?html5=1&el=detailpage&video_id=' + vid
-        r = requests.get(url)
-        if not r.ok:
-            logger.warning('Youtube get_video_info: %d %s' % (r.status_code, r.reason))
-
-            url = 'https://www.youtube.com/watch?bpctr=9999999999&has_verified=1&v=' + vid
-            r = requests.get(url)
-            if not r.ok:
-                raise YouTubeError('%d %s' % (r.status_code, r.reason))
-
-            ipr = re.search(r'ytInitialPlayerResponse\s*=\s*({.+?})\s*;', r.text)
-            if ipr is None:
-                url = get_gdpr_consent_url(r.text)
-                r = requests.get(url)
-                if not r.ok:
-                    raise YouTubeError('%d %s' % (r.status_code, r.reason))
-
-                ipr = re.search(r'ytInitialPlayerResponse\s*=\s*({.+?})\s*;', r.text)
-                if ipr is None:
-                    raise YouTubeError('No ytInitialPlayerResponse found')
-
-            old_page = None
-            new_page = ipr.group(1)
-        else:
-            old_page = r.text
-            new_page = None
+        try:
+            old_page, new_page = youtube_get_new_endpoint(vid)
+        except YouTubeError as e:
+            logger.info(str(e))
+            old_page, new_page = youtube_get_old_endpoint(vid)
 
         def find_urls(old_page, new_page):
             # streamingData is preferable to url_encoded_fmt_stream_map
@@ -461,16 +472,15 @@ def get_gdpr_consent_url(html_data):
     try:
         parser = ConsentHTML()
         parser.feed(html_data)
-
-        if parser.url:
-            logger.debug('YouTube GDPR accept consent URL is: %s', parser.url)
-            return parser.url
-        else:
-            logger.debug('YouTube GDPR accepted consent URL could not be resolved.', parser.url)
-            return _('No acceptable GDPR consent URL')
-
     except Exception:
-        logger.warning('Could not retrieve GDPR accepted consent URL', exc_info=True)
+        raise YouTubeError('Could not retrieve GDPR accepted consent URL')
+
+    if parser.url:
+        logger.debug('YouTube GDPR accept consent URL is: %s', parser.url)
+        return parser.url
+    else:
+        logger.debug('YouTube GDPR accepted consent URL could not be resolved.', parser.url)
+        raise YouTubeError('No acceptable GDPR consent URL')
 
 
 def get_channel_desc(url):
