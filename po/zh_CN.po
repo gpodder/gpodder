@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gPodder\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-06-10 10:28+0200\n"
+"POT-Creation-Date: 2021-07-08 23:35-0600\n"
 "PO-Revision-Date: 2020-09-20 15:54+0800\n"
 "Last-Translator: Thomas Perl <m@thp.io>\n"
 "Language-Team: Chinese (China) (http://www.transifex.com/projects/p/gpodder/"
@@ -167,7 +167,7 @@ msgstr "至少需要以下命令之一：%(list_of_commands)s"
 msgid "Python module not found: %(module)s"
 msgstr "Python 模块未找到：%(module)s"
 
-#: src/gpodder/model.py:496 src/gpodder/youtube.py:457
+#: src/gpodder/model.py:496 src/gpodder/youtube.py:514
 #: src/gpodder/plugins/soundcloud.py:152
 #: share/gpodder/extensions/youtube-dl.py:215
 msgid "No description available"
@@ -342,18 +342,18 @@ msgstr "更新成功"
 msgid "The playlist on your MP3 player has been updated."
 msgstr "MP3 播放列表已更新。"
 
-#: src/gpodder/syncui.py:270 src/gpodder/gtkui/main.py:837
+#: src/gpodder/syncui.py:269 src/gpodder/gtkui/main.py:837
 #: src/gpodder/gtkui/main.py:1016 src/gpodder/gtkui/main.py:2917
 #: src/gpodder/gtkui/main.py:3128
 #: src/gpodder/gtkui/desktop/episodeselector.py:131
 msgid "Episode"
 msgstr "单集"
 
-#: src/gpodder/syncui.py:275
+#: src/gpodder/syncui.py:274
 msgid "Episodes have been deleted on device"
 msgstr "单集已删除"
 
-#: src/gpodder/syncui.py:287
+#: src/gpodder/syncui.py:286
 msgid "Error writing playlist files"
 msgstr "写入播放列表错误"
 
@@ -655,9 +655,9 @@ msgstr "开始下载"
 msgid "Download"
 msgstr "下载"
 
-#: src/gpodder/gtkui/main.py:1642
+#: src/gpodder/gtkui/main.py:1642 share/gpodder/ui/gtk/gpodder.ui.h:2
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:6
-#: share/gpodder/ui/gtk/gpodder.ui.h:2 share/gpodder/ui/gtk/menus.ui.h:24
+#: share/gpodder/ui/gtk/menus.ui.h:24
 msgid "Cancel"
 msgstr "取消"
 
@@ -1893,6 +1893,36 @@ msgstr "使用 youtube-dl 下载"
 msgid "Download with Youtube-DL"
 msgstr "使用 youtube-dl 下载"
 
+#: share/gpodder/ui/gtk/gpodder.ui.h:3
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:1
+#: share/gpodder/ui/gtk/menus.ui.h:1
+msgid "Preferences"
+msgstr "首选项"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:5 share/gpodder/ui/gtk/menus.ui.h:8
+msgid "Check for new episodes"
+msgstr "检查新单集"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:6
+msgid "Filter:"
+msgstr "搜索："
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:7
+msgid "Podcasts"
+msgstr "播客"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:8
+msgid "Limit rate to"
+msgstr "下载限速"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:9
+msgid "KiB/s"
+msgstr ""
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:10
+msgid "Limit downloads to"
+msgstr "下载并发限制"
+
 #: share/gpodder/ui/gtk/gpodderaddpodcast.ui.h:1
 msgid "Add a new podcast"
 msgstr "添加新播客"
@@ -1997,11 +2027,6 @@ msgstr "清空选择"
 #| msgid "Added"
 msgid "Add"
 msgstr "已添加"
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:1
-#: share/gpodder/ui/gtk/gpodder.ui.h:3 share/gpodder/ui/gtk/menus.ui.h:1
-msgid "Preferences"
-msgstr "首选项"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:2
 msgid "Video player:"
@@ -2124,30 +2149,6 @@ msgstr "设备"
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:36
 msgid "Edit config"
 msgstr "编辑配置"
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:5 share/gpodder/ui/gtk/menus.ui.h:8
-msgid "Check for new episodes"
-msgstr "检查新单集"
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:6
-msgid "Filter:"
-msgstr "搜索："
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:7
-msgid "Podcasts"
-msgstr "播客"
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:8
-msgid "Limit rate to"
-msgstr "下载限速"
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:9
-msgid "KiB/s"
-msgstr ""
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:10
-msgid "Limit downloads to"
-msgstr "下载并发限制"
 
 #: share/gpodder/ui/gtk/gpodderwelcome.ui.h:2
 msgid "<big>Welcome to gPodder</big>"
@@ -2521,6 +2522,10 @@ msgstr "从 URL 订阅"
 msgid "Mac OS X application process number"
 msgstr "Mac OS X 程序进程号码"
 
+#: share/applications/gpodder-url-handler.desktop.in.h:1
+msgid "gPodder (subscribe to feed)"
+msgstr "gPodder (订阅给定的URL)"
+
 #: share/applications/gpodder.desktop.in.h:2
 msgid "gPodder Podcast Client"
 msgstr "gPodder播客客户端"
@@ -2532,7 +2537,3 @@ msgstr "播客客户端"
 #: share/applications/gpodder.desktop.in.h:4
 msgid "Subscribe to audio and video content from the web"
 msgstr "订阅网络音频、视频单集"
-
-#: share/applications/gpodder-url-handler.desktop.in.h:1
-msgid "gPodder (subscribe to feed)"
-msgstr "gPodder (订阅给定的URL)"

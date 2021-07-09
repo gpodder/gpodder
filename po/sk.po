@@ -7,11 +7,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gPodder\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-06-10 10:28+0200\n"
+"POT-Creation-Date: 2021-07-08 23:35-0600\n"
 "PO-Revision-Date: 2021-06-15 13:37+0200\n"
 "Last-Translator: Thomas Perl <m@thp.io>\n"
-"Language-Team: Slovak (http://www.transifex.com/projects/p/"
-"gpodder/language/sk/)\n"
+"Language-Team: Slovak (http://www.transifex.com/projects/p/gpodder/language/"
+"sk/)\n"
 "Language: sk\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -161,7 +161,7 @@ msgstr "Potrebný aspoň jeden z nasledujúcich príkazov: %(list_of_commands)s"
 msgid "Python module not found: %(module)s"
 msgstr "Pythonový modul %(module)s nebol nájdený"
 
-#: src/gpodder/model.py:496 src/gpodder/youtube.py:457
+#: src/gpodder/model.py:496 src/gpodder/youtube.py:514
 #: src/gpodder/plugins/soundcloud.py:152
 #: share/gpodder/extensions/youtube-dl.py:215
 msgid "No description available"
@@ -194,8 +194,8 @@ msgid ""
 "Warning: path to gPodder home (%(root)s) is very long and can result in "
 "failure to download files.\n"
 msgstr ""
-"Upozornenie: cesta k domovskému priečinku gPodderu (%(root)s) je veľmi "
-"dlhá a môže spôsobiť zlyhanie stiahnutia súborov.\n"
+"Upozornenie: cesta k domovskému priečinku gPodderu (%(root)s) je veľmi dlhá "
+"a môže spôsobiť zlyhanie stiahnutia súborov.\n"
 
 #: src/gpodder/model.py:1427
 msgid "You're advised to set it to a shorter path."
@@ -248,7 +248,8 @@ msgstr "Pridávanie %s"
 #: src/gpodder/sync.py:489
 #, python-format
 msgid "Error copying %(episode)s: Not enough free space on %(mountpoint)s"
-msgstr "Chyba pri kopírovaní %(episode)s: Nedostatok voľného miesta na %(mountpoint)s"
+msgstr ""
+"Chyba pri kopírovaní %(episode)s: Nedostatok voľného miesta na %(mountpoint)s"
 
 #: src/gpodder/sync.py:574
 msgid "Opening MP3 player"
@@ -340,18 +341,18 @@ msgstr "Aktualizácia bola úspešná"
 msgid "The playlist on your MP3 player has been updated."
 msgstr "Zoznam na vašom MP3 prehrávači bol aktualizovaný."
 
-#: src/gpodder/syncui.py:270 src/gpodder/gtkui/main.py:837
+#: src/gpodder/syncui.py:269 src/gpodder/gtkui/main.py:837
 #: src/gpodder/gtkui/main.py:1016 src/gpodder/gtkui/main.py:2917
 #: src/gpodder/gtkui/main.py:3128
 #: src/gpodder/gtkui/desktop/episodeselector.py:131
 msgid "Episode"
 msgstr "Epizóda"
 
-#: src/gpodder/syncui.py:275
+#: src/gpodder/syncui.py:274
 msgid "Episodes have been deleted on device"
 msgstr "Epizódy boli odstránené zo zariadenia"
 
-#: src/gpodder/syncui.py:287
+#: src/gpodder/syncui.py:286
 msgid "Error writing playlist files"
 msgstr "Chyba pri zapisovaní zoznamov"
 
@@ -673,9 +674,9 @@ msgstr "Spustiť sťahovanie"
 msgid "Download"
 msgstr "Stiahnuť"
 
-#: src/gpodder/gtkui/main.py:1642
+#: src/gpodder/gtkui/main.py:1642 share/gpodder/ui/gtk/gpodder.ui.h:2
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:6
-#: share/gpodder/ui/gtk/gpodder.ui.h:2 share/gpodder/ui/gtk/menus.ui.h:24
+#: share/gpodder/ui/gtk/menus.ui.h:24
 msgid "Cancel"
 msgstr "Zrušiť"
 
@@ -957,8 +958,8 @@ msgid ""
 "You are downloading episodes. You can resume downloads the next time you "
 "start gPodder. Do you want to quit now?"
 msgstr ""
-"Prebieha sťahovanie epizód. Sťahovanie možno obnoviť pri budúcom spustení gPodderu."
-"Naozaj chcete aplikáciu ukončiť?"
+"Prebieha sťahovanie epizód. Sťahovanie možno obnoviť pri budúcom spustení "
+"gPodderu.Naozaj chcete aplikáciu ukončiť?"
 
 #: src/gpodder/gtkui/main.py:2846 bin/gpo:838
 msgid "Episodes are locked"
@@ -969,8 +970,8 @@ msgid ""
 "The selected episodes are locked. Please unlock the episodes that you want "
 "to delete before trying to delete them."
 msgstr ""
-"Označené epizódy sú uzamknuté. Pre ich vymazanie je tieto najprv epizódy potrebné "
-"odomknúť."
+"Označené epizódy sú uzamknuté. Pre ich vymazanie je tieto najprv epizódy "
+"potrebné odomknúť."
 
 #: src/gpodder/gtkui/main.py:2855 bin/gpo:847
 #, python-format
@@ -1140,8 +1141,8 @@ msgid ""
 "Your list of podcast subscriptions is empty. Please subscribe to some "
 "podcasts first before trying to export your subscription list."
 msgstr ""
-"Váš zoznam podcastov je prázdny. Pred exportovaním zoznamu podcastov "
-"sa prihláste na odber nejakého podcastu."
+"Váš zoznam podcastov je prázdny. Pred exportovaním zoznamu podcastov sa "
+"prihláste na odber nejakého podcastu."
 
 #: src/gpodder/gtkui/main.py:3408
 msgid "Export to OPML"
@@ -1724,8 +1725,8 @@ msgstr "\"Otvoriť webovú stránku\" kontextové menu epizódy a podcastu"
 msgid ""
 "Add a context menu item for opening the website of an episode or podcast"
 msgstr ""
-"Pridať položku kontextového menu pre otvorenie webovej stránky epizódy "
-"alebo podcastu"
+"Pridať položku kontextového menu pre otvorenie webovej stránky epizódy alebo "
+"podcastu"
 
 #: share/gpodder/extensions/episode_website_context_menu.py:40
 #: share/gpodder/extensions/episode_website_context_menu.py:43
@@ -1768,10 +1769,10 @@ msgid ""
 "unblocks blocked episodes (to block all then unblock some)."
 msgstr ""
 "Ak zaškrtnete políčko blokovať a ponecháte ho prázdne, zakážete automatické "
-"sťahovanie pre všetky epizódy tohto zdroja. Výrazom zodpovedá neúplný text "
-"v názve epizódy, a prázdnemu výrazu zodpovedá akýkoľvek názov. Výraz výnimky "
-"odblokuje blokované epizódy (na zablokovanie všetkých a násladné odblokovanie"
-" niektorých)."
+"sťahovanie pre všetky epizódy tohto zdroja. Výrazom zodpovedá neúplný text v "
+"názve epizódy, a prázdnemu výrazu zodpovedá akýkoľvek názov. Výraz výnimky "
+"odblokuje blokované epizódy (na zablokovanie všetkých a násladné "
+"odblokovanie niektorých)."
 
 #: share/gpodder/extensions/filter.py:166
 msgid "Filter episodes now (undoes any episodes you marked as old)"
@@ -1932,7 +1933,8 @@ msgstr "Prekódovať videosúbory na avi/mp4/m4v"
 
 #: share/gpodder/extensions/youtube-dl.py:27
 msgid "Manage Youtube subscriptions using youtube-dl (pip install youtube_dl)"
-msgstr "Spravovať odbery na Youtube pomocou youtube-dl (pip install youtube_dl)"
+msgstr ""
+"Spravovať odbery na Youtube pomocou youtube-dl (pip install youtube_dl)"
 
 #: share/gpodder/extensions/youtube-dl.py:33
 #, python-format
@@ -1950,6 +1952,36 @@ msgstr "Staré Youtube-DL"
 #: share/gpodder/extensions/youtube-dl.py:490
 msgid "Download with Youtube-DL"
 msgstr "Stiahnuť s Youtube-DL"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:3
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:1
+#: share/gpodder/ui/gtk/menus.ui.h:1
+msgid "Preferences"
+msgstr "Nastavenia"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:5 share/gpodder/ui/gtk/menus.ui.h:8
+msgid "Check for new episodes"
+msgstr "Skontrolovať nové epizódy"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:6
+msgid "Filter:"
+msgstr ""
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:7
+msgid "Podcasts"
+msgstr "Podcasty"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:8
+msgid "Limit rate to"
+msgstr "Obmedziť rýchlosť na"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:9
+msgid "KiB/s"
+msgstr ""
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:10
+msgid "Limit downloads to"
+msgstr "Obmedziť počet sťahovaní na"
 
 #: share/gpodder/ui/gtk/gpodderaddpodcast.ui.h:1
 msgid "Add a new podcast"
@@ -2053,11 +2085,6 @@ msgstr "Nevybrať žiadne"
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:7
 msgid "Add"
 msgstr "Pridať"
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:1
-#: share/gpodder/ui/gtk/gpodder.ui.h:3 share/gpodder/ui/gtk/menus.ui.h:1
-msgid "Preferences"
-msgstr "Nastavenia"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:2
 msgid "Video player:"
@@ -2178,30 +2205,6 @@ msgstr "Zariadenia"
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:36
 msgid "Edit config"
 msgstr "Upraviť nastavenia"
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:5 share/gpodder/ui/gtk/menus.ui.h:8
-msgid "Check for new episodes"
-msgstr "Skontrolovať nové epizódy"
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:6
-msgid "Filter:"
-msgstr ""
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:7
-msgid "Podcasts"
-msgstr "Podcasty"
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:8
-msgid "Limit rate to"
-msgstr "Obmedziť rýchlosť na"
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:9
-msgid "KiB/s"
-msgstr ""
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:10
-msgid "Limit downloads to"
-msgstr "Obmedziť počet sťahovaní na"
 
 #: share/gpodder/ui/gtk/gpodderwelcome.ui.h:2
 msgid "<big>Welcome to gPodder</big>"
@@ -2577,6 +2580,10 @@ msgstr "prihlásiť sa na odber na adrese URL"
 msgid "Mac OS X application process number"
 msgstr "číslo procesu aplikácie v Mac OS X"
 
+#: share/applications/gpodder-url-handler.desktop.in.h:1
+msgid "gPodder (subscribe to feed)"
+msgstr "gPodder (prihlásiť sa na odber)"
+
 #: share/applications/gpodder.desktop.in.h:2
 msgid "gPodder Podcast Client"
 msgstr "Podcastový klient gPodder"
@@ -2588,7 +2595,3 @@ msgstr "Podcastový klient"
 #: share/applications/gpodder.desktop.in.h:4
 msgid "Subscribe to audio and video content from the web"
 msgstr "Odoberať audio a video obsah z internetu"
-
-#: share/applications/gpodder-url-handler.desktop.in.h:1
-msgid "gPodder (subscribe to feed)"
-msgstr "gPodder (prihlásiť sa na odber)"

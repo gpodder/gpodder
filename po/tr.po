@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gPodder 3.10.15\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-06-10 10:28+0200\n"
+"POT-Creation-Date: 2021-07-08 23:35-0600\n"
 "PO-Revision-Date: 2021-03-12 18:39+0300\n"
 "Last-Translator: Serkan ÖNDER <serkanonder@outlook.com>\n"
 "Language-Team: \n"
@@ -164,7 +164,7 @@ msgstr ""
 msgid "Python module not found: %(module)s"
 msgstr "Python modülü bulunamadı: %(module)s"
 
-#: src/gpodder/model.py:496 src/gpodder/youtube.py:457
+#: src/gpodder/model.py:496 src/gpodder/youtube.py:514
 #: src/gpodder/plugins/soundcloud.py:152
 #: share/gpodder/extensions/youtube-dl.py:215
 msgid "No description available"
@@ -346,18 +346,18 @@ msgstr "Güncelleme başarılı"
 msgid "The playlist on your MP3 player has been updated."
 msgstr "MP3 çalarınızdaki çalma listesi güncellendi."
 
-#: src/gpodder/syncui.py:270 src/gpodder/gtkui/main.py:837
+#: src/gpodder/syncui.py:269 src/gpodder/gtkui/main.py:837
 #: src/gpodder/gtkui/main.py:1016 src/gpodder/gtkui/main.py:2917
 #: src/gpodder/gtkui/main.py:3128
 #: src/gpodder/gtkui/desktop/episodeselector.py:131
 msgid "Episode"
 msgstr "Bölüm"
 
-#: src/gpodder/syncui.py:275
+#: src/gpodder/syncui.py:274
 msgid "Episodes have been deleted on device"
 msgstr "Bölümler cihazdan silindi"
 
-#: src/gpodder/syncui.py:287
+#: src/gpodder/syncui.py:286
 msgid "Error writing playlist files"
 msgstr "Çalma listesi dosyaları yazılırken hata oluştu"
 
@@ -671,9 +671,9 @@ msgstr "Şimdi indirmeye başlayın"
 msgid "Download"
 msgstr "İndir"
 
-#: src/gpodder/gtkui/main.py:1642
+#: src/gpodder/gtkui/main.py:1642 share/gpodder/ui/gtk/gpodder.ui.h:2
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:6
-#: share/gpodder/ui/gtk/gpodder.ui.h:2 share/gpodder/ui/gtk/menus.ui.h:24
+#: share/gpodder/ui/gtk/menus.ui.h:24
 msgid "Cancel"
 msgstr "İptal"
 
@@ -1941,6 +1941,36 @@ msgstr "Youtube-DL ile indirin"
 msgid "Download with Youtube-DL"
 msgstr "Youtube-DL ile indirin"
 
+#: share/gpodder/ui/gtk/gpodder.ui.h:3
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:1
+#: share/gpodder/ui/gtk/menus.ui.h:1
+msgid "Preferences"
+msgstr "Tercihler"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:5 share/gpodder/ui/gtk/menus.ui.h:8
+msgid "Check for new episodes"
+msgstr "Yeni bölümleri kontrol edin"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:6
+msgid "Filter:"
+msgstr "Filtre:"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:7
+msgid "Podcasts"
+msgstr "Ortam Akışları"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:8
+msgid "Limit rate to"
+msgstr "Oranı sınırla"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:9
+msgid "KiB/s"
+msgstr "KiB/s"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:10
+msgid "Limit downloads to"
+msgstr "İndirmeleri şununla sınırla"
+
 #: share/gpodder/ui/gtk/gpodderaddpodcast.ui.h:1
 msgid "Add a new podcast"
 msgstr "Yeni bir podcast ekle"
@@ -2045,11 +2075,6 @@ msgstr "Hiçbirini Seçme"
 #| msgid "Added"
 msgid "Add"
 msgstr "Eklendi"
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:1
-#: share/gpodder/ui/gtk/gpodder.ui.h:3 share/gpodder/ui/gtk/menus.ui.h:1
-msgid "Preferences"
-msgstr "Tercihler"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:2
 msgid "Video player:"
@@ -2170,30 +2195,6 @@ msgstr "Aygıtlar"
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:36
 msgid "Edit config"
 msgstr "Yapılandırmayı düzenle"
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:5 share/gpodder/ui/gtk/menus.ui.h:8
-msgid "Check for new episodes"
-msgstr "Yeni bölümleri kontrol edin"
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:6
-msgid "Filter:"
-msgstr "Filtre:"
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:7
-msgid "Podcasts"
-msgstr "Ortam Akışları"
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:8
-msgid "Limit rate to"
-msgstr "Oranı sınırla"
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:9
-msgid "KiB/s"
-msgstr "KiB/s"
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:10
-msgid "Limit downloads to"
-msgstr "İndirmeleri şununla sınırla"
 
 #: share/gpodder/ui/gtk/gpodderwelcome.ui.h:2
 msgid "<big>Welcome to gPodder</big>"
@@ -2568,6 +2569,10 @@ msgstr "URL adresindeki beslemeye abone olun"
 msgid "Mac OS X application process number"
 msgstr "Mac OS X uygulama süreci numarası"
 
+#: share/applications/gpodder-url-handler.desktop.in.h:1
+msgid "gPodder (subscribe to feed)"
+msgstr "gPodder (beslemeye abone olun)"
+
 #: share/applications/gpodder.desktop.in.h:2
 msgid "gPodder Podcast Client"
 msgstr "gPodder Podcast İstemcisi"
@@ -2579,7 +2584,3 @@ msgstr "Podcast İstemcisi"
 #: share/applications/gpodder.desktop.in.h:4
 msgid "Subscribe to audio and video content from the web"
 msgstr "Web'den ses ve video içeriğine abone olun"
-
-#: share/applications/gpodder-url-handler.desktop.in.h:1
-msgid "gPodder (subscribe to feed)"
-msgstr "gPodder (beslemeye abone olun)"

@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gPodder\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-06-10 10:28+0200\n"
+"POT-Creation-Date: 2021-07-08 23:35-0600\n"
 "PO-Revision-Date: 2021-06-01 13:27+0200\n"
 "Last-Translator: Heimen Stoffels <vistausss@fastmail.com>\n"
 "Language-Team: Dutch (http://www.transifex.com/projects/p/gpodder/language/"
@@ -166,7 +166,7 @@ msgstr "Minimaal één van de volgende opdrachten vereist: %(list_of_commands)s"
 msgid "Python module not found: %(module)s"
 msgstr "Python-module niet aangetroffen: %(module)s"
 
-#: src/gpodder/model.py:496 src/gpodder/youtube.py:457
+#: src/gpodder/model.py:496 src/gpodder/youtube.py:514
 #: src/gpodder/plugins/soundcloud.py:152
 #: share/gpodder/extensions/youtube-dl.py:215
 msgid "No description available"
@@ -346,18 +346,18 @@ msgstr "Bijwerken voltooid"
 msgid "The playlist on your MP3 player has been updated."
 msgstr "De afspeellijst op je mp3-speler is bijgewerkt."
 
-#: src/gpodder/syncui.py:270 src/gpodder/gtkui/main.py:837
+#: src/gpodder/syncui.py:269 src/gpodder/gtkui/main.py:837
 #: src/gpodder/gtkui/main.py:1016 src/gpodder/gtkui/main.py:2917
 #: src/gpodder/gtkui/main.py:3128
 #: src/gpodder/gtkui/desktop/episodeselector.py:131
 msgid "Episode"
 msgstr "Aflevering"
 
-#: src/gpodder/syncui.py:275
+#: src/gpodder/syncui.py:274
 msgid "Episodes have been deleted on device"
 msgstr "Afleveringen zijn verwijderd van apparaat"
 
-#: src/gpodder/syncui.py:287
+#: src/gpodder/syncui.py:286
 msgid "Error writing playlist files"
 msgstr "Fout bij wegschrijven van afspeellijstbestanden"
 
@@ -667,9 +667,9 @@ msgstr "Downloaden nu starten"
 msgid "Download"
 msgstr "Downloaden"
 
-#: src/gpodder/gtkui/main.py:1642
+#: src/gpodder/gtkui/main.py:1642 share/gpodder/ui/gtk/gpodder.ui.h:2
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:6
-#: share/gpodder/ui/gtk/gpodder.ui.h:2 share/gpodder/ui/gtk/menus.ui.h:24
+#: share/gpodder/ui/gtk/menus.ui.h:24
 msgid "Cancel"
 msgstr "Annuleren"
 
@@ -1951,6 +1951,36 @@ msgstr "Oude youtube-dl"
 msgid "Download with Youtube-DL"
 msgstr "Downloaden met youtube-dl"
 
+#: share/gpodder/ui/gtk/gpodder.ui.h:3
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:1
+#: share/gpodder/ui/gtk/menus.ui.h:1
+msgid "Preferences"
+msgstr "Voorkeuren"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:5 share/gpodder/ui/gtk/menus.ui.h:8
+msgid "Check for new episodes"
+msgstr "Controleren op nieuwe afleveringen"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:6
+msgid "Filter:"
+msgstr "Filter:"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:7
+msgid "Podcasts"
+msgstr "Podcasts"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:8
+msgid "Limit rate to"
+msgstr "Downloadsnelheid beperken tot"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:9
+msgid "KiB/s"
+msgstr "KiB/s"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:10
+msgid "Limit downloads to"
+msgstr "Aantal downloads beperken tot"
+
 #: share/gpodder/ui/gtk/gpodderaddpodcast.ui.h:1
 msgid "Add a new podcast"
 msgstr "Nieuwe podcast toevoegen"
@@ -2053,11 +2083,6 @@ msgstr "Niets selecteren"
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:7
 msgid "Add"
 msgstr "Toevoegen"
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:1
-#: share/gpodder/ui/gtk/gpodder.ui.h:3 share/gpodder/ui/gtk/menus.ui.h:1
-msgid "Preferences"
-msgstr "Voorkeuren"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:2
 msgid "Video player:"
@@ -2181,30 +2206,6 @@ msgstr "Apparaten"
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:36
 msgid "Edit config"
 msgstr "Configuratie bewerken"
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:5 share/gpodder/ui/gtk/menus.ui.h:8
-msgid "Check for new episodes"
-msgstr "Controleren op nieuwe afleveringen"
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:6
-msgid "Filter:"
-msgstr "Filter:"
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:7
-msgid "Podcasts"
-msgstr "Podcasts"
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:8
-msgid "Limit rate to"
-msgstr "Downloadsnelheid beperken tot"
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:9
-msgid "KiB/s"
-msgstr "KiB/s"
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:10
-msgid "Limit downloads to"
-msgstr "Aantal downloads beperken tot"
 
 #: share/gpodder/ui/gtk/gpodderwelcome.ui.h:2
 msgid "<big>Welcome to gPodder</big>"
@@ -2579,6 +2580,10 @@ msgstr "abonneren op feed van url"
 msgid "Mac OS X application process number"
 msgstr "macOS-applicatieprocesnummer"
 
+#: share/applications/gpodder-url-handler.desktop.in.h:1
+msgid "gPodder (subscribe to feed)"
+msgstr "gPodder (abonneren op feed)"
+
 #: share/applications/gpodder.desktop.in.h:2
 msgid "gPodder Podcast Client"
 msgstr "gPodder podcast-client"
@@ -2590,7 +2595,3 @@ msgstr "Podcast-client"
 #: share/applications/gpodder.desktop.in.h:4
 msgid "Subscribe to audio and video content from the web"
 msgstr "Abonneren op audio- en video-inhoud van het web"
-
-#: share/applications/gpodder-url-handler.desktop.in.h:1
-msgid "gPodder (subscribe to feed)"
-msgstr "gPodder (abonneren op feed)"
