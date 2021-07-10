@@ -93,10 +93,8 @@ msgid "Paused"
 msgstr "Duraklatıldı"
 
 #: src/gpodder/download.py:864
-#, fuzzy
-#| msgid "Select the episodes you want to download:"
 msgid "Episode has no URL to download"
-msgstr "İndirmek istediğiniz bölümleri seçin:"
+msgstr "Bölümün indirilecek URL'si yok"
 
 #: src/gpodder/download.py:867
 msgid "Missing content from server"
@@ -282,7 +280,7 @@ msgstr "MTP aygıtı"
 
 #: src/gpodder/sync.py:835
 msgid "Opening the MTP device"
-msgstr "MTP cihazını açma"
+msgstr "MTP aygıtı açılıyor"
 
 #: src/gpodder/sync.py:845
 #, python-format
@@ -428,7 +426,7 @@ msgstr "Hata İzleyici"
 
 #: src/gpodder/gtkui/app.py:277
 msgid "Path to gPodder home is too long"
-msgstr "gPodder eve giden yol çok uzun"
+msgstr "gPodder ana klasörüne giden yol çok uzun"
 
 #: src/gpodder/gtkui/config.py:50
 msgid "Integer"
@@ -532,16 +530,12 @@ msgid "Released"
 msgstr "Yayınlandı"
 
 #: src/gpodder/gtkui/main.py:871
-#, fuzzy
-#| msgid "Size"
 msgid "Size+"
-msgstr "Boyut"
+msgstr "Boyut+"
 
 #: src/gpodder/gtkui/main.py:879
-#, fuzzy
-#| msgid "Duration"
 msgid "Duration+"
-msgstr "Süre"
+msgstr "Süre+"
 
 #: src/gpodder/gtkui/main.py:1036 src/gpodder/gtkui/main.py:1185
 #: share/gpodder/ui/gtk/gpodder.ui.h:11
@@ -710,10 +704,8 @@ msgid "Archive"
 msgstr "Arşiv"
 
 #: src/gpodder/gtkui/main.py:1718
-#, fuzzy
-#| msgid "_Refresh"
 msgid "Refresh image"
-msgstr "_Yenile"
+msgstr "Görüntüyü yenile"
 
 #: src/gpodder/gtkui/main.py:1722
 msgid "Delete podcast"
@@ -1296,7 +1288,7 @@ msgstr "Abonelik duraklatıldı"
 #: src/gpodder/gtkui/shownotes.py:60
 #, python-format
 msgid "%(date)s | %(size)s | %(duration)s"
-msgstr ""
+msgstr "%(date)s | %(size)s | %(duration)s"
 
 #: src/gpodder/gtkui/shownotes.py:147
 msgid "Please select an episode"
@@ -1310,6 +1302,10 @@ msgid ""
 "<p>%(subheading)s</p>\n"
 "<p>%(details)s</p></div>\n"
 msgstr ""
+"<div id=\"gpodder-title\">\n"
+"%(heading)s\n"
+"<p>%(subheading)s</p>\n"
+"<p>%(details)s</p></div>\n"
 
 #: src/gpodder/gtkui/shownotes.py:356
 msgid "Open shownotes in web browser"
@@ -1930,12 +1926,12 @@ msgid ""
 "Your version of youtube-dl %(have_version)s has known issues, please upgrade "
 "to %(want_version)s or newer."
 msgstr ""
+"Sizin youtube-dl %(have_version)s sürümünüzde bilinen sorunlar var, lütfen "
+"%(want_version)s veya daha yenisine yükseltin."
 
 #: share/gpodder/extensions/youtube-dl.py:485
-#, fuzzy
-#| msgid "Download with Youtube-DL"
 msgid "Old Youtube-DL"
-msgstr "Youtube-DL ile indirin"
+msgstr "Eski Youtube-DL"
 
 #: share/gpodder/extensions/youtube-dl.py:490
 msgid "Download with Youtube-DL"
@@ -2071,10 +2067,8 @@ msgid "Select None"
 msgstr "Hiçbirini Seçme"
 
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:7
-#, fuzzy
-#| msgid "Added"
 msgid "Add"
-msgstr "Eklendi"
+msgstr "Ekle"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:2
 msgid "Video player:"
@@ -2138,7 +2132,7 @@ msgstr "Yeni bölümler bulunduğunda:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:22
 msgid "Check connection before updating (if supported)"
-msgstr ""
+msgstr "Güncellemeden önce bağlantıyı kontrol edin (destekleniyorsa)"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:23
 msgid "Updating"
@@ -2563,7 +2557,7 @@ msgstr "konsoldaki uyarıları azaltın"
 
 #: bin/gpodder:107
 msgid "subscribe to the feed at URL"
-msgstr "URL adresindeki beslemeye abone olun"
+msgstr "URL'deki beslemeye abone olun"
 
 #: bin/gpodder:112
 msgid "Mac OS X application process number"
