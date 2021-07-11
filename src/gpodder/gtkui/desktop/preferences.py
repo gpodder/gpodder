@@ -26,7 +26,7 @@ from gi.repository import Gdk, Gtk, Pango
 import gpodder
 from gpodder import util, vimeo, youtube
 from gpodder.gtkui.desktopfile import PlayerListModel
-from gpodder.gtkui.interface.common import BuilderWidget, TreeViewHelper
+from gpodder.gtkui.interface.common import BuilderWidget, TreeViewHelper, show_message_dialog
 from gpodder.gtkui.interface.configeditor import gPodderConfigEditor
 
 logger = logging.getLogger(__name__)
@@ -688,12 +688,21 @@ class gPodderPreferences(BuilderWidget):
     def on_btn_playlist_folder_clicked(self, widget):
         fs = Gtk.FileChooserDialog(title=_('Select folder for playlists'),
                 action=Gtk.FileChooserAction.SELECT_FOLDER)
+        fs.set_local_only(False)
         fs.add_button(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL)
         fs.add_button(Gtk.STOCK_OPEN, Gtk.ResponseType.OK)
-        fs.set_current_folder(self.btn_playlistfolder.get_label())
-        if fs.run() == Gtk.ResponseType.OK:
-            filename = util.relpath(self._config.device_sync.device_folder,
-                                    fs.get_filename())
+
+        device_folder = util.new_gio_file(self._config.device_sync.device_folder)
+        playlists_folder = device_folder.resolve_relative_path(self._config.device_sync.playlists.folder)
+        fs.set_file(playlists_folder)
+
+        while fs.run() == Gtk.ResponseType.OK:
+            filename = util.relpath(fs.get_uri(),
+                                    self._config.device_sync.device_folder)
+            if not filename:
+                show_message_dialog(fs, _('The playlists folder must be on the device'))
+                continue
+
             if self._config.device_sync.device_type == 'filesystem':
                 self._config.device_sync.playlists.folder = filename
                 self.btn_playlistfolder.set_label(filename or "")
@@ -701,5 +710,6 @@ class gPodderPreferences(BuilderWidget):
                 if children:
                     label = children.pop()
                     label.set_alignment(0., .5)
+            break
 
         fs.destroy()

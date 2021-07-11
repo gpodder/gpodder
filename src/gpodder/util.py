@@ -158,20 +158,46 @@ _MIME_TYPES = dict((k, v) for v, k in _MIME_TYPE_LIST)
 _MIME_TYPES_EXT = dict(_MIME_TYPE_LIST)
 
 
+def is_absolute_url(url):
+    """
+    Check if url is an absolute url (i.e. has a scheme)
+    """
+    try:
+        parsed = urllib.parse.urlparse(url)
+        return not not parsed.scheme
+    except ValueError:
+        return False
+
+
+def new_gio_file(path):
+    """
+    Create a new Gio.File given a path or uri
+    """
+    if is_absolute_url(path):
+        return Gio.File.new_for_uri(path)
+    else:
+        return Gio.File.new_for_path(path)
+
+
 def make_directory(path):
     """
     Tries to create a directory if it does not exist already.
     Returns True if the directory exists after the function
     call, False otherwise.
     """
-    if os.path.isdir(path):
+    if not isinstance(path, Gio.File):
+        path = new_gio_file(path)
+
+    if path.query_exists():
         return True
 
     try:
-        os.makedirs(path)
-    except:
-        logger.warn('Could not create directory: %s', path)
-        return False
+        path.make_directory_with_parents()
+    except GLib.Error as err:
+        # The sync might be multithreaded, so directories can be created by other threads
+        if not err.matches(Gio.io_error_quark(), Gio.IOErrorEnum.EXISTS):
+            logger.warn('Could not create directory %s: %s', path.get_uri(), err.message)
+            return False
 
     return True
 
@@ -1626,34 +1652,17 @@ def isabs(string):
     return os.path.isabs(string)
 
 
-def commonpath(l1, l2, common=[]):
-    """
-    helper functions for relpath
-    Source: http://code.activestate.com/recipes/208993/
-    """
-    if len(l1) < 1: return (common, l1, l2)
-    if len(l2) < 1: return (common, l1, l2)
-    if l1[0] != l2[0]: return (common, l1, l2)
-    return commonpath(l1[1:], l2[1:], common + [l1[0]])
-
-
 def relpath(p1, p2):
     """
-    Finds relative path from p1 to p2
-    Source: http://code.activestate.com/recipes/208993/
+    Finds relative path from p2 to p1, like os.path.relpath but handles
+    uris. Returns None if no such path exists due to the paths being on
+    different devices.
     """
-    def pathsplit(s):
-        return s.split(os.path.sep)
-
-    (common, l1, l2) = commonpath(pathsplit(p1), pathsplit(p2))
-    p = []
-    if len(l1) > 0:
-        p = [('..' + os.sep) * len(l1)]
-    p = p + l2
-    if len(p) == 0:
-        return "."
-
-    return os.path.join(*p)
+    u1 = urllib.parse.urlparse(p1)
+    u2 = urllib.parse.urlparse(p2)
+    if u1.scheme and u2.scheme and (u1.scheme != u2.scheme or u1.netloc != u2.netloc):
+        return None
+    return os.path.relpath(u1.path, u2.path)
 
 
 def get_hostname():

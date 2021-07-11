@@ -503,13 +503,6 @@ class iPodDevice(Device):
         except:
             logger.warning('Seems like your python-gpod is out-of-date.')
 
-def is_url(url):
-    try:
-        parsed = urlparse(url)
-        return not not parsed.scheme
-    except ValueError:
-        return False
-
 class MP3PlayerDevice(Device):
     def __init__(self, config,
             download_status_model,
@@ -518,10 +511,7 @@ class MP3PlayerDevice(Device):
         Device.__init__(self, config)
 
         folder = self._config.device_sync.device_folder
-        if is_url(folder):
-            self.destination = Gio.File.new_for_uri(folder)
-        else:
-            self.destination = Gio.File.new_for_path(folder)
+        self.destination = util.new_gio_file(folder)
         self.mount_volume_for_file = mount_volume_for_file
         self.download_status_model = download_status_model
         self.download_queue_manager = download_queue_manager
@@ -599,17 +589,9 @@ class MP3PlayerDevice(Device):
         to_file = self.get_episode_file_on_device(episode)
         to_file = folder.get_child(to_file)
 
-        if not folder.query_exists(None):
-            try:
-                folder.make_directory_with_parents(None)
-            except GLib.Error as err:
-                # The sync might be multithreaded, so directories can be created by other threads
-                if not err.matches(Gio.io_error_quark(), Gio.IOErrorEnum.EXISTS):
-                    logger.error('Cannot create folder %s on MP3 player: %s', folder.get_uri(), err.message)
-                    self.cancel()
-                    return False
+        util.make_directory(folder)
 
-        if not to_file.query_exists(None):
+        if not to_file.query_exists():
             logger.info('Copying %s => %s',
                     os.path.basename(from_file),
                     to_file.get_uri())
@@ -674,9 +656,9 @@ class MP3PlayerDevice(Device):
         # get the folder on the device
         file = Gio.File.new_for_uri(track.filename)
         folder = file.get_parent()
-        if file.query_exists(None):
+        if file.query_exists():
             try:
-                file.delete(None)
+                file.delete()
             except GLib.Error as err:
                 # if the file went away don't worry about it
                 if not err.matches(Gio.io_error_quark(), Gio.IOErrorEnum.NOT_FOUND):
@@ -686,7 +668,7 @@ class MP3PlayerDevice(Device):
         if self._config.one_folder_per_podcast:
             try:
                 if self.directory_is_empty(folder):
-                    folder.delete(None)
+                    folder.delete()
             except GLib.Error as err:
                 # if the folder went away don't worry about it (multiple threads could
                 # make this happen if they both notice the folder is empty simultaneously)
