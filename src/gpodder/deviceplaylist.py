@@ -112,7 +112,16 @@ class gPodderDevicePlaylist(object):
         if not util.make_directory(self.playlist_folder):
             raise IOError(_('Folder %s could not be created.') % self.playlist_folder, _('Error writing playlist'))
         else:
-            os = Gio.DataOutputStream.new(self.playlist_absolute_filename.replace(None, False, Gio.FileCreateFlags.NONE))
+            # work around libmtp devices potentially having limited capabilities for partial writes
+            is_mtp = self.playlist_folder.get_uri().startswith("mtp://")
+            tempfile = None
+            if is_mtp:
+                tempfile = Gio.File.new_tmp()
+                fs = tempfile[1].get_output_stream()
+            else:
+                fs = self.playlist_absolute_filename.replace(None, False, Gio.FileCreateFlags.NONE)
+
+            os = Gio.DataOutputStream.new(fs)
             os.put_string('#EXTM3U%s' % self.linebreak)
             for current_episode in episodes:
                 filename = self.get_filename_for_playlist(current_episode)
@@ -121,3 +130,10 @@ class gPodderDevicePlaylist(object):
                 os.put_string(filename)
                 os.put_string(self.linebreak)
             os.close()
+
+            if is_mtp:
+                try:
+                    tempfile[0].copy(self.playlist_absolute_filename, Gio.FileCopyFlags.OVERWRITE)
+                except GLib.Error as err:
+                    logger.error('copying playlist to mtp device file %s failed: %s',
+                        self.playlist_absolute_filename.get_uri(), err.message)
