@@ -137,3 +137,4 @@ class gPodderDevicePlaylist(object):
                 except GLib.Error as err:
                     logger.error('copying playlist to mtp device file %s failed: %s',
                         self.playlist_absolute_filename.get_uri(), err.message)
+                tempfile[0].delete()
