@@ -15,7 +15,8 @@ from youtube_dl.utils import DownloadError, ExtractorError, sanitize_url
 
 import gpodder
 from gpodder import download, feedcore, model, registry, youtube
-from gpodder.util import mimetype_from_extension, remove_html_tags
+from gpodder.util import (mimetype_from_extension, nice_html_description,
+                          remove_html_tags)
 
 _ = gpodder.gettext
 
@@ -213,7 +214,7 @@ class YoutubeFeed(model.Feed):
         for en in self._ie_result['entries']:
             guid = video_guid(en['id'])
             description = remove_html_tags(en.get('description') or _('No description available'))
-            html_description = self.nice_html_description(en, description)
+            html_description = nice_html_description(en.get('thumbnail'), description)
             if en.get('ext'):
                 mime_type = mimetype_from_extension('.{}'.format(en['ext']))
             else:
@@ -249,25 +250,6 @@ class YoutubeFeed(model.Feed):
                                  as a fully parsed Feed or None
         """
         return None
-
-    @staticmethod
-    def nice_html_description(en, description):
-        """
-        basic html formating + hyperlink highlighting + video thumbnail
-        """
-        description = re.sub(r'''https?://[^\s]+''',
-                             r'''<a href="\g<0>">\g<0></a>''',
-                             description)
-        description = description.replace('\n', '<br>')
-        html = """<style type="text/css">
-        body > img { float: left; max-width: 30vw; margin: 0 1em 1em 0; }
-        </style>
-        """
-        img = en.get('thumbnail')
-        if img:
-            html += '<img src="{}">'.format(img)
-        html += '<p>{}</p>'.format(description)
-        return html
 
 
 class gPodderYoutubeDL(download.CustomDownloader):
