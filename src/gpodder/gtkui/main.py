@@ -23,6 +23,7 @@ import logging
 import os
 import re
 import shutil
+import sys
 import tempfile
 import threading
 import time
@@ -252,6 +253,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if diff > (60 * 60 * 24) * self.config.software_update.interval:
                 self.config.software_update.last_check = int(time.time())
                 self.check_for_updates(silent=True)
+
+        if self.options.close_after_startup:
+            logger.warning("Startup done, closing (--close-after-startup)")
+            self.core.db.close()
+            sys.exit()
 
     def create_actions(self):
         g = self.gPodder

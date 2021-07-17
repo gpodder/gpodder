@@ -113,10 +113,14 @@ def main():
                            action="store_true", dest="quiet", default=False,
                            help=_("reduce warnings on the console"))
 
+    grp_advanced = OptionGroup(parser, "Advanced")
+    parser.add_option_group(grp_advanced)
+
+    grp_advanced.add_option("--close-after-startup", action="store_true",
+                            help=_("exit once started up (for profiling)"))
+
     # On Mac OS X, support the "psn" parameter for compatibility (bug 939)
     if gpodder.ui.osx:
-        grp_advanced = OptionGroup(parser, "Advanced")
-        parser.add_option_group(grp_advanced)
         grp_advanced.add_option('-p', '--psn', dest='macpsn', metavar='PSN',
                                 help=_('Mac OS X application process number'))
 
