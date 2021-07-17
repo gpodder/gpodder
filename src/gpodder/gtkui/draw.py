@@ -169,7 +169,8 @@ def draw_cake(percentage, text=None, emblem=None, size=None):
     return surface
 
 
-def draw_text_pill(left_text, right_text, x=0, y=0, border=2, radius=14, widget=None):
+def draw_text_pill(left_text, right_text, x=0, y=0, border=2, radius=14,
+                   widget=None, scale=1):
 
     # Padding (in px) at the right edge of the image (for Ubuntu; bug 1533)
     padding_right = 7
@@ -200,10 +201,13 @@ def draw_text_pill(left_text, right_text, x=0, y=0, border=2, radius=14, widget=
     left_side_width = width_left + x_border * 2
     right_side_width = width_right + x_border * 2
 
-    image_height = int(y + text_height + border * 2)
-    image_width = int(x + left_side_width + right_side_width + padding_right)
+    image_height = int(scale * (y + text_height + border * 2))
+    image_width = int(scale * (x + left_side_width + right_side_width
+                               + padding_right))
 
     surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, image_width, image_height)
+    surface.set_device_scale(scale, scale)
+
     ctx = cairo.Context(surface)
 
     # Clip so as to not draw on the right padding (for Ubuntu; bug 1533)
@@ -288,8 +292,9 @@ def draw_cake_pixbuf(percentage, text=None, emblem=None, size=None):
     return cairo_surface_to_pixbuf(draw_cake(percentage, text, emblem, size=size))
 
 
-def draw_pill_pixbuf(left_text, right_text, widget=None):
-    return cairo_surface_to_pixbuf(draw_text_pill(left_text, right_text, widget=widget))
+def draw_pill_pixbuf(left_text, right_text, widget=None, scale=1):
+    return cairo_surface_to_pixbuf(draw_text_pill(left_text, right_text,
+                                                  widget=widget, scale=scale))
 
 
 def cake_size_from_widget(widget=None):
@@ -479,3 +484,33 @@ def investigate_widget_colors(type_classes_and_widgets):
 
         f.write("</dl></td></tr>\n")
         f.write("</table></html>\n")
+
+
+def draw_iconcell_scale(column, cell, model, iter, scale):
+    """
+    Draw cell's pixbuf to a surface with proper scaling for high resolution
+    displays. To be used as gtk.TreeViewColumn.set_cell_data_func.
+
+    :param column: gtk.TreeViewColumn (ignored)
+    :param cell: gtk.CellRenderer
+    :param model: gtk.TreeModel (ignored)
+    :param iter: gtk.TreeIter (ignored)
+    :param scale: factor of the target display (e.g. 1 or 2)
+    """
+    pixbuf = cell.props.pixbuf
+    if not pixbuf:
+        return
+
+    width = pixbuf.get_width()
+    height = pixbuf.get_height()
+    scale_inv = 1 / scale
+
+    surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
+    surface.set_device_scale(scale, scale)
+
+    cr = cairo.Context(surface)
+    cr.scale(scale_inv, scale_inv)
+    Gdk.cairo_set_source_pixbuf(cr, cell.props.pixbuf, 0, 0)
+    cr.paint()
+
+    cell.props.surface = surface

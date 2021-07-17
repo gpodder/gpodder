@@ -48,7 +48,7 @@ from .desktop.welcome import gPodderWelcome
 from .desktopfile import UserAppsReader
 from .download import DownloadStatusModel
 from .draw import (cake_size_from_widget, draw_cake_pixbuf,
-                   draw_text_box_centered)
+                   draw_iconcell_scale, draw_text_box_centered)
 from .interface.addpodcast import gPodderAddPodcast
 from .interface.common import BuilderWidget, TreeViewHelper
 from .interface.progress import ProgressIndicator
@@ -678,7 +678,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def init_podcast_list_treeview(self):
         size = cake_size_from_widget(self.treeChannels) * 2
-        self.podcast_list_model.set_max_image_size(size)
+        scale = self.treeChannels.get_scale_factor()
+        self.podcast_list_model.set_max_image_size(size, scale)
         # Set up podcast channel tree view widget
         column = Gtk.TreeViewColumn('')
         iconcell = Gtk.CellRendererPixbuf()
@@ -686,6 +687,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         column.pack_start(iconcell, False)
         column.add_attribute(iconcell, 'pixbuf', PodcastListModel.C_COVER)
         column.add_attribute(iconcell, 'visible', PodcastListModel.C_COVER_VISIBLE)
+        if scale != 1:
+            column.set_cell_data_func(iconcell, draw_iconcell_scale, scale)
 
         namecell = Gtk.CellRendererText()
         namecell.set_property('ellipsize', Pango.EllipsizeMode.END)
@@ -697,6 +700,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         column.pack_start(iconcell, False)
         column.add_attribute(iconcell, 'pixbuf', PodcastListModel.C_PILL)
         column.add_attribute(iconcell, 'visible', PodcastListModel.C_PILL_VISIBLE)
+        if scale != 1:
+            column.set_cell_data_func(iconcell, draw_iconcell_scale, scale)
 
         self.treeChannels.append_column(column)
 
