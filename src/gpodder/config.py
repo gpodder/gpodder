@@ -130,6 +130,11 @@ defaults = {
                     'height': -1,
                     'x': -1, 'y': -1, 'maximized': False,
                 },
+                'channel_editor': {
+                    'width': -1,
+                    'height': -1,
+                    'x': -1, 'y': -1, 'maximized': False,
+                },
                 'episode_selector': {
                     'width': 600,
                     'height': 400,

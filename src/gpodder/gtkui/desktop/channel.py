@@ -97,6 +97,8 @@ class gPodderChannel(BuilderWidget):
         # Title save button state
         self.title_save_button_saves = True
 
+        self._config.connect_gtk_window(self.gPodderChannel, 'channel_editor', True)
+
         gpodder.user_extensions.on_ui_object_available('channel-gtk', self)
 
         result = gpodder.user_extensions.on_channel_settings(self.channel)
