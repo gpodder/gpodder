@@ -29,8 +29,6 @@ import xml.etree.ElementTree
 from html.parser import HTMLParser
 from urllib.parse import parse_qs
 
-import requests
-
 import gpodder
 from gpodder import registry, util
 
@@ -192,7 +190,7 @@ def youtube_real_download_url(config, episode, allow_partial):
 def youtube_get_old_endpoint(vid):
     # TODO: changing 'detailpage' to 'embedded' allows age-restricted content
     url = 'https://www.youtube.com/get_video_info?html5=1&c=TVHTML5&cver=6.20180913&el=detailpage&video_id=' + vid
-    r = requests.get(url)
+    r = util.urlopen(url)
     if not r.ok:
         raise YouTubeError('Youtube "%s": %d %s' % (url, r.status_code, r.reason))
     else:
@@ -201,7 +199,7 @@ def youtube_get_old_endpoint(vid):
 
 def youtube_get_new_endpoint(vid):
     url = 'https://www.youtube.com/watch?bpctr=9999999999&has_verified=1&v=' + vid
-    r = requests.get(url)
+    r = util.urlopen(url)
     if not r.ok:
         raise YouTubeError('Youtube "%s": %d %s' % (url, r.status_code, r.reason))
 
@@ -211,7 +209,7 @@ def youtube_get_new_endpoint(vid):
             url = get_gdpr_consent_url(r.text)
         except YouTubeError as e:
             raise YouTubeError('Youtube "%s": No ytInitialPlayerResponse found and %s' % (url, str(e)))
-        r = requests.get(url)
+        r = util.urlopen(url)
         if not r.ok:
             raise YouTubeError('Youtube "%s": %d %s' % (url, r.status_code, r.reason))
 
@@ -259,7 +257,7 @@ def get_real_download_url(url, allow_partial, preferred_fmt_ids=None):
                     # playabilityStatus.liveStreamability.liveStreamabilityRenderer.displayEndscreen -- video has ended if present
 
                     if allow_partial and 'streamingData' in player_response and 'hlsManifestUrl' in player_response['streamingData']:
-                        r = requests.get(player_response['streamingData']['hlsManifestUrl'])
+                        r = util.urlopen(player_response['streamingData']['hlsManifestUrl'])
                         if not r.ok:
                             raise YouTubeError('HLS Manifest: %d %s' % (r.status_code, r.reason))
                         manifest = r.text.splitlines()
