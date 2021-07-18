@@ -67,6 +67,7 @@ class gPodderChannel(BuilderWidget):
         self.website_label.set_markup('<a href="{}">{}</a>'.format(
             self.channel.link, self.channel.link)
             if self.channel.link else '')
+        self.website_label.connect('activate-link', lambda label, url: util.open_website(url))
 
         if self.channel.auth_username:
             self.FeedUsername.set_text(self.channel.auth_username)
