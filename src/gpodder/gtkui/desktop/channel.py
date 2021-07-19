@@ -32,11 +32,11 @@ class gPodderChannel(BuilderWidget):
     def new(self):
         self.show_on_cover_load = True
 
-        self.gPodderChannel.set_title(self.channel.title)
-        self.entryTitle.set_text(self.channel.title)
+        self.gPodderChannel.set_transient_for(self.parent_widget)
+        self.title_label.set_text(self.channel.title)
         self.labelURL.set_text(self.channel.url)
-        self.cbSkipFeedUpdate.set_active(self.channel.pause_subscription)
-        self.cbEnableDeviceSync.set_active(self.channel.sync_to_mp3_player)
+        self.skip_feed_update_switch.set_active(self.channel.pause_subscription)
+        self.enable_device_sync_switch.set_active(self.channel.sync_to_mp3_player)
 
         self.section_list = Gtk.ListStore(str)
         active_index = 0
@@ -64,7 +64,9 @@ class gPodderChannel(BuilderWidget):
         self.combo_strategy.set_active(active_index)
 
         self.LabelDownloadTo.set_text(self.channel.save_dir)
-        self.LabelWebsite.set_text(self.channel.link)
+        self.website_label.set_markup('<a href="{}">{}</a>'.format(
+            self.channel.link, self.channel.link)
+            if self.channel.link else '')
 
         if self.channel.auth_username:
             self.FeedUsername.set_text(self.channel.auth_username)
@@ -74,17 +76,11 @@ class gPodderChannel(BuilderWidget):
         self.cover_downloader.register('cover-available', self.cover_download_finished)
         self.cover_downloader.request_cover(self.channel)
 
-        # Hide the website button if we don't have a valid URL
-        if not self.channel.link:
-            self.btn_website.hide()
-
-        b = Gtk.TextBuffer()
         if self.channel._update_error:
             err = '\n\n' + (_('ERROR: %s') % self.channel._update_error)
         else:
             err = ''
-        b.set_text(util.remove_html_tags(self.channel.description) + err)
-        self.channel_description.set_buffer(b)
+        self.channel_description.set_text(util.remove_html_tags(self.channel.description) + err)
 
         # Add Drag and Drop Support
         flags = Gtk.DestDefaults.ALL
@@ -98,12 +94,18 @@ class gPodderChannel(BuilderWidget):
         self.imgCoverEventBox.connect('button-press-event',
                 self.on_cover_popup_menu)
 
+        # Title save button state
+        self.title_save_button_saves = True
+
         gpodder.user_extensions.on_ui_object_available('channel-gtk', self)
 
         result = gpodder.user_extensions.on_channel_settings(self.channel)
         if result:
             for label, callback in result:
-                self.notebookChannelEditor.append_page(callback(self.channel), Gtk.Label(label))
+                sw = Gtk.ScrolledWindow()
+                sw.add(callback(self.channel))
+                sw.show_all()
+                self.notebookChannelEditor.append_page(sw, Gtk.Label(label))
 
     def on_button_add_section_clicked(self, widget):
         text = self.show_text_edit_dialog(_('Add section'), _('New section:'),
@@ -135,9 +137,6 @@ class gPodderChannel(BuilderWidget):
         menu.attach_to_widget(widget)
         menu.show_all()
         menu.popup(None, None, None, None, event.button, event.time)
-
-    def on_btn_website_clicked(self, widget):
-        util.open_website(self.channel.link)
 
     def on_btnDownloadCover_clicked(self, widget):
         dlg = Gtk.FileChooserDialog(
@@ -207,10 +206,54 @@ class gPodderChannel(BuilderWidget):
 
         return pixbuf
 
+    # Title editing callbacks
+    def on_title_edit_button_clicked(self, button):
+        self.title_save_button_saves = True
+        self.title_save_button.set_label(_("Save"))
+        self.title_stack.set_visible_child(self.title_edit_box)
+        self.title_entry.set_text(self.title_label.get_text())
+        self.title_entry.grab_focus()
+
+    def on_title_entry_changed(self, entry):
+        if len(entry.get_text()) > 0:
+            self.title_save_button_saves = True
+            self.title_save_button.set_label(_("Save"))
+        else:
+            self.title_save_button_saves = False
+            self.title_save_button.set_label(_("Cancel"))
+
+    def on_title_entry_icon_press(self, entry, icon_pos, *args):
+        self.title_entry.set_text("")
+
+    def on_title_save_button_clicked(self, button):
+        if self.title_save_button_saves:
+            self.title_label.set_text(self.title_entry.get_text())
+        self.title_stack.set_visible_child(self.title_box)
+
+    def on_row_activated(self, listbox, row, *args):
+        # Find the correct widget in the row to activate
+        def _do(w, *args):
+            if w.get_name().startswith("no_activation"):
+                return
+            elif isinstance(w, Gtk.Box):
+                w.foreach(_do)
+            elif isinstance(w, Gtk.ComboBox):
+                w.popup()
+            elif isinstance(w, Gtk.Entry):
+                w.grab_focus()
+            elif isinstance(w, Gtk.Switch):
+                w.set_state(not w.get_state())
+            elif isinstance(w, Gtk.Button):
+                w.emit("clicked")
+        row.foreach(_do)
+
+    def on_btnCancel_clicked(self, widget, *args):
+        self.main_window.destroy()
+
     def on_btnOK_clicked(self, widget, *args):
-        self.channel.pause_subscription = self.cbSkipFeedUpdate.get_active()
-        self.channel.sync_to_mp3_player = self.cbEnableDeviceSync.get_active()
-        self.channel.rename(self.entryTitle.get_text())
+        self.channel.pause_subscription = self.skip_feed_update_switch.get_state()
+        self.channel.sync_to_mp3_player = self.enable_device_sync_switch.get_state()
+        self.channel.rename(self.title_label.get_text())
         self.channel.auth_username = self.FeedUsername.get_text().strip()
         self.channel.auth_password = self.FeedPassword.get_text()
 
