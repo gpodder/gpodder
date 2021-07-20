@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gPodder\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-07-08 23:35-0600\n"
+"POT-Creation-Date: 2021-07-19 22:46-0600\n"
 "PO-Revision-Date: 2020-09-20 15:54+0800\n"
 "Last-Translator: Thomas Perl <m@thp.io>\n"
 "Language-Team: Chinese (China) (http://www.transifex.com/projects/p/gpodder/"
@@ -167,8 +167,8 @@ msgstr "至少需要以下命令之一：%(list_of_commands)s"
 msgid "Python module not found: %(module)s"
 msgstr "Python 模块未找到：%(module)s"
 
-#: src/gpodder/model.py:496 src/gpodder/youtube.py:514
-#: src/gpodder/plugins/soundcloud.py:152
+#: src/gpodder/model.py:496 src/gpodder/youtube.py:512
+#: src/gpodder/plugins/soundcloud.py:170
 #: share/gpodder/extensions/youtube-dl.py:215
 msgid "No description available"
 msgstr "没有可用介绍"
@@ -418,7 +418,7 @@ msgstr "网页"
 msgid "Bug Tracker"
 msgstr "Bug 报告"
 
-#: src/gpodder/gtkui/app.py:277
+#: src/gpodder/gtkui/app.py:278
 msgid "Path to gPodder home is too long"
 msgstr "gPodder目录路径太长"
 
@@ -609,7 +609,7 @@ msgid "Feedparser error: %s"
 msgstr ""
 
 #: src/gpodder/gtkui/main.py:1336 src/gpodder/gtkui/model.py:454
-#: src/gpodder/gtkui/model.py:783 src/gpodder/gtkui/desktop/channel.py:83
+#: src/gpodder/gtkui/model.py:783 src/gpodder/gtkui/desktop/channel.py:81
 #, python-format
 msgid "ERROR: %s"
 msgstr "错误：%s"
@@ -655,7 +655,9 @@ msgstr "开始下载"
 msgid "Download"
 msgstr "下载"
 
-#: src/gpodder/gtkui/main.py:1642 share/gpodder/ui/gtk/gpodder.ui.h:2
+#: src/gpodder/gtkui/main.py:1642 src/gpodder/gtkui/desktop/channel.py:226
+#: share/gpodder/ui/gtk/gpodder.ui.h:2
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:2
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:6
 #: share/gpodder/ui/gtk/menus.ui.h:24
 msgid "Cancel"
@@ -1353,38 +1355,44 @@ msgstr ""
 msgid "Error setting option"
 msgstr "错误设置"
 
-#: src/gpodder/gtkui/desktop/channel.py:109
+#: src/gpodder/gtkui/desktop/channel.py:114
 msgid "Add section"
 msgstr "添加分类"
 
-#: src/gpodder/gtkui/desktop/channel.py:109
+#: src/gpodder/gtkui/desktop/channel.py:114
 msgid "New section:"
 msgstr "新分类："
 
-#: src/gpodder/gtkui/desktop/channel.py:127
+#: src/gpodder/gtkui/desktop/channel.py:132
 msgid "_Open"
 msgstr "打开"
 
-#: src/gpodder/gtkui/desktop/channel.py:131
+#: src/gpodder/gtkui/desktop/channel.py:136
 msgid "_Refresh"
 msgstr "刷新"
 
-#: src/gpodder/gtkui/desktop/channel.py:144
+#: src/gpodder/gtkui/desktop/channel.py:146
 msgid "Select new podcast cover artwork"
 msgstr ""
 
-#: src/gpodder/gtkui/desktop/channel.py:176
+#: src/gpodder/gtkui/desktop/channel.py:178
 msgid "You can only drop a single image or URL here."
 msgstr "仅可拖拽单个图像或 URL 到此处。"
 
-#: src/gpodder/gtkui/desktop/channel.py:177
-#: src/gpodder/gtkui/desktop/channel.py:189
+#: src/gpodder/gtkui/desktop/channel.py:179
+#: src/gpodder/gtkui/desktop/channel.py:191
 msgid "Drag and drop"
 msgstr "拖拽"
 
-#: src/gpodder/gtkui/desktop/channel.py:188
+#: src/gpodder/gtkui/desktop/channel.py:190
 msgid "You can only drop local files and http:// URLs here."
 msgstr "仅可拖拽本地文件或网址到此处。"
+
+#: src/gpodder/gtkui/desktop/channel.py:215
+#: src/gpodder/gtkui/desktop/channel.py:223
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:5
+msgid "Save"
+msgstr ""
 
 #: src/gpodder/gtkui/desktop/episodeselector.py:104
 msgid "Remove"
@@ -1556,26 +1564,26 @@ msgstr ""
 msgid "Select folder for playlists"
 msgstr ""
 
-#: src/gpodder/plugins/soundcloud.py:150
+#: src/gpodder/plugins/soundcloud.py:168
 msgid "Unknown track"
 msgstr ""
 
-#: src/gpodder/plugins/soundcloud.py:184
+#: src/gpodder/plugins/soundcloud.py:202
 #, python-format
 msgid "%s on Soundcloud"
 msgstr ""
 
-#: src/gpodder/plugins/soundcloud.py:193
+#: src/gpodder/plugins/soundcloud.py:211
 #, python-format
 msgid "Tracks published by %s on Soundcloud."
 msgstr ""
 
-#: src/gpodder/plugins/soundcloud.py:227
+#: src/gpodder/plugins/soundcloud.py:245
 #, python-format
 msgid "%s's favorites on Soundcloud"
 msgstr ""
 
-#: src/gpodder/plugins/soundcloud.py:233
+#: src/gpodder/plugins/soundcloud.py:251
 #, python-format
 msgid "Tracks favorited by %s on Soundcloud."
 msgstr ""
@@ -1699,15 +1707,22 @@ msgstr ""
 msgid "Filter"
 msgstr "搜索"
 
-#: share/gpodder/extensions/filter.py:143
+#: share/gpodder/extensions/filter.py:140
+msgid ""
+"<b>Note:</b> The Cancel button does <b>not</b> return the filter settings to "
+"the values they had before. The changes are saved immediately after they are "
+"made."
+msgstr ""
+
+#: share/gpodder/extensions/filter.py:150
 msgid "Block"
 msgstr ""
 
-#: share/gpodder/extensions/filter.py:152
+#: share/gpodder/extensions/filter.py:159
 msgid "Except"
 msgstr ""
 
-#: share/gpodder/extensions/filter.py:159
+#: share/gpodder/extensions/filter.py:166
 msgid ""
 "Clicking the block checkbox and leaving it empty will disable auto-download "
 "for all episodes in this channel.  The patterns match partial text in "
@@ -1715,8 +1730,14 @@ msgid ""
 "unblocks blocked episodes (to block all then unblock some)."
 msgstr ""
 
-#: share/gpodder/extensions/filter.py:166
-msgid "Filter episodes now (undoes any episodes you marked as old)"
+#: share/gpodder/extensions/filter.py:175
+#, fuzzy
+#| msgid "Filter Episodes"
+msgid "Filter episodes now"
+msgstr "搜索单集"
+
+#: share/gpodder/extensions/filter.py:179
+msgid "Undoes any episodes you marked as old."
 msgstr ""
 
 #: share/gpodder/extensions/gtk_statusicon.py:19
@@ -1928,63 +1949,74 @@ msgid "Add a new podcast"
 msgstr "添加新播客"
 
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:1
-msgid "gPodder Podcast Editor"
-msgstr "gPodder 播客配置器"
+msgid "Channel Editor"
+msgstr ""
 
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:2
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:3
+msgid "OK"
+msgstr ""
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:4
+msgid "page0"
+msgstr ""
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:6
+msgid "page1"
+msgstr ""
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:7
+msgid "<b>Feed URL</b>"
+msgstr ""
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:8
+#, fuzzy
+#| msgid "<b>Locations</b>"
+msgid "<b>Download location</b>"
+msgstr "<b>位置</b>"
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:9
+msgid "Info"
+msgstr ""
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:10
+#, fuzzy
+#| msgid "No subscriptions"
+msgid "Pause subscription"
+msgstr "没有订阅"
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:11
+#, fuzzy
+#| msgid "Synchronize to MP3 player devices"
+msgid "Sync to player devices"
+msgstr "同步到 MP3 播放设备"
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:12
 msgid "Section:"
 msgstr "分类："
 
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:3
-msgid "Disable feed updates (pause subscription)"
-msgstr "禁止更新（暂停订阅）"
-
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:4
-msgid "Synchronize to MP3 player devices"
-msgstr "同步到 MP3 播放设备"
-
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:5
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:13
 msgid "Strategy:"
 msgstr "策略："
 
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:6
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:6
-msgid "General"
-msgstr "基本"
-
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:7
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:14
 msgid "<b>HTTP/FTP Authentication</b>"
 msgstr "<b>HTTP/FTP 认证</b>"
 
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:8
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:15
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:14
 msgid "Username:"
 msgstr "用户名："
 
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:9
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:16
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:15 bin/gpo:348
 msgid "Password:"
 msgstr "密码："
 
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:10
-msgid "<b>Locations</b>"
-msgstr "<b>位置</b>"
-
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:11
-msgid "Download to:"
-msgstr "保存目录："
-
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:12
-msgid "Website:"
-msgstr "网址："
-
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:13
-msgid "website label"
-msgstr ""
-
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:14
-msgid "Advanced"
-msgstr "更多"
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:17
+#, fuzzy
+#| msgid "Setting"
+msgid "Settings"
+msgstr "设置"
 
 #: share/gpodder/ui/gtk/gpodderconfigeditor.ui.h:1
 msgid "gPodder Configuration Editor"
@@ -2043,6 +2075,10 @@ msgstr "播客页显示 “全部单集” "
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:5
 msgid "Use sections for podcast list"
 msgstr "播客页使用分类"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:6
+msgid "General"
+msgstr "基本"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:7
 msgid "Preferred YouTube format:"

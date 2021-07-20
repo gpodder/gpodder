@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gPodder\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-07-08 23:35-0600\n"
+"POT-Creation-Date: 2021-07-19 22:46-0600\n"
 "PO-Revision-Date: 2013-01-19 12:30+0000\n"
 "Last-Translator: Baurzhan Muftakhidinov <baurthefirst@gmail.com>\n"
 "Language-Team: Kazakh (http://www.transifex.com/projects/p/gpodder/language/"
@@ -176,8 +176,8 @@ msgstr ""
 msgid "Python module not found: %(module)s"
 msgstr "Python модулі табылмады: %(module)s"
 
-#: src/gpodder/model.py:496 src/gpodder/youtube.py:514
-#: src/gpodder/plugins/soundcloud.py:152
+#: src/gpodder/model.py:496 src/gpodder/youtube.py:512
+#: src/gpodder/plugins/soundcloud.py:170
 #: share/gpodder/extensions/youtube-dl.py:215
 msgid "No description available"
 msgstr "Анықтамасы жоқ"
@@ -432,7 +432,7 @@ msgstr "Веб сайт:"
 msgid "Bug Tracker"
 msgstr ""
 
-#: src/gpodder/gtkui/app.py:277
+#: src/gpodder/gtkui/app.py:278
 msgid "Path to gPodder home is too long"
 msgstr ""
 
@@ -623,7 +623,7 @@ msgid "Feedparser error: %s"
 msgstr "Таспа өңдеуіш қатесі: %s"
 
 #: src/gpodder/gtkui/main.py:1336 src/gpodder/gtkui/model.py:454
-#: src/gpodder/gtkui/model.py:783 src/gpodder/gtkui/desktop/channel.py:83
+#: src/gpodder/gtkui/model.py:783 src/gpodder/gtkui/desktop/channel.py:81
 #, python-format
 msgid "ERROR: %s"
 msgstr ""
@@ -669,7 +669,9 @@ msgstr "Жүктеп алуды қазір бастау"
 msgid "Download"
 msgstr "Жүктеп алу"
 
-#: src/gpodder/gtkui/main.py:1642 share/gpodder/ui/gtk/gpodder.ui.h:2
+#: src/gpodder/gtkui/main.py:1642 src/gpodder/gtkui/desktop/channel.py:226
+#: share/gpodder/ui/gtk/gpodder.ui.h:2
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:2
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:6
 #: share/gpodder/ui/gtk/menus.ui.h:24
 msgid "Cancel"
@@ -1382,39 +1384,45 @@ msgstr ""
 msgid "Error setting option"
 msgstr "Опцияны орнату сәтсіз"
 
-#: src/gpodder/gtkui/desktop/channel.py:109
+#: src/gpodder/gtkui/desktop/channel.py:114
 msgid "Add section"
 msgstr "Санатты қосу"
 
-#: src/gpodder/gtkui/desktop/channel.py:109
+#: src/gpodder/gtkui/desktop/channel.py:114
 msgid "New section:"
 msgstr "Жаңа санат:"
 
-#: src/gpodder/gtkui/desktop/channel.py:127
+#: src/gpodder/gtkui/desktop/channel.py:132
 #, fuzzy
 msgid "_Open"
 msgstr "Ашу"
 
-#: src/gpodder/gtkui/desktop/channel.py:131
+#: src/gpodder/gtkui/desktop/channel.py:136
 msgid "_Refresh"
 msgstr ""
 
-#: src/gpodder/gtkui/desktop/channel.py:144
+#: src/gpodder/gtkui/desktop/channel.py:146
 msgid "Select new podcast cover artwork"
 msgstr "Подкаст үшін жаңа сыртын таңдаңыз"
 
-#: src/gpodder/gtkui/desktop/channel.py:176
+#: src/gpodder/gtkui/desktop/channel.py:178
 msgid "You can only drop a single image or URL here."
 msgstr "Осында тек бір сурет не URL әкеліп тастай аласыз,"
 
-#: src/gpodder/gtkui/desktop/channel.py:177
-#: src/gpodder/gtkui/desktop/channel.py:189
+#: src/gpodder/gtkui/desktop/channel.py:179
+#: src/gpodder/gtkui/desktop/channel.py:191
 msgid "Drag and drop"
 msgstr "Ұстап апару мен тастау"
 
-#: src/gpodder/gtkui/desktop/channel.py:188
+#: src/gpodder/gtkui/desktop/channel.py:190
 msgid "You can only drop local files and http:// URLs here."
 msgstr "Осында тек жергілікті файлдарды мен http:// URL әкеліп тастай аласыз."
+
+#: src/gpodder/gtkui/desktop/channel.py:215
+#: src/gpodder/gtkui/desktop/channel.py:223
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:5
+msgid "Save"
+msgstr ""
 
 #: src/gpodder/gtkui/desktop/episodeselector.py:104
 msgid "Remove"
@@ -1595,26 +1603,26 @@ msgstr "Тіркеу нүктесі үшін буманы таңдаңыз"
 msgid "Select folder for playlists"
 msgstr "Тіркеу нүктесі үшін буманы таңдаңыз"
 
-#: src/gpodder/plugins/soundcloud.py:150
+#: src/gpodder/plugins/soundcloud.py:168
 msgid "Unknown track"
 msgstr "Белгісіз трек"
 
-#: src/gpodder/plugins/soundcloud.py:184
+#: src/gpodder/plugins/soundcloud.py:202
 #, python-format
 msgid "%s on Soundcloud"
 msgstr "%s Soundcloud-та"
 
-#: src/gpodder/plugins/soundcloud.py:193
+#: src/gpodder/plugins/soundcloud.py:211
 #, python-format
 msgid "Tracks published by %s on Soundcloud."
 msgstr "Soundcloud-ғы %s жариялаған тректер."
 
-#: src/gpodder/plugins/soundcloud.py:227
+#: src/gpodder/plugins/soundcloud.py:245
 #, python-format
 msgid "%s's favorites on Soundcloud"
 msgstr "%s Soundcloud-тағы таңдамалылары"
 
-#: src/gpodder/plugins/soundcloud.py:233
+#: src/gpodder/plugins/soundcloud.py:251
 #, python-format
 msgid "Tracks favorited by %s on Soundcloud."
 msgstr "%s Soundcloud-та таңдамалы етіп белгілеген тректер."
@@ -1749,15 +1757,22 @@ msgstr ""
 msgid "Filter"
 msgstr "Сүзгі:"
 
-#: share/gpodder/extensions/filter.py:143
+#: share/gpodder/extensions/filter.py:140
+msgid ""
+"<b>Note:</b> The Cancel button does <b>not</b> return the filter settings to "
+"the values they had before. The changes are saved immediately after they are "
+"made."
+msgstr ""
+
+#: share/gpodder/extensions/filter.py:150
 msgid "Block"
 msgstr ""
 
-#: share/gpodder/extensions/filter.py:152
+#: share/gpodder/extensions/filter.py:159
 msgid "Except"
 msgstr ""
 
-#: share/gpodder/extensions/filter.py:159
+#: share/gpodder/extensions/filter.py:166
 msgid ""
 "Clicking the block checkbox and leaving it empty will disable auto-download "
 "for all episodes in this channel.  The patterns match partial text in "
@@ -1765,8 +1780,14 @@ msgid ""
 "unblocks blocked episodes (to block all then unblock some)."
 msgstr ""
 
-#: share/gpodder/extensions/filter.py:166
-msgid "Filter episodes now (undoes any episodes you marked as old)"
+#: share/gpodder/extensions/filter.py:175
+#, fuzzy
+#| msgid "Delete episodes"
+msgid "Filter episodes now"
+msgstr "Эпизодтарды өшіру"
+
+#: share/gpodder/extensions/filter.py:179
+msgid "Undoes any episodes you marked as old."
 msgstr ""
 
 #: share/gpodder/extensions/gtk_statusicon.py:19
@@ -1989,65 +2010,74 @@ msgid "Add a new podcast"
 msgstr "Жаңа подкастты қосу"
 
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:1
-msgid "gPodder Podcast Editor"
-msgstr "gPodder подкаст түзетушісі"
+msgid "Channel Editor"
+msgstr ""
 
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:2
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:3
+msgid "OK"
+msgstr ""
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:4
+msgid "page0"
+msgstr ""
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:6
+msgid "page1"
+msgstr ""
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:7
+msgid "<b>Feed URL</b>"
+msgstr ""
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:8
+#, fuzzy
+#| msgid "<b>Locations</b>"
+msgid "<b>Download location</b>"
+msgstr "<b>Орналасуы</b>"
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:9
+msgid "Info"
+msgstr ""
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:10
+#, fuzzy
+#| msgid "No subscriptions"
+msgid "Pause subscription"
+msgstr "Жазылулар жоқ"
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:11
+#, fuzzy
+msgid "Sync to player devices"
+msgstr "Плеерге синхрондау"
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:12
 msgid "Section:"
 msgstr "Секция:"
 
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:3
-msgid "Disable feed updates (pause subscription)"
-msgstr "Таспа жаңартуын сөндіру (жазылуды аялдату)"
-
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:4
-#, fuzzy
-msgid "Synchronize to MP3 player devices"
-msgstr "Плеерге синхрондау"
-
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:5
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:13
 #, fuzzy
 msgid "Strategy:"
 msgstr "Өшіру саясаты:"
 
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:6
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:6
-msgid "General"
-msgstr "Жалпы"
-
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:7
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:14
 msgid "<b>HTTP/FTP Authentication</b>"
 msgstr "<b>HTTP/FTP аутентификация</b>"
 
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:8
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:15
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:14
 msgid "Username:"
 msgstr "Пайдаланушы аты:"
 
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:9
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:16
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:15 bin/gpo:348
 msgid "Password:"
 msgstr "Пароль:"
 
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:10
-msgid "<b>Locations</b>"
-msgstr "<b>Орналасуы</b>"
-
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:11
-msgid "Download to:"
-msgstr "Сақталатын орны:"
-
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:12
-msgid "Website:"
-msgstr "Веб сайт:"
-
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:13
-msgid "website label"
-msgstr "веб сайт белгісі"
-
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:14
-msgid "Advanced"
-msgstr "Кеңейтілген"
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:17
+#, fuzzy
+#| msgid "Setting"
+msgid "Settings"
+msgstr "Баптама"
 
 #: share/gpodder/ui/gtk/gpodderconfigeditor.ui.h:1
 msgid "gPodder Configuration Editor"
@@ -2106,6 +2136,10 @@ msgstr "Подкасттар тізіміндегі \"Барлық эпизод�
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:5
 msgid "Use sections for podcast list"
 msgstr "Подкасттар тізімі үшін секцияларды қолдану"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:6
+msgid "General"
+msgstr "Жалпы"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:7
 msgid "Preferred YouTube format:"

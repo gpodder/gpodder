@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gPodder\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-07-08 23:35-0600\n"
+"POT-Creation-Date: 2021-07-19 22:46-0600\n"
 "PO-Revision-Date: 2013-01-23 00:23+0000\n"
 "Last-Translator: Asier Iturralde Sarasola <asier.iturralde@gmail.com>\n"
 "Language-Team: Basque (http://www.transifex.com/projects/p/gpodder/language/"
@@ -175,8 +175,8 @@ msgstr ""
 msgid "Python module not found: %(module)s"
 msgstr "Ez da Python modulua aurkitu: %(module)s"
 
-#: src/gpodder/model.py:496 src/gpodder/youtube.py:514
-#: src/gpodder/plugins/soundcloud.py:152
+#: src/gpodder/model.py:496 src/gpodder/youtube.py:512
+#: src/gpodder/plugins/soundcloud.py:170
 #: share/gpodder/extensions/youtube-dl.py:215
 msgid "No description available"
 msgstr "Ez dago deskribapenik eskuragarri"
@@ -437,7 +437,7 @@ msgstr "Webgunea:"
 msgid "Bug Tracker"
 msgstr ""
 
-#: src/gpodder/gtkui/app.py:277
+#: src/gpodder/gtkui/app.py:278
 msgid "Path to gPodder home is too long"
 msgstr ""
 
@@ -635,7 +635,7 @@ msgid "Feedparser error: %s"
 msgstr "Jario-analizatzaile errorea: %s"
 
 #: src/gpodder/gtkui/main.py:1336 src/gpodder/gtkui/model.py:454
-#: src/gpodder/gtkui/model.py:783 src/gpodder/gtkui/desktop/channel.py:83
+#: src/gpodder/gtkui/model.py:783 src/gpodder/gtkui/desktop/channel.py:81
 #, python-format
 msgid "ERROR: %s"
 msgstr ""
@@ -682,7 +682,9 @@ msgstr "Hasi deskarga orain"
 msgid "Download"
 msgstr "Deskarga"
 
-#: src/gpodder/gtkui/main.py:1642 share/gpodder/ui/gtk/gpodder.ui.h:2
+#: src/gpodder/gtkui/main.py:1642 src/gpodder/gtkui/desktop/channel.py:226
+#: share/gpodder/ui/gtk/gpodder.ui.h:2
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:2
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:6
 #: share/gpodder/ui/gtk/menus.ui.h:24
 msgid "Cancel"
@@ -1404,39 +1406,45 @@ msgstr ""
 msgid "Error setting option"
 msgstr "Errorea aukera ezartzean"
 
-#: src/gpodder/gtkui/desktop/channel.py:109
+#: src/gpodder/gtkui/desktop/channel.py:114
 msgid "Add section"
 msgstr "Gehitu saila"
 
-#: src/gpodder/gtkui/desktop/channel.py:109
+#: src/gpodder/gtkui/desktop/channel.py:114
 msgid "New section:"
 msgstr "Sail berria:"
 
-#: src/gpodder/gtkui/desktop/channel.py:127
+#: src/gpodder/gtkui/desktop/channel.py:132
 #, fuzzy
 msgid "_Open"
 msgstr "Ireki"
 
-#: src/gpodder/gtkui/desktop/channel.py:131
+#: src/gpodder/gtkui/desktop/channel.py:136
 msgid "_Refresh"
 msgstr ""
 
-#: src/gpodder/gtkui/desktop/channel.py:144
+#: src/gpodder/gtkui/desktop/channel.py:146
 msgid "Select new podcast cover artwork"
 msgstr "Hautatu podcast-aren azal berria"
 
-#: src/gpodder/gtkui/desktop/channel.py:176
+#: src/gpodder/gtkui/desktop/channel.py:178
 msgid "You can only drop a single image or URL here."
 msgstr "Irudi edo URL bakarra jaregin dezakezu hemen."
 
-#: src/gpodder/gtkui/desktop/channel.py:177
-#: src/gpodder/gtkui/desktop/channel.py:189
+#: src/gpodder/gtkui/desktop/channel.py:179
+#: src/gpodder/gtkui/desktop/channel.py:191
 msgid "Drag and drop"
 msgstr "Arrastatu eta jaregin"
 
-#: src/gpodder/gtkui/desktop/channel.py:188
+#: src/gpodder/gtkui/desktop/channel.py:190
 msgid "You can only drop local files and http:// URLs here."
 msgstr "Fitxategi lokal eta http:// URL-ak soilik jaregin ditzazkezu hemen."
+
+#: src/gpodder/gtkui/desktop/channel.py:215
+#: src/gpodder/gtkui/desktop/channel.py:223
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:5
+msgid "Save"
+msgstr ""
 
 #: src/gpodder/gtkui/desktop/episodeselector.py:104
 msgid "Remove"
@@ -1619,26 +1627,26 @@ msgstr "Hautatu karpeta muntaketa-punturako"
 msgid "Select folder for playlists"
 msgstr "Hautatu karpeta muntaketa-punturako"
 
-#: src/gpodder/plugins/soundcloud.py:150
+#: src/gpodder/plugins/soundcloud.py:168
 msgid "Unknown track"
 msgstr "Pista ezezaguna"
 
-#: src/gpodder/plugins/soundcloud.py:184
+#: src/gpodder/plugins/soundcloud.py:202
 #, python-format
 msgid "%s on Soundcloud"
 msgstr "%s Soundcloud-en"
 
-#: src/gpodder/plugins/soundcloud.py:193
+#: src/gpodder/plugins/soundcloud.py:211
 #, python-format
 msgid "Tracks published by %s on Soundcloud."
 msgstr "%s-k Soundcloud-en argitaratutako pistak."
 
-#: src/gpodder/plugins/soundcloud.py:227
+#: src/gpodder/plugins/soundcloud.py:245
 #, python-format
 msgid "%s's favorites on Soundcloud"
 msgstr "%s-ren gogokoak Soundcloud-en"
 
-#: src/gpodder/plugins/soundcloud.py:233
+#: src/gpodder/plugins/soundcloud.py:251
 #, python-format
 msgid "Tracks favorited by %s on Soundcloud."
 msgstr "%s-k Soundcloud-en gustoko dituen pistak."
@@ -1773,15 +1781,22 @@ msgstr ""
 msgid "Filter"
 msgstr "Iragazkia:"
 
-#: share/gpodder/extensions/filter.py:143
+#: share/gpodder/extensions/filter.py:140
+msgid ""
+"<b>Note:</b> The Cancel button does <b>not</b> return the filter settings to "
+"the values they had before. The changes are saved immediately after they are "
+"made."
+msgstr ""
+
+#: share/gpodder/extensions/filter.py:150
 msgid "Block"
 msgstr ""
 
-#: share/gpodder/extensions/filter.py:152
+#: share/gpodder/extensions/filter.py:159
 msgid "Except"
 msgstr ""
 
-#: share/gpodder/extensions/filter.py:159
+#: share/gpodder/extensions/filter.py:166
 msgid ""
 "Clicking the block checkbox and leaving it empty will disable auto-download "
 "for all episodes in this channel.  The patterns match partial text in "
@@ -1789,8 +1804,14 @@ msgid ""
 "unblocks blocked episodes (to block all then unblock some)."
 msgstr ""
 
-#: share/gpodder/extensions/filter.py:166
-msgid "Filter episodes now (undoes any episodes you marked as old)"
+#: share/gpodder/extensions/filter.py:175
+#, fuzzy
+#| msgid "Delete episodes"
+msgid "Filter episodes now"
+msgstr "Ezabatu atalak"
+
+#: share/gpodder/extensions/filter.py:179
+msgid "Undoes any episodes you marked as old."
 msgstr ""
 
 #: share/gpodder/extensions/gtk_statusicon.py:19
@@ -2008,63 +2029,74 @@ msgid "Add a new podcast"
 msgstr "Gehitu podcast berri bat"
 
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:1
-msgid "gPodder Podcast Editor"
-msgstr "gPodder Podcast Editorea"
+msgid "Channel Editor"
+msgstr ""
 
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:2
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:3
+msgid "OK"
+msgstr ""
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:4
+msgid "page0"
+msgstr ""
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:6
+msgid "page1"
+msgstr ""
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:7
+msgid "<b>Feed URL</b>"
+msgstr ""
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:8
+#, fuzzy
+#| msgid "<b>Locations</b>"
+msgid "<b>Download location</b>"
+msgstr "<b>Kokalekuak</b>"
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:9
+msgid "Info"
+msgstr ""
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:10
+#, fuzzy
+#| msgid "No subscriptions"
+msgid "Pause subscription"
+msgstr "Ez dago harpidetzarik"
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:11
+#, fuzzy
+#| msgid "Synchronize to MP3 player devices"
+msgid "Sync to player devices"
+msgstr "Sinkronizatu MP3 gailuekin"
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:12
 msgid "Section:"
 msgstr "Saila:"
 
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:3
-msgid "Disable feed updates (pause subscription)"
-msgstr "Desgaitu jario eguneraketak (harpidetza pausarazi)"
-
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:4
-msgid "Synchronize to MP3 player devices"
-msgstr "Sinkronizatu MP3 gailuekin"
-
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:5
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:13
 msgid "Strategy:"
 msgstr "Estrategia:"
 
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:6
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:6
-msgid "General"
-msgstr "Orokorra"
-
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:7
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:14
 msgid "<b>HTTP/FTP Authentication</b>"
 msgstr "<b>HTTP/FTP Autentifikazioa</b>"
 
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:8
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:15
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:14
 msgid "Username:"
 msgstr "Erabiltzaile-izena:"
 
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:9
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:16
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:15 bin/gpo:348
 msgid "Password:"
 msgstr "Pasahitza:"
 
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:10
-msgid "<b>Locations</b>"
-msgstr "<b>Kokalekuak</b>"
-
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:11
-msgid "Download to:"
-msgstr "Deskargatu hona:"
-
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:12
-msgid "Website:"
-msgstr "Webgunea:"
-
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:13
-msgid "website label"
-msgstr "webgune etiketa"
-
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:14
-msgid "Advanced"
-msgstr "Aurreratua"
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:17
+#, fuzzy
+#| msgid "Setting"
+msgid "Settings"
+msgstr "Ezarpena"
 
 #: share/gpodder/ui/gtk/gpodderconfigeditor.ui.h:1
 msgid "gPodder Configuration Editor"
@@ -2123,6 +2155,10 @@ msgstr "Podcast zerrendako \"Atal guztiak\""
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:5
 msgid "Use sections for podcast list"
 msgstr "Erabili sailak podcast zerrendan"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:6
+msgid "General"
+msgstr "Orokorra"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:7
 #, fuzzy
