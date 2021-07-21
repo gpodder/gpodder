@@ -7,7 +7,7 @@ branches:
 # skip_non_tags: true
 
 image:
-  - Visual Studio 2019
+  - Visual Studio 2015
 
 environment:
   matrix:
@@ -18,8 +18,22 @@ build_script:
   - set
   - set PATH=C:\msys64\%MSYSTEM%\bin;C:\msys64\usr\bin;%PATH%
   - set CHERE_INVOKING=yes
+  # workaround new msys2 packagers (not needed for VS2019)
+  - curl -O http://repo.msys2.org/msys/x86_64/msys2-keyring-r21.b39fb11-1-any.pkg.tar.xz
+  - curl -O http://repo.msys2.org/msys/x86_64/msys2-keyring-r21.b39fb11-1-any.pkg.tar.xz.sig
+  - bash -lc "pacman-key --verify msys2-keyring-r21.b39fb11-1-any.pkg.tar.xz.sig"
+  - bash -lc "pacman --noconfirm  -U msys2-keyring-r21.b39fb11-1-any.pkg.tar.xz"
   # remove precisely conflicting packages
   - bash -lc "pacman --noconfirm --ask 20 --remove mingw-w64-x86_64-gcc-ada mingw-w64-x86_64-gcc-objc mingw-w64-i686-gcc-ada mingw-w64-i686-gcc-objc"
+  # https://www.msys2.org/news/#2020-12-26-zstd-exemption-for-core-packages-removed (not needed for VS2019)
+  - bash -lc "pacman --noconfirm -U 'http://repo.msys2.org/msys/x86_64/libzstd-1.4.4-2-x86_64.pkg.tar.xz'"
+  - bash -lc "pacman --noconfirm -U 'http://repo.msys2.org/msys/x86_64/zstd-1.4.4-2-x86_64.pkg.tar.xz'"
+  - bash -lc "pacman --noconfirm -U 'http://repo.msys2.org/msys/x86_64/pacman-5.2.1-6-x86_64.pkg.tar.xz'"
+  # workaround new msys2 packagers (not needed for VS2019)
+  - curl -O http://repo.msys2.org/msys/x86_64/msys2-keyring-1~20210213-2-any.pkg.tar.zst
+  - curl -O http://repo.msys2.org/msys/x86_64/msys2-keyring-1~20210213-2-any.pkg.tar.zst.sig
+  - bash -lc "pacman-key --verify msys2-keyring-1~20210213-2-any.pkg.tar.zst.sig"
+  - bash -lc "pacman --noconfirm  -U msys2-keyring-1~20210213-2-any.pkg.tar.zst"
   # workaround updating msys2-runtime breaks all programs until last one exited
   - bash -lc "pacman -Syuu --noconfirm"
   - Powershell.exe "Stop-Process -name dirmngr -Erroraction silentlycontinue; echo killing_dirmng"
