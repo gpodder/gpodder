@@ -196,6 +196,8 @@ class gPodderShownotesText(gPodderShownotes):
         return self.text_view
 
     def update(self, episode):
+        self.scrolled_window.get_vadjustment().set_value(0)
+
         heading = episode.title
         subheading = _('from %s') % (episode.channel.title)
         details = self.details_fmt % {
@@ -287,6 +289,8 @@ class gPodderShownotesHTML(gPodderShownotes):
         return self.html_view
 
     def update(self, episode):
+        self.scrolled_window.get_vadjustment().set_value(0)
+
         self.define_colors()
 
         if episode.has_website_link():
