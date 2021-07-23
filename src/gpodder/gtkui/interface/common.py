@@ -29,6 +29,21 @@ from gpodder.gtkui.base import GtkBuilderWidget
 _ = gpodder.gettext
 
 
+def show_message_dialog(parent, message, title=None):
+    dlg = Gtk.MessageDialog(parent, Gtk.DialogFlags.MODAL, Gtk.MessageType.INFO, Gtk.ButtonsType.OK)
+    if title:
+        dlg.set_title(str(title))
+        dlg.set_markup('<span weight="bold" size="larger">%s</span>\n\n%s' % (title, message))
+    else:
+        dlg.set_markup('<span weight="bold" size="larger">%s</span>' % (message))
+    # make message copy/pastable
+    for lbl in dlg.get_message_area():
+        if isinstance(lbl, Gtk.Label):
+            lbl.set_selectable(True)
+    dlg.run()
+    dlg.destroy()
+
+
 class BuilderWidget(GtkBuilderWidget):
     def __init__(self, parent, **kwargs):
         self._window_iconified = False
@@ -64,18 +79,7 @@ class BuilderWidget(GtkBuilderWidget):
 
     def show_message(self, message, title=None, important=False, widget=None):
         if important:
-            dlg = Gtk.MessageDialog(self.main_window, Gtk.DialogFlags.MODAL, Gtk.MessageType.INFO, Gtk.ButtonsType.OK)
-            if title:
-                dlg.set_title(str(title))
-                dlg.set_markup('<span weight="bold" size="larger">%s</span>\n\n%s' % (title, message))
-            else:
-                dlg.set_markup('<span weight="bold" size="larger">%s</span>' % (message))
-            # make message copy/pastable
-            for lbl in dlg.get_message_area():
-                if isinstance(lbl, Gtk.Label):
-                    lbl.set_selectable(True)
-            dlg.run()
-            dlg.destroy()
+            show_message_dialog(self.main_window, message, title)
         else:
             gpodder.user_extensions.on_notification_show(title, message)
 

@@ -35,16 +35,20 @@ logger = logging.getLogger(__name__)
 
 
 class gPodderSyncUI(object):
+    # download list states
+    (DL_ONEOFF, DL_ADDING_TASKS, DL_ADDED_TASKS) = list(range(3))
+
     def __init__(self, config, notification, parent_window,
                  show_confirmation,
                  show_preferences,
                  channels,
                  download_status_model,
                  download_queue_manager,
-                 enable_download_list_update,
+                 set_download_list_state,
                  commit_changes_to_database,
                  delete_episode_list,
-                 select_episodes_to_delete):
+                 select_episodes_to_delete,
+                 mount_volume_for_file):
         self.device = None
 
         self._config = config
@@ -56,10 +60,11 @@ class gPodderSyncUI(object):
         self.channels = channels
         self.download_status_model = download_status_model
         self.download_queue_manager = download_queue_manager
-        self.enable_download_list_update = enable_download_list_update
+        self.set_download_list_state = set_download_list_state
         self.commit_changes_to_database = commit_changes_to_database
         self.delete_episode_list = delete_episode_list
         self.select_episodes_to_delete = select_episodes_to_delete
+        self.mount_volume_for_file = mount_volume_for_file
 
     def _filter_sync_episodes(self, channels, only_downloaded=False):
         """Return a list of episodes for device synchronization
@@ -95,10 +100,16 @@ class gPodderSyncUI(object):
         device = sync.open_device(self)
 
         if device is None:
-            return self._show_message_unconfigured()
+            self._show_message_unconfigured()
+            if done_callback:
+                done_callback()
+            return
 
         if not device.open():
-            return self._show_message_cannot_open()
+            self._show_message_cannot_open()
+            if done_callback:
+                done_callback()
+            return
         else:
             # Only set if device is configured and opened successfully
             self.device = device
@@ -144,7 +155,7 @@ class gPodderSyncUI(object):
                     return
 
             # enable updating of UI
-            self.enable_download_list_update()
+            self.set_download_list_state(gPodderSyncUI.DL_ONEOFF)
 
             """Update device playlists
             General approach is as follows:
@@ -194,20 +205,26 @@ class gPodderSyncUI(object):
                             episodes_for_playlist = [ep for ep in episodes_for_playlist if ep.is_new]
                         playlist.write_m3u(episodes_for_playlist)
 
-                # enable updating of UI
-                self.enable_download_list_update()
+                # enable updating of UI, but mark it as tasks being added so that a
+                # adding a single task that completes immediately doesn't turn off the
+                # ui updates again
+                self.set_download_list_state(gPodderSyncUI.DL_ADDING_TASKS)
 
                 if (self._config.device_sync.device_type == 'filesystem' and self._config.device_sync.playlists.create):
                     title = _('Update successful')
                     message = _('The playlist on your MP3 player has been updated.')
                     self.notification(message, title)
 
+                # called from the main thread to complete adding tasks_
+                def add_downloads_complete():
+                    self.set_download_list_state(gPodderSyncUI.DL_ADDED_TASKS)
+
                 # Finally start the synchronization process
                 @util.run_in_background
                 def sync_thread_func():
                     device.add_sync_tasks(episodes, force_played=force_played,
                                           done_callback=done_callback)
-
+                    util.idle_add(add_downloads_complete)
                 return
 
             if self._config.device_sync.playlists.create:
@@ -232,9 +249,8 @@ class gPodderSyncUI(object):
                                 # if playlist doesn't exist (yet) episodes_in_playlist will be empty
                                 if episodes_in_playlists:
                                     for episode_filename in episodes_in_playlists:
-
-                                        if not(os.path.exists(os.path.join(playlist.mountpoint,
-                                                                           episode_filename))):
+                                        if not playlist.mountpoint.resolve_relative_path(
+                                            episode_filename).query_exists():
                                             # episode was synced but no longer on device
                                             # i.e. must have been deleted by user, so delete from gpodder
                                             try:
@@ -294,8 +310,9 @@ class gPodderSyncUI(object):
         def cleanup_episodes():
             # 'skip_played_episodes' must be used or else all the
             # played tracks will be copied then immediately deleted
-            if (self._config.device_sync.delete_played_episodes and
-                    self._config.device_sync.skip_played_episodes):
+            if (self._config.device_sync.delete_deleted_episodes or
+                (self._config.device_sync.delete_played_episodes and
+                 self._config.device_sync.skip_played_episodes)):
                 all_episodes = self._filter_sync_episodes(
                     channels, only_downloaded=False)
                 for local_episode in all_episodes:

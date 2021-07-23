@@ -28,32 +28,25 @@ import glob
 import logging
 import os.path
 import time
+from urllib.parse import urlparse
 
 import gpodder
 from gpodder import download, services, util
+import gi  # isort:skip
+gi.require_version('Gtk', '3.0')  # isort:skip
+from gi.repository import GLib, Gio, Gtk  # isort:skip
+
 
 logger = logging.getLogger(__name__)
 
 
 _ = gpodder.gettext
 
-#
-# TODO: Re-enable iPod and MTP sync support
-#
-
-pymtp_available = False
 gpod_available = True
 try:
     import gpod
 except:
     gpod_available = False
-
-# pymtp_available = True
-# try:
-#     import gpodder.gpopymtp as pymtp
-# except:
-#     pymtp_available = False
-#     logger.warning('Could not load gpopymtp (libmtp not installed?).')
 
 mplayer_available = True if util.find_command('mplayer') is not None else False
 
@@ -62,52 +55,6 @@ try:
     import eyed3.mp3
 except:
     eyed3mp3_available = False
-
-
-if pymtp_available:
-    class MTP(pymtp.MTP):
-        sep = os.path.sep
-
-        def __init__(self):
-            pymtp.MTP.__init__(self)
-            self.folders = {}
-
-        def connect(self):
-            pymtp.MTP.connect(self)
-            self.folders = self.unfold(self.mtp.LIBMTP_Get_Folder_List(self.device))
-
-        def get_folder_list(self):
-            return self.folders
-
-        def unfold(self, folder, path=''):
-            result = {}
-            while folder:
-                folder = folder.contents
-                name = self.sep.join([path, folder.name]).lstrip(self.sep)
-                result[name] = folder.folder_id
-                if folder.get_child():
-                    result.update(self.unfold(folder.get_child(), name))
-                folder = folder.sibling
-            return result
-
-        def mkdir(self, path):
-            folder_id = 0
-            prefix = []
-            parts = path.split(self.sep)
-            while parts:
-                prefix.append(parts[0])
-                tmpath = self.sep.join(prefix)
-                if tmpath in self.folders:
-                    folder_id = self.folders[tmpath]
-                else:
-                    folder_id = self.create_folder(parts[0], parent=folder_id)
-                    # logger.info('Creating subfolder %s in %s (id=%u)' % (parts[0], self.sep.join(prefix), folder_id))
-                    tmpath = self.sep.join(prefix + [parts[0]])
-                    self.folders[tmpath] = folder_id
-                # logger.info(">>> %s = %s" % (tmpath, folder_id))
-                del parts[0]
-            # logger.info('MTP.mkdir: %s = %u' % (path, folder_id))
-            return folder_id
 
 
 def open_device(gui):
@@ -120,7 +67,8 @@ def open_device(gui):
     elif device_type == 'filesystem':
         return MP3PlayerDevice(config,
                 gui.download_status_model,
-                gui.download_queue_manager)
+                gui.download_queue_manager,
+                gui.mount_volume_for_file)
 
     return None
 
@@ -273,7 +221,7 @@ class Device(services.ObservableService):
         if tracklist:
             for track in sorted(tracklist, key=lambda e: e.pubdate_prop):
                 if self.cancelled:
-                    return False
+                    break
 
                 # XXX: need to check if track is added properly?
                 sync_task = SyncTask(track)
@@ -555,25 +503,47 @@ class iPodDevice(Device):
         except:
             logger.warning('Seems like your python-gpod is out-of-date.')
 
-
 class MP3PlayerDevice(Device):
     def __init__(self, config,
             download_status_model,
-            download_queue_manager):
+            download_queue_manager,
+            mount_volume_for_file):
         Device.__init__(self, config)
-        self.destination = self._config.device_sync.device_folder
-        self.buffer_size = 1024 * 1024  # 1 MiB
+
+        folder = self._config.device_sync.device_folder
+        self.destination = util.new_gio_file(folder)
+        self.mount_volume_for_file = mount_volume_for_file
         self.download_status_model = download_status_model
         self.download_queue_manager = download_queue_manager
 
     def get_free_space(self):
-        return util.get_free_disk_space(self.destination)
+        info = self.destination.query_filesystem_info(Gio.FILE_ATTRIBUTE_FILESYSTEM_FREE, None)
+        return info.get_attribute_uint64(Gio.FILE_ATTRIBUTE_FILESYSTEM_FREE)
 
     def open(self):
         Device.open(self)
         self.notify('status', _('Opening MP3 player'))
 
-        if util.directory_is_writable(self.destination):
+        if not self.mount_volume_for_file(self.destination):
+            return False
+
+        try:
+            info = self.destination.query_info(
+                Gio.FILE_ATTRIBUTE_ACCESS_CAN_WRITE + "," +
+                Gio.FILE_ATTRIBUTE_STANDARD_TYPE,
+                Gio.FileQueryInfoFlags.NONE,
+                None)
+        except GLib.Error as err:
+            logger.error('querying destination info for %s failed with %s',
+                self.destination.get_uri(), err.message)
+            return False
+
+        # open is ok if the target is a directory, and it can be written to
+        # for smb, query_info doesn't return FILE_ATTRIBUTE_ACCESS_CAN_WRITE,
+        # -- if that's the case, just assume that it's writable
+        if (info.get_file_type() == Gio.FileType.DIRECTORY and (
+            not info.has_attribute(Gio.FILE_ATTRIBUTE_ACCESS_CAN_WRITE) or
+                info.get_attribute_boolean(Gio.FILE_ATTRIBUTE_ACCESS_CAN_WRITE))):
             self.notify('status', _('MP3 player opened'))
             self.tracks_list = self.get_all_tracks()
             return True
@@ -583,7 +553,7 @@ class MP3PlayerDevice(Device):
     def get_episode_folder_on_device(self, episode):
         folder = episode_foldername_on_device(self._config, episode)
         if folder:
-            folder = os.path.join(self.destination, folder)
+            folder = self.destination.get_child(folder)
         else:
             folder = self.destination
 
@@ -617,95 +587,60 @@ class MP3PlayerDevice(Device):
 
         # get the filename that will be used on the device
         to_file = self.get_episode_file_on_device(episode)
-        to_file = os.path.join(folder, to_file)
+        to_file = folder.get_child(to_file)
 
-        if not os.path.exists(folder):
-            try:
-                os.makedirs(folder)
-            except:
-                logger.error('Cannot create folder on MP3 player: %s', folder)
-                return False
+        util.make_directory(folder)
 
-        if not os.path.exists(to_file):
+        if not to_file.query_exists():
             logger.info('Copying %s => %s',
                     os.path.basename(from_file),
-                    to_file)
-            self.copy_file_progress(from_file, to_file, reporthook)
-
-        return True
-
-    def copy_file_progress(self, from_file, to_file, reporthook=None):
-        try:
-            out_file = open(to_file, 'wb')
-        except IOError as ioerror:
-            d = {'filename': ioerror.filename, 'message': ioerror.strerror}
-            self.errors.append(_('Error opening %(filename)s: %(message)s') % d)
-            self.cancel()
-            return False
-
-        try:
-            in_file = open(from_file, 'rb')
-        except IOError as ioerror:
-            d = {'filename': ioerror.filename, 'message': ioerror.strerror}
-            self.errors.append(_('Error opening %(filename)s: %(message)s') % d)
-            self.cancel()
-            return False
-
-        in_file.seek(0, os.SEEK_END)
-        total_bytes = in_file.tell()
-        in_file.seek(0)
-
-        bytes_read = 0
-        s = in_file.read(self.buffer_size)
-        while s:
-            bytes_read += len(s)
+                    to_file.get_uri())
+            from_file = Gio.File.new_for_path(from_file)
             try:
-                out_file.write(s)
-            except IOError as ioerror:
-                self.errors.append(ioerror.strerror)
-                try:
-                    out_file.close()
-                except:
-                    pass
-                try:
-                    logger.info('Trying to remove partially copied file: %s' % to_file)
-                    os.unlink(to_file)
-                    logger.info('Yeah! Unlinked %s at least..' % to_file)
-                except:
-                    logger.error('Error while trying to unlink %s. OH MY!' % to_file)
-                self.cancel()
+                hookconvert = lambda current_bytes, total_bytes, user_data : reporthook(current_bytes, 1, total_bytes)
+                from_file.copy(to_file, Gio.FileCopyFlags.OVERWRITE, None, hookconvert, None)
+            except GLib.Error as err:
+                logger.error('Error copying %s to %s: %s', from_file.get_uri(), to_file.get_uri(), err.message)
+                d = {'from_file': from_file.get_uri(), 'to_file': to_file.get_uri(), 'message': err.message}
+                self.errors.append(_('Error copying %(from_file)s to %(to_file)s: %(message)s') % d)
                 return False
-            reporthook(bytes_read, 1, total_bytes)
-            s = in_file.read(self.buffer_size)
-        out_file.close()
-        in_file.close()
 
         return True
+
+    def add_sync_track(self, tracks, file, info, podcast_name):
+        (title, extension) = os.path.splitext(info.get_name())
+        timestamp = info.get_modification_time()
+        modified = util.format_date(timestamp.tv_sec)
+
+        t = SyncTrack(title, info.get_size(), modified,
+                modified_sort=timestamp,
+                filename=file.get_uri(),
+                podcast=podcast_name)
+        tracks.append(t)
 
     def get_all_tracks(self):
         tracks = []
 
-        if self._config.one_folder_per_podcast:
-            files = glob.glob(os.path.join(self.destination, '*', '*'))
-        else:
-            files = glob.glob(os.path.join(self.destination, '*'))
+        attributes = (
+            Gio.FILE_ATTRIBUTE_STANDARD_NAME + "," +
+            Gio.FILE_ATTRIBUTE_STANDARD_TYPE + "," +
+            Gio.FILE_ATTRIBUTE_STANDARD_SIZE + "," +
+            Gio.FILE_ATTRIBUTE_TIME_MODIFIED)
 
-        for filename in files:
-            (title, extension) = os.path.splitext(os.path.basename(filename))
-            length = util.calculate_size(filename)
-
-            timestamp = util.file_modification_timestamp(filename)
-            modified = util.format_date(timestamp)
+        root_path = self.destination
+        for path_info in root_path.enumerate_children(attributes, Gio.FileQueryInfoFlags.NONE, None):
             if self._config.one_folder_per_podcast:
-                podcast_name = os.path.basename(os.path.dirname(filename))
-            else:
-                podcast_name = None
+                if path_info.get_file_type() == Gio.FileType.DIRECTORY:
+                    path_file = root_path.get_child(path_info.get_name())
+                    for child_info in path_file.enumerate_children(attributes, Gio.FileQueryInfoFlags.NONE, None):
+                        if child_info.get_file_type() == Gio.FileType.REGULAR:
+                            child_file = path_file.get_child(child_info.get_name())
+                            self.add_sync_track(tracks, child_file, child_info, path_info.get_name())
 
-            t = SyncTrack(title, length, modified,
-                    modified_sort=timestamp,
-                    filename=filename,
-                    podcast=podcast_name)
-            tracks.append(t)
+            else:
+                if path_info.get_file_type() == Gio.FileTypeFlags.REGULAR:
+                    path_file = root_path.get_child(path_info.get_name())
+                    self.add_sync_track(tracks, path_file, path_info, None)
         return tracks
 
     def episode_on_device(self, episode):
@@ -717,248 +652,33 @@ class MP3PlayerDevice(Device):
 
     def remove_track(self, track):
         self.notify('status', _('Removing %s') % track.title)
-        util.delete_file(track.filename)
-        directory = os.path.dirname(track.filename)
-        if self.directory_is_empty(directory) and self._config.one_folder_per_podcast:
+
+        # get the folder on the device
+        file = Gio.File.new_for_uri(track.filename)
+        folder = file.get_parent()
+        if file.query_exists():
             try:
-                os.rmdir(directory)
-            except:
-                logger.error('Cannot remove %s', directory)
+                file.delete()
+            except GLib.Error as err:
+                # if the file went away don't worry about it
+                if not err.matches(Gio.io_error_quark(), Gio.IOErrorEnum.NOT_FOUND):
+                    logger.error('deleting file %s failed: %s', file.get_uri(), err.message)
+                return
+
+        if self._config.one_folder_per_podcast:
+            try:
+                if self.directory_is_empty(folder):
+                    folder.delete()
+            except GLib.Error as err:
+                # if the folder went away don't worry about it (multiple threads could
+                # make this happen if they both notice the folder is empty simultaneously)
+                if not err.matches(Gio.io_error_quark(), Gio.IOErrorEnum.NOT_FOUND):
+                    logger.error('deleting folder %s failed: %s', folder.get_uri(), err.message)
 
     def directory_is_empty(self, directory):
-        files = glob.glob(os.path.join(directory, '*'))
-        dotfiles = glob.glob(os.path.join(directory, '.*'))
-        return len(files + dotfiles) == 0
-
-
-class MTPDevice(Device):
-    def __init__(self, config):
-        Device.__init__(self, config)
-        self.__model_name = None
-        try:
-            self.__MTPDevice = MTP()
-        except NameError as e:
-            # pymtp not available / not installed (see bug 924)
-            logger.error('pymtp not found: %s', str(e))
-            self.__MTPDevice = None
-
-    def __callback(self, sent, total):
-        if self.cancelled:
-            return -1
-        percentage = round(sent / total * 100)
-        text = ('%i%%' % percentage)
-        self.notify('progress', sent, total, text)
-
-    def __date_to_mtp(self, date):
-        """
-        this function format the given date and time to a string representation
-        according to MTP specifications: YYYYMMDDThhmmss.s
-
-        return
-            the string representation od the given date
-        """
-        if not date:
-            return ""
-        try:
-            d = time.gmtime(date)
-            return time.strftime("%Y%m%d-%H%M%S.0Z", d)
-        except Exception as exc:
-            logger.error('ERROR: An error has happend while trying to convert date to an mtp string')
-            return None
-
-    def __mtp_to_date(self, mtp):
-        """
-        this parse the mtp's string representation for date
-        according to specifications (YYYYMMDDThhmmss.s) to
-        a python time object
-        """
-        if not mtp:
-            return None
-
-        try:
-            mtp = mtp.replace(" ", "0")
-            # replace blank with 0 to fix some invalid string
-            d = time.strptime(mtp[:8] + mtp[9:13], "%Y%m%d%H%M%S")
-            _date = calendar.timegm(d)
-            if len(mtp) == 20:
-                # TIME ZONE SHIFTING: the string contains a hour/min shift relative to a time zone
-                try:
-                    shift_direction = mtp[15]
-                    hour_shift = int(mtp[16:18])
-                    minute_shift = int(mtp[18:20])
-                    shift_in_sec = hour_shift * 3600 + minute_shift * 60
-                    if shift_direction == "+":
-                        _date += shift_in_sec
-                    elif shift_direction == "-":
-                        _date -= shift_in_sec
-                    else:
-                        raise ValueError("Expected + or -")
-                except Exception as exc:
-                    logger.warning('WARNING: ignoring invalid time zone information for %s (%s)')
-            return max(0, _date)
-        except Exception as exc:
-            logger.warning('WARNING: the mtp date "%s" can not be parsed against mtp specification (%s)')
-            return None
-
-    def get_name(self):
-        """
-        this function try to find a nice name for the device.
-        First, it tries to find a friendly (user assigned) name
-        (this name can be set by other application and is stored on the device).
-        if no friendly name was assign, it tries to get the model name (given by the vendor).
-        If no name is found at all, a generic one is returned.
-
-        Once found, the name is cached internaly to prevent reading again the device
-
-        return
-            the name of the device
-        """
-
-        if self.__model_name:
-            return self.__model_name
-
-        if self.__MTPDevice is None:
-            return _('MTP device')
-
-        self.__model_name = self.__MTPDevice.get_devicename()
-        # actually libmtp.Get_Friendlyname
-        if not self.__model_name or self.__model_name == "?????":
-            self.__model_name = self.__MTPDevice.get_modelname()
-        if not self.__model_name:
-            self.__model_name = _('MTP device')
-
-        return self.__model_name
-
-    def open(self):
-        Device.open(self)
-        logger.info("opening the MTP device")
-        self.notify('status', _('Opening the MTP device'), )
-
-        try:
-            self.__MTPDevice.connect()
-            # build the initial tracks_list
-            self.tracks_list = self.get_all_tracks()
-        except Exception as exc:
-            logger.error('unable to find an MTP device (%s)')
+        for child in directory.enumerate_children(Gio.FILE_ATTRIBUTE_STANDARD_NAME, Gio.FileQueryInfoFlags.NONE, None):
             return False
-
-        self.notify('status', _('%s opened') % self.get_name())
         return True
-
-    def close(self):
-        logger.info("closing %s", self.get_name())
-        self.notify('status', _('Closing %s') % self.get_name())
-
-        try:
-            self.__MTPDevice.disconnect()
-        except Exception as exc:
-            logger.error('unable to close %s (%s)', self.get_name())
-            return False
-
-        self.notify('status', _('%s closed') % self.get_name())
-        Device.close(self)
-        return True
-
-    def add_track(self, episode):
-        self.notify('status', _('Adding %s...') % episode.title)
-        filename = str(self.convert_track(episode))
-        logger.info("sending %s (%s).", filename, episode.title)
-
-        try:
-            # verify free space
-            needed = util.calculate_size(filename)
-            free = self.get_free_space()
-            if needed > free:
-                logger.error('Not enough space on device %s: %s available, but '
-                             'need at least %s',
-                             self.get_name(),
-                             util.format_filesize(free),
-                             util.format_filesize(needed))
-                self.cancelled = True
-                return False
-
-            # fill metadata
-            metadata = pymtp.LIBMTP_Track()
-            metadata.title = str(episode.title)
-            metadata.artist = str(episode.channel.title)
-            metadata.album = str(episode.channel.title)
-            metadata.genre = "podcast"
-            metadata.date = self.__date_to_mtp(episode.published)
-            metadata.duration = get_track_length(str(filename))
-
-            folder_name = ''
-            if episode.mimetype.startswith('audio/') and self._config.mtp_audio_folder:
-                folder_name = self._config.mtp_audio_folder
-            if episode.mimetype.startswith('video/') and self._config.mtp_video_folder:
-                folder_name = self._config.mtp_video_folder
-            if episode.mimetype.startswith('image/') and self._config.mtp_image_folder:
-                folder_name = self._config.mtp_image_folder
-
-            if folder_name != '' and self._config.mtp_podcast_folders:
-                folder_name += os.path.sep + str(episode.channel.title)
-
-            # log('Target MTP folder: %s' % folder_name)
-
-            if folder_name == '':
-                folder_id = 0
-            else:
-                folder_id = self.__MTPDevice.mkdir(folder_name)
-
-            # send the file
-            to_file = util.sanitize_filename(metadata.title) + episode.extension()
-            self.__MTPDevice.send_track_from_file(filename, to_file,
-                    metadata, folder_id, callback=self.__callback)
-            if gpodder.user_hooks is not None:
-                gpodder.user_hooks.on_file_copied_to_mtp(self, filename, to_file)
-        except:
-            logger.error('unable to add episode %s', episode.title)
-            return False
-
-        return True
-
-    def remove_track(self, sync_track):
-        self.notify('status', _('Removing %s') % sync_track.mtptrack.title)
-        logger.info("removing %s", sync_track.mtptrack.title)
-
-        try:
-            self.__MTPDevice.delete_object(sync_track.mtptrack.item_id)
-        except Exception as exc:
-            logger.error('unable remove file %s (%s)', sync_track.mtptrack.filename)
-
-        logger.info('%s removed', sync_track.mtptrack.title)
-
-    def get_all_tracks(self):
-        try:
-            listing = self.__MTPDevice.get_tracklisting(callback=self.__callback)
-        except Exception as exc:
-            logger.error('unable to get file listing %s (%s)')
-
-        tracks = []
-        for track in listing:
-            title = track.title
-            if not title or title == "": title = track.filename
-            if len(title) > 50: title = title[0:49] + '...'
-            artist = track.artist
-            if artist and len(artist) > 50: artist = artist[0:49] + '...'
-            length = track.filesize
-            age_in_days = 0
-            date = self.__mtp_to_date(track.date)
-            if not date:
-                modified = track.date  # not a valid mtp date. Display what mtp gave anyway
-                modified_sort = -1  # no idea how to sort invalid date
-            else:
-                modified = util.format_date(date)
-                modified_sort = date
-
-            t = SyncTrack(title, length, modified, modified_sort=modified_sort, mtptrack=track, podcast=artist)
-            tracks.append(t)
-        return tracks
-
-    def get_free_space(self):
-        if self.__MTPDevice is not None:
-            return self.__MTPDevice.get_freespace()
-        else:
-            return 0
 
 
 class SyncCancelledException(Exception): pass

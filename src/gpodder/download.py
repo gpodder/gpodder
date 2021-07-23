@@ -383,14 +383,14 @@ class DownloadQueueWorker(object):
             if not self.continue_check_callback(self):
                 return
 
-            try:
-                task = self.queue.get_next()
-                logger.info('%s is processing: %s', self, task)
-                task.run()
-                task.recycle()
-            except StopIteration as e:
+            task = self.queue.get_next()
+            if not task:
                 logger.info('No more tasks for %s to carry out.', self)
                 break
+            logger.info('%s is processing: %s', self, task)
+            task.run()
+            task.recycle()
+
         self.exit_callback(self)
 
 
@@ -439,8 +439,9 @@ class DownloadQueueManager(object):
                 spawn_limit = max_downloads - len(self.worker_threads)
             else:
                 spawn_limit = self._config.limit.downloads.concurrent_max
-            logger.info('%r tasks to do, can start at most %r threads', work_count, spawn_limit)
-            for i in range(0, min(work_count, spawn_limit)):
+            running = len(self.worker_threads)
+            logger.info('%r tasks to do, can start at most %r threads, %r threads currently running', work_count, spawn_limit, running)
+            for i in range(0, min(work_count, spawn_limit - running)):
                 # We have to create a new thread here, there's work to do
                 logger.info('Starting new worker thread.')
 
@@ -460,7 +461,6 @@ class DownloadQueueManager(object):
     def queue_task(self, task):
         """Marks a task as queued
         """
-        task.status = DownloadTask.QUEUED
         self.__spawn_threads()
 
 
