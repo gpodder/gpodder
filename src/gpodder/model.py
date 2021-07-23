@@ -283,6 +283,10 @@ class PodcastEpisode(PodcastModelObject):
         episode.description = entry['description']
         if entry.get('description_html'):
             episode.description_html = entry['description_html']
+        else:
+            thumbnail = entry.get('episode_art_url')
+            description = util.remove_html_tags(episode.description or _('No description available'))
+            episode.description_html = util.nice_html_description(thumbnail, description)
 
         episode.total_time = entry['total_time']
         episode.published = entry['published']

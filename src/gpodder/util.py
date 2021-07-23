@@ -832,6 +832,24 @@ def extract_hyperlinked_text(html):
         return ExtractHyperlinkedTextHTMLParser()(html)
 
 
+def nice_html_description(img, description):
+    """
+    basic html formating + hyperlink highlighting + video thumbnail
+    """
+    description = re.sub(r'''https?://[^\s]+''',
+                         r'''<a href="\g<0>">\g<0></a>''',
+                         description)
+    description = description.replace('\n', '<br>')
+    html = """<style type="text/css">
+    body > img { float: left; max-width: 30vw; margin: 0 1em 1em 0; }
+    </style>
+    """
+    if img:
+        html += '<img src="{}">'.format(img)
+    html += '<p>{}</p>'.format(description)
+    return html
+
+
 def wrong_extension(extension):
     """
     Determine if a given extension looks like it's
