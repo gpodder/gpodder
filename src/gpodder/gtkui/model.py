@@ -726,6 +726,7 @@ class PodcastListModel(Gtk.ListStore):
             if self._max_image_side not in (pixbuf.get_width(), pixbuf.get_height()):
                 logger.debug("cached thumb wrong size: %r != %i", (pixbuf.get_width(), pixbuf.get_height()), self._max_image_side)
                 return None
+            return pixbuf
         except Exception as e:
             logger.warn('Could not load cached cover art for %s', channel.url, exc_info=True)
             channel.cover_thumb = None
