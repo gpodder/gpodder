@@ -1494,6 +1494,20 @@ def open_website(url):
     run_in_background(lambda: webbrowser.open(url))
 
 
+def copy_text_to_clipboard(text):
+    """
+    Copies the specified text to both clipboards.
+    """
+    import gi
+    gi.require_version('Gtk', '3.0')
+    from gi.repository import Gdk, Gtk
+
+    clipboard = Gtk.Clipboard.get(Gdk.SELECTION_PRIMARY)
+    clipboard.set_text(text, -1)
+    clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
+    clipboard.set_text(text, -1)
+
+
 def convert_bytes(d):
     """
     Convert byte strings to unicode strings

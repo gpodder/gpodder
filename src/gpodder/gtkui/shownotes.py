@@ -193,6 +193,7 @@ class gPodderShownotesText(gPodderShownotes):
         self.text_view.connect('button-release-event', self.on_button_release)
         self.text_view.connect('key-press-event', self.on_key_press)
         self.text_view.connect('motion-notify-event', self.on_hover_hyperlink)
+        self.populate_popup_id = None
         return self.text_view
 
     def update(self, episode):
@@ -208,7 +209,11 @@ class gPodderShownotesText(gPodderShownotes):
         self.define_colors()
         hyperlinks = [(0, None)]
         self.text_buffer.set_text('')
+        if episode.link:
+            hyperlinks.append((self.text_buffer.get_char_count(), episode.link))
         self.text_buffer.insert_with_tags_by_name(self.text_buffer.get_end_iter(), heading, 'heading')
+        if episode.link:
+            hyperlinks.append((self.text_buffer.get_char_count(), None))
         self.text_buffer.insert_at_cursor('\n')
         self.text_buffer.insert_with_tags_by_name(self.text_buffer.get_end_iter(), subheading, 'subheading')
         self.text_buffer.insert_at_cursor('\n')
@@ -225,6 +230,34 @@ class gPodderShownotesText(gPodderShownotes):
         hyperlinks.append((self.text_buffer.get_char_count(), None))
         self.hyperlinks = [(start, end, url) for (start, url), (end, _) in zip(hyperlinks, hyperlinks[1:]) if url]
         self.text_buffer.place_cursor(self.text_buffer.get_start_iter())
+
+        if self.populate_popup_id is not None:
+            self.text_view.disconnect(self.populate_popup_id)
+        self.populate_popup_id = self.text_view.connect('populate-popup', self.on_populate_popup)
+        self.episode = episode
+
+    def on_populate_popup(self, textview, context_menu):
+        # TODO: Remove items from context menu that are always insensitive in a read-only buffer
+
+        if self.episode.link:
+            # TODO: It is currently not possible to copy links in description.
+            # Detect if context menu was opened on a hyperlink and add
+            # "Open Link" and "Copy Link Address" menu items.
+            # See https://github.com/gpodder/gpodder/issues/1097
+
+            item = Gtk.SeparatorMenuItem()
+            item.show()
+            context_menu.append(item)
+            # label links can be opened from context menu or by clicking them, do the same here
+            item = Gtk.MenuItem(label=_('Open Episode Title Link'))
+            item.connect('activate', lambda i: util.open_website(self.episode.link))
+            item.show()
+            context_menu.append(item)
+            # hack to allow copying episode.link
+            item = Gtk.MenuItem(label=_('Copy Episode Title Link Address'))
+            item.connect('activate', lambda i: util.copy_text_to_clipboard(self.episode.link))
+            item.show()
+            context_menu.append(item)
 
     def on_button_release(self, widget, event):
         if event.button == 1:
