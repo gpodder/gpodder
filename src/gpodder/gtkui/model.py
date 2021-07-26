@@ -663,31 +663,27 @@ class PodcastListModel(Gtk.ListStore):
         Returns None if the pixbuf does not need to be
         resized or the newly resized pixbuf if it does.
         """
-        changed = False
-        result = None
-
         if url in self._cover_cache:
             return self._cover_cache[url]
 
-        # Resize if too wide
-        if pixbuf.get_width() > self._max_image_side:
-            f = float(self._max_image_side) / pixbuf.get_width()
-            (width, height) = (int(pixbuf.get_width() * f), int(pixbuf.get_height() * f))
-            pixbuf = pixbuf.scale_simple(width, height, GdkPixbuf.InterpType.BILINEAR)
-            changed = True
+        max_side = self._max_image_side
+        w_cur = pixbuf.get_width()
+        h_cur = pixbuf.get_height()
 
-        # Resize if too high
-        if pixbuf.get_height() > self._max_image_side:
-            f = float(self._max_image_side) / pixbuf.get_height()
-            (width, height) = (int(pixbuf.get_width() * f), int(pixbuf.get_height() * f))
-            pixbuf = pixbuf.scale_simple(width, height, GdkPixbuf.InterpType.BILINEAR)
-            changed = True
+        if w_cur <= max_side and h_cur <= max_side:
+            return None
 
-        if changed:
-            self._cover_cache[url] = pixbuf
-            result = pixbuf
+        f = max_side / (w_cur if w_cur >= h_cur else h_cur)
+        w_new = int(w_cur * f)
+        h_new = int(h_cur * f)
 
-        return result
+        logger.debug("Scaling cover image: url=%s from %ix%i to %ix%i",
+                     url, w_cur, h_cur, w_new, h_new)
+        pixbuf = pixbuf.scale_simple(w_new, h_new,
+                                     GdkPixbuf.InterpType.BILINEAR)
+
+        self._cover_cache[url] = pixbuf
+        return pixbuf
 
     def _resize_pixbuf(self, url, pixbuf):
         if pixbuf is None:
