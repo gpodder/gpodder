@@ -152,6 +152,7 @@ _MIME_TYPE_LIST = [
     ('.wmv', 'video/x-ms-wmv'),
     ('.opus', 'audio/opus'),
     ('.webm', 'video/webm'),
+    ('.webm', 'audio/webm'),
 ]
 
 _MIME_TYPES = dict((k, v) for v, k in _MIME_TYPE_LIST)
