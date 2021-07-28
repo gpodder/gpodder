@@ -1230,8 +1230,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 title.append(N_('%(queued)d task queued',
                                 '%(queued)d tasks queued',
                                 queued) % {'queued': queued})
-            if ((downloading + synchronizing + queued) == 0 and
-                self.things_adding_tasks == 0):
+            if (downloading + synchronizing + queued) == 0 and self.things_adding_tasks == 0:
                 self.set_download_progress(1.)
                 self.downloads_finished(self.download_tasks_seen)
                 gpodder.user_extensions.on_all_episodes_downloaded()
