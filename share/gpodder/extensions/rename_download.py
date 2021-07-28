@@ -24,6 +24,7 @@ __category__ = 'post-download'
 DefaultConfig = {
     'add_sortdate': False,  # Add the sortdate as prefix
     'add_podcast_title': False,  # Add the podcast title as prefix
+    'sortdate_after_podcast_title': False,  # put the sortdate after podcast title
 }
 
 
@@ -50,10 +51,16 @@ class gPodderExtension:
 
         new_basename = []
         new_basename.append(title)
-        if self.config.add_podcast_title:
-            new_basename.insert(0, podcast_title)
-        if self.config.add_sortdate:
-            new_basename.insert(0, sortdate)
+        if self.config.sortdate_after_podcast_title:
+            if self.config.add_sortdate:
+                new_basename.insert(0, sortdate)
+            if self.config.add_podcast_title:
+                new_basename.insert(0, podcast_title)
+        else:
+            if self.config.add_podcast_title:
+                new_basename.insert(0, podcast_title)
+            if self.config.add_sortdate:
+                new_basename.insert(0, sortdate)
         new_basename = ' - '.join(new_basename)
 
         # Remove unwanted characters and shorten filename (#494)
