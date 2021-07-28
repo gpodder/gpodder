@@ -24,7 +24,7 @@ __category__ = 'post-download'
 DefaultConfig = {
     'add_sortdate': False,  # Add the sortdate as prefix
     'add_podcast_title': False,  # Add the podcast title as prefix
-    'sortdate_after_podcast_title': False, # put the sortdate after podcast title
+    'sortdate_after_podcast_title': False,  # put the sortdate after podcast title
 }
 
 
