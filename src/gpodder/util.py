@@ -2274,7 +2274,7 @@ def mount_volume_for_file(file, op=None):
             result = True
         except GLib.Error as err:
             if (not err.matches(Gio.io_error_quark(), Gio.IOErrorEnum.NOT_SUPPORTED) and
-                not err.matches(Gio.io_error_quark(), Gio.IOErrorEnum.ALREADY_MOUNTED)):
+                    not err.matches(Gio.io_error_quark(), Gio.IOErrorEnum.ALREADY_MOUNTED)):
                 message = err.message
                 result = False
         finally:
