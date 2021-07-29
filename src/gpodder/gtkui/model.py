@@ -585,6 +585,7 @@ class PodcastListModel(Gtk.ListStore):
 
         self._cover_cache = {}
         self._max_image_side = 40
+        self._scale = 1
         self._cover_downloader = cover_downloader
 
         self.ICON_DISABLED = 'media-playback-pause'
@@ -653,8 +654,9 @@ class PodcastListModel(Gtk.ListStore):
     def get_search_term(self):
         return self._search_term
 
-    def set_max_image_size(self, size):
-        self._max_image_side = size
+    def set_max_image_size(self, size, scale):
+        self._max_image_side = size * scale
+        self._scale = scale
         self._cover_cache = {}
 
     def _resize_pixbuf_keep_ratio(self, url, pixbuf):
@@ -769,7 +771,10 @@ class PodcastListModel(Gtk.ListStore):
 
     def _get_pill_image(self, channel, count_downloaded, count_unplayed):
         if count_unplayed > 0 or count_downloaded > 0:
-            return draw.draw_pill_pixbuf('{:n}'.format(count_unplayed), '{:n}'.format(count_downloaded), widget=self.widget)
+            return draw.draw_pill_pixbuf('{:n}'.format(count_unplayed),
+                                         '{:n}'.format(count_downloaded),
+                                         widget=self.widget,
+                                         scale=self._scale)
         else:
             return None
 
