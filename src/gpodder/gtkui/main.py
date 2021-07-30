@@ -1235,8 +1235,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 title.append(N_('%(queued)d task queued',
                                 '%(queued)d tasks queued',
                                 queued) % {'queued': queued})
-            if ((downloading + synchronizing + queued) == 0 and
-                self.things_adding_tasks == 0):
+            if (downloading + synchronizing + queued) == 0 and self.things_adding_tasks == 0:
                 self.set_download_progress(1.)
                 self.downloads_finished(self.download_tasks_seen)
                 gpodder.user_extensions.on_all_episodes_downloaded()
@@ -3707,7 +3706,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             file.mount_enclosing_volume_finish(res)
         except GLib.Error as err:
             if (not err.matches(Gio.io_error_quark(), Gio.IOErrorEnum.NOT_SUPPORTED) and
-                not err.matches(Gio.io_error_quark(), Gio.IOErrorEnum.ALREADY_MOUNTED)):
+                    not err.matches(Gio.io_error_quark(), Gio.IOErrorEnum.ALREADY_MOUNTED)):
                 logger.error('mounting volume %s failed: %s' % (file.get_uri(), err.message))
                 result = False
         finally:
@@ -3736,7 +3735,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.mount_volume_for_file)
 
         self.sync_ui.on_synchronize_episodes(self.channels, episodes, force_played)
-                                             # self.set_download_list_state)
 
     def on_extension_enabled(self, extension):
         if getattr(extension, 'on_ui_object_available', None) is not None:

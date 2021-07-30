@@ -34,6 +34,7 @@ from gpodder import download, util
 
 _ = gpodder.gettext
 
+
 class TaskQueue:
     def __init__(self):
         self.lock = threading.Lock()
@@ -80,6 +81,7 @@ class TaskQueue:
                 self.tasks.insert(index, task)
             except ValueError:
                 pass
+
 
 class DownloadStatusModel:
     # Symbolic names for our columns, so we know what we're up to
@@ -219,6 +221,7 @@ class DownloadStatusModel:
             return False
         task.status = task.DOWNLOADING
         return True
+
 
 class DownloadTaskMonitor(object):
     """A helper class that abstracts download events"""

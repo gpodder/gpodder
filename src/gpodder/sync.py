@@ -503,6 +503,7 @@ class iPodDevice(Device):
         except:
             logger.warning('Seems like your python-gpod is out-of-date.')
 
+
 class MP3PlayerDevice(Device):
     def __init__(self, config,
             download_status_model,
@@ -597,7 +598,8 @@ class MP3PlayerDevice(Device):
                     to_file.get_uri())
             from_file = Gio.File.new_for_path(from_file)
             try:
-                hookconvert = lambda current_bytes, total_bytes, user_data : reporthook(current_bytes, 1, total_bytes)
+                def hookconvert(current_bytes, total_bytes, user_data):
+                    return reporthook(current_bytes, 1, total_bytes)
                 from_file.copy(to_file, Gio.FileCopyFlags.OVERWRITE, None, hookconvert, None)
             except GLib.Error as err:
                 logger.error('Error copying %s to %s: %s', from_file.get_uri(), to_file.get_uri(), err.message)
