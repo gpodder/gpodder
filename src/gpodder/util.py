@@ -61,7 +61,7 @@ import xml.dom.minidom
 from html.entities import entitydefs, name2codepoint
 from html.parser import HTMLParser
 
-import gi
+import gi  # isort:skip
 gi.require_version('Gtk', '3.0')  # isort:skip
 from gi.repository import Gio, GLib, Gtk  # isort:skip
 

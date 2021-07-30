@@ -26,7 +26,8 @@ from gi.repository import Gdk, Gtk, Pango
 import gpodder
 from gpodder import util, vimeo, youtube
 from gpodder.gtkui.desktopfile import PlayerListModel
-from gpodder.gtkui.interface.common import BuilderWidget, TreeViewHelper, show_message_dialog
+from gpodder.gtkui.interface.common import (BuilderWidget, TreeViewHelper,
+                                            show_message_dialog)
 from gpodder.gtkui.interface.configeditor import gPodderConfigEditor
 
 logger = logging.getLogger(__name__)
