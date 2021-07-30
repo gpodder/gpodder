@@ -1,0 +1,28 @@
+name: lint and test
+
+on: [push, pull_request]
+
+jobs:
+  linttest:
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.9]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install intltool desktop-file-utils
+          pip3 install pytest-cov minimock pycodestyle isort requests pytest pytest-httpserver
+          python3 tools/localdepends.py
+      - name: Lint
+        run: make lint
+      - name: Test
+        run: make releasetest
