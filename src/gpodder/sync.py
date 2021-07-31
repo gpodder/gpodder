@@ -694,9 +694,9 @@ class SyncTask(download.DownloadTask):
     # An object representing the synchronization task of an episode
 
     # Possible states this sync task can be in
-    STATUS_MESSAGE = (_('Added'), _('Queued'), _('Synchronizing'),
+    STATUS_MESSAGE = (_('Queued'), _('Synchronizing'),
             _('Finished'), _('Failed'), _('Cancelled'), _('Paused'))
-    (INIT, QUEUED, DOWNLOADING, DONE, FAILED, CANCELLED, PAUSED) = list(range(7))
+    (QUEUED, DOWNLOADING, DONE, FAILED, CANCELLED, PAUSED) = list(range(6))
 
     def __str__(self):
         return self.__episode.title
@@ -756,7 +756,7 @@ class SyncTask(download.DownloadTask):
         pass
 
     def __init__(self, episode):
-        self.__status = SyncTask.INIT
+        self.__status = SyncTask.QUEUED
         self.__activity = SyncTask.ACTIVITY_SYNCHRONIZE
         self.__status_changed = True
         self.__episode = episode
