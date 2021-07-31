@@ -61,10 +61,6 @@ import xml.dom.minidom
 from html.entities import entitydefs, name2codepoint
 from html.parser import HTMLParser
 
-import gi  # isort:skip
-gi.require_version('Gtk', '3.0')  # isort:skip
-from gi.repository import Gio, GLib, Gtk  # isort:skip
-
 import requests
 import requests.exceptions
 from requests.packages.urllib3.util.retry import Retry
@@ -173,6 +169,8 @@ def new_gio_file(path):
     """
     Create a new Gio.File given a path or uri
     """
+    from gi.repository import Gio
+
     if is_absolute_url(path):
         return Gio.File.new_for_uri(path)
     else:
@@ -185,6 +183,8 @@ def make_directory(path):
     Returns True if the directory exists after the function
     call, False otherwise.
     """
+    from gi.repository import Gio, GLib
+
     if not isinstance(path, Gio.File):
         path = new_gio_file(path)
 
@@ -2264,6 +2264,10 @@ def mount_volume_for_file(file, op=None):
     Utility method to mount the enclosing volume for the given file in a blocking
     fashion
     """
+    import gi
+    gi.require_version('Gtk', '3.0')
+    from gi.repository import Gio, GLib, Gtk
+
     result = True
     message = None
 
