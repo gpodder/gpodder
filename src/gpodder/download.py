@@ -435,8 +435,7 @@ class DownloadQueueManager(object):
             work_count = self.tasks.available_work_count()
             if self._config.max_downloads_enabled:
                 # always allow at least 1 download
-                max_downloads = max(int(self._config.max_downloads), 1)
-                spawn_limit = max_downloads - len(self.worker_threads)
+                spawn_limit = max(int(self._config.max_downloads), 1)
             else:
                 spawn_limit = self._config.limit.downloads.concurrent_max
             running = len(self.worker_threads)
@@ -538,9 +537,9 @@ class DownloadTask(object):
     The same thing works for failed downloads ("notify_as_failed()").
     """
     # Possible states this download task can be in
-    STATUS_MESSAGE = (_('Added'), _('Queued'), _('Downloading'),
+    STATUS_MESSAGE = (_('Queued'), _('Downloading'),
             _('Finished'), _('Failed'), _('Cancelled'), _('Paused'))
-    (INIT, QUEUED, DOWNLOADING, DONE, FAILED, CANCELLED, PAUSED) = list(range(7))
+    (QUEUED, DOWNLOADING, DONE, FAILED, CANCELLED, PAUSED) = list(range(6))
 
     # Wheter this task represents a file download or a device sync operation
     ACTIVITY_DOWNLOAD, ACTIVITY_SYNCHRONIZE = list(range(2))
@@ -612,7 +611,7 @@ class DownloadTask(object):
 
     def __init__(self, episode, config, downloader=None):
         assert episode.download_task is None
-        self.__status = DownloadTask.INIT
+        self.__status = DownloadTask.QUEUED
         self.__activity = DownloadTask.ACTIVITY_DOWNLOAD
         self.__status_changed = True
         self.__episode = episode

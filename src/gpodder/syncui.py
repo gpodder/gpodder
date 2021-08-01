@@ -215,7 +215,7 @@ class gPodderSyncUI(object):
                     message = _('The playlist on your MP3 player has been updated.')
                     self.notification(message, title)
 
-                # called from the main thread to complete adding tasks_
+                # called from the main thread to complete adding tasks
                 def add_downloads_complete():
                     self.set_download_list_state(gPodderSyncUI.DL_ADDED_TASKS)
 
