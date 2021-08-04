@@ -263,8 +263,7 @@ class gPodderSyncUI(object):
                                             episode_to_delete.title)
 
                             logger.info('Will start sync - after deleting episodes')
-                            self.delete_episode_list(episodes, False,
-                                                     True, resume_sync)
+                            self.delete_episode_list(episodes, False, resume_sync)
 
                         return
 

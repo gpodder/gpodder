@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-06-06 20:20-0600\n"
+"POT-Creation-Date: 2021-07-19 22:46-0600\n"
 "PO-Revision-Date: 2016-01-01 21:09+0900\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -166,8 +166,8 @@ msgstr ""
 msgid "Python module not found: %(module)s"
 msgstr "파이썬 모듈을 찾지 못했습니다: %(module)s"
 
-#: src/gpodder/model.py:496 src/gpodder/youtube.py:457
-#: src/gpodder/plugins/soundcloud.py:152
+#: src/gpodder/model.py:496 src/gpodder/youtube.py:512
+#: src/gpodder/plugins/soundcloud.py:170
 #: share/gpodder/extensions/youtube-dl.py:215
 msgid "No description available"
 msgstr "사용가능한 설명이 없습니다"
@@ -343,18 +343,18 @@ msgstr "업데이트했습니다"
 msgid "The playlist on your MP3 player has been updated."
 msgstr "MP3 플레이어에 있는 플레이리스트를 업데이트 했습니다"
 
-#: src/gpodder/syncui.py:270 src/gpodder/gtkui/main.py:837
+#: src/gpodder/syncui.py:269 src/gpodder/gtkui/main.py:837
 #: src/gpodder/gtkui/main.py:1016 src/gpodder/gtkui/main.py:2917
 #: src/gpodder/gtkui/main.py:3128
 #: src/gpodder/gtkui/desktop/episodeselector.py:131
 msgid "Episode"
 msgstr "에피소드"
 
-#: src/gpodder/syncui.py:275
+#: src/gpodder/syncui.py:274
 msgid "Episodes have been deleted on device"
 msgstr "디바에스에 있는 에피소드를 삭제했습니다"
 
-#: src/gpodder/syncui.py:287
+#: src/gpodder/syncui.py:286
 msgid "Error writing playlist files"
 msgstr "플레이리스트 저장중 에러"
 
@@ -420,7 +420,7 @@ msgstr "웹사이트:"
 msgid "Bug Tracker"
 msgstr ""
 
-#: src/gpodder/gtkui/app.py:277
+#: src/gpodder/gtkui/app.py:278
 msgid "Path to gPodder home is too long"
 msgstr ""
 
@@ -611,7 +611,7 @@ msgid "Feedparser error: %s"
 msgstr "피드파서 에러: %s"
 
 #: src/gpodder/gtkui/main.py:1336 src/gpodder/gtkui/model.py:454
-#: src/gpodder/gtkui/model.py:783 src/gpodder/gtkui/desktop/channel.py:83
+#: src/gpodder/gtkui/model.py:783 src/gpodder/gtkui/desktop/channel.py:81
 #, python-format
 msgid "ERROR: %s"
 msgstr ""
@@ -657,7 +657,9 @@ msgstr "지금 다운로드 시작"
 msgid "Download"
 msgstr "다운로드"
 
-#: src/gpodder/gtkui/main.py:1642 share/gpodder/ui/gtk/gpodder.ui.h:2
+#: src/gpodder/gtkui/main.py:1642 src/gpodder/gtkui/desktop/channel.py:226
+#: share/gpodder/ui/gtk/gpodder.ui.h:2
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:2
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:6
 #: share/gpodder/ui/gtk/menus.ui.h:24
 msgid "Cancel"
@@ -1277,7 +1279,7 @@ msgstr "구독 중지됨"
 
 #: src/gpodder/gtkui/shownotes.py:60
 #, python-format
-msgid "%s | %s | %s"
+msgid "%(date)s | %(size)s | %(duration)s"
 msgstr ""
 
 #: src/gpodder/gtkui/shownotes.py:147
@@ -1288,16 +1290,16 @@ msgstr "에피소드를 선택하세요"
 #, python-format
 msgid ""
 "<div id=\"gpodder-title\">\n"
-"%s\n"
-"<p>%s</p>\n"
-"<p>%s</p></div>\n"
+"%(heading)s\n"
+"<p>%(subheading)s</p>\n"
+"<p>%(details)s</p></div>\n"
 msgstr ""
 
-#: src/gpodder/gtkui/shownotes.py:355
+#: src/gpodder/gtkui/shownotes.py:356
 msgid "Open shownotes in web browser"
 msgstr ""
 
-#: src/gpodder/gtkui/shownotes.py:361
+#: src/gpodder/gtkui/shownotes.py:362
 msgid "Open link in web browser"
 msgstr ""
 
@@ -1367,39 +1369,45 @@ msgstr ""
 msgid "Error setting option"
 msgstr "셋팅 옵션 에러"
 
-#: src/gpodder/gtkui/desktop/channel.py:109
+#: src/gpodder/gtkui/desktop/channel.py:114
 msgid "Add section"
 msgstr "섹션 추가"
 
-#: src/gpodder/gtkui/desktop/channel.py:109
+#: src/gpodder/gtkui/desktop/channel.py:114
 msgid "New section:"
 msgstr "새 섹션:"
 
-#: src/gpodder/gtkui/desktop/channel.py:127
+#: src/gpodder/gtkui/desktop/channel.py:132
 #, fuzzy
 msgid "_Open"
 msgstr "열기"
 
-#: src/gpodder/gtkui/desktop/channel.py:131
+#: src/gpodder/gtkui/desktop/channel.py:136
 msgid "_Refresh"
 msgstr ""
 
-#: src/gpodder/gtkui/desktop/channel.py:144
+#: src/gpodder/gtkui/desktop/channel.py:146
 msgid "Select new podcast cover artwork"
 msgstr "새 팟캐스트 커버 아트웍을 선택하세요"
 
-#: src/gpodder/gtkui/desktop/channel.py:176
+#: src/gpodder/gtkui/desktop/channel.py:178
 msgid "You can only drop a single image or URL here."
 msgstr "이미지 또는 URL을 한개만 놓을 수 있습니다"
 
-#: src/gpodder/gtkui/desktop/channel.py:177
-#: src/gpodder/gtkui/desktop/channel.py:189
+#: src/gpodder/gtkui/desktop/channel.py:179
+#: src/gpodder/gtkui/desktop/channel.py:191
 msgid "Drag and drop"
 msgstr "드래그 앤 드랍"
 
-#: src/gpodder/gtkui/desktop/channel.py:188
+#: src/gpodder/gtkui/desktop/channel.py:190
 msgid "You can only drop local files and http:// URLs here."
 msgstr "로컬 파일 과 URL을 한개만 놓을 수 있습니다"
+
+#: src/gpodder/gtkui/desktop/channel.py:215
+#: src/gpodder/gtkui/desktop/channel.py:223
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:5
+msgid "Save"
+msgstr ""
 
 #: src/gpodder/gtkui/desktop/episodeselector.py:104
 msgid "Remove"
@@ -1576,26 +1584,26 @@ msgstr "마운트 포인트로 사용할 폴더를 선택하세요"
 msgid "Select folder for playlists"
 msgstr "플레이리스트를 위한 폴더를 선택하세요"
 
-#: src/gpodder/plugins/soundcloud.py:150
+#: src/gpodder/plugins/soundcloud.py:168
 msgid "Unknown track"
 msgstr "알수 없는 트랙"
 
-#: src/gpodder/plugins/soundcloud.py:184
+#: src/gpodder/plugins/soundcloud.py:202
 #, python-format
 msgid "%s on Soundcloud"
 msgstr "Soundcloud에서 %s "
 
-#: src/gpodder/plugins/soundcloud.py:193
+#: src/gpodder/plugins/soundcloud.py:211
 #, python-format
 msgid "Tracks published by %s on Soundcloud."
 msgstr "트랙은 %s 가 사운드 클라우드에서 게재했습니다"
 
-#: src/gpodder/plugins/soundcloud.py:227
+#: src/gpodder/plugins/soundcloud.py:245
 #, python-format
 msgid "%s's favorites on Soundcloud"
 msgstr "%s의 Soundcloud에 있는 즐겨찾기"
 
-#: src/gpodder/plugins/soundcloud.py:233
+#: src/gpodder/plugins/soundcloud.py:251
 #, python-format
 msgid "Tracks favorited by %s on Soundcloud."
 msgstr "%s이 Soundcloud에서 즐겨찾는 트랙"
@@ -1729,15 +1737,22 @@ msgstr ""
 msgid "Filter"
 msgstr "필터:"
 
-#: share/gpodder/extensions/filter.py:143
+#: share/gpodder/extensions/filter.py:140
+msgid ""
+"<b>Note:</b> The Cancel button does <b>not</b> return the filter settings to "
+"the values they had before. The changes are saved immediately after they are "
+"made."
+msgstr ""
+
+#: share/gpodder/extensions/filter.py:150
 msgid "Block"
 msgstr ""
 
-#: share/gpodder/extensions/filter.py:152
+#: share/gpodder/extensions/filter.py:159
 msgid "Except"
 msgstr ""
 
-#: share/gpodder/extensions/filter.py:159
+#: share/gpodder/extensions/filter.py:166
 msgid ""
 "Clicking the block checkbox and leaving it empty will disable auto-download "
 "for all episodes in this channel.  The patterns match partial text in "
@@ -1745,8 +1760,14 @@ msgid ""
 "unblocks blocked episodes (to block all then unblock some)."
 msgstr ""
 
-#: share/gpodder/extensions/filter.py:166
-msgid "Filter episodes now (undoes any episodes you marked as old)"
+#: share/gpodder/extensions/filter.py:175
+#, fuzzy
+#| msgid "Delete episodes"
+msgid "Filter episodes now"
+msgstr "에피소드 삭제"
+
+#: share/gpodder/extensions/filter.py:179
+msgid "Undoes any episodes you marked as old."
 msgstr ""
 
 #: share/gpodder/extensions/gtk_statusicon.py:19
@@ -1960,64 +1981,74 @@ msgid "Add a new podcast"
 msgstr "새로운 팟캐스트 추가"
 
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:1
-msgid "gPodder Podcast Editor"
-msgstr "gPodder 팟캐스트 에디터"
+msgid "Channel Editor"
+msgstr ""
 
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:2
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:3
+msgid "OK"
+msgstr ""
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:4
+msgid "page0"
+msgstr ""
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:6
+msgid "page1"
+msgstr ""
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:7
+msgid "<b>Feed URL</b>"
+msgstr ""
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:8
+#, fuzzy
+#| msgid "<b>Locations</b>"
+msgid "<b>Download location</b>"
+msgstr "<b>위치</b>"
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:9
+msgid "Info"
+msgstr ""
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:10
+#, fuzzy
+#| msgid "No subscriptions"
+msgid "Pause subscription"
+msgstr "설명이 없습니다"
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:11
+#, fuzzy
+#| msgid "Synchronize to MP3 player devices"
+msgid "Sync to player devices"
+msgstr "MP3 플레이어 디바이스와 동기화"
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:12
 msgid "Section:"
 msgstr "섹션:"
 
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:3
-msgid "Disable feed updates (pause subscription)"
-msgstr "피드 업데이트 중지 (구독을 잠시 멈춤)"
-
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:4
-msgid "Synchronize to MP3 player devices"
-msgstr "MP3 플레이어 디바이스와 동기화"
-
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:5
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:13
 msgid "Strategy:"
 msgstr "계획:"
 
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:6
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:6
-msgid "General"
-msgstr "일반적인"
-
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:7
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:14
 msgid "<b>HTTP/FTP Authentication</b>"
 msgstr "<b>HTTP/FTP 인증</b>"
 
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:8
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:15
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:14
 msgid "Username:"
 msgstr "사용자 이름:"
 
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:9
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:16
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:15 bin/gpo:348
 msgid "Password:"
 msgstr "암호:"
 
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:10
-msgid "<b>Locations</b>"
-msgstr "<b>위치</b>"
-
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:11
-msgid "Download to:"
-msgstr "다운로드 장소:"
-
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:12
-msgid "Website:"
-msgstr "웹사이트:"
-
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:13
-msgid "website label"
-msgstr "웹사이트 라벨"
-
-# 문맥을 알수가 없어서, 그냥 영어로 둠
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:14
-msgid "Advanced"
-msgstr "Advanced"
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:17
+#, fuzzy
+#| msgid "Setting"
+msgid "Settings"
+msgstr "셋팅"
 
 #: share/gpodder/ui/gtk/gpodderconfigeditor.ui.h:1
 msgid "gPodder Configuration Editor"
@@ -2076,6 +2107,10 @@ msgstr "팟캐스트 리스트의 모든 에피소드"
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:5
 msgid "Use sections for podcast list"
 msgstr "팟캐스트 리스트에 섹션을 사용"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:6
+msgid "General"
+msgstr "일반적인"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:7
 msgid "Preferred YouTube format:"

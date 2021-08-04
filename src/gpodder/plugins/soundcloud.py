@@ -90,11 +90,29 @@ class SoundcloudUser(object):
         global CONSUMER_KEY
         key = ':'.join((self.username, 'user_info'))
         if key in self.cache:
-            return self.cache[key]
+            if self.cache[key].get('code', 200) == 200:
+                return self.cache[key]
 
         try:
-            json_url = 'https://api.soundcloud.com/users/%s.json?consumer_key=%s' % (self.username, CONSUMER_KEY)
-            user_info = util.urlopen(json_url).json()
+            # find user ID in soundcloud page
+            url = 'https://soundcloud.com/' + self.username
+            r = util.urlopen(url)
+            if not r.ok:
+                raise Exception('Soundcloud "%s": %d %s' % (url, r.status_code, r.reason))
+            uid = re.search(r'"https://api.soundcloud.com/users/([0-9]+)"', r.text)
+            if not uid:
+                raise Exception('Soundcloud user ID not found for "%s"' % url)
+            uid = int(uid.group(1))
+
+            # load user info API
+            json_url = 'https://api.soundcloud.com/users/%d.json?consumer_key=%s' % (uid, CONSUMER_KEY)
+            r = util.urlopen(json_url)
+            if not r.ok:
+                raise Exception('Soundcloud "%s": %d %s' % (json_url, r.status_code, r.reason))
+            user_info = json.loads(r.text)
+            if user_info.get('code', 200) != 200:
+                raise Exception('Soundcloud "%s": %s' % (json_url, user_info.get('message', '')))
+
             self.cache[key] = user_info
         finally:
             self.commit_cache()
@@ -153,7 +171,7 @@ class SoundcloudUser(object):
                     'url': url,
                     'file_size': int(filesize),
                     'mime_type': filetype,
-                    'guid': track.get('permalink', track.get('id')),
+                    'guid': str(track.get('permalink', track.get('id'))),
                     'published': soundcloud_parsedate(track.get('created_at', None)),
                 }
         finally:

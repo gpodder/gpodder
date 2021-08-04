@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gPodder 3.10.15\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-06-06 20:20-0600\n"
+"POT-Creation-Date: 2021-07-19 22:46-0600\n"
 "PO-Revision-Date: 2021-03-12 18:39+0300\n"
 "Last-Translator: Serkan ÖNDER <serkanonder@outlook.com>\n"
 "Language-Team: \n"
@@ -93,10 +93,8 @@ msgid "Paused"
 msgstr "Duraklatıldı"
 
 #: src/gpodder/download.py:864
-#, fuzzy
-#| msgid "Select the episodes you want to download:"
 msgid "Episode has no URL to download"
-msgstr "İndirmek istediğiniz bölümleri seçin:"
+msgstr "Bölümün indirilecek URL'si yok"
 
 #: src/gpodder/download.py:867
 msgid "Missing content from server"
@@ -164,8 +162,8 @@ msgstr ""
 msgid "Python module not found: %(module)s"
 msgstr "Python modülü bulunamadı: %(module)s"
 
-#: src/gpodder/model.py:496 src/gpodder/youtube.py:457
-#: src/gpodder/plugins/soundcloud.py:152
+#: src/gpodder/model.py:496 src/gpodder/youtube.py:512
+#: src/gpodder/plugins/soundcloud.py:170
 #: share/gpodder/extensions/youtube-dl.py:215
 msgid "No description available"
 msgstr "Açıklama yok"
@@ -282,7 +280,7 @@ msgstr "MTP aygıtı"
 
 #: src/gpodder/sync.py:835
 msgid "Opening the MTP device"
-msgstr "MTP cihazını açma"
+msgstr "MTP aygıtı açılıyor"
 
 #: src/gpodder/sync.py:845
 #, python-format
@@ -346,18 +344,18 @@ msgstr "Güncelleme başarılı"
 msgid "The playlist on your MP3 player has been updated."
 msgstr "MP3 çalarınızdaki çalma listesi güncellendi."
 
-#: src/gpodder/syncui.py:270 src/gpodder/gtkui/main.py:837
+#: src/gpodder/syncui.py:269 src/gpodder/gtkui/main.py:837
 #: src/gpodder/gtkui/main.py:1016 src/gpodder/gtkui/main.py:2917
 #: src/gpodder/gtkui/main.py:3128
 #: src/gpodder/gtkui/desktop/episodeselector.py:131
 msgid "Episode"
 msgstr "Bölüm"
 
-#: src/gpodder/syncui.py:275
+#: src/gpodder/syncui.py:274
 msgid "Episodes have been deleted on device"
 msgstr "Bölümler cihazdan silindi"
 
-#: src/gpodder/syncui.py:287
+#: src/gpodder/syncui.py:286
 msgid "Error writing playlist files"
 msgstr "Çalma listesi dosyaları yazılırken hata oluştu"
 
@@ -426,9 +424,9 @@ msgstr "İnternet Sitesi"
 msgid "Bug Tracker"
 msgstr "Hata İzleyici"
 
-#: src/gpodder/gtkui/app.py:277
+#: src/gpodder/gtkui/app.py:278
 msgid "Path to gPodder home is too long"
-msgstr "gPodder eve giden yol çok uzun"
+msgstr "gPodder ana klasörüne giden yol çok uzun"
 
 #: src/gpodder/gtkui/config.py:50
 msgid "Integer"
@@ -532,16 +530,12 @@ msgid "Released"
 msgstr "Yayınlandı"
 
 #: src/gpodder/gtkui/main.py:871
-#, fuzzy
-#| msgid "Size"
 msgid "Size+"
-msgstr "Boyut"
+msgstr "Boyut+"
 
 #: src/gpodder/gtkui/main.py:879
-#, fuzzy
-#| msgid "Duration"
 msgid "Duration+"
-msgstr "Süre"
+msgstr "Süre+"
 
 #: src/gpodder/gtkui/main.py:1036 src/gpodder/gtkui/main.py:1185
 #: share/gpodder/ui/gtk/gpodder.ui.h:11
@@ -624,7 +618,7 @@ msgid "Feedparser error: %s"
 msgstr "Feedparser hatası: %s"
 
 #: src/gpodder/gtkui/main.py:1336 src/gpodder/gtkui/model.py:454
-#: src/gpodder/gtkui/model.py:783 src/gpodder/gtkui/desktop/channel.py:83
+#: src/gpodder/gtkui/model.py:783 src/gpodder/gtkui/desktop/channel.py:81
 #, python-format
 msgid "ERROR: %s"
 msgstr "HATA: %s"
@@ -671,7 +665,9 @@ msgstr "Şimdi indirmeye başlayın"
 msgid "Download"
 msgstr "İndir"
 
-#: src/gpodder/gtkui/main.py:1642 share/gpodder/ui/gtk/gpodder.ui.h:2
+#: src/gpodder/gtkui/main.py:1642 src/gpodder/gtkui/desktop/channel.py:226
+#: share/gpodder/ui/gtk/gpodder.ui.h:2
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:2
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:6
 #: share/gpodder/ui/gtk/menus.ui.h:24
 msgid "Cancel"
@@ -710,10 +706,8 @@ msgid "Archive"
 msgstr "Arşiv"
 
 #: src/gpodder/gtkui/main.py:1718
-#, fuzzy
-#| msgid "_Refresh"
 msgid "Refresh image"
-msgstr "_Yenile"
+msgstr "Görüntüyü yenile"
 
 #: src/gpodder/gtkui/main.py:1722
 msgid "Delete podcast"
@@ -1295,8 +1289,8 @@ msgstr "Abonelik duraklatıldı"
 
 #: src/gpodder/gtkui/shownotes.py:60
 #, python-format
-msgid "%s | %s | %s"
-msgstr ""
+msgid "%(date)s | %(size)s | %(duration)s"
+msgstr "%(date)s | %(size)s | %(duration)s"
 
 #: src/gpodder/gtkui/shownotes.py:147
 msgid "Please select an episode"
@@ -1306,16 +1300,20 @@ msgstr "Lütfen bir bölüm seçin"
 #, python-format
 msgid ""
 "<div id=\"gpodder-title\">\n"
-"%s\n"
-"<p>%s</p>\n"
-"<p>%s</p></div>\n"
+"%(heading)s\n"
+"<p>%(subheading)s</p>\n"
+"<p>%(details)s</p></div>\n"
 msgstr ""
+"<div id=\"gpodder-title\">\n"
+"%(heading)s\n"
+"<p>%(subheading)s</p>\n"
+"<p>%(details)s</p></div>\n"
 
-#: src/gpodder/gtkui/shownotes.py:355
+#: src/gpodder/gtkui/shownotes.py:356
 msgid "Open shownotes in web browser"
 msgstr "Gösterilen notları web tarayıcısında aç"
 
-#: src/gpodder/gtkui/shownotes.py:361
+#: src/gpodder/gtkui/shownotes.py:362
 msgid "Open link in web browser"
 msgstr "Bağlantıyı web tarayıcısında aç"
 
@@ -1382,38 +1380,44 @@ msgstr ""
 msgid "Error setting option"
 msgstr "Hata ayar seçeneği"
 
-#: src/gpodder/gtkui/desktop/channel.py:109
+#: src/gpodder/gtkui/desktop/channel.py:114
 msgid "Add section"
 msgstr "Bölüm ekle"
 
-#: src/gpodder/gtkui/desktop/channel.py:109
+#: src/gpodder/gtkui/desktop/channel.py:114
 msgid "New section:"
 msgstr "Yeni bölüm:"
 
-#: src/gpodder/gtkui/desktop/channel.py:127
+#: src/gpodder/gtkui/desktop/channel.py:132
 msgid "_Open"
 msgstr "_Aç"
 
-#: src/gpodder/gtkui/desktop/channel.py:131
+#: src/gpodder/gtkui/desktop/channel.py:136
 msgid "_Refresh"
 msgstr "_Yenile"
 
-#: src/gpodder/gtkui/desktop/channel.py:144
+#: src/gpodder/gtkui/desktop/channel.py:146
 msgid "Select new podcast cover artwork"
 msgstr "Yeni podcast kapak resmi seçin"
 
-#: src/gpodder/gtkui/desktop/channel.py:176
+#: src/gpodder/gtkui/desktop/channel.py:178
 msgid "You can only drop a single image or URL here."
 msgstr "Buraya yalnızca tek bir resim veya URL bırakabilirsiniz."
 
-#: src/gpodder/gtkui/desktop/channel.py:177
-#: src/gpodder/gtkui/desktop/channel.py:189
+#: src/gpodder/gtkui/desktop/channel.py:179
+#: src/gpodder/gtkui/desktop/channel.py:191
 msgid "Drag and drop"
 msgstr "Sürükle ve bırak"
 
-#: src/gpodder/gtkui/desktop/channel.py:188
+#: src/gpodder/gtkui/desktop/channel.py:190
 msgid "You can only drop local files and http:// URLs here."
 msgstr "Buraya yalnızca yerel dosyaları ve http:// URL'leri bırakabilirsiniz."
+
+#: src/gpodder/gtkui/desktop/channel.py:215
+#: src/gpodder/gtkui/desktop/channel.py:223
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:5
+msgid "Save"
+msgstr ""
 
 #: src/gpodder/gtkui/desktop/episodeselector.py:104
 msgid "Remove"
@@ -1589,26 +1593,26 @@ msgstr "Bağlama noktası için klasör seçin"
 msgid "Select folder for playlists"
 msgstr "Çalma listeleri için klasör seçin"
 
-#: src/gpodder/plugins/soundcloud.py:150
+#: src/gpodder/plugins/soundcloud.py:168
 msgid "Unknown track"
 msgstr "Bilinmeyen parça"
 
-#: src/gpodder/plugins/soundcloud.py:184
+#: src/gpodder/plugins/soundcloud.py:202
 #, python-format
 msgid "%s on Soundcloud"
 msgstr "Soundcloud'da %s"
 
-#: src/gpodder/plugins/soundcloud.py:193
+#: src/gpodder/plugins/soundcloud.py:211
 #, python-format
 msgid "Tracks published by %s on Soundcloud."
 msgstr "%s tarafından Soundcloud'da yayınlanan parçalar."
 
-#: src/gpodder/plugins/soundcloud.py:227
+#: src/gpodder/plugins/soundcloud.py:245
 #, python-format
 msgid "%s's favorites on Soundcloud"
 msgstr "Soundcloud'da %s favorileri"
 
-#: src/gpodder/plugins/soundcloud.py:233
+#: src/gpodder/plugins/soundcloud.py:251
 #, python-format
 msgid "Tracks favorited by %s on Soundcloud."
 msgstr "Soundcloud'da %s tarafından favorilere eklenen parçalar."
@@ -1737,15 +1741,22 @@ msgstr "Vakayı Yoksay"
 msgid "Filter"
 msgstr "Filtrele"
 
-#: share/gpodder/extensions/filter.py:143
+#: share/gpodder/extensions/filter.py:140
+msgid ""
+"<b>Note:</b> The Cancel button does <b>not</b> return the filter settings to "
+"the values they had before. The changes are saved immediately after they are "
+"made."
+msgstr ""
+
+#: share/gpodder/extensions/filter.py:150
 msgid "Block"
 msgstr "Engel"
 
-#: share/gpodder/extensions/filter.py:152
+#: share/gpodder/extensions/filter.py:159
 msgid "Except"
 msgstr "Dışında"
 
-#: share/gpodder/extensions/filter.py:159
+#: share/gpodder/extensions/filter.py:166
 msgid ""
 "Clicking the block checkbox and leaving it empty will disable auto-download "
 "for all episodes in this channel.  The patterns match partial text in "
@@ -1758,8 +1769,16 @@ msgstr ""
 "kalıp, engellenen bölümlerin engelini kaldırır (hepsini engellemek, sonra "
 "bazılarının engelini kaldırmak için)."
 
-#: share/gpodder/extensions/filter.py:166
-msgid "Filter episodes now (undoes any episodes you marked as old)"
+#: share/gpodder/extensions/filter.py:175
+#, fuzzy
+#| msgid "Filter Episodes"
+msgid "Filter episodes now"
+msgstr "Bölümleri Filtrele"
+
+#: share/gpodder/extensions/filter.py:179
+#, fuzzy
+#| msgid "Filter episodes now (undoes any episodes you marked as old)"
+msgid "Undoes any episodes you marked as old."
 msgstr ""
 "Bölümleri şimdi filtrele (eski olarak işaretlediğiniz tüm bölümleri geri "
 "alır)"
@@ -1930,12 +1949,12 @@ msgid ""
 "Your version of youtube-dl %(have_version)s has known issues, please upgrade "
 "to %(want_version)s or newer."
 msgstr ""
+"Sizin youtube-dl %(have_version)s sürümünüzde bilinen sorunlar var, lütfen "
+"%(want_version)s veya daha yenisine yükseltin."
 
 #: share/gpodder/extensions/youtube-dl.py:485
-#, fuzzy
-#| msgid "Download with Youtube-DL"
 msgid "Old Youtube-DL"
-msgstr "Youtube-DL ile indirin"
+msgstr "Eski Youtube-DL"
 
 #: share/gpodder/extensions/youtube-dl.py:490
 msgid "Download with Youtube-DL"
@@ -1976,63 +1995,74 @@ msgid "Add a new podcast"
 msgstr "Yeni bir podcast ekle"
 
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:1
-msgid "gPodder Podcast Editor"
-msgstr "gPodder Podcast Düzenleyicisi"
+msgid "Channel Editor"
+msgstr ""
 
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:2
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:3
+msgid "OK"
+msgstr ""
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:4
+msgid "page0"
+msgstr ""
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:6
+msgid "page1"
+msgstr ""
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:7
+msgid "<b>Feed URL</b>"
+msgstr ""
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:8
+#, fuzzy
+#| msgid "<b>Locations</b>"
+msgid "<b>Download location</b>"
+msgstr "<b>Konumlar</b>"
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:9
+msgid "Info"
+msgstr ""
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:10
+#, fuzzy
+#| msgid "No subscriptions"
+msgid "Pause subscription"
+msgstr "Abonelik yok"
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:11
+#, fuzzy
+#| msgid "Synchronize to MP3 player devices"
+msgid "Sync to player devices"
+msgstr "MP3 oynatıcı cihazlarıyla senkronize edin"
+
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:12
 msgid "Section:"
 msgstr "Bölüm:"
 
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:3
-msgid "Disable feed updates (pause subscription)"
-msgstr "Besleme güncellemelerini devre dışı bırakın (aboneliği duraklatın)"
-
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:4
-msgid "Synchronize to MP3 player devices"
-msgstr "MP3 oynatıcı cihazlarıyla senkronize edin"
-
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:5
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:13
 msgid "Strategy:"
 msgstr "Strateji:"
 
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:6
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:6
-msgid "General"
-msgstr "Genel"
-
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:7
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:14
 msgid "<b>HTTP/FTP Authentication</b>"
 msgstr "<b>HTTP/FTP Doğrulama</b>"
 
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:8
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:15
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:14
 msgid "Username:"
 msgstr "Kullanıcı adı:"
 
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:9
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:16
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:15 bin/gpo:348
 msgid "Password:"
 msgstr "Şifre:"
 
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:10
-msgid "<b>Locations</b>"
-msgstr "<b>Konumlar</b>"
-
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:11
-msgid "Download to:"
-msgstr "Konuma indir:"
-
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:12
-msgid "Website:"
-msgstr "Website:"
-
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:13
-msgid "website label"
-msgstr "web sitesi etiketi"
-
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:14
-msgid "Advanced"
-msgstr "Gelişmiş"
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:17
+#, fuzzy
+#| msgid "Setting"
+msgid "Settings"
+msgstr "Ayarlar"
 
 #: share/gpodder/ui/gtk/gpodderconfigeditor.ui.h:1
 msgid "gPodder Configuration Editor"
@@ -2071,10 +2101,8 @@ msgid "Select None"
 msgstr "Hiçbirini Seçme"
 
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:7
-#, fuzzy
-#| msgid "Added"
 msgid "Add"
-msgstr "Eklendi"
+msgstr "Ekle"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:2
 msgid "Video player:"
@@ -2091,6 +2119,10 @@ msgstr "Podcast listesindeki \"tüm bölümler\""
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:5
 msgid "Use sections for podcast list"
 msgstr "Podcast listesi için bölümleri kullanın"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:6
+msgid "General"
+msgstr "Genel"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:7
 msgid "Preferred YouTube format:"
@@ -2138,7 +2170,7 @@ msgstr "Yeni bölümler bulunduğunda:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:22
 msgid "Check connection before updating (if supported)"
-msgstr ""
+msgstr "Güncellemeden önce bağlantıyı kontrol edin (destekleniyorsa)"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:23
 msgid "Updating"
@@ -2563,7 +2595,7 @@ msgstr "konsoldaki uyarıları azaltın"
 
 #: bin/gpodder:107
 msgid "subscribe to the feed at URL"
-msgstr "URL adresindeki beslemeye abone olun"
+msgstr "URL'deki beslemeye abone olun"
 
 #: bin/gpodder:112
 msgid "Mac OS X application process number"

@@ -247,6 +247,7 @@ class gPodderApplication(Gtk.Application):
                    url=html.escape(gpodder.__url__),
                    tr_website=_('Website'),
                    tr_bugtracker=_('Bug Tracker')).strip().split('\n')))
+        label.connect('activate-link', lambda label, url: util.open_website(url))
 
         bg.pack_start(label, False, False, 0)
         bg.pack_start(Gtk.Label(), False, False, 0)

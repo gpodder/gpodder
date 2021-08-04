@@ -29,8 +29,6 @@ import xml.etree.ElementTree
 from html.parser import HTMLParser
 from urllib.parse import parse_qs
 
-import requests
-
 import gpodder
 from gpodder import registry, util
 
@@ -189,6 +187,39 @@ def youtube_real_download_url(config, episode, allow_partial):
     return None if res == episode.url else res
 
 
+def youtube_get_old_endpoint(vid):
+    # TODO: changing 'detailpage' to 'embedded' allows age-restricted content
+    url = 'https://www.youtube.com/get_video_info?html5=1&c=TVHTML5&cver=6.20180913&el=detailpage&video_id=' + vid
+    r = util.urlopen(url)
+    if not r.ok:
+        raise YouTubeError('Youtube "%s": %d %s' % (url, r.status_code, r.reason))
+    else:
+        return r.text, None
+
+
+def youtube_get_new_endpoint(vid):
+    url = 'https://www.youtube.com/watch?bpctr=9999999999&has_verified=1&v=' + vid
+    r = util.urlopen(url)
+    if not r.ok:
+        raise YouTubeError('Youtube "%s": %d %s' % (url, r.status_code, r.reason))
+
+    ipr = re.search(r'ytInitialPlayerResponse\s*=\s*({.+?})\s*;', r.text)
+    if ipr is None:
+        try:
+            url = get_gdpr_consent_url(r.text)
+        except YouTubeError as e:
+            raise YouTubeError('Youtube "%s": No ytInitialPlayerResponse found and %s' % (url, str(e)))
+        r = util.urlopen(url)
+        if not r.ok:
+            raise YouTubeError('Youtube "%s": %d %s' % (url, r.status_code, r.reason))
+
+        ipr = re.search(r'ytInitialPlayerResponse\s*=\s*({.+?})\s*;', r.text)
+        if ipr is None:
+            raise YouTubeError('Youtube "%s": No ytInitialPlayerResponse found' % url)
+
+    return None, ipr.group(1)
+
+
 def get_real_download_url(url, allow_partial, preferred_fmt_ids=None):
     if not preferred_fmt_ids:
         preferred_fmt_ids, _, _ = formats_dict[22]  # MP4 720p
@@ -197,27 +228,11 @@ def get_real_download_url(url, allow_partial, preferred_fmt_ids=None):
 
     vid = get_youtube_id(url)
     if vid is not None:
-        # TODO: changing 'detailpage' to 'embedded' allows age-restricted content
-        url = 'https://www.youtube.com/get_video_info?html5=1&el=detailpage&video_id=' + vid
-        r = requests.get(url)
-        if not r.ok:
-            logger.warning('Youtube get_video_info: %d %s' % (r.status_code, r.reason))
-
-            # TODO: watch URL does not work in europe due to GDPR cookie consent
-            url = 'https://www.youtube.com/watch?bpctr=9999999999&has_verified=1&v=' + vid
-            r = requests.get(url)
-            if not r.ok:
-                raise YouTubeError('%d %s' % (r.status_code, r.reason))
-
-            ipr = re.search(r'ytInitialPlayerResponse\s*=\s*({.+?})\s*;', r.text)
-            if ipr is None:
-                raise YouTubeError('No ytInitialPlayerResponse found')
-
-            old_page = None
-            new_page = ipr.group(1)
-        else:
-            old_page = r.text
-            new_page = None
+        try:
+            old_page, new_page = youtube_get_new_endpoint(vid)
+        except YouTubeError as e:
+            logger.info(str(e))
+            old_page, new_page = youtube_get_old_endpoint(vid)
 
         def find_urls(old_page, new_page):
             # streamingData is preferable to url_encoded_fmt_stream_map
@@ -242,7 +257,7 @@ def get_real_download_url(url, allow_partial, preferred_fmt_ids=None):
                     # playabilityStatus.liveStreamability.liveStreamabilityRenderer.displayEndscreen -- video has ended if present
 
                     if allow_partial and 'streamingData' in player_response and 'hlsManifestUrl' in player_response['streamingData']:
-                        r = requests.get(player_response['streamingData']['hlsManifestUrl'])
+                        r = util.urlopen(player_response['streamingData']['hlsManifestUrl'])
                         if not r.ok:
                             raise YouTubeError('HLS Manifest: %d %s' % (r.status_code, r.reason))
                         manifest = r.text.splitlines()
@@ -280,7 +295,7 @@ def get_real_download_url(url, allow_partial, preferred_fmt_ids=None):
         fmt_id_url_map = sorted(find_urls(old_page, new_page), reverse=True)
 
         if not fmt_id_url_map:
-            drm = re.search(r'(%22(cipher|signatureCipher)%22%3A|"signatureCipher"):', old_page or new_page)
+            drm = re.search(r'(%22(cipher|signatureCipher)%22%3A|"signatureCipher":)', old_page or new_page)
             if drm is not None:
                 raise YouTubeError('Unsupported DRM content')
             raise YouTubeError('No formats found')
@@ -289,8 +304,8 @@ def get_real_download_url(url, allow_partial, preferred_fmt_ids=None):
         fmt_id_url_map = dict(fmt_id_url_map)
 
         for id in preferred_fmt_ids:
-            if re.search(r'(^best|\+)', str(id)):
-                # skip formats that contain 'best.*' or a + (136+140)
+            if not re.search(r'^[0-9]+$', str(id)):
+                # skip non-integer formats 'best', '136+140' or twitch '720p'
                 continue
             id = int(id)
             if id in formats_available:
@@ -426,6 +441,46 @@ def get_cover(url):
             logger.warning('Could not retrieve cover art', exc_info=True)
 
 
+def get_gdpr_consent_url(html_data):
+    """
+    Creates the URL for automatically accepting GDPR consents
+    EU GDPR redirects to a form that needs to be posted to be redirected to a get request
+    with the form data as input to the youtube video URL. This extracts that form data from
+    the GDPR form and builds up the URL the posted form results.
+    """
+    class ConsentHTML(HTMLParser):
+        def __init__(self):
+            super().__init__()
+            self.url = ''
+            self.consentForm = False
+
+        def handle_starttag(self, tag, attributes):
+            attribute_dict = {attribute[0]: attribute[1] for attribute in attributes}
+            if tag == 'form' and attribute_dict['action'] == 'https://consent.youtube.com/s':
+                self.consentForm = True
+                self.url = 'https://consent.google.com/s?'
+            # Get GDPR form elements
+            if self.consentForm and tag == 'input' and attribute_dict['type'] == 'hidden':
+                self.url += '&' + attribute_dict['name'] + '=' + urllib.parse.quote_plus(attribute_dict['value'])
+
+        def handle_endtag(self, tag):
+            if tag == 'form':
+                self.consentForm = False
+
+    try:
+        parser = ConsentHTML()
+        parser.feed(html_data)
+    except Exception:
+        raise YouTubeError('Could not retrieve GDPR accepted consent URL')
+
+    if parser.url:
+        logger.debug('YouTube GDPR accept consent URL is: %s', parser.url)
+        return parser.url
+    else:
+        logger.debug('YouTube GDPR accepted consent URL could not be resolved.', parser.url)
+        raise YouTubeError('No acceptable GDPR consent URL')
+
+
 def get_channel_desc(url):
     if 'youtube.com' in url:
 
@@ -486,6 +541,9 @@ def parse_youtube_url(url):
     logger.debug("Analyzing URL: {}".format(" ".join([scheme, netloc, path, query, fragment])))
 
     if 'youtube.com' in netloc:
+        if path == '/feeds/videos.xml' and re.search(r'^(user|channel|playlist)_id=.*', query):
+            return url
+
         if '/user/' in path or '/channel/' in path or 'list=' in query:
             logger.debug("Valid Youtube URL detected. Parsing...")
 
