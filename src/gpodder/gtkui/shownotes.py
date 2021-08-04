@@ -471,11 +471,11 @@ class gPodderShownotesLabel(gPodderShownotes):
         ltext = ''
         ltext += '<big><b>' + heading + '</b></big>\n'
         ltext += subheading + '\n'
-        ltext += '<small>%s</small>\n\n' % html.escape(self.details_fmt % (
-            util.format_date(episode.published),
-            util.format_filesize(episode.file_size, digits=1)
+        ltext += '<small>%s</small>\n\n' % html.escape(self.details_fmt % {
+            'date': util.format_date(episode.published),
+            'size': util.format_filesize(episode.file_size, digits=1)
             if episode.file_size > 0 else "-",
-            episode.get_play_info_string()))
+            'duration': episode.get_play_info_string()})
         for target, text in util.extract_hyperlinked_text(episode.description_html or episode.description):
             if target:
                 tesc = html.escape(target)
