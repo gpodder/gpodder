@@ -26,7 +26,7 @@ __copyright__ = '© 2005-2021 The gPodder Team'
 __license__ = 'GNU General Public License, version 3 or later'
 __url__ = 'http://gpodder.org/'
 
-#__version_info__ = tuple(int(x) for x in __version__.split('.'))
+# __version_info__ = tuple(int(x) for x in __version__.split('.'))
 
 import gettext
 import locale

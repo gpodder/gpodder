@@ -446,6 +446,7 @@ class gPodderShownotesHTML(gPodderShownotes):
             self.stylesheet = WebKit2.UserStyleSheet(style, 0, 1, None, None)
         return self.stylesheet
 
+
 class gPodderShownotesLabel(gPodderShownotes):
     def init(self):
         self.label = Gtk.Label()

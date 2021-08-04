@@ -22,7 +22,7 @@ gi.require_version('Gtk', '3.0')  # isort:skip
 gi.require_version('Gdk', '3.0')  # isort:skip
 gi.require_version('Handy', '1')  # isort:skip
 from gi.repository import Gdk, Gtk, Pango
-from gi.repository import Handy # isort:skip
+from gi.repository import Handy  # isort:skip
 
 import gpodder
 from gpodder import util
@@ -293,7 +293,7 @@ class gPodderEpisodeSelector(BuilderWidget):
         if path is not None:
             self.treeviewEpisodes.set_cursor(path, toggle_column)
 
-        #self.shownotes_object = shownotes.get_shownotes(self._config.ui.gtk.html_shownotes, self.shownotes_box)
+        # self.shownotes_object = shownotes.get_shownotes(self._config.ui.gtk.html_shownotes, self.shownotes_box)
         # Hardcode non-HTML shownotes because of webkit2gtk crashing with multiple instances
         self.shownotes_object = shownotes.get_shownotes(False, self.shownotes_box)
 

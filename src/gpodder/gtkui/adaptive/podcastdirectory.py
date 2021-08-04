@@ -29,7 +29,7 @@ import logging
 import os
 
 from gi.repository import GdkPixbuf, GLib, Gtk, Pango
-from gi.repository import Handy # isort:skip
+from gi.repository import Handy  # isort:skip
 
 import gpodder
 from gpodder import directory, util

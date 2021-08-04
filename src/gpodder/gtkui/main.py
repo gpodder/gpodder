@@ -63,7 +63,7 @@ gi.require_version('Gtk', '3.0')  # isort:skip
 gi.require_version('Gdk', '3.0')  # isort:skip
 gi.require_version('Handy', '1')  # isort:skip
 from gi.repository import Gdk, GdkPixbuf, Gio, GLib, GObject, Gtk, Pango  # isort:skip
-from gi.repository import Handy # isort:skip
+from gi.repository import Handy  # isort:skip
 
 
 logger = logging.getLogger(__name__)
@@ -81,7 +81,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             "SORT_TOTAL_TIME": EpisodeListModel.C_TOTAL_TIME,
             "SORT_TITLE": EpisodeListModel.C_TITLE,
         }
-        self.sort2menu = { v: k for (k, v) in self.menu2sort.items() }
+        self.sort2menu = {v: k for (k, v) in self.menu2sort.items()}
         dbus.service.Object.__init__(self, object_path=gpodder.dbus_gui_object_path, bus_name=bus_name)
         self.podcasts_proxy = DBusPodcastsProxy(lambda: self.channels,
                 self.on_itemUpdate_activate,
@@ -381,8 +381,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             ('cancelFromEpisodes', self.on_episodes_cancel_download_activate),
             ('cancelFromProgress', self.on_progress_cancel_download_activate),
             ('delete', self.on_btnDownloadedDelete_clicked),
-#            ('toggleEpisodeNew', self.on_item_toggle_played_activate),
-#            ('toggleEpisodeLock', self.on_item_toggle_lock_activate),
+            # ('toggleEpisodeNew', self.on_item_toggle_played_activate),
+            # ('toggleEpisodeLock', self.on_item_toggle_lock_activate),
             ('toggleShownotes', self.on_shownotes_selected_episodes),
             ('sync', self.on_sync_to_device_activate),
             ('findPodcast', self.on_find_podcast_activate),
@@ -839,7 +839,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 # Don't handle type-ahead when control is pressed (so shortcuts
                 # with the Ctrl key still work, e.g. Ctrl+A, ...)
                 return True
-            elif event.keyval in (Gdk.KEY_Right, Gdk.KEY_Return, Gdk.KEY_l) :
+            elif event.keyval in (Gdk.KEY_Right, Gdk.KEY_Return, Gdk.KEY_l):
                 path, column = self.treeChannels.get_cursor()
                 self.on_treeChannels_row_activated(self.treeChannels, path)
             elif event.keyval in (Gdk.KEY_Up, Gdk.KEY_Down, Gdk.KEY_j, Gdk.KEY_k):
@@ -1543,7 +1543,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def _on_config_changed(self, name, old_value, new_value):
         if name == 'ui.gtk.toolbar':
-#            self.toolbar.set_property('visible', new_value)
+            # self.toolbar.set_property('visible', new_value)
             pass
         elif name in ('ui.gtk.episode_list.descriptions',
                 'ui.gtk.episode_list.always_show_new'):
@@ -1555,7 +1555,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             # Force a update of the podcast list model
             self.update_podcast_list_model()
         elif name == 'ui.gtk.episode_list.columns':
-#            self.update_episode_list_columns_visibility()
+            # self.update_episode_list_columns_visibility()
             pass
 
     def on_treeview_query_tooltip(self, treeview, x, y, keyboard_tooltip, tooltip):
@@ -1946,7 +1946,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             def make_menu_item(label, action_name, tasks=None, status=None, sensitive=True, force_start=False):
                 self.application.remove_action(action_name)
                 action = Gio.SimpleAction.new(action_name)
-                action.connect("activate", 
+                action.connect("activate",
                         lambda _a, _b: self._for_each_task_set_status(
                             tasks, status, force_start=force_start))
                 self.application.add_action(action)

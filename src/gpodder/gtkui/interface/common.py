@@ -342,6 +342,7 @@ class TreeViewHelper(object):
         treeview.set_cursor(path)
         return True
 
+
 class ExtensionMenuHelper(object):
     """A helper class to handle extension submenus"""
 

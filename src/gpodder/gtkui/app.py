@@ -111,7 +111,8 @@ class gPodderApplication(Gtk.Application):
         action.connect('activate', self.on_menu)
         self.add_action(action)
 
-        do_nothing = lambda x: False
+        def do_nothing(x):
+            return False
 
         action_defs = [
             # Progress dialog actions

@@ -490,7 +490,7 @@ class EpisodeListModel(Gtk.ListStore):
                 (self.C_FILESIZE_AND_TIME_TEXT, "%s\n<small>%s</small>"
                     % (self._format_filesize(episode) if episode.file_size > 0 else "", episode.get_play_info_string())),
                 (self.C_FILESIZE_AND_TIME, episode.file_size),
-                (self.C_TIME_AND_PUBLISHED_TEXT, episode.get_play_info_string()+'\n'+episode.cute_pubdate()),
+                (self.C_TIME_AND_PUBLISHED_TEXT, episode.get_play_info_string() + '\n' + episode.cute_pubdate()),
         )
 
     def update_by_iter(self, iter, include_description=False):
