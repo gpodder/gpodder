@@ -272,6 +272,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
         g.add_action(action)
 
         action = Gio.SimpleAction.new_stateful(
+            'viewCtrlClickToSortEpisodes', None, GLib.Variant.new_boolean(self.config.ui.gtk.episode_list.ctrl_click_to_sort))
+        action.connect('activate', self.on_item_view_ctrl_click_to_sort_episodes_toggled)
+        g.add_action(action)
+
+        action = Gio.SimpleAction.new_stateful(
             'searchAlwaysVisible', None, GLib.Variant.new_boolean(self.config.ui.gtk.search_always_visible))
         action.connect('activate', self.on_item_view_search_always_visible_toggled)
         g.add_action(action)
@@ -808,11 +813,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
             (column.get_sort_order() is Gtk.SortType.ASCENDING)
 
     def on_episode_list_header_clicked(self, button, event):
-        if event.button != 3:
-            return False
-
-        if self.episode_columns_menu is not None:
-            self.episode_columns_menu.popup(None, None, None, None, event.button, event.time)
+        if event.button == 1:
+            # Require control click to sort episodes, when enabled
+            if self.config.ui.gtk.episode_list.ctrl_click_to_sort and (event.state & Gdk.ModifierType.CONTROL_MASK) == 0:
+                return True
+        elif event.button == 3:
+            if self.episode_columns_menu is not None:
+                self.episode_columns_menu.popup(None, None, None, None, event.button, event.time)
 
         return False
 
@@ -3193,6 +3200,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_item_view_always_show_new_episodes_toggled(self, action, param):
         state = action.get_state()
         self.config.ui.gtk.episode_list.always_show_new = not state
+        action.set_state(GLib.Variant.new_boolean(not state))
+
+    def on_item_view_ctrl_click_to_sort_episodes_toggled(self, action, param):
+        state = action.get_state()
+        self.config.ui.gtk.episode_list.ctrl_click_to_sort = not state
         action.set_state(GLib.Variant.new_boolean(not state))
 
     def on_item_view_search_always_visible_toggled(self, action, param):
