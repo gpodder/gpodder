@@ -1853,7 +1853,11 @@ def get_update_info():
     days_since_release = (datetime.datetime.today() - release_parsed).days
 
     def convert(s):
-        return tuple(int(x) for x in s.split('.'))
+        # Use both public and local version label, see PEP 440
+        pubv, locv = next(
+            (v[0], v[1] if len(v) > 1 else '') for v in (s.split('+'),))
+        return tuple(int(x) if x.isdigit() else x.lower()
+            for x in pubv.split('.') + (locv.split('.') if locv else []))
 
     up_to_date = (convert(gpodder.__version__) >= convert(latest_version))
 
