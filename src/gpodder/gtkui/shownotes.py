@@ -470,6 +470,7 @@ class gPodderShownotesLabel(gPodderShownotes):
         return self.label_bg
 
     def update(self, episode):
+        self.scrolled_window.get_vadjustment().set_value(0)
         heading = html.escape(episode.title)
         subheading = _('from %s') % (html.escape(episode.channel.title))
         self.define_colors()
