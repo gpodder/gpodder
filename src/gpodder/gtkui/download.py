@@ -34,17 +34,62 @@ from gpodder import download, util
 
 _ = gpodder.gettext
 
+class TaskQueue:
+    def __init__(self):
+        self.lock = threading.Lock()
+        self.tasks = list()
 
-class DownloadStatusModel(Gtk.ListStore):
+    def __len__(self):
+        with self.lock:
+            return len(self.tasks)
+
+    def add_task(self, task):
+        with self.lock:
+            self.tasks.append(task)
+
+    def remove_task(self, task):
+        with self.lock:
+            try:
+                self.tasks.remove(task)
+                return True
+            except ValueError:
+                # already dequeued
+                return False
+
+    def pop(self):
+        with self.lock:
+            if len(self.tasks) == 0:
+                return None
+            task = self.tasks.pop(0)
+            return task
+
+    def move_after(self, task, after):
+        with self.lock:
+            try:
+                index = self.tasks.index(after)
+                self.tasks.remove(task)
+                self.tasks.insert(index + 1, task)
+            except ValueError:
+                pass
+
+    def move_before(self, task, before):
+        with self.lock:
+            try:
+                index = self.tasks.index(before)
+                self.tasks.remove(task)
+                self.tasks.insert(index, task)
+            except ValueError:
+                pass
+
+class DownloadStatusModel:
     # Symbolic names for our columns, so we know what we're up to
     C_TASK, C_NAME, C_URL, C_PROGRESS, C_PROGRESS_TEXT, C_ICON_NAME = list(range(6))
 
     SEARCH_COLUMNS = (C_NAME, C_URL)
 
     def __init__(self):
-        Gtk.ListStore.__init__(self, object, str, str, int, str, str)
-
-        self.set_downloading_access = threading.RLock()
+        self.list = Gtk.ListStore(object, str, str, int, str, str)
+        self.work_queue = TaskQueue()
 
         # Set up stock icon IDs for tasks
         self._status_ids = collections.defaultdict(lambda: None)
@@ -53,6 +98,9 @@ class DownloadStatusModel(Gtk.ListStore):
         self._status_ids[download.DownloadTask.FAILED] = 'dialog-error'
         self._status_ids[download.DownloadTask.CANCELLED] = 'media-playback-stop'
         self._status_ids[download.DownloadTask.PAUSED] = 'media-playback-pause'
+
+    def get_model(self):
+        return self.list
 
     def _format_message(self, episode, message, podcast):
         episode = html.escape(episode)
@@ -63,10 +111,10 @@ class DownloadStatusModel(Gtk.ListStore):
     def request_update(self, iter, task=None):
         if task is None:
             # Ongoing update request from UI - get task from model
-            task = self.get_value(iter, self.C_TASK)
+            task = self.list.get_value(iter, self.C_TASK)
         else:
             # Initial update request - update non-changing fields
-            self.set(iter,
+            self.list.set(iter,
                     self.C_TASK, task,
                     self.C_URL, task.url)
 
@@ -100,7 +148,7 @@ class DownloadStatusModel(Gtk.ListStore):
         else:
             progress_message = ('unknown size')
 
-        self.set(iter,
+        self.list.set(iter,
                 self.C_NAME, self._format_message(task.episode.title,
                     status_message, task.episode.channel.title),
                 self.C_PROGRESS, 100. * task.progress,
@@ -108,14 +156,15 @@ class DownloadStatusModel(Gtk.ListStore):
                 self.C_ICON_NAME, self._status_ids[task.status])
 
     def __add_new_task(self, task):
-        iter = self.append()
+        iter = self.list.append()
         self.request_update(iter, task)
 
     def register_task(self, task):
+        self.work_queue.add_task(task)
         util.idle_add(self.__add_new_task, task)
 
     def tell_all_tasks_to_quit(self):
-        for row in self:
+        for row in self.list:
             task = row[DownloadStatusModel.C_TASK]
             if task is not None:
                 # Pause currently-running (and queued) downloads
@@ -131,7 +180,7 @@ class DownloadStatusModel(Gtk.ListStore):
         Returns True if there are any downloads in the
         QUEUED or DOWNLOADING status, False otherwise.
         """
-        for row in self:
+        for row in self.list:
             task = row[DownloadStatusModel.C_TASK]
             if task is not None and \
                     task.status in (task.DOWNLOADING,
@@ -140,31 +189,36 @@ class DownloadStatusModel(Gtk.ListStore):
 
         return False
 
+    def move_after(self, iter, position):
+        self.list.move_after(iter, position)
+        iter_task = self.list.get_value(iter, DownloadStatusModel.C_TASK)
+        pos_task = self.list.get_value(position, DownloadStatusModel.C_TASK)
+        self.work_queue.move_after(iter_task, pos_task)
+
+    def move_before(self, iter, position):
+        self.list.move_before(iter, position)
+        iter_task = self.list.get_value(iter, DownloadStatusModel.C_TASK)
+        pos_task = self.list.get_value(position, DownloadStatusModel.C_TASK)
+        self.work_queue.move_before(iter_task, pos_task)
+
     def has_work(self):
-        return any(self._work_gen())
+        return len(self.work_queue) > 0
 
     def available_work_count(self):
-        return len(list(self._work_gen()))
+        return len(self.work_queue)
 
     def get_next(self):
-        with self.set_downloading_access:
-            result = next(self._work_gen())
-            self.set_downloading(result)
-        return result
-
-    def _work_gen(self):
-        return (task for task in
-                (row[DownloadStatusModel.C_TASK] for row in self)
-                if task.status == task.QUEUED)
+        task = self.work_queue.pop()
+        if task:
+            task.status = task.DOWNLOADING
+        return task
 
     def set_downloading(self, task):
-        with self.set_downloading_access:
-            if task.status is task.DOWNLOADING:
-                # Task was already set as DOWNLOADING by get_next
-                return False
-            task.status = task.DOWNLOADING
-            return True
-
+        if not self.work_queue.remove_task(task):
+            # Task was already dequeued get_next
+            return False
+        task.status = task.DOWNLOADING
+        return True
 
 class DownloadTaskMonitor(object):
     """A helper class that abstracts download events"""

@@ -59,4 +59,4 @@ class gPodderExtension:
         self.launcher_entry = None
 
     def on_download_progress(self, progress):
-        GObject.idle_add(self.launcher_entry.set_progress, float(value))
+        GObject.idle_add(self.launcher_entry.set_progress, float(progress))

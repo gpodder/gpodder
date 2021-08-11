@@ -24,6 +24,9 @@ import gpodder
 from gpodder import util
 from gpodder.sync import (episode_filename_on_device,
                           episode_foldername_on_device)
+import gi
+gi.require_version('Gtk', '3.0')
+from gi.repository import GLib, Gio
 
 _ = gpodder.gettext
 
@@ -36,12 +39,19 @@ class gPodderDevicePlaylist(object):
         self._config = config
         self.linebreak = '\r\n'
         self.playlist_file = util.sanitize_filename(playlist_name, self._config.device_sync.max_filename_length) + '.m3u'
-        self.playlist_folder = os.path.join(self._config.device_sync.device_folder, self._config.device_sync.playlists.folder)
-        self.mountpoint = util.find_mount_point(self.playlist_folder)
-        if self.mountpoint == '/':
+        device_folder = util.new_gio_file(self._config.device_sync.device_folder)
+        self.playlist_folder = device_folder.resolve_relative_path(self._config.device_sync.playlists.folder)
+
+        self.mountpoint = None
+        try:
+            self.mountpoint = self.playlist_folder.find_enclosing_mount().get_root()
+        except GLib.Error as err:
+            logger.error('find_enclosing_mount folder %s failed: %s', self.playlist_folder.get_uri(), err.message)
+
+        if not self.mountpoint:
             self.mountpoint = self.playlist_folder
-            logger.warning('MP3 player resides on / - using %s as MP3 player root', self.mountpoint)
-        self.playlist_absolute_filename = os.path.join(self.playlist_folder, self.playlist_file)
+            logger.warning('could not find mount point for MP3 player - using %s as MP3 player root', self.mountpoint.get_uri())
+        self.playlist_absolute_filename = self.playlist_folder.resolve_relative_path(self.playlist_file)
 
     def build_extinf(self, filename):
         # TODO: Windows playlists
@@ -64,11 +74,16 @@ class gPodderDevicePlaylist(object):
         read all files from the existing playlist
         """
         tracks = []
-        logger.info("Read data from the playlistfile %s" % self.playlist_absolute_filename)
-        if os.path.exists(self.playlist_absolute_filename):
-            for line in open(self.playlist_absolute_filename, 'r'):
+        logger.info("Read data from the playlistfile %s" % self.playlist_absolute_filename.get_uri())
+        if self.playlist_absolute_filename.query_exists():
+            stream = Gio.DataInputStream.new(self.playlist_absolute_filename.read())
+            while True:
+                line = stream.read_line_utf8()[0]
+                if not line:
+                    break
                 if not line.startswith('#EXT'):
                     tracks.append(line.rstrip('\r\n'))
+            stream.close()
         return tracks
 
     def get_filename_for_playlist(self, episode):
@@ -86,7 +101,7 @@ class gPodderDevicePlaylist(object):
         if foldername:
             filename = os.path.join(foldername, filename)
         if self._config.device_sync.playlist.absolute_path:
-            filename = os.path.join(util.relpath(self.mountpoint, self._config.device_sync.device_folder), filename)
+            filename = os.path.join(util.relpath(self._config.device_sync.device_folder, self.mountpoint.get_uri()), filename)
         return filename
 
     def write_m3u(self, episodes):
@@ -97,12 +112,29 @@ class gPodderDevicePlaylist(object):
         if not util.make_directory(self.playlist_folder):
             raise IOError(_('Folder %s could not be created.') % self.playlist_folder, _('Error writing playlist'))
         else:
-            fp = open(os.path.join(self.playlist_folder, self.playlist_file), 'w')
-            fp.write('#EXTM3U%s' % self.linebreak)
+            # work around libmtp devices potentially having limited capabilities for partial writes
+            is_mtp = self.playlist_folder.get_uri().startswith("mtp://")
+            tempfile = None
+            if is_mtp:
+                tempfile = Gio.File.new_tmp()
+                fs = tempfile[1].get_output_stream()
+            else:
+                fs = self.playlist_absolute_filename.replace(None, False, Gio.FileCreateFlags.NONE)
+
+            os = Gio.DataOutputStream.new(fs)
+            os.put_string('#EXTM3U%s' % self.linebreak)
             for current_episode in episodes:
                 filename = self.get_filename_for_playlist(current_episode)
-                fp.write(self.build_extinf(filename))
+                os.put_string(self.build_extinf(filename))
                 filename = self.get_absolute_filename_for_playlist(current_episode)
-                fp.write(filename)
-                fp.write(self.linebreak)
-            fp.close()
+                os.put_string(filename)
+                os.put_string(self.linebreak)
+            os.close()
+
+            if is_mtp:
+                try:
+                    tempfile[0].copy(self.playlist_absolute_filename, Gio.FileCopyFlags.OVERWRITE)
+                except GLib.Error as err:
+                    logger.error('copying playlist to mtp device file %s failed: %s',
+                        self.playlist_absolute_filename.get_uri(), err.message)
+                tempfile[0].delete()

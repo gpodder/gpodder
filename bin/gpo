@@ -935,6 +935,13 @@ class gPodderCli(object):
         def _not_applicable(*args, **kwargs):
             pass
 
+        def _mount_volume_for_file(file):
+            result, message = util.mount_volume_for_file(file, None)
+            if not result:
+                self._error(_('mounting volume for file %(file)s failed with: %(error)s'
+                    % dict(file=file.get_uri(), error=message)))
+            return result
+
         class DownloadStatusModel(object):
             def register_task(self, ask):
                 pass
@@ -961,7 +968,8 @@ class gPodderCli(object):
                                 _not_applicable,
                                 self._db.commit,
                                 _delete_episode_list,
-                                _episode_selector)
+                                _episode_selector,
+                                _mount_volume_for_file)
         done_lock.acquire()
         sync_ui.on_synchronize_episodes(self._model.get_podcasts(), episodes=None, force_played=True, done_callback=done_lock.release)
         done_lock.acquire()  # block until done
