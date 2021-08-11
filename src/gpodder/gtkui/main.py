@@ -4160,7 +4160,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.transfer_revealer.set_reveal_child(True)
 
         def done_cb():
-            self.enable_download_list_update()
+            self.set_download_list_state(gPodderSyncUI.DL_ONEOFF)
             util.idle_add(self.transfer_revealer.set_reveal_child, False)
 
         self.sync_ui.on_synchronize_episodes(self.channels, episodes, force_played,
