@@ -139,7 +139,10 @@ class gPodderApplication(Gtk.Application):
 
         menu_filename = None
         for ui_folder in gpodder.ui_folders:
-            filename = os.path.join(ui_folder, 'menus.ui')
+            if gpodder.ui.adaptive:
+                filename = os.path.join(ui_folder, '..', 'adaptive', 'menus.ui')
+            else:
+                filename = os.path.join(ui_folder, 'menus.ui')
             if os.path.exists(filename):
                 builder.add_from_file(filename)
                 menu_filename = filename
