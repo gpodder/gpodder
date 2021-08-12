@@ -3538,6 +3538,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             title = _('Subscriptions on %(server)s') \
                     % {'server': self.config.mygpo.server}
             dir = gPodderPodcastDirectory(self.gPodder,
+                                          ui_folder=os.path.join(gpodder.ui_folders[0], '..', 'adaptive'),
                                           _config=self.config,
                                           custom_title=title,
                                           add_podcast_list=self.add_podcast_list,
@@ -3713,6 +3714,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         if filename is not None:
             dir = gPodderPodcastDirectory(self.gPodder, _config=self.config,
+                    ui_folder=os.path.join(gpodder.ui_folders[0], '..', 'adaptive'),
                     custom_title=_('Import podcasts from OPML file'),
                     add_podcast_list=self.add_podcast_list,
                     hide_url_entry=True)
@@ -3755,6 +3757,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_itemImportChannels_activate(self, widget, *args):
         self._podcast_directory = gPodderPodcastDirectory(self.main_window,
+                ui_folder=os.path.join(gpodder.ui_folders[0], '..', 'adaptive'),
                 _config=self.config,
                 add_podcast_list=self.add_podcast_list)
 
