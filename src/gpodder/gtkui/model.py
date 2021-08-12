@@ -196,7 +196,7 @@ class EpisodeListModel(Gtk.ListStore):
         self.ICON_VIDEO_FILE = 'video-x-generic'
         self.ICON_IMAGE_FILE = 'image-x-generic'
         self.ICON_GENERIC_FILE = 'text-x-generic'
-        self.ICON_DOWNLOADING = Gtk.STOCK_GO_DOWN
+        self.ICON_DOWNLOADING = 'go-down'
         self.ICON_DELETED = 'edit-delete'
         self.ICON_ERROR = 'dialog-error'
 

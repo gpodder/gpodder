@@ -96,7 +96,7 @@ class DownloadStatusModel:
         # Set up stock icon IDs for tasks
         self._status_ids = collections.defaultdict(lambda: None)
         self._status_ids[download.DownloadTask.DOWNLOADING] = 'go-down'
-        self._status_ids[download.DownloadTask.DONE] = Gtk.STOCK_APPLY
+        self._status_ids[download.DownloadTask.DONE] = 'gtk-apply'
         self._status_ids[download.DownloadTask.FAILED] = 'dialog-error'
         self._status_ids[download.DownloadTask.CANCELLED] = 'media-playback-stop'
         self._status_ids[download.DownloadTask.PAUSED] = 'media-playback-pause'
