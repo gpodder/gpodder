@@ -672,8 +672,8 @@ class gPodderPreferences(BuilderWidget):
         fs = Gtk.FileChooserDialog(title=_('Select folder for mount point'),
                 action=Gtk.FileChooserAction.SELECT_FOLDER)
         fs.set_local_only(False)
-        fs.add_button(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL)
-        fs.add_button(Gtk.STOCK_OPEN, Gtk.ResponseType.OK)
+        fs.add_button('_Cancel', Gtk.ResponseType.CANCEL)
+        fs.add_button('_Open', Gtk.ResponseType.OK)
 
         fs.set_uri(self.btn_filesystemMountpoint.get_label() or "")
         if fs.run() == Gtk.ResponseType.OK:
@@ -690,8 +690,8 @@ class gPodderPreferences(BuilderWidget):
         fs = Gtk.FileChooserDialog(title=_('Select folder for playlists'),
                 action=Gtk.FileChooserAction.SELECT_FOLDER)
         fs.set_local_only(False)
-        fs.add_button(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL)
-        fs.add_button(Gtk.STOCK_OPEN, Gtk.ResponseType.OK)
+        fs.add_button('_Cancel', Gtk.ResponseType.CANCEL)
+        fs.add_button('_Open', Gtk.ResponseType.OK)
 
         device_folder = util.new_gio_file(self._config.device_sync.device_folder)
         playlists_folder = device_folder.resolve_relative_path(self._config.device_sync.playlists.folder)

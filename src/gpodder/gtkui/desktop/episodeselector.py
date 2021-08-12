@@ -326,9 +326,9 @@ class gPodderEpisodeSelector(BuilderWidget):
             self.btnOK.set_sensitive(count > 0)
             self.btnRemoveAction.set_sensitive(count > 0)
             if count > 0:
-                self.btnCancel.set_label(Gtk.STOCK_CANCEL)
+                self.btnCancel.set_label(_('Cancel'))
             else:
-                self.btnCancel.set_label(Gtk.STOCK_CLOSE)
+                self.btnCancel.set_label(_('Close'))
         else:
             self.btnOK.set_sensitive(False)
             self.btnRemoveAction.set_sensitive(False)

@@ -38,8 +38,8 @@ class gPodderExtension:
         dlg = Gtk.FileChooserDialog(title=_('Save video'),
                 parent=self.gpodder.get_dialog_parent(),
                 action=Gtk.FileChooserAction.SAVE)
-        dlg.add_button(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL)
-        dlg.add_button(Gtk.STOCK_SAVE, Gtk.ResponseType.OK)
+        dlg.add_button('_Cancel', Gtk.ResponseType.CANCEL)
+        dlg.add_button('_Save', Gtk.ResponseType.OK)
 
         if dlg.run() == Gtk.ResponseType.OK:
             filename = dlg.get_filename()
