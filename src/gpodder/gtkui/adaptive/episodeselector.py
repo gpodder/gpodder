@@ -27,6 +27,7 @@ from gi.repository import Handy  # isort:skip
 import gpodder
 from gpodder import util
 from gpodder.gtkui.interface.common import BuilderWidget, TreeViewHelper
+from gpodder.gtkui.model import GEpisode
 from .. import shownotes
 
 _ = gpodder.gettext
@@ -461,11 +462,12 @@ class gPodderEpisodeSelector(BuilderWidget):
         epind = model.get_value(itr, 0)
         episodes = [self.episodes[epind]]
         assert episodes
-        self.shownotes_object.show_pane(episodes)
-        self.shownotes_box.show()
-        self.new_deck.set_can_swipe_forward(True)
-        self.notes_back.grab_focus()
-        self.new_deck.navigate(Handy.NavigationDirection.FORWARD)
+        if isinstance(episodes[0], GEpisode):  # No notes for channels
+            self.shownotes_object.show_pane(episodes)
+            self.shownotes_box.show()
+            self.new_deck.set_can_swipe_forward(True)
+            self.notes_back.grab_focus()
+            self.new_deck.navigate(Handy.NavigationDirection.FORWARD)
 
         self.calculate_total_size()
 
