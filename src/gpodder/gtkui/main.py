@@ -243,10 +243,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         if self.leaflet.get_folded():
             self.leaflet.set_visible_child(self.channelsbox)
-            self.channel_list_forward.set_visible(True)
         else:
             self.header_bar.set_show_close_button(False)
-            self.channel_list_forward.set_visible(False)
             self.leaflet.set_visible_child(self.contentbox)
 
         self.download_tasks_seen = set()
@@ -921,7 +919,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                                            self.podcast_list_model,
                                            self.config,
                                            toggle_button=self.header_bar_search_button,
-                                           return_cb=lambda: self.on_channel_list_forward_clicked(None))
+                                           return_cb=self.on_channel_list_go_forward)
         if self.config.ui.gtk.search_always_visible:
             self._search_podcasts.show_search(grab_focus=False)
         else:
@@ -2624,7 +2622,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_episode_list_back_clicked(self, widget):
         self.leaflet.navigate(Handy.NavigationDirection.BACK)
-        self.channel_list_forward.grab_focus()
+        self.treeChannels.grab_focus()
         return True
 
     def navigate_to_shownotes(self):
@@ -3840,7 +3838,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.leaflet.set_can_swipe_forward(False)
         return True
 
-    def on_channel_list_forward_clicked(self, widget, *params):
+    def on_channel_list_go_forward(self):
         path, column = self.treeChannels.get_cursor()
         self.on_treeChannels_row_activated(self.treeChannels, path)
         self.leaflet.navigate(Handy.NavigationDirection.FORWARD)
