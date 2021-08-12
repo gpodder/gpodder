@@ -646,6 +646,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         def ask():
             # We're abusing the Episode Selector again ;) -- thp
             gPodderEpisodeSelector(self.main_window,
+                    ui_folder=os.path.join(gpodder.ui_folders[0], '..', 'adaptive'),
                     title=_('Confirm changes from gpodder.net'),
                     instructions=_('Select the actions you want to carry out.'),
                     episodes=changes,
@@ -3233,6 +3234,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         gPodderEpisodeSelector(
             self.main_window, title=_('Delete episodes'),
+            ui_folder=os.path.join(gpodder.ui_folders[0], '..', 'adaptive'),
             instructions=instructions,
             episodes=episodes, selected=selected, columns=columns,
             stock_ok_button=_('Delete'), callback=self.delete_episode_list,
@@ -3443,6 +3445,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             selected = [True] * len(episodes)
 
         self.new_episodes_window = gPodderEpisodeSelector(self.main_window,
+                ui_folder=os.path.join(gpodder.ui_folders[0], '..', 'adaptive'),
                 title=_('New episodes available'),
                 instructions=instructions,
                 episodes=episodes,
@@ -3592,6 +3595,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # We're abusing the Episode Selector for selecting Podcasts here,
         # but it works and looks good, so why not? -- thp
         gPodderEpisodeSelector(self.main_window,
+                ui_folder=os.path.join(gpodder.ui_folders[0], '..', 'adaptive'),
                 title=_('Delete podcasts'),
                 instructions=_('Select the podcast you want to delete.'),
                 episodes=self.channels,
