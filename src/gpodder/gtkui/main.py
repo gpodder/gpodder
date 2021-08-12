@@ -4161,15 +4161,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 gPodderEpisodeSelector,
                 self.mount_volume_for_file)
 
-        def start_cb():
-            self.transfer_revealer.set_reveal_child(True)
-
         def done_cb():
             self.set_download_list_state(gPodderSyncUI.DL_ONEOFF)
             util.idle_add(self.transfer_revealer.set_reveal_child, False)
 
+        self.transfer_revealer.set_reveal_child(True)
         self.sync_ui.on_synchronize_episodes(self.channels, episodes, force_played,
-                                             done_cb, start_cb)
+                                             done_cb)
 
     def on_extension_enabled(self, extension):
         if getattr(extension, 'on_ui_object_available', None) is not None:
