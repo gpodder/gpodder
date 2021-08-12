@@ -170,6 +170,9 @@ class gPodderShownotes:
                 widget=dummy_tv) or Gdk.RGBA(0, 0, 0)
             self.visited_color = get_foreground_color(state=Gtk.StateFlags.VISITED,
                 widget=dummy_tv) or self.link_color
+            fc = self.foreground_color
+            self.foreground_color_text = "#%X%X%X" % (
+                int(255 * fc.red), int(255 * fc.green), int(255 * fc.blue))
             del dummy_tv
 
             self.status_bg.override_background_color(Gtk.StateFlags.NORMAL, self.background_color)
@@ -508,7 +511,11 @@ class gPodderShownotesLabel(gPodderShownotes):
         subheading = _('from %s') % (html.escape(episode.channel.title))
         self.define_colors()
         ltext = ''
-        ltext += '<big><b>' + heading + '</b></big>\n'
+        if episode.link:
+            ltext += '<big><b><span underline="none" foreground="%s"><a href="%s" title="%s">%s</a></span></b></big>\n' % (
+                self.foreground_color_text, episode.link, episode.link, heading)
+        else:
+            ltext += '<big><b>' + heading + '</b></big>\n'
         ltext += subheading + '\n'
         ltext += '<small>%s</small>\n\n' % html.escape(self.details_fmt % {
             'date': util.format_date(episode.published),
