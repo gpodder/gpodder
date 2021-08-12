@@ -74,7 +74,7 @@ N_ = gpodder.ngettext
 
 class gPodder(BuilderWidget, dbus.service.Object):
 
-    def __init__(self, app, bus_name, gpodder_core, options):
+    def __init__(self, app, bus_name, gpodder_core, options, **kwargs):
         Handy.init()
         self.menu2sort = {
             "SORT_PUBLISHED": EpisodeListModel.C_PUBLISHED,
@@ -99,7 +99,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.extensions_actions = []
         self._search_podcasts = None
         self._search_episodes = None
-        BuilderWidget.__init__(self, None, _builder_expose={'app': app})
+        BuilderWidget.__init__(self, None, _builder_expose={'app': app}, **kwargs)
 
         self.last_episode_date_refresh = None
         self.refresh_episode_dates()
