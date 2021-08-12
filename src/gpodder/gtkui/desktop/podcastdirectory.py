@@ -28,7 +28,8 @@ import html
 import logging
 import os
 
-from gi.repository import GdkPixbuf, Gtk, Pango
+from gi.repository import GdkPixbuf, GLib, Gtk, Pango
+from gi.repository import Handy  # isort:skip
 
 import gpodder
 from gpodder import directory, util
@@ -99,6 +100,9 @@ class DirectoryProvidersModel(Gtk.ListStore):
 
 class gPodderPodcastDirectory(BuilderWidget):
     def new(self):
+        self.flap_show_image.set_from_file(os.path.join(
+            gpodder.icons_folder, 'actions', 'view-sidebar-end-symbolic.svg'))
+
         if hasattr(self, 'custom_title'):
             self.main_window.set_title(self.custom_title)
 
@@ -119,6 +123,12 @@ class gPodderPodcastDirectory(BuilderWidget):
         self.on_tv_providers_row_activated(self.tv_providers, (0,), None)
 
         self.main_window.show()
+
+        def show_flap(x):
+            self.directory_flap.set_reveal_flap(True)
+            return False
+
+        GLib.timeout_add(500, show_flap, None)
 
     def download_opml_file(self, filename):
         self.providers_model.add_provider(directory.FixedOpmlFileProvider(filename))
@@ -180,6 +190,8 @@ class gPodderPodcastDirectory(BuilderWidget):
             self.providers_model.set_value(it, DirectoryProvidersModel.C_WEIGHT, Pango.Weight.BOLD)
             provider = self.providers_model.get_value(it, DirectoryProvidersModel.C_PROVIDER)
             self.use_provider(provider)
+            if self.directory_flap.get_folded():
+                self.directory_flap.set_reveal_flap(False)
 
     def use_provider(self, provider):
         self.podcasts_model.clear()
@@ -305,3 +317,7 @@ class gPodderPodcastDirectory(BuilderWidget):
 
     def on_btnCancel_clicked(self, widget, *args):
         self.main_window.destroy()
+
+    def on_providers_show_toggled(self, togglebutton, *args):
+        if self.directory_flap.get_folded():
+            self.directory_flap.set_reveal_flap(togglebutton.get_active())
