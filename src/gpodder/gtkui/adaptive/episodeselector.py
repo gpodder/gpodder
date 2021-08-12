@@ -462,7 +462,6 @@ class gPodderEpisodeSelector(BuilderWidget):
         episodes = [self.episodes[epind]]
         assert episodes
         self.shownotes_object.show_pane(episodes)
-        self.new_episodes_forward.set_sensitive(True)
         self.shownotes_box.show()
         self.new_deck.set_can_swipe_forward(True)
         self.notes_back.grab_focus()
@@ -499,10 +498,6 @@ class gPodderEpisodeSelector(BuilderWidget):
         self.gPodderEpisodeSelector.destroy()
         if self.callback is not None:
             self.callback([])
-
-    def on_new_episodes_forward_clicked(self, widget, *params):
-        self.new_deck.navigate(Handy.NavigationDirection.FORWARD)
-        return True
 
     def on_notes_back_clicked(self, widget):
         self.new_deck.navigate(Handy.NavigationDirection.BACK)
