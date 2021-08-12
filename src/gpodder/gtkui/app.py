@@ -271,6 +271,7 @@ class gPodderApplication(Gtk.Application):
 
     def on_itemPreferences_activate(self, action, param=None):
         gPodderPreferences(self.window.gPodder,
+                ui_folder=os.path.join(gpodder.ui_folders[0], '..', 'adaptive'),
                 _config=self.window.config,
                 user_apps_reader=self.window.user_apps_reader,
                 parent_window=self.window.main_window,
