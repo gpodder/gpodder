@@ -60,9 +60,9 @@ class gPodderEpisodeSelector(BuilderWidget):
       - instructions: (optional) A one-line text describing what the
                       user should select / what the selection is for
       - stock_ok_button: (optional) Will replace the "OK" button with
-                         another GTK+ stock item to be used for the
+                         another GTK stock item to be used for the
                          affirmative button of the dialog (e.g. can
-                         be Gtk.STOCK_DELETE when the episodes to be
+                         be '_Delete' when the episodes to be
                          selected will be deleted after closing the
                          dialog)
       - selection_buttons: (optional) A dictionary with labels as
