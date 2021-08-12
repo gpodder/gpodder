@@ -298,6 +298,8 @@ class gPodderPreferences(BuilderWidget):
                                               self.checkbutton_create_playlists)
         self._config.connect_gtk_togglebutton('device_sync.playlists.two_way_sync',
                                               self.checkbutton_delete_using_playlists)
+        self._config.connect_gtk_togglebutton('device_sync.delete_deleted_episodes',
+                                              self.checkbutton_delete_deleted_episodes)
 
         # Have to do this before calling set_active on checkbutton_enable
         self._enable_mygpo = self._config.mygpo.enabled
@@ -650,6 +652,7 @@ class gPodderPreferences(BuilderWidget):
             self.checkbutton_delete_using_playlists.set_sensitive(False)
             self.combobox_on_sync.set_sensitive(False)
             self.checkbutton_skip_played_episodes.set_sensitive(False)
+            self.checkbutton_delete_deleted_episodes.set_sensitive(True)
         elif device_type == 'filesystem':
             self.btn_filesystemMountpoint.set_label(self._config.device_sync.device_folder)
             self.btn_filesystemMountpoint.set_sensitive(True)
@@ -682,15 +685,16 @@ class gPodderPreferences(BuilderWidget):
     def on_btn_device_mountpoint_clicked(self, widget):
         fs = Gtk.FileChooserDialog(title=_('Select folder for mount point'),
                 action=Gtk.FileChooserAction.SELECT_FOLDER)
+        fs.set_local_only(False)
         fs.add_button(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL)
         fs.add_button(Gtk.STOCK_OPEN, Gtk.ResponseType.OK)
-        fs.set_current_folder(self.btn_filesystemMountpoint.get_label())
+
+        fs.set_uri(self.btn_filesystemMountpoint.get_label())
         if fs.run() == Gtk.ResponseType.OK:
-            filename = fs.get_filename()
             if self._config.device_sync.device_type == 'filesystem':
-                self._config.device_sync.device_folder = filename
+                self._config.device_sync.device_folder = fs.get_uri()
             elif self._config.device_sync.device_type == 'ipod':
-                self._config.device_sync.device_folder = filename
+                self._config.device_sync.device_folder = fs.get_filename()
             # Request an update of the mountpoint button
             self.on_combobox_device_type_changed(None)
 

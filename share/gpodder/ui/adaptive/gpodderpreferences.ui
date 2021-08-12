@@ -833,6 +833,20 @@ on device from gPodder</property>
                         <property name="position">10</property>
                       </packing>
                     </child>
+                    <child>
+                      <object class="GtkCheckButton" id="checkbutton_delete_deleted_episodes">
+                        <property name="label" translatable="yes">Remove episodes deleted in gPodder from device</property>
+                        <property name="visible">True</property>
+                        <property name="can-focus">True</property>
+                        <property name="receives-default">False</property>
+                        <property name="draw-indicator">True</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">11</property>
+                      </packing>
+                    </child>
                   </object>
                   <packing>
                     <property name="title" translatable="yes">Devices</property>
