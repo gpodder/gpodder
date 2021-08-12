@@ -61,10 +61,6 @@ import xml.dom.minidom
 from html.entities import entitydefs, name2codepoint
 from html.parser import HTMLParser
 
-import gi
-gi.require_version('Gtk', '3.0')  # isort:skip
-from gi.repository import Gio, GLib, Gtk # isort:skip
-
 import requests
 import requests.exceptions
 from requests.packages.urllib3.util.retry import Retry
@@ -152,6 +148,7 @@ _MIME_TYPE_LIST = [
     ('.wmv', 'video/x-ms-wmv'),
     ('.opus', 'audio/opus'),
     ('.webm', 'video/webm'),
+    ('.webm', 'audio/webm'),
 ]
 
 _MIME_TYPES = dict((k, v) for v, k in _MIME_TYPE_LIST)
@@ -173,6 +170,8 @@ def new_gio_file(path):
     """
     Create a new Gio.File given a path or uri
     """
+    from gi.repository import Gio
+
     if is_absolute_url(path):
         return Gio.File.new_for_uri(path)
     else:
@@ -185,6 +184,8 @@ def make_directory(path):
     Returns True if the directory exists after the function
     call, False otherwise.
     """
+    from gi.repository import Gio, GLib
+
     if not isinstance(path, Gio.File):
         path = new_gio_file(path)
 
@@ -830,6 +831,24 @@ def extract_hyperlinked_text(html):
         return ExtractHyperlinkedText()(html5lib.parseFragment(html))
     else:
         return ExtractHyperlinkedTextHTMLParser()(html)
+
+
+def nice_html_description(img, description):
+    """
+    basic html formating + hyperlink highlighting + video thumbnail
+    """
+    description = re.sub(r'''https?://[^\s]+''',
+                         r'''<a href="\g<0>">\g<0></a>''',
+                         description)
+    description = description.replace('\n', '<br>')
+    html = """<style type="text/css">
+    body > img { float: left; max-width: 30vw; margin: 0 1em 1em 0; }
+    </style>
+    """
+    if img:
+        html += '<img src="{}">'.format(img)
+    html += '<p>{}</p>'.format(description)
+    return html
 
 
 def wrong_extension(extension):
@@ -1835,7 +1854,11 @@ def get_update_info():
     days_since_release = (datetime.datetime.today() - release_parsed).days
 
     def convert(s):
-        return tuple(int(x) for x in s.split('.'))
+        # Use both public and local version label, see PEP 440
+        pubv, locv = next(
+            (v[0], v[1] if len(v) > 1 else '') for v in (s.split('+'),))
+        return tuple(int(x) if x.isdigit() else x.lower()
+            for x in pubv.split('.') + (locv.split('.') if locv else []))
 
     up_to_date = (convert(gpodder.__version__) >= convert(latest_version))
 
@@ -2241,11 +2264,15 @@ def response_text(response, default_encoding='utf-8'):
         return response.content.decode(default_encoding)
 
 
-def mount_volume_for_file(file, op = None):
+def mount_volume_for_file(file, op=None):
     """
     Utility method to mount the enclosing volume for the given file in a blocking
     fashion
     """
+    import gi
+    gi.require_version('Gtk', '3.0')
+    from gi.repository import Gio, GLib, Gtk
+
     result = True
     message = None
 
@@ -2256,7 +2283,7 @@ def mount_volume_for_file(file, op = None):
             result = True
         except GLib.Error as err:
             if (not err.matches(Gio.io_error_quark(), Gio.IOErrorEnum.NOT_SUPPORTED) and
-                not err.matches(Gio.io_error_quark(), Gio.IOErrorEnum.ALREADY_MOUNTED)):
+                    not err.matches(Gio.io_error_quark(), Gio.IOErrorEnum.ALREADY_MOUNTED)):
                 message = err.message
                 result = False
         finally:

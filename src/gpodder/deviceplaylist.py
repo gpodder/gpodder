@@ -24,9 +24,10 @@ import gpodder
 from gpodder import util
 from gpodder.sync import (episode_filename_on_device,
                           episode_foldername_on_device)
-import gi
-gi.require_version('Gtk', '3.0')
-from gi.repository import GLib, Gio
+
+import gi  # isort:skip
+gi.require_version('Gtk', '3.0')  # isort:skip
+from gi.repository import Gio, GLib  # isort:skip
 
 _ = gpodder.gettext
 

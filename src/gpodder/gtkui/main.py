@@ -48,7 +48,7 @@ from .desktop.welcome import gPodderWelcome
 from .desktopfile import UserAppsReader
 from .download import DownloadStatusModel
 from .draw import (cake_size_from_widget, draw_cake_pixbuf,
-                   draw_text_box_centered)
+                   draw_iconcell_scale, draw_text_box_centered)
 from .interface.addpodcast import gPodderAddPodcast
 from .interface.common import (BuilderWidget, TreeViewHelper,
                                ExtensionMenuHelper, Dummy)
@@ -330,6 +330,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
         action = Gio.SimpleAction.new_stateful(
             'viewAlwaysShowNewEpisodes', None, GLib.Variant.new_boolean(self.config.ui.gtk.episode_list.always_show_new))
         action.connect('activate', self.on_item_view_always_show_new_episodes_toggled)
+        g.add_action(action)
+
+        action = Gio.SimpleAction.new_stateful(
+            'viewCtrlClickToSortEpisodes', None, GLib.Variant.new_boolean(self.config.ui.gtk.episode_list.ctrl_click_to_sort))
+        action.connect('activate', self.on_item_view_ctrl_click_to_sort_episodes_toggled)
         g.add_action(action)
 
         action = Gio.SimpleAction.new_stateful(
@@ -789,7 +794,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def init_podcast_list_treeview(self):
         size = cake_size_from_widget(self.treeChannels) * 2
-        self.podcast_list_model.set_max_image_size(size)
+        scale = self.treeChannels.get_scale_factor()
+        self.podcast_list_model.set_max_image_size(size, scale)
         # Set up podcast channel tree view widget
         column = Gtk.TreeViewColumn('')
         iconcell = Gtk.CellRendererPixbuf()
@@ -797,6 +803,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         column.pack_start(iconcell, False)
         column.add_attribute(iconcell, 'pixbuf', PodcastListModel.C_COVER)
         column.add_attribute(iconcell, 'visible', PodcastListModel.C_COVER_VISIBLE)
+        if scale != 1:
+            column.set_cell_data_func(iconcell, draw_iconcell_scale, scale)
 
         namecell = Gtk.CellRendererText()
         namecell.set_property('ellipsize', Pango.EllipsizeMode.END)
@@ -808,6 +816,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         column.pack_start(iconcell, False)
         column.add_attribute(iconcell, 'pixbuf', PodcastListModel.C_PILL)
         column.add_attribute(iconcell, 'visible', PodcastListModel.C_PILL_VISIBLE)
+        if scale != 1:
+            column.set_cell_data_func(iconcell, draw_iconcell_scale, scale)
 
         self.treeChannels.append_column(column)
 
@@ -995,11 +1005,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
         return True
 
     def on_episode_list_header_clicked(self, button, event):
-        if event.button != 3:
-            return False
-
-        if self.episode_columns_menu is not None:
-            self.episode_columns_menu.popup(None, None, None, None, event.button, event.time)
+        if event.button == 1:
+            # Require control click to sort episodes, when enabled
+            if self.config.ui.gtk.episode_list.ctrl_click_to_sort and (event.state & Gdk.ModifierType.CONTROL_MASK) == 0:
+                return True
+        elif event.button == 3:
+            if self.episode_columns_menu is not None:
+                self.episode_columns_menu.popup(None, None, None, None, event.button, event.time)
 
         return False
 
@@ -1514,8 +1526,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 title.append(N_('%(queued)d task queued',
                                 '%(queued)d tasks queued',
                                 queued) % {'queued': queued})
-            if ((downloading + synchronizing + queued) == 0 and
-                self.things_adding_tasks == 0):
+            if (downloading + synchronizing + queued) == 0 and self.things_adding_tasks == 0:
                 self.set_download_progress(1.)
                 self.downloads_finished(self.download_tasks_seen)
                 gpodder.user_extensions.on_all_episodes_downloaded()
@@ -3482,6 +3493,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.config.ui.gtk.episode_list.always_show_new = not state
         action.set_state(GLib.Variant.new_boolean(not state))
 
+    def on_item_view_ctrl_click_to_sort_episodes_toggled(self, action, param):
+        state = action.get_state()
+        self.config.ui.gtk.episode_list.ctrl_click_to_sort = not state
+        action.set_state(GLib.Variant.new_boolean(not state))
+
     def on_item_view_search_always_visible_toggled(self, action, param):
         state = action.get_state()
         self.config.ui.gtk.search_always_visible = not state
@@ -4128,7 +4144,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             file.mount_enclosing_volume_finish(res)
         except GLib.Error as err:
             if (not err.matches(Gio.io_error_quark(), Gio.IOErrorEnum.NOT_SUPPORTED) and
-                not err.matches(Gio.io_error_quark(), Gio.IOErrorEnum.ALREADY_MOUNTED)):
+                    not err.matches(Gio.io_error_quark(), Gio.IOErrorEnum.ALREADY_MOUNTED)):
                 logger.error('mounting volume %s failed: %s' % (file.get_uri(), err.message))
                 result = False
         finally:

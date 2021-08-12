@@ -218,7 +218,7 @@ class gPodderSyncUI(object):
                     message = _('The playlist on your MP3 player has been updated.')
                     self.notification(message, title)
 
-                # called from the main thread to complete adding tasks_
+                # called from the main thread to complete adding tasks
                 def add_downloads_complete():
                     self.set_download_list_state(gPodderSyncUI.DL_ADDED_TASKS)
 
@@ -252,8 +252,7 @@ class gPodderSyncUI(object):
                                 # if playlist doesn't exist (yet) episodes_in_playlist will be empty
                                 if episodes_in_playlists:
                                     for episode_filename in episodes_in_playlists:
-                                        if not playlist.mountpoint.resolve_relative_path(
-                                            episode_filename).query_exists():
+                                        if not playlist.mountpoint.resolve_relative_path(episode_filename).query_exists():
                                             # episode was synced but no longer on device
                                             # i.e. must have been deleted by user, so delete from gpodder
                                             try:
