@@ -159,10 +159,7 @@ def main():
 
     if gpodder.ui.gtk:
         from gpodder.gtkui import app
-        if gpodder.ui.adaptive:
-            gpodder.ui_folders.insert(0, os.path.join(ui_folder, 'adaptive'))
-        else:
-            gpodder.ui_folders.insert(0, os.path.join(ui_folder, 'gtk'))
+        gpodder.ui_folders.insert(0, os.path.join(ui_folder, 'gtk'))
         app.main(options)
     else:
         logger.error('No GUI selected.')
