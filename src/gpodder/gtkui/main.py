@@ -2262,9 +2262,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
             can_delete = not can_cancel
 
         if open_instead_of_play:
-            self.toolPlay.set_stock_id(Gtk.STOCK_OPEN)
+            self.toolPlay.set_icon_name('document-open')
         else:
-            self.toolPlay.set_stock_id(Gtk.STOCK_MEDIA_PLAY)
+            self.toolPlay.set_icon_name('media-playback-start')
         self.toolPlay.set_sensitive(can_play)
         self.toolDownload.set_sensitive(can_download)
         self.toolCancel.set_sensitive(can_cancel)
