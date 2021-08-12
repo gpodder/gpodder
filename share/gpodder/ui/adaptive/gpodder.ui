@@ -273,25 +273,6 @@
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkButton" id="episode_list_forward">
-                                <property name="visible">True</property>
-                                <property name="sensitive" bind-source="deck" bind-property="can_swipe_forward" bind-flags="sync-create">False</property>
-                                <property name="can-focus">True</property>
-                                <property name="receives-default">False</property>
-                                <signal name="clicked" handler="on_episode_list_forward_clicked" swapped="no"/>
-                                <child>
-                                  <object class="GtkImage">
-                                    <property name="visible">True</property>
-                                    <property name="can-focus">False</property>
-                                    <property name="icon-name">go-next-symbolic</property>
-                                  </object>
-                                </child>
-                              </object>
-                              <packing>
-                                <property name="pack-type">end</property>
-                              </packing>
-                            </child>
-                            <child>
                               <object class="GtkToggleButton" id="episode_search_toggle">
                                 <property name="visible">True</property>
                                 <property name="can-focus">True</property>

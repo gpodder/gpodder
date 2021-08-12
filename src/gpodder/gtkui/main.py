@@ -1259,7 +1259,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                                            self.episode_list_model,
                                            self.config,
                                            toggle_button=self.episode_search_toggle,
-                                           return_cb=lambda: self.on_episode_list_forward_clicked(None))
+                                           return_cb=self.on_shownotes_selected_episodes)
         if self.config.ui.gtk.search_always_visible:
             self._search_episodes.show_search(grab_focus=False)
         else:
@@ -1272,7 +1272,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         eps = self.get_selected_episodes()
         if len(eps) > 1:
             self.deck.set_can_swipe_forward(False)
-            self.episode_list_forward.set_sensitive(False)
         self.shownotes_object.set_episodes(eps)
 
     def init_download_list_treeview(self):
@@ -3806,7 +3805,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.treeAvailable.set_cursor(epath)
         if have_eps:
             self.deck.set_can_swipe_forward(True)
-            self.episode_list_forward.set_sensitive(True)
         self.treeAvailable.grab_focus()
         self.leaflet.navigate(Handy.NavigationDirection.FORWARD)
         return True
@@ -3831,7 +3829,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.edit_channel_action.set_enabled(False)
 
         self.deck.set_can_swipe_forward(False)
-        self.episode_list_forward.set_sensitive(False)
         self.update_episode_list_model()
 
     def on_treeChannels_unselect_all(self, widget, *params):
@@ -3843,10 +3840,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.on_treeChannels_row_activated(self.treeChannels, path)
         self.leaflet.navigate(Handy.NavigationDirection.FORWARD)
         self.treeAvailable.grab_focus()
-        return True
-
-    def on_episode_list_forward_clicked(self, widget, *params):
-        self.on_shownotes_selected_episodes()
         return True
 
     def on_btnEditChannel_clicked(self, widget, *args):
@@ -3948,12 +3941,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
         """Double-click/enter action handler for treeAvailable"""
         self.on_shownotes_selected_episodes(widget)
         self.deck.set_can_swipe_forward(True)
-        self.episode_list_forward.set_sensitive(True)
         return True
 
     def on_treeAvailable_unselect_all(self, widget, *params):
         self.deck.set_can_swipe_forward(False)
-        self.episode_list_forward.set_sensitive(False)
         return True
 
     def restart_auto_update_timer(self):
