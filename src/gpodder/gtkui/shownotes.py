@@ -31,7 +31,7 @@ from gpodder.gtkui.draw import (draw_text_box_centered, get_background_color,
 import gi  # isort:skip
 gi.require_version('Gdk', '3.0')  # isort:skip
 gi.require_version('Gtk', '3.0')  # isort:skip
-from gi.repository import Gdk, Gtk, Pango  # isort:skip
+from gi.repository import Gdk, Gio, GLib, Gtk, Pango  # isort:skip
 
 
 _ = gpodder.gettext
@@ -418,8 +418,8 @@ class gPodderShownotesHTML(gPodderShownotes):
             decision.use()
             return False
 
-    def on_open_in_browser(self, action):
-        util.open_website(action.url)
+    def on_open_in_browser(self, action, var):
+        util.open_website(var.get_string())
 
     def on_authenticate(self, view, request):
         if request.is_retry():
@@ -449,10 +449,10 @@ class gPodderShownotesHTML(gPodderShownotes):
             return False
 
     def create_open_item(self, name, label, url):
-        action = Gtk.Action.new(name, label, None, Gtk.STOCK_OPEN)
-        action.url = url
+        action = Gio.SimpleAction.new(name, GLib.VariantType.new('s'))
         action.connect('activate', self.on_open_in_browser)
-        return WebKit2.ContextMenuItem.new(action)
+        var = GLib.Variant.new_string(url)
+        return WebKit2.ContextMenuItem.new_from_gaction(action, label, var)
 
     def get_stylesheet(self):
         if self.stylesheet is None:
