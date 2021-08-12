@@ -26,16 +26,9 @@ _ = gpodder.gettext
 
 
 class gPodderWelcome(BuilderWidget):
-    PADDING = 10
 
     def new(self):
-        for widget in self.vbox_buttons.get_children():
-            for child in widget.get_children():
-                if isinstance(child, Gtk.Alignment):
-                    child.set_padding(self.PADDING, self.PADDING,
-                                      self.PADDING, self.PADDING)
-                else:
-                    child.set_padding(self.PADDING, self.PADDING)
+        self.gPodderWelcome.set_transient_for(self.parent_widget)
 
     def on_btnCancel_clicked(self, button):
         self.main_window.response(Gtk.ResponseType.CANCEL)
