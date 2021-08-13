@@ -19,11 +19,10 @@
             <property name="layout-style">end</property>
             <child>
               <object class="GtkButton" id="btn_close">
-                <property name="label">gtk-cancel</property>
+                <property name="label" translatable="yes">Cancel</property>
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="receives-default">False</property>
-                <property name="use-stock">True</property>
                 <signal name="clicked" handler="on_btn_close_clicked" swapped="no"/>
               </object>
               <packing>
@@ -34,12 +33,11 @@
             </child>
             <child>
               <object class="GtkButton" id="btn_add">
-                <property name="label">gtk-add</property>
+                <property name="label" translatable="yes">Add</property>
                 <property name="visible">True</property>
                 <property name="sensitive">False</property>
                 <property name="can-focus">False</property>
                 <property name="receives-default">False</property>
-                <property name="use-stock">True</property>
                 <signal name="clicked" handler="on_btn_add_clicked" swapped="no"/>
               </object>
               <packing>
@@ -90,11 +88,10 @@
             </child>
             <child>
               <object class="GtkButton" id="btn_paste">
-                <property name="label">gtk-paste</property>
+                <property name="label" translatable="yes">Paste</property>
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="receives-default">False</property>
-                <property name="use-stock">True</property>
                 <signal name="clicked" handler="on_btn_paste_clicked" swapped="no"/>
               </object>
               <packing>
