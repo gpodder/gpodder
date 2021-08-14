@@ -20,11 +20,12 @@
 import os
 import shutil
 
-from gi.repository import Gdk, Gtk, Gio
+from gi.repository import Gdk, Gio, Gtk
 
 import gpodder
 from gpodder import util
 from gpodder.gtkui.base import GtkBuilderWidget
+
 from ..model import PodcastListModel
 
 _ = gpodder.gettext

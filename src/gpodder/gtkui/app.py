@@ -31,8 +31,8 @@ import gpodder
 from gpodder import core, util
 from gpodder.model import check_root_folder_path
 
-from .config import UIConfig
 from .adaptive.preferences import gPodderPreferences
+from .config import UIConfig
 from .main import gPodder
 from .model import Model
 

@@ -28,8 +28,7 @@ import html
 import logging
 import os
 
-from gi.repository import GdkPixbuf, GLib, Gtk, Pango
-from gi.repository import Handy  # isort:skip
+from gi.repository import GdkPixbuf, GLib, Gtk, Handy, Pango
 
 import gpodder
 from gpodder import directory, util

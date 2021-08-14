@@ -18,16 +18,17 @@
 #
 
 import gi
+
 gi.require_version('Gtk', '3.0')  # isort:skip
 gi.require_version('Gdk', '3.0')  # isort:skip
 gi.require_version('Handy', '1')  # isort:skip
-from gi.repository import Gdk, Gtk, Pango
-from gi.repository import Handy  # isort:skip
+from gi.repository import Gdk, Gtk, Handy, Pango
 
 import gpodder
 from gpodder import util
 from gpodder.gtkui.interface.common import BuilderWidget, TreeViewHelper
 from gpodder.gtkui.model import GEpisode
+
 from .. import shownotes
 
 _ = gpodder.gettext

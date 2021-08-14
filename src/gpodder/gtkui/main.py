@@ -40,8 +40,8 @@ from gpodder.model import Model, PodcastEpisode
 from gpodder.syncui import gPodderSyncUI
 
 from . import shownotes
-from .desktop.channel import gPodderChannel
 from .adaptive.episodeselector import gPodderEpisodeSelector
+from .desktop.channel import gPodderChannel
 from .desktop.exportlocal import gPodderExportToLocalFolder
 from .desktop.podcastdirectory import gPodderPodcastDirectory
 from .desktop.welcome import gPodderWelcome
@@ -50,8 +50,8 @@ from .download import DownloadStatusModel
 from .draw import (cake_size_from_widget, draw_cake_pixbuf,
                    draw_iconcell_scale, draw_text_box_centered)
 from .interface.addpodcast import gPodderAddPodcast
-from .interface.common import (BuilderWidget, TreeViewHelper,
-                               ExtensionMenuHelper, Dummy)
+from .interface.common import (BuilderWidget, Dummy, ExtensionMenuHelper,
+                               TreeViewHelper)
 from .interface.progress import ProgressIndicator
 from .interface.searchtree import SearchTreeBar
 from .model import EpisodeListModel, PodcastChannelProxy, PodcastListModel

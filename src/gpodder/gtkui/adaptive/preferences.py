@@ -27,9 +27,9 @@ from gi.repository import Gdk, Gtk, Pango
 import gpodder
 from gpodder import util, vimeo, youtube
 from gpodder.gtkui.desktopfile import PlayerListModel
+from gpodder.gtkui.draw import get_background_color
 from gpodder.gtkui.interface.common import BuilderWidget, TreeViewHelper
 from gpodder.gtkui.interface.configeditor import gPodderConfigEditor
-from gpodder.gtkui.draw import get_background_color
 
 logger = logging.getLogger(__name__)
 
