@@ -22,6 +22,10 @@ import logging
 import os
 import urllib.parse
 
+import gi
+
+gi.require_version('Gdk', '3.0')  # isort:skip
+gi.require_version('Gtk', '3.0')  # isort:skip
 from gi.repository import Gdk, Gtk, Pango
 
 import gpodder
