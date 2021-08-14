@@ -1,35 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.38.2 -->
 <interface>
   <requires lib="gtk+" version="3.0"/>
+  <object class="GtkCheckButton" id="allsamefolder">
+    <property name="visible">True</property>
+    <property name="can-focus">True</property>
+    <property name="receives-default">False</property>
+    <property name="draw-indicator">True</property>
+  </object>
   <object class="GtkFileChooserDialog" id="gPodderExportToLocalFolder">
-    <property name="can_focus">False</property>
+    <property name="can-focus">False</property>
     <property name="title" translatable="yes">Select destination</property>
     <property name="modal">True</property>
-    <property name="window_position">center-on-parent</property>
-    <property name="type_hint">dialog</property>
+    <property name="window-position">center-on-parent</property>
+    <property name="type-hint">dialog</property>
     <property name="action">save</property>
-    <property name="do_overwrite_confirmation">True</property>
-    <property name="preview_widget_active">False</property>
-    <property name="use_preview_label">False</property>
-    <property name="extra_widget">allsamefolder</property>
+    <property name="do-overwrite-confirmation">True</property>
+    <property name="extra-widget">allsamefolder</property>
+    <property name="preview-widget-active">False</property>
+    <property name="use-preview-label">False</property>
     <child internal-child="vbox">
       <object class="GtkBox">
-        <property name="can_focus">False</property>
+        <property name="can-focus">False</property>
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
         <child internal-child="action_area">
           <object class="GtkButtonBox">
-            <property name="can_focus">False</property>
-            <property name="layout_style">end</property>
+            <property name="can-focus">False</property>
+            <property name="layout-style">end</property>
             <child>
               <object class="GtkButton" id="btnOK">
                 <property name="label">gtk-save</property>
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="can_default">True</property>
-                <property name="has_default">True</property>
-                <property name="receives_default">True</property>
-                <property name="use_stock">True</property>
+                <property name="can-focus">True</property>
+                <property name="can-default">True</property>
+                <property name="has-default">True</property>
+                <property name="receives-default">True</property>
+                <property name="use-stock">True</property>
                 <signal name="clicked" handler="on_btnOK_clicked" swapped="no"/>
               </object>
               <packing>
@@ -42,9 +49,9 @@
               <object class="GtkButton" id="btnCancel">
                 <property name="label">gtk-cancel</property>
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">False</property>
-                <property name="use_stock">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">False</property>
+                <property name="use-stock">True</property>
                 <signal name="clicked" handler="on_btnCancel_clicked" swapped="no"/>
               </object>
               <packing>
@@ -62,16 +69,9 @@
         </child>
       </object>
     </child>
-    <!-- to be recognized by the embedded GtkFileChooser -->
     <action-widgets>
       <action-widget response="-3">btnOK</action-widget>
       <action-widget response="-6">btnCancel</action-widget>
     </action-widgets>
-  </object>
-  <object class="GtkCheckButton" id="allsamefolder">
-	<property name="visible">True</property>
-	<property name="can_focus">True</property>
-	<property name="receives_default">False</property>
-	<property name="draw_indicator">True</property>
   </object>
 </interface>
