@@ -43,7 +43,7 @@ PyPI. With this, you get a self-contained gPodder CLI codebase.
 ### GTK3 UI - Additional Dependencies
 
 - [PyGObject](https://wiki.gnome.org/PyGObject) 3.22.0 or newer
-- [GTK+3](https://www.gtk.org/) 3.10 or newer
+- [GTK+3](https://www.gtk.org/) 3.16 or newer
 
 
 ### Optional Dependencies
