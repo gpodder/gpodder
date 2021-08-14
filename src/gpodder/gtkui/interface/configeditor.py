@@ -30,6 +30,7 @@ _ = gpodder.gettext
 
 class gPodderConfigEditor(BuilderWidget):
     def new(self):
+        self.gPodderConfigEditor.set_transient_for(self.parent_widget)
         name_column = Gtk.TreeViewColumn(_('Setting'))
         name_renderer = Gtk.CellRendererText()
         name_column.pack_start(name_renderer, True)
