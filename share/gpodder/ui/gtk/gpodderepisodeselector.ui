@@ -124,42 +124,34 @@
                     <property name="receives-default">False</property>
                     <signal name="clicked" handler="on_btnCheckAll_clicked" swapped="no"/>
                     <child>
-                      <object class="GtkAlignment" id="alignment22">
+                      <object class="GtkBox" id="hbox34">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
-                        <property name="xscale">0</property>
-                        <property name="yscale">0</property>
+                        <property name="spacing">2</property>
                         <child>
-                          <object class="GtkBox" id="hbox34">
+                          <object class="GtkImage" id="image2636">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
-                            <property name="spacing">2</property>
-                            <child>
-                              <object class="GtkImage" id="image2636">
-                                <property name="visible">True</property>
-                                <property name="can-focus">False</property>
-                                <property name="icon-name">gtk-apply</property>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">False</property>
-                                <property name="position">0</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkLabel" id="label107">
-                                <property name="visible">True</property>
-                                <property name="can-focus">False</property>
-                                <property name="label" translatable="yes">Select all</property>
-                                <property name="use-underline">True</property>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">False</property>
-                                <property name="position">1</property>
-                              </packing>
-                            </child>
+                            <property name="icon-name">gtk-apply</property>
                           </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">False</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="label107">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="label" translatable="yes">Select all</property>
+                            <property name="use-underline">True</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">False</property>
+                            <property name="position">1</property>
+                          </packing>
                         </child>
                       </object>
                     </child>
@@ -177,42 +169,34 @@
                     <property name="receives-default">False</property>
                     <signal name="clicked" handler="on_btnCheckNone_clicked" swapped="no"/>
                     <child>
-                      <object class="GtkAlignment" id="alignment21">
+                      <object class="GtkBox" id="hbox33">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
-                        <property name="xscale">0</property>
-                        <property name="yscale">0</property>
+                        <property name="spacing">2</property>
                         <child>
-                          <object class="GtkBox" id="hbox33">
+                          <object class="GtkImage" id="image2635">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
-                            <property name="spacing">2</property>
-                            <child>
-                              <object class="GtkImage" id="image2635">
-                                <property name="visible">True</property>
-                                <property name="can-focus">False</property>
-                                <property name="icon-name">gtk-revert-to-saved</property>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">False</property>
-                                <property name="position">0</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkLabel" id="label106">
-                                <property name="visible">True</property>
-                                <property name="can-focus">False</property>
-                                <property name="label" translatable="yes">Select none</property>
-                                <property name="use-underline">True</property>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">False</property>
-                                <property name="position">1</property>
-                              </packing>
-                            </child>
+                            <property name="icon-name">gtk-revert-to-saved</property>
                           </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">False</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="label106">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="label" translatable="yes">Select none</property>
+                            <property name="use-underline">True</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">False</property>
+                            <property name="position">1</property>
+                          </packing>
                         </child>
                       </object>
                     </child>
