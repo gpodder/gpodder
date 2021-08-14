@@ -36,8 +36,7 @@
                 <property name="can-focus">False</property>
                 <property name="is-important">True</property>
                 <property name="label" translatable="yes">Download</property>
-                <property name="use-underline">True</property>
-                <property name="stock-id">gtk-go-down</property>
+                <property name="icon-name">go-down</property>
                 <signal name="clicked" handler="on_download_selected_episodes" swapped="no"/>
               </object>
               <packing>
@@ -51,7 +50,8 @@
                 <property name="sensitive">False</property>
                 <property name="can-focus">False</property>
                 <property name="is-important">True</property>
-                <property name="stock-id">gtk-media-play</property>
+                <property name="label" translatable="yes">Play</property>
+                <property name="icon-name">media-playback-start</property>
                 <signal name="clicked" handler="on_playback_selected_episodes" swapped="no"/>
               </object>
               <packing>
@@ -66,8 +66,7 @@
                 <property name="can-focus">False</property>
                 <property name="is-important">True</property>
                 <property name="label" translatable="yes">Cancel</property>
-                <property name="use-underline">True</property>
-                <property name="stock-id">gtk-cancel</property>
+                <property name="icon-name">process-stop</property>
                 <signal name="clicked" handler="on_item_cancel_download_activate" swapped="no"/>
               </object>
               <packing>
@@ -91,7 +90,7 @@
                 <property name="can-focus">False</property>
                 <property name="action-name">app.preferences</property>
                 <property name="label" translatable="yes">Preferences</property>
-                <property name="stock-id">gtk-preferences</property>
+                <property name="icon-name">preferences-desktop</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -113,7 +112,7 @@
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="label" translatable="yes">Quit</property>
-                <property name="stock-id">gtk-quit</property>
+                <property name="icon-name">application-exit</property>
                 <signal name="clicked" handler="on_gPodder_delete_event" swapped="no"/>
               </object>
               <packing>
@@ -190,9 +189,9 @@
                             <child>
                               <object class="GtkEntry" id="entry_search_podcasts">
                                 <property name="visible">True</property>
-                                <property name="can-focus">False</property>
+                                <property name="can-focus">True</property>
                                 <property name="hexpand">True</property>
-                                <property name="secondary-icon-stock">gtk-close</property>
+                                <property name="secondary-icon-name">edit-clear</property>
                               </object>
                               <packing>
                                 <property name="left-attach">0</property>
@@ -276,7 +275,7 @@
                                       <object class="GtkImage" id="image3209">
                                         <property name="visible">True</property>
                                         <property name="can-focus">False</property>
-                                        <property name="stock">gtk-cancel</property>
+                                        <property name="icon-name">process-stop</property>
                                       </object>
                                     </child>
                                   </object>
@@ -383,7 +382,6 @@
                                 <property name="visible">True</property>
                                 <property name="can-focus">True</property>
                                 <property name="has-tooltip">True</property>
-                                <property name="rules-hint">True</property>
                                 <property name="enable-search">False</property>
                                 <property name="rubber-banding">True</property>
                                 <signal name="button-press-event" handler="on_treeview_button_pressed" swapped="no"/>
@@ -421,9 +419,9 @@
                             <child>
                               <object class="GtkEntry" id="entry_search_episodes">
                                 <property name="visible">True</property>
-                                <property name="can-focus">False</property>
+                                <property name="can-focus">True</property>
                                 <property name="hexpand">True</property>
-                                <property name="secondary-icon-stock">gtk-close</property>
+                                <property name="secondary-icon-name">edit-clear</property>
                               </object>
                               <packing>
                                 <property name="left-attach">1</property>
