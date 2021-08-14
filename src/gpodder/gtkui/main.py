@@ -572,7 +572,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     episodes=changes,
                     columns=columns,
                     size_attribute=None,
-                    stock_ok_button=Gtk.STOCK_APPLY,
+                    ok_button=_('_Apply'),
                     callback=execute_podcast_actions,
                     _config=self.config)
 
@@ -2985,7 +2985,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.main_window, title=_('Delete episodes'),
             instructions=instructions,
             episodes=episodes, selected=selected, columns=columns,
-            stock_ok_button='edit-delete', callback=self.delete_episode_list,
+            ok_button=_('_Delete'), callback=self.delete_episode_list,
             selection_buttons=selection_buttons, _config=self.config)
 
     def on_selected_episodes_status_changed(self):
@@ -3177,7 +3177,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 episodes=episodes,
                 columns=columns,
                 selected=selected,
-                stock_ok_button='gpodder-download',
+                ok_button='gpodder-download',
                 callback=download_episodes_callback,
                 remove_callback=lambda e: e.mark_old(),
                 remove_action=_('Mark as old'),
@@ -3313,7 +3313,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 episodes=self.channels,
                 columns=columns,
                 size_attribute=None,
-                stock_ok_button=_('Delete'),
+                ok_button=_('_Delete'),
                 callback=self.remove_podcast_list,
                 _config=self.config)
 
