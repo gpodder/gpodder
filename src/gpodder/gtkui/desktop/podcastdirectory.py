@@ -99,6 +99,7 @@ class DirectoryProvidersModel(Gtk.ListStore):
 
 class gPodderPodcastDirectory(BuilderWidget):
     def new(self):
+        self.gPodderPodcastDirectory.set_transient_for(self.parent_widget)
         if hasattr(self, 'custom_title'):
             self.main_window.set_title(self.custom_title)
 
