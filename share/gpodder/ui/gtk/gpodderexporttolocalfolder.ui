@@ -30,13 +30,12 @@
             <property name="layout-style">end</property>
             <child>
               <object class="GtkButton" id="btnOK">
-                <property name="label">gtk-save</property>
+                <property name="label" translatable="yes">Save</property>
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <property name="can-default">True</property>
                 <property name="has-default">True</property>
                 <property name="receives-default">True</property>
-                <property name="use-stock">True</property>
                 <signal name="clicked" handler="on_btnOK_clicked" swapped="no"/>
               </object>
               <packing>
@@ -47,11 +46,10 @@
             </child>
             <child>
               <object class="GtkButton" id="btnCancel">
-                <property name="label">gtk-cancel</property>
+                <property name="label" translatable="yes">Cancel</property>
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <property name="receives-default">False</property>
-                <property name="use-stock">True</property>
                 <signal name="clicked" handler="on_btnCancel_clicked" swapped="no"/>
               </object>
               <packing>
