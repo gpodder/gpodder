@@ -29,6 +29,7 @@ class gPodderWelcome(BuilderWidget):
     PADDING = 10
 
     def new(self):
+        self.gPodderWelcome.set_transient_for(self.parent_widget)
         for widget in self.vbox_buttons.get_children():
             for child in widget.get_children():
                 if isinstance(child, Gtk.Alignment):
