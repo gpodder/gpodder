@@ -185,6 +185,7 @@ class gPodderPreferences(BuilderWidget):
     C_TOGGLE, C_LABEL, C_EXTENSION, C_SHOW_TOGGLE = list(range(4))
 
     def new(self):
+        self.gPodderPreferences.set_transient_for(self.parent_widget)
         for cb in (self.combo_audio_player_app, self.combo_video_player_app):
             cellrenderer = Gtk.CellRendererPixbuf()
             cb.pack_start(cellrenderer, False)
