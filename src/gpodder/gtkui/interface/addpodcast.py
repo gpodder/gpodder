@@ -28,6 +28,7 @@ _ = gpodder.gettext
 
 class gPodderAddPodcast(BuilderWidget):
     def new(self):
+        self.gPodderAddPodcast.set_transient_for(self.parent_widget)
         if not hasattr(self, 'add_podcast_list'):
             self.add_podcast_list = None
         if hasattr(self, 'custom_label'):
