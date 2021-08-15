@@ -169,9 +169,17 @@ class PodcastParserFeed(Feed):
             # Detect (and update) existing episode based on GUIDs
             existing_episode = existing_guids.get(episode.guid, None)
             if existing_episode:
+                if existing_episode.total_time == 0 and 'youtube' in episode.url:
+                    # query duration for existing youtube episodes that haven't been downloaded or queried
+                    # such as live streams after they have ended
+                    existing_episode.total_time = youtube.get_total_time(episode)
+
                 existing_episode.update_from(episode)
                 existing_episode.save()
                 continue
+            elif episode.total_time == 0 and 'youtube' in episode.url:
+                # query duration for new youtube episodes
+                episode.total_time = youtube.get_total_time(episode)
 
             episode.save()
             new_episodes.append(episode)
