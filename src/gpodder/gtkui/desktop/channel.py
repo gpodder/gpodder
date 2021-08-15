@@ -164,7 +164,7 @@ class gPodderChannel(BuilderWidget):
         def set_cover(channel, pixbuf):
             if self.channel == channel:
                 if pixbuf is not None:
-                    self.imgCover.set_from_pixbuf(self.scale_pixbuf(pixbuf))
+                    self.imgCover.set_from_pixbuf(util.scale_pixbuf(pixbuf, self.MAX_SIZE))
                 if self.show_on_cover_load:
                     self.main_window.show()
                     self.show_on_cover_load = False
@@ -192,22 +192,6 @@ class gPodderChannel(BuilderWidget):
 
     def on_gPodderChannel_destroy(self, widget, *args):
         self.cover_downloader.unregister('cover-available', self.cover_download_finished)
-
-    def scale_pixbuf(self, pixbuf):
-
-        # Resize if width is too large
-        if pixbuf.get_width() > self.MAX_SIZE:
-            f = float(self.MAX_SIZE) / pixbuf.get_width()
-            (width, height) = (int(pixbuf.get_width() * f), int(pixbuf.get_height() * f))
-            pixbuf = pixbuf.scale_simple(width, height, GdkPixbuf.InterpType.BILINEAR)
-
-        # Resize if height is too large
-        if pixbuf.get_height() > self.MAX_SIZE:
-            f = float(self.MAX_SIZE) / pixbuf.get_height()
-            (width, height) = (int(pixbuf.get_width() * f), int(pixbuf.get_height() * f))
-            pixbuf = pixbuf.scale_simple(width, height, GdkPixbuf.InterpType.BILINEAR)
-
-        return pixbuf
 
     # Title editing callbacks
     def on_title_edit_button_clicked(self, button):
