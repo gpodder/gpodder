@@ -82,6 +82,9 @@ def main():
 
     gpodder.prefix = prefix
 
+    # Package managers can install the empty file {prefix}/share/gpodder/no-update-check to disable update checks
+    gpodder.no_update_check_file = os.path.join(prefix, 'share', 'gpodder', 'no-update-check')
+
     # Enable i18n for gPodder translations
     _ = gpodder.gettext
 

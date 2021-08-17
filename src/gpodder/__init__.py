@@ -166,6 +166,8 @@ prefix = None
 
 ENV_HOME, ENV_DOWNLOADS = 'GPODDER_HOME', 'GPODDER_DOWNLOAD_DIR'
 
+no_update_check_file = None
+
 
 # Function to set a new gPodder home folder
 def set_home(new_home):

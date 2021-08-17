@@ -251,7 +251,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             diff = time.time() - self.config.software_update.last_check
             if diff > (60 * 60 * 24) * self.config.software_update.interval:
                 self.config.software_update.last_check = int(time.time())
-                self.check_for_updates(silent=True)
+                if not os.path.exists(gpodder.no_update_check_file):
+                    self.check_for_updates(silent=True)
 
     def create_actions(self):
         g = self.gPodder
@@ -3455,6 +3456,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_homepage_activate(self, widget, *args):
         util.open_website(gpodder.__url__)
+
+    def check_for_distro_updates(self):
+        title = _('Managed by distribution')
+        message = _('Please check your distribution for gPodder updates.')
+        self.show_message(message, title, important=True)
 
     def check_for_updates(self, silent):
         """Check for updates and (optionally) show a message
