@@ -32,10 +32,11 @@ _ = gpodder.gettext
 def show_message_dialog(parent, message, title=None):
     dlg = Gtk.MessageDialog(parent, Gtk.DialogFlags.MODAL, Gtk.MessageType.INFO, Gtk.ButtonsType.OK)
     if title:
-        dlg.set_title(str(title))
-        dlg.set_markup('<span weight="bold" size="larger">%s</span>\n\n%s' % (title, message))
+        dlg.set_title(title)
+        dlg.set_property('text', title)
+        dlg.format_secondary_text(message)
     else:
-        dlg.set_markup('<span weight="bold" size="larger">%s</span>' % (message))
+        dlg.set_property('text', message)
     # make message copy/pastable
     for lbl in dlg.get_message_area():
         if isinstance(lbl, Gtk.Label):
