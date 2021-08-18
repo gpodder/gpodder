@@ -200,42 +200,24 @@ class gPodderApplication(Gtk.Application):
         self.menu_popover.popup()
 
     def on_about(self, action, param):
-        dlg = Gtk.Dialog(_('About gPodder'), self.window.gPodder,
-                Gtk.DialogFlags.MODAL)
-        dlg.add_button(Gtk.STOCK_CLOSE, Gtk.ResponseType.OK).show()
-        dlg.set_resizable(True)
+        ABOUT_DIALOG_DATA = {
+            'program-name': 'gPodder',
+            'version': gpodder.__version__,
+            'comments': gpodder.__tagline__,
+            'website': gpodder.__url__,
+            'copyright': gpodder.__copyright__,
+            'license-type': Gtk.License.GPL_3_0,
+            'logo-icon-name': 'gpodder',
+            # TODO: Authors, Artists, Documenters
+        }
 
-        bg = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6, margin=16)
-        pb = GdkPixbuf.Pixbuf.new_from_file_at_size(gpodder.icon_file, 160, 160)
-        bg.pack_start(Gtk.Image.new_from_pixbuf(pb), False, False, 0)
-        label = Gtk.Label(justify=Gtk.Justification.CENTER)
-        label.set_markup('\n'.join(x.strip() for x in """
-        <b>gPodder {version} ({date})</b>
-
-        {copyright}
-
-        {license}
-
-        <a href="{url}">{tr_website}</a> · <a href="{bugs_url}">{tr_bugtracker}</a>
-        """.format(version=gpodder.__version__,
-                   date=gpodder.__date__,
-                   copyright=gpodder.__copyright__,
-                   license=gpodder.__license__,
-                   bugs_url='https://github.com/gpodder/gpodder/issues',
-                   url=html.escape(gpodder.__url__),
-                   tr_website=_('Website'),
-                   tr_bugtracker=_('Bug Tracker')).strip().split('\n')))
-        label.connect('activate-link', lambda label, url: util.open_website(url))
-
-        bg.pack_start(label, False, False, 0)
-        bg.pack_start(Gtk.Label(), False, False, 0)
-
-        dlg.vbox.pack_start(bg, False, False, 0)
-        dlg.connect('response', lambda dlg, response: dlg.destroy())
-
-        dlg.vbox.show_all()
-
-        dlg.run()
+        about_dialog = Gtk.AboutDialog()
+        about_dialog.set_modal(True)
+        about_dialog.set_transient_for(self.window.main_window)
+        about_dialog.set_destroy_with_parent(True)
+        for k, v in ABOUT_DIALOG_DATA.items():
+            about_dialog.set_property(k, v)
+        about_dialog.present()
 
     def on_quit(self, *args):
         self.window.on_gPodder_delete_event()
