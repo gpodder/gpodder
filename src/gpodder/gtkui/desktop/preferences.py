@@ -462,13 +462,11 @@ class gPodderPreferences(BuilderWidget):
         if not container or not model:
             return
 
-        # This is one ugly hack, but it displays the attributes of
-        # the metadata object of the container..
-        info = '\n'.join('<b>%s:</b> %s' %
-                         tuple(map(html.escape, list(map(str, (key, value)))))
-                         for key, value in container.metadata.get_sorted())
+        info = '\n'.join('<b>{}:</b> {}'.format(html.escape(key), html.escape(value))
+                         for key, value in container.metadata.get_sorted()
+                         if key not in ('title', 'description'))
 
-        self.show_message(info, _('Extension module info'), important=True)
+        self.show_message_details(container.metadata.title, container.metadata.description, info)
 
     def open_weblink(self, w, url):
         util.open_website(url)
