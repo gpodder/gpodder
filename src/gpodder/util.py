@@ -2292,3 +2292,20 @@ def mount_volume_for_file(file, op=None):
     file.mount_enclosing_volume(Gio.MountMountFlags.NONE, op, None, callback)
     Gtk.main()
     return result, message
+
+
+def scale_pixbuf(pixbuf, max):
+    import gi
+    from gi.repository import GdkPixbuf
+
+    w_cur = pixbuf.get_width()
+    h_cur = pixbuf.get_height()
+
+    if w_cur <= max and h_cur <= max:
+        return pixbuf
+
+    f = max / (w_cur if w_cur >= h_cur else h_cur)
+    w_new = int(w_cur * f)
+    h_new = int(h_cur * f)
+
+    return pixbuf.scale_simple(w_new, h_new, GdkPixbuf.InterpType.BILINEAR)
