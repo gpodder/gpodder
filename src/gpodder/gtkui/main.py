@@ -95,10 +95,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.refresh_episode_dates()
 
     def new(self):
+        self.stack_switcher = Gtk.StackSwitcher()
+        self.stack_switcher.set_stack(self.wNotebook)
+
         if self.application.want_headerbar:
             self.header_bar = Gtk.HeaderBar()
             self.header_bar.pack_end(self.application.header_bar_menu_button)
             self.header_bar.pack_start(self.application.header_bar_refresh_button)
+            self.header_bar.set_custom_title(self.stack_switcher)
             self.header_bar.set_show_close_button(True)
             self.header_bar.show_all()
 
@@ -106,6 +110,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.vboxChannelNavigator.set_row_spacing(0)
 
             self.main_window.set_titlebar(self.header_bar)
+        else:
+            self.vMain.pack_start(self.stack_switcher, False, True, 6)
+            self.stack_switcher.set_property('halign', Gtk.Align.CENTER)
+            self.vMain.reorder_child(self.stack_switcher, 1)
+            self.stack_switcher.show_all()
 
         gpodder.user_extensions.on_ui_object_available('gpodder-gtk', self)
         self.toolbar.set_property('visible', self.config.show_toolbar)
@@ -356,7 +365,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if self.extensions_menu is None:
             # insert menu section at startup (hides when empty)
             self.extensions_menu = Gio.Menu.new()
-            menubar = self.application.get_menubar()
+            menubar = self.application.menubar
             for i in range(0, menubar.get_n_items()):
                 menu = menubar.do_get_item_link(menubar, i, Gio.MENU_LINK_SUBMENU)
                 menuname = menubar.get_item_attribute_value(i, Gio.MENU_ATTRIBUTE_LABEL, None)
@@ -388,7 +397,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     '%(count)d partial file', '%(count)d partial files',
                     count) % {'count': count})
 
-                util.idle_add(self.wNotebook.set_current_page, 1)
+                util.idle_add(self.wNotebook.set_visible_child, self.vboxDownloadStatusWidgets)
 
         def progress_callback(title, progress):
             self.partial_downloads_indicator.on_message(title)
@@ -415,7 +424,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     self.vboxDownloadStatusWidgets.attach(self.message_area, 0, -1, 1, 1)
                     self.message_area.show_all()
                 else:
-                    util.idle_add(self.wNotebook.set_current_page, 0)
+                    util.idle_add(self.wNotebook.set_visible_child, self.channelPaned)
                 logger.debug("find_partial_downloads done, calling extensions")
                 gpodder.user_extensions.on_find_partial_downloads_done()
 
@@ -1135,12 +1144,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # Update the downloads list one more time
         self.update_downloads_list(can_call_cleanup=False)
 
-    def on_tool_downloads_toggled(self, toolbutton):
-        if toolbutton.get_active():
-            self.wNotebook.set_current_page(1)
-        else:
-            self.wNotebook.set_current_page(0)
-
     def add_download_task_monitor(self, monitor):
         self.download_task_monitors.add(monitor)
         model = self.download_status_model
@@ -1219,7 +1222,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 if queued > 0:
                     s.append(N_('%(count)d queued', '%(count)d queued', queued) % {'count': queued})
                 text.append(' (' + ', '.join(s) + ')')
-            self.labelDownloads.set_text(''.join(text))
+            self.wNotebook.child_set_property(self.vboxDownloadStatusWidgets, 'title', ''.join(text))
 
             title = [self.default_title]
 
@@ -2186,10 +2189,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.episode_list_status_changed(episodes)
 
-    def play_or_download(self, current_page=None):
-        if current_page is None:
-            current_page = self.wNotebook.get_current_page()
-        if current_page > 0:
+    def play_or_download(self):
+        visible_child = self.wNotebook.get_property('visible-child')
+        if visible_child == self.vboxDownloadStatusWidgets:
             self.toolCancel.set_sensitive(True)
             return (False, False, False, False, False)
 
@@ -3503,9 +3505,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if self.show_confirmation(message, title):
                 util.open_website('http://gpodder.org/downloads')
 
-    def on_wNotebook_switch_page(self, notebook, page, page_num):
-        if page_num == 0:
-            self.play_or_download(current_page=page_num)
+    def on_wNotebook_switch_page(self, widget, param):
+        visible_child = self.wNotebook.get_property('visible-child')
+        if visible_child == self.channelPaned:
+            self.play_or_download()
             # The message area in the downloads tab should be hidden
             # when the user switches away from the downloads tab
             if self.message_area is not None:
@@ -3636,7 +3639,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.update_downloads_list()
 
     def on_item_cancel_download_activate(self, *params, force=False):
-        if self.wNotebook.get_current_page() == 0:
+        visible_child = self.wNotebook.get_property('visible-child')
+
+        if visible_child == self.channelPaned:
             selection = self.treeAvailable.get_selection()
             (model, paths) = selection.get_selected_rows()
             urls = [model.get_value(model.get_iter(path),
@@ -3660,16 +3665,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_key_press(self, widget, event):
         # Allow tab switching with Ctrl + PgUp/PgDown/Tab
         if event.get_state() & Gdk.ModifierType.CONTROL_MASK:
-            current_page = self.wNotebook.get_current_page()
-            if event.keyval in (Gdk.KEY_Page_Up, Gdk.KEY_ISO_Left_Tab):
-                if current_page == 0:
-                    current_page = self.wNotebook.get_n_pages()
-                self.wNotebook.set_current_page(current_page - 1)
-                return True
-            elif event.keyval in (Gdk.KEY_Page_Down, Gdk.KEY_Tab):
-                if current_page == self.wNotebook.get_n_pages() - 1:
-                    current_page = -1
-                self.wNotebook.set_current_page(current_page + 1)
+            visible_child = self.wNotebook.get_property('visible-child')
+            if event.keyval in (Gdk.KEY_Page_Up, Gdk.KEY_ISO_Left_Tab, Gdk.KEY_Page_Down, Gdk.KEY_Tab):
+                if visible_child == self.channelPaned:
+                    self.wNotebook.set_visible_child(self.vboxDownloadStatusWidgets)
+                else:
+                    self.wNotebook.set_visible_child(self.channelPaned)
                 return True
         elif event.keyval == Gdk.KEY_Delete:
             if isinstance(widget.get_focus(), Gtk.Entry):

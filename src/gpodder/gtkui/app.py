@@ -79,6 +79,7 @@ class gPodderApplication(Gtk.Application):
         Gtk.Application.__init__(self, application_id='org.gpodder.gpodder',
                          flags=Gio.ApplicationFlags.FLAGS_NONE)
         self.window = None
+        self.menubar = None
         self.options = options
         self.connect('window-removed', self.on_window_removed)
 
@@ -127,13 +128,12 @@ class gPodderApplication(Gtk.Application):
                 menu_filename = filename
                 break
 
-        menubar = builder.get_object('menubar')
-        if menubar is None:
+        self.menubar = builder.get_object('menubar')
+        if self.menubar is None:
             logger.error('Cannot find gtk/menus.ui in %r, exiting' % gpodder.ui_folders)
             sys.exit(1)
 
         self.menu_view_columns = builder.get_object('menuViewColumns')
-        self.set_menubar(menubar)
 
         # If $XDG_CURRENT_DESKTOP is set then it contains a colon-separated list of strings.
         # https://specifications.freedesktop.org/desktop-entry-spec/desktop-entry-spec-latest.html
@@ -147,6 +147,11 @@ class gPodderApplication(Gtk.Application):
 
         self.app_menu = builder.get_object('app-menu')
         if self.want_headerbar:
+            # This is a dirty hack to remove the "Quit" item in the menu
+            it = self.app_menu.iterate_item_links(2)
+            if it.next():
+                it.get_value().remove(2)
+
             # Use GtkHeaderBar for client-side decorations on recent GNOME 3 versions
             self.header_bar_menu_button = Gtk.Button.new_from_icon_name('open-menu-symbolic', Gtk.IconSize.SMALL_TOOLBAR)
             self.header_bar_menu_button.set_action_name('app.menu')
@@ -160,8 +165,11 @@ class gPodderApplication(Gtk.Application):
             for (accel, action) in parse_app_menu_for_accels(menu_filename):
                 self.add_accelerator(accel, action, None)
 
+            # TODO: Move the menubar
+            self.set_menubar(self.menubar)
         else:
-            self.set_app_menu(self.app_menu)
+            self.menubar.insert_submenu(0, 'gPodder', self.app_menu)
+            self.set_menubar(self.menubar)
 
         Gtk.Window.set_default_icon_name('gpodder')
 

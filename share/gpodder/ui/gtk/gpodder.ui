@@ -31,8 +31,9 @@
     <property name="urgency_hint">False</property>
     <signal handler="on_gPodder_delete_event" name="delete-event"/>
     <child>
-      <object class="GtkGrid" id="vMain">
+      <object class="GtkVBox" id="vMain">
         <property name="visible">True</property>
+        <property name="spacing">0</property>
         <property name="orientation">vertical</property>
         <child>
           <object class="GtkToolbar" id="toolbar">
@@ -140,27 +141,26 @@
               </packing>
             </child>
           </object>
+          <packing>
+            <property name="expand">False</property>
+          </packing>
         </child>
         <child>
           <object class="GtkGrid" id="hboxContainer">
-            <property name="border_width">5</property>
+            <property name="border_width">0</property>
             <property name="visible">True</property>
             <property name="orientation">horizontal</property>
             <property name="hexpand">True</property>
             <property name="vexpand">True</property>
             <child>
-              <object class="GtkNotebook" id="wNotebook">
+              <object class="GtkStack" id="wNotebook">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
-                <property name="show_tabs">True</property>
-                <property name="show_border">True</property>
-                <property name="tab_pos">GTK_POS_TOP</property>
-                <property name="scrollable">False</property>
-                <property name="enable_popup">False</property>
-                <signal handler="on_wNotebook_switch_page" name="switch_page"/>
+                <property name="transition-type">slide-left-right</property>
+                <signal handler="on_wNotebook_switch_page" name="notify::visible-child"/>
                 <child>
                   <object class="GtkPaned" id="channelPaned">
-                    <property name="border_width">5</property>
+                    <property name="border_width">0</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="orientation">horizontal</property>
@@ -335,21 +335,8 @@
                     </child>
                   </object>
                   <packing>
-                    <property name="tab_expand">False</property>
-                    <property name="tab_fill">True</property>
+                    <property name="title" translatable="yes">Podcasts</property>
                   </packing>
-                </child>
-                <child type="tab">
-                  <object class="GtkLabel" id="label2">
-                    <property name="visible">True</property>
-                    <property name="label" translatable="yes">Podcasts</property>
-                    <property name="use_underline">False</property>
-                    <property name="use_markup">False</property>
-                    <property name="wrap">False</property>
-                    <property name="selectable">False</property>
-                    <property name="width_chars">-1</property>
-                    <property name="single_line_mode">False</property>
-                  </object>
                 </child>
                 <child>
                   <object class="GtkGrid" id="vboxDownloadStatusWidgets">
@@ -462,27 +449,12 @@
                     </child>
                   </object>
                   <packing>
-                    <property name="tab_expand">False</property>
-                    <property name="tab_fill">True</property>
+                    <property name="title" translatable="yes">Progress</property>
                   </packing>
-                </child>
-                <child type="tab">
-                  <object class="GtkLabel" id="labelDownloads">
-                    <property name="visible">True</property>
-                    <property name="label" translatable="yes">Progress</property>
-                    <property name="use_underline">False</property>
-                    <property name="use_markup">False</property>
-                    <property name="wrap">False</property>
-                    <property name="selectable">False</property>
-                    <property name="width_chars">-1</property>
-                    <property name="single_line_mode">False</property>
-                  </object>
                 </child>
               </object>
             </child>
           </object>
-          <packing>
-          </packing>
         </child>
       </object>
     </child>
