@@ -16,6 +16,7 @@ from gpodder.gtkui.interface.progress import ProgressIndicator
 logger = logging.getLogger(__name__)
 
 _ = gpodder.gettext
+Dgtk_ = gpodder.gettext_gtk
 
 __title__ = _('Concatenate videos')
 __description__ = _('Add a context menu item for concatenating multiple videos')
@@ -38,8 +39,8 @@ class gPodderExtension:
         dlg = Gtk.FileChooserDialog(title=_('Save video'),
                 parent=self.gpodder.get_dialog_parent(),
                 action=Gtk.FileChooserAction.SAVE)
-        dlg.add_button('_Cancel', Gtk.ResponseType.CANCEL)
-        dlg.add_button('_Save', Gtk.ResponseType.OK)
+        dlg.add_button(Dgtk_('_Cancel'), Gtk.ResponseType.CANCEL)
+        dlg.add_button(Dgtk_('_Save'), Gtk.ResponseType.OK)
 
         if dlg.run() == Gtk.ResponseType.OK:
             filename = dlg.get_filename()

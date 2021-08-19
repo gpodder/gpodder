@@ -66,6 +66,7 @@ logger = logging.getLogger(__name__)
 
 _ = gpodder.gettext
 N_ = gpodder.ngettext
+Dgtk_ = gpodder.gettext_gtk
 
 
 class gPodder(BuilderWidget, dbus.service.Object):
@@ -2806,8 +2807,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         if downloading:
             dialog = Gtk.MessageDialog(self.gPodder, Gtk.DialogFlags.MODAL, Gtk.MessageType.QUESTION, Gtk.ButtonsType.NONE)
-            dialog.add_button('_Cancel', Gtk.ResponseType.CANCEL)
-            quit_button = dialog.add_button('_Quit', Gtk.ResponseType.CLOSE)
+            dialog.add_button(Dgtk_('_Cancel'), Gtk.ResponseType.CANCEL)
+            quit_button = dialog.add_button(Dgtk_('_Quit'), Gtk.ResponseType.CLOSE)
 
             title = _('Quit gPodder')
             message = _('You are downloading episodes. You can resume downloads the next time you start gPodder. Do you want to quit now?')
@@ -3398,8 +3399,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             dlg = Gtk.FileChooserDialog(title=_('Import from OPML'),
                     parent=self.main_window,
                     action=Gtk.FileChooserAction.OPEN)
-            dlg.add_button('_Cancel', Gtk.ResponseType.CANCEL)
-            dlg.add_button('_Open', Gtk.ResponseType.OK)
+            dlg.add_button(Dgtk_('_Cancel'), Gtk.ResponseType.CANCEL)
+            dlg.add_button(Dgtk_('_Open'), Gtk.ResponseType.OK)
             dlg.set_filter(self.get_opml_filter())
             response = dlg.run()
             filename = None
@@ -3426,8 +3427,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         dlg = Gtk.FileChooserDialog(title=_('Export to OPML'),
                                     parent=self.gPodder,
                                     action=Gtk.FileChooserAction.SAVE)
-        dlg.add_button('_Cancel', Gtk.ResponseType.CANCEL)
-        dlg.add_button('_Save', Gtk.ResponseType.OK)
+        dlg.add_button(Dgtk_('_Cancel'), Gtk.ResponseType.CANCEL)
+        dlg.add_button(Dgtk_('_Save'), Gtk.ResponseType.OK)
         dlg.set_filter(self.get_opml_filter())
         response = dlg.run()
         if response == Gtk.ResponseType.OK:

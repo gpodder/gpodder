@@ -24,6 +24,7 @@ from gpodder import util
 from gpodder.gtkui.interface.common import BuilderWidget
 
 _ = gpodder.gettext
+Dgtk_ = gpodder.gettext_gtk
 
 
 class gPodderChannel(BuilderWidget):
@@ -112,7 +113,7 @@ class gPodderChannel(BuilderWidget):
 
     def on_button_add_section_clicked(self, widget):
         text = self.show_text_edit_dialog(_('Add section'), _('New section:'),
-            affirmative_text='_Add')
+            affirmative_text=Dgtk_('_Add'))
 
         if text is not None:
             for index, (section,) in enumerate(self.section_list):
@@ -146,8 +147,8 @@ class gPodderChannel(BuilderWidget):
             title=_('Select new podcast cover artwork'),
             parent=self.gPodderChannel,
             action=Gtk.FileChooserAction.OPEN)
-        dlg.add_button('_Cancel', Gtk.ResponseType.CANCEL)
-        dlg.add_button('_Open', Gtk.ResponseType.OK)
+        dlg.add_button(Dgtk_('_Cancel'), Gtk.ResponseType.CANCEL)
+        dlg.add_button(Dgtk_('_Open'), Gtk.ResponseType.OK)
 
         if dlg.run() == Gtk.ResponseType.OK:
             url = dlg.get_uri()

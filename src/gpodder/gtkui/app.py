@@ -45,6 +45,7 @@ logger = logging.getLogger(__name__)
 
 _ = gpodder.gettext
 N_ = gpodder.ngettext
+Dgtk_ = gpodder.gettext_gtk
 
 
 def parse_app_menu_for_accels(filename):
@@ -202,7 +203,7 @@ class gPodderApplication(Gtk.Application):
     def on_about(self, action, param):
         dlg = Gtk.Dialog(_('About gPodder'), self.window.gPodder,
                 Gtk.DialogFlags.MODAL)
-        dlg.add_button('_Close', Gtk.ResponseType.OK).show()
+        dlg.add_button(Dgtk_('_Close'), Gtk.ResponseType.OK).show()
         dlg.set_resizable(True)
 
         bg = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6, margin=16)

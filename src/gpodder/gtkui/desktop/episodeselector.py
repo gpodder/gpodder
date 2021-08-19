@@ -25,6 +25,7 @@ from gpodder.gtkui.interface.common import BuilderWidget, TreeViewHelper
 
 _ = gpodder.gettext
 N_ = gpodder.ngettext
+Dgtk_ = gpodder.gettext_gtk
 
 
 class gPodderEpisodeSelector(BuilderWidget):
@@ -327,9 +328,9 @@ class gPodderEpisodeSelector(BuilderWidget):
             self.btnOK.set_sensitive(count > 0)
             self.btnRemoveAction.set_sensitive(count > 0)
             if count > 0:
-                self.btnCancel.set_label(_('Cancel'))
+                self.btnCancel.set_label(Dgtk_('Cancel'))
             else:
-                self.btnCancel.set_label(_('Close'))
+                self.btnCancel.set_label(Dgtk_('Close'))
         else:
             self.btnOK.set_sensitive(False)
             self.btnRemoveAction.set_sensitive(False)

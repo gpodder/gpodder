@@ -27,6 +27,7 @@ from gpodder import util
 from gpodder.gtkui.base import GtkBuilderWidget
 
 _ = gpodder.gettext
+Dgtk_ = gpodder.gettext_gtk
 
 
 def show_message_dialog(parent, message, title=None):
@@ -95,11 +96,11 @@ class BuilderWidget(GtkBuilderWidget):
         return response == Gtk.ResponseType.YES
 
     def show_text_edit_dialog(self, title, prompt, text=None, empty=False,
-            is_url=False, affirmative_text='_OK'):
+            is_url=False, affirmative_text=Dgtk_('_OK')):
         dialog = Gtk.Dialog(title, self.get_dialog_parent(),
             Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT)
 
-        dialog.add_button('_Cancel', Gtk.ResponseType.CANCEL)
+        dialog.add_button(Dgtk_('_Cancel'), Gtk.ResponseType.CANCEL)
         dialog.add_button(affirmative_text, Gtk.ResponseType.OK)
 
         dialog.set_default_size(300, -1)
@@ -235,8 +236,8 @@ class BuilderWidget(GtkBuilderWidget):
             initial_directory = os.path.expanduser('~')
 
         dlg = Gtk.FileChooserDialog(title=title, parent=self.main_window, action=Gtk.FileChooserAction.SELECT_FOLDER)
-        dlg.add_button('_Cancel', Gtk.ResponseType.CANCEL)
-        dlg.add_button('_Save', Gtk.ResponseType.OK)
+        dlg.add_button(Dgtk_('_Cancel'), Gtk.ResponseType.CANCEL)
+        dlg.add_button(Dgtk_('_Save'), Gtk.ResponseType.OK)
 
         dlg.set_do_overwrite_confirmation(True)
         dlg.set_current_folder(initial_directory)

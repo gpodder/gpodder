@@ -31,7 +31,7 @@ __public_version__, __local_version__ = next(
     (v[0], v[1] if len(v) > 1 else '') for v in (__version__.split('+'),))
 __version_info__ = tuple(int(x) for x in __public_version__.split('.'))
 
-import gettext
+import gettext as gettext_mod
 import locale
 import os
 import platform
@@ -122,19 +122,23 @@ ui.freedesktop = not ui.win32 and not ui.osx
 # i18n setup (will result in "gettext" to be available)
 # Use   _ = gpodder.gettext   in modules to enable string translations
 textdomain = 'gpodder'
-locale_dir = gettext.bindtextdomain(textdomain)
+locale_dir = gettext_mod.bindtextdomain(textdomain)
 
 if ui.win32:
     # this must be done prior to gettext.translation to set the locale (see #484)
     from gpodder.utilwin32locale import install
     install(textdomain, locale_dir)
 
-t = gettext.translation(textdomain, locale_dir, fallback=True)
-
+t = gettext_mod.translation(textdomain, locale_dir, fallback=True)
 gettext = t.gettext
 ngettext = t.ngettext
-
 del t
+
+
+# Use Dgtk_ = gpodder.gettext_gtk to use GTK translations for strings
+def gettext_gtk(s):
+    return gettext_mod.dgettext('gtk30', s)
+
 
 # Set up textdomain for Gtk.Builder (this accesses the C library functions)
 if hasattr(locale, 'bindtextdomain'):
