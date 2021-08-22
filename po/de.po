@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: gPodder\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-07-19 22:46-0600\n"
-"PO-Revision-Date: 2021-01-02 02:30+0100\n"
+"PO-Revision-Date: 2021-08-23 01:23+0200\n"
 "Last-Translator: TZocker\n"
 "Language-Team: German (http://www.transifex.com/projects/p/gpodder/language/"
 "de/)\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 2.3\n"
+"X-Generator: Poedit 2.4.2\n"
 
 #: src/gpodder/config.py:53
 #, python-format
@@ -95,10 +95,8 @@ msgid "Paused"
 msgstr "Pause"
 
 #: src/gpodder/download.py:864
-#, fuzzy
-#| msgid "Select the episodes you want to download:"
 msgid "Episode has no URL to download"
-msgstr "Wählen Sie die Episoden, die Sie herunterladen möchten:"
+msgstr "Episode hat keine URL zum Herunterladen"
 
 #: src/gpodder/download.py:867
 msgid "Missing content from server"
@@ -538,16 +536,12 @@ msgid "Released"
 msgstr "Veröffentlicht"
 
 #: src/gpodder/gtkui/main.py:871
-#, fuzzy
-#| msgid "Size"
 msgid "Size+"
-msgstr "Größe"
+msgstr "Größe+"
 
 #: src/gpodder/gtkui/main.py:879
-#, fuzzy
-#| msgid "Duration"
 msgid "Duration+"
-msgstr "Dauer"
+msgstr "Dauer+"
 
 #: src/gpodder/gtkui/main.py:1036 src/gpodder/gtkui/main.py:1185
 #: share/gpodder/ui/gtk/gpodder.ui.h:11
@@ -718,10 +712,8 @@ msgid "Archive"
 msgstr "Archivieren"
 
 #: src/gpodder/gtkui/main.py:1718
-#, fuzzy
-#| msgid "_Refresh"
 msgid "Refresh image"
-msgstr "Aktualisierung"
+msgstr "Bild aktualisieren"
 
 #: src/gpodder/gtkui/main.py:1722
 msgid "Delete podcast"
@@ -1306,22 +1298,26 @@ msgid "Subscription paused"
 msgstr "Abonnement pausiert"
 
 #: src/gpodder/gtkui/shownotes.py:60
-#, python-format
+#, fuzzy, python-format
 msgid "%(date)s | %(size)s | %(duration)s"
-msgstr ""
+msgstr "%(date)s | %(size)s | %(duration)s"
 
 #: src/gpodder/gtkui/shownotes.py:147
 msgid "Please select an episode"
 msgstr "Bitte eine Episode auswählen"
 
 #: src/gpodder/gtkui/shownotes.py:313
-#, python-format
+#, fuzzy, python-format
 msgid ""
 "<div id=\"gpodder-title\">\n"
 "%(heading)s\n"
 "<p>%(subheading)s</p>\n"
 "<p>%(details)s</p></div>\n"
 msgstr ""
+"<div id=\"gpodder-title\">\n"
+"%(heading)s\n"
+"<p>%(subheading)s</p>\n"
+"<p>%(details)s</p></div>\n"
 
 #: src/gpodder/gtkui/shownotes.py:356
 msgid "Open shownotes in web browser"
@@ -1431,7 +1427,7 @@ msgstr "Sie können nur lokale Dateien und http:// URLs hier her ziehen."
 #: src/gpodder/gtkui/desktop/channel.py:223
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:5
 msgid "Save"
-msgstr ""
+msgstr "Speichern"
 
 #: src/gpodder/gtkui/desktop/episodeselector.py:104
 msgid "Remove"
@@ -1770,6 +1766,9 @@ msgid ""
 "the values they had before. The changes are saved immediately after they are "
 "made."
 msgstr ""
+"<b>Hinweis:</b> Die Schaltfläche \"Abbrechen\" setzt die Filtereinstellungen "
+"<b>nicht</b> auf die Werte zurück, die sie zuvor hatten. Die Änderungen "
+"werden sofort nach der Durchführung gespeichert."
 
 #: share/gpodder/extensions/filter.py:150
 msgid "Block"
@@ -1793,18 +1792,12 @@ msgstr ""
 "blockieren und dann einige zu entsperren."
 
 #: share/gpodder/extensions/filter.py:175
-#, fuzzy
-#| msgid "Filter Episodes"
 msgid "Filter episodes now"
-msgstr "Filter Episoden"
+msgstr "Folgen jetzt filtern"
 
 #: share/gpodder/extensions/filter.py:179
-#, fuzzy
-#| msgid "Filter episodes now (undoes any episodes you marked as old)"
 msgid "Undoes any episodes you marked as old."
-msgstr ""
-"Filtert Episoden (macht alle Episoden rückgängig, die Sie als gespielt "
-"markiert haben)"
+msgstr "Macht alle Folgen rückgängig, die Sie als gespielt markiert haben"
 
 #: share/gpodder/extensions/gtk_statusicon.py:19
 msgid "Gtk Status Icon"
@@ -1964,17 +1957,17 @@ msgid "Manage Youtube subscriptions using youtube-dl (pip install youtube_dl)"
 msgstr "Verwaltung von Youtube Abos mit youtube-dl (pip install youtube_dl)"
 
 #: share/gpodder/extensions/youtube-dl.py:33
-#, python-format
+#, fuzzy, python-format
 msgid ""
 "Your version of youtube-dl %(have_version)s has known issues, please upgrade "
 "to %(want_version)s or newer."
 msgstr ""
+"Ihre Version von youtube-dl %(have_version) weist bekannte Probleme auf. "
+"Bitte aktualisieren Sie auf %(want_version) oder neuer."
 
 #: share/gpodder/extensions/youtube-dl.py:485
-#, fuzzy
-#| msgid "Download with Youtube-DL"
 msgid "Old Youtube-DL"
-msgstr "Download mit Youtube Link"
+msgstr "Alter Youtube Downloadlink"
 
 #: share/gpodder/extensions/youtube-dl.py:490
 msgid "Download with Youtube-DL"
@@ -2016,45 +2009,39 @@ msgstr "Neuen Podcast hinzufügen"
 
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:1
 msgid "Channel Editor"
-msgstr ""
+msgstr "Kanal-Editor"
 
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:3
 msgid "OK"
-msgstr ""
+msgstr "OK"
 
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:4
 msgid "page0"
-msgstr ""
+msgstr "Seite 0"
 
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:6
 msgid "page1"
-msgstr ""
+msgstr "Seite 1"
 
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:7
 msgid "<b>Feed URL</b>"
-msgstr ""
+msgstr "<b>Feed-URL</b>"
 
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:8
-#, fuzzy
-#| msgid "<b>Locations</b>"
 msgid "<b>Download location</b>"
-msgstr "<b>Orte</b>"
+msgstr "<b>Speicherort</b>"
 
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:9
 msgid "Info"
-msgstr ""
+msgstr "Info"
 
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:10
-#, fuzzy
-#| msgid "No subscriptions"
 msgid "Pause subscription"
-msgstr "Keine Abonnements"
+msgstr "Abonnement pausieren"
 
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:11
-#, fuzzy
-#| msgid "Synchronize to MP3 player devices"
 msgid "Sync to player devices"
-msgstr "Mit portablen MP3-Playern synchronisieren"
+msgstr "Mit Abspielgeräten synchronisieren"
 
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:12
 msgid "Section:"
@@ -2079,10 +2066,8 @@ msgid "Password:"
 msgstr "Passwort:"
 
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:17
-#, fuzzy
-#| msgid "Setting"
 msgid "Settings"
-msgstr "Einstellung"
+msgstr "Einstellungen"
 
 #: share/gpodder/ui/gtk/gpodderconfigeditor.ui.h:1
 msgid "gPodder Configuration Editor"
@@ -2121,10 +2106,8 @@ msgid "Select None"
 msgstr "Nichts auswählen"
 
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:7
-#, fuzzy
-#| msgid "Added"
 msgid "Add"
-msgstr "Hinzugefügt"
+msgstr "hinzufügen"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:2
 msgid "Video player:"
@@ -2193,6 +2176,8 @@ msgstr "Bei neuen Episoden:"
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:22
 msgid "Check connection before updating (if supported)"
 msgstr ""
+"Vor dem Aktualisieren soll die  Verbindung  überprüft werden(falls "
+"unterstützt)"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:23
 msgid "Updating"
@@ -2324,7 +2309,7 @@ msgstr "Episoden"
 
 #: share/gpodder/ui/gtk/menus.ui.h:26
 msgid "Toggle new status"
-msgstr "Als \"Neu\" markieren"
+msgstr "Als \"gespielt\" markieren"
 
 #: share/gpodder/ui/gtk/menus.ui.h:27
 msgid "Change delete lock"
@@ -2344,7 +2329,7 @@ msgstr "Ansicht"
 
 #: share/gpodder/ui/gtk/menus.ui.h:33
 msgid "Toolbar"
-msgstr "Toolbar"
+msgstr "Werkzeugleiste"
 
 #: share/gpodder/ui/gtk/menus.ui.h:34
 msgid "Episode descriptions"
