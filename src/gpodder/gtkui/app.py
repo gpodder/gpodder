@@ -145,7 +145,25 @@ class gPodderApplication(Gtk.Application):
 
         self.want_headerbar = ('GNOME' in xdg_current_desktops) and not gpodder.ui.osx and not csd_disabled
 
+        self.header_bar_refresh_button = Gtk.Button.new_from_icon_name('view-refresh-symbolic', Gtk.IconSize.SMALL_TOOLBAR)
+
+        # TODO: In Gtk 4, Gtk.Button.set_icon_name() is a thing, so this can probably be removed once we migrate
+        def _set_icon_name_patch(icon_name):
+            self.header_bar_refresh_button.set_image(Gtk.Image.new_from_icon_name(icon_name, Gtk.IconSize.SMALL_TOOLBAR))
+
+        self.header_bar_refresh_button.set_icon_name = _set_icon_name_patch
+        self.header_bar_refresh_button.set_action_name('win.update')
+
+        self.header_bar_refresh_ui = Gtk.Grid()
+
+        self.header_bar_menu_button = Gtk.Button.new_from_icon_name('open-menu-symbolic', Gtk.IconSize.SMALL_TOOLBAR)
+        self.header_bar_menu_button.set_action_name('app.menu')
+
         self.app_menu = builder.get_object('app-menu')
+
+        self.menu_popover = Gtk.Popover.new_from_model(self.header_bar_menu_button, self.app_menu)
+        self.menu_popover.set_position(Gtk.PositionType.BOTTOM)
+
         if self.want_headerbar:
             # This is a dirty hack to remove the "Quit" item in the menu
             it = self.app_menu.iterate_item_links(2)
@@ -153,14 +171,6 @@ class gPodderApplication(Gtk.Application):
                 it.get_value().remove(2)
 
             # Use GtkHeaderBar for client-side decorations on recent GNOME 3 versions
-            self.header_bar_menu_button = Gtk.Button.new_from_icon_name('open-menu-symbolic', Gtk.IconSize.SMALL_TOOLBAR)
-            self.header_bar_menu_button.set_action_name('app.menu')
-
-            self.header_bar_refresh_button = Gtk.Button.new_from_icon_name('view-refresh-symbolic', Gtk.IconSize.SMALL_TOOLBAR)
-            self.header_bar_refresh_button.set_action_name('win.updateChannel')
-
-            self.menu_popover = Gtk.Popover.new_from_model(self.header_bar_menu_button, self.app_menu)
-            self.menu_popover.set_position(Gtk.PositionType.BOTTOM)
 
             for (accel, action) in parse_app_menu_for_accels(menu_filename):
                 self.add_accelerator(accel, action, None)
@@ -168,7 +178,6 @@ class gPodderApplication(Gtk.Application):
             # TODO: Move the menubar
             self.set_menubar(self.menubar)
         else:
-            self.menubar.insert_submenu(0, 'gPodder', self.app_menu)
             self.set_menubar(self.menubar)
 
         Gtk.Window.set_default_icon_name('gpodder')

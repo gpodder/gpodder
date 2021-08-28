@@ -175,7 +175,9 @@
                             <property name="can_focus">True</property>
                             <property name="hscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
                             <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
-                            <property name="vexpand">True</property>                            
+                            <property name="vexpand">True</property>
+                            <property name="hexpand">True</property>
+
                             <property name="shadow_type">GTK_SHADOW_IN</property>
                             <property name="window_placement">GTK_CORNER_TOP_LEFT</property>
                             <child>
@@ -211,56 +213,6 @@
                                 <property name="visible">True</property>
                                 <property name="secondary-icon-stock">gtk-close</property>
                               </object>
-                            </child>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkGrid" id="vbox42">
-                            <property name="visible">True</property>
-                            <property name="orientation">vertical</property>
-                            <property name="hexpand">True</property>
-                            <child>
-                              <object class="GtkButton" id="btnUpdateFeeds">
-                                <property name="label" translatable="yes">Check for new episodes</property>
-                                <property name="can_focus">True</property>
-                                <property name="focus_on_click">True</property>
-                                <property name="action-name">win.update</property>
-                                <property name="hexpand">True</property>
-                              </object>
-                              <packing>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkGrid" id="hboxUpdateFeeds">
-                                <property name="column_spacing">6</property>
-                                <property name="orientation">horizontal</property>
-                                <child>
-                                  <object class="GtkProgressBar" id="pbFeedUpdate">
-                                    <property name="hexpand">True</property>
-                                    <property name="pulse_step">0.10000000149</property>
-                                    <property name="show-text">True</property>
-                                    <property name="ellipsize">PANGO_ELLIPSIZE_MIDDLE</property>
-                                  </object>
-                                  <packing>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkButton" id="btnCancelFeedUpdate">
-                                    <property name="can_focus">True</property>
-                                    <property name="focus_on_click">True</property>
-                                    <signal handler="on_btnCancelFeedUpdate_clicked" name="clicked"/>
-                                    <child>
-                                      <object class="GtkImage" id="image3209">
-                                        <property name="visible">True</property>
-                                        <property name="stock">gtk-cancel</property>
-                                        <property name="icon_size">4</property>
-                                      </object>
-                                    </child>
-                                  </object>
-                                </child>
-                              </object>
-                              <packing>
-                              </packing>
                             </child>
                           </object>
                         </child>
