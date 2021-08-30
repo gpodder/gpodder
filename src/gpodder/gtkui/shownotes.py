@@ -51,7 +51,7 @@ def get_shownotes(enable_html, pane):
     if enable_html and has_webkit2:
         return gPodderShownotesHTML(pane)
     else:
-        return gPodderShownotesText(pane)
+        return gPodderShownotesLabel(pane)
 
 
 class gPodderShownotes:
