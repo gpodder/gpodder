@@ -161,6 +161,10 @@ class DownloadStatusModel:
         iter = self.list.append()
         self.request_update(iter, task)
 
+    def queue_task(self, task):
+        task.status = task.QUEUED
+        self.work_queue.add_task(task)
+
     def register_task(self, task):
         self.work_queue.add_task(task)
         util.idle_add(self.__add_new_task, task)

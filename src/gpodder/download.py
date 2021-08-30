@@ -460,6 +460,8 @@ class DownloadQueueManager(object):
     def queue_task(self, task):
         """Marks a task as queued
         """
+        if task.status != DownloadTask.QUEUED:
+            self.tasks.queue_task(task)
         self.__spawn_threads()
 
 
