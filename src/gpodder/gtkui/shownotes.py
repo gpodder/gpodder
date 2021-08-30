@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+
 #
 # gPodder - A media aggregator and podcast client
 # Copyright (c) 2005-2018 The gPodder Team
@@ -176,6 +176,13 @@ class gPodderShownotes:
                 self.text_buffer.create_tag('hyperlink',
                     foreground=self.link_color.to_string(),
                     underline=Pango.Underline.SINGLE)
+            elif hasattr(self, "label"):
+                fc = self.foreground_color
+                self.foreground_color_text = "#%02X%02X%02X" % (
+                    int(255 * fc.red), int(255 * fc.green), int(255 * fc.blue))
+                self.label.override_color(Gtk.StateFlags.NORMAL, self.foreground_color)
+                self.label.override_color(Gtk.StateFlags.LINK, self.link_color)
+                self.label.override_color(Gtk.StateFlags.VISITED, self.visited_color)
 
 
 class gPodderShownotesText(gPodderShownotes):
@@ -465,3 +472,51 @@ class gPodderShownotesHTML(gPodderShownotes):
                       self.link_color.to_string(), self.visited_color.to_string())
             self.stylesheet = WebKit2.UserStyleSheet(style, 0, 1, None, None)
         return self.stylesheet
+
+
+class gPodderShownotesLabel(gPodderShownotes):
+    def init(self):
+        self.label = Gtk.Label()
+        self.label.set_line_wrap(True)
+        self.label.set_property('margin', 10)
+        self.label.set_property('xalign', 0.0)
+        self.label.set_property('yalign', 0.0)
+        self.label.set_property('expand', True)
+        self.label.set_property('has-tooltip', True)
+        self.label.set_selectable(True)
+        self.label.connect('activate-link', self.on_activate_link)
+        # need a Box for an opaque background behind the label
+        box = Gtk.Box()
+        self.label_bg = box
+        box.add(self.label)
+        return self.label_bg
+
+    def update(self, episode):
+        self.scrolled_window.get_vadjustment().set_value(0)
+        heading = html.escape(episode.title)
+        subheading = _('from %s') % (html.escape(episode.channel.title))
+        self.define_colors()
+        ltext = ''
+        if episode.link:
+            ltext += '<big><b><span underline="none" foreground="%s"><a href="%s" title="%s">%s</a></span></b></big>\n' % (
+                self.foreground_color_text, episode.link, episode.link, heading)
+        else:
+            ltext += '<big><b>' + heading + '</b></big>\n'
+        ltext += subheading + '\n'
+        ltext += '<small>%s</small>\n\n' % html.escape(self.details_fmt % {
+            'date': util.format_date(episode.published),
+            'size': util.format_filesize(episode.file_size, digits=1)
+            if episode.file_size > 0 else "-",
+            'duration': episode.get_play_info_string()})
+        for target, text in util.extract_hyperlinked_text(episode.description_html or episode.description):
+            if target:
+                tesc = html.escape(target)
+                ltext += '<a href="%s" title="%s">%s</a>' % (tesc, tesc, html.escape(text))
+            else:
+                ltext += html.escape(text)
+        self.label.set_markup(ltext)
+
+    def on_activate_link(self, label, target):
+        if target is not None:
+            util.open_website(target)
+        return True
