@@ -61,10 +61,6 @@ import xml.dom.minidom
 from html.entities import entitydefs, name2codepoint
 from html.parser import HTMLParser
 
-import gi  # isort:skip
-gi.require_version('Gtk', '3.0')  # isort:skip
-from gi.repository import Gio, GLib, Gtk  # isort:skip
-
 import requests
 import requests.exceptions
 from requests.packages.urllib3.util.retry import Retry
@@ -152,6 +148,7 @@ _MIME_TYPE_LIST = [
     ('.wmv', 'video/x-ms-wmv'),
     ('.opus', 'audio/opus'),
     ('.webm', 'video/webm'),
+    ('.webm', 'audio/webm'),
 ]
 
 _MIME_TYPES = dict((k, v) for v, k in _MIME_TYPE_LIST)
@@ -173,6 +170,8 @@ def new_gio_file(path):
     """
     Create a new Gio.File given a path or uri
     """
+    from gi.repository import Gio
+
     if is_absolute_url(path):
         return Gio.File.new_for_uri(path)
     else:
@@ -185,6 +184,8 @@ def make_directory(path):
     Returns True if the directory exists after the function
     call, False otherwise.
     """
+    from gi.repository import Gio, GLib
+
     if not isinstance(path, Gio.File):
         path = new_gio_file(path)
 
@@ -1853,7 +1854,11 @@ def get_update_info():
     days_since_release = (datetime.datetime.today() - release_parsed).days
 
     def convert(s):
-        return tuple(int(x) for x in s.split('.'))
+        # Use both public and local version label, see PEP 440
+        pubv, locv = next(
+            (v[0], v[1] if len(v) > 1 else '') for v in (s.split('+'),))
+        return tuple(int(x) if x.isdigit() else x.lower()
+            for x in pubv.split('.') + (locv.split('.') if locv else []))
 
     up_to_date = (convert(gpodder.__version__) >= convert(latest_version))
 
@@ -2264,6 +2269,10 @@ def mount_volume_for_file(file, op=None):
     Utility method to mount the enclosing volume for the given file in a blocking
     fashion
     """
+    import gi
+    gi.require_version('Gtk', '3.0')
+    from gi.repository import Gio, GLib, Gtk
+
     result = True
     message = None
 
@@ -2283,3 +2292,20 @@ def mount_volume_for_file(file, op=None):
     file.mount_enclosing_volume(Gio.MountMountFlags.NONE, op, None, callback)
     Gtk.main()
     return result, message
+
+
+def scale_pixbuf(pixbuf, max):
+    import gi
+    from gi.repository import GdkPixbuf
+
+    w_cur = pixbuf.get_width()
+    h_cur = pixbuf.get_height()
+
+    if w_cur <= max and h_cur <= max:
+        return pixbuf
+
+    f = max / (w_cur if w_cur >= h_cur else h_cur)
+    w_new = int(w_cur * f)
+    h_new = int(h_cur * f)
+
+    return pixbuf.scale_simple(w_new, h_new, GdkPixbuf.InterpType.BILINEAR)

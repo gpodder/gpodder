@@ -67,7 +67,7 @@ cp -a "$checkout"/tools/mac-osx/make_cert_pem.py "$resources"/bin
 
 # install gPodder hard dependencies
 $run_pip install setuptools wheel
-$run_pip install podcastparser==0.6.6 mygpoclient==1.8 requests[socks]==2.25.1
+$run_pip install podcastparser==0.6.7 mygpoclient==1.8 requests[socks]==2.25.1
 
 # install extension dependencies; no explicit version for youtube_dl
 $run_pip install mutagen==1.45.1 html5lib==1.1 youtube_dl

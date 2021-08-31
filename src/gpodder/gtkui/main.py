@@ -23,6 +23,7 @@ import logging
 import os
 import re
 import shutil
+import sys
 import tempfile
 import threading
 import time
@@ -251,7 +252,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
             diff = time.time() - self.config.software_update.last_check
             if diff > (60 * 60 * 24) * self.config.software_update.interval:
                 self.config.software_update.last_check = int(time.time())
-                self.check_for_updates(silent=True)
+                if not os.path.exists(gpodder.no_update_check_file):
+                    self.check_for_updates(silent=True)
+
+        if self.options.close_after_startup:
+            logger.warning("Startup done, closing (--close-after-startup)")
+            self.core.db.close()
+            sys.exit()
 
     def create_actions(self):
         g = self.gPodder
@@ -269,6 +276,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
         action = Gio.SimpleAction.new_stateful(
             'viewAlwaysShowNewEpisodes', None, GLib.Variant.new_boolean(self.config.ui.gtk.episode_list.always_show_new))
         action.connect('activate', self.on_item_view_always_show_new_episodes_toggled)
+        g.add_action(action)
+
+        action = Gio.SimpleAction.new_stateful(
+            'viewCtrlClickToSortEpisodes', None, GLib.Variant.new_boolean(self.config.ui.gtk.episode_list.ctrl_click_to_sort))
+        action.connect('activate', self.on_item_view_ctrl_click_to_sort_episodes_toggled)
         g.add_action(action)
 
         action = Gio.SimpleAction.new_stateful(
@@ -808,11 +820,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
             (column.get_sort_order() is Gtk.SortType.ASCENDING)
 
     def on_episode_list_header_clicked(self, button, event):
-        if event.button != 3:
-            return False
-
-        if self.episode_columns_menu is not None:
-            self.episode_columns_menu.popup(None, None, None, None, event.button, event.time)
+        if event.button == 1:
+            # Require control click to sort episodes, when enabled
+            if self.config.ui.gtk.episode_list.ctrl_click_to_sort and (event.state & Gdk.ModifierType.CONTROL_MASK) == 0:
+                return True
+        elif event.button == 3:
+            if self.episode_columns_menu is not None:
+                self.episode_columns_menu.popup(None, None, None, None, event.button, event.time)
 
         return False
 
@@ -3212,6 +3226,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.config.ui.gtk.episode_list.always_show_new = not state
         action.set_state(GLib.Variant.new_boolean(not state))
 
+    def on_item_view_ctrl_click_to_sort_episodes_toggled(self, action, param):
+        state = action.get_state()
+        self.config.ui.gtk.episode_list.ctrl_click_to_sort = not state
+        action.set_state(GLib.Variant.new_boolean(not state))
+
     def on_item_view_search_always_visible_toggled(self, action, param):
         state = action.get_state()
         self.config.ui.gtk.search_always_visible = not state
@@ -3461,6 +3480,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_homepage_activate(self, widget, *args):
         util.open_website(gpodder.__url__)
 
+    def check_for_distro_updates(self):
+        title = _('Managed by distribution')
+        message = _('Please check your distribution for gPodder updates.')
+        self.show_message(message, title, important=True)
+
     def check_for_updates(self, silent):
         """Check for updates and (optionally) show a message
 
@@ -3512,6 +3536,20 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_treeChannels_row_activated(self, widget, path, *args):
         # double-click action of the podcast list or enter
         self.treeChannels.set_cursor(path)
+
+        # open channel settings
+        channel = self.get_selected_channels()[0]
+        if channel and not isinstance(channel, PodcastChannelProxy):
+            self.on_itemEditChannel_activate(None)
+
+    def get_selected_channels(self):
+        """Get a list of selected channels from treeChannels"""
+        selection = self.treeChannels.get_selection()
+        model, paths = selection.get_selected_rows()
+
+        channels = [model.get_value(model.get_iter(path), PodcastListModel.C_CHANNEL) for path in paths]
+        channels = [c for c in channels if c is not None]
+        return channels
 
     def on_treeChannels_cursor_changed(self, widget, *args):
         (model, iter) = self.treeChannels.get_selection().get_selected()

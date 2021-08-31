@@ -33,7 +33,7 @@ import os.path
 import platform
 import subprocess
 import sys
-from optparse import OptionParser
+from optparse import OptionGroup, OptionParser
 
 logger = logging.getLogger(__name__)
 
@@ -82,6 +82,9 @@ def main():
 
     gpodder.prefix = prefix
 
+    # Package managers can install the empty file {prefix}/share/gpodder/no-update-check to disable update checks
+    gpodder.no_update_check_file = os.path.join(prefix, 'share', 'gpodder', 'no-update-check')
+
     # Enable i18n for gPodder translations
     _ = gpodder.gettext
 
@@ -95,21 +98,34 @@ def main():
 
     parser = OptionParser(usage=s_usage, version=s_version)
 
-    parser.add_option("-v", "--verbose",
-                      action="store_true", dest="verbose", default=False,
-                      help=_("print logging output on the console"))
+    grp_subscriptions = OptionGroup(parser, "Subscriptions")
+    parser.add_option_group(grp_subscriptions)
 
-    parser.add_option("-q", "--quiet",
-                      action="store_true", dest="quiet", default=False,
-                      help=_("reduce warnings on the console"))
+    grp_subscriptions.add_option('-s', '--subscribe', dest='subscribe',
+                                 metavar='URL',
+                                 help=_('subscribe to the feed at URL'))
 
-    parser.add_option('-s', '--subscribe', dest='subscribe', metavar='URL',
-                      help=_('subscribe to the feed at URL'))
+    grp_logging = OptionGroup(parser, "Logging")
+    parser.add_option_group(grp_logging)
+
+    grp_logging.add_option("-v", "--verbose",
+                           action="store_true", dest="verbose", default=False,
+                           help=_("print logging output on the console"))
+
+    grp_logging.add_option("-q", "--quiet",
+                           action="store_true", dest="quiet", default=False,
+                           help=_("reduce warnings on the console"))
+
+    grp_advanced = OptionGroup(parser, "Advanced")
+    parser.add_option_group(grp_advanced)
+
+    grp_advanced.add_option("--close-after-startup", action="store_true",
+                            help=_("exit once started up (for profiling)"))
 
     # On Mac OS X, support the "psn" parameter for compatibility (bug 939)
     if gpodder.ui.osx:
-        parser.add_option('-p', '--psn', dest='macpsn', metavar='PSN',
-                          help=_('Mac OS X application process number'))
+        grp_advanced.add_option('-p', '--psn', dest='macpsn', metavar='PSN',
+                                help=_('Mac OS X application process number'))
 
     options, args = parser.parse_args(sys.argv)
 
