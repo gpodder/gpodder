@@ -3062,14 +3062,15 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def download_episode_list(self, episodes, add_paused=False, force_start=False, downloader=None):
         def queue_tasks(tasks, queued_existing_task):
             for task in tasks:
-                if add_paused:
-                    task.status = task.PAUSED
-                else:
-                    self.mygpo_client.on_download([task.episode])
-                    if force_start:
-                        self.download_queue_manager.force_start_task(task)
+                with task:
+                    if add_paused:
+                        task.status = task.PAUSED
                     else:
-                        self.download_queue_manager.queue_task(task)
+                        self.mygpo_client.on_download([task.episode])
+                        if force_start:
+                            self.download_queue_manager.force_start_task(task)
+                        else:
+                            self.download_queue_manager.queue_task(task)
             if tasks or queued_existing_task:
                 self.set_download_list_state(gPodderSyncUI.DL_ONEOFF)
             # Flush updated episode status
@@ -3128,7 +3129,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         for task in tasks:
             with task:
-                if task.status in (task.QUEUED, task.DOWNLOADING):
+                if task.status in (task.NEW, task.QUEUED, task.DOWNLOADING):
                     task.status = task.CANCELLING
                 elif task.status == task.PAUSED:
                     task.status = task.CANCELLED

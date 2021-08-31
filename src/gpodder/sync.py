@@ -27,6 +27,7 @@ import calendar
 import glob
 import logging
 import os.path
+from re import S
 import threading
 import time
 from urllib.parse import urlparse
@@ -230,7 +231,7 @@ class Device(services.ObservableService):
                 # XXX: need to check if track is added properly?
                 sync_task = SyncTask(track)
 
-                sync_task.status = sync_task.QUEUED
+                sync_task.status = sync_task.NEW
                 sync_task.device = self
                 # New Task, we must wait on the GTK Loop
                 self.download_status_model.register_task(sync_task)
@@ -697,9 +698,9 @@ class SyncTask(download.DownloadTask):
     # An object representing the synchronization task of an episode
 
     # Possible states this sync task can be in
-    STATUS_MESSAGE = (_('Queued'), _('Downloading'),
+    STATUS_MESSAGE = (_('Queued'), _('Queued'), _('Downloading'),
             _('Finished'), _('Failed'), _('Cancelling'), _('Cancelled'), _('Pausing'), _('Paused'))
-    (QUEUED, DOWNLOADING, DONE, FAILED, CANCELLING, CANCELLED, PAUSING, PAUSED) = list(range(8))
+    (NEW, QUEUED, DOWNLOADING, DONE, FAILED, CANCELLING, CANCELLED, PAUSING, PAUSED) = list(range(9))
 
     def __str__(self):
         return self.__episode.title
@@ -761,7 +762,7 @@ class SyncTask(download.DownloadTask):
 
     def __init__(self, episode):
         self.__lock = threading.RLock()
-        self.__status = SyncTask.QUEUED
+        self.__status = SyncTask.NEW
         self.__activity = SyncTask.ACTIVITY_SYNCHRONIZE
         self.__status_changed = True
         self.__episode = episode
@@ -840,11 +841,16 @@ class SyncTask(download.DownloadTask):
         self.__start_time = 0
         self.__start_blocks = 0
 
-        # If the download has already been cancelled, skip it
-        if self.status == SyncTask.CANCELLED:
+        # If the download has already been cancelled/paused, skip it
+        if self.status == SyncTask.CANCELLING:
             util.delete_file(self.tempname)
             self.progress = 0.0
             self.speed = 0.0
+            self.status = SyncTask.CANCELLED
+            return False
+
+        if self.status == SyncTask.PAUSING:
+            self.status = SyncTask.PAUSED
             return False
 
         with self:

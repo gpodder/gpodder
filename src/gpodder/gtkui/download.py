@@ -163,13 +163,14 @@ class DownloadStatusModel:
         self.request_update(iter, task)
 
     def register_task(self, task):
-        self.work_queue.add_task(task)
+        # self.work_queue.add_task(task)
         util.idle_add(self.__add_new_task, task)
 
     def queue_task(self, task):
         with task:
-            task.status = download.DownloadTask.QUEUED
-        self.work_queue.add_task(task)
+            if task.status in (task.NEW, task.FAILED, task.CANCELLED, task.PAUSED):
+                task.status = task.QUEUED
+                self.work_queue.add_task(task)
 
     def tell_all_tasks_to_quit(self):
         for row in self.list:

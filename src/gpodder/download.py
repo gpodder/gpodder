@@ -539,9 +539,9 @@ class DownloadTask(object):
     The same thing works for failed downloads ("notify_as_failed()").
     """
     # Possible states this download task can be in
-    STATUS_MESSAGE = (_('Queued'), _('Downloading'),
+    STATUS_MESSAGE = (_('Queued'), _('Queued'), _('Downloading'),
             _('Finished'), _('Failed'), _('Cancelling'), _('Cancelled'), _('Pausing'), _('Paused'))
-    (QUEUED, DOWNLOADING, DONE, FAILED, CANCELLING, CANCELLED, PAUSING, PAUSED) = list(range(8))
+    (NEW, QUEUED, DOWNLOADING, DONE, FAILED, CANCELLING, CANCELLED, PAUSING, PAUSED) = list(range(9))
 
     # Wheter this task represents a file download or a device sync operation
     ACTIVITY_DOWNLOAD, ACTIVITY_SYNCHRONIZE = list(range(2))
@@ -621,7 +621,7 @@ class DownloadTask(object):
     def __init__(self, episode, config, downloader=None):
         assert episode.download_task is None
         self.__lock = threading.RLock()
-        self.__status = DownloadTask.QUEUED
+        self.__status = DownloadTask.NEW
         self.__activity = DownloadTask.ACTIVITY_DOWNLOAD
         self.__status_changed = True
         self.__episode = episode
@@ -765,13 +765,18 @@ class DownloadTask(object):
         self.__start_time = 0
         self.__start_blocks = 0
 
-        # If the download has already been cancelled, skip it
+        # If the download has already been cancelled/paused, skip it
         with self:
             if self.status == DownloadTask.CANCELLING:
+                self.status = DownloadTask.CANCELLED
                 util.delete_file(self.tempname)
                 self.progress = 0.0
                 self.speed = 0.0
                 self.recycle()
+                return False
+
+            if self.status == DownloadTask.PAUSING:
+                self.status = DownloadTask.PAUSED
                 return False
 
             # We only start this download if its status is queued
