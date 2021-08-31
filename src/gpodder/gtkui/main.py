@@ -1175,7 +1175,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 if (status in [download.DownloadTask.DOWNLOADING,
                                download.DownloadTask.CANCELLING,
                                download.DownloadTask.PAUSING] and
-                    activity == download.DownloadTask.ACTIVITY_DOWNLOAD):
+                        activity == download.DownloadTask.ACTIVITY_DOWNLOAD):
                     downloading += 1
                     total_speed += speed
                 elif (status == download.DownloadTask.DOWNLOADING and
