@@ -27,12 +27,11 @@ import calendar
 import glob
 import logging
 import os.path
-from re import S
 import threading
 import time
-from urllib.parse import urlparse
-
 from enum import Enum
+from re import S
+from urllib.parse import urlparse
 
 import gpodder
 from gpodder import download, services, util
