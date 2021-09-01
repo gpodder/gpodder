@@ -2486,11 +2486,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
             # Report failed subscriptions to the user
             if failed:
                 title = _('Could not add some podcasts')
-                message = _('Some podcasts could not be added to your list:') \
-                    + '\n\n' + '\n'.join(
-                        html.escape('%s: %s' % (
-                            url, error_messages.get(url, _('Unknown')))) for url in failed)
-                self.show_message(message, title, important=True)
+                message = _('Some podcasts could not be added to your list:')
+                details = '\n\n'.join('<b>{}</b>:\n{}'.format(html.escape(url),
+                    html.escape(error_messages.get(url, _('Unknown')))) for url in failed)
+                self.show_message_details(title, message, details)
 
             # Upload subscription changes to gpodder.net
             self.mygpo_client.on_subscribe(worked)
