@@ -525,7 +525,9 @@ class gPodderShownotesLabel(gPodderShownotes):
         for target, text in util.extract_hyperlinked_text(episode.description_html or episode.description):
             if target:
                 tesc = html.escape(target)
-                ltext += '<a href="%s" title="%s">%s</a>' % (tesc, tesc, html.escape(text))
+                # Link title really needs a double escape
+                ltext += '<a href="%s" title="%s">%s</a>' % (
+                    tesc, html.escape(tesc), html.escape(text))
             else:
                 ltext += html.escape(text)
         self.label.set_markup(ltext)
