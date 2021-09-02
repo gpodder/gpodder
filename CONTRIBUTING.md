@@ -15,9 +15,16 @@ Contributions are made to this repo via Issues and Pull Requests (PRs). Make sur
 3. Create a separate branch to get started, e.g. for feature `feat/branch-name-here` or fix `fix/fix-name-goes-here`
 4. Make sure to create a new virtual environment and activate it:
 ```shell
-$ python3 -m venv venv
-$ source activate venv/bin/activate
+python3 -m venv venv
+source activate venv/bin/activate
 ```
 5. Install dependencies: `python3 tools/localdepends.py`
 6. Start the program with debug mode: `./bin/gpodder -v`
 7. Make the changes, commit in a branch and push the branch to your fork and then submit a Pull Request.
+
+## Linting
+To ensure code quality, we recommend you to run the linter before pushing the changes to your repo. In order to do so ensure the necessary packages are installed by executing:
+```shell
+pip3 install pytest-cov minimock pycodestyle isort requests pytest pytest-httpserver
+```
+Execute the linter in the root directory (Linux only): `make lint unittest`. On Windows execute: `pycodestyle share src/gpodder tools bin/* *.py`
