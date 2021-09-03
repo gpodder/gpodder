@@ -89,7 +89,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.extensions_actions = []
         self._search_podcasts = None
         self._search_episodes = None
-        BuilderWidget.__init__(self, None, _builder_expose={'app': app})
+        BuilderWidget.__init__(self, None,
+            _gtk_properties={('gPodder', 'application'): app})
 
         self.last_episode_date_refresh = None
         self.refresh_episode_dates()
