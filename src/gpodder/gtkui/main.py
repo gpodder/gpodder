@@ -90,7 +90,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self._search_podcasts = None
         self._search_episodes = None
         BuilderWidget.__init__(self, None, _builder_expose={'app': app})
-        self.gPodder.set_property('application', app)
 
         self.last_episode_date_refresh = None
         self.refresh_episode_dates()
