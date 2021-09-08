@@ -46,7 +46,8 @@ class TaskQueue:
 
     def add_task(self, task):
         with self.lock:
-            self.tasks.append(task)
+            if task not in self.tasks:
+                self.tasks.append(task)
 
     def remove_task(self, task):
         with self.lock:
@@ -162,20 +163,27 @@ class DownloadStatusModel:
         self.request_update(iter, task)
 
     def register_task(self, task):
-        self.work_queue.add_task(task)
+        # self.work_queue.add_task(task)
         util.idle_add(self.__add_new_task, task)
+
+    def queue_task(self, task):
+        with task:
+            if task.status in (task.NEW, task.FAILED, task.CANCELLED, task.PAUSED):
+                task.status = task.QUEUED
+                self.work_queue.add_task(task)
 
     def tell_all_tasks_to_quit(self):
         for row in self.list:
             task = row[DownloadStatusModel.C_TASK]
             if task is not None:
-                # Pause currently-running (and queued) downloads
-                if task.status in (task.QUEUED, task.DOWNLOADING):
-                    task.status = task.PAUSED
+                with task:
+                    # Pause currently-running (and queued) downloads
+                    if task.status in (task.QUEUED, task.DOWNLOADING):
+                        task.status = task.PAUSING
 
-                # Delete cancelled and failed downloads
-                if task.status in (task.CANCELLED, task.FAILED):
-                    task.removed_from_list()
+                    # Delete cancelled and failed downloads
+                    if task.status in (task.CANCELLED, task.FAILED):
+                        task.removed_from_list()
 
     def are_downloads_in_progress(self):
         """
@@ -210,17 +218,11 @@ class DownloadStatusModel:
         return len(self.work_queue)
 
     def get_next(self):
-        task = self.work_queue.pop()
-        if task:
-            task.status = task.DOWNLOADING
-        return task
+        return self.work_queue.pop()
 
     def set_downloading(self, task):
-        if not self.work_queue.remove_task(task):
-            # Task was already dequeued get_next
-            return False
-        task.status = task.DOWNLOADING
-        return True
+        # return False if Task was already dequeued by get_next
+        return self.work_queue.remove_task(task)
 
 
 class DownloadTaskMonitor(object):
