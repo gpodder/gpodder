@@ -44,7 +44,7 @@
               <object class="GtkButton" id="button_advanced">
                 <property name="label" translatable="yes">Edit config</property>
                 <property name="visible">True</property>
-                <property name="can-focus">False</property>
+                <property name="can-focus">True</property>
                 <property name="receives-default">False</property>
                 <signal name="clicked" handler="on_button_advanced_clicked" swapped="no"/>
               </object>
@@ -58,7 +58,7 @@
               <object class="GtkButton" id="button_close">
                 <property name="label">gtk-close</property>
                 <property name="visible">True</property>
-                <property name="can-focus">False</property>
+                <property name="can-focus">True</property>
                 <property name="receives-default">False</property>
                 <property name="use-stock">True</property>
                 <signal name="clicked" handler="on_button_close_clicked" swapped="no"/>
@@ -80,7 +80,7 @@
         <child>
           <object class="GtkNotebook" id="notebook">
             <property name="visible">True</property>
-            <property name="can-focus">False</property>
+            <property name="can-focus">True</property>
             <property name="border-width">6</property>
             <child>
               <object class="GtkBox" id="vbox_general">
@@ -204,7 +204,7 @@
                   <object class="GtkCheckButton" id="checkbutton_show_all_episodes">
                     <property name="label" translatable="yes">"All episodes" in podcast list</property>
                     <property name="visible">True</property>
-                    <property name="can-focus">False</property>
+                    <property name="can-focus">True</property>
                     <property name="receives-default">False</property>
                     <property name="draw-indicator">True</property>
                   </object>
@@ -218,7 +218,7 @@
                   <object class="GtkCheckButton" id="checkbutton_podcast_sections">
                     <property name="label" translatable="yes">Use sections for podcast list</property>
                     <property name="visible">True</property>
-                    <property name="can-focus">False</property>
+                    <property name="can-focus">True</property>
                     <property name="receives-default">False</property>
                     <property name="draw-indicator">True</property>
                   </object>
@@ -250,7 +250,7 @@
                   <object class="GtkCheckButton" id="checkbutton_enable">
                     <property name="label" translatable="yes">Synchronize subscriptions and episode actions</property>
                     <property name="visible">True</property>
-                    <property name="can-focus">False</property>
+                    <property name="can-focus">True</property>
                     <property name="receives-default">False</property>
                     <property name="draw-indicator">True</property>
                     <signal name="toggled" handler="on_enabled_toggled" swapped="no"/>
@@ -431,7 +431,7 @@
                     <child>
                       <object class="GtkScale" id="hscale_update_interval">
                         <property name="visible">True</property>
-                        <property name="can-focus">False</property>
+                        <property name="can-focus">True</property>
                         <property name="is-focus">True</property>
                         <property name="hexpand">True</property>
                         <property name="adjustment">adjustment_update_interval</property>
@@ -486,7 +486,7 @@
                     <child>
                       <object class="GtkSpinButton" id="spinbutton_episode_limit">
                         <property name="visible">True</property>
-                        <property name="can-focus">False</property>
+                        <property name="can-focus">True</property>
                         <property name="adjustment">adjustment_episode_limit</property>
                       </object>
                       <packing>
@@ -565,7 +565,7 @@
                   <object class="GtkCheckButton" id="checkbutton_check_connection">
                     <property name="label" translatable="yes">Check connection before updating (if supported)</property>
                     <property name="visible">True</property>
-                    <property name="can-focus">False</property>
+                    <property name="can-focus">True</property>
                     <property name="receives-default">False</property>
                     <property name="draw-indicator">True</property>
                   </object>
@@ -620,7 +620,7 @@
                     <child>
                       <object class="GtkScale" id="hscale_expiration">
                         <property name="visible">True</property>
-                        <property name="can-focus">False</property>
+                        <property name="can-focus">True</property>
                         <property name="is-focus">True</property>
                         <property name="hexpand">True</property>
                         <property name="adjustment">adjustment_expiration</property>
@@ -646,7 +646,7 @@
                   <object class="GtkCheckButton" id="checkbutton_expiration_unfinished">
                     <property name="label" translatable="yes">Remove played episodes even if unfinished</property>
                     <property name="visible">True</property>
-                    <property name="can-focus">False</property>
+                    <property name="can-focus">True</property>
                     <property name="receives-default">False</property>
                     <property name="draw-indicator">True</property>
                   </object>
@@ -660,7 +660,7 @@
                   <object class="GtkCheckButton" id="checkbutton_expiration_unplayed">
                     <property name="label" translatable="yes">Also remove unplayed episodes</property>
                     <property name="visible">True</property>
-                    <property name="can-focus">False</property>
+                    <property name="can-focus">True</property>
                     <property name="receives-default">False</property>
                     <property name="draw-indicator">True</property>
                   </object>
@@ -739,7 +739,7 @@
                     <child>
                       <object class="GtkButton" id="btn_filesystemMountpoint">
                         <property name="visible">True</property>
-                        <property name="can-focus">False</property>
+                        <property name="can-focus">True</property>
                         <property name="receives-default">False</property>
                         <property name="hexpand">True</property>
                         <signal name="clicked" handler="on_btn_device_mountpoint_clicked" swapped="no"/>
@@ -760,7 +760,7 @@
                   <object class="GtkCheckButton" id="checkbutton_create_playlists">
                     <property name="label" translatable="yes">Create playlists on device</property>
                     <property name="visible">True</property>
-                    <property name="can-focus">False</property>
+                    <property name="can-focus">True</property>
                     <property name="receives-default">False</property>
                     <property name="draw-indicator">True</property>
                     <signal name="toggled" handler="on_checkbutton_create_playlists_toggled" swapped="no"/>
@@ -792,7 +792,7 @@
                     <child>
                       <object class="GtkButton" id="btn_playlistfolder">
                         <property name="visible">True</property>
-                        <property name="can-focus">False</property>
+                        <property name="can-focus">True</property>
                         <property name="receives-default">False</property>
                         <signal name="clicked" handler="on_btn_playlist_folder_clicked" swapped="no"/>
                       </object>
@@ -813,7 +813,7 @@
                   <object class="GtkCheckButton" id="checkbutton_delete_using_playlists">
                     <property name="label" translatable="yes">Remove episodes deleted on device from gPodder</property>
                     <property name="visible">True</property>
-                    <property name="can-focus">False</property>
+                    <property name="can-focus">True</property>
                     <property name="receives-default">False</property>
                     <property name="draw-indicator">True</property>
                   </object>
@@ -864,7 +864,7 @@
                   <object class="GtkCheckButton" id="checkbutton_skip_played_episodes">
                     <property name="label" translatable="yes">Only sync unplayed episodes</property>
                     <property name="visible">True</property>
-                    <property name="can-focus">False</property>
+                    <property name="can-focus">True</property>
                     <property name="receives-default">False</property>
                     <property name="draw-indicator">True</property>
                   </object>
@@ -878,7 +878,7 @@
                   <object class="GtkCheckButton" id="checkbutton_delete_deleted_episodes">
                     <property name="label" translatable="yes">Remove episodes deleted in gPodder from device</property>
                     <property name="visible">True</property>
-                    <property name="can-focus">False</property>
+                    <property name="can-focus">True</property>
                     <property name="receives-default">False</property>
                     <property name="draw-indicator">True</property>
                   </object>
