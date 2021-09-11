@@ -453,9 +453,11 @@ class DownloadQueueManager(object):
         self.__spawn_threads()
 
     def force_start_task(self, task):
-        if self.tasks.set_downloading(task):
-            worker = ForceDownloadWorker(task)
-            util.run_in_background(worker.run)
+        with task:
+            if task.status in (task.QUEUED, task.PAUSED, task.CANCELLED):
+                task.status = task.DOWNLOADING
+                worker = ForceDownloadWorker(task)
+                util.run_in_background(worker.run)
 
     def queue_task(self, task):
         """Marks a task as queued
@@ -609,9 +611,25 @@ class DownloadTask(object):
 
     downloader = property(fget=__get_downloader, fset=__set_downloader)
 
+    def pause(self):
+        with self:
+            # Pause a queued download
+            if self.status == self.QUEUED:
+                self.status = self.PAUSED
+            # Request pause of a running download
+            elif self.status == self.DOWNLOADING:
+                self.status = self.PAUSING
+
     def cancel(self):
         with self:
-            if self.status in (self.DOWNLOADING, self.QUEUED):
+            # Cancelling directly is allowed if the task isn't currently downloading
+            if self.status in (self.QUEUED, self.PAUSED):
+                self.status = self.CANCELLED
+                # Call run, so the partial file gets deleted
+                self.run()
+                self.recycle()
+            # Otherwise request cancellation
+            elif self.status == self.DOWNLOADING:
                 self.status = self.CANCELLING
 
     def removed_from_list(self):
@@ -760,6 +778,10 @@ class DownloadTask(object):
     def recycle(self):
         self.episode.download_task = None
 
+    def set_episode_download_task(self):
+        if not self.episode.download_task:
+            self.episode.download_task = self
+
     def run(self):
         # Speed calculation (re-)starts here
         self.__start_time = 0
@@ -779,19 +801,17 @@ class DownloadTask(object):
                 self.status = DownloadTask.PAUSED
                 return False
 
-            # We only start this download if its status is queued
-            if self.status != DownloadTask.QUEUED:
+            # We only start this download if its status is downloading
+            if self.status != DownloadTask.DOWNLOADING:
                 return False
 
             # We are downloading this file right now
-            self.status = DownloadTask.DOWNLOADING
             self._notification_shown = False
 
             # Restore a reference to this task in the episode
             # when running a recycled task following a pause or failed
             # see #649
-            if not self.episode.download_task:
-                self.episode.download_task = self
+            self.set_episode_download_task()
 
         url = self.__episode.url
         result = DownloadTask.DOWNLOADING

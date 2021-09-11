@@ -853,14 +853,12 @@ class SyncTask(download.DownloadTask):
             return False
 
         with self:
-            # We only start this download if its status is "queued"
-            if self.status != SyncTask.QUEUED:
+            # We only start this download if its status is downloading
+            if self.status != SyncTask.DOWNLOADING:
                 return False
 
             # We are synching this file right now
-            self.status = SyncTask.DOWNLOADING
-
-        self._notification_shown = False
+            self._notification_shown = False
 
         sync_result = SyncTask.DONE
         try:
