@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Generated with glade 3.38.2 -->
 <interface>
-  <requires lib="gtk+" version="3.0"/>
+  <requires lib="gtk+" version="3.16"/>
   <object class="GtkCheckButton" id="allsamefolder">
     <property name="visible">True</property>
     <property name="can-focus">True</property>
@@ -9,7 +9,7 @@
     <property name="draw-indicator">True</property>
   </object>
   <object class="GtkFileChooserDialog" id="gPodderExportToLocalFolder">
-    <property name="can-focus">False</property>
+    <property name="can-focus">True</property>
     <property name="title" translatable="yes">Select destination</property>
     <property name="modal">True</property>
     <property name="window-position">center-on-parent</property>
@@ -29,14 +29,13 @@
             <property name="can-focus">False</property>
             <property name="layout-style">end</property>
             <child>
-              <object class="GtkButton" id="btnOK">
-                <property name="label" translatable="yes">_Save</property>
+              <object class="GtkButton" id="btnCancel">
+                <property name="label" translatable="yes">_Cancel</property>
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
-                <property name="can-default">True</property>
+                <property name="receives-default">False</property>
                 <property name="use-underline">True</property>
-                <property name="receives-default">True</property>
-                <signal name="clicked" handler="on_btnOK_clicked" swapped="no"/>
+                <signal name="clicked" handler="on_btnCancel_clicked" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">True</property>
@@ -45,13 +44,15 @@
               </packing>
             </child>
             <child>
-              <object class="GtkButton" id="btnCancel">
-                <property name="label" translatable="yes">_Cancel</property>
+              <object class="GtkButton" id="btnOK">
+                <property name="label" translatable="yes">_Save</property>
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
-                <property name="receives-default">False</property>
-                <signal name="clicked" handler="on_btnCancel_clicked" swapped="no"/>
+                <property name="can-default">True</property>
+                <property name="has-default">True</property>
+                <property name="receives-default">True</property>
                 <property name="use-underline">True</property>
+                <signal name="clicked" handler="on_btnOK_clicked" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">True</property>
@@ -69,8 +70,8 @@
       </object>
     </child>
     <action-widgets>
-      <action-widget response="-3">btnOK</action-widget>
       <action-widget response="-6">btnCancel</action-widget>
+      <action-widget response="-3">btnOK</action-widget>
     </action-widgets>
   </object>
 </interface>
