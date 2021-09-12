@@ -172,7 +172,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.episode_new_action.activate()
 
 #        self.shownotes_pane = Gtk.Box()
-        self.shownotes_object = shownotes.get_shownotes(self.config.ui.gtk.html_shownotes, self.shownotes_box, on_key_press_shownotes)
+        self.shownotes_object = shownotes.get_shownotes(self.config.ui.gtk.html_shownotes, self.shownotes_box)
 
         self.detailsbox.connect('key-press-event', on_key_press_shownotes)
 
