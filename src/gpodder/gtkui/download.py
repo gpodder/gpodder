@@ -34,6 +34,7 @@ from gpodder import download, util
 
 _ = gpodder.gettext
 
+
 class DequeueRequest:
     def __init__(self):
         self.cv = threading.Condition()
@@ -125,8 +126,11 @@ class DownloadStatusModel(Gtk.ListStore):
         iter = self.append()
         self.request_update(iter, task)
 
-    def register_task(self, task):
-        util.idle_add(self.__add_new_task, task)
+    def register_task(self, task, background=True):
+        if background:
+            util.idle_add(self.__add_new_task, task)
+        else:
+            self.__add_new_task(task)
 
     def queue_task(self, task):
         with task:

@@ -936,14 +936,6 @@ class DownloadTask(object):
             self.error_message = _('Error: %s') % (str(e),)
 
         with self:
-            if result == DownloadTask.FAILED:
-                self.status = DownloadTask.FAILED
-                self.__episode._download_error = self.error_message
-
-                # Delete empty partial files, they prevent streaming after a download failure (live stream)
-                if util.calculate_size(self.filename) == 0:
-                    util.delete_file(self.tempname)
-
             if result == DownloadTask.DOWNLOADING:
                 # Everything went well - we're done (even if the task was cancelled/paused,
                 # since it's finished we might as well mark it done)
@@ -955,9 +947,17 @@ class DownloadTask(object):
                 gpodder.user_extensions.on_episode_downloaded(self.__episode)
                 return True
 
+            if result == DownloadTask.FAILED:
+                self.status = DownloadTask.FAILED
+                self.__episode._download_error = self.error_message
+
+                # Delete empty partial files, they prevent streaming after a download failure (live stream)
+                if util.calculate_size(self.filename) == 0:
+                    util.delete_file(self.tempname)
+
             self.speed = 0.0
 
-            # cancelled -- update state to mark it as safe to manipulate this task again
+            # cancelled/paused -- update state to mark it as safe to manipulate this task again
             if self.status == DownloadTask.PAUSING:
                 self.status = DownloadTask.PAUSED
             elif self.status == DownloadTask.CANCELLING:

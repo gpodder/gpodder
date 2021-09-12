@@ -1557,20 +1557,33 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         return (''.join(result)).strip()
 
+    def queue_task(self, task, force_start):
+        if force_start:
+            self.download_queue_manager.force_start_task(task)
+        else:
+            self.download_queue_manager.queue_task(task)
+
     def _for_each_task_set_status(self, tasks, status, force_start=False):
         episode_urls = set()
         model = self.treeDownloads.get_model()
         for row_reference, task in tasks:
             with task:
                 if status == download.DownloadTask.QUEUED:
-                    # Only queue task when its paused/failed/cancelled (or forced)
+                    # Only queue task when it's paused/failed/cancelled (or forced)
                     if task.status in (download.DownloadTask.PAUSED,
                                        download.DownloadTask.FAILED,
                                        download.DownloadTask.CANCELLED) or force_start:
-                        if force_start:
-                            self.download_queue_manager.force_start_task(task)
-                        else:
-                            self.download_queue_manager.queue_task(task)
+
+                        # add the task back in if it was already cleaned up
+                        # (to trigger this cancel one downloads in the active list, cancel all
+                        # other downloads, quickly right click on the cancelled on one to get
+                        # the context menu, wait until the active list is cleared, and then
+                        # then choose download)
+                        if not task in self.download_tasks_seen:
+                            self.download_status_model.register_task(task, False)
+                            self.download_tasks_seen.add(task)
+
+                        self.queue_task(task, force_start)
                         self.set_download_list_state(gPodderSyncUI.DL_ONEOFF)
                 elif status == download.DownloadTask.CANCELLING:
                     logger.info(("cancelling task %s" % task.status))
@@ -1933,7 +1946,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             menu = Gtk.Menu()
 
             (can_play, can_download, can_cancel, can_delete, open_instead_of_play) = self.play_or_download()
-            logger.info('can_play=%s, can_download=%s, can_cancel=%s, can_delete=%s, open_instead_of_play=%s' % (can_play, can_download, can_cancel, can_delete, open_instead_of_play))
 
             if open_instead_of_play:
                 item = Gtk.ImageMenuItem(_('Open'))
@@ -3077,10 +3089,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         task.status = task.PAUSED
                     else:
                         self.mygpo_client.on_download([task.episode])
-                        if force_start:
-                            self.download_queue_manager.force_start_task(task)
-                        else:
-                            self.download_queue_manager.queue_task(task)
+                        self.queue_task(task, force_start)
             if tasks or queued_existing_task:
                 self.set_download_list_state(gPodderSyncUI.DL_ONEOFF)
             # Flush updated episode status
@@ -3106,10 +3115,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                             if downloader:
                                 # replace existing task's download with forced one
                                 task.downloader = downloader
-                            if force_start:
-                                self.download_queue_manager.force_start_task(task)
-                            else:
-                                self.download_queue_manager.queue_task(task)
+                            self.queue_task(task, force_start)
                             queued_existing_task = True
                             continue
 

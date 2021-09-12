@@ -26,6 +26,7 @@
 import calendar
 import glob
 import logging
+from os import sync
 import os.path
 import threading
 import time
@@ -841,18 +842,18 @@ class SyncTask(download.DownloadTask):
         self.__start_blocks = 0
 
         # If the download has already been cancelled/paused, skip it
-        if self.status == SyncTask.CANCELLING:
-            util.delete_file(self.tempname)
-            self.progress = 0.0
-            self.speed = 0.0
-            self.status = SyncTask.CANCELLED
-            return False
-
-        if self.status == SyncTask.PAUSING:
-            self.status = SyncTask.PAUSED
-            return False
-
         with self:
+            if self.status == SyncTask.CANCELLING:
+                util.delete_file(self.tempname)
+                self.progress = 0.0
+                self.speed = 0.0
+                self.status = SyncTask.CANCELLED
+                return False
+
+            if self.status == SyncTask.PAUSING:
+                self.status = SyncTask.PAUSED
+                return False
+
             # We only start this download if its status is downloading
             if self.status != SyncTask.DOWNLOADING:
                 return False
@@ -860,7 +861,7 @@ class SyncTask(download.DownloadTask):
             # We are synching this file right now
             self._notification_shown = False
 
-        sync_result = SyncTask.DONE
+        sync_result = SyncTask.DOWNLOADING
         try:
             logger.info('Starting SyncTask')
             self.device.add_track(self.episode, reporthook=self.status_updated)
@@ -872,12 +873,7 @@ class SyncTask(download.DownloadTask):
             self.error_message = _('Error: %s') % (str(e),)
 
         with self:
-            if sync_result == SyncTask.CANCELLED:
-                if self.status == SyncTask.CANCELLING:
-                    self.status = SyncTask.CANCELLED
-                else:
-                    self.status = SyncTask.PAUSED
-            elif sync_result == SyncTask.DONE:
+            if sync_result == SyncTask.DOWNLOADING:
                 # Everything went well - we're done
                 self.status = SyncTask.DONE
                 if self.total_size <= 0:
@@ -887,7 +883,16 @@ class SyncTask(download.DownloadTask):
                 gpodder.user_extensions.on_episode_synced(self.device, self.__episode)
                 return True
 
-        self.speed = 0.0
+            if sync_result == SyncTask.FAILED:
+                self.status = SyncTask.FAILED
+
+            self.speed = 0.0
+
+            # cancelled/paused -- update state to mark it as safe to manipulate this task again
+            if self.status == SyncTask.PAUSING:
+                self.status = SyncTask.PAUSED
+            elif self.status == SyncTask.CANCELLING:
+                self.status = SyncTask.CANCELLED
 
         # We finished, but not successfully (at least not really)
         return False
