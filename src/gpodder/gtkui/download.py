@@ -52,6 +52,7 @@ class DequeueRequest:
         with self.cv:
             self.cv.notify()
 
+
 class DownloadStatusModel(Gtk.ListStore):
     # Symbolic names for our columns, so we know what we're up to
     C_TASK, C_NAME, C_URL, C_PROGRESS, C_PROGRESS_TEXT, C_ICON_NAME = list(range(6))

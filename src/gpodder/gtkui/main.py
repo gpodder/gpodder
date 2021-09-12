@@ -1579,7 +1579,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         # other downloads, quickly right click on the cancelled on one to get
                         # the context menu, wait until the active list is cleared, and then
                         # then choose download)
-                        if not task in self.download_tasks_seen:
+                        if task not in self.download_tasks_seen:
                             self.download_status_model.register_task(task, False)
                             self.download_tasks_seen.add(task)
 
