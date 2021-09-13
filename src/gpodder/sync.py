@@ -792,7 +792,7 @@ class SyncTask(download.DownloadTask):
     def cancel(self):
         with self:
             # Cancelling directly is allowed if the task isn't currently downloading
-            if self.status in (self.QUEUED, self.PAUSED):
+            if self.status in (self.QUEUED, self.PAUSED, self.FAILED):
                 self.status = self.CANCELLED
                 # Call run, so the partial file gets deleted
                 self.run()

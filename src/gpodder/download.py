@@ -454,7 +454,7 @@ class DownloadQueueManager(object):
 
     def force_start_task(self, task):
         with task:
-            if task.status in (task.QUEUED, task.PAUSED, task.CANCELLED):
+            if task.status in (task.QUEUED, task.PAUSED, task.CANCELLED, task.FAILED):
                 task.status = task.DOWNLOADING
                 worker = ForceDownloadWorker(task)
                 util.run_in_background(worker.run)
@@ -623,7 +623,7 @@ class DownloadTask(object):
     def cancel(self):
         with self:
             # Cancelling directly is allowed if the task isn't currently downloading
-            if self.status in (self.QUEUED, self.PAUSED):
+            if self.status in (self.QUEUED, self.PAUSED, self.FAILED):
                 self.status = self.CANCELLED
                 # Call run, so the partial file gets deleted
                 self.run()

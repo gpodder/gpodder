@@ -1177,7 +1177,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
                 task = row[self.download_status_model.C_TASK]
                 speed, size, status, progress, activity = task.speed, task.total_size, task.status, task.progress, task.activity
-                # logger.info("%s: %f", task.episode.title, progress)
 
                 # Let the download task monitors know of changes
                 for monitor in self.download_task_monitors:
@@ -2219,6 +2218,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return (False, False, False, False, False)
 
         (can_play, can_download, can_cancel, can_delete) = (False,) * 4
+        (is_played, is_locked) = (False,) * 2
 
         open_instead_of_play = False
 
@@ -2242,6 +2242,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
                 if episode.was_downloaded():
                     can_play = episode.was_downloaded(and_exists=True)
+                    is_played = not episode.is_new
+                    is_locked = episode.archive
                     if not can_play:
                         can_download = True
                 else:
@@ -2250,7 +2252,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     else:
                         streaming_possible |= self.streaming_possible(episode)
                         can_download = True
-                logger.info('%s - can_download=%s, can_play=%s, can_delete = %s' % (episode.description, can_download, can_play, can_delete))
 
             can_download = can_download and not can_cancel
             can_play = streaming_possible or (can_play and not can_cancel and not can_download)
@@ -3634,7 +3635,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         for tree_row_reference, task in selected_tasks:
             with task:
                 if task.status in (task.DOWNLOADING, task.QUEUED):
-                    task.status = task.PAUSED
+                    task.pause()
                 elif task.status in (task.CANCELLED, task.PAUSED, task.FAILED):
                     self.download_queue_manager.queue_task(task)
                     self.set_download_list_state(gPodderSyncUI.DL_ONEOFF)
