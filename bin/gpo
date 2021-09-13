@@ -623,6 +623,7 @@ class gPodderCli(object):
             task.add_progress_callback(self._update_action)
             task.status = download.DownloadTask.DOWNLOADING
             task.run()
+            task.recycle()
 
     def _download_episodes(self, episodes):
         if self._config.downloads.chronological_order:
@@ -954,6 +955,7 @@ class gPodderCli(object):
                     task.status = sync.SyncTask.DOWNLOADING
                     task.add_progress_callback(progress_updated)
                     task.run()
+                    task.recycle()
 
         done_lock = threading.Lock()
         self.mygpo_client = my.MygPoClient(self._config)
