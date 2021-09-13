@@ -2210,7 +2210,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return (False, False, False, False, False)
 
         (can_play, can_download, can_cancel, can_delete) = (False,) * 4
-        (is_played, is_locked) = (False,) * 2
 
         open_instead_of_play = False
 
@@ -2234,8 +2233,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
                 if episode.was_downloaded():
                     can_play = episode.was_downloaded(and_exists=True)
-                    is_played = not episode.is_new
-                    is_locked = episode.archive
                     if not can_play:
                         can_download = True
                 else:
