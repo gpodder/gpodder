@@ -928,13 +928,13 @@ class SyncTask(download.DownloadTask):
                 gpodder.user_extensions.on_episode_synced(self.device, self.__episode)
                 return True
 
+            self.speed = 0.0
+
             if sync_result == SyncTask.FAILED:
                 self.status = SyncTask.FAILED
 
-            self.speed = 0.0
-
             # cancelled/paused -- update state to mark it as safe to manipulate this task again
-            if self.status == SyncTask.PAUSING:
+            elif self.status == SyncTask.PAUSING:
                 self.status = SyncTask.PAUSED
             elif self.status == SyncTask.CANCELLING:
                 self.status = SyncTask.CANCELLED

@@ -947,6 +947,8 @@ class DownloadTask(object):
                 gpodder.user_extensions.on_episode_downloaded(self.__episode)
                 return True
 
+            self.speed = 0.0
+
             if result == DownloadTask.FAILED:
                 self.status = DownloadTask.FAILED
                 self.__episode._download_error = self.error_message
@@ -955,10 +957,8 @@ class DownloadTask(object):
                 if util.calculate_size(self.filename) == 0:
                     util.delete_file(self.tempname)
 
-            self.speed = 0.0
-
             # cancelled/paused -- update state to mark it as safe to manipulate this task again
-            if self.status == DownloadTask.PAUSING:
+            elif self.status == DownloadTask.PAUSING:
                 self.status = DownloadTask.PAUSED
             elif self.status == DownloadTask.CANCELLING:
                 self.status = DownloadTask.CANCELLED
