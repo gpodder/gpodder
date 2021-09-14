@@ -30,6 +30,7 @@ import os.path
 import threading
 import time
 from enum import Enum
+from os import sync
 from re import S
 from urllib.parse import urlparse
 
@@ -210,6 +211,15 @@ class Device(services.ObservableService):
             logger.warning('Not syncing disks. Unmount your device before unplugging.')
         return True
 
+    def create_task(self, track):
+        return SyncTask(track)
+
+    def cancel_task(self, task):
+        pass
+
+    def cleanup_task(self, task):
+        pass
+
     def add_sync_tasks(self, tracklist, force_played=False, done_callback=None):
         for track in list(tracklist):
             # Filter tracks that are not meant to be synchronized
@@ -228,7 +238,7 @@ class Device(services.ObservableService):
                     break
 
                 # XXX: need to check if track is added properly?
-                sync_task = SyncTask(track)
+                sync_task = self.create_task(track)
 
                 sync_task.status = sync_task.NEW
                 sync_task.device = self
@@ -567,7 +577,22 @@ class MP3PlayerDevice(Device):
     def get_episode_file_on_device(self, episode):
         return episode_filename_on_device(self._config, episode)
 
-    def add_track(self, episode, reporthook=None):
+    def create_task(self, track):
+        return GioSyncTask(track)
+
+    def cancel_task(self, task):
+        task.cancellable.cancel()
+
+    # called by the sync task when it is removed and needs partial files cleaning up
+    def cleanup_task(self, task):
+        episode = task.episode
+        folder = self.get_episode_folder_on_device(episode)
+        file = self.get_episode_file_on_device(episode)
+        file = folder.get_child(file)
+        self.remove_track_file(file)
+
+    def add_track(self, task, reporthook=None):
+        episode = task.episode
         self.notify('status', _('Adding %s') % episode.title)
 
         # get the folder on the device
@@ -604,8 +629,10 @@ class MP3PlayerDevice(Device):
             try:
                 def hookconvert(current_bytes, total_bytes, user_data):
                     return reporthook(current_bytes, 1, total_bytes)
-                from_file.copy(to_file, Gio.FileCopyFlags.OVERWRITE, None, hookconvert, None)
+                from_file.copy(to_file, Gio.FileCopyFlags.OVERWRITE, task.cancellable, hookconvert, None)
             except GLib.Error as err:
+                if err.matches(Gio.io_error_quark(), Gio.IOErrorEnum.CANCELLED):
+                    raise SyncCancelledException()
                 logger.error('Error copying %s to %s: %s', from_file.get_uri(), to_file.get_uri(), err.message)
                 d = {'from_file': from_file.get_uri(), 'to_file': to_file.get_uri(), 'message': err.message}
                 self.errors.append(_('Error copying %(from_file)s to %(to_file)s: %(message)s') % d)
@@ -656,11 +683,7 @@ class MP3PlayerDevice(Device):
             self._config.device_sync.max_filename_length)
         return self._track_on_device(e)
 
-    def remove_track(self, track):
-        self.notify('status', _('Removing %s') % track.title)
-
-        # get the folder on the device
-        file = Gio.File.new_for_uri(track.filename)
+    def remove_track_file(self, file):
         folder = file.get_parent()
         if file.query_exists():
             try:
@@ -680,6 +703,13 @@ class MP3PlayerDevice(Device):
                 # make this happen if they both notice the folder is empty simultaneously)
                 if not err.matches(Gio.io_error_quark(), Gio.IOErrorEnum.NOT_FOUND):
                     logger.error('deleting folder %s failed: %s', folder.get_uri(), err.message)
+
+    def remove_track(self, track):
+        self.notify('status', _('Removing %s') % track.title)
+
+        # get the folder on the device
+        file = Gio.File.new_for_uri(track.filename)
+        self.remove_track_file(file)
 
     def directory_is_empty(self, directory):
         for child in directory.enumerate_children(Gio.FILE_ATTRIBUTE_STANDARD_NAME, Gio.FileQueryInfoFlags.NONE, None):
@@ -750,14 +780,31 @@ class SyncTask(download.DownloadTask):
 
     episode = property(fget=__get_episode)
 
+    def pause(self):
+        with self:
+            # Pause a queued download
+            if self.status == self.QUEUED:
+                self.status = self.PAUSED
+            # Request pause of a running download
+            elif self.status == self.DOWNLOADING:
+                self.status = self.PAUSING
+
     def cancel(self):
         with self:
-            if self.status in (self.DOWNLOADING, self.QUEUED):
+            # Cancelling directly is allowed if the task isn't currently downloading
+            if self.status in (self.QUEUED, self.PAUSED, self.FAILED):
                 self.status = self.CANCELLED
+                # Call run, so the partial file gets deleted
+                self.run()
+                self.recycle()
+            # Otherwise request cancellation
+            elif self.status == self.DOWNLOADING:
+                self.status = self.CANCELLING
+                self.device.cancel(self)
 
     def removed_from_list(self):
-        # XXX: Should we delete temporary/incomplete files here?
-        pass
+        if self.status != self.DONE:
+            self.device.cleanup_task(self)
 
     def __init__(self, episode):
         self.__lock = threading.RLock()
@@ -768,7 +815,6 @@ class SyncTask(download.DownloadTask):
 
         # Create the target filename and save it in the database
         self.filename = self.__episode.local_filename(create=False)
-        self.tempname = self.filename + '.partial'
 
         self.total_size = self.__episode.file_size
         self.speed = 0.0
@@ -826,11 +872,12 @@ class SyncTask(download.DownloadTask):
             self.progress = max(0.0, min(1.0, (count * blockSize) / self.total_size))
             self._progress_updated(self.progress)
 
-        if self.status == SyncTask.CANCELLING:
-            raise SyncCancelledException()
+        if self.status in (SyncTask.CANCELLING, SyncTask.PAUSING):
+            self._signal_cancel_from_status()
 
-        if self.status == SyncTask.PAUSING:
-            raise SyncCancelledException()
+    # default implementation
+    def _signal_cancel_from_status(self):
+        raise SyncCancelledException()
 
     def recycle(self):
         self.episode.download_task = None
@@ -841,31 +888,28 @@ class SyncTask(download.DownloadTask):
         self.__start_blocks = 0
 
         # If the download has already been cancelled/paused, skip it
-        if self.status == SyncTask.CANCELLING:
-            util.delete_file(self.tempname)
-            self.progress = 0.0
-            self.speed = 0.0
-            self.status = SyncTask.CANCELLED
-            return False
-
-        if self.status == SyncTask.PAUSING:
-            self.status = SyncTask.PAUSED
-            return False
-
         with self:
-            # We only start this download if its status is "queued"
-            if self.status != SyncTask.QUEUED:
+            if self.status in (SyncTask.CANCELLING, SyncTask.CANCELLED):
+                self.progress = 0.0
+                self.speed = 0.0
+                self.status = SyncTask.CANCELLED
+                return False
+
+            if self.status == SyncTask.PAUSING:
+                self.status = SyncTask.PAUSED
+                return False
+
+            # We only start this download if its status is downloading
+            if self.status != SyncTask.DOWNLOADING:
                 return False
 
             # We are synching this file right now
-            self.status = SyncTask.DOWNLOADING
+            self._notification_shown = False
 
-        self._notification_shown = False
-
-        sync_result = SyncTask.DONE
+        sync_result = SyncTask.DOWNLOADING
         try:
             logger.info('Starting SyncTask')
-            self.device.add_track(self.episode, reporthook=self.status_updated)
+            self.device.add_track(self, reporthook=self.status_updated)
         except SyncCancelledException as e:
             sync_result = SyncTask.CANCELLED
         except Exception as e:
@@ -874,12 +918,7 @@ class SyncTask(download.DownloadTask):
             self.error_message = _('Error: %s') % (str(e),)
 
         with self:
-            if sync_result == SyncTask.CANCELLED:
-                if self.status == SyncTask.CANCELLING:
-                    self.status = SyncTask.CANCELLED
-                else:
-                    self.status = SyncTask.PAUSED
-            elif sync_result == SyncTask.DONE:
+            if sync_result == SyncTask.DOWNLOADING:
                 # Everything went well - we're done
                 self.status = SyncTask.DONE
                 if self.total_size <= 0:
@@ -889,7 +928,26 @@ class SyncTask(download.DownloadTask):
                 gpodder.user_extensions.on_episode_synced(self.device, self.__episode)
                 return True
 
-        self.speed = 0.0
+            self.speed = 0.0
+
+            if sync_result == SyncTask.FAILED:
+                self.status = SyncTask.FAILED
+
+            # cancelled/paused -- update state to mark it as safe to manipulate this task again
+            elif self.status == SyncTask.PAUSING:
+                self.status = SyncTask.PAUSED
+            elif self.status == SyncTask.CANCELLING:
+                self.status = SyncTask.CANCELLED
 
         # We finished, but not successfully (at least not really)
         return False
+
+
+class GioSyncTask(SyncTask):
+    def __init__(self, episode):
+        super().__init__(episode)
+        # For cancelling the copy
+        self.cancellable = Gio.Cancellable()
+
+    def _signal_cancel_from_status(self):
+        self.cancellable.cancel()
