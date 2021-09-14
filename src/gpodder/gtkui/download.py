@@ -67,7 +67,9 @@ class DownloadStatusModel(Gtk.ListStore):
         self._status_ids[download.DownloadTask.DOWNLOADING] = 'go-down'
         self._status_ids[download.DownloadTask.DONE] = Gtk.STOCK_APPLY
         self._status_ids[download.DownloadTask.FAILED] = 'dialog-error'
+        self._status_ids[download.DownloadTask.CANCELLING] = 'media-playback-stop'
         self._status_ids[download.DownloadTask.CANCELLED] = 'media-playback-stop'
+        self._status_ids[download.DownloadTask.PAUSING] = 'media-playback-pause'
         self._status_ids[download.DownloadTask.PAUSED] = 'media-playback-pause'
 
     def _format_message(self, episode, message, podcast):
