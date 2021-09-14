@@ -378,11 +378,21 @@ class EpisodeListModel(Gtk.ListStore):
         view_show_unplayed = False
         icon_theme = Gtk.IconTheme.get_default()
 
-        if episode.downloading:
-            tooltip.append('%s %d%%' % (_('Downloading'),
-                int(episode.download_task.progress * 100)))
+        task = episode.download_task
 
-            index = int(self.PROGRESS_STEPS * episode.download_task.progress)
+        if task is not None and task.status in (task.PAUSING, task.PAUSED):
+            tooltip.append('%s %d%%' % (_('Paused'),
+                int(task.progress * 100)))
+
+            status_icon = 'media-playback-pause'
+
+            view_show_downloaded = True
+            view_show_unplayed = True
+        elif episode.downloading:
+            tooltip.append('%s %d%%' % (_('Downloading'),
+                int(task.progress * 100)))
+
+            index = int(self.PROGRESS_STEPS * task.progress)
             status_icon = 'gpodder-progress-%d' % index
 
             view_show_downloaded = True
