@@ -776,7 +776,8 @@ class DownloadTask(object):
                     time.sleep(delay)
 
     def recycle(self):
-        self.episode.download_task = None
+        if self.status not in (self.FAILED, self.PAUSED):
+            self.episode.download_task = None
 
     def set_episode_download_task(self):
         if not self.episode.download_task:
