@@ -1211,7 +1211,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.download_tasks_seen = download_tasks_seen
 
             text = [_('Progress')]
-            if downloading + failed + queued + synchronizing > 0:
+            if downloading + synchronizing + failed + queued + paused > 0:
                 s = []
                 if downloading > 0:
                     s.append(N_('%(count)d active', '%(count)d active', downloading) % {'count': downloading})
@@ -1221,6 +1221,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     s.append(N_('%(count)d failed', '%(count)d failed', failed) % {'count': failed})
                 if queued > 0:
                     s.append(N_('%(count)d queued', '%(count)d queued', queued) % {'count': queued})
+                if paused > 0:
+                    s.append(N_('%(count)d paused', '%(count)d paused', paused) % {'count': paused})
                 text.append(' (' + ', '.join(s) + ')')
             self.labelDownloads.set_text(''.join(text))
 
