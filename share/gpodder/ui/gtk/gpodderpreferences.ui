@@ -46,10 +46,11 @@
             <property name="layout-style">end</property>
             <child>
               <object class="GtkButton" id="button_advanced">
-                <property name="label" translatable="yes">Edit config</property>
+                <property name="label" translatable="yes">_Edit config</property>
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <property name="receives-default">False</property>
+                <property name="use-underline">True</property>
                 <signal name="clicked" handler="on_button_advanced_clicked" swapped="no"/>
               </object>
               <packing>
@@ -60,10 +61,11 @@
             </child>
             <child>
               <object class="GtkButton" id="button_close">
-                <property name="label" translatable="yes">Close</property>
+                <property name="label" translatable="yes">_Close</property>
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <property name="receives-default">False</property>
+                <property name="use-underline">True</property>
                 <signal name="clicked" handler="on_button_close_clicked" swapped="no"/>
               </object>
               <packing>
