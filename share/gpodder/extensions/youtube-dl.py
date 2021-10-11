@@ -468,7 +468,8 @@ class gPodderExtension:
 
     def on_episodes_context_menu(self, episodes):
         if not self.container.config.manage_downloads \
-                and not all(e.was_downloaded(and_exists=True) for e in episodes):
+                and not all(e.was_downloaded(and_exists=True) for e in episodes) \
+                and not any(e.downloading for e in episodes):
             return [(_("Download with Youtube-DL"), self.download_episodes)]
 
     def download_episodes(self, episodes):
