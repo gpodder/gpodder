@@ -95,10 +95,26 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.refresh_episode_dates()
 
     def new(self):
+        self.stack_switcher = Gtk.StackSwitcher()
+        self.stack_switcher.set_stack(self.wNotebook)
+
+        self.pbFeedUpdate = Gtk.ProgressBar()
+        self.pbFeedUpdate.set_show_text(True)
+        self.pbFeedUpdate.set_property('ellipsize', Pango.EllipsizeMode.END)
+        self.pbFeedUpdate.set_property('valign', Gtk.Align.CENTER)
+        self.pbFeedUpdate.set_property('vexpand', True)
+
+        self.header_bar_refresh_ui_revealer = Gtk.Revealer()
+        self.header_bar_refresh_ui_revealer.set_transition_type(Gtk.RevealerTransitionType.CROSSFADE)
+        self.header_bar_refresh_ui_revealer.add(self.pbFeedUpdate)
+        self.application.header_bar_refresh_ui.attach(self.header_bar_refresh_ui_revealer, 0, 0, 1, 1)
+
         if self.application.want_headerbar:
             self.header_bar = Gtk.HeaderBar()
             self.header_bar.pack_end(self.application.header_bar_menu_button)
             self.header_bar.pack_start(self.application.header_bar_refresh_button)
+            self.header_bar.pack_start(self.application.header_bar_refresh_ui)
+            self.header_bar.set_custom_title(self.stack_switcher)
             self.header_bar.set_show_close_button(True)
             self.header_bar.show_all()
 
@@ -106,6 +122,29 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.vboxChannelNavigator.set_row_spacing(0)
 
             self.main_window.set_titlebar(self.header_bar)
+        else:
+            hb = Gtk.HBox()
+            hb.set_border_width(6)
+            self.vMain.pack_start(hb, False, True, 0)
+            self.vMain.reorder_child(hb, 1)
+
+            self.pbFeedUpdate.set_property('vexpand', False)
+            self.vMain.pack_start(self.application.header_bar_refresh_ui, False, False, 0)
+
+            def _on_child_revealed(widget, prop=None):
+                widget.set_visible(widget.get_child_revealed())
+
+            self.header_bar_refresh_ui_revealer.connect('notify::child-revealed', _on_child_revealed)
+            self.application.header_bar_refresh_ui.show_all()
+            _on_child_revealed(self.header_bar_refresh_ui_revealer)
+
+            self.vMain.reorder_child(self.application.header_bar_refresh_ui, 2)
+
+            hb.pack_start(self.application.header_bar_refresh_button, False, False, 0)
+            hb.pack_start(self.stack_switcher, True, True, 6)
+            hb.pack_start(self.application.header_bar_menu_button, False, False, 0)
+            self.stack_switcher.set_property('halign', Gtk.Align.CENTER)
+            hb.show_all()
 
         gpodder.user_extensions.on_ui_object_available('gpodder-gtk', self)
         self.toolbar.set_property('visible', self.config.show_toolbar)
@@ -216,8 +255,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         util.run_in_background(self.user_apps_reader.read)
 
         # Now, update the feed cache, when everything's in place
-        if not self.application.want_headerbar:
-            self.btnUpdateFeeds.show()
         self.feed_cache_update_cancelled = False
         self.update_podcast_list_model()
 
@@ -230,6 +267,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self._auto_update_timer_source_id = None
         if self.config.auto_update_feeds:
             self.restart_auto_update_timer()
+
+        self._hide_refresh_ui_source_id = None
 
         # Find expired (old) episodes and delete them
         old_episodes = list(common.get_expired_episodes(self.channels, self.config))
@@ -298,6 +337,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         action_defs = [
             ('update', self.on_itemUpdate_activate),
+            ('cancelFeedUpdate', self.on_btnCancelFeedUpdate_clicked),
             ('downloadAllNew', self.on_itemDownloadAllNew_activate),
             ('removeOldEpisodes', self.on_itemRemoveOldEpisodes_activate),
             ('discover', self.on_itemImportChannels_activate),
@@ -327,6 +367,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.update_action = g.lookup_action('update')
         self.update_channel_action = g.lookup_action('updateChannel')
+        self.cancel_feed_update_action = g.lookup_action('cancelFeedUpdate')
         self.edit_channel_action = g.lookup_action('editChannel')
         self.play_action = g.lookup_action('play')
         self.open_action = g.lookup_action('open')
@@ -335,6 +376,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.delete_action = g.lookup_action('delete')
         self.toggle_episode_new_action = g.lookup_action('toggleEpisodeNew')
         self.toggle_episode_lock_action = g.lookup_action('toggleEpisodeLock')
+
+        self.cancel_feed_update_action.set_enabled(False)
 
         action = Gio.SimpleAction.new_stateful(
             'showToolbar', None, GLib.Variant.new_boolean(self.config.show_toolbar))
@@ -356,7 +399,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if self.extensions_menu is None:
             # insert menu section at startup (hides when empty)
             self.extensions_menu = Gio.Menu.new()
-            menubar = self.application.get_menubar()
+            menubar = self.application.menubar
             for i in range(0, menubar.get_n_items()):
                 menu = menubar.do_get_item_link(menubar, i, Gio.MENU_LINK_SUBMENU)
                 menuname = menubar.get_item_attribute_value(i, Gio.MENU_ATTRIBUTE_LABEL, None)
@@ -388,7 +431,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     '%(count)d partial file', '%(count)d partial files',
                     count) % {'count': count})
 
-                util.idle_add(self.wNotebook.set_current_page, 1)
+                util.idle_add(self.wNotebook.set_visible_child, self.vboxDownloadStatusWidgets)
 
         def progress_callback(title, progress):
             self.partial_downloads_indicator.on_message(title)
@@ -415,7 +458,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     self.vboxDownloadStatusWidgets.attach(self.message_area, 0, -1, 1, 1)
                     self.message_area.show_all()
                 else:
-                    util.idle_add(self.wNotebook.set_current_page, 0)
+                    util.idle_add(self.wNotebook.set_visible_child, self.channelPaned)
                 logger.debug("find_partial_downloads done, calling extensions")
                 gpodder.user_extensions.on_find_partial_downloads_done()
 
@@ -1137,12 +1180,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # Update the downloads list one more time
         self.update_downloads_list(can_call_cleanup=False)
 
-    def on_tool_downloads_toggled(self, toolbutton):
-        if toolbutton.get_active():
-            self.wNotebook.set_current_page(1)
-        else:
-            self.wNotebook.set_current_page(0)
-
     def add_download_task_monitor(self, monitor):
         self.download_task_monitors.add(monitor)
         model = self.download_status_model
@@ -1224,7 +1261,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 if paused > 0:
                     s.append(N_('%(count)d paused', '%(count)d paused', paused) % {'count': paused})
                 text.append(' (' + ', '.join(s) + ')')
-            self.labelDownloads.set_text(''.join(text))
+            self.wNotebook.child_set_property(self.vboxDownloadStatusWidgets, 'title', ''.join(text))
 
             title = [self.default_title]
 
@@ -2212,10 +2249,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.episode_list_status_changed(episodes)
 
-    def play_or_download(self, current_page=None):
-        if current_page is None:
-            current_page = self.wNotebook.get_current_page()
-        if current_page > 0:
+    def play_or_download(self):
+        visible_child = self.wNotebook.get_property('visible-child')
+        if visible_child == self.vboxDownloadStatusWidgets:
             self.toolCancel.set_sensitive(True)
             return (False, False, False, False, False)
 
@@ -2647,19 +2683,34 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def show_update_feeds_buttons(self):
         # Make sure that the buttons for updating feeds
         # appear - this should happen after a feed update
-        self.hboxUpdateFeeds.hide()
-        if not self.application.want_headerbar:
-            self.btnUpdateFeeds.show()
+        self.header_bar_refresh_ui_revealer.set_reveal_child(False)
+        self._make_update_button_update()
+
+    def _make_update_button_update(self):
+        self.cancel_feed_update_action.set_enabled(False)
+        self.application.header_bar_refresh_button.set_icon_name('view-refresh-symbolic')
+        self.application.header_bar_refresh_button.set_action_name('win.update')
         self.update_action.set_enabled(True)
         self.update_channel_action.set_enabled(True)
 
-    def on_btnCancelFeedUpdate_clicked(self, widget):
+    def _make_update_button_cancel(self):
+        self.update_action.set_enabled(False)
+        self.update_channel_action.set_enabled(False)
+        self.application.header_bar_refresh_button.set_icon_name('edit-undo-symbolic')
+        self.application.header_bar_refresh_button.set_action_name('win.cancelFeedUpdate')
+        self.cancel_feed_update_action.set_enabled(True)
+
+    def on_btnCancelFeedUpdate_clicked(self, *args):
         if not self.feed_cache_update_cancelled:
             self.pbFeedUpdate.set_text(_('Cancelling...'))
             self.feed_cache_update_cancelled = True
-            self.btnCancelFeedUpdate.set_sensitive(False)
         else:
             self.show_update_feeds_buttons()
+
+    def _hide_header_bar_refresh_ui(self):
+        self.header_bar_refresh_ui_revealer.set_reveal_child(False)
+        self._hide_refresh_ui_source_id = None
+        return False
 
     def update_feed_cache(self, channels=None,
                           show_new_episodes_dialog=True):
@@ -2675,15 +2726,15 @@ class gPodder(BuilderWidget, dbus.service.Object):
             # Only update podcasts for which updates are enabled
             channels = [c for c in self.channels if not c.pause_subscription]
 
-        self.update_action.set_enabled(False)
-        self.update_channel_action.set_enabled(False)
+        self._make_update_button_cancel()
 
         self.feed_cache_update_cancelled = False
-        self.btnCancelFeedUpdate.show()
-        self.btnCancelFeedUpdate.set_sensitive(True)
-        self.btnCancelFeedUpdate.set_image(Gtk.Image.new_from_icon_name('process-stop', Gtk.IconSize.BUTTON))
-        self.hboxUpdateFeeds.show_all()
-        self.btnUpdateFeeds.hide()
+
+        if self._hide_refresh_ui_source_id is not None:
+            GObject.source_remove(self._hide_refresh_ui_source_id)
+            self._hide_refresh_ui_source_id = None
+
+        self.header_bar_refresh_ui_revealer.set_reveal_child(True)
 
         count = len(channels)
         text = N_('Updating %(count)d feed...', 'Updating %(count)d feeds...',
@@ -2779,10 +2830,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     self.pbFeedUpdate.set_fraction(1.0)
                     self.pbFeedUpdate.set_text(_('No new episodes'))
                     self.feed_cache_update_cancelled = True
-                    self.btnCancelFeedUpdate.show()
-                    self.btnCancelFeedUpdate.set_sensitive(True)
-                    self.update_action.set_enabled(True)
-                    self.btnCancelFeedUpdate.set_image(Gtk.Image.new_from_icon_name('edit-clear', Gtk.IconSize.BUTTON))
+                    self._hide_refresh_ui_source_id = GObject.timeout_add(3000, self._hide_header_bar_refresh_ui)
+                    self._make_update_button_update()
                 else:
                     count = len(episodes)
                     # New episodes are available
@@ -3513,9 +3562,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if self.show_confirmation(message, title):
                 util.open_website('http://gpodder.org/downloads')
 
-    def on_wNotebook_switch_page(self, notebook, page, page_num):
-        if page_num == 0:
-            self.play_or_download(current_page=page_num)
+    def on_wNotebook_switch_page(self, widget, param):
+        visible_child = self.wNotebook.get_property('visible-child')
+        if visible_child == self.channelPaned:
+            self.play_or_download()
             # The message area in the downloads tab should be hidden
             # when the user switches away from the downloads tab
             if self.message_area is not None:
@@ -3647,7 +3697,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.update_downloads_list()
 
     def on_item_cancel_download_activate(self, *params, force=False):
-        if self.wNotebook.get_current_page() == 0:
+        visible_child = self.wNotebook.get_property('visible-child')
+
+        if visible_child == self.channelPaned:
             selection = self.treeAvailable.get_selection()
             (model, paths) = selection.get_selected_rows()
             urls = [model.get_value(model.get_iter(path),
@@ -3671,16 +3723,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_key_press(self, widget, event):
         # Allow tab switching with Ctrl + PgUp/PgDown/Tab
         if event.get_state() & Gdk.ModifierType.CONTROL_MASK:
-            current_page = self.wNotebook.get_current_page()
-            if event.keyval in (Gdk.KEY_Page_Up, Gdk.KEY_ISO_Left_Tab):
-                if current_page == 0:
-                    current_page = self.wNotebook.get_n_pages()
-                self.wNotebook.set_current_page(current_page - 1)
-                return True
-            elif event.keyval in (Gdk.KEY_Page_Down, Gdk.KEY_Tab):
-                if current_page == self.wNotebook.get_n_pages() - 1:
-                    current_page = -1
-                self.wNotebook.set_current_page(current_page + 1)
+            visible_child = self.wNotebook.get_property('visible-child')
+            if event.keyval in (Gdk.KEY_Page_Up, Gdk.KEY_ISO_Left_Tab, Gdk.KEY_Page_Down, Gdk.KEY_Tab):
+                if visible_child == self.channelPaned:
+                    self.wNotebook.set_visible_child(self.vboxDownloadStatusWidgets)
+                else:
+                    self.wNotebook.set_visible_child(self.channelPaned)
                 return True
         elif event.keyval == Gdk.KEY_Delete:
             if isinstance(widget.get_focus(), Gtk.Entry):
