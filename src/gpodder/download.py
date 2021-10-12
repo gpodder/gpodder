@@ -624,10 +624,9 @@ class DownloadTask(object):
         with self:
             # Cancelling directly is allowed if the task isn't currently downloading
             if self.status in (self.QUEUED, self.PAUSED, self.FAILED):
-                self.status = self.CANCELLED
-                # Call run, so the partial file gets deleted
+                self.status = self.CANCELLING
+                # Call run, so the partial file gets deleted, and task recycled
                 self.run()
-                self.recycle()
             # Otherwise request cancellation
             elif self.status == self.DOWNLOADING:
                 self.status = self.CANCELLING
