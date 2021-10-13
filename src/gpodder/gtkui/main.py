@@ -3589,6 +3589,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
         episodes = self.get_selected_episodes()
         self.shownotes_object.toggle_pane_visibility(episodes)
 
+        # Scroll to first episode in selection
+        if len(episodes) == 0:
+            return
+        _, paths = self.treeAvailable.get_selection().get_selected_rows()
+        util.idle_add(lambda: self.treeAvailable.scroll_to_cell(paths[0]))
+
     def on_download_selected_episodes(self, action_or_widget, param=None):
         episodes = self.get_selected_episodes()
         self.download_episode_list(episodes)
