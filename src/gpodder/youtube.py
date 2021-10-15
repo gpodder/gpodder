@@ -354,15 +354,15 @@ def get_real_download_url(url, allow_partial, preferred_fmt_ids=None):
 
 
 def get_youtube_id(url):
-    r = re.compile(r'http[s]?://(?:[a-z]+\.)?youtube\.com/v/(.*)\.swf', re.IGNORECASE).match(url)
-    if r is not None:
-        return r.group(1)
-
     r = re.compile(r'http[s]?://(?:[a-z]+\.)?youtube\.com/watch\?v=([^&]*)', re.IGNORECASE).match(url)
     if r is not None:
         return r.group(1)
 
     r = re.compile(r'http[s]?://(?:[a-z]+\.)?youtube\.com/v/(.*)[?]', re.IGNORECASE).match(url)
+    if r is not None:
+        return r.group(1)
+
+    r = re.compile(r'http[s]?://(?:[a-z]+\.)?youtube\.com/v/(.*)\.swf', re.IGNORECASE).match(url)
     if r is not None:
         return r.group(1)
 
