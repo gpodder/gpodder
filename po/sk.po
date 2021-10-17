@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: gPodder\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-10-15 04:02-0600\n"
-"PO-Revision-Date: 2021-08-20 13:37+0200\n"
+"PO-Revision-Date: 2021-10-16 13:37+0200\n"
 "Last-Translator: Thomas Perl <m@thp.io>\n"
 "Language-Team: Slovak (http://www.transifex.com/projects/p/gpodder/language/"
 "sk/)\n"
@@ -62,7 +62,7 @@ msgstr "Vyhľadávanie na Soundcloud"
 
 #: src/gpodder/directory.py:174
 msgid "Imported OPML file"
-msgstr "Importovať OPML súbor"
+msgstr "Importovaný OPML súbor"
 
 #: src/gpodder/download.py:544 src/gpodder/sync.py:730
 msgid "Queued"
@@ -82,20 +82,16 @@ msgid "Failed"
 msgstr "Zlyhalo"
 
 #: src/gpodder/download.py:545 src/gpodder/sync.py:731
-#, fuzzy
-#| msgid "Cancelling..."
 msgid "Cancelling"
-msgstr "Rušenie..."
+msgstr "Rušenie"
 
 #: src/gpodder/download.py:545 src/gpodder/sync.py:731
 msgid "Cancelled"
 msgstr "Zrušené"
 
 #: src/gpodder/download.py:545 src/gpodder/sync.py:731
-#, fuzzy
-#| msgid "Pause"
 msgid "Pausing"
-msgstr "Pozastaviť"
+msgstr "Pozastavenie"
 
 #: src/gpodder/download.py:545 src/gpodder/sync.py:731
 #: src/gpodder/gtkui/model.py:384
@@ -278,10 +274,9 @@ msgstr ""
 "je aspoň %(need)s"
 
 #: src/gpodder/sync.py:638
-#, fuzzy, python-format
-#| msgid "Error opening %(filename)s: %(message)s"
+#, python-format
 msgid "Error copying %(from_file)s to %(to_file)s: %(message)s"
-msgstr "Chyba pri otváraní %(filename)s: %(message)s"
+msgstr "Chyba pri kopírovaní %(from_file)s do %(to_file)s: %(message)s"
 
 #: src/gpodder/syncui.py:89
 msgid "No device configured"
@@ -568,14 +563,12 @@ msgstr[1] "%(count)d v poradí"
 msgstr[2] "%(count)d v poradí"
 
 #: src/gpodder/gtkui/main.py:1225
-#, fuzzy, python-format
-#| msgid "%(count)d second"
-#| msgid_plural "%(count)d seconds"
+#, python-format
 msgid "%(count)d paused"
 msgid_plural "%(count)d paused"
-msgstr[0] "%(count)d sekunda"
-msgstr[1] "%(count)d sekundy"
-msgstr[2] "%(count)d sekúnd"
+msgstr[0] "%(count)d pozastavený"
+msgstr[1] "%(count)d pozastavené"
+msgstr[2] "%(count)d pozastavených"
 
 #: src/gpodder/gtkui/main.py:1238
 #, python-format
@@ -1163,11 +1156,11 @@ msgstr "Export do OPML zlyhal"
 
 #: src/gpodder/gtkui/main.py:3477
 msgid "Managed by distribution"
-msgstr ""
+msgstr "Spravované distribúciou"
 
 #: src/gpodder/gtkui/main.py:3478
 msgid "Please check your distribution for gPodder updates."
-msgstr ""
+msgstr "Skontrolujte prosím aktualizácie gPodderu vo svojej distribúcii."
 
 #: src/gpodder/gtkui/main.py:3493
 msgid "Could not check for updates"
@@ -1312,11 +1305,11 @@ msgstr "Vyberte epizódu"
 
 #: src/gpodder/gtkui/shownotes.py:252
 msgid "Open Episode Title Link"
-msgstr ""
+msgstr "Otvoriť adresu epizódy"
 
 #: src/gpodder/gtkui/shownotes.py:257
 msgid "Copy Episode Title Link Address"
-msgstr ""
+msgstr "Kopírovať adresu epizódy"
 
 #: src/gpodder/gtkui/shownotes.py:350
 #, python-format
@@ -1618,10 +1611,8 @@ msgid "Select folder for playlists"
 msgstr "Vyberte priečinok pre zoznamy skladieb"
 
 #: src/gpodder/gtkui/desktop/preferences.py:703
-#, fuzzy
-#| msgid "Create playlists on device"
 msgid "The playlists folder must be on the device"
-msgstr "Vytvoriť zoznam na zariadení"
+msgstr "Priečinok zoznamov skladieb musí byť na zariadení"
 
 #: src/gpodder/plugins/soundcloud.py:168
 msgid "Unknown track"
@@ -2019,11 +2010,11 @@ msgstr "Pridať nový podcast"
 
 #: share/gpodder/ui/gtk/gpodderaddpodcast.ui.h:3
 msgid "_Add"
-msgstr ""
+msgstr "_Pridať"
 
 #: share/gpodder/ui/gtk/gpodderaddpodcast.ui.h:5
 msgid "_Paste"
-msgstr ""
+msgstr "_Vložiť"
 
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:1
 msgid "Channel Editor"
@@ -2094,27 +2085,23 @@ msgstr "Editor konfigurácie gPodder"
 #: share/gpodder/ui/gtk/gpodderconfigeditor.ui.h:2
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:3
 msgid "_Close"
-msgstr ""
+msgstr "_Zavrieť"
 
 #: share/gpodder/ui/gtk/gpodderconfigeditor.ui.h:3
 msgid "Search for:"
 msgstr "Hľadať:"
 
 #: share/gpodder/ui/gtk/gpodderconfigeditor.ui.h:4
-#, fuzzy
-#| msgid "Show All"
 msgid "_Show All"
-msgstr "Zobraziť všetko"
+msgstr "_Zobraziť všetko"
 
 #: share/gpodder/ui/gtk/gpodderepisodeselector.ui.h:1
 msgid "Select episodes"
 msgstr "Vybrať epizódy"
 
 #: share/gpodder/ui/gtk/gpodderexporttolocalfolder.ui.h:3
-#, fuzzy
-#| msgid "Save"
 msgid "_Save"
-msgstr "Uložiť"
+msgstr "_Uložiť"
 
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:1
 msgid "Find new podcasts"
@@ -2141,10 +2128,8 @@ msgid "Add"
 msgstr "Pridať"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:2
-#, fuzzy
-#| msgid "Edit config"
 msgid "_Edit config"
-msgstr "Upraviť nastavenia"
+msgstr "_Upraviť nastavenia"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:4
 msgid "Video player:"
@@ -2251,10 +2236,8 @@ msgid "Only sync unplayed episodes"
 msgstr "Synchronizovať iba neprehrané epizódy"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:32
-#, fuzzy
-#| msgid "Remove episodes deleted on device from gPodder"
 msgid "Remove episodes deleted in gPodder from device"
-msgstr "Odstrániť epizódy vymazané zo zariadenia z gPodderu"
+msgstr "Odstrániť epizódy vymazané z gPodderu zo zariadenia"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:33
 msgid "Devices"
@@ -2398,7 +2381,7 @@ msgstr "Vždy zobraziť nové epizódy"
 
 #: share/gpodder/ui/gtk/menus.ui.h:42
 msgid "Require control click to sort episodes"
-msgstr ""
+msgstr "Zoradiť epizódy ctrl kliknutím"
 
 #: share/gpodder/ui/gtk/menus.ui.h:43
 msgid "Visible columns"
@@ -2579,7 +2562,7 @@ msgstr "Nevymaže %(episode)s"
 #: bin/gpo:942
 #, python-format
 msgid "mounting volume for file %(file)s failed with: %(error)s"
-msgstr ""
+msgstr "pripájanie zväzku pre súbor %(file)s zlyhalo: %(error)s"
 
 #: bin/gpo:954
 #, python-format
@@ -2658,7 +2641,7 @@ msgstr "znížiť počet varovaní v konzole"
 
 #: bin/gpodder:123
 msgid "exit once started up (for profiling)"
-msgstr ""
+msgstr "ukončiť po spustení (pre profilovanie)"
 
 #: bin/gpodder:128
 msgid "Mac OS X application process number"
