@@ -572,7 +572,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     episodes=changes,
                     columns=columns,
                     size_attribute=None,
-                    ok_button=_('_Apply'),
+                    ok_button=_('A_pply'),
                     callback=execute_podcast_actions,
                     _config=self.config)
 
@@ -3180,7 +3180,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 ok_button='gpodder-download',
                 callback=download_episodes_callback,
                 remove_callback=lambda e: e.mark_old(),
-                remove_action=_('Mark as old'),
+                remove_action=_('_Mark as old'),
                 remove_finished=self.episode_new_status_changed,
                 _config=self.config,
                 show_notification=False)

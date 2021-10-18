@@ -20,9 +20,10 @@
             <property name="can-focus">False</property>
             <child>
               <object class="GtkButton" id="btnRemoveAction">
-                <property name="label" translatable="yes">Remove</property>
+                <property name="label" translatable="yes">_Remove</property>
                 <property name="can-focus">True</property>
                 <property name="receives-default">False</property>
+                <property name="use-underline">True</property>
                 <signal name="clicked" handler="on_remove_action_activate" swapped="no"/>
               </object>
               <packing>
@@ -48,7 +49,7 @@
             </child>
             <child>
               <object class="GtkButton" id="btnOK">
-                <property name="label" translatable="yes">OK</property>
+                <property name="label" translatable="yes">_OK</property>
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <property name="can-default">True</property>
@@ -147,7 +148,7 @@
                           <object class="GtkLabel" id="label107">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
-                            <property name="label" translatable="yes">Select all</property>
+                            <property name="label" translatable="yes">Select _all</property>
                             <property name="use-underline">True</property>
                           </object>
                           <packing>
@@ -192,7 +193,7 @@
                           <object class="GtkLabel" id="label106">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
-                            <property name="label" translatable="yes">Select none</property>
+                            <property name="label" translatable="yes">Select _none</property>
                             <property name="use-underline">True</property>
                           </object>
                           <packing>
