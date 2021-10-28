@@ -284,7 +284,7 @@ msgstr ""
 #, python-format
 #| msgid "Error opening %(filename)s: %(message)s"
 msgid "Error copying %(from_file)s to %(to_file)s: %(message)s"
-msgstr "Klarte ikke å kopiere %(from_file)s til %(message)s"
+msgstr "Klarte ikke å kopiere %(from_file)s til %(to_file)s: %(message)s"
 
 #: src/gpodder/syncui.py:89
 msgid "No device configured"
@@ -513,13 +513,13 @@ msgstr "Dato"
 #, fuzzy
 #| msgid "Size"
 msgid "Size+"
-msgstr "Størrelse"
+msgstr "Størrelse+"
 
 #: src/gpodder/gtkui/main.py:899
 #, fuzzy
 #| msgid "Duration"
 msgid "Duration+"
-msgstr "Varighet"
+msgstr "Varighet+"
 
 #: src/gpodder/gtkui/main.py:1058 src/gpodder/gtkui/main.py:1213
 #: share/gpodder/ui/gtk/gpodder.ui.h:11
@@ -1194,7 +1194,7 @@ msgstr "Utgitt: %s"
 
 #: src/gpodder/gtkui/main.py:3510
 msgid "Download the latest version from gpodder.org?"
-msgstr "Last ned siste versjon fra gpodder.net?"
+msgstr "Last ned siste versjon fra gpodder.org?"
 
 #: src/gpodder/gtkui/model.py:67
 #, python-format
@@ -1385,7 +1385,7 @@ msgstr "Sett til"
 #: src/gpodder/gtkui/interface/configeditor.py:87
 #, python-format
 msgid "Cannot set %(field)s to %(value)s. Needed data type: %(datatype)s"
-msgstr "Kan ikke sette %(field)s til %(value)s. Datatypen «(datatype)s» må brukes."
+msgstr "Kan ikke sette %(field)s til %(value)s. Datatypen «%(datatype)s» må brukes."
 
 #: src/gpodder/gtkui/interface/configeditor.py:91
 msgid "Error setting option"
@@ -1960,7 +1960,7 @@ msgstr ""
 #: share/gpodder/extensions/youtube-dl.py:467
 #| msgid "Download to:"
 msgid "Old Youtube-DL"
-msgstr "Gammel youtube-dl:"
+msgstr "Gammel «youtube-dl»:"
 
 #: share/gpodder/extensions/youtube-dl.py:472
 #| msgid "Download to:"
@@ -2128,7 +2128,7 @@ msgstr "Legg til"
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:2
 #| msgid "Edit config"
 msgid "_Edit config"
-msgstr "Rediger oppsett"
+msgstr "_Rediger oppsett"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:4
 msgid "Video player:"
@@ -2140,7 +2140,7 @@ msgstr "Lydavspiller:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:6
 msgid "\"All episodes\" in podcast list"
-msgstr "\"Alle episoder\" i nettradioopptakslisten"
+msgstr "«Alle episoder» i nettradioopptakslisten"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:7
 msgid "Use sections for podcast list"
@@ -2325,7 +2325,7 @@ msgstr "Eksporter til OPML-fil"
 
 #: share/gpodder/ui/gtk/menus.ui.h:20
 msgid "_Episodes"
-msgstr "Episoder"
+msgstr "_Episoder"
 
 #: share/gpodder/ui/gtk/menus.ui.h:26
 msgid "Toggle new status"
@@ -2414,7 +2414,7 @@ msgstr "Brukernavn:"
 #: bin/gpo:794
 #, python-format
 msgid "You are not subscribed to %s."
-msgstr "Du abonnerer allerede på %s."
+msgstr "Du abonnerer ikke på %s."
 
 #: bin/gpo:369
 #, python-format
@@ -2584,7 +2584,7 @@ msgstr "Kategori:"
 #: bin/gpo:1003
 #| msgid "Section:"
 msgid "Description:"
-msgstr "Del:"
+msgstr "Beskrivelse:"
 
 #: bin/gpo:1004
 msgid "Authors:"
@@ -2638,7 +2638,7 @@ msgstr "Skriv loggføringsdata til konsollen"
 
 #: bin/gpodder:117
 msgid "reduce warnings on the console"
-msgstr "Skriv advarsler til konsollen"
+msgstr "Reduser advarsler til konsollen"
 
 #: bin/gpodder:123
 msgid "exit once started up (for profiling)"
