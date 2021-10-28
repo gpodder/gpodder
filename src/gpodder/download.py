@@ -624,10 +624,9 @@ class DownloadTask(object):
         with self:
             # Cancelling directly is allowed if the task isn't currently downloading
             if self.status in (self.QUEUED, self.PAUSED, self.FAILED):
-                self.status = self.CANCELLED
-                # Call run, so the partial file gets deleted
+                self.status = self.CANCELLING
+                # Call run, so the partial file gets deleted, and task recycled
                 self.run()
-                self.recycle()
             # Otherwise request cancellation
             elif self.status == self.DOWNLOADING:
                 self.status = self.CANCELLING
@@ -953,10 +952,6 @@ class DownloadTask(object):
             if result == DownloadTask.FAILED:
                 self.status = DownloadTask.FAILED
                 self.__episode._download_error = self.error_message
-
-                # Delete empty partial files, they prevent streaming after a download failure (live stream)
-                if util.calculate_size(self.filename) == 0:
-                    util.delete_file(self.tempname)
 
             # cancelled/paused -- update state to mark it as safe to manipulate this task again
             elif self.status == DownloadTask.PAUSING:

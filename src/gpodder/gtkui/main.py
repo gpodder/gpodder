@@ -2125,6 +2125,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
         for episode in episodes:
             episode._download_error = None
 
+            if episode.download_task is not None and episode.download_task.status == episode.download_task.FAILED:
+                # Cancel failed task and remove from progress list
+                episode.download_task.cancel()
+                self.cleanup_downloads()
+
             player = self.episode_player(episode)
 
             try:
