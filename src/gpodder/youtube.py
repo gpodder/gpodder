@@ -147,8 +147,21 @@ hls_formats = [
 ]
 hls_formats_dict = dict(hls_formats)
 
-V3_API_ENDPOINT = 'https://www.googleapis.com/youtube/v3'
 CHANNEL_VIDEOS_XML = 'https://www.youtube.com/feeds/videos.xml'
+WATCH_ENDPOINT = 'https://www.youtube.com/watch?bpctr=9999999999&has_verified=1&v='
+
+# The page may contain "};" sequences inside the initial player response.
+# Use a greedy match with script end tag, and fallback to a non-greedy match without.
+INITIAL_PLAYER_RESPONSE_RE1 = r'ytInitialPlayerResponse\s*=\s*({.+})\s*;\s*</script'
+INITIAL_PLAYER_RESPONSE_RE2 = r'ytInitialPlayerResponse\s*=\s*({.+?})\s*;'
+
+
+def get_ipr(page):
+    for regex in (INITIAL_PLAYER_RESPONSE_RE1, INITIAL_PLAYER_RESPONSE_RE2):
+        ipr = re.search(regex, page)
+        if ipr is not None:
+            return ipr
+    return None
 
 
 class YouTubeError(Exception):
@@ -198,12 +211,12 @@ def youtube_get_old_endpoint(vid):
 
 
 def youtube_get_new_endpoint(vid):
-    url = 'https://www.youtube.com/watch?bpctr=9999999999&has_verified=1&v=' + vid
+    url = WATCH_ENDPOINT + vid
     r = util.urlopen(url)
     if not r.ok:
         raise YouTubeError('Youtube "%s": %d %s' % (url, r.status_code, r.reason))
 
-    ipr = re.search(r'ytInitialPlayerResponse\s*=\s*({.+?})\s*;', r.text)
+    ipr = get_ipr(r.text)
     if ipr is None:
         try:
             url = get_gdpr_consent_url(r.text)
@@ -213,7 +226,7 @@ def youtube_get_new_endpoint(vid):
         if not r.ok:
             raise YouTubeError('Youtube "%s": %d %s' % (url, r.status_code, r.reason))
 
-        ipr = re.search(r'ytInitialPlayerResponse\s*=\s*({.+?})\s*;', r.text)
+        ipr = get_ipr(r.text)
         if ipr is None:
             raise YouTubeError('Youtube "%s": No ytInitialPlayerResponse found' % url)
 
@@ -226,19 +239,19 @@ def get_total_time(episode):
         if vid is None:
             return 0
 
-        url = 'https://www.youtube.com/watch?v=' + vid
+        url = WATCH_ENDPOINT + vid
         r = util.urlopen(url)
         if not r.ok:
             return 0
 
-        ipr = re.search(r'ytInitialPlayerResponse\s*=\s*({.+?})\s*;', r.text)
+        ipr = get_ipr(r.text)
         if ipr is None:
             url = get_gdpr_consent_url(r.text)
             r = util.urlopen(url)
             if not r.ok:
                 return 0
 
-            ipr = re.search(r'ytInitialPlayerResponse\s*=\s*({.+?})\s*;', r.text)
+            ipr = get_ipr(r.text)
             if ipr is None:
                 return 0
 
