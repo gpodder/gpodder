@@ -30,7 +30,6 @@ import os.path
 import threading
 import time
 from enum import Enum
-from os import sync
 from re import S
 from urllib.parse import urlparse
 
