@@ -509,10 +509,12 @@ class gPodderShownotesLabel(gPodderShownotes):
             'size': util.format_filesize(episode.file_size, digits=1)
             if episode.file_size > 0 else "-",
             'duration': episode.get_play_info_string()})
-        for target, text in util.extract_hyperlinked_text(episode.description_html or episode.description):
+        for target, text in util.extract_hyperlinked_text(
+                episode.description_html or episode.description):
             if target:
                 tesc = html.escape(target)
-                ltext += '<a href="%s" title="%s">%s</a>' % (tesc, tesc, html.escape(text))
+                ltext += '<a href="%s" title="%s">%s</a>' % (
+                    tesc, html.escape(tesc), html.escape(text))
             else:
                 ltext += html.escape(text)
         self.label.set_markup(ltext)
