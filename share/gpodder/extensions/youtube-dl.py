@@ -86,14 +86,10 @@ class YoutubeCustomDownload(download.CustomDownload):
         """
         self._reporthook = reporthook
         # outtmpl: use given tempname by DownloadTask
-        # (escape % and $ because outtmpl used as a string template by youtube-dl)
-        outtmpl = tempname.replace('%', '%%').replace('$', '$$')
+        # (escape % because outtmpl used as a string template by youtube-dl)
+        outtmpl = tempname.replace('%', '%%')
         res = self._ytdl.fetch_video(self._url, outtmpl, self._my_hook)
-        if outtmpl != tempname:
-            if 'ext' in res and os.path.isfile(outtmpl + '.{}'.format(res['ext'])):
-                os.rename(outtmpl + '.{}'.format(res['ext']), tempname)
-            else:
-                os.rename(outtmpl, tempname)
+        # Renaming is not required because the escaped percent is not escaped in the output file.
         if 'duration' in res and res['duration']:
             self._episode.total_time = res['duration']
         headers = {}
