@@ -162,7 +162,7 @@ def is_absolute_url(url):
     try:
         parsed = urllib.parse.urlparse(url)
         # fix #1190: when parsing a windows path, scheme=drive_letter, path=\rest_of_path
-        return parsed.scheme and not parsed.path.startswith("\\\\")
+        return parsed.scheme and not parsed.path.startswith("\\")
     except ValueError:
         return False
 
