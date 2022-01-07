@@ -138,8 +138,8 @@ class ITaskbarList3(ITaskbarList2):
                   (['in'], POINTER(tagRECT), 'prcClip'))]
 
 
-assert sizeof(tagTHUMBBUTTON) == 540, sizeof(tagTHUMBBUTTON)
-assert alignment(tagTHUMBBUTTON) == 4, alignment(tagTHUMBBUTTON)
+assert sizeof(tagTHUMBBUTTON) in [540, 552], sizeof(tagTHUMBBUTTON)
+assert alignment(tagTHUMBBUTTON) in [4, 8], alignment(tagTHUMBBUTTON)
 
 
 # based on http://stackoverflow.com/a/1744503/905256
