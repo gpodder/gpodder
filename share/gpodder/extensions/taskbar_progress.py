@@ -20,6 +20,7 @@
 # Windows 7 taskbar progress
 # Sean Munkel; 2013-01-05
 
+import ctypes
 import functools
 import logging
 from ctypes import (HRESULT, POINTER, Structure, alignment, c_int, c_uint,
