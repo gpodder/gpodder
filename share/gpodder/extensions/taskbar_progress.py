@@ -154,7 +154,6 @@ class gPodderExtension:
             '{56FDF344-FD6D-11d0-958A-006097C9A090}',
             interface=ITaskbarList3)
         self.taskbar.HrInit()
-        self.taskbar.ActivateTab(self.window_handle)
 
     def on_unload(self):
         if self.taskbar is not None:
@@ -167,6 +166,7 @@ class gPodderExtension:
             win_gpointer = ctypes.pythonapi.PyCapsule_GetPointer(window.get_window().__gpointer__, None)
             gdkdll = ctypes.CDLL("libgdk-3-0.dll")
             self.window_handle = gdkdll.gdk_win32_window_get_handle(win_gpointer)
+            self.taskbar.ActivateTab(self.window_handle)
 
         if name == 'gpodder-gtk':
             ui_object.main_window.connect('realize',
