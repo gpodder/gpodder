@@ -1470,7 +1470,7 @@ def http_request(url, method='HEAD'):
     return conn.getresponse()
 
 
-def gui_open(filename):
+def gui_open(filename, gui=None):
     """
     Open a file or folder with the default application set
     by the Desktop environment. This uses "xdg-open" on all
@@ -1481,13 +1481,30 @@ def gui_open(filename):
     try:
         if gpodder.ui.win32:
             os.startfile(filename)
+            opener = None
         elif gpodder.ui.osx:
-            Popen(['open', filename], close_fds=True)
+            opener = 'open'
         else:
-            Popen(['xdg-open', filename], close_fds=True)
+            opener = 'xdg-open'
+
+        if opener:
+            opener_fullpath = shutil.which(opener)
+            if opener_fullpath is None:
+                raise Exception((_("System default program '%(opener)s' not found"))
+                    % {'opener': opener}
+                )
+            Popen([opener_fullpath, filename], close_fds=True)
         return True
     except:
         logger.error('Cannot open file/folder: "%s"', filename, exc_info=True)
+        if gui is not None:
+            if opener is None:
+                message = _("Cannot open file/folder '%(filename)s' using default program") % {'filename': filename}
+            else:
+                message = _("Cannot open '%(filename)s' using '%(opener)s'") \
+                                        % {'filename': filename, 'opener': opener}
+            gui.show_message_details(_('Cannot open file/folder'),
+                    str(sys.exc_info()[1]), message)
         return False
 
 

@@ -2187,7 +2187,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if 'default' in groups:
             for filename in groups['default']:
                 logger.debug('Opening with system default: %s', filename)
-                util.gui_open(filename)
+                util.gui_open(filename, gui=self)
             del groups['default']
 
         # For each type now, go and create play commands
