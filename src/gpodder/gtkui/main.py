@@ -1722,7 +1722,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_open_download_folder(self, item):
         assert self.active_channel is not None
-        util.gui_open(self.active_channel.save_dir)
+        util.gui_open(self.active_channel.save_dir, gui=self)
 
     def treeview_channels_show_context_menu(self, treeview, event=None):
         model, paths = self.treeview_handle_context_menu_click(treeview, event)
