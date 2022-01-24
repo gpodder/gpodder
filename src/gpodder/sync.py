@@ -37,8 +37,8 @@ import gpodder
 from gpodder import download, services, util
 
 import gi  # isort:skip
-gi.require_version('Gtk', '3.0')  # isort:skip
-from gi.repository import GLib, Gio, Gtk  # isort:skip
+gi.require_version('Gio', '2.0')  # isort:skip
+from gi.repository import GLib, Gio  # isort:skip
 
 
 logger = logging.getLogger(__name__)
