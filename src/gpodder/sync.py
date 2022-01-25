@@ -726,7 +726,7 @@ class SyncTask(download.DownloadTask):
     # An object representing the synchronization task of an episode
 
     # Possible states this sync task can be in
-    STATUS_MESSAGE = (_('Queued'), _('Queued'), _('Downloading'),
+    STATUS_MESSAGE = (_('Queued'), _('Queued'), _('Syncing'),
             _('Finished'), _('Failed'), _('Cancelling'), _('Cancelled'), _('Pausing'), _('Paused'))
     (NEW, QUEUED, DOWNLOADING, DONE, FAILED, CANCELLING, CANCELLED, PAUSING, PAUSED) = list(range(9))
 
