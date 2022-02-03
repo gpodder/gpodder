@@ -50,9 +50,6 @@ class GtkBuilderWidget(object):
         if parent is not None:
             self.builder.expose_object('parent_widget', parent)
         self.builder.set_translation_domain(textdomain)
-        if hasattr(self, '_builder_expose'):
-            for (key, value) in list(self._builder_expose.items()):
-                self.builder.expose_object(key, value)
 
         # print >>sys.stderr, 'Creating new from file', self.__class__.__name__
 
@@ -67,6 +64,9 @@ class GtkBuilderWidget(object):
 
         self.builder.connect_signals(self)
         self.set_attributes()
+        if hasattr(self, '_gtk_properties'):
+            for ((gobj, prop), val) in self._gtk_properties.items():
+                getattr(self, gobj).set_property(prop, val)
 
         self.new()
 
