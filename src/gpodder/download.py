@@ -453,9 +453,11 @@ class DownloadQueueManager(object):
         self.__spawn_threads()
 
     def force_start_task(self, task):
-        if self.tasks.set_downloading(task):
-            worker = ForceDownloadWorker(task)
-            util.run_in_background(worker.run)
+        with task:
+            if task.status in (task.QUEUED, task.PAUSED, task.CANCELLED, task.FAILED):
+                task.status = task.DOWNLOADING
+                worker = ForceDownloadWorker(task)
+                util.run_in_background(worker.run)
 
     def queue_task(self, task):
         """Marks a task as queued
@@ -609,9 +611,25 @@ class DownloadTask(object):
 
     downloader = property(fget=__get_downloader, fset=__set_downloader)
 
+    def pause(self):
+        with self:
+            # Pause a queued download
+            if self.status == self.QUEUED:
+                self.status = self.PAUSED
+            # Request pause of a running download
+            elif self.status == self.DOWNLOADING:
+                self.status = self.PAUSING
+
     def cancel(self):
         with self:
-            if self.status in (self.DOWNLOADING, self.QUEUED):
+            # Cancelling directly is allowed if the task isn't currently downloading
+            if self.status in (self.QUEUED, self.PAUSED, self.FAILED):
+                self.status = self.CANCELLED
+                # Call run, so the partial file gets deleted
+                self.run()
+                self.recycle()
+            # Otherwise request cancellation
+            elif self.status == self.DOWNLOADING:
                 self.status = self.CANCELLING
 
     def removed_from_list(self):
@@ -758,7 +776,12 @@ class DownloadTask(object):
                     time.sleep(delay)
 
     def recycle(self):
-        self.episode.download_task = None
+        if self.status not in (self.FAILED, self.PAUSED):
+            self.episode.download_task = None
+
+    def set_episode_download_task(self):
+        if not self.episode.download_task:
+            self.episode.download_task = self
 
     def run(self):
         # Speed calculation (re-)starts here
@@ -779,19 +802,17 @@ class DownloadTask(object):
                 self.status = DownloadTask.PAUSED
                 return False
 
-            # We only start this download if its status is queued
-            if self.status != DownloadTask.QUEUED:
+            # We only start this download if its status is downloading
+            if self.status != DownloadTask.DOWNLOADING:
                 return False
 
             # We are downloading this file right now
-            self.status = DownloadTask.DOWNLOADING
             self._notification_shown = False
 
             # Restore a reference to this task in the episode
             # when running a recycled task following a pause or failed
             # see #649
-            if not self.episode.download_task:
-                self.episode.download_task = self
+            self.set_episode_download_task()
 
         url = self.__episode.url
         result = DownloadTask.DOWNLOADING
@@ -916,14 +937,6 @@ class DownloadTask(object):
             self.error_message = _('Error: %s') % (str(e),)
 
         with self:
-            if result == DownloadTask.FAILED:
-                self.status = DownloadTask.FAILED
-                self.__episode._download_error = self.error_message
-
-                # Delete empty partial files, they prevent streaming after a download failure (live stream)
-                if util.calculate_size(self.filename) == 0:
-                    util.delete_file(self.tempname)
-
             if result == DownloadTask.DOWNLOADING:
                 # Everything went well - we're done (even if the task was cancelled/paused,
                 # since it's finished we might as well mark it done)
@@ -937,8 +950,16 @@ class DownloadTask(object):
 
             self.speed = 0.0
 
-            # cancelled -- update state to mark it as safe to manipulate this task again
-            if self.status == DownloadTask.PAUSING:
+            if result == DownloadTask.FAILED:
+                self.status = DownloadTask.FAILED
+                self.__episode._download_error = self.error_message
+
+                # Delete empty partial files, they prevent streaming after a download failure (live stream)
+                if util.calculate_size(self.filename) == 0:
+                    util.delete_file(self.tempname)
+
+            # cancelled/paused -- update state to mark it as safe to manipulate this task again
+            elif self.status == DownloadTask.PAUSING:
                 self.status = DownloadTask.PAUSED
             elif self.status == DownloadTask.CANCELLING:
                 self.status = DownloadTask.CANCELLED
