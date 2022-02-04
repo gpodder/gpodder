@@ -1462,7 +1462,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
                 download_tasks_seen.add(task)
 
-                if (status == download.DownloadTask.DOWNLOADING and
+                if (status in [download.DownloadTask.DOWNLOADING,
+                               download.DownloadTask.CANCELLING,
+                               download.DownloadTask.PAUSING] and
                         activity == download.DownloadTask.ACTIVITY_DOWNLOAD):
                     downloading += 1
                     total_speed += speed
@@ -1840,46 +1842,58 @@ class gPodder(BuilderWidget, dbus.service.Object):
         episode_urls = set()
         model = self.treeDownloads.get_model()
         for row_reference, task in tasks:
-            if status == download.DownloadTask.QUEUED:
-                # Only queue task when its paused/failed/cancelled (or forced)
-                if task.status in (task.PAUSED, task.FAILED, task.CANCELLED) or force_start:
-                    if force_start:
-                        self.download_queue_manager.force_start_task(task)
-                    else:
-                        self.download_queue_manager.queue_task(task)
-                    self.set_download_list_state(gPodderSyncUI.DL_ADDED_ONE)
-            elif status == download.DownloadTask.CANCELLED:
-                # Cancelling a download allowed when downloading/queued
-                if task.status in (task.QUEUED, task.DOWNLOADING):
+            with task:
+                if status == download.DownloadTask.QUEUED:
+                    # Only queue task when its paused/failed/cancelled (or forced)
+                    if task.status in (download.DownloadTask.PAUSED,
+                                       download.DownloadTask.FAILED,
+                                       download.DownloadTask.CANCELLED) or force_start:
+                        if force_start:
+                            self.download_queue_manager.force_start_task(task)
+                        else:
+                            self.download_queue_manager.queue_task(task)
+                        self.set_download_list_state(gPodderSyncUI.DL_ONEOFF)
+                elif status == download.DownloadTask.CANCELLING:
+                    logger.info(("cancelling task %s" % task.status))
+                    # Cancelling a download allowed when downloading/queued
+                    if task.status in (download.DownloadTask.QUEUED, download.DownloadTask.DOWNLOADING):
+                        task.status = status
+                    # Cancelling paused/failed downloads requires a call to .run()
+                    elif task.status in (download.DownloadTask.PAUSED, download.DownloadTask.FAILED):
+                        task.status = status
+                        # Call run, so the partial file gets deleted
+                        task.run()
+                        task.recycle()
+                elif status == download.DownloadTask.PAUSING:
+                    # Pausing a download only when queued/downloading
+                    if task.status in (download.DownloadTask.QUEUED, download.DownloadTask.DOWNLOADING):
+                        task.status = status
+                elif status is None:
+                    # Remove the selected task - cancel downloading/queued tasks
+                    if task.status in (download.DownloadTask.QUEUED, download.DownloadTask.DOWNLOADING):
+                        task.status = download.DownloadTask.CANCELLED
+                    path = row_reference.get_path()
+                    # path isn't set if the item has already been removed from the list
+                    # (to trigger this cancel one downloads in the active list, cancel all
+                    # other downloads, quickly right click on the cancelled on one to get
+                    # the context menu, wait until the active list is cleared, and then
+                    # then choose remove from list)
+                    if path:
+                        model.remove(model.get_iter(path))
+                        # Remember the URL, so we can tell the UI to update
+                        try:
+                            # We don't "see" this task anymore - remove it;
+                            # this is needed, so update_episode_list_icons()
+                            # below gets the correct list of "seen" tasks
+                            self.download_tasks_seen.remove(task)
+                        except KeyError as key_error:
+                            pass
+                        episode_urls.add(task.url)
+                        # Tell the task that it has been removed (so it can clean up)
+                        task.removed_from_list()
+                else:
+                    # We can (hopefully) simply set the task status here
                     task.status = status
-                # Cancelling paused/failed downloads requires a call to .run()
-                elif task.status in (task.PAUSED, task.FAILED):
-                    task.status = status
-                    # Call run, so the partial file gets deleted
-                    task.run()
-            elif status == download.DownloadTask.PAUSED:
-                # Pausing a download only when queued/downloading
-                if task.status in (task.DOWNLOADING, task.QUEUED):
-                    task.status = status
-            elif status is None:
-                # Remove the selected task - cancel downloading/queued tasks
-                if task.status in (task.QUEUED, task.DOWNLOADING):
-                    task.status = task.CANCELLED
-                model.remove(model.get_iter(row_reference.get_path()))
-                # Remember the URL, so we can tell the UI to update
-                try:
-                    # We don't "see" this task anymore - remove it;
-                    # this is needed, so update_episode_list_icons()
-                    # below gets the correct list of "seen" tasks
-                    self.download_tasks_seen.remove(task)
-                except KeyError as key_error:
-                    pass
-                episode_urls.add(task.url)
-                # Tell the task that it has been removed (so it can clean up)
-                task.removed_from_list()
-            else:
-                # We can (hopefully) simply set the task status here
-                task.status = status
         # Tell the podcasts tab to update icons for our removed podcasts
         self.update_episode_list_icons(episode_urls)
         # Update the tab title and downloads list
@@ -1894,71 +1908,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             selected_tasks, can_queue, can_cancel, can_pause, can_remove, can_force = \
                     self.downloads_list_get_selection(model, paths)
 
-#            def make_menu_item(label, icon_name, tasks=None, status=None, sensitive=True, force_start=False, action=None):
-#                # This creates a menu item for selection-wide actions
-#                item = Gtk.ImageMenuItem.new_with_mnemonic(label)
-#                if icon_name is not None:
-#                    item.set_image(Gtk.Image.new_from_icon_name(icon_name, Gtk.IconSize.MENU))
-#                if action is not None:
-#                    item.connect('activate', action)
-#                else:
-#                    item.connect('activate', lambda item: self._for_each_task_set_status(tasks, status, force_start))
-#                item.set_sensitive(sensitive)
-#                return item
-#
-#            def move_selected_items_up(menu_item):
-#                selection = self.treeDownloads.get_selection()
-#                model, selected_paths = selection.get_selected_rows()
-#                for path in selected_paths:
-#                    index_above = path[0] - 1
-#                    if index_above < 0:
-#                        return
-#                    self.download_status_model.move_before(
-#                            model.get_iter(path),
-#                            model.get_iter((index_above,)))
-#
-#            def move_selected_items_down(menu_item):
-#                selection = self.treeDownloads.get_selection()
-#                model, selected_paths = selection.get_selected_rows()
-#                for path in reversed(selected_paths):
-#                    index_below = path[0] + 1
-#                    if index_below >= len(model):
-#                        return
-#                    self.download_status_model.move_after(
-#                            model.get_iter(path),
-#                            model.get_iter((index_below,)))
-#
-#            menu = Gtk.Menu()
-#
-#            if can_force:
-#                menu.append(make_menu_item(_('Start download now'), 'document-save',
-#                                           selected_tasks,
-#                                           download.DownloadTask.QUEUED,
-#                                           force_start=True))
-#            else:
-#                menu.append(make_menu_item(_('Download'), 'document-save',
-#                                           selected_tasks,
-#                                           download.DownloadTask.QUEUED,
-#                                           can_queue))
-#
-#            menu.append(make_menu_item(_('Cancel'), 'media-playback-stop',
-#                                       selected_tasks,
-#                                       download.DownloadTask.CANCELLED,
-#                                       can_cancel))
-#            menu.append(make_menu_item(_('Pause'), 'media-playback-pause',
-#                                       selected_tasks,
-#                                       download.DownloadTask.PAUSED, can_pause))
-#            menu.append(Gtk.SeparatorMenuItem())
-#            menu.append(make_menu_item(_('Move up'), 'go-up',
-#                                       action=move_selected_items_up))
-#            menu.append(make_menu_item(_('Move down'), 'go-down',
-#                                       action=move_selected_items_down))
-#            menu.append(Gtk.SeparatorMenuItem())
-#            menu.append(make_menu_item(_('Remove from list'), 'list-remove',
-#                                       selected_tasks, sensitive=can_remove))
-#
-#            menu.attach_to_widget(treeview)
-#            menu.show_all()
 
             def make_menu_item(label, action_name, tasks=None, status=None, sensitive=True, force_start=False):
                 self.application.remove_action(action_name)
@@ -1980,9 +1929,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     selected_tasks, download.DownloadTask.QUEUED)
             menu.append_item(item)
             menu.append_item(make_menu_item(_('Cancel'), 'setDownloadCancelled',
-                selected_tasks, download.DownloadTask.CANCELLED))
+                selected_tasks, download.DownloadTask.CANCELLING))
             menu.append_item(make_menu_item(_('Pause'), 'setDownloadPaused',
-                selected_tasks, download.DownloadTask.PAUSED))
+                selected_tasks, download.DownloadTask.PAUSING))
             rmenu = Gio.Menu()
             rmenu.append_item(make_menu_item(_('Remove from list'), 'setDownloadRemove',
                 selected_tasks, sensitive=can_remove))
@@ -1996,7 +1945,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.context_popover_show(self.downloads_popover, x, y)
             return True
 
-    def on_mark_episodes_as_old(self, *args):
+    def on_mark_episodes_as_old(self, item):
         assert self.active_channel is not None
 
         for episode in self.active_channel.get_all_episodes():
@@ -3340,14 +3289,15 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def download_episode_list(self, episodes, add_paused=False, force_start=False, downloader=None):
         def queue_tasks(tasks, queued_existing_task):
             for task in tasks:
-                if add_paused:
-                    task.status = task.PAUSED
-                else:
-                    self.mygpo_client.on_download([task.episode])
-                    if force_start:
-                        self.download_queue_manager.force_start_task(task)
+                with task:
+                    if add_paused:
+                        task.status = task.PAUSED
                     else:
-                        self.download_queue_manager.queue_task(task)
+                        self.mygpo_client.on_download([task.episode])
+                        if force_start:
+                            self.download_queue_manager.force_start_task(task)
+                        else:
+                            self.download_queue_manager.queue_task(task)
             if tasks or queued_existing_task:
                 self.set_download_list_state(gPodderSyncUI.DL_ONEOFF)
             # Flush updated episode status
@@ -3405,14 +3355,16 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return
 
         for task in tasks:
-            if task.status in (task.QUEUED, task.DOWNLOADING):
-                task.status = task.CANCELLED
-            elif task.status == task.PAUSED:
-                task.status = task.CANCELLED
-                # Call run, so the partial file gets deleted
-                task.run()
-            elif force:
-                task.status = task.CANCELLED
+            with task:
+                if task.status in (task.NEW, task.QUEUED, task.DOWNLOADING):
+                    task.status = task.CANCELLING
+                elif task.status == task.PAUSED:
+                    task.status = task.CANCELLED
+                    # Call run, so the partial file gets deleted
+                    task.run()
+                    task.recycle()
+                elif force:
+                    task.status = task.CANCELLED
 
         self.update_episode_list_icons([task.url for task in tasks])
         self.play_or_download()
@@ -4003,13 +3955,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
         selected_tasks = [(Gtk.TreeRowReference.new(model, path), model.get_value(model.get_iter(path), 0)) for path in paths]
 
         for tree_row_reference, task in selected_tasks:
-            if task.status in (task.DOWNLOADING, task.QUEUED):
-                task.status = task.PAUSED
-            elif task.status in (task.CANCELLED, task.PAUSED, task.FAILED):
-                self.download_queue_manager.queue_task(task)
-                self.set_download_list_state(gPodderSyncUI.DL_ONEOFF)
-            elif task.status == task.DONE:
-                model.remove(model.get_iter(tree_row_reference.get_path()))
+            with task:
+                if task.status in (task.DOWNLOADING, task.QUEUED):
+                    task.status = task.PAUSED
+                elif task.status in (task.CANCELLED, task.PAUSED, task.FAILED):
+                    self.download_queue_manager.queue_task(task)
+                    self.set_download_list_state(gPodderSyncUI.DL_ONEOFF)
+                elif task.status == task.DONE:
+                    model.remove(model.get_iter(tree_row_reference.get_path()))
 
         self.play_or_download()
 
