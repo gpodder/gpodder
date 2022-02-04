@@ -100,7 +100,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.extensions_actions = []
         self._search_podcasts = None
         self._search_episodes = None
-        BuilderWidget.__init__(self, None, _builder_expose={'app': app}, **kwargs)
+        BuilderWidget.__init__(self, None,
+            _gtk_properties={('gPodder', 'application'): app}, **kwargs)
 
         self.last_episode_date_refresh = None
         self.refresh_episode_dates()
@@ -659,7 +660,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     episodes=changes,
                     columns=columns,
                     size_attribute=None,
-                    stock_ok_button=Gtk.STOCK_APPLY,
+                    ok_button=_('A_pply'),
                     callback=execute_podcast_actions,
                     _config=self.config)
 
@@ -1961,7 +1962,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_open_download_folder(self, item):
         assert self.active_channel is not None
-        util.gui_open(self.active_channel.save_dir)
+        util.gui_open(self.active_channel.save_dir, gui=self)
 
     def treeview_channels_show_context_menu(self, treeview, event=None):
         model, paths = self.treeview_handle_context_menu_click(treeview, event)
@@ -2312,6 +2313,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
         for episode in episodes:
             episode._download_error = None
 
+            if episode.download_task is not None and episode.download_task.status == episode.download_task.FAILED:
+                # Cancel failed task and remove from progress list
+                episode.download_task.cancel()
+                self.cleanup_downloads()
+
             player = self.episode_player(episode)
 
             try:
@@ -2369,7 +2375,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if 'default' in groups:
             for filename in groups['default']:
                 logger.debug('Opening with system default: %s', filename)
-                util.gui_open(filename)
+                util.gui_open(filename, gui=self)
             del groups['default']
 
         # For each type now, go and create play commands
@@ -3030,8 +3036,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         if downloading:
             dialog = Gtk.MessageDialog(self.gPodder, Gtk.DialogFlags.MODAL, Gtk.MessageType.QUESTION, Gtk.ButtonsType.NONE)
-            dialog.add_button(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL)
-            quit_button = dialog.add_button(Gtk.STOCK_QUIT, Gtk.ResponseType.CLOSE)
+            dialog.add_button(_('_Cancel'), Gtk.ResponseType.CANCEL)
+            quit_button = dialog.add_button(_('_Quit'), Gtk.ResponseType.CLOSE)
 
             title = _('Quit gPodder')
             message = _('You are downloading episodes. You can resume downloads the next time you start gPodder. Do you want to quit now?')
@@ -3182,7 +3188,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             ui_folder=os.path.join(gpodder.ui_folders[0], '..', 'adaptive'),
             instructions=instructions,
             episodes=episodes, selected=selected, columns=columns,
-            stock_ok_button=_('Delete'), callback=self.delete_episode_list,
+            ok_button=_('_Delete'), callback=self.delete_episode_list,
             selection_buttons=selection_buttons, _config=self.config)
 
     def on_selected_episodes_status_changed(self):
@@ -3384,10 +3390,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 episodes=episodes,
                 columns=columns,
                 selected=selected,
-                stock_ok_button='gpodder-download',
+                ok_button='gpodder-download',
                 callback=download_episodes_callback,
                 remove_callback=lambda e: e.mark_old(),
-                remove_action=_('Mark as old'),
+                remove_action=_('_Mark as old'),
                 remove_finished=self.episode_new_status_changed,
                 _config=self.config,
                 show_notification=False)
@@ -3535,7 +3541,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 episodes=self.channels,
                 columns=columns,
                 size_attribute=None,
-                stock_ok_button=_('Delete'),
+                ok_button=_('_Delete'),
                 callback=self.remove_podcast_list,
                 _config=self.config)
 
@@ -3636,8 +3642,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             dlg = Gtk.FileChooserDialog(title=_('Import from OPML'),
                     parent=self.main_window,
                     action=Gtk.FileChooserAction.OPEN)
-            dlg.add_button(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL)
-            dlg.add_button(Gtk.STOCK_OPEN, Gtk.ResponseType.OK)
+            dlg.add_button(_('_Cancel'), Gtk.ResponseType.CANCEL)
+            dlg.add_button(_('_Open'), Gtk.ResponseType.OK)
             dlg.set_filter(self.get_opml_filter())
             response = dlg.run()
             filename = None
@@ -3665,8 +3671,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         dlg = Gtk.FileChooserDialog(title=_('Export to OPML'),
                                     parent=self.gPodder,
                                     action=Gtk.FileChooserAction.SAVE)
-        dlg.add_button(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL)
-        dlg.add_button(Gtk.STOCK_SAVE, Gtk.ResponseType.OK)
+        dlg.add_button(_('_Cancel'), Gtk.ResponseType.CANCEL)
+        dlg.add_button(_('_Save'), Gtk.ResponseType.OK)
         dlg.set_filter(self.get_opml_filter())
         response = dlg.run()
         if response == Gtk.ResponseType.OK:

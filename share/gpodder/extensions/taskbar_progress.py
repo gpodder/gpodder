@@ -20,6 +20,7 @@
 # Windows 7 taskbar progress
 # Sean Munkel; 2013-01-05
 
+import ctypes
 import functools
 import logging
 from ctypes import (HRESULT, POINTER, Structure, alignment, c_int, c_uint,
@@ -161,7 +162,11 @@ class gPodderExtension:
 
     def on_ui_object_available(self, name, ui_object):
         def callback(self, window, *args):
-            self.window_handle = window.window.handle
+            ctypes.pythonapi.PyCapsule_GetPointer.restype = ctypes.c_void_p
+            ctypes.pythonapi.PyCapsule_GetPointer.argtypes = [ctypes.py_object]
+            win_gpointer = ctypes.pythonapi.PyCapsule_GetPointer(window.get_window().__gpointer__, None)
+            gdkdll = ctypes.CDLL("libgdk-3-0.dll")
+            self.window_handle = gdkdll.gdk_win32_window_get_handle(win_gpointer)
 
         if name == 'gpodder-gtk':
             ui_object.main_window.connect('realize',

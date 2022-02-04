@@ -30,7 +30,6 @@ import os.path
 import threading
 import time
 from enum import Enum
-from os import sync
 from re import S
 from urllib.parse import urlparse
 
@@ -38,8 +37,8 @@ import gpodder
 from gpodder import download, services, util
 
 import gi  # isort:skip
-gi.require_version('Gtk', '3.0')  # isort:skip
-from gi.repository import GLib, Gio, Gtk  # isort:skip
+gi.require_version('Gio', '2.0')  # isort:skip
+from gi.repository import GLib, Gio  # isort:skip
 
 
 logger = logging.getLogger(__name__)
@@ -727,7 +726,7 @@ class SyncTask(download.DownloadTask):
     # An object representing the synchronization task of an episode
 
     # Possible states this sync task can be in
-    STATUS_MESSAGE = (_('Queued'), _('Queued'), _('Downloading'),
+    STATUS_MESSAGE = (_('Queued'), _('Queued'), _('Syncing'),
             _('Finished'), _('Failed'), _('Cancelling'), _('Cancelled'), _('Pausing'), _('Paused'))
     (NEW, QUEUED, DOWNLOADING, DONE, FAILED, CANCELLING, CANCELLED, PAUSING, PAUSED) = list(range(9))
 

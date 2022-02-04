@@ -86,14 +86,10 @@ class YoutubeCustomDownload(download.CustomDownload):
         """
         self._reporthook = reporthook
         # outtmpl: use given tempname by DownloadTask
-        # (escape % and $ because outtmpl used as a string template by youtube-dl)
-        outtmpl = tempname.replace('%', '%%').replace('$', '$$')
+        # (escape % because outtmpl used as a string template by youtube-dl)
+        outtmpl = tempname.replace('%', '%%')
         res = self._ytdl.fetch_video(self._url, outtmpl, self._my_hook)
-        if outtmpl != tempname:
-            if 'ext' in res and os.path.isfile(outtmpl + '.{}'.format(res['ext'])):
-                os.rename(outtmpl + '.{}'.format(res['ext']), tempname)
-            else:
-                os.rename(outtmpl, tempname)
+        # Renaming is not required because the escaped percent is not escaped in the output file.
         if 'duration' in res and res['duration']:
             self._episode.total_time = res['duration']
         headers = {}
@@ -468,7 +464,8 @@ class gPodderExtension:
 
     def on_episodes_context_menu(self, episodes):
         if not self.container.config.manage_downloads \
-                and not all(e.was_downloaded(and_exists=True) for e in episodes):
+                and not all(e.was_downloaded(and_exists=True) for e in episodes) \
+                and not any(e.downloading for e in episodes):
             return [(_("Download with Youtube-DL"), self.download_episodes)]
 
     def download_episodes(self, episodes):

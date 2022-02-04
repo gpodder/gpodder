@@ -112,7 +112,7 @@ class gPodderChannel(BuilderWidget):
 
     def on_button_add_section_clicked(self, widget):
         text = self.show_text_edit_dialog(_('Add section'), _('New section:'),
-            affirmative_text=Gtk.STOCK_ADD)
+            affirmative_text=_('_Add'))
 
         if text is not None:
             for index, (section,) in enumerate(self.section_list):
@@ -146,8 +146,8 @@ class gPodderChannel(BuilderWidget):
             title=_('Select new podcast cover artwork'),
             parent=self.gPodderChannel,
             action=Gtk.FileChooserAction.OPEN)
-        dlg.add_button(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL)
-        dlg.add_button(Gtk.STOCK_OPEN, Gtk.ResponseType.OK)
+        dlg.add_button(_('_Cancel'), Gtk.ResponseType.CANCEL)
+        dlg.add_button(_('_Open'), Gtk.ResponseType.OK)
 
         if dlg.run() == Gtk.ResponseType.OK:
             url = dlg.get_uri()

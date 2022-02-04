@@ -59,12 +59,9 @@ class gPodderEpisodeSelector(BuilderWidget):
       - title: (optional) The title of the window + heading
       - instructions: (optional) A one-line text describing what the
                       user should select / what the selection is for
-      - stock_ok_button: (optional) Will replace the "OK" button with
-                         another GTK+ stock item to be used for the
-                         affirmative button of the dialog (e.g. can
-                         be Gtk.STOCK_DELETE when the episodes to be
-                         selected will be deleted after closing the
-                         dialog)
+      - ok_button: (optional) Will replace the "OK" button label with this
+                   string (e.g. can be '_Delete' when the episodes to be
+                   selected will be deleted after closing the dialog)
       - selection_buttons: (optional) A dictionary with labels as
                            keys and callbacks as values; for each
                            key a button will be generated, and when
@@ -89,6 +86,7 @@ class gPodderEpisodeSelector(BuilderWidget):
     COLUMN_ADDITIONAL = 3
 
     def new(self):
+        self.gPodderEpisodeSelector.set_transient_for(self.parent_widget)
         if hasattr(self, 'title'):
             self.gPodderEpisodeSelector.set_title(self.title)
 
@@ -134,13 +132,13 @@ class gPodderEpisodeSelector(BuilderWidget):
             self.labelInstructions.set_text(self.instructions)
             self.labelInstructions.show_all()
 
-        if hasattr(self, 'stock_ok_button'):
-            if self.stock_ok_button == 'gpodder-download':
+        if hasattr(self, 'ok_button'):
+            if self.ok_button == 'gpodder-download':
                 self.btnOK.set_image(Gtk.Image.new_from_icon_name('go-down', Gtk.IconSize.BUTTON))
-                self.btnOK.set_label(_('Download'))
+                self.btnOK.set_label(_('_Download'))
             else:
-                self.btnOK.set_label(self.stock_ok_button)
-                self.btnOK.set_use_stock(True)
+                self.btnOK.set_image(None)
+                self.btnOK.set_label(self.ok_button)
 
         # check/uncheck column
         toggle_cell = Gtk.CellRendererToggle()
@@ -326,9 +324,9 @@ class gPodderEpisodeSelector(BuilderWidget):
             self.btnOK.set_sensitive(count > 0)
             self.btnRemoveAction.set_sensitive(count > 0)
             if count > 0:
-                self.btnCancel.set_label(Gtk.STOCK_CANCEL)
+                self.btnCancel.set_label(_('_Cancel'))
             else:
-                self.btnCancel.set_label(Gtk.STOCK_CLOSE)
+                self.btnCancel.set_label(_('_Close'))
         else:
             self.btnOK.set_sensitive(False)
             self.btnRemoveAction.set_sensitive(False)

@@ -230,7 +230,7 @@ class gPodderApplication(Gtk.Application):
     def on_about(self, action, param):
         dlg = Gtk.Dialog(_('About gPodder'), self.window.gPodder,
                 Gtk.DialogFlags.MODAL)
-        dlg.add_button(Gtk.STOCK_CLOSE, Gtk.ResponseType.OK).show()
+        dlg.add_button(_('_Close'), Gtk.ResponseType.OK).show()
         dlg.set_resizable(True)
 
         bg = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6, margin=16)

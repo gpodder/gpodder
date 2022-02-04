@@ -155,7 +155,7 @@ class UserAppsReader(object):
         self.apps.append(UserApplication(
             _('Default application'), 'default',
             ';'.join((mime + '/*' for mime in self.mimetypes)),
-            Gtk.STOCK_OPEN))
+            'document-open'))
 
     def add_separator(self):
         self.apps.append(UserApplication(
