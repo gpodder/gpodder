@@ -3802,6 +3802,20 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.leaflet.navigate(Handy.NavigationDirection.FORWARD)
         return True
 
+        # open channel settings
+        channel = self.get_selected_channels()[0]
+        if channel and not isinstance(channel, PodcastChannelProxy):
+            self.on_itemEditChannel_activate(None)
+
+    def get_selected_channels(self):
+        """Get a list of selected channels from treeChannels"""
+        selection = self.treeChannels.get_selection()
+        model, paths = selection.get_selected_rows()
+
+        channels = [model.get_value(model.get_iter(path), PodcastListModel.C_CHANNEL) for path in paths]
+        channels = [c for c in channels if c is not None]
+        return channels
+
     def on_treeChannels_cursor_changed(self, widget, *args):
         (model, iter) = self.treeChannels.get_selection().get_selected()
 

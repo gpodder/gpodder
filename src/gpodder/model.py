@@ -1261,7 +1261,9 @@ class PodcastChannel(PodcastModelObject):
         if self.title == new_title:
             return
 
-        new_folder_name = self.find_unique_folder_name(new_title)
+        fn_template = util.sanitize_filename(new_title, self.MAX_FOLDERNAME_LENGTH)
+
+        new_folder_name = self.find_unique_folder_name(fn_template)
         if new_folder_name and new_folder_name != self.download_folder:
             new_folder = os.path.join(gpodder.downloads, new_folder_name)
             old_folder = os.path.join(gpodder.downloads, self.download_folder)
@@ -1315,7 +1317,6 @@ class PodcastChannel(PodcastModelObject):
 
     def get_save_dir(self, force_new=False):
         if self.download_folder is None or force_new:
-            # we must change the folder name, because it has not been set manually
             fn_template = util.sanitize_filename(self.title, self.MAX_FOLDERNAME_LENGTH)
 
             if not fn_template:
