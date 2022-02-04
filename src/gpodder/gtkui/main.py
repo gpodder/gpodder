@@ -1150,21 +1150,24 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.set_sortorder_button_image()
         self.episode_list_update_sort()
 
-        # Restore column ordering
-        prev_column = None
-        for col in self.config.ui.gtk.state.main_window.episode_column_order:
-            for column in self.treeAvailable.get_columns():
-                if col is column.get_sort_column_id():
+        def restore_column_ordering():
+            prev_column = None
+            for col in self.config.ui.gtk.state.main_window.episode_column_order:
+                for column in self.treeAvailable.get_columns():
+                    if col is column.get_sort_column_id():
+                        break
+                else:
+                    # Column ID not found, abort
+                    # Manually re-ordering columns should fix the corrupt setting
                     break
-            else:
-                # Column ID not found, abort
-                # Manually re-ordering columns should fix the corrupt setting
-                break
-            self.treeAvailable.move_column_after(column, prev_column)
-            prev_column = column
-#        # Save column ordering when user drags column headers
-#        self.treeAvailable.connect('columns-changed', self.on_episode_list_header_reordered)
-#
+                self.treeAvailable.move_column_after(column, prev_column)
+                prev_column = column
+#            # Save column ordering when user drags column headers
+#            self.treeAvailable.connect('columns-changed', self.on_episode_list_header_reordered)
+
+        # Delay column ordering until shown to prevent "Negative content height" warnings for themes with vertical padding or borders
+        util.idle_add(restore_column_ordering)
+
 #        # For each column that can be shown/hidden, add a menu item
 #        self.view_column_actions = []
 #        columns = TreeViewHelper.get_columns(self.treeAvailable)
