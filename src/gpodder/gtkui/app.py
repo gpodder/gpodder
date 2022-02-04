@@ -290,7 +290,10 @@ class gPodderApplication(Gtk.Application):
         self.window.mygpo_client.open_website()
 
     def on_check_for_updates_activate(self, action, param):
-        self.window.check_for_updates(silent=False)
+        if os.path.exists(gpodder.no_update_check_file):
+            self.window.check_for_distro_updates()
+        else:
+            self.window.check_for_updates(silent=False)
 
     def on_extension_enabled(self, extension):
         self.window.on_extension_enabled(extension)

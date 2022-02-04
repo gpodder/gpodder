@@ -34,10 +34,11 @@ _ = gpodder.gettext
 def show_message_dialog(parent, message, title=None):
     dlg = Gtk.MessageDialog(parent, Gtk.DialogFlags.MODAL, Gtk.MessageType.INFO, Gtk.ButtonsType.OK)
     if title:
-        dlg.set_title(str(title))
-        dlg.set_markup('<span weight="bold" size="larger">%s</span>\n\n%s' % (title, message))
+        dlg.set_title(title)
+        dlg.set_property('text', title)
+        dlg.format_secondary_text(message)
     else:
-        dlg.set_markup('<span weight="bold" size="larger">%s</span>' % (message))
+        dlg.set_property('text', message)
     # make message copy/pastable
     for lbl in dlg.get_message_area():
         if isinstance(lbl, Gtk.Label):
@@ -79,6 +80,37 @@ class BuilderWidget(GtkBuilderWidget):
     def get_dialog_parent(self):
         """Return a Gtk.Window that should be the parent of dialogs"""
         return self.main_window
+
+    def show_message_details(self, title, message, details):
+        dlg = Gtk.MessageDialog(self.main_window, Gtk.DialogFlags.MODAL, Gtk.MessageType.INFO, Gtk.ButtonsType.OK)
+        dlg.set_title(title)
+        dlg.set_property('text', title)
+        dlg.format_secondary_text(message)
+
+        # make message copy/pastable
+        for lbl in dlg.get_message_area():
+            if isinstance(lbl, Gtk.Label):
+                lbl.set_halign(Gtk.Align.START)
+                lbl.set_selectable(True)
+
+        tv = Gtk.TextView()
+        tv.set_wrap_mode(Gtk.WrapMode.WORD_CHAR)
+        tv.set_border_width(10)
+        tv.set_editable(False)
+        tb = Gtk.TextBuffer()
+        tb.insert_markup(tb.get_start_iter(), details, -1)
+        tv.set_buffer(tb)
+        tv.set_property('expand', True)
+        sw = Gtk.ScrolledWindow()
+        sw.set_size_request(400, 200)
+        sw.set_property('shadow-type', Gtk.ShadowType.IN)
+        sw.add(tv)
+        sw.show_all()
+
+        dlg.get_message_area().add(sw)
+        dlg.get_widget_for_response(Gtk.ResponseType.OK).grab_focus()
+        dlg.run()
+        dlg.destroy()
 
     def show_message(self, message, title=None, important=False, widget=None):
         if important:

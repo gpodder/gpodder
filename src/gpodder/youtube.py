@@ -220,6 +220,34 @@ def youtube_get_new_endpoint(vid):
     return None, ipr.group(1)
 
 
+def get_total_time(episode):
+    try:
+        vid = get_youtube_id(episode.url)
+        if vid is None:
+            return 0
+
+        url = 'https://www.youtube.com/watch?v=' + vid
+        r = util.urlopen(url)
+        if not r.ok:
+            return 0
+
+        ipr = re.search(r'ytInitialPlayerResponse\s*=\s*({.+?})\s*;', r.text)
+        if ipr is None:
+            url = get_gdpr_consent_url(r.text)
+            r = util.urlopen(url)
+            if not r.ok:
+                return 0
+
+            ipr = re.search(r'ytInitialPlayerResponse\s*=\s*({.+?})\s*;', r.text)
+            if ipr is None:
+                return 0
+
+        player_response = json.loads(ipr.group(1))
+        return int(player_response['videoDetails']['lengthSeconds'])  # 0 if live
+    except:
+        return 0
+
+
 def get_real_download_url(url, allow_partial, preferred_fmt_ids=None):
     if not preferred_fmt_ids:
         preferred_fmt_ids, _, _ = formats_dict[22]  # MP4 720p
