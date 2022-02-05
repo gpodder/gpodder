@@ -15,7 +15,7 @@
     <property name="window-position">center-on-parent</property>
     <property name="type-hint">dialog</property>
     <property name="action">save</property>
-    <property name="do-overwrite-confirmation">True</property>
+    <property name="do-overwrite-confirmation">False</property>
     <property name="extra-widget">allsamefolder</property>
     <property name="preview-widget-active">False</property>
     <property name="use-preview-label">False</property>
@@ -29,36 +29,10 @@
             <property name="can-focus">False</property>
             <property name="layout-style">end</property>
             <child>
-              <object class="GtkButton" id="btnCancel">
-                <property name="label" translatable="yes">_Cancel</property>
-                <property name="visible">True</property>
-                <property name="can-focus">True</property>
-                <property name="receives-default">False</property>
-                <property name="use-underline">True</property>
-                <signal name="clicked" handler="on_btnCancel_clicked" swapped="no"/>
-              </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">0</property>
-              </packing>
+              <placeholder/>
             </child>
             <child>
-              <object class="GtkButton" id="btnOK">
-                <property name="label" translatable="yes">_Save</property>
-                <property name="visible">True</property>
-                <property name="can-focus">True</property>
-                <property name="can-default">True</property>
-                <property name="has-default">True</property>
-                <property name="receives-default">True</property>
-                <property name="use-underline">True</property>
-                <signal name="clicked" handler="on_btnOK_clicked" swapped="no"/>
-              </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">1</property>
-              </packing>
+              <placeholder/>
             </child>
           </object>
           <packing>
@@ -69,9 +43,5 @@
         </child>
       </object>
     </child>
-    <action-widgets>
-      <action-widget response="-6">btnCancel</action-widget>
-      <action-widget response="-3">btnOK</action-widget>
-    </action-widgets>
   </object>
 </interface>

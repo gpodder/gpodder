@@ -1828,9 +1828,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if os.path.exists(copy_to):
                 logger.warn(copy_from)
                 logger.warn(copy_to)
-                title = _('File already exist')
+                title = _('File already exists')
                 d = {'filename': os.path.basename(copy_to)}
-                message = _('A file named "%(filename)s" already exist. Do you want to replace it?') % d
+                message = _('A file named "%(filename)s" already exists. Do you want to replace it?') % d
                 if not self.show_confirmation(message, title):
                     return
             try:

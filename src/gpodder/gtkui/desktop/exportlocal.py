@@ -32,17 +32,12 @@ class gPodderExportToLocalFolder(BuilderWidget):
     """ Export to Local Folder UI: file dialog + checkbox to save all to same folder """
     def new(self):
         self.gPodderExportToLocalFolder.set_transient_for(self.parent_widget)
+        self.RES_CANCEL = -6
+        self.RES_SAVE = -3
+        self.gPodderExportToLocalFolder.add_buttons("_Cancel", self.RES_CANCEL,
+                                                    "_Save", self.RES_SAVE)
         self._config.connect_gtk_window(self.gPodderExportToLocalFolder,
                                         'export_to_local_folder', True)
-        self._ok = False
-        self.gPodderExportToLocalFolder.hide()
-
-    def on_btnOK_clicked(self, widget):
-        self._ok = True
-        self.gPodderExportToLocalFolder.hide()
-
-    def on_btnCancel_clicked(self, widget):
-        self.gPodderExportToLocalFolder.hide()
 
     def save_as(self, initial_directory, filename, remaining=0):
         """
@@ -64,9 +59,9 @@ class gPodderExportToLocalFolder(BuilderWidget):
             initial_directory = os.path.expanduser('~')
         self.gPodderExportToLocalFolder.set_current_folder(initial_directory)
         self.gPodderExportToLocalFolder.set_current_name(filename)
-        self._ok = False
-        self.gPodderExportToLocalFolder.run()
-        notCancelled = self._ok
+        res = self.gPodderExportToLocalFolder.run()
+        self.gPodderExportToLocalFolder.hide()
+        notCancelled = (res == self.RES_SAVE)
         allRemainingDefault = self.allsamefolder.get_active()
         if notCancelled:
             folder = self.gPodderExportToLocalFolder.get_current_folder()
