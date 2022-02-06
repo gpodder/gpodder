@@ -196,7 +196,7 @@ class gPodderChannel(BuilderWidget):
     # Title editing callbacks
     def on_title_edit_button_clicked(self, button):
         self.title_save_button_saves = True
-        self.title_save_button.set_label(_("Save"))
+        self.title_save_button.set_label(_("_Save"))
         self.title_stack.set_visible_child(self.title_edit_box)
         self.title_entry.set_text(self.title_label.get_text())
         self.title_entry.grab_focus()
@@ -204,7 +204,7 @@ class gPodderChannel(BuilderWidget):
     def on_title_entry_changed(self, entry):
         if len(entry.get_text()) > 0:
             self.title_save_button_saves = True
-            self.title_save_button.set_label(_("Save"))
+            self.title_save_button.set_label(_("_Save"))
         else:
             self.title_save_button_saves = False
             self.title_save_button.set_label(_("Cancel"))
