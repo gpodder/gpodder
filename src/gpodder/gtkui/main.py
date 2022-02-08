@@ -3117,6 +3117,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 for task in self.download_tasks_seen:
                     if episode.url == task.url:
                         task_exists = True
+                        task.reuse()
                         if task.status not in (task.DOWNLOADING, task.QUEUED):
                             if downloader:
                                 # replace existing task's download with forced one
