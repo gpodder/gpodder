@@ -99,18 +99,16 @@ class YoutubeCustomDownload(download.CustomDownload):
             # See #673 when merging multiple formats, the extension is appended to the tempname
             # by YoutubeDL resulting in empty .partial file + .partial.mp4 exists
             # and #796 .mkv is chosen by ytdl sometimes
-            tempstat = os.stat(tempname)
-            if not tempstat.st_size:
-                for try_ext in (dot_ext, ".mp4", ".m4a", ".webm", ".mkv"):
-                    tempname_with_ext = tempname + try_ext
-                    if os.path.isfile(tempname_with_ext):
-                        logger.debug('Youtubedl downloaded to "%s" instead of "%s", moving',
-                                     os.path.basename(tempname_with_ext),
-                                     os.path.basename(tempname))
-                        os.remove(tempname)
-                        os.rename(tempname_with_ext, tempname)
-                        dot_ext = try_ext
-                        break
+            for try_ext in (dot_ext, ".mp4", ".m4a", ".webm", ".mkv"):
+                tempname_with_ext = tempname + try_ext
+                if os.path.isfile(tempname_with_ext):
+                    logger.debug('Youtubedl downloaded to "%s" instead of "%s", moving',
+                                 os.path.basename(tempname_with_ext),
+                                 os.path.basename(tempname))
+                    os.remove(tempname)
+                    os.rename(tempname_with_ext, tempname)
+                    dot_ext = try_ext
+                    break
             ext_filetype = mimetype_from_extension(dot_ext)
             if ext_filetype:
                 # Youtube weba formats have a webm extension and get a video/webm mime-type

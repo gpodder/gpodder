@@ -27,6 +27,7 @@
 
 import collections
 import email
+import glob
 import logging
 import mimetypes
 import os
@@ -631,9 +632,17 @@ class DownloadTask(object):
             elif self.status == self.DOWNLOADING:
                 self.status = self.CANCELLING
 
+    def delete_partial_files(self):
+        temporary_files = [self.tempname]
+        # YoutubeDL creates .partial.* files for adaptive formats
+        temporary_files += glob.glob('%s.*' % self.tempname)
+
+        for tempfile in temporary_files:
+            util.delete_file(tempfile)
+
     def removed_from_list(self):
         if self.status != self.DONE:
-            util.delete_file(self.tempname)
+            self.delete_partial_files()
 
     def __init__(self, episode, config, downloader=None):
         assert episode.download_task is None
@@ -791,7 +800,7 @@ class DownloadTask(object):
         with self:
             if self.status == DownloadTask.CANCELLING:
                 self.status = DownloadTask.CANCELLED
-                util.delete_file(self.tempname)
+                self.delete_partial_files()
                 self.progress = 0.0
                 self.speed = 0.0
                 self.recycle()
@@ -892,7 +901,7 @@ class DownloadTask(object):
         except DownloadCancelledException:
             logger.info('Download has been cancelled/paused: %s', self)
             if self.status == DownloadTask.CANCELLING:
-                util.delete_file(self.tempname)
+                self.delete_partial_files()
                 self.progress = 0.0
                 self.speed = 0.0
             result = DownloadTask.CANCELLED
