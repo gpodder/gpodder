@@ -91,7 +91,7 @@ html5lib==1.1
 webencodings==0.5.1
 certifi==2021.5.30
 mutagen==1.45.1
-youtube_dl
+yt-dlp
 requests==2.25.1
 urllib3==1.26.5
 chardet==4.0.0
