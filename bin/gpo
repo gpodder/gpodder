@@ -955,6 +955,16 @@ class gPodderCli(object):
                     task.status = sync.SyncTask.DOWNLOADING
                     task.add_progress_callback(progress_updated)
                     task.run()
+
+                    if task.notify_as_finished():
+                        if self._config.device_sync.after_sync.mark_episodes_played:
+                            logger.info('Marking as played on transfer: %s', task.episode.url)
+                            task.episode.mark(is_played=True)
+
+                        if self._config.device_sync.after_sync.delete_episodes:
+                            logger.info('Removing episode after transfer: %s', task.episode.url)
+                            task.episode.delete_from_disk()
+
                     task.recycle()
 
         done_lock = threading.Lock()
