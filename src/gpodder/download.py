@@ -693,6 +693,11 @@ class DownloadTask(object):
         # Store a reference to this task in the episode
         episode.download_task = self
 
+    def reuse(self):
+        if not os.path.exists(self.tempname):
+            # partial file was deleted when cancelled, recreate it
+            open(self.tempname, 'w').close()
+
     def notify_as_finished(self):
         if self.status == DownloadTask.DONE:
             if self._notification_shown:
