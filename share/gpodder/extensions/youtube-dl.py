@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 
 
 __title__ = 'Youtube-dl'
-__description__ = _('Manage Youtube subscriptions using youtube-dl or yt-dlp (pip install youtube_dl) or (pip install yt-dlp)')
+__description__ = _('Manage Youtube subscriptions using youtube-dl (pip install youtube_dl) or yt-dlp (pip install yt-dlp)')
 __only_for__ = 'gtk, cli'
 __authors__ = 'Eric Le Lay <elelay.fr:contact>'
 __doc__ = 'https://gpodder.github.io/docs/extensions/youtubedl.html'
