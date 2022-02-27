@@ -110,13 +110,13 @@ class PodcastParserFeed(Feed):
     def get_link(self):
         vid = youtube.get_youtube_id(self.feed['url'])
         if vid is not None:
-            self.feed['link'] = youtube.get_channel_id_url(self.feed['url'])
+            self.feed['link'] = youtube.get_channel_id_url(self.feed['url'], self.fetcher.feed_data)
         return self.feed.get('link')
 
     def get_description(self):
         vid = youtube.get_youtube_id(self.feed['url'])
         if vid is not None:
-            self.feed['description'] = youtube.get_channel_desc(self.feed['url'])
+            self.feed['description'] = youtube.get_channel_desc(self.feed['url'], self.fetcher.feed_data)
         return self.feed.get('description')
 
     def get_cover_url(self):
@@ -215,7 +215,8 @@ class gPodderFetcher(feedcore.Fetcher):
         url = vimeo.get_real_channel_url(url)
         return url
 
-    def parse_feed(self, url, data_stream, headers, status, max_episodes=0, **kwargs):
+    def parse_feed(self, url, feed_data, data_stream, headers, status, max_episodes=0, **kwargs):
+        self.feed_data = feed_data
         try:
             feed = podcastparser.parse(url, data_stream)
             feed['url'] = url
