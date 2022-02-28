@@ -434,15 +434,17 @@ def get_channel_id_url(url, feed_data=None):
     if 'youtube.com' in url:
         try:
             if feed_data is None:
-                req = util.urlopen(url)
+                r = util.urlopen(url)
+                if not r.ok:
+                    raise YouTubeError('Youtube "%s": %d %s' % (url, r.status_code, r.reason))
             else:
-                req = feed_data
+                r = feed_data
             # video page may contain corrupt HTML/XML, search for tag to avoid exception
-            m = re.search(r'<meta itemprop="channelId" content="([^"]+)">', req.text)
+            m = re.search(r'<meta itemprop="channelId" content="([^"]+)">', r.text)
             if m:
                 channel_id = m.group(1)
             else:
-                raw_xml_data = io.BytesIO(req.content)
+                raw_xml_data = io.BytesIO(r.content)
                 xml_data = xml.etree.ElementTree.parse(raw_xml_data)
                 channel_id = xml_data.find("{http://www.youtube.com/xml/schemas/2015}channelId").text
             channel_url = 'https://www.youtube.com/channel/{}'.format(channel_id)
@@ -480,7 +482,10 @@ def get_cover(url, feed_data=None):
 
         try:
             channel_url = get_channel_id_url(url, feed_data)
-            html_data = util.response_text(util.urlopen(channel_url))
+            r = util.urlopen(channel_url)
+            if not r.ok:
+                raise YouTubeError('Youtube "%s": %d %s' % (url, r.status_code, r.reason))
+            html_data = util.response_text(r)
             parser = YouTubeHTMLCoverParser()
             parser.feed(html_data)
             if parser.url:
@@ -551,7 +556,10 @@ def get_channel_desc(url, feed_data=None):
 
         try:
             channel_url = get_channel_id_url(url, feed_data)
-            html_data = util.response_text(util.urlopen(channel_url))
+            r = util.urlopen(channel_url)
+            if not r.ok:
+                raise YouTubeError('Youtube "%s": %d %s' % (url, r.status_code, r.reason))
+            html_data = util.response_text(r)
             parser = YouTubeHTMLDesc()
             parser.feed(html_data)
             if parser.description:
