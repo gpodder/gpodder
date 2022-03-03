@@ -622,8 +622,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 if not message:
                     message = e.__class__.__name__
                 if message == 'NotFound':
-                    message += '\n' + _('Check login is with username (not email)') + \
-                        '\n' + _('\nAnd device name matches')
+                    message = _(
+                        """
+                    Could not find your device
+
+                    Check login is with username (not email)
+                    And that device name matches one in your account
+                    """
+                    )
                 self.show_message(html.escape(message),
                         _('Error while uploading'),
                         important=True)
