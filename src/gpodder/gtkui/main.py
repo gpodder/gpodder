@@ -624,10 +624,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 if message == 'NotFound':
                     message = _(
                         """
-                    Could not find your device
+                    Could not find your device.
 
-                    Check login is with username (not email)
-                    And that device name matches one in your account
+                    Check login is a username (not an email)
+                    and that the device name matches one in your account.
                     """
                     )
                 self.show_message(html.escape(message),
