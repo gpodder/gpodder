@@ -104,7 +104,7 @@ os.environ['GI_TYPELIB_PATH'] = join(bundle_lib, 'girepository-1.0')
 # for forked python
 os.environ['PYTHONHOME'] = bundle_res
 # Set $PYTHON to point inside the bundle
-PYVER = 'python3.8'
+PYVER = 'python3.9'
 sys.path.append(bundle_res)
 print('System Path:\n', '\n'.join(sys.path))
 

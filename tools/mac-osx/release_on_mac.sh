@@ -86,7 +86,7 @@ for po in po/*; do
 done
 
 # copy fake dbus
-cp -r tools/fake-dbus-module/dbus $resources/lib/python3.8/site-packages/dbus
+cp -r tools/fake-dbus-module/dbus $resources/lib/python3.9/site-packages/dbus
 
 # install
 "$run_python" setup.py install --root="$resources/" --prefix=. --optimize=0
