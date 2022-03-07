@@ -110,6 +110,12 @@ class FeedAutodiscovery(HTMLParser):
                 self._resolved_url = url
 
 
+class FetcherFeedData:
+    def __init__(self, text, content):
+        self.text = text
+        self.content = content
+
+
 class Fetcher(object):
     # Supported types, see http://feedvalidator.org/docs/warning/EncodingMismatch.html
     FEED_TYPES = ('application/rss+xml',
@@ -152,7 +158,7 @@ class Fetcher(object):
         else:
             raise UnknownStatusCode(status)
 
-    def parse_feed(self, url, data_stream, headers, status, **kwargs):
+    def parse_feed(self, url, feed_data, data_stream, headers, status, **kwargs):
         """
         kwargs are passed from Fetcher.fetch
         :param str url: real url
@@ -169,7 +175,7 @@ class Fetcher(object):
         if url.startswith('file://'):
             url = url[len('file://'):]
             stream = open(url)
-            return self.parse_feed(url, stream, {}, UPDATED_FEED, **kwargs)
+            return self.parse_feed(url, None, stream, {}, UPDATED_FEED, **kwargs)
 
         # remote feed
         headers = {}
@@ -210,4 +216,5 @@ class Fetcher(object):
         # xml documents specify the encoding inline so better pass encoded body.
         # Especially since requests will use ISO-8859-1 for content-type 'text/xml'
         # if the server doesn't specify a charset.
-        return self.parse_feed(url, BytesIO(stream.content), stream.headers, UPDATED_FEED, **kwargs)
+        return self.parse_feed(url, FetcherFeedData(stream.text, stream.content), BytesIO(stream.content), stream.headers,
+                            UPDATED_FEED, **kwargs)
