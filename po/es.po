@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gPodder\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-03-08 11:13-0800\n"
+"POT-Creation-Date: 2022-03-08 22:08-0700\n"
 "PO-Revision-Date: 2013-01-19 12:31+0000\n"
 "Last-Translator: Thomas Perl <m@thp.io>\n"
 "Language-Team: Spanish (http://www.transifex.com/projects/p/gpodder/language/"
@@ -83,7 +83,7 @@ msgstr "Puesto en cola"
 msgid "Downloading"
 msgstr "Descargando"
 
-#: src/gpodder/download.py:546 src/gpodder/model.py:784 src/gpodder/sync.py:730
+#: src/gpodder/download.py:546 src/gpodder/model.py:785 src/gpodder/sync.py:730
 msgid "Finished"
 msgstr "Terminado"
 
@@ -163,8 +163,8 @@ msgstr "Entero"
 msgid "Post download"
 msgstr "Cancelar descarga"
 
-#: src/gpodder/extensions.py:59 src/gpodder/model.py:848
-#: src/gpodder/model.py:1262
+#: src/gpodder/extensions.py:59 src/gpodder/model.py:849
+#: src/gpodder/model.py:1263
 msgid "Other"
 msgstr "Otro"
 
@@ -187,42 +187,42 @@ msgstr ""
 msgid "Python module not found: %(module)s"
 msgstr "Módulo python \"%s\" no instalado"
 
-#: src/gpodder/model.py:296 src/gpodder/model.py:508 src/gpodder/youtube.py:554
+#: src/gpodder/model.py:297 src/gpodder/model.py:509 src/gpodder/youtube.py:570
 #: src/gpodder/plugins/soundcloud.py:170
 #: share/gpodder/extensions/youtube-dl.py:213
 msgid "No description available"
 msgstr "No hay una descripción disponible"
 
-#: src/gpodder/model.py:742
+#: src/gpodder/model.py:743
 msgid "unknown"
 msgstr "desconocido"
 
-#: src/gpodder/model.py:813
+#: src/gpodder/model.py:814
 #, fuzzy
 msgid "Default"
 msgstr "Color predeterminado"
 
-#: src/gpodder/model.py:814
+#: src/gpodder/model.py:815
 msgid "Only keep latest"
 msgstr ""
 
-#: src/gpodder/model.py:1245 src/gpodder/model.py:1260
+#: src/gpodder/model.py:1246 src/gpodder/model.py:1261
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:37
 msgid "Video"
 msgstr "Vídeo"
 
-#: src/gpodder/model.py:1258
+#: src/gpodder/model.py:1259
 msgid "Audio"
 msgstr "Audio"
 
-#: src/gpodder/model.py:1438
+#: src/gpodder/model.py:1439
 #, python-format
 msgid ""
 "Warning: path to gPodder home (%(root)s) is very long and can result in "
 "failure to download files.\n"
 msgstr ""
 
-#: src/gpodder/model.py:1440
+#: src/gpodder/model.py:1441
 msgid "You're advised to set it to a shorter path."
 msgstr ""
 
@@ -554,9 +554,10 @@ msgid ""
 msgstr ""
 "Dispositivo no encondrado.\n"
 "\n"
-"Compruebe que la sesión es con el nombre de el usario (no el correo electrónico)\n"
-"y que el nombre de el dispositivo corresponde con uno que exsiste en la cuenta."
-""
+"Compruebe que la sesión es con el nombre de el usario (no el correo "
+"electrónico)\n"
+"y que el nombre de el dispositivo corresponde con uno que exsiste en la "
+"cuenta."
 
 #: src/gpodder/gtkui/main.py:632
 msgid "Error while uploading"
@@ -2120,6 +2121,36 @@ msgstr "Descargar a:"
 msgid "Download with Youtube-DL"
 msgstr "Descargar a:"
 
+#: share/gpodder/ui/gtk/gpodder.ui.h:4
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:1
+#: share/gpodder/ui/gtk/menus.ui.h:1
+msgid "Preferences"
+msgstr "Preferencias"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:6 share/gpodder/ui/gtk/menus.ui.h:8
+msgid "Check for new episodes"
+msgstr "Actualizar lista de capítulos"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:7
+msgid "Filter:"
+msgstr "Fallado"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:8
+msgid "Podcasts"
+msgstr "Podcasts"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:9
+msgid "Limit rate to"
+msgstr "Limitar la velocidad de descarga a"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:10
+msgid "KiB/s"
+msgstr "KiB/s"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:11
+msgid "Limit downloads to"
+msgstr "Limitar el número de descargas a"
+
 #: share/gpodder/ui/gtk/gpodderaddpodcast.ui.h:1
 msgid "Add a new podcast"
 msgstr "Añadir un nuevo podcast"
@@ -2235,11 +2266,6 @@ msgstr ""
 #| msgid "Added"
 msgid "Add"
 msgstr "Agregado"
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:1
-#: share/gpodder/ui/gtk/gpodder.ui.h:4 share/gpodder/ui/gtk/menus.ui.h:1
-msgid "Preferences"
-msgstr "Preferencias"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:2
 #, fuzzy
@@ -2372,30 +2398,6 @@ msgstr ""
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:36
 msgid "Preferred Vimeo format:"
 msgstr ""
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:6 share/gpodder/ui/gtk/menus.ui.h:8
-msgid "Check for new episodes"
-msgstr "Actualizar lista de capítulos"
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:7
-msgid "Filter:"
-msgstr "Fallado"
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:8
-msgid "Podcasts"
-msgstr "Podcasts"
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:9
-msgid "Limit rate to"
-msgstr "Limitar la velocidad de descarga a"
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:10
-msgid "KiB/s"
-msgstr "KiB/s"
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:11
-msgid "Limit downloads to"
-msgstr "Limitar el número de descargas a"
 
 #: share/gpodder/ui/gtk/gpodderwelcome.ui.h:3
 #, fuzzy
@@ -2819,6 +2821,11 @@ msgstr ""
 msgid "Mac OS X application process number"
 msgstr "Número de proceso de aplicación de Mac OS X"
 
+#: share/applications/gpodder-url-handler.desktop.in.h:1
+#, fuzzy
+msgid "gPodder (subscribe to feed)"
+msgstr "Suscribirse a la URL proporcionada"
+
 #: share/applications/gpodder.desktop.in.h:2
 msgid "gPodder Podcast Client"
 msgstr "Cliente de podcasts gPodder"
@@ -2830,8 +2837,3 @@ msgstr "Cliente de podcasts"
 #: share/applications/gpodder.desktop.in.h:4
 msgid "Subscribe to audio and video content from the web"
 msgstr "Suscribirse a contenido multimedia en la web"
-
-#: share/applications/gpodder-url-handler.desktop.in.h:1
-#, fuzzy
-msgid "gPodder (subscribe to feed)"
-msgstr "Suscribirse a la URL proporcionada"
