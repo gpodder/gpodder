@@ -1172,7 +1172,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         try:
             model = self.download_status_model
 
-            downloading, synchronizing, failed, finished, queued, paused, others = 0, 0, 0, 0, 0, 0, 0
+            downloading, synchronizing, failed, finished, queued, paused, pausing, cancelling, others = (0,) * 9
             total_speed, total_size, done_size = 0, 0, 0
 
             # Keep a list of all download tasks that we've seen
@@ -1197,9 +1197,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
                 download_tasks_seen.add(task)
 
-                if (status in [download.DownloadTask.DOWNLOADING,
-                               download.DownloadTask.CANCELLING,
-                               download.DownloadTask.PAUSING] and
+                if (status == download.DownloadTask.DOWNLOADING and
                         activity == download.DownloadTask.ACTIVITY_DOWNLOAD):
                     downloading += 1
                     total_speed += speed
@@ -1214,6 +1212,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     queued += 1
                 elif status == download.DownloadTask.PAUSED:
                     paused += 1
+                elif status == download.DownloadTask.PAUSING:
+                    pausing += 1
+                elif status == download.DownloadTask.CANCELLING:
+                    cancelling += 1
                 else:
                     others += 1
 
@@ -1221,7 +1223,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.download_tasks_seen = download_tasks_seen
 
             text = [_('Progress')]
-            if downloading + synchronizing + failed + queued + paused > 0:
+            if downloading + synchronizing + failed + queued + paused + pausing + cancelling > 0:
                 s = []
                 if downloading > 0:
                     s.append(N_('%(count)d active', '%(count)d active', downloading) % {'count': downloading})
@@ -1233,6 +1235,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     s.append(N_('%(count)d queued', '%(count)d queued', queued) % {'count': queued})
                 if paused > 0:
                     s.append(N_('%(count)d paused', '%(count)d paused', paused) % {'count': paused})
+                if pausing > 0:
+                    s.append(N_('%(count)d pausing', '%(count)d pausing', pausing) % {'count': pausing})
+                if cancelling > 0:
+                    s.append(N_('%(count)d cancelling', '%(count)d cancelling', cancelling) % {'count': cancelling})
                 text.append(' (' + ', '.join(s) + ')')
             self.labelDownloads.set_text(''.join(text))
 
@@ -1244,10 +1250,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     self.download_tasks_seen if task.status_changed]
             episode_urls = [task.url for task in self.download_tasks_seen]
 
-            if downloading > 0:
+            if downloading + pausing + cancelling > 0:
                 title.append(N_('downloading %(count)d file',
                                 'downloading %(count)d files',
-                                downloading) % {'count': downloading})
+                                downloading + pausing + cancelling) % {'count': downloading + pausing + cancelling})
 
                 if total_size > 0:
                     percentage = 100.0 * done_size / total_size
@@ -1264,7 +1270,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 title.append(N_('%(queued)d task queued',
                                 '%(queued)d tasks queued',
                                 queued) % {'queued': queued})
-            if (downloading + synchronizing + queued) == 0 and self.things_adding_tasks == 0:
+            if (downloading + synchronizing + queued + pausing + cancelling) == 0 and self.things_adding_tasks == 0:
                 self.set_download_progress(1.)
                 self.downloads_finished(self.download_tasks_seen)
                 gpodder.user_extensions.on_all_episodes_downloaded()
