@@ -3141,6 +3141,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
             logger.debug('Downloading episode: %s', episode.title)
             if not episode.was_downloaded(and_exists=True):
                 episode._download_error = None
+                if episode.state == gpodder.STATE_DELETED:
+                    episode.state = gpodder.STATE_NORMAL
+                    episode.save()
                 task_exists = False
                 for task in self.download_tasks_seen:
                     if episode.url == task.url:
