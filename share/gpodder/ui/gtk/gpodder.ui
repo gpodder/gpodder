@@ -30,6 +30,21 @@
             <property name="visible">True</property>
             <property name="can-focus">False</property>
             <child>
+              <object class="GtkToolButton" id="toolPlay">
+                <property name="visible">True</property>
+                <property name="sensitive">False</property>
+                <property name="can-focus">False</property>
+                <property name="is-important">True</property>
+                <property name="label" translatable="yes">Play</property>
+                <property name="icon-name">media-playback-start</property>
+                <signal name="clicked" handler="on_playback_selected_episodes" swapped="no"/>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
+            <child>
               <object class="GtkToolButton" id="toolDownload">
                 <property name="visible">True</property>
                 <property name="sensitive">False</property>
@@ -45,14 +60,14 @@
               </packing>
             </child>
             <child>
-              <object class="GtkToolButton" id="toolPlay">
+              <object class="GtkToolButton" id="toolPause">
                 <property name="visible">True</property>
                 <property name="sensitive">False</property>
                 <property name="can-focus">False</property>
                 <property name="is-important">True</property>
-                <property name="label" translatable="yes">Play</property>
-                <property name="icon-name">media-playback-start</property>
-                <signal name="clicked" handler="on_playback_selected_episodes" swapped="no"/>
+                <property name="label" translatable="yes">Pause</property>
+                <property name="icon-name">media-playback-pause</property>
+                <signal name="clicked" handler="on_pause_selected_episodes" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>

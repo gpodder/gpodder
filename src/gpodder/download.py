@@ -620,6 +620,13 @@ class DownloadTask(object):
             # Request pause of a running download
             elif self.status == self.DOWNLOADING:
                 self.status = self.PAUSING
+                # download rate limited tasks sleep and take longer to transition from the PAUSING state to the PAUSED state
+
+    def unpause(self):
+        with self:
+            # Resume a downloading task that was transitioning to paused
+            if self.status == self.PAUSING:
+                self.status = self.DOWNLOADING
 
     def cancel(self):
         with self:
