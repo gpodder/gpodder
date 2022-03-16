@@ -2288,9 +2288,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         streaming_possible |= self.streaming_possible(episode)
                         can_download = True
 
+                if episode.state != gpodder.STATE_DELETED and not episode.archive:
+                    can_delete = True
+
             can_download = (can_download and not can_cancel) or can_resume
             can_play = streaming_possible or (can_play and not can_cancel and not can_download)
-            can_delete = not can_cancel
+            can_delete = can_delete and not can_cancel
 
         if open_instead_of_play:
             self.toolPlay.set_icon_name('document-open')
