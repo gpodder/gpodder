@@ -799,7 +799,7 @@ class SyncTask(download.DownloadTask):
             # Otherwise request cancellation
             elif self.status == self.DOWNLOADING:
                 self.status = self.CANCELLING
-                self.device.cancel(self)
+                self.device.cancel()
 
     def removed_from_list(self):
         if self.status != self.DONE:
