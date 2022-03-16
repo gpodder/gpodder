@@ -812,6 +812,7 @@ class DownloadTask(object):
         with self:
             if self.status == DownloadTask.CANCELLING:
                 self.status = DownloadTask.CANCELLED
+                self.__episode._download_error = None
                 self.delete_partial_files()
                 self.progress = 0.0
                 self.speed = 0.0
@@ -913,6 +914,7 @@ class DownloadTask(object):
         except DownloadCancelledException:
             logger.info('Download has been cancelled/paused: %s', self)
             if self.status == DownloadTask.CANCELLING:
+                self.__episode._download_error = None
                 self.delete_partial_files()
                 self.progress = 0.0
                 self.speed = 0.0
