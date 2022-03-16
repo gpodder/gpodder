@@ -2284,6 +2284,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                                 can_resume = True
                             elif episode.download_task.status in (episode.download_task.QUEUED, episode.download_task.DOWNLOADING):
                                 can_pause = True
+                    elif episode.download_task is not None and episode.download_task.status == episode.download_task.FAILED:
+                        can_cancel = True
                     else:
                         streaming_possible |= self.streaming_possible(episode)
                         can_download = True
