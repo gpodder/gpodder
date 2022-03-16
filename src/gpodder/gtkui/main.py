@@ -1174,6 +1174,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             downloading, synchronizing, pausing, cancelling, queued, paused, failed, finished, others = (0,) * 9
             total_speed, total_size, done_size = 0, 0, 0
+            files_downloading = 0
 
             # Keep a list of all download tasks that we've seen
             download_tasks_seen = set()
@@ -1200,6 +1201,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 if status == download.DownloadTask.DOWNLOADING:
                     if activity == download.DownloadTask.ACTIVITY_DOWNLOAD:
                         downloading += 1
+                        files_downloading += 1
                         total_speed += speed
                     elif activity == download.DownloadTask.ACTIVITY_SYNCHRONIZE:
                         synchronizing += 1
@@ -1207,8 +1209,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         others += 1
                 elif status == download.DownloadTask.PAUSING:
                     pausing += 1
+                    if activity == download.DownloadTask.ACTIVITY_DOWNLOAD:
+                        files_downloading += 1
                 elif status == download.DownloadTask.CANCELLING:
                     cancelling += 1
+                    if activity == download.DownloadTask.ACTIVITY_DOWNLOAD:
+                        files_downloading += 1
                 elif status == download.DownloadTask.QUEUED:
                     queued += 1
                 elif status == download.DownloadTask.PAUSED:
@@ -1253,10 +1259,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     self.download_tasks_seen if task.status_changed]
             episode_urls = [task.url for task in self.download_tasks_seen]
 
-            if downloading + pausing + cancelling > 0:
+            if files_downloading > 0:
                 title.append(N_('downloading %(count)d file',
                                 'downloading %(count)d files',
-                                downloading + pausing + cancelling) % {'count': downloading + pausing + cancelling})
+                                files_downloading) % {'count': files_downloading})
 
                 if total_size > 0:
                     percentage = 100.0 * done_size / total_size
