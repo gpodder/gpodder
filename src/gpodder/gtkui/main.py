@@ -3061,6 +3061,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             else:
                 episode.mark(is_locked=new_value)
         self.on_selected_episodes_status_changed()
+        self.play_or_download()
 
     def on_channel_toggle_lock_activate(self, widget, toggle=True, new_value=False):
         if self.active_channel is None:
