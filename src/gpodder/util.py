@@ -2292,8 +2292,13 @@ def mount_volume_for_file(file, op=None):
     fashion
     """
     import gi
-    gi.require_version('Gtk', '3.0')
-    from gi.repository import Gio, GLib, Gtk
+    gi.require_version('Gio', '2.0')
+    from gi.repository import Gio, GLib
+    if gpodder.ui.gtk:
+        gi.require_version('Gtk', '3.0')
+        from gi.repository import Gtk
+    else:
+        loop = GLib.MainLoop()
 
     result = True
     message = None
@@ -2309,10 +2314,16 @@ def mount_volume_for_file(file, op=None):
                 message = err.message
                 result = False
         finally:
-            Gtk.main_quit()
+            if gpodder.ui.gtk:
+                Gtk.main_quit()
+            else:
+                loop.quit()
 
     file.mount_enclosing_volume(Gio.MountMountFlags.NONE, op, None, callback)
-    Gtk.main()
+    if gpodder.ui.gtk:
+        Gtk.main()
+    else:
+        loop.run()
     return result, message
 
 
