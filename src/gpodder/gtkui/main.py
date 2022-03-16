@@ -359,12 +359,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if self.extensions_menu is None:
             # insert menu section at startup (hides when empty)
             self.extensions_menu = Gio.Menu.new()
-            menubar = self.application.get_menubar()
-            for i in range(0, menubar.get_n_items()):
-                menu = menubar.do_get_item_link(menubar, i, Gio.MENU_LINK_SUBMENU)
-                menuname = menubar.get_item_attribute_value(i, Gio.MENU_ATTRIBUTE_LABEL, None)
-                if menuname is not None and menuname.get_string() == _('E_xtras'):
-                    menu.append_section(_('Extensions'), self.extensions_menu)
+            self.application.menu_extras.append_section(_('Extensions'), self.extensions_menu)
         else:
             self.extensions_menu.remove_all()
 
