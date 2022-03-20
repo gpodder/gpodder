@@ -1971,11 +1971,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if open_instead_of_play:
                 item = Gtk.ImageMenuItem(_('Open'))
                 item.set_image(Gtk.Image.new_from_icon_name('document-open', Gtk.IconSize.MENU))
-            elif downloaded:
-                item = Gtk.ImageMenuItem(_('Play'))
-                item.set_image(Gtk.Image.new_from_icon_name('media-playback-start', Gtk.IconSize.MENU))
             else:
-                if downloading:
+                if downloaded:
+                    item = Gtk.ImageMenuItem(_('Play'))
+                elif downloading:
                     item = Gtk.ImageMenuItem(_('Preview'))
                 else:
                     item = Gtk.ImageMenuItem(_('Stream'))
