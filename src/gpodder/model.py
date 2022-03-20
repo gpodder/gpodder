@@ -453,6 +453,60 @@ class PodcastEpisode(PodcastModelObject):
 
         return task.status in (task.DOWNLOADING, task.QUEUED, task.PAUSING, task.PAUSED, task.CANCELLING)
 
+    def get_player(self, config):
+        file_type = self.file_type()
+        if file_type == 'video' and config.player.video and config.player.video != 'default':
+            player = config.player.video
+        elif file_type == 'audio' and config.player.audio and config.player.audio != 'default':
+            player = config.player.audio
+        else:
+            player = 'default'
+        return player
+
+    def can_play(self, config):
+        """
+        # gPodder.playback_episodes() filters selection with this method.
+        """
+        return self.was_downloaded(and_exists=True) or self.can_stream(config)
+
+    def can_stream(self, config):
+        """
+        Don't try streaming if the user has not defined a player
+        or else we would probably open the browser when giving a URL to xdg-open.
+        We look at the audio or video player depending on its file type.
+        """
+        player = self.get_player(config)
+        return player and player != 'default'
+
+    def can_download(self):
+        """
+        gPodder.on_download_selected_episodes() filters selection with this method.
+        PAUSING and PAUSED tasks can be resumed.
+        """
+        return not self.was_downloaded(and_exists=True) and (
+            not self.download_task
+            or self.download_task.status in (self.download_task.PAUSING, self.download_task.PAUSED, self.download_task.FAILED))
+
+    def can_pause(self):
+        """
+        gPodder.on_pause_selected_episodes() filters selection with this method.
+        """
+        return self.download_task and self.download_task.status in (self.download_task.QUEUED, self.download_task.DOWNLOADING)
+
+    def can_cancel(self):
+        """
+        DownloadTask.cancel() only cancels the following tasks.
+        """
+        return self.download_task and self.download_task.status in \
+            (self.download_task.DOWNLOADING, self.download_task.QUEUED, self.download_task.PAUSED, self.download_task.FAILED)
+
+    def can_delete(self):
+        """
+        gPodder.delete_episode_list() filters out locked episodes, and cancels all unlocked tasks in selection.
+        """
+        return self.state != gpodder.STATE_DELETED and not self.archive and (
+            not self.download_task or self.download_task.status == self.download_task.FAILED)
+
     def check_is_new(self):
         return (self.state == gpodder.STATE_NORMAL and self.is_new and
                 not self.downloading)
