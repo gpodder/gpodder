@@ -46,7 +46,7 @@ class Matcher(object):
                     return (needle in haystack)
                 if needle in self._episode.title:
                     return True
-                return (needle in self._episode.description)
+                return (needle in self._episode._text_description)
 
             # case-insensitive search in haystack, or both title and description if no haystack
             def s(needle, haystack=None):
@@ -55,7 +55,7 @@ class Matcher(object):
                     return (needle in haystack.casefold())
                 if needle in self._episode.title.casefold():
                     return True
-                return (needle in self._episode.description.casefold())
+                return (needle in self._episode._text_description.casefold())
 
             # case-sensitive regular expression search in haystack, or both title and description if no haystack
             def R(needle, haystack=None):
@@ -64,7 +64,7 @@ class Matcher(object):
                     return regexp.search(haystack)
                 if regexp.search(self._episode.title):
                     return True
-                return regexp.search(self._episode.description)
+                return regexp.search(self._episode._text_description)
 
             # case-insensitive regular expression search in haystack, or both title and description if no haystack
             def r(needle, haystack=None):
@@ -73,7 +73,7 @@ class Matcher(object):
                     return regexp.search(haystack)
                 if regexp.search(self._episode.title):
                     return True
-                return regexp.search(self._episode.description)
+                return regexp.search(self._episode._text_description)
 
             return bool(eval(term, {'__builtins__': None, 'S': S, 's': s, 'R': R, 'r': r}, self))
         except Exception as e:
@@ -108,7 +108,7 @@ class Matcher(object):
         elif k == 'title':
             return episode.title
         elif k == 'description':
-            return episode.description
+            return episode._text_description
         elif k == 'since':
             return (datetime.datetime.now() - datetime.datetime.fromtimestamp(episode.published)).days
         elif k == 'age':
@@ -215,7 +215,7 @@ class EQL(object):
         if self._regex:
             return re.search(self._query, episode.title, self._flags) is not None
         elif self._string:
-            return self._query in episode.title.lower() or self._query in episode.description.lower()
+            return self._query in episode.title.lower() or self._query in episode._text_description.lower()
 
         return Matcher(episode).match(self._query)
 

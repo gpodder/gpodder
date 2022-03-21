@@ -175,12 +175,14 @@ class PodcastParserFeed(Feed):
                     existing_episode.total_time = youtube.get_total_time(episode)
 
                 existing_episode.update_from(episode)
+                existing_episode.cache_text_description()
                 existing_episode.save()
                 continue
             elif episode.total_time == 0 and 'youtube' in episode.url:
                 # query duration for new youtube episodes
                 episode.total_time = youtube.get_total_time(episode)
 
+            episode.cache_text_description()
             episode.save()
             new_episodes.append(episode)
         return new_episodes, seen_guids
@@ -271,7 +273,7 @@ class PodcastEpisode(PodcastModelObject):
     MAX_FILENAME_LENGTH = 120  # without extension
     MAX_FILENAME_WITH_EXT_LENGTH = 140 - len(".partial.webm")  # with extension
 
-    __slots__ = schema.EpisodeColumns + ('_download_error',)
+    __slots__ = schema.EpisodeColumns + ('_download_error', '_text_description',)
 
     def _deprecated(self):
         raise Exception('Property is deprecated!')
@@ -289,13 +291,13 @@ class PodcastEpisode(PodcastModelObject):
         episode.guid = entry['guid']
         episode.title = entry['title']
         episode.link = entry['link']
-        episode.description = entry['description']
+        episode.episode_art_url = entry.get('episode_art_url')
         if entry.get('description_html'):
+            episode.description = ''
             episode.description_html = entry['description_html']
         else:
-            thumbnail = entry.get('episode_art_url')
-            description = util.remove_html_tags(episode.description or _('No description available'))
-            episode.description_html = util.nice_html_description(thumbnail, description)
+            episode.description = util.remove_html_tags(entry['description'] or '')
+            episode.description_html = ''
 
         episode.total_time = entry['total_time']
         episode.published = entry['published']
@@ -390,6 +392,7 @@ class PodcastEpisode(PodcastModelObject):
         self.last_playback = 0
 
         self._download_error = None
+        self._text_description = ''
 
     @property
     def channel(self):
@@ -574,9 +577,21 @@ class PodcastEpisode(PodcastModelObject):
 
     age_prop = property(fget=get_age_string)
 
+    def cache_text_description(self):
+        if self.description:
+            self._text_description = self.description
+        elif self.description_html:
+            self._text_description = util.remove_html_tags(self.description_html)
+        else:
+            self._text_description = ''
+
+    def html_description(self):
+        return self.description_html \
+            or util.nice_html_description(self.episode_art_url, self.description or _('No description available'))
+
     def one_line_description(self):
         MAX_LINE_LENGTH = 120
-        desc = util.remove_html_tags(self.description or '')
+        desc = self._text_description
         desc = re.sub(r'\s+', ' ', desc).strip()
         if not desc:
             return _('No description available')
@@ -1104,7 +1119,9 @@ class PodcastChannel(PodcastModelObject):
 
         Returns: A new PodcastEpisode object
         """
-        return self.EpisodeClass.create_from_dict(d, self)
+        episode = self.EpisodeClass.create_from_dict(d, self)
+        episode.cache_text_description()
+        return episode
 
     def _consume_updated_title(self, new_title):
         # Replace multi-space and newlines with single space (Maemo bug 11173)
