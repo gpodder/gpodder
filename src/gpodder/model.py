@@ -28,6 +28,7 @@ import collections
 import datetime
 import glob
 import hashlib
+import json
 import logging
 import os
 import re
@@ -302,6 +303,9 @@ class PodcastEpisode(PodcastModelObject):
         episode.total_time = entry['total_time']
         episode.published = entry['published']
         episode.payment_url = entry['payment_url']
+        episode.chapters = None
+        if entry.get("chapters"):
+            episode.chapters = json.dumps(entry["chapters"])
 
         audio_available = any(enclosure['mime_type'].startswith('audio/') for enclosure in entry['enclosures'])
         video_available = any(enclosure['mime_type'].startswith('video/') for enclosure in entry['enclosures'])
