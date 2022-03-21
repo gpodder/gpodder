@@ -368,8 +368,10 @@ class PodcastEpisode(PodcastModelObject):
         self.file_size = 0
         self.mime_type = 'application/octet-stream'
         self.guid = ''
+        self.episode_art_url = None
         self.description = ''
         self.description_html = ''
+        self.chapters = None
         self.link = ''
         self.published = 0
         self.download_filename = None
@@ -864,7 +866,8 @@ class PodcastEpisode(PodcastModelObject):
             return '-'
 
     def update_from(self, episode):
-        for k in ('title', 'url', 'description', 'description_html', 'link', 'published', 'guid', 'payment_url'):
+        for k in ('title', 'url', 'episode_art_url', 'description', 'description_html', 'chapters', 'link',
+                  'published', 'guid', 'payment_url'):
             setattr(self, k, getattr(episode, k))
         # Don't overwrite file size on downloaded episodes
         # See #648 refreshing a youtube podcast clears downloaded file size
