@@ -98,6 +98,7 @@ chardet==4.0.0
 idna==3.2
 PySocks==1.7.1
 comtypes==1.1.10
+dbus-python==1.2.18
 "
 
 function install_deps {
@@ -108,7 +109,9 @@ function install_deps {
 
     build_pacman --noconfirm -S git mingw-w64-"${ARCH}"-gdk-pixbuf2 \
         mingw-w64-"${ARCH}"-librsvg \
-        mingw-w64-"${ARCH}"-gtk3 mingw-w64-"${ARCH}"-python3 \
+        mingw-w64-"${ARCH}"-gtk3 \
+        mingw-w64-"${ARCH}"-dbus \
+        mingw-w64-"${ARCH}"-python3 \
         mingw-w64-"${ARCH}"-python3-gobject \
         mingw-w64-"${ARCH}"-python3-cairo \
         mingw-w64-"${ARCH}"-python3-pip \
@@ -159,10 +162,10 @@ function install_gpodder {
     python3 "${MISC}"/create-launcher.py \
         "${GPO_VERSION}" "${MINGW_ROOT}"/bin
 
-	# install fake dbus
-    site_packages=$(build_python -c  'import sys;print(next(c for c in sys.path if "site-packages" in c and ".local" not in c))')
-    site_packages_unix=$(echo "/$site_packages" | sed -e 's/\\/\//g' -e 's/://')
-    rsync -arv --delete "${REPO_CLONE}"/tools/fake-dbus-module/dbus "${site_packages_unix}/"
+#	# install fake dbus
+#    site_packages=$(build_python -c  'import sys;print(next(c for c in sys.path if "site-packages" in c and ".local" not in c))')
+#    site_packages_unix=$(echo "/$site_packages" | sed -e 's/\\/\//g' -e 's/://')
+#    rsync -arv --delete "${REPO_CLONE}"/tools/fake-dbus-module/dbus "${site_packages_unix}/"
 	
 	# install gtk3 settings for a proper font
 	mkdir -p "${MINGW_ROOT}"/etc/gtk-3.0
