@@ -14,7 +14,6 @@ try:
     import yt_dlp as youtube_dl
 except:
     import youtube_dl
-from youtube_dl.utils import DownloadError, ExtractorError, sanitize_url
 
 import gpodder
 from gpodder import download, feedcore, model, registry, youtube
@@ -326,8 +325,8 @@ class gPodderYoutubeDL(download.CustomDownloader):
                 with youtube_dl.YoutubeDL(opts) as ydl:
                     ydl.process_ie_result(tmp, download=False)
                     new_entries.extend(tmp.get('entries'))
-            except DownloadError as ex:
-                if ex.exc_info[0] == ExtractorError:
+            except youtube_dl.utils.DownloadError as ex:
+                if ex.exc_info[0] == youtube_dl.utils.ExtractorError:
                     # for instance "This video contains content from xyz, who has blocked it on copyright grounds"
                     logger.warning('Skipping %s: %s', e.get('title', ''), ex.exc_info[1])
                     continue
@@ -360,7 +359,7 @@ class gPodderYoutubeDL(download.CustomDownloader):
             result_type, has_playlist = extract_type(ie_result)
             while not has_playlist:
                 if result_type in ('url', 'url_transparent'):
-                    ie_result['url'] = sanitize_url(ie_result['url'])
+                    ie_result['url'] = youtube_dl.utils.sanitize_url(ie_result['url'])
                 if result_type == 'url':
                     logger.debug("extract_info(%s) to get the video list", ie_result['url'])
                     # We have to add extra_info to the results because it may be
