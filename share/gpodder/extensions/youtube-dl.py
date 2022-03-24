@@ -10,7 +10,10 @@ import re
 import sys
 import time
 
-import youtube_dl
+try:
+    import yt_dlp as youtube_dl
+except:
+    import youtube_dl
 from youtube_dl.utils import DownloadError, ExtractorError, sanitize_url
 
 import gpodder
@@ -25,13 +28,13 @@ logger = logging.getLogger(__name__)
 
 
 __title__ = 'Youtube-dl'
-__description__ = _('Manage Youtube subscriptions using youtube-dl (pip install youtube_dl)')
+__description__ = _('Manage Youtube subscriptions using youtube-dl (pip install youtube_dl) or yt-dlp (pip install yt-dlp)')
 __only_for__ = 'gtk, cli'
 __authors__ = 'Eric Le Lay <elelay.fr:contact>'
 __doc__ = 'https://gpodder.github.io/docs/extensions/youtubedl.html'
 
 want_ytdl_version = '2021.02.04'
-want_ytdl_version_msg = _('Your version of youtube-dl %(have_version)s has known issues, please upgrade to %(want_version)s or newer.')
+want_ytdl_version_msg = _('Your version of youtube-dl/yt-dlp %(have_version)s has known issues, please upgrade to %(want_version)s or newer.')
 
 DefaultConfig = {
     # youtube-dl downloads and parses each video page to get informations about it, which is very slow.
@@ -99,18 +102,16 @@ class YoutubeCustomDownload(download.CustomDownload):
             # See #673 when merging multiple formats, the extension is appended to the tempname
             # by YoutubeDL resulting in empty .partial file + .partial.mp4 exists
             # and #796 .mkv is chosen by ytdl sometimes
-            tempstat = os.stat(tempname)
-            if not tempstat.st_size:
-                for try_ext in (dot_ext, ".mp4", ".m4a", ".webm", ".mkv"):
-                    tempname_with_ext = tempname + try_ext
-                    if os.path.isfile(tempname_with_ext):
-                        logger.debug('Youtubedl downloaded to "%s" instead of "%s", moving',
-                                     os.path.basename(tempname_with_ext),
-                                     os.path.basename(tempname))
-                        os.remove(tempname)
-                        os.rename(tempname_with_ext, tempname)
-                        dot_ext = try_ext
-                        break
+            for try_ext in (dot_ext, ".mp4", ".m4a", ".webm", ".mkv"):
+                tempname_with_ext = tempname + try_ext
+                if os.path.isfile(tempname_with_ext):
+                    logger.debug('Youtubedl downloaded to "%s" instead of "%s", moving',
+                                 os.path.basename(tempname_with_ext),
+                                 os.path.basename(tempname))
+                    os.remove(tempname)
+                    os.rename(tempname_with_ext, tempname)
+                    dot_ext = try_ext
+                    break
             ext_filetype = mimetype_from_extension(dot_ext)
             if ext_filetype:
                 # Youtube weba formats have a webm extension and get a video/webm mime-type
@@ -262,6 +263,7 @@ class gPodderYoutubeDL(download.CustomDownloader):
         self._ydl_opts = {
             'cachedir': cachedir,
             'no_color': True,  # prevent escape codes in desktop notifications on errors
+            'noprogress': True,  # prevent progress bar from appearing in console
         }
         if gpodder.verbose:
             self._ydl_opts['verbose'] = True
@@ -406,7 +408,11 @@ class gPodderYoutubeDL(download.CustomDownloader):
                 self.regex_cache.insert(0, r)
                 return True
         with youtube_dl.YoutubeDL(self._ydl_opts) as ydl:
-            for ie in ydl._ies:
+            # youtube-dl returns a list, yt-dlp returns a dict
+            ies = ydl._ies
+            if type(ydl._ies) == dict:
+                ies = ydl._ies.values()
+            for ie in ies:
                 if ie.suitable(url) and ie.ie_key() not in self.ie_blacklist:
                     self.regex_cache.insert(0, ie._VALID_URL_RE)
                     return True

@@ -708,6 +708,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 message = str(e)
                 if not message:
                     message = e.__class__.__name__
+                if message == 'NotFound':
+                    message = _(
+                        'Could not find your device.\n'
+                        '\n'
+                        'Check login is a username (not an email)\n'
+                        'and that the device name matches one in your account.'
+                    )
                 self.show_message(html.escape(message),
                         _('Error while uploading'),
                         important=True)
@@ -2077,9 +2084,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if os.path.exists(copy_to):
                 logger.warn(copy_from)
                 logger.warn(copy_to)
-                title = _('File already exist')
+                title = _('File already exists')
                 d = {'filename': os.path.basename(copy_to)}
-                message = _('A file named "%(filename)s" already exist. Do you want to replace it?') % d
+                message = _('A file named "%(filename)s" already exists. Do you want to replace it?') % d
                 if not self.show_confirmation(message, title):
                     return
             try:
@@ -3323,6 +3330,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 for task in self.download_tasks_seen:
                     if episode.url == task.url:
                         task_exists = True
+                        task.reuse()
                         if task.status not in (task.DOWNLOADING, task.QUEUED):
                             if downloader:
                                 # replace existing task's download with forced one

@@ -26,6 +26,7 @@ import logging
 import re
 import urllib
 import xml.etree.ElementTree
+from functools import lru_cache
 from html.parser import HTMLParser
 from urllib.parse import parse_qs
 
@@ -366,6 +367,7 @@ def get_real_download_url(url, allow_partial, preferred_fmt_ids=None):
     return url, duration
 
 
+@lru_cache(1)
 def get_youtube_id(url):
     r = re.compile(r'http[s]?://(?:[a-z]+\.)?youtube\.com/watch\?v=([^&]*)', re.IGNORECASE).match(url)
     if r is not None:
@@ -427,16 +429,22 @@ def get_real_channel_url(url):
     return for_each_feed_pattern(return_user_feed, url, url)
 
 
-def get_channel_id_url(url):
+@lru_cache(1)
+def get_channel_id_url(url, feed_data=None):
     if 'youtube.com' in url:
         try:
-            req = util.urlopen(url)
+            if feed_data is None:
+                r = util.urlopen(url)
+                if not r.ok:
+                    raise YouTubeError('Youtube "%s": %d %s' % (url, r.status_code, r.reason))
+            else:
+                r = feed_data
             # video page may contain corrupt HTML/XML, search for tag to avoid exception
-            m = re.search(r'<meta itemprop="channelId" content="([^"]+)">', req.text)
+            m = re.search(r'<meta itemprop="channelId" content="([^"]+)">', r.text)
             if m:
                 channel_id = m.group(1)
             else:
-                raw_xml_data = io.BytesIO(req.content)
+                raw_xml_data = io.BytesIO(r.content)
                 xml_data = xml.etree.ElementTree.parse(raw_xml_data)
                 channel_id = xml_data.find("{http://www.youtube.com/xml/schemas/2015}channelId").text
             channel_url = 'https://www.youtube.com/channel/{}'.format(channel_id)
@@ -445,8 +453,10 @@ def get_channel_id_url(url):
         except Exception:
             logger.warning('Could not retrieve youtube channel id.', exc_info=True)
 
+    raise Exception('Could not retrieve youtube channel id.')
 
-def get_cover(url):
+
+def get_cover(url, feed_data=None):
     if 'youtube.com' in url:
 
         class YouTubeHTMLCoverParser(HTMLParser):
@@ -471,8 +481,11 @@ def get_cover(url):
                     self.url.append(attribute_dict['src'])
 
         try:
-            channel_url = get_channel_id_url(url)
-            html_data = util.response_text(util.urlopen(channel_url))
+            channel_url = get_channel_id_url(url, feed_data)
+            r = util.urlopen(channel_url)
+            if not r.ok:
+                raise YouTubeError('Youtube "%s": %d %s' % (url, r.status_code, r.reason))
+            html_data = util.response_text(r)
             parser = YouTubeHTMLCoverParser()
             parser.feed(html_data)
             if parser.url:
@@ -523,7 +536,7 @@ def get_gdpr_consent_url(html_data):
         raise YouTubeError('No acceptable GDPR consent URL')
 
 
-def get_channel_desc(url):
+def get_channel_desc(url, feed_data=None):
     if 'youtube.com' in url:
 
         class YouTubeHTMLDesc(HTMLParser):
@@ -542,8 +555,11 @@ def get_channel_desc(url):
                     self.description = attribute_dict['content']
 
         try:
-            channel_url = get_channel_id_url(url)
-            html_data = util.response_text(util.urlopen(channel_url))
+            channel_url = get_channel_id_url(url, feed_data)
+            r = util.urlopen(channel_url)
+            if not r.ok:
+                raise YouTubeError('Youtube "%s": %d %s' % (url, r.status_code, r.reason))
+            html_data = util.response_text(r)
             parser = YouTubeHTMLDesc()
             parser.feed(html_data)
             if parser.description:

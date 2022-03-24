@@ -56,7 +56,7 @@ PyPI. With this, you get a self-contained gPodder CLI codebase.
 - Clickable links in GTK UI show notes: html5lib
 - HTML show notes: WebKit2 gobject bindings
     (webkit2gtk, webkitgtk4 or gir1.2-webkit2-4.0 packages).
-- Better Youtube support (> 15 entries in feeds, download audio-only): youtube_dl
+- Better Youtube support (> 15 entries in feeds, download audio-only): youtube_dl or yt-dlp
 
 
 ### Build Dependencies

@@ -27,13 +27,14 @@
             <property name="layout-style">end</property>
             <child>
               <object class="GtkButton" id="btnCancel">
-                <property name="label" translatable="yes">Cancel</property>
+                <property name="label" translatable="yes">_Cancel</property>
                 <property name="use-action-appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <property name="can-default">True</property>
                 <property name="has-default">True</property>
                 <property name="receives-default">False</property>
+                <property name="use-underline">True</property>
                 <signal name="clicked" handler="on_btnCancel_clicked" swapped="no"/>
               </object>
               <packing>
@@ -44,7 +45,7 @@
             </child>
             <child>
               <object class="GtkButton" id="btnOK">
-                <property name="label" translatable="yes">OK</property>
+                <property name="label" translatable="yes">_OK</property>
                 <property name="use-action-appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
@@ -52,6 +53,7 @@
                 <property name="can-default">True</property>
                 <property name="has-default">True</property>
                 <property name="receives-default">False</property>
+                <property name="use-underline">True</property>
                 <signal name="clicked" handler="on_btnOK_clicked" swapped="no"/>
               </object>
               <packing>
@@ -208,10 +210,11 @@
                                         </child>
                                         <child>
                                           <object class="GtkButton" id="title_save_button">
-                                            <property name="label" translatable="yes">Save</property>
+                                            <property name="label" translatable="yes">_Save</property>
                                             <property name="visible">True</property>
                                             <property name="can-focus">True</property>
                                             <property name="receives-default">True</property>
+                                            <property name="use-underline">True</property>
                                             <property name="valign">center</property>
                                             <signal name="clicked" handler="on_title_save_button_clicked" swapped="no"/>
                                           </object>
