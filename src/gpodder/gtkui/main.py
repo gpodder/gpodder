@@ -2334,42 +2334,20 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.update_podcast_list_model(set(e.channel.url for e in episodes))
         self.db.commit()
 
-    def episode_player(self, episode):
-        file_type = episode.file_type()
-        if file_type == 'video' and self.config.player.video \
-                and self.config.player.video != 'default':
-            player = self.config.player.video
-        elif file_type == 'audio' and self.config.player.audio \
-                and self.config.player.audio != 'default':
-            player = self.config.player.audio
-        else:
-            player = 'default'
-        return player
-
-    def streaming_possible(self, episode=None):
-        """
-        Don't try streaming if the user has not defined a player
-        or else we would probably open the browser when giving a URL to xdg-open.
-        If an episode is given, we look at the audio or video player depending on its file type.
-        :return bool: if streaming is possible
-        """
-        if episode:
-            player = self.episode_player(episode)
-        else:
-            player = self.config.player.audio
-        return player and player != 'default'
-
     def playback_episodes_for_real(self, episodes):
         groups = collections.defaultdict(list)
         for episode in episodes:
             episode._download_error = None
 
             if episode.download_task is not None and episode.download_task.status == episode.download_task.FAILED:
+                if not episode.can_stream(self.config):
+                    # Do not cancel failed tasks that can not be streamed
+                    continue
                 # Cancel failed task and remove from progress list
                 episode.download_task.cancel()
                 self.cleanup_downloads()
 
-            player = self.episode_player(episode)
+            player = episode.get_player(self.config)
 
             try:
                 allow_partial = (player != 'default')
@@ -2444,8 +2422,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def playback_episodes(self, episodes):
         # We need to create a list, because we run through it more than once
-        episodes = list(Model.sort_episodes_by_pubdate(e for e in episodes if
-               e.was_downloaded(and_exists=True) or self.streaming_possible(e)))
+        episodes = list(Model.sort_episodes_by_pubdate(e for e in episodes if e.can_play(self.config)))
 
         try:
             self.playback_episodes_for_real(episodes)
@@ -2459,12 +2436,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def play_or_download(self, current_page=None):
         (open_instead_of_play, can_play, can_download, can_pause, can_cancel, can_delete) = (False,) * 6
 
-        can_resume = False
-
         selection = self.treeAvailable.get_selection()
         if selection.count_selected_rows() > 0:
             (model, paths) = selection.get_selected_rows()
-            streaming_possible = self.streaming_possible()
 
             for path in paths:
                 try:
@@ -2476,34 +2450,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     logger.error('Invalid episode at path %s', str(path))
                     continue
 
-                if episode.file_type() not in ('audio', 'video'):
-                    open_instead_of_play = True
-
-                if episode.was_downloaded():
-                    can_play = episode.was_downloaded(and_exists=True)
-                    if not can_play:
-                        can_download = True
-                else:
-                    if episode.downloading:
-                        can_cancel = True
-
-                        if episode.download_task is not None:
-                            if episode.download_task.status in (episode.download_task.PAUSING, episode.download_task.PAUSED):
-                                can_resume = True
-                            elif episode.download_task.status in (episode.download_task.QUEUED, episode.download_task.DOWNLOADING):
-                                can_pause = True
-                    elif episode.download_task is not None and episode.download_task.status == episode.download_task.FAILED:
-                        can_cancel = True
-                    else:
-                        streaming_possible |= self.streaming_possible(episode)
-                        can_download = True
-
-                if episode.state != gpodder.STATE_DELETED and not episode.archive:
-                    can_delete = True
-
-            can_download = (can_download and not can_cancel) or can_resume
-            can_play = streaming_possible or (can_play and not can_cancel and not can_download)
-            can_delete = can_delete and not can_cancel
+                open_instead_of_play = open_instead_of_play or episode.file_type() not in ('audio', 'video')
+                can_play = can_play or episode.can_play(self.config)
+                can_download = can_download or episode.can_download()
+                can_pause = can_pause or episode.can_pause()
+                can_cancel = can_cancel or episode.can_cancel()
+                can_delete = can_delete or episode.can_delete()
 
         self.set_episode_actions(open_instead_of_play, can_play, can_download, can_pause, can_cancel, can_delete)
 
@@ -3945,19 +3897,18 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.play_button.set_sensitive(True)
         else:
             self.play_button.set_label(_("Stream"))
-            self.play_button.set_sensitive(self.streaming_possible(ep))
+            self.play_button.set_sensitive(ep.can_stream(self.config))
         self.navigate_to_shownotes()
         return True
 
     def on_download_selected_episodes(self, action_or_widget, param=None):
-        episodes = [e for e in self.get_selected_episodes()
-            if not e.download_task or e.download_task.status in (e.download_task.PAUSING, e.download_task.PAUSED, e.download_task.FAILED)]
+        episodes = [e for e in self.get_selected_episodes() if e.can_download()]
         self.download_episode_list(episodes)
         self.update_downloads_list()
 
     def on_pause_selected_episodes(self, action_or_widget, param=None):
         for episode in self.get_selected_episodes():
-            if episode.download_task is not None:
+            if episode.can_pause():
                 episode.download_task.pause()
 
         self.update_downloads_list()
