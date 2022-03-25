@@ -769,6 +769,8 @@ class PodcastListModel(Gtk.ListStore):
         if pixbuf_overlay is None:
             # load cover if it's not in cache
             pixbuf = self._cover_downloader.get_cover(channel, avoid_downloading=True)
+            if pixbuf is None:
+                return None
             pixbuf_overlay = self._resize_pixbuf(channel.url, pixbuf)
             self._save_cached_thumb(channel, pixbuf_overlay)
 

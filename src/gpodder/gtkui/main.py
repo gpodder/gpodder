@@ -2210,7 +2210,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             any_new = any(e.is_new and e.state != gpodder.STATE_DELETED for e in episodes)
             downloaded = all(e.was_downloaded(and_exists=True) for e in episodes)
             downloading = any(e.downloading for e in episodes)
-            (can_play, can_download, can_pause, can_cancel, can_delete, open_instead_of_play) = self.play_or_download()
+            (open_instead_of_play, can_play, can_download, can_pause, can_cancel, can_delete) = self.play_or_download()
             menu = self.application.builder.get_object('episodes-context')
 
             # Play
@@ -2256,6 +2256,44 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 x, y = event.x, event.y
             self.context_popover_show(self.episodes_popover, x, y)
             return True
+
+    def set_episode_actions(self, open_instead_of_play=False, can_play=False, can_download=False, can_pause=False, can_cancel=False,
+                            can_delete=False):
+        # play icon and label
+#        if open_instead_of_play:
+#            self.toolPlay.set_icon_name('document-open')
+#            self.toolPlay.set_label(_('Open'))
+#        else:
+#            self.toolPlay.set_icon_name('media-playback-start')
+#
+#            episodes = self.get_selected_episodes()
+#            downloaded = all(e.was_downloaded(and_exists=True) for e in episodes)
+#            downloading = any(e.downloading for e in episodes)
+#
+#            if downloaded:
+#                self.toolPlay.set_label(_('Play'))
+#            elif downloading:
+#                self.toolPlay.set_label(_('Preview'))
+#            else:
+#                self.toolPlay.set_label(_('Stream'))
+
+        # toolbar
+#        self.toolPlay.set_sensitive(can_play)
+#        self.toolDownload.set_sensitive(can_download)
+#        self.toolPause.set_sensitive(can_pause)
+#        self.toolCancel.set_sensitive(can_cancel)
+
+        # Episodes menu
+        self.play_action.set_enabled(can_play and not open_instead_of_play)
+        self.open_action.set_enabled(can_play and open_instead_of_play)
+        self.download_action.set_enabled(can_download)
+        self.pause_action.set_enabled(can_pause)
+        self.episodes_cancel_action.set_enabled(can_cancel)
+        self.delete_action.set_enabled(can_delete)
+#        self.toggle_episode_new_action.set_enabled(can_play)
+#        self.toggle_episode_lock_action.set_enabled(can_play)
+        self.episode_new_action.set_enabled(can_play)
+        self.episode_lock_action.set_enabled(can_play)
 
     def set_title(self, new_title):
         self.default_title = new_title
@@ -2419,7 +2457,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.episode_list_status_changed(episodes)
 
     def play_or_download(self, current_page=None):
-        (can_play, can_download, can_pause, can_cancel, can_delete, open_instead_of_play) = (False,) * 6
+        (open_instead_of_play, can_play, can_download, can_pause, can_cancel, can_delete) = (False,) * 6
 
         can_resume = False
 
@@ -2467,19 +2505,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
             can_play = streaming_possible or (can_play and not can_cancel and not can_download)
             can_delete = can_delete and not can_cancel
 
-        self.episodes_cancel_action.set_enabled(can_cancel)
-#        self.toolPause.set_sensitive(can_pause)
-        self.download_action.set_enabled(can_download)
-        self.pause_action.set_enabled(can_pause)
-        self.open_action.set_enabled(can_play and open_instead_of_play)
-        self.play_action.set_enabled(can_play and not open_instead_of_play)
-        self.delete_action.set_enabled(can_delete)
-#        self.toggle_episode_new_action.set_enabled(can_play)
-#        self.toggle_episode_lock_action.set_enabled(can_play)
-        self.episode_new_action.set_enabled(can_play)
-        self.episode_lock_action.set_enabled(can_play)
+        self.set_episode_actions(open_instead_of_play, can_play, can_download, can_pause, can_cancel, can_delete)
 
-        return (can_play, can_download, can_pause, can_cancel, can_delete, open_instead_of_play)
+        return (open_instead_of_play, can_play, can_download, can_pause, can_cancel, can_delete)
 
     def on_cbMaxDownloads_toggled(self, widget, *args):
         self.spinMaxDownloads.set_sensitive(self.cbMaxDownloads.get_active())
