@@ -446,12 +446,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if self.extensions_menu is None:
             # insert menu section at startup (hides when empty)
             self.extensions_menu = Gio.Menu.new()
-            menubar = self.application.get_menubar()
-            for i in range(0, menubar.get_n_items()):
-                menu = menubar.do_get_item_link(menubar, i, Gio.MENU_LINK_SUBMENU)
-                menuname = menubar.get_item_attribute_value(i, Gio.MENU_ATTRIBUTE_LABEL, None)
-                if menuname is not None and menuname.get_string() == _('E_xtras'):
-                    menu.append_section(_('Extensions'), self.extensions_menu)
+            self.application.menu_extras.append_section(_('Extensions'), self.extensions_menu)
         else:
             self.extensions_menu.remove_all()
 
@@ -1440,8 +1435,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         try:
             model = self.download_status_model
 
-            downloading, synchronizing, failed, finished, queued, paused, pausing, cancelling, others = (0,) * 9
+            downloading, synchronizing, pausing, cancelling, queued, paused, failed, finished, others = (0,) * 9
             total_speed, total_size, done_size = 0, 0, 0
+            files_downloading = 0
 
             # Keep a list of all download tasks that we've seen
             download_tasks_seen = set()
@@ -1465,48 +1461,56 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
                 download_tasks_seen.add(task)
 
-                if (status == download.DownloadTask.DOWNLOADING and
-                        activity == download.DownloadTask.ACTIVITY_DOWNLOAD):
-                    downloading += 1
-                    total_speed += speed
-                elif (status == download.DownloadTask.DOWNLOADING and
-                        activity == download.DownloadTask.ACTIVITY_SYNCHRONIZE):
-                    synchronizing += 1
-                elif status == download.DownloadTask.FAILED:
-                    failed += 1
-                elif status == download.DownloadTask.DONE:
-                    finished += 1
+                if status == download.DownloadTask.DOWNLOADING:
+                    if activity == download.DownloadTask.ACTIVITY_DOWNLOAD:
+                        downloading += 1
+                        files_downloading += 1
+                        total_speed += speed
+                    elif activity == download.DownloadTask.ACTIVITY_SYNCHRONIZE:
+                        synchronizing += 1
+                    else:
+                        others += 1
+                elif status == download.DownloadTask.PAUSING:
+                    pausing += 1
+                    if activity == download.DownloadTask.ACTIVITY_DOWNLOAD:
+                        files_downloading += 1
+                elif status == download.DownloadTask.CANCELLING:
+                    cancelling += 1
+                    if activity == download.DownloadTask.ACTIVITY_DOWNLOAD:
+                        files_downloading += 1
                 elif status == download.DownloadTask.QUEUED:
                     queued += 1
                 elif status == download.DownloadTask.PAUSED:
                     paused += 1
-                elif status == download.DownloadTask.PAUSING:
-                    pausing += 1
-                elif status == download.DownloadTask.CANCELLING:
-                    cancelling += 1
+                elif status == download.DownloadTask.FAILED:
+                    failed += 1
+                elif status == download.DownloadTask.DONE:
+                    finished += 1
                 else:
                     others += 1
+
+            # TODO: 'others' is not used
 
             # Remember which tasks we have seen after this run
             self.download_tasks_seen = download_tasks_seen
 
             text = [_('Progress')]
-            if downloading + synchronizing + failed + queued + paused + pausing + cancelling > 0:
+            if downloading + synchronizing + pausing + cancelling + queued + paused + failed > 0:
                 s = []
                 if downloading > 0:
                     s.append(N_('%(count)d active', '%(count)d active', downloading) % {'count': downloading})
                 if synchronizing > 0:
                     s.append(N_('%(count)d active', '%(count)d active', synchronizing) % {'count': synchronizing})
-                if failed > 0:
-                    s.append(N_('%(count)d failed', '%(count)d failed', failed) % {'count': failed})
-                if queued > 0:
-                    s.append(N_('%(count)d queued', '%(count)d queued', queued) % {'count': queued})
-                if paused > 0:
-                    s.append(N_('%(count)d paused', '%(count)d paused', paused) % {'count': paused})
                 if pausing > 0:
                     s.append(N_('%(count)d pausing', '%(count)d pausing', pausing) % {'count': pausing})
                 if cancelling > 0:
                     s.append(N_('%(count)d cancelling', '%(count)d cancelling', cancelling) % {'count': cancelling})
+                if queued > 0:
+                    s.append(N_('%(count)d queued', '%(count)d queued', queued) % {'count': queued})
+                if paused > 0:
+                    s.append(N_('%(count)d paused', '%(count)d paused', paused) % {'count': paused})
+                if failed > 0:
+                    s.append(N_('%(count)d failed', '%(count)d failed', failed) % {'count': failed})
                 text.append(' (' + ', '.join(s) + ')')
                 self.labelDownloads.set_text(''.join(text))
                 self.transfer_revealer.set_reveal_child(True)
@@ -1524,10 +1528,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     self.download_tasks_seen if task.status_changed]
             episode_urls = [task.url for task in self.download_tasks_seen]
 
-            if downloading + pausing + cancelling > 0:
+            if files_downloading > 0:
                 title.append(N_('downloading %(count)d file',
                                 'downloading %(count)d files',
-                                downloading + pausing + cancelling) % {'count': downloading + pausing + cancelling})
+                                files_downloading) % {'count': files_downloading})
 
                 if total_size > 0:
                     percentage = 100.0 * done_size / total_size
@@ -1544,7 +1548,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 title.append(N_('%(queued)d task queued',
                                 '%(queued)d tasks queued',
                                 queued) % {'queued': queued})
-            if (downloading + synchronizing + queued + pausing + cancelling) == 0 and self.things_adding_tasks == 0:
+            if (downloading + synchronizing + pausing + cancelling + queued) == 0 and self.things_adding_tasks == 0:
                 self.set_download_progress(1.)
                 self.downloads_finished(self.download_tasks_seen)
                 gpodder.user_extensions.on_all_episodes_downloaded()
@@ -2450,13 +2454,18 @@ class gPodder(BuilderWidget, dbus.service.Object):
                                 can_resume = True
                             elif episode.download_task.status in (episode.download_task.QUEUED, episode.download_task.DOWNLOADING):
                                 can_pause = True
+                    elif episode.download_task is not None and episode.download_task.status == episode.download_task.FAILED:
+                        can_cancel = True
                     else:
                         streaming_possible |= self.streaming_possible(episode)
                         can_download = True
 
+                if episode.state != gpodder.STATE_DELETED and not episode.archive:
+                    can_delete = True
+
             can_download = (can_download and not can_cancel) or can_resume
             can_play = streaming_possible or (can_play and not can_cancel and not can_download)
-            can_delete = not can_cancel
+            can_delete = can_delete and not can_cancel
 
         self.episodes_cancel_action.set_enabled(can_cancel)
 #        self.toolPause.set_sensitive(can_pause)
@@ -3246,6 +3255,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         for episode in self.get_selected_episodes():
             episode.mark(is_locked=new_state)
         self.on_selected_episodes_status_changed()
+        self.play_or_download()
         action.change_state(GLib.Variant.new_boolean(new_state))
         self.episodes_popover.popdown()
         return True

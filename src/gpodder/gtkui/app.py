@@ -153,6 +153,7 @@ class gPodderApplication(Gtk.Application):
             logger.error('Cannot find menus.ui in %r, exiting' % gpodder.ui_folders)
             sys.exit(1)
 
+        self.menu_extras = builder.get_object('menuExtras')
         self.menu_view_columns = builder.get_object('menuViewColumns')
         if not gpodder.ui.adaptive:
             self.set_menubar(menubar)
