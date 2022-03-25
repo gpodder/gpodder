@@ -1963,7 +1963,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.context_popover_show(self.downloads_popover, x, y)
             return True
 
-    def on_mark_episodes_as_old(self, item):
+    def on_mark_episodes_as_old(self, item, *args):
         assert self.active_channel is not None
 
         for episode in self.active_channel.get_all_episodes():
