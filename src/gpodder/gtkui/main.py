@@ -390,6 +390,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             ('play', self.on_playback_selected_episodes),
             ('open', self.on_playback_selected_episodes),
             ('download', self.on_download_selected_episodes),
+            ('pause', self.on_pause_selected_episodes),
             ('cancelFromEpisodes', self.on_episodes_cancel_download_activate),
             ('cancelFromProgress', self.on_progress_cancel_download_activate),
             ('delete', self.on_btnDownloadedDelete_clicked),
@@ -416,6 +417,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.play_action = g.lookup_action('play')
         self.open_action = g.lookup_action('open')
         self.download_action = g.lookup_action('download')
+        self.pause_action = g.lookup_action('pause')
         self.episodes_cancel_action = g.lookup_action('cancelFromEpisodes')
         self.delete_action = g.lookup_action('delete')
 #        self.toggle_episode_new_action = g.lookup_action('toggleEpisodeNew')
@@ -1419,12 +1421,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # Update the downloads list one more time
         self.update_downloads_list(can_call_cleanup=False)
 
-    def on_tool_downloads_toggled(self, toolbutton):
-        if toolbutton.get_active():
-            self.wNotebook.set_current_page(1)
-        else:
-            self.wNotebook.set_current_page(0)
-
     def add_download_task_monitor(self, monitor):
         self.download_task_monitors.add(monitor)
         model = self.download_status_model
@@ -2204,7 +2200,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             any_new = any(e.is_new and e.state != gpodder.STATE_DELETED for e in episodes)
             downloaded = all(e.was_downloaded(and_exists=True) for e in episodes)
             downloading = any(e.downloading for e in episodes)
-            (can_play, can_download, can_cancel, can_delete, open_instead_of_play) = self.play_or_download()
+            (can_play, can_download, can_pause, can_cancel, can_delete, open_instead_of_play) = self.play_or_download()
             menu = self.application.builder.get_object('episodes-context')
 
             # Play
@@ -2413,9 +2409,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.episode_list_status_changed(episodes)
 
     def play_or_download(self, current_page=None):
-        (can_play, can_download, can_cancel, can_delete) = (False,) * 4
+        (can_play, can_download, can_pause, can_cancel, can_delete, open_instead_of_play) = (False,) * 6
 
-        open_instead_of_play = False
+        can_resume = False
 
         selection = self.treeAvailable.get_selection()
         if selection.count_selected_rows() > 0:
@@ -2442,16 +2438,24 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 else:
                     if episode.downloading:
                         can_cancel = True
+
+                        if episode.download_task is not None:
+                            if episode.download_task.status in (episode.download_task.PAUSING, episode.download_task.PAUSED):
+                                can_resume = True
+                            elif episode.download_task.status in (episode.download_task.QUEUED, episode.download_task.DOWNLOADING):
+                                can_pause = True
                     else:
                         streaming_possible |= self.streaming_possible(episode)
                         can_download = True
 
-            can_download = can_download and not can_cancel
+            can_download = (can_download and not can_cancel) or can_resume
             can_play = streaming_possible or (can_play and not can_cancel and not can_download)
             can_delete = not can_cancel
 
         self.episodes_cancel_action.set_enabled(can_cancel)
+#        self.toolPause.set_sensitive(can_pause)
         self.download_action.set_enabled(can_download)
+        self.pause_action.set_enabled(can_pause)
         self.open_action.set_enabled(can_play and open_instead_of_play)
         self.play_action.set_enabled(can_play and not open_instead_of_play)
         self.delete_action.set_enabled(can_delete)
@@ -2460,7 +2464,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.episode_new_action.set_enabled(can_play)
         self.episode_lock_action.set_enabled(can_play)
 
-        return (can_play, can_download, can_cancel, can_delete, open_instead_of_play)
+        return (can_play, can_download, can_pause, can_cancel, can_delete, open_instead_of_play)
 
     def on_cbMaxDownloads_toggled(self, widget, *args):
         self.spinMaxDownloads.set_sensitive(self.cbMaxDownloads.get_active())
@@ -3330,6 +3334,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 for task in self.download_tasks_seen:
                     if episode.url == task.url:
                         task_exists = True
+                        task.unpause()
                         task.reuse()
                         if task.status not in (task.DOWNLOADING, task.QUEUED):
                             if downloader:
@@ -3751,6 +3756,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if self.show_confirmation(message, title):
                 util.open_website('http://gpodder.org/downloads')
 
+#            self.toolDownload.set_sensitive(False)
+#            self.toolPause.set_sensitive(False)
+
     def on_treeChannels_row_activated(self, widget, path, *args):
         # double-click action of the podcast list or enter
         self.treeChannels.set_cursor(path)
@@ -3895,8 +3903,17 @@ class gPodder(BuilderWidget, dbus.service.Object):
         return True
 
     def on_download_selected_episodes(self, action_or_widget, param=None):
-        episodes = self.get_selected_episodes()
+        episodes = [e for e in self.get_selected_episodes()
+            if not e.download_task or e.download_task.status in (e.download_task.PAUSING, e.download_task.PAUSED, e.download_task.FAILED)]
         self.download_episode_list(episodes)
+        self.update_downloads_list()
+
+    def on_pause_selected_episodes(self, action_or_widget, param=None):
+        for episode in self.get_selected_episodes():
+            if episode.download_task is not None:
+                episode.download_task.pause()
+
+        self.update_downloads_list()
 
     def on_episode_download_clicked(self, button):
         self.dl_del_label.set_text("Downloading")
