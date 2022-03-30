@@ -399,6 +399,8 @@ class gPodderYoutubeDL(download.CustomDownloader):
         return None
 
     def is_supported_url(self, url):
+        if url is None:
+            return False
         if self.regex_cache[0].match(url) is not None:
             return True
         for r in self.regex_cache[1:]:
