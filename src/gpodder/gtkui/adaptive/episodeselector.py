@@ -90,6 +90,7 @@ class gPodderEpisodeSelector(BuilderWidget):
                            the supplied episode objects that holds
                            the text for the tooltips when hovering
                            over an episode (default is 'description')
+      - gPodder: Main gPodder instance
     """
     COLUMN_INDEX = 0
     COLUMN_TOOLTIP = 1
@@ -277,6 +278,8 @@ class gPodderEpisodeSelector(BuilderWidget):
             if event.keyval in (Gdk.KEY_Escape, Gdk.KEY_BackSpace, Gdk.KEY_Left, Gdk.KEY_h):
                 self.new_deck.navigate(Handy.NavigationDirection.BACK)
                 self.treeviewEpisodes.grab_focus()
+            elif event.keyval in (Gdk.KEY_s, Gdk.KEY_p):
+                self.stream_button.emit("clicked")
             else:
                 return False
             return True
@@ -298,6 +301,8 @@ class gPodderEpisodeSelector(BuilderWidget):
         # self.shownotes_object = shownotes.get_shownotes(self._config.ui.gtk.html_shownotes, self.shownotes_box)
         # Hardcode non-HTML shownotes because of webkit2gtk crashing with multiple instances
         self.shownotes_object = shownotes.get_shownotes(False, self.shownotes_box)
+
+        self.activated_episode = None
 
         self.calculate_total_size()
 
@@ -454,6 +459,10 @@ class gPodderEpisodeSelector(BuilderWidget):
         if model.get_iter_first() is None:
             self.on_btnCancel_clicked(None)
 
+    def on_stream_button_clicked(self, *args):
+        if hasattr(self, 'gPodder') and self.activated_episode is not None:
+            self.gPodder.playback_episodes((self.activated_episode,))
+
     def on_row_activated(self, treeview, path, view_column):
         if self.toggled:
             self.toggled = False
@@ -464,11 +473,18 @@ class gPodderEpisodeSelector(BuilderWidget):
         episodes = [self.episodes[epind]]
         assert episodes
         if isinstance(episodes[0], GEpisode):  # No notes for channels
+            self.activated_episode = episodes[0]
+            if episodes[0].can_stream(self._config) and hasattr(self, 'gPodder'):
+                self.stream_button.set_sensitive(True)
+            else:
+                self.stream_button.set_sensitive(False)
             self.shownotes_object.show_pane(episodes)
             self.shownotes_box.show()
             self.new_deck.set_can_swipe_forward(True)
             self.notes_back.grab_focus()
             self.new_deck.navigate(Handy.NavigationDirection.FORWARD)
+        else:
+            self.activated_episode = None
 
         self.calculate_total_size()
 

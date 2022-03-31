@@ -3242,7 +3242,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             instructions=instructions,
             episodes=episodes, selected=selected, columns=columns,
             ok_button=_('_Delete'), callback=self.delete_episode_list,
-            selection_buttons=selection_buttons, _config=self.config)
+            selection_buttons=selection_buttons, _config=self.config,
+            gPodder=self)
 
     def on_selected_episodes_status_changed(self):
         # The order of the updates here is important! When "All episodes" is
@@ -3457,6 +3458,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 remove_action=_('_Mark as old'),
                 remove_finished=self.episode_new_status_changed,
                 _config=self.config,
+                gPodder=self,
                 show_notification=False)
 
     def on_itemDownloadAllNew_activate(self, action, param):

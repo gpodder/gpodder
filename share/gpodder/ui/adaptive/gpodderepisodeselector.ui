@@ -219,6 +219,18 @@
                 <property name="title" translatable="yes">Episode details</property>
                 <property name="has-subtitle">False</property>
                 <child>
+                  <object class="GtkButton" id="stream_button">
+                    <property name="label" translatable="yes">Stream</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="receives-default">True</property>
+                    <signal name="clicked" handler="on_stream_button_clicked" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="pack-type">end</property>
+                  </packing>
+                </child>
+                <child>
                   <object class="GtkButton" id="notes_back">
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
@@ -232,6 +244,9 @@
                       </object>
                     </child>
                   </object>
+                  <packing>
+                    <property name="position">1</property>
+                  </packing>
                 </child>
               </object>
               <packing>
