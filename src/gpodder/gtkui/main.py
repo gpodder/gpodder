@@ -2277,7 +2277,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     logger.error('Invalid episode at path %s', str(path))
                     continue
 
-                open_instead_of_play = open_instead_of_play or episode.file_type() not in ('audio', 'video')
+                open_instead_of_play = ((open_instead_of_play
+                                         or episode.file_type() not in ('audio', 'video'))
+                                        and not episode.is_streamable_customdl(self.config))
                 can_play = can_play or episode.can_play(self.config)
                 can_download = can_download or episode.can_download()
                 can_pause = can_pause or episode.can_pause()

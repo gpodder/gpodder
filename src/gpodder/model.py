@@ -313,22 +313,23 @@ class PodcastEpisode(PodcastModelObject):
         media_available = audio_available or video_available or link_has_media
 
         for enclosure in entry['enclosures']:
-            episode.mime_type = enclosure['mime_type']
+            mime_type = enclosure['mime_type']
 
             # Skip images in feeds if audio or video is available (bug 979)
             # This must (and does) also look in Media RSS enclosures (bug 1430)
-            if episode.mime_type.startswith('image/') and media_available:
+            if mime_type.startswith('image/') and media_available:
                 continue
 
             # If we have audio or video available later on, skip
             # all 'application/*' data types (fixes Linux Outlaws and peertube feeds)
-            if episode.mime_type.startswith('application/') and media_available:
+            if mime_type.startswith('application/') and media_available:
                 continue
 
             episode.url = util.normalize_feed_url(enclosure['url'])
             if not episode.url:
                 continue
 
+            episode.mime_type = mime_type
             episode.file_size = enclosure['file_size']
             return episode
 
@@ -338,6 +339,7 @@ class PodcastEpisode(PodcastModelObject):
             return None
 
         if any(mod.is_video_link(episode.url) for mod in (youtube, vimeo)):
+            episode.mime_type = 'application/x-gpodder-videoplugin'
             return episode
 
         # Check if we can resolve this link to a audio/video file
@@ -346,9 +348,11 @@ class PodcastEpisode(PodcastModelObject):
 
         # The link points to a audio or video file - use it!
         if file_type is not None:
+            episode.mime_type = util.mimetype_from_extension(extension)
             return episode
 
         if link_has_media:
+            episode.mime_type = 'application/x-gpodder-customdl'
             return episode
 
         return None
@@ -454,7 +458,11 @@ class PodcastEpisode(PodcastModelObject):
         return task.status in (task.DOWNLOADING, task.QUEUED, task.PAUSING, task.PAUSED, task.CANCELLING)
 
     def get_player(self, config):
-        file_type = self.file_type()
+        if self.is_streamable_customdl(config):
+            file_type = 'video'
+        else:
+            file_type = self.file_type()
+
         if file_type == 'video' and config.player.video and config.player.video != 'default':
             player = config.player.video
         elif file_type == 'audio' and config.player.audio and config.player.audio != 'default':
@@ -579,7 +587,20 @@ class PodcastEpisode(PodcastModelObject):
         self._download_error = None
         self.set_state(gpodder.STATE_DELETED)
 
-    def get_playback_url(self, config=None, allow_partial=False):
+        # Try to determine original mime_type from URL
+        if any(mod.is_video_link(self.url) for mod in (youtube, vimeo)):
+            self.mime_type = 'application/x-gpodder-videoplugin'
+            return
+        filename, extension = util.filename_from_url(self.url)
+        file_type = util.file_type_by_extension(extension)
+        if file_type is not None:
+            self.mime_type = util.mimetype_from_extension(extension)
+            return
+        if registry.custom_downloader.resolve(None, None, self) is not None:
+            self.mime_type = 'application/x-gpodder-customdl'
+            return
+
+    def get_playback_url(self, config, allow_partial=False):
         """Local (or remote) playback/streaming filename/URL
 
         Returns either the local filename or a streaming URL that
@@ -595,8 +616,11 @@ class PodcastEpisode(PodcastModelObject):
             return url + '.partial'
 
         if url is None or not os.path.exists(url):
-            # FIXME: may custom downloaders provide the real url ?
-            url = registry.download_url.resolve(config, self.url, self, allow_partial)
+            if self.is_streamable_customdl(config):
+                url = self.url
+            else:
+                # FIXME: may custom downloaders provide the real url ?
+                url = registry.download_url.resolve(config, self.url, self, allow_partial)
         return url
 
     def find_unique_file_name(self, filename, extension):
@@ -853,6 +877,10 @@ class PodcastEpisode(PodcastModelObject):
         # See #648 refreshing a youtube podcast clears downloaded file size
         if self.state != gpodder.STATE_DOWNLOADED:
             setattr(self, 'file_size', getattr(episode, 'file_size'))
+
+    def is_streamable_customdl(self, config):
+        return (config.player.videoplayer_customdl_support and
+            self.mime_type == 'application/x-gpodder-customdl')
 
 
 class PodcastChannel(PodcastModelObject):
