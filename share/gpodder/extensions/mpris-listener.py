@@ -289,12 +289,20 @@ class MPRISDBusReceiver(object):
     def query_position(self, sender):
         proxy = self.bus.get_object(sender, self.PATH_MPRIS)
         props = dbus.Interface(proxy, self.INTERFACE_PROPS)
-        return props.Get(self.INTERFACE_MPRIS, 'Position')
+        try:
+            pos = props.Get(self.INTERFACE_MPRIS, 'Position')
+        except:
+            pos = None
+        return pos
 
     def query_status(self, sender):
         proxy = self.bus.get_object(sender, self.PATH_MPRIS)
         props = dbus.Interface(proxy, self.INTERFACE_PROPS)
-        return props.Get(self.INTERFACE_MPRIS, 'PlaybackStatus')
+        try:
+            status = props.Get(self.INTERFACE_MPRIS, 'PlaybackStatus')
+        except:
+            status = None
+        return status
 
 
 class gPodderNotifier(dbus.service.Object):
