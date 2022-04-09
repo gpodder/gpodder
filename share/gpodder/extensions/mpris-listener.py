@@ -125,7 +125,7 @@ class CurrentTrackTracker(object):
                     ('status' not in kwargs or kwargs['status'] == 'Playing') and not
                     subsecond_difference(cur['pos'], kwargs['pos'])):
                 logger.debug('notify Stopped: playback discontinuity:' +
-                             'calc: %f observed: %f', cur['pos'], kwargs['pos'])
+                             'calc: %r observed: %r', cur['pos'], kwargs['pos'])
                 self.notify_stop()
 
             if ((kwargs['pos']) == 0 and
@@ -159,7 +159,7 @@ class CurrentTrackTracker(object):
         if self.status == 'Playing':
             self.notify_playing()
         else:
-            logger.debug('notify Stopped: status %s', self.status)
+            logger.debug('notify Stopped: status %r', self.status)
             self.notify_stop()
 
     def getinfo(self):
@@ -289,12 +289,20 @@ class MPRISDBusReceiver(object):
     def query_position(self, sender):
         proxy = self.bus.get_object(sender, self.PATH_MPRIS)
         props = dbus.Interface(proxy, self.INTERFACE_PROPS)
-        return props.Get(self.INTERFACE_MPRIS, 'Position')
+        try:
+            pos = props.Get(self.INTERFACE_MPRIS, 'Position')
+        except:
+            pos = None
+        return pos
 
     def query_status(self, sender):
         proxy = self.bus.get_object(sender, self.PATH_MPRIS)
         props = dbus.Interface(proxy, self.INTERFACE_PROPS)
-        return props.Get(self.INTERFACE_MPRIS, 'PlaybackStatus')
+        try:
+            status = props.Get(self.INTERFACE_MPRIS, 'PlaybackStatus')
+        except:
+            status = None
+        return status
 
 
 class gPodderNotifier(dbus.service.Object):
