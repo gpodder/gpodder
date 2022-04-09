@@ -216,8 +216,8 @@ class gPodderCli(object):
             self._extensions_episode_download_cb)
 
     @contextlib.contextmanager
-    def _action(self, msg, *args):
-        self._start_action(msg, *args)
+    def _action(self, msg):
+        self._start_action(msg)
         try:
             yield
             self._finish_action()
@@ -271,8 +271,8 @@ class gPodderCli(object):
         self._info(_('Episode download requested by extensions.'))
         self._download_episode(episode)
 
-    def _start_action(self, msg, *args):
-        line = util.convert_bytes(msg % args)
+    def _start_action(self, msg):
+        line = util.convert_bytes(msg)
         if len(line) > self.COLUMNS - 7:
             line = line[:self.COLUMNS - 7 - 3] + '...'
         else:
@@ -543,7 +543,7 @@ class gPodderCli(object):
         return True
 
     def _update_podcast(self, podcast):
-        with self._action(' %s', podcast.title):
+        with self._action(' %s' % podcast.title):
             podcast.update()
 
     def _pending_message(self, count):
@@ -618,7 +618,7 @@ class gPodderCli(object):
         return True
 
     def _download_episode(self, episode):
-        with self._action('Downloading %s', episode.title):
+        with self._action('Downloading %s' % episode.title):
             task = download.DownloadTask(episode, self._config)
             task.add_progress_callback(self._update_action)
             task.status = download.DownloadTask.DOWNLOADING
@@ -951,7 +951,7 @@ class gPodderCli(object):
             def queue_task(x, task):
                 def progress_updated(progress):
                     self._update_action(progress)
-                with self._action(_('Syncing %s'), ep_repr(task.episode)):
+                with self._action(_('Syncing %s') % ep_repr(task.episode)):
                     task.status = sync.SyncTask.DOWNLOADING
                     task.add_progress_callback(progress_updated)
                     task.run()
