@@ -485,20 +485,20 @@ class PodcastEpisode(PodcastModelObject):
         """
         return not self.was_downloaded(and_exists=True) and (
             not self.download_task
-            or self.download_task.status in (self.download_task.PAUSING, self.download_task.PAUSED, self.download_task.FAILED))
+            or self.download_task.can_queue()
+            or self.download_task.status == self.download_task.PAUSING)
 
     def can_pause(self):
         """
         gPodder.on_pause_selected_episodes() filters selection with this method.
         """
-        return self.download_task and self.download_task.status in (self.download_task.QUEUED, self.download_task.DOWNLOADING)
+        return self.download_task and self.download_task.can_pause()
 
     def can_cancel(self):
         """
         DownloadTask.cancel() only cancels the following tasks.
         """
-        return self.download_task and self.download_task.status in \
-            (self.download_task.DOWNLOADING, self.download_task.QUEUED, self.download_task.PAUSED, self.download_task.FAILED)
+        return self.download_task and self.download_task.can_cancel()
 
     def can_delete(self):
         """

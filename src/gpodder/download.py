@@ -612,6 +612,18 @@ class DownloadTask(object):
 
     downloader = property(fget=__get_downloader, fset=__set_downloader)
 
+    def can_queue(self):
+        return self.status in (self.CANCELLED, self.PAUSED, self.FAILED)
+
+    def unpause(self):
+        with self:
+            # Resume a downloading task that was transitioning to paused
+            if self.status == self.PAUSING:
+                self.status = self.DOWNLOADING
+
+    def can_pause(self):
+        return self.status in (self.DOWNLOADING, self.QUEUED)
+
     def pause(self):
         with self:
             # Pause a queued download
@@ -622,11 +634,8 @@ class DownloadTask(object):
                 self.status = self.PAUSING
                 # download rate limited tasks sleep and take longer to transition from the PAUSING state to the PAUSED state
 
-    def unpause(self):
-        with self:
-            # Resume a downloading task that was transitioning to paused
-            if self.status == self.PAUSING:
-                self.status = self.DOWNLOADING
+    def can_cancel(self):
+        return self.status in (self.DOWNLOADING, self.QUEUED, self.PAUSED, self.FAILED)
 
     def cancel(self):
         with self:
@@ -638,6 +647,9 @@ class DownloadTask(object):
             # Otherwise request cancellation
             elif self.status == self.DOWNLOADING:
                 self.status = self.CANCELLING
+
+    def can_remove(self):
+        return self.status in (self.CANCELLED, self.FAILED, self.DONE)
 
     def delete_partial_files(self):
         temporary_files = [self.tempname]
