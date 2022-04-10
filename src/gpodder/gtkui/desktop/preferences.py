@@ -321,7 +321,7 @@ class gPodderPreferences(BuilderWidget):
         result = gpodder.user_extensions.on_preferences()
         if result:
             for label, callback in result:
-                self.notebook.append_page(callback(), Gtk.Label(label))
+                self.prefs_stack.add_titled(callback(), label, label)
 
     def _extensions_select_function(self, selection, model, path, path_currently_selected):
         return model.get_value(model.get_iter(path), self.C_SHOW_TOGGLE)
