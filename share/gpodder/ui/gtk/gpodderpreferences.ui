@@ -468,9 +468,10 @@
                             <property name="orientation">vertical</property>
                             <property name="spacing">6</property>
                             <child>
-                              <object class="GtkBox" id="hbox_updating_interval">
+                              <object class="GtkBox" id="vbox_updating_interval">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
+                                <property name="orientation">vertical</property>
                                 <property name="spacing">12</property>
                                 <child>
                                   <object class="GtkLabel" id="label_update_interval">
@@ -524,9 +525,10 @@
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkBox" id="hbox_episode_limit">
+                              <object class="GtkBox" id="vbox_episode_limit">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
+                                <property name="orientation">vertical</property>
                                 <property name="spacing">12</property>
                                 <child>
                                   <object class="GtkLabel" id="label_episode_limit">
@@ -545,6 +547,7 @@
                                   <object class="GtkSpinButton" id="spinbutton_episode_limit">
                                     <property name="visible">True</property>
                                     <property name="can-focus">True</property>
+                                    <property name="halign">center</property>
                                     <property name="text" translatable="yes">200</property>
                                     <property name="adjustment">adjustment_episode_limit</property>
                                     <property name="value">200</property>
@@ -574,9 +577,10 @@
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkBox" id="hbox_auto_download">
+                              <object class="GtkBox" id="vbox_auto_download">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
+                                <property name="orientation">vertical</property>
                                 <property name="spacing">12</property>
                                 <child>
                                   <object class="GtkLabel" id="label_auto_download">
@@ -595,6 +599,7 @@
                                   <object class="GtkComboBox" id="combo_auto_download">
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
+                                    <property name="halign">center</property>
                                     <signal name="changed" handler="on_combo_auto_download_changed" swapped="no"/>
                                   </object>
                                   <packing>
@@ -627,6 +632,7 @@
                                 <property name="visible">True</property>
                                 <property name="can-focus">True</property>
                                 <property name="receives-default">False</property>
+                                <property name="halign">start</property>
                                 <property name="draw-indicator">True</property>
                               </object>
                               <packing>
