@@ -1017,7 +1017,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         selection = self.treeAvailable.get_selection()
         selection.set_mode(Gtk.SelectionMode.MULTIPLE)
-        self.selection_handler_id = selection.connect('changed', self.on_episode_list_selection_changed)
+        self.episode_selection_handler_id = selection.connect('changed', self.on_episode_list_selection_changed)
 
         self._search_episodes = SearchTree(self.hbox_search_episodes,
                                            self.entry_search_episodes,
@@ -1033,11 +1033,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # and the shownotes
         self.shownotes_object.set_episodes(self.get_selected_episodes())
 
-    def init_download_list_treeview(self):
-        # enable multiple selection support
-        self.treeDownloads.get_selection().set_mode(Gtk.SelectionMode.MULTIPLE)
-        self.treeDownloads.set_search_equal_func(TreeViewHelper.make_search_equal_func(DownloadStatusModel))
+    def on_download_list_selection_changed(self, selection):
+        if self.wNotebook.get_current_page() > 0:
+            # Update the toolbar buttons
+            self.play_or_download()
 
+    def init_download_list_treeview(self):
         # columns and renderers for "download progress" tab
         # First column: [ICON] Episodename
         column = Gtk.TreeViewColumn(_('Episode'))
@@ -1073,6 +1074,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
         TreeViewHelper.set(self.treeDownloads, TreeViewHelper.ROLE_DOWNLOADS)
 
         self.treeDownloads.connect('popup-menu', self.treeview_downloads_show_context_menu)
+
+        # enable multiple selection support
+        selection = self.treeDownloads.get_selection()
+        selection.set_mode(Gtk.SelectionMode.MULTIPLE)
+        self.download_selection_handler_id = selection.connect('changed', self.on_download_list_selection_changed)
+        self.treeDownloads.set_search_equal_func(TreeViewHelper.make_search_equal_func(DownloadStatusModel))
 
     def on_treeview_expose_event(self, treeview, ctx):
         model = treeview.get_model()
@@ -1449,7 +1456,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             selection = self.treeDownloads.get_selection()
             model, paths = selection.get_selected_rows()
 
-        can_queue, can_cancel, can_pause, can_remove, can_force = (True,) * 5
+        can_force, can_queue, can_pause, can_cancel, can_remove = (True,) * 5
         selected_tasks = [(Gtk.TreeRowReference.new(model, path),
                            model.get_value(model.get_iter(path),
                            DownloadStatusModel.C_TASK)) for path in paths]
@@ -1457,24 +1464,16 @@ class gPodder(BuilderWidget, dbus.service.Object):
         for row_reference, task in selected_tasks:
             if task.status != download.DownloadTask.QUEUED:
                 can_force = False
-            if task.status not in (download.DownloadTask.PAUSED,
-                    download.DownloadTask.FAILED,
-                    download.DownloadTask.CANCELLED):
+            if not task.can_queue():
                 can_queue = False
-            if task.status not in (download.DownloadTask.PAUSED,
-                    download.DownloadTask.QUEUED,
-                    download.DownloadTask.DOWNLOADING,
-                    download.DownloadTask.FAILED):
-                can_cancel = False
-            if task.status not in (download.DownloadTask.QUEUED,
-                    download.DownloadTask.DOWNLOADING):
+            if not task.can_pause():
                 can_pause = False
-            if task.status not in (download.DownloadTask.CANCELLED,
-                    download.DownloadTask.FAILED,
-                    download.DownloadTask.DONE):
+            if not task.can_cancel():
+                can_cancel = False
+            if not task.can_remove():
                 can_remove = False
 
-        return selected_tasks, can_queue, can_cancel, can_pause, can_remove, can_force
+        return selected_tasks, can_force, can_queue, can_pause, can_cancel, can_remove
 
     def downloads_finished(self, download_tasks_seen):
         # Separate tasks into downloads & syncs
@@ -1591,10 +1590,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             with task:
                 if status == download.DownloadTask.QUEUED:
                     # Only queue task when it's paused/failed/cancelled (or forced)
-                    if task.status in (download.DownloadTask.PAUSED,
-                                       download.DownloadTask.FAILED,
-                                       download.DownloadTask.CANCELLED) or force_start:
-
+                    if task.can_queue() or force_start:
                         # add the task back in if it was already cleaned up
                         # (to trigger this cancel one downloads in the active list, cancel all
                         # other downloads, quickly right click on the cancelled on one to get
@@ -1612,9 +1608,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 elif status == download.DownloadTask.PAUSING:
                     task.pause()
                 elif status is None:
-                    # Remove the selected task - cancel downloading/queued tasks
-                    if task.status in (download.DownloadTask.QUEUED, download.DownloadTask.DOWNLOADING):
-                        task.status = download.DownloadTask.CANCELLED
+                    if task.can_cancel():
+                        task.cancel()
                     path = row_reference.get_path()
                     # path isn't set if the item has already been removed from the list
                     # (to trigger this cancel one downloads in the active list, cancel all
@@ -1648,7 +1643,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return not treeview.is_rubber_banding_active()
 
         if event is None or event.button == 3:
-            selected_tasks, can_queue, can_cancel, can_pause, can_remove, can_force = \
+            selected_tasks, can_force, can_queue, can_pause, can_cancel, can_remove = \
                     self.downloads_list_get_selection(model, paths)
 
             def make_menu_item(label, icon_name, tasks=None, status=None, sensitive=True, force_start=False, action=None):
@@ -1704,13 +1699,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
                                            download.DownloadTask.QUEUED,
                                            can_queue))
 
+            menu.append(make_menu_item(_('Pause'), 'media-playback-pause',
+                                       selected_tasks,
+                                       download.DownloadTask.PAUSING, can_pause))
             menu.append(make_menu_item(_('Cancel'), 'media-playback-stop',
                                        selected_tasks,
                                        download.DownloadTask.CANCELLING,
                                        can_cancel))
-            menu.append(make_menu_item(_('Pause'), 'media-playback-pause',
-                                       selected_tasks,
-                                       download.DownloadTask.PAUSING, can_pause))
             menu.append(Gtk.SeparatorMenuItem())
             menu.append(make_menu_item(_('Move up'), 'go-up',
                                        action=move_selected_items_up))
@@ -2257,36 +2252,58 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def play_or_download(self, current_page=None):
         if current_page is None:
             current_page = self.wNotebook.get_current_page()
-        if current_page > 0:
-            self.toolCancel.set_sensitive(True)
-            return (False,) * 6
+        if current_page == 0:
+            (open_instead_of_play, can_play, can_download, can_pause, can_cancel, can_delete) = (False,) * 6
 
-        (open_instead_of_play, can_play, can_download, can_pause, can_cancel, can_delete) = (False,) * 6
+            selection = self.treeAvailable.get_selection()
+            if selection.count_selected_rows() > 0:
+                (model, paths) = selection.get_selected_rows()
 
-        selection = self.treeAvailable.get_selection()
-        if selection.count_selected_rows() > 0:
-            (model, paths) = selection.get_selected_rows()
-
-            for path in paths:
-                try:
-                    episode = model.get_value(model.get_iter(path), EpisodeListModel.C_EPISODE)
-                    if episode is None:
-                        logger.info('Invalid episode at path %s', str(path))
+                for path in paths:
+                    try:
+                        episode = model.get_value(model.get_iter(path), EpisodeListModel.C_EPISODE)
+                        if episode is None:
+                            logger.info('Invalid episode at path %s', str(path))
+                            continue
+                    except TypeError as te:
+                        logger.error('Invalid episode at path %s', str(path))
                         continue
-                except TypeError as te:
-                    logger.error('Invalid episode at path %s', str(path))
-                    continue
 
-                open_instead_of_play = open_instead_of_play or episode.file_type() not in ('audio', 'video')
-                can_play = can_play or episode.can_play(self.config)
-                can_download = can_download or episode.can_download()
-                can_pause = can_pause or episode.can_pause()
-                can_cancel = can_cancel or episode.can_cancel()
-                can_delete = can_delete or episode.can_delete()
+                    open_instead_of_play = open_instead_of_play or episode.file_type() not in ('audio', 'video')
+                    can_play = can_play or episode.can_play(self.config)
+                    can_download = can_download or episode.can_download()
+                    can_pause = can_pause or episode.can_pause()
+                    can_cancel = can_cancel or episode.can_cancel()
+                    can_delete = can_delete or episode.can_delete()
 
-        self.set_episode_actions(open_instead_of_play, can_play, can_download, can_pause, can_cancel, can_delete)
+            self.set_episode_actions(open_instead_of_play, can_play, can_download, can_pause, can_cancel, can_delete)
 
-        return (open_instead_of_play, can_play, can_download, can_pause, can_cancel, can_delete)
+            return (open_instead_of_play, can_play, can_download, can_pause, can_cancel, can_delete)
+        else:
+            (can_queue, can_pause, can_cancel, can_remove) = (False,) * 4
+
+            selection = self.treeDownloads.get_selection()
+            if selection.count_selected_rows() > 0:
+                (model, paths) = selection.get_selected_rows()
+
+                for path in paths:
+                    try:
+                        task = model.get_value(model.get_iter(path), 0)
+                        if task is None:
+                            logger.info('Invalid task at path %s', str(path))
+                            continue
+                    except TypeError as te:
+                        logger.error('Invalid task at path %s', str(path))
+                        continue
+
+                    can_queue = can_queue or task.can_queue()
+                    can_pause = can_pause or task.can_pause()
+                    can_cancel = can_cancel or task.can_cancel()
+                    can_remove = can_remove or task.can_remove()
+
+            self.set_episode_actions(False, False, can_queue, can_pause, can_cancel, can_remove)
+
+            return (False, False, can_queue, can_pause, can_cancel, can_remove)
 
     def on_cbMaxDownloads_toggled(self, widget, *args):
         self.spinMaxDownloads.set_sensitive(self.cbMaxDownloads.get_active())
@@ -2422,7 +2439,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.treeAvailable.scroll_to_point(0, 0)
 
             descriptions = self.config.episode_list_descriptions
-            with self.treeAvailable.get_selection().handler_block(self.selection_handler_id):
+            with self.treeAvailable.get_selection().handler_block(self.episode_selection_handler_id):
                 # have to block the on_episode_list_selection_changed handler because
                 # when selecting any channel from All Episodes, on_episode_list_selection_changed
                 # is called once per episode (4k time in my case), causing episode shownotes
@@ -2892,6 +2909,15 @@ class gPodder(BuilderWidget, dbus.service.Object):
         return '\n'.join(titles) + '\n\n' + message
 
     def delete_episode_list(self, episodes, confirm=True, callback=None):
+        if self.wNotebook.get_current_page() > 0:
+            selection = self.treeDownloads.get_selection()
+            (model, paths) = selection.get_selected_rows()
+            selected_tasks = [(Gtk.TreeRowReference.new(model, path),
+                               model.get_value(model.get_iter(path),
+                               DownloadStatusModel.C_TASK)) for path in paths]
+            self._for_each_task_set_status(selected_tasks, status=None, force_start=False)
+            return
+
         if not episodes:
             return False
 
@@ -3534,16 +3560,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 util.open_website('http://gpodder.org/downloads')
 
     def on_wNotebook_switch_page(self, notebook, page, page_num):
+        self.play_or_download(current_page=page_num)
         if page_num == 0:
-            self.play_or_download(current_page=page_num)
             # The message area in the downloads tab should be hidden
             # when the user switches away from the downloads tab
             if self.message_area is not None:
                 self.message_area.hide()
                 self.message_area = None
-        else:
-            # disable all episode actions
-            self.set_episode_actions()
 
     def on_treeChannels_row_activated(self, widget, path, *args):
         # double-click action of the podcast list or enter
@@ -3609,16 +3632,31 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.shownotes_object.toggle_pane_visibility(episodes)
 
     def on_download_selected_episodes(self, action_or_widget, param=None):
-        episodes = [e for e in self.get_selected_episodes() if e.can_download()]
-        self.download_episode_list(episodes)
-        self.update_downloads_list()
+        if self.wNotebook.get_current_page() == 0:
+            episodes = [e for e in self.get_selected_episodes() if e.can_download()]
+            self.download_episode_list(episodes)
+            self.update_downloads_list()
+        else:
+            selection = self.treeDownloads.get_selection()
+            (model, paths) = selection.get_selected_rows()
+            selected_tasks = [(Gtk.TreeRowReference.new(model, path),
+                               model.get_value(model.get_iter(path),
+                               DownloadStatusModel.C_TASK)) for path in paths]
+            self._for_each_task_set_status(selected_tasks, status=download.DownloadTask.QUEUED, force_start=False)
 
     def on_pause_selected_episodes(self, action_or_widget, param=None):
-        for episode in self.get_selected_episodes():
-            if episode.can_pause():
-                episode.download_task.pause()
-
-        self.update_downloads_list()
+        if self.wNotebook.get_current_page() == 0:
+            for episode in self.get_selected_episodes():
+                if episode.can_pause():
+                    episode.download_task.pause()
+            self.update_downloads_list()
+        else:
+            selection = self.treeDownloads.get_selection()
+            (model, paths) = selection.get_selected_rows()
+            selected_tasks = [(Gtk.TreeRowReference.new(model, path),
+                               model.get_value(model.get_iter(path),
+                               DownloadStatusModel.C_TASK)) for path in paths]
+            self._for_each_task_set_status(selected_tasks, status=download.DownloadTask.PAUSING, force_start=False)
 
     def on_treeAvailable_row_activated(self, widget, path, view_column):
         """Double-click/enter action handler for treeAvailable"""
