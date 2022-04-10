@@ -1961,7 +1961,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             menu = Gtk.Menu()
 
-            (open_instead_of_play, can_play, can_download, can_pause, can_cancel, can_delete) = self.play_or_download()
+            (open_instead_of_play, can_play, can_download, can_pause, can_cancel, can_delete, can_lock) = self.play_or_download()
 
             if open_instead_of_play:
                 item = Gtk.ImageMenuItem(_('Open'))
@@ -2045,7 +2045,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 item.connect('activate', lambda w: self.mark_selected_episodes_new())
             menu.append(item)
 
-            if downloaded:
+            if can_lock:
                 item = Gtk.CheckMenuItem(_('Archive'))
                 item.set_active(any_locked)
                 item.connect('activate',
@@ -2076,7 +2076,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return True
 
     def set_episode_actions(self, open_instead_of_play=False, can_play=False, can_download=False, can_pause=False, can_cancel=False,
-                            can_delete=False):
+                            can_delete=False, can_lock=False):
         # play icon and label
         if open_instead_of_play:
             self.toolPlay.set_icon_name('document-open')
@@ -2109,7 +2109,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.cancel_action.set_enabled(can_cancel)
         self.delete_action.set_enabled(can_delete)
         self.toggle_episode_new_action.set_enabled(can_play)
-        self.toggle_episode_lock_action.set_enabled(can_play)
+        self.toggle_episode_lock_action.set_enabled(can_lock)
 
     def set_title(self, new_title):
         self.default_title = new_title
@@ -2253,7 +2253,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if current_page is None:
             current_page = self.wNotebook.get_current_page()
         if current_page == 0:
-            (open_instead_of_play, can_play, can_download, can_pause, can_cancel, can_delete) = (False,) * 6
+            (open_instead_of_play, can_play, can_download, can_pause, can_cancel, can_delete, can_lock) = (False,) * 7
 
             selection = self.treeAvailable.get_selection()
             if selection.count_selected_rows() > 0:
@@ -2275,10 +2275,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     can_pause = can_pause or episode.can_pause()
                     can_cancel = can_cancel or episode.can_cancel()
                     can_delete = can_delete or episode.can_delete()
+                    can_lock = can_lock or episode.can_lock()
 
-            self.set_episode_actions(open_instead_of_play, can_play, can_download, can_pause, can_cancel, can_delete)
+            self.set_episode_actions(open_instead_of_play, can_play, can_download, can_pause, can_cancel, can_delete, can_lock)
 
-            return (open_instead_of_play, can_play, can_download, can_pause, can_cancel, can_delete)
+            return (open_instead_of_play, can_play, can_download, can_pause, can_cancel, can_delete, can_lock)
         else:
             (can_queue, can_pause, can_cancel, can_remove) = (False,) * 4
 
@@ -2301,9 +2302,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     can_cancel = can_cancel or task.can_cancel()
                     can_remove = can_remove or task.can_remove()
 
-            self.set_episode_actions(False, False, can_queue, can_pause, can_cancel, can_remove)
+            self.set_episode_actions(False, False, can_queue, can_pause, can_cancel, can_remove, False)
 
-            return (False, False, can_queue, can_pause, can_cancel, can_remove)
+            return (False, False, can_queue, can_pause, can_cancel, can_remove, False)
 
     def on_cbMaxDownloads_toggled(self, widget, *args):
         self.spinMaxDownloads.set_sensitive(self.cbMaxDownloads.get_active())
@@ -3037,6 +3038,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.update_episode_list_icons(selected=True)
         self.db.commit()
 
+        self.play_or_download()
+
     def mark_selected_episodes_new(self):
         for episode in self.get_selected_episodes():
             episode.mark(is_played=False)
@@ -3054,8 +3057,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_item_toggle_lock_activate(self, unused, toggle=True, new_value=False):
         for episode in self.get_selected_episodes():
-            # Gio.SimpleAction activate signal passes None (see #681)
-            if toggle or toggle is None:
+            if episode.state == gpodder.STATE_DELETED:
+                # Always unlock deleted episodes
+                episode.mark(is_locked=False)
+            elif toggle or toggle is None:
+                # Gio.SimpleAction activate signal passes None (see #681)
                 episode.mark(is_locked=not episode.archive)
             else:
                 episode.mark(is_locked=new_value)
