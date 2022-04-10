@@ -16,9 +16,7 @@ except:
     import youtube_dl
 
 import gpodder
-from gpodder import download, feedcore, model, registry, youtube
-from gpodder.util import (mimetype_from_extension, nice_html_description,
-                          remove_html_tags)
+from gpodder import download, feedcore, model, registry, util, youtube
 
 _ = gpodder.gettext
 
@@ -111,7 +109,7 @@ class YoutubeCustomDownload(download.CustomDownload):
                     os.rename(tempname_with_ext, tempname)
                     dot_ext = try_ext
                     break
-            ext_filetype = mimetype_from_extension(dot_ext)
+            ext_filetype = util.mimetype_from_extension(dot_ext)
             if ext_filetype:
                 # Youtube weba formats have a webm extension and get a video/webm mime-type
                 # but audio content has no width or height, so change it to audio/webm for correct icon and player
@@ -209,10 +207,10 @@ class YoutubeFeed(model.Feed):
         episodes = []
         for en in self._ie_result['entries']:
             guid = video_guid(en['id'])
-            description = remove_html_tags(en.get('description') or _('No description available'))
-            html_description = nice_html_description(en.get('thumbnail'), description)
+            description = util.remove_html_tags(en.get('description') or _('No description available'))
+            html_description = util.nice_html_description(en.get('thumbnail'), description)
             if en.get('ext'):
-                mime_type = mimetype_from_extension('.{}'.format(en['ext']))
+                mime_type = util.mimetype_from_extension('.{}'.format(en['ext']))
             else:
                 mime_type = 'application/octet-stream'
             if en.get('filesize'):
