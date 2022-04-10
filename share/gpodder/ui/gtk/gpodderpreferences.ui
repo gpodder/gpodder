@@ -305,6 +305,7 @@
                                 <property name="visible">True</property>
                                 <property name="can-focus">True</property>
                                 <property name="receives-default">False</property>
+                                <property name="margin-bottom">8</property>
                                 <property name="draw-indicator">True</property>
                                 <signal name="toggled" handler="on_enabled_toggled" swapped="no"/>
                               </object>
@@ -426,8 +427,21 @@
                               </packing>
                             </child>
                             <child>
+                              <object class="GtkLabel">
+                                <property name="visible">True</property>
+                                <property name="can-focus">False</property>
+                                <property name="label" translatable="yes">Replace subscription list on server with local subscriptions:</property>
+                                <property name="wrap">True</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">2</property>
+                              </packing>
+                            </child>
+                            <child>
                               <object class="GtkButton" id="button_overwrite">
-                                <property name="label" translatable="yes">Replace list on server with local subscriptions</property>
+                                <property name="label" translatable="yes">Upload local subscriptions</property>
                                 <property name="visible">True</property>
                                 <property name="can-focus">True</property>
                                 <property name="receives-default">False</property>
@@ -436,7 +450,7 @@
                               <packing>
                                 <property name="expand">False</property>
                                 <property name="fill">True</property>
-                                <property name="position">2</property>
+                                <property name="position">3</property>
                               </packing>
                             </child>
                           </object>
@@ -1037,6 +1051,9 @@
                                 <property name="search-column">1</property>
                                 <signal name="button-release-event" handler="on_treeview_extension_button_released" swapped="no"/>
                                 <signal name="popup-menu" handler="on_treeview_extension_show_context_menu" swapped="no"/>
+                                <child internal-child="selection">
+                                  <object class="GtkTreeSelection"/>
+                                </child>
                               </object>
                               <packing>
                                 <property name="expand">True</property>
