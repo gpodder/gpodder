@@ -623,7 +623,7 @@ class gPodderPreferences(BuilderWidget):
             children = self.btn_playlistfolder.get_children()
             if children:
                 label = children.pop()
-                label.set_alignment(0., .5)
+                label.set_xalign(0.0)
         else:
             self.btn_playlistfolder.set_sensitive(False)
             self.btn_playlistfolder.set_label('')
@@ -645,10 +645,6 @@ class gPodderPreferences(BuilderWidget):
             self.btn_filesystemMountpoint.set_label(self._config.device_sync.device_folder or "")
             self.btn_filesystemMountpoint.set_sensitive(True)
             self.checkbutton_create_playlists.set_sensitive(True)
-            children = self.btn_filesystemMountpoint.get_children()
-            if children:
-                label = children.pop()
-                label.set_alignment(0., .5)
             self.toggle_playlist_interface(self._config.device_sync.playlists.create)
             self.combobox_on_sync.set_sensitive(True)
             self.checkbutton_skip_played_episodes.set_sensitive(True)
@@ -662,10 +658,11 @@ class gPodderPreferences(BuilderWidget):
             self.combobox_on_sync.set_sensitive(False)
             self.checkbutton_skip_played_episodes.set_sensitive(False)
 
-            children = self.btn_filesystemMountpoint.get_children()
-            if children:
-                label = children.pop()
-                label.set_alignment(0., .5)
+        children = self.btn_filesystemMountpoint.get_children()
+        if children:
+            label = children.pop()
+            label.set_ellipsize(Pango.EllipsizeMode.START)
+            label.set_xalign(0.0)
 
     def on_btn_device_mountpoint_clicked(self, widget):
         fs = Gtk.FileChooserDialog(title=_('Select folder for mount point'),
@@ -709,7 +706,7 @@ class gPodderPreferences(BuilderWidget):
                 children = self.btn_playlistfolder.get_children()
                 if children:
                     label = children.pop()
-                    label.set_alignment(0., .5)
+                    label.set_xalign(0.0)
             break
 
         fs.destroy()
