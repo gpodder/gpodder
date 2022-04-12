@@ -14,12 +14,9 @@ try:
     import yt_dlp as youtube_dl
 except:
     import youtube_dl
-from youtube_dl.utils import DownloadError, ExtractorError, sanitize_url
 
 import gpodder
-from gpodder import download, feedcore, model, registry, youtube
-from gpodder.util import (mimetype_from_extension, nice_html_description,
-                          remove_html_tags)
+from gpodder import download, feedcore, model, registry, util, youtube
 
 _ = gpodder.gettext
 
@@ -112,7 +109,7 @@ class YoutubeCustomDownload(download.CustomDownload):
                     os.rename(tempname_with_ext, tempname)
                     dot_ext = try_ext
                     break
-            ext_filetype = mimetype_from_extension(dot_ext)
+            ext_filetype = util.mimetype_from_extension(dot_ext)
             if ext_filetype:
                 # Youtube weba formats have a webm extension and get a video/webm mime-type
                 # but audio content has no width or height, so change it to audio/webm for correct icon and player
@@ -210,10 +207,10 @@ class YoutubeFeed(model.Feed):
         episodes = []
         for en in self._ie_result['entries']:
             guid = video_guid(en['id'])
-            description = remove_html_tags(en.get('description') or _('No description available'))
-            html_description = nice_html_description(en.get('thumbnail'), description)
+            description = util.remove_html_tags(en.get('description') or _('No description available'))
+            html_description = util.nice_html_description(en.get('thumbnail'), description)
             if en.get('ext'):
-                mime_type = mimetype_from_extension('.{}'.format(en['ext']))
+                mime_type = util.mimetype_from_extension('.{}'.format(en['ext']))
             else:
                 mime_type = 'application/octet-stream'
             if en.get('filesize'):
@@ -326,8 +323,8 @@ class gPodderYoutubeDL(download.CustomDownloader):
                 with youtube_dl.YoutubeDL(opts) as ydl:
                     ydl.process_ie_result(tmp, download=False)
                     new_entries.extend(tmp.get('entries'))
-            except DownloadError as ex:
-                if ex.exc_info[0] == ExtractorError:
+            except youtube_dl.utils.DownloadError as ex:
+                if ex.exc_info[0] == youtube_dl.utils.ExtractorError:
                     # for instance "This video contains content from xyz, who has blocked it on copyright grounds"
                     logger.warning('Skipping %s: %s', e.get('title', ''), ex.exc_info[1])
                     continue
@@ -360,7 +357,7 @@ class gPodderYoutubeDL(download.CustomDownloader):
             result_type, has_playlist = extract_type(ie_result)
             while not has_playlist:
                 if result_type in ('url', 'url_transparent'):
-                    ie_result['url'] = sanitize_url(ie_result['url'])
+                    ie_result['url'] = youtube_dl.utils.sanitize_url(ie_result['url'])
                 if result_type == 'url':
                     logger.debug("extract_info(%s) to get the video list", ie_result['url'])
                     # We have to add extra_info to the results because it may be
@@ -400,6 +397,8 @@ class gPodderYoutubeDL(download.CustomDownloader):
         return None
 
     def is_supported_url(self, url):
+        if url is None:
+            return False
         if self.regex_cache[0].match(url) is not None:
             return True
         for r in self.regex_cache[1:]:
@@ -469,12 +468,12 @@ class gPodderExtension:
                     _('Old Youtube-DL'), important=True, widget=ui_object.main_window)
 
     def on_episodes_context_menu(self, episodes):
-        if not self.container.config.manage_downloads \
-                and not all(e.was_downloaded(and_exists=True) for e in episodes) \
-                and not any(e.downloading for e in episodes):
+        if not self.container.config.manage_downloads and any(e.can_download() for e in episodes):
             return [(_("Download with Youtube-DL"), self.download_episodes)]
 
     def download_episodes(self, episodes):
+        episodes = [e for e in episodes if e.can_download()]
+
         # create a new gPodderYoutubeDL to force using it even if manage_downloads is False
         downloader = gPodderYoutubeDL(self.container.manager.core.config, self.container.config, force=True)
         self.gpodder.download_episode_list(episodes, downloader=downloader)

@@ -779,6 +779,12 @@ class SyncTask(download.DownloadTask):
 
     episode = property(fget=__get_episode)
 
+    def can_queue(self):
+        return self.status in (self.CANCELLED, self.PAUSED, self.FAILED)
+
+    def can_pause(self):
+        return self.status in (self.DOWNLOADING, self.QUEUED)
+
     def pause(self):
         with self:
             # Pause a queued download
@@ -787,6 +793,9 @@ class SyncTask(download.DownloadTask):
             # Request pause of a running download
             elif self.status == self.DOWNLOADING:
                 self.status = self.PAUSING
+
+    def can_cancel(self):
+        return self.status in (self.DOWNLOADING, self.QUEUED, self.PAUSED, self.FAILED)
 
     def cancel(self):
         with self:
@@ -800,6 +809,9 @@ class SyncTask(download.DownloadTask):
             elif self.status == self.DOWNLOADING:
                 self.status = self.CANCELLING
                 self.device.cancel()
+
+    def can_remove(self):
+        return self.status in (self.CANCELLED, self.FAILED, self.DONE)
 
     def removed_from_list(self):
         if self.status != self.DONE:
