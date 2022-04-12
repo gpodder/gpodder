@@ -19,6 +19,7 @@
 
 import html
 import logging
+import os
 import urllib.parse
 
 import gi  # isort:skip
@@ -29,6 +30,7 @@ from gi.repository import Gdk, Gtk, Pango
 import gpodder
 from gpodder import util, vimeo, youtube
 from gpodder.gtkui.desktopfile import PlayerListModel
+from gpodder.gtkui.draw import get_background_color
 from gpodder.gtkui.interface.common import (BuilderWidget, TreeViewHelper,
                                             show_message_dialog)
 from gpodder.gtkui.interface.configeditor import gPodderConfigEditor
@@ -189,6 +191,9 @@ class gPodderPreferences(BuilderWidget):
 
     def new(self):
         self.gPodderPreferences.set_transient_for(self.parent_widget)
+        self.flap_show_image.set_from_file(os.path.join(
+            gpodder.icons_folder, 'actions', 'view-sidebar-start-symbolic.svg'))
+
         for cb in (self.combo_audio_player_app, self.combo_video_player_app):
             cellrenderer = Gtk.CellRendererPixbuf()
             cb.pack_start(cellrenderer, False)
@@ -339,6 +344,12 @@ class gPodderPreferences(BuilderWidget):
                 w.foreach(_wrap_checkbox_labels)
 
         self.prefs_stack.foreach(_wrap_checkbox_labels)
+
+        self.background_color = get_background_color()
+        self.prefs_sidebar_bg.override_background_color(Gtk.StateFlags.NORMAL, self.background_color)
+
+        self.prefs_stack.connect("notify::visible-child", self.on_prefs_sidebar_set_focus_child)
+        self.prefs_flap.set_reveal_flap(True)
 
     def _extensions_select_function(self, selection, model, path, path_currently_selected):
         return model.get_value(model.get_iter(path), self.C_SHOW_TOGGLE)
@@ -729,3 +740,11 @@ class gPodderPreferences(BuilderWidget):
             break
 
         fs.destroy()
+
+    def on_flap_show_toggled(self, togglebutton, *args):
+        if self.prefs_flap.get_folded():
+            self.prefs_flap.set_reveal_flap(togglebutton.get_active())
+
+    def on_prefs_sidebar_set_focus_child(self, widget, *args):
+        if self.prefs_flap.get_folded():
+            self.prefs_flap.set_reveal_flap(False)
