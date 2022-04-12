@@ -3,6 +3,7 @@
 <!--*- mode: xml -*-->
 <interface>
   <requires lib="gtk+" version="3.16"/>
+  <requires lib="libhandy" version="1.2"/>
   <object class="GtkAdjustment" id="adjustment_episode_limit">
     <property name="lower">100</property>
     <property name="upper">1000</property>
@@ -43,6 +44,7 @@
             <property name="margin-end">5</property>
             <property name="margin-top">5</property>
             <property name="margin-bottom">5</property>
+            <property name="hexpand">True</property>
             <property name="layout-style">end</property>
             <child>
               <object class="GtkButton" id="button_advanced">
@@ -56,6 +58,7 @@
               <packing>
                 <property name="expand">True</property>
                 <property name="fill">True</property>
+                <property name="pack-type">end</property>
                 <property name="position">0</property>
               </packing>
             </child>
@@ -71,60 +74,46 @@
               <packing>
                 <property name="expand">True</property>
                 <property name="fill">True</property>
+                <property name="pack-type">end</property>
                 <property name="position">1</property>
               </packing>
             </child>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">False</property>
-            <property name="pack-type">end</property>
-            <property name="position">0</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkBox">
-            <property name="visible">True</property>
-            <property name="can-focus">False</property>
             <child>
-              <object class="GtkScrolledWindow">
+              <object class="GtkToggleButton" id="flap_show">
                 <property name="visible">True</property>
+                <property name="sensitive" bind-source="prefs_flap" bind-property="folded" bind-flags="sync-create">False</property>
                 <property name="can-focus">True</property>
-                <property name="hscrollbar-policy">never</property>
-                <property name="shadow-type">in</property>
+                <property name="receives-default">True</property>
+                <property name="halign">start</property>
+                <property name="active" bind-source="prefs_flap" bind-property="reveal-flap" bind-flags="sync-create">False</property>
+                <signal name="toggled" handler="on_flap_show_toggled" swapped="no"/>
                 <child>
-                  <object class="GtkViewport">
+                  <object class="GtkImage" id="flap_show_image">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
-                    <child>
-                      <object class="GtkStackSwitcher" id="prefs_stack_switcher">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="orientation">vertical</property>
-                        <property name="stack">prefs_stack</property>
-                      </object>
-                    </child>
                   </object>
                 </child>
               </object>
               <packing>
                 <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">0</property>
+                <property name="fill">False</property>
+                <property name="position">2</property>
+                <property name="secondary">True</property>
+                <property name="non-homogeneous">True</property>
               </packing>
             </child>
-            <child>
-              <object class="GtkSeparator">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">1</property>
-              </packing>
-            </child>
-            <child>
+          </object>
+          <packing>
+            <property name="expand">True</property>
+            <property name="fill">True</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="HdyFlap" id="prefs_flap">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <child type="content">
               <object class="GtkScrolledWindow">
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
@@ -1171,11 +1160,37 @@
                   </object>
                 </child>
               </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">2</property>
-              </packing>
+            </child>
+            <child type="separator">
+              <placeholder/>
+            </child>
+            <child type="flap">
+              <object class="GtkScrolledWindow">
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="hscrollbar-policy">never</property>
+                <property name="shadow-type">in</property>
+                <child>
+                  <object class="GtkViewport">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <child>
+                      <object class="GtkEventBox" id="prefs_sidebar_bg">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <child>
+                          <object class="GtkStackSwitcher" id="prefs_stack_switcher">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="orientation">vertical</property>
+                            <property name="stack">prefs_stack</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
             </child>
           </object>
           <packing>
