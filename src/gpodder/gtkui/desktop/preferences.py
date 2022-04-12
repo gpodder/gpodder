@@ -326,6 +326,17 @@ class gPodderPreferences(BuilderWidget):
             for label, callback in result:
                 self.prefs_stack.add_titled(callback(), label, label)
 
+        def _wrap_checkbox_labels(w, *args):
+            if w.get_name().startswith("no_label_wrap"):
+                return
+            elif isinstance(w, Gtk.CheckButton):
+                label = w.get_child()
+                label.set_line_wrap(True)
+            elif isinstance(w, Gtk.Container):
+                w.foreach(_wrap_checkbox_labels)
+
+        self.prefs_stack.foreach(_wrap_checkbox_labels)
+
     def _extensions_select_function(self, selection, model, path, path_currently_selected):
         return model.get_value(model.get_iter(path), self.C_SHOW_TOGGLE)
 
