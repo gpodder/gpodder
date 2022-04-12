@@ -1015,82 +1015,92 @@
                             <property name="orientation">vertical</property>
                             <property name="spacing">6</property>
                             <child>
-                              <!-- n-columns=2 n-rows=3 -->
-                              <object class="GtkGrid" id="table_video">
+                              <object class="GtkFlowBox">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
-                                <property name="row-spacing">6</property>
-                                <property name="column-spacing">12</property>
+                                <property name="min-children-per-line">1</property>
+                                <property name="max-children-per-line">2</property>
+                                <property name="selection-mode">none</property>
                                 <child>
-                                  <object class="GtkLabel" id="label_preferred_youtube_format">
+                                  <object class="GtkFlowBoxChild">
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
-                                    <property name="label" translatable="yes">Preferred YouTube format:</property>
-                                    <property name="xalign">0</property>
+                                    <child>
+                                      <object class="GtkLabel" id="label_preferred_youtube_format">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="label" translatable="yes">Preferred YouTube format:</property>
+                                        <property name="xalign">0</property>
+                                      </object>
+                                    </child>
                                   </object>
-                                  <packing>
-                                    <property name="left-attach">0</property>
-                                    <property name="top-attach">0</property>
-                                  </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkComboBox" id="combobox_preferred_youtube_format">
+                                  <object class="GtkFlowBoxChild">
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
-                                    <property name="hexpand">True</property>
-                                    <signal name="changed" handler="on_combobox_preferred_youtube_format_changed" swapped="no"/>
+                                    <child>
+                                      <object class="GtkComboBox" id="combobox_preferred_youtube_format">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <signal name="changed" handler="on_combobox_preferred_youtube_format_changed" swapped="no"/>
+                                      </object>
+                                    </child>
                                   </object>
-                                  <packing>
-                                    <property name="left-attach">1</property>
-                                    <property name="top-attach">0</property>
-                                  </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkLabel" id="label_preferred_youtube_hls_format">
+                                  <object class="GtkFlowBoxChild">
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
-                                    <property name="label" translatable="yes">Preferred YouTube HLS format:</property>
-                                    <property name="xalign">0</property>
+                                    <child>
+                                      <object class="GtkLabel" id="label_preferred_youtube_hls_format">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="label" translatable="yes">Preferred YouTube HLS format:</property>
+                                        <property name="xalign">0</property>
+                                      </object>
+                                    </child>
                                   </object>
-                                  <packing>
-                                    <property name="left-attach">0</property>
-                                    <property name="top-attach">1</property>
-                                  </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkComboBox" id="combobox_preferred_youtube_hls_format">
+                                  <object class="GtkFlowBoxChild">
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
-                                    <property name="hexpand">True</property>
-                                    <signal name="changed" handler="on_combobox_preferred_youtube_hls_format_changed" swapped="no"/>
+                                    <child>
+                                      <object class="GtkComboBox" id="combobox_preferred_youtube_hls_format">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <signal name="changed" handler="on_combobox_preferred_youtube_hls_format_changed" swapped="no"/>
+                                      </object>
+                                    </child>
                                   </object>
-                                  <packing>
-                                    <property name="left-attach">1</property>
-                                    <property name="top-attach">1</property>
-                                  </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkLabel" id="label_preferred_vimeo_format">
+                                  <object class="GtkFlowBoxChild">
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
-                                    <property name="label" translatable="yes">Preferred Vimeo format:</property>
-                                    <property name="xalign">0</property>
+                                    <child>
+                                      <object class="GtkLabel" id="label_preferred_vimeo_format">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="label" translatable="yes">Preferred Vimeo format:</property>
+                                        <property name="xalign">0</property>
+                                      </object>
+                                    </child>
                                   </object>
-                                  <packing>
-                                    <property name="left-attach">0</property>
-                                    <property name="top-attach">2</property>
-                                  </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkComboBox" id="combobox_preferred_vimeo_format">
+                                  <object class="GtkFlowBoxChild">
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
-                                    <signal name="changed" handler="on_combobox_preferred_vimeo_format_changed" swapped="no"/>
+                                    <child>
+                                      <object class="GtkComboBox" id="combobox_preferred_vimeo_format">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <signal name="changed" handler="on_combobox_preferred_vimeo_format_changed" swapped="no"/>
+                                      </object>
+                                    </child>
                                   </object>
-                                  <packing>
-                                    <property name="left-attach">1</property>
-                                    <property name="top-attach">2</property>
-                                  </packing>
                                 </child>
                               </object>
                               <packing>
