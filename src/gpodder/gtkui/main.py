@@ -2331,7 +2331,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.update_podcast_list_model(set(e.channel.url for e in episodes))
         self.db.commit()
 
-    def playback_episodes_for_real(self, episodes):
+    def playback_episodes_for_real(self, episodes, mark_as_played=True):
         groups = collections.defaultdict(list)
         for episode in episodes:
             episode._download_error = None
@@ -2353,9 +2353,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 episode._download_error = str(e)
                 continue
 
-            # Mark episode as played in the database
-            episode.playback_mark()
-            self.mygpo_client.on_playback([episode])
+            if mark_as_played:
+                # Mark episode as played in the database
+                episode.playback_mark()
+                self.mygpo_client.on_playback([episode])
 
             # Determine the playback resume position - if the file
             # was played 100%, we simply start from the beginning
@@ -2417,12 +2418,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if self.mygpo_client.can_access_webservice():
             self.mygpo_client.flush()
 
-    def playback_episodes(self, episodes):
+    def playback_episodes(self, episodes, mark_as_played=True):
         # We need to create a list, because we run through it more than once
         episodes = list(Model.sort_episodes_by_pubdate(e for e in episodes if e.can_play(self.config)))
 
         try:
-            self.playback_episodes_for_real(episodes)
+            self.playback_episodes_for_real(episodes, mark_as_played)
         except Exception as e:
             logger.error('Error in playback!', exc_info=True)
             self.show_message(_('Please check your media player settings in the preferences dialog.'),

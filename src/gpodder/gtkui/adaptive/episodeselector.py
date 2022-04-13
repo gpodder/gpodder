@@ -461,7 +461,8 @@ class gPodderEpisodeSelector(BuilderWidget):
 
     def on_stream_button_clicked(self, *args):
         if hasattr(self, 'gPodder') and self.activated_episode is not None:
-            self.gPodder.playback_episodes((self.activated_episode,))
+            self.gPodder.playback_episodes(
+                (self.activated_episode,), mark_as_played=False)
 
     def on_row_activated(self, treeview, path, view_column):
         if self.toggled:
