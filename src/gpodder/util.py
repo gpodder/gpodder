@@ -247,6 +247,14 @@ def normalize_feed_url(url):
     """
     if not url or len(url) < 8:
         return None
+    
+    # Removes leading and/or trailing whitespaces - if url contains whitespaces 
+    # in between after str.strip() -> conclude invalid url & return None  
+    url = url.strip()
+    if ' ' in url:
+        return None
+        
+    
 
     # This is a list of prefixes that you can use to minimize the amount of
     # keystrokes that you have to use.
@@ -267,7 +275,7 @@ def normalize_feed_url(url):
 
     # Assume HTTP for URLs without scheme
     if '://' not in url:
-        url = 'http://' + url
+        url = f'http://{url}'  
 
     scheme, netloc, path, query, fragment = urllib.parse.urlsplit(url)
 
