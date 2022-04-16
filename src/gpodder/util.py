@@ -73,14 +73,16 @@ logger = logging.getLogger(__name__)
 try:
     import html5lib
 except ImportError:
-    logger.warn('html5lib not found, falling back to HTMLParser')
+    error_message = "html5lib was not found, fall-back to HTMLParser"
+    logger.warning(f'{error_message}', stack_info=True)
     html5lib = None
 
 if gpodder.ui.win32:
     try:
         import gpodder.utilwin32ctypes as win32file
     except ImportError:
-        logger.warn('Running on Win32 but utilwin32ctypes can\'t be loaded.')
+        error_message = 'Running on Win32: utilwin32ctypes cannot be loaded'
+        logger.warning(f'{error_message}', stack_info=True)
         win32file = None
 
 _ = gpodder.gettext
@@ -247,14 +249,12 @@ def normalize_feed_url(url):
     """
     if not url or len(url) < 8:
         return None
-    
-    # Removes leading and/or trailing whitespaces - if url contains whitespaces 
-    # in between after str.strip() -> conclude invalid url & return None  
+
+    # Removes leading and/or trailing whitespaces - if url contains whitespaces
+    # in between after str.strip() -> conclude invalid url & return None
     url = url.strip()
     if ' ' in url:
         return None
-        
-    
 
     # This is a list of prefixes that you can use to minimize the amount of
     # keystrokes that you have to use.
@@ -275,7 +275,7 @@ def normalize_feed_url(url):
 
     # Assume HTTP for URLs without scheme
     if '://' not in url:
-        url = f'http://{url}'  
+        url = f'http://{url}'
 
     scheme, netloc, path, query, fragment = urllib.parse.urlsplit(url)
 

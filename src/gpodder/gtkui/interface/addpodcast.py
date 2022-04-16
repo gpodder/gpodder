@@ -51,7 +51,7 @@ class gPodderAddPodcast(BuilderWidget):
             def receive_clipboard_text(clipboard, text, second_try):
                 # Heuristic: If space is present in clipboard text
                 # normalize_feed_url will either fix to valid url or
-                # return None if URL cannot be validated  
+                # return None if URL cannot be validated
                 if text is not None:
                     url = util.normalize_feed_url(text)
                     if url is not None:
