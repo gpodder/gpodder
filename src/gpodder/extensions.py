@@ -367,7 +367,7 @@ class ExtensionManager(object):
                     'enabled' if new_enabled else 'disabled')
             container.set_enabled(new_enabled)
             if new_enabled and not container.enabled:
-                logger.warn('Could not enable extension: %s',
+                logger.warning('Could not enable extension: %s',
                         container.error)
                 self.core.config.extensions.enabled = [x
                         for x in self.core.config.extensions.enabled

@@ -61,7 +61,7 @@ def setup(verbose=True, quiet=False):
             try:
                 os.makedirs(logging_directory)
             except:
-                logger.warn('Cannot create output directory: %s',
+                logger.warning('Cannot create output directory: %s',
                         logging_directory)
                 return False
 
@@ -77,7 +77,7 @@ def setup(verbose=True, quiet=False):
                 try:
                     os.remove(old_logfile)
                 except:
-                    logger.warn('Cannot purge logfile: %s', exc_info=True)
+                    logger.warning('Cannot purge logfile: %s', exc_info=True)
 
         root = logging.getLogger()
         logfile = os.path.join(logging_directory, logging_basename)

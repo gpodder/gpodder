@@ -147,7 +147,7 @@ class SoundcloudUser(object):
             total_count = len(json_tracks)
 
             if len(tracks) == 0 and total_count > 0:
-                logger.warn("Download of all %i %s of user %s is disabled" %
+                logger.warning("Download of all %i %s of user %s is disabled" %
                             (total_count, feed, self.username))
             else:
                 logger.info("%i/%i downloadable tracks for user %s %s feed" %

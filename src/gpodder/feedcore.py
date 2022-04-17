@@ -206,7 +206,7 @@ class Fetcher(object):
                     self.fetch(ad._resolved_url, etag=None, modified=None, autodiscovery=False, **kwargs)
                     return Result(NEW_LOCATION, ad._resolved_url)
                 except Exception as e:
-                    logger.warn('Feed autodiscovery failed', exc_info=True)
+                    logger.warning('Feed autodiscovery failed', exc_info=True)
 
             # Second, try to resolve the URL
             new_url = self._resolve_url(url)

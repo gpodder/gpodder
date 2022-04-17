@@ -172,7 +172,7 @@ class gPodderApplication(Gtk.Application):
 
             self.bus_name = dbus.service.BusName(gpodder.dbus_bus_name, bus=gpodder.dbus_session_bus)
         except dbus.exceptions.DBusException as dbe:
-            logger.warn('Cannot get "on the bus".', exc_info=True)
+            logger.warning('Cannot get "on the bus".', exc_info=True)
             dlg = Gtk.MessageDialog(None, Gtk.DialogFlags.MODAL, Gtk.MessageType.ERROR,
                    Gtk.ButtonsType.CLOSE, _('Cannot start gPodder'))
             dlg.format_secondary_markup(_('D-Bus error: %s') % (str(dbe),))
