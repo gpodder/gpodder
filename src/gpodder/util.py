@@ -73,16 +73,14 @@ logger = logging.getLogger(__name__)
 try:
     import html5lib
 except ImportError:
-    error_message = "html5lib was not found, fall-back to HTMLParser"
-    logger.warning(f'{error_message}', stack_info=True)
+    logger.warning("html5lib was not found, fall-back to HTMLParser")
     html5lib = None
 
 if gpodder.ui.win32:
     try:
         import gpodder.utilwin32ctypes as win32file
     except ImportError:
-        error_message = 'Running on Win32: utilwin32ctypes cannot be loaded'
-        logger.warning(f'{error_message}', stack_info=True)
+        logger.warning('Running on Win32: utilwin32ctypes cannot be loaded')
         win32file = None
 
 _ = gpodder.gettext
@@ -275,7 +273,7 @@ def normalize_feed_url(url):
 
     # Assume HTTP for URLs without scheme
     if '://' not in url:
-        url = f'http://{url}'
+        url = 'http://' + url
 
     scheme, netloc, path, query, fragment = urllib.parse.urlsplit(url)
 
