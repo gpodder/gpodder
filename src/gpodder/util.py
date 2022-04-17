@@ -73,14 +73,14 @@ logger = logging.getLogger(__name__)
 try:
     import html5lib
 except ImportError:
-    logger.warn('html5lib not found, falling back to HTMLParser')
+    logger.warning("html5lib was not found, fall-back to HTMLParser")
     html5lib = None
 
 if gpodder.ui.win32:
     try:
         import gpodder.utilwin32ctypes as win32file
     except ImportError:
-        logger.warn('Running on Win32 but utilwin32ctypes can\'t be loaded.')
+        logger.warning('Running on Win32: utilwin32ctypes cannot be loaded')
         win32file = None
 
 _ = gpodder.gettext
@@ -246,6 +246,12 @@ def normalize_feed_url(url):
     'http://UserName:PassWord@example.com/'
     """
     if not url or len(url) < 8:
+        return None
+
+    # Removes leading and/or trailing whitespaces - if url contains whitespaces
+    # in between after str.strip() -> conclude invalid url & return None
+    url = url.strip()
+    if ' ' in url:
         return None
 
     # This is a list of prefixes that you can use to minimize the amount of
