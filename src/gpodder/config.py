@@ -373,7 +373,8 @@ class Config(object):
 
         if os.path.exists(self.__filename):
             try:
-                data = open(self.__filename, 'rt').read()
+                with open(self.__filename, 'rt') as f:
+                    data = f.read()
                 new_keys_added = self.__json_config._restore(data)
             except:
                 logger.warning('Cannot parse config file: %s',
