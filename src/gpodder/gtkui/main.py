@@ -313,6 +313,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             ('download', self.on_download_selected_episodes),
             ('pause', self.on_pause_selected_episodes),
             ('cancel', self.on_item_cancel_download_activate),
+            ('undownload', self.on_btnUndownload_clicked),
             ('delete', self.on_btnDownloadedDelete_clicked),
             ('toggleEpisodeNew', self.on_item_toggle_played_activate),
             ('toggleEpisodeLock', self.on_item_toggle_lock_activate),
@@ -335,6 +336,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.download_action = g.lookup_action('download')
         self.pause_action = g.lookup_action('pause')
         self.cancel_action = g.lookup_action('cancel')
+        self.undownload_action = g.lookup_action('undownload')
         self.delete_action = g.lookup_action('delete')
         self.toggle_episode_new_action = g.lookup_action('toggleEpisodeNew')
         self.toggle_episode_lock_action = g.lookup_action('toggleEpisodeLock')
@@ -1961,7 +1963,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             menu = Gtk.Menu()
 
-            (open_instead_of_play, can_play, can_download, can_pause, can_cancel, can_delete, can_lock) = self.play_or_download()
+            (open_instead_of_play, can_play, can_download, can_pause, can_cancel, can_undownload, can_delete, can_lock) \
+                = self.play_or_download()
 
             if open_instead_of_play:
                 item = Gtk.ImageMenuItem(_('Open'))
@@ -1992,6 +1995,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if can_cancel:
                 item = Gtk.ImageMenuItem.new_with_mnemonic(_('_Cancel'))
                 item.set_action_name('win.cancel')
+                menu.append(item)
+
+            if can_undownload:
+                item = Gtk.ImageMenuItem.new_with_mnemonic(_('_Undownload'))
+                item.set_image(Gtk.Image.new_from_icon_name('edit-undo', Gtk.IconSize.MENU))
+                item.set_action_name('win.undownload')
                 menu.append(item)
 
             item = Gtk.ImageMenuItem.new_with_mnemonic(_('_Delete'))
@@ -2076,7 +2085,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return True
 
     def set_episode_actions(self, open_instead_of_play=False, can_play=False, can_download=False, can_pause=False, can_cancel=False,
-                            can_delete=False, can_lock=False, is_episode_selected=False):
+                            can_undownload=False, can_delete=False, can_lock=False, is_episode_selected=False):
         # play icon and label
         if open_instead_of_play or not is_episode_selected:
             self.toolPlay.set_icon_name('document-open')
@@ -2107,6 +2116,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.download_action.set_enabled(can_download)
         self.pause_action.set_enabled(can_pause)
         self.cancel_action.set_enabled(can_cancel)
+        self.undownload_action.set_enabled(can_undownload)
         self.delete_action.set_enabled(can_delete)
         self.toggle_episode_new_action.set_enabled(is_episode_selected)
         self.toggle_episode_lock_action.set_enabled(can_lock)
@@ -2253,7 +2263,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if current_page is None:
             current_page = self.wNotebook.get_current_page()
         if current_page == 0:
-            (open_instead_of_play, can_play, can_download, can_pause, can_cancel, can_delete, can_lock) = (False,) * 7
+            (open_instead_of_play, can_play, can_download, can_pause, can_cancel, can_undownload, can_delete, can_lock) = (False,) * 8
 
             selection = self.treeAvailable.get_selection()
             if selection.count_selected_rows() > 0:
@@ -2276,13 +2286,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     can_download = can_download or episode.can_download()
                     can_pause = can_pause or episode.can_pause()
                     can_cancel = can_cancel or episode.can_cancel()
+                    can_undownload = can_undownload or episode.can_undownload()
                     can_delete = can_delete or episode.can_delete()
                     can_lock = can_lock or episode.can_lock()
 
-            self.set_episode_actions(open_instead_of_play, can_play, can_download, can_pause, can_cancel, can_delete, can_lock,
-                                    selection.count_selected_rows() > 0)
+            self.set_episode_actions(open_instead_of_play, can_play, can_download, can_pause, can_cancel,
+                                    can_undownload, can_delete, can_lock, selection.count_selected_rows() > 0)
 
-            return (open_instead_of_play, can_play, can_download, can_pause, can_cancel, can_delete, can_lock)
+            return (open_instead_of_play, can_play, can_download, can_pause, can_cancel, can_undownload, can_delete, can_lock)
         else:
             (can_queue, can_pause, can_cancel, can_remove) = (False,) * 4
 
@@ -2307,9 +2318,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     can_cancel = can_cancel or task.can_cancel()
                     can_remove = can_remove or task.can_remove()
 
-            self.set_episode_actions(False, False, can_queue, can_pause, can_cancel, can_remove, False, False)
+            self.set_episode_actions(False, False, can_queue, can_pause, can_cancel, False, can_remove, False, False)
 
-            return (False, False, can_queue, can_pause, can_cancel, can_remove, False)
+            return (False, False, can_queue, can_pause, can_cancel, False, can_remove, False)
 
     def on_cbMaxDownloads_toggled(self, widget, *args):
         self.spinMaxDownloads.set_sensitive(self.cbMaxDownloads.get_active())
@@ -2914,7 +2925,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             titles.append('+%(count)d more ...' % {'count': len(things) - max_things})
         return '\n'.join(titles) + '\n\n' + message
 
-    def delete_episode_list(self, episodes, confirm=True, callback=None):
+    def delete_episode_list(self, episodes, confirm=True, callback=None, undownload=False):
         if self.wNotebook.get_current_page() > 0:
             selection = self.treeDownloads.get_selection()
             (model, paths) = selection.get_selected_rows()
@@ -2939,9 +2950,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return False
 
         count = len(episodes)
-        title = N_('Delete %(count)d episode?', 'Delete %(count)d episodes?',
-                   count) % {'count': count}
-        message = _('Deleting episodes removes downloaded files.')
+        if undownload:
+            title = N_('Undownload %(count)d episode?', 'Undownload %(count)d episodes?',
+                       count) % {'count': count}
+            message = _('Undownloading episodes removes downloaded files.')
+        else:
+            title = N_('Delete %(count)d episode?', 'Delete %(count)d episodes?',
+                       count) % {'count': count}
+            message = _('Deleting episodes removes downloaded files.')
 
         message = self.format_delete_message(message, episodes, 5, 60)
 
@@ -2978,6 +2994,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     episode_urls.add(episode.url)
                     channel_urls.add(episode.channel.url)
                     episodes_status_update.append(episode)
+                    if undownload:
+                        # Mark episode as new
+                        episode.mark(is_played=episode.is_new)
 
             # Notify the web service about the status update + upload
             if self.mygpo_client.can_access_webservice():
@@ -3739,6 +3758,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_btnCancelAll_clicked(self, widget, *args):
         self.cancel_task_list(self.download_tasks_seen)
+
+    def on_btnUndownload_clicked(self, widget, *args):
+        episodes = [e for e in self.get_selected_episodes() if e.can_undownload()]
+        self.delete_episode_list(episodes, undownload=True)
 
     def on_btnDownloadedDelete_clicked(self, widget, *args):
         episodes = self.get_selected_episodes()
