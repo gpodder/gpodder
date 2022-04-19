@@ -2076,9 +2076,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return True
 
     def set_episode_actions(self, open_instead_of_play=False, can_play=False, can_download=False, can_pause=False, can_cancel=False,
-                            can_delete=False, can_lock=False):
+                            can_delete=False, can_lock=False, is_episode_selected=False):
         # play icon and label
-        if open_instead_of_play:
+        if open_instead_of_play or not is_episode_selected:
             self.toolPlay.set_icon_name('document-open')
             self.toolPlay.set_label(_('Open'))
         else:
@@ -2108,7 +2108,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.pause_action.set_enabled(can_pause)
         self.cancel_action.set_enabled(can_cancel)
         self.delete_action.set_enabled(can_delete)
-        self.toggle_episode_new_action.set_enabled(can_play)
+        self.toggle_episode_new_action.set_enabled(is_episode_selected)
         self.toggle_episode_lock_action.set_enabled(can_lock)
 
     def set_title(self, new_title):
@@ -2279,7 +2279,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     can_delete = can_delete or episode.can_delete()
                     can_lock = can_lock or episode.can_lock()
 
-            self.set_episode_actions(open_instead_of_play, can_play, can_download, can_pause, can_cancel, can_delete, can_lock)
+            self.set_episode_actions(open_instead_of_play, can_play, can_download, can_pause, can_cancel, can_delete, can_lock,
+                                    selection.count_selected_rows() > 0)
 
             return (open_instead_of_play, can_play, can_download, can_pause, can_cancel, can_delete, can_lock)
         else:
@@ -2306,7 +2307,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     can_cancel = can_cancel or task.can_cancel()
                     can_remove = can_remove or task.can_remove()
 
-            self.set_episode_actions(False, False, can_queue, can_pause, can_cancel, can_remove, False)
+            self.set_episode_actions(False, False, can_queue, can_pause, can_cancel, can_remove, False, False)
 
             return (False, False, can_queue, can_pause, can_cancel, can_remove, False)
 
