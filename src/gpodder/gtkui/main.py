@@ -2269,6 +2269,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         logger.error('Invalid episode at path %s', str(path))
                         continue
 
+                    # These values should only ever be set, never unset them once set.
+                    # Actions filter episodes using these methods.
                     open_instead_of_play = open_instead_of_play or episode.file_type() not in ('audio', 'video')
                     can_play = can_play or episode.can_play(self.config)
                     can_download = can_download or episode.can_download()
@@ -2297,6 +2299,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         logger.error('Invalid task at path %s', str(path))
                         continue
 
+                    # These values should only ever be set, never unset them once set.
+                    # Actions filter tasks using these methods.
                     can_queue = can_queue or task.can_queue()
                     can_pause = can_pause or task.can_pause()
                     can_cancel = can_cancel or task.can_cancel()
