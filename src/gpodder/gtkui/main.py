@@ -2995,8 +2995,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     channel_urls.add(episode.channel.url)
                     episodes_status_update.append(episode)
                     if undownload:
-                        # Mark episode as new
-                        episode.mark(is_played=episode.is_new)
+                        # Undelete and mark episode as new
+                        episode.state = gpodder.STATE_NORMAL
+                        episode.is_new = True
+                        episode.save()
 
             # Notify the web service about the status update + upload
             if self.mygpo_client.can_access_webservice():
