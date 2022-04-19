@@ -507,6 +507,13 @@ class PodcastEpisode(PodcastModelObject):
         return self.state != gpodder.STATE_DELETED and not self.archive and (
             not self.download_task or self.download_task.status == self.download_task.FAILED)
 
+    def can_lock(self):
+        """
+        gPodder.on_item_toggle_lock_activate() unlocks deleted episodes and toggles all others.
+        Locked episodes can always be unlocked.
+        """
+        return self.state != gpodder.STATE_DELETED or self.archive
+
     def check_is_new(self):
         return (self.state == gpodder.STATE_NORMAL and self.is_new and
                 not self.downloading)
