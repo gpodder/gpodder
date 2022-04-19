@@ -2805,16 +2805,22 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     # download older episodes first
                     episodes = list(Model.sort_episodes_by_pubdate(episodes))
 
-                if not episodes:
+                # Remove episodes without downloadable content
+                downloadable_episodes = [e for e in episodes if e.url]
+
+                if not downloadable_episodes:
                     # Nothing new here - but inform the user
                     self.pbFeedUpdate.set_fraction(1.0)
-                    self.pbFeedUpdate.set_text(_('No new episodes'))
+                    self.pbFeedUpdate.set_text(
+                        _('No new episodes with downloadable content') if episodes else _('No new episodes'))
                     self.feed_cache_update_cancelled = True
                     self.btnCancelFeedUpdate.show()
                     self.btnCancelFeedUpdate.set_sensitive(True)
                     self.update_action.set_enabled(True)
                     self.btnCancelFeedUpdate.set_image(Gtk.Image.new_from_icon_name('edit-clear', Gtk.IconSize.BUTTON))
                 else:
+                    episodes = downloadable_episodes
+
                     count = len(episodes)
                     # New episodes are available
                     self.pbFeedUpdate.set_fraction(1.0)
