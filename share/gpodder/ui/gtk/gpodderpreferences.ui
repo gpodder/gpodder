@@ -523,49 +523,52 @@
                               <packing>
                                 <property name="expand">False</property>
                                 <property name="fill">True</property>
-                                <property name="position">2</property>
+                                <property name="position">1</property>
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkBox" id="vbox_episode_limit">
+                              <object class="GtkFlowBox">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
-                                <property name="orientation">vertical</property>
-                                <property name="spacing">12</property>
+                                <property name="min-children-per-line">1</property>
+                                <property name="max-children-per-line">2</property>
+                                <property name="selection-mode">none</property>
                                 <child>
-                                  <object class="GtkLabel" id="label_episode_limit">
-                                    <property name="visible">True</property>
-                                    <property name="can-focus">False</property>
-                                    <property name="label" translatable="yes">Maximum number of episodes per podcast:</property>
-                                    <property name="wrap">True</property>
-                                    <property name="xalign">0</property>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">True</property>
-                                    <property name="position">0</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkSpinButton" id="spinbutton_episode_limit">
+                                  <object class="GtkFlowBoxChild">
                                     <property name="visible">True</property>
                                     <property name="can-focus">True</property>
-                                    <property name="halign">center</property>
-                                    <property name="text" translatable="yes">200</property>
-                                    <property name="adjustment">adjustment_episode_limit</property>
-                                    <property name="value">200</property>
+                                    <child>
+                                      <object class="GtkLabel" id="label_episode_limit">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="label" translatable="yes">Maximum number of episodes per podcast:</property>
+                                        <property name="wrap">True</property>
+                                        <property name="xalign">0</property>
+                                      </object>
+                                    </child>
                                   </object>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">True</property>
-                                    <property name="position">1</property>
-                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkFlowBoxChild">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">True</property>
+                                    <child>
+                                      <object class="GtkSpinButton" id="spinbutton_episode_limit">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">True</property>
+                                        <property name="halign">center</property>
+                                        <property name="text" translatable="yes">200</property>
+                                        <property name="adjustment">adjustment_episode_limit</property>
+                                        <property name="value">200</property>
+                                      </object>
+                                    </child>
+                                  </object>
                                 </child>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
                                 <property name="fill">True</property>
-                                <property name="position">3</property>
+                                <property name="position">2</property>
                               </packing>
                             </child>
                             <child>
@@ -576,47 +579,50 @@
                               <packing>
                                 <property name="expand">False</property>
                                 <property name="fill">True</property>
-                                <property name="position">4</property>
+                                <property name="position">3</property>
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkBox" id="vbox_auto_download">
+                              <object class="GtkFlowBox">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
-                                <property name="orientation">vertical</property>
-                                <property name="spacing">12</property>
+                                <property name="min-children-per-line">1</property>
+                                <property name="max-children-per-line">2</property>
+                                <property name="selection-mode">none</property>
                                 <child>
-                                  <object class="GtkLabel" id="label_auto_download">
+                                  <object class="GtkFlowBoxChild">
                                     <property name="visible">True</property>
-                                    <property name="can-focus">False</property>
-                                    <property name="label" translatable="yes">When new episodes are found:</property>
-                                    <property name="wrap">True</property>
-                                    <property name="xalign">0</property>
+                                    <property name="can-focus">True</property>
+                                    <child>
+                                      <object class="GtkLabel" id="label_auto_download">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="label" translatable="yes">When new episodes are found:</property>
+                                        <property name="wrap">True</property>
+                                        <property name="xalign">0</property>
+                                      </object>
+                                    </child>
                                   </object>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">True</property>
-                                    <property name="position">0</property>
-                                  </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkComboBox" id="combo_auto_download">
+                                  <object class="GtkFlowBoxChild">
                                     <property name="visible">True</property>
-                                    <property name="can-focus">False</property>
-                                    <property name="halign">center</property>
-                                    <signal name="changed" handler="on_combo_auto_download_changed" swapped="no"/>
+                                    <property name="can-focus">True</property>
+                                    <child>
+                                      <object class="GtkComboBox" id="combo_auto_download">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="halign">center</property>
+                                        <signal name="changed" handler="on_combo_auto_download_changed" swapped="no"/>
+                                      </object>
+                                    </child>
                                   </object>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">True</property>
-                                    <property name="position">1</property>
-                                  </packing>
                                 </child>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
                                 <property name="fill">True</property>
-                                <property name="position">5</property>
+                                <property name="position">4</property>
                               </packing>
                             </child>
                             <child>
