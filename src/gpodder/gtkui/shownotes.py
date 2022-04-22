@@ -411,8 +411,9 @@ class gPodderShownotesHTML(gPodderShownotes):
             if req.get_uri() in (self._base_uri, 'about:blank'):
                 decision.use()
             else:
-                logger.debug("refusing to go to %s (base URI=%s)", req.get_uri(), self._base_uri)
+                # Avoid opening the page inside the WebView and open in the browser instead
                 decision.ignore()
+                util.open_website(req.get_uri())
             return False
         else:
             decision.use()
