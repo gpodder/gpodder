@@ -463,21 +463,6 @@ class PodcastEpisode(PodcastModelObject):
             player = 'default'
         return player
 
-    def can_play(self, config):
-        """
-        # gPodder.playback_episodes() filters selection with this method.
-        """
-        return self.was_downloaded(and_exists=True) or self.can_stream(config)
-
-    def can_stream(self, config):
-        """
-        Don't try streaming if the user has not defined a player
-        or else we would probably open the browser when giving a URL to xdg-open.
-        We look at the audio or video player depending on its file type.
-        """
-        player = self.get_player(config)
-        return player and player != 'default'
-
     def can_download(self):
         """
         gPodder.on_download_selected_episodes() filters selection with this method.

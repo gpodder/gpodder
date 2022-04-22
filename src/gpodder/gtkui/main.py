@@ -19,6 +19,7 @@
 
 import collections
 import html
+import itertools
 import logging
 import os
 import re
@@ -2151,14 +2152,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.db.commit()
 
     def playback_episodes_for_real(self, episodes):
+        stream_episodes = []
+
         groups = collections.defaultdict(list)
         for episode in episodes:
             episode._download_error = None
 
             if episode.download_task is not None and episode.download_task.status == episode.download_task.FAILED:
-                if not episode.can_stream(self.config):
-                    # Do not cancel failed tasks that can not be streamed
-                    continue
                 # Cancel failed task and remove from progress list
                 episode.download_task.cancel()
                 self.cleanup_downloads()
@@ -2214,7 +2214,26 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 except Exception as e:
                     logger.error('Calling Panucci using D-Bus', exc_info=True)
 
-            groups[player].append(filename)
+            if player == 'default' and not episode.was_downloaded(and_exists=True):
+                stream_episodes.append(episode)
+            else:
+                groups[player].append(filename)
+
+        def get_mime_type(episode):
+            return episode.mime_type
+
+        for mime_type, episodes in itertools.groupby(sorted(stream_episodes, key=get_mime_type), key=get_mime_type):
+            episodes = list(episodes)
+            dlg = Gtk.AppChooserDialog.new_for_content_type(self.main_window, Gtk.DialogFlags.MODAL, mime_type)
+            dlg.set_heading('\n'.join(episode.title for episode in episodes))
+            app_chooser_widget = dlg.get_widget()
+
+            def on_app_activated(app_chooser_widget, app, user_data=None):
+                app.launch_uris([episode.get_playback_url(self.config, False) for episode in episodes])
+
+            app_chooser_widget.connect('application-activated', on_app_activated)
+            dlg.run()
+            dlg.destroy()
 
         # Open episodes with system default player
         if 'default' in groups:
@@ -2238,7 +2257,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def playback_episodes(self, episodes):
         # We need to create a list, because we run through it more than once
-        episodes = list(Model.sort_episodes_by_pubdate(e for e in episodes if e.can_play(self.config)))
+        episodes = list(Model.sort_episodes_by_pubdate(episodes))
 
         try:
             self.playback_episodes_for_real(episodes)
@@ -2272,7 +2291,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     # These values should only ever be set, never unset them once set.
                     # Actions filter episodes using these methods.
                     open_instead_of_play = open_instead_of_play or episode.file_type() not in ('audio', 'video')
-                    can_play = can_play or episode.can_play(self.config)
+                    can_play = True
                     can_download = can_download or episode.can_download()
                     can_pause = can_pause or episode.can_pause()
                     can_cancel = can_cancel or episode.can_cancel()
