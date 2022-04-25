@@ -205,7 +205,8 @@ class SoundcloudUser(object):
                         self.cache[url] = get_metadata(url)
                     except:
                         continue
-                filesize, _, _ = self.cache[url]
+
+                filesize, _unused, _unused = self.cache[url]
 
                 yield {
                     'title': track.get('title', track.get('permalink')) or _('Unknown track'),
