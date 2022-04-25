@@ -126,6 +126,7 @@ class BuilderWidget(GtkBuilderWidget):
             cb = Gtk.CheckButton.new_with_label(checkbox)
             cb.set_active(default_checked)
             dlg.get_message_area().pack_end(cb, False, False, 0)
+            dlg.get_widget_for_response(Gtk.ResponseType.NO).grab_focus()
         dlg.show_all()
         response = dlg.run()
         checked = checkbox and cb.get_active()
