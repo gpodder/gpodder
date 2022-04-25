@@ -115,16 +115,27 @@ class BuilderWidget(GtkBuilderWidget):
         else:
             gpodder.user_extensions.on_notification_show(title, message)
 
-    def show_confirmation(self, message, title=None):
+    def show_confirmation_extended(self, message, title=None, checkbox=None, default_checked=False):
         dlg = Gtk.MessageDialog(self.main_window, Gtk.DialogFlags.MODAL, Gtk.MessageType.QUESTION, Gtk.ButtonsType.YES_NO)
         if title:
             dlg.set_title(str(title))
             dlg.set_markup('<span weight="bold" size="larger">%s</span>\n\n%s' % (title, message))
         else:
             dlg.set_markup('<span weight="bold" size="larger">%s</span>' % (message))
+        if checkbox:
+            cb = Gtk.CheckButton.new_with_label(checkbox)
+            cb.set_active(default_checked)
+            dlg.get_message_area().pack_end(cb, False, False, 0)
+        dlg.show_all()
         response = dlg.run()
+        checked = checkbox and cb.get_active()
         dlg.destroy()
-        return response == Gtk.ResponseType.YES
+        return dict(confirmed=response == Gtk.ResponseType.YES, checked=checked)
+
+    def show_confirmation(self, message, title=None, checkbox=None, default_checked=False):
+        return self.show_confirmation_extended(
+            message, title=title,
+            checkbox=checkbox, default_checked=default_checked)["confirmed"]
 
     def show_text_edit_dialog(self, title, prompt, text=None, empty=False,
             is_url=False, affirmative_text=_('_OK')):
