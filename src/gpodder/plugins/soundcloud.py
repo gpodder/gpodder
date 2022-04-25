@@ -103,7 +103,7 @@ def get_metadata(url):
     metadata via the HTTP header fields.
     """
     track_response = util.urlopen(url, method="HEAD")
-    filesize = track_response.headers['content-length'] or '0'
+    filesize = int(track_response.headers['content-length']) or 0
     filetype = track_response.headers['content-type'] or 'application/octet-stream'
     headers_s = '\n'.join('%s:%s' % (k, v) for k, v in list(track_response.headers.items()))
     filename = util.get_header_param(track_response.headers, 'filename', 'content-disposition') \
@@ -213,7 +213,7 @@ class SoundcloudUser(object):
                     'description': track.get('description') or _('No description available'),
                     'url': url,
                     'perma_url': perma_url,
-                    'file_size': 0,
+                    'file_size': filesize,
                     'mime_type': "audio/mpeg",
                     'guid': str(track.get('permalink', track.get('id'))),
                     'published': soundcloud_parsedate(track.get('created_at', None)),
