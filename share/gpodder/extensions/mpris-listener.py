@@ -128,7 +128,7 @@ class CurrentTrackTracker(object):
                              'calc: %r observed: %r', cur['pos'], kwargs['pos'])
                 self.notify_stop()
 
-            if ((kwargs['pos']) == 0 and
+            if ((kwargs['pos']) <= 0 and
                     self.pos is not None and
                     self.length is not None and
                     (self.length - USECS_IN_SEC) < self.pos and
@@ -144,7 +144,8 @@ class CurrentTrackTracker(object):
                     logger.debug('pos=0 not end of stream (calculated pos: %f/%f [%f])',
                                  self.pos / USECS_IN_SEC, self.length / USECS_IN_SEC,
                                  (self.pos / USECS_IN_SEC) - (self.length / USECS_IN_SEC))
-                self.pos = kwargs.pop('pos')
+                newpos = kwargs.pop('pos')
+                self.pos = newpos if newpos >= 0 else 0
 
         if 'status' in kwargs:
             self.status = kwargs.pop('status')
