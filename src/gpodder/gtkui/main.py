@@ -1739,6 +1739,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
         assert self.active_channel is not None
         util.gui_open(self.active_channel.save_dir, gui=self)
 
+    def on_open_episode_download_folder(self, item):
+        episodes = self.get_selected_episodes()
+        assert len(episodes) == 1
+        util.gui_open(episodes[0].parent.save_dir, gui=self)
+
     def treeview_channels_show_context_menu(self, treeview, event=None):
         model, paths = self.treeview_handle_context_menu_click(treeview, event)
         if not paths:
@@ -2060,6 +2065,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
                                                         Gtk.IconSize.MENU))
             item.set_action_name('win.toggleShownotes')
             menu.append(item)
+
+            if len(self.get_selected_episodes()) == 1:
+                item = Gtk.MenuItem(_('Open download folder'))
+                item.connect('activate', self.on_open_episode_download_folder)
+                menu.append(item)
 
             menu.attach_to_widget(treeview)
             menu.show_all()
