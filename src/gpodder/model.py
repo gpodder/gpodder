@@ -351,7 +351,11 @@ class PodcastEpisode(PodcastModelObject):
         if link_has_media:
             return episode
 
-        return None
+        # The episode has no downloadable content.
+        # It is either a blog post or it links to a webpage with content accessible from shownotes title.
+        # Remove the URL so downloading will fail.
+        episode.url = ''
+        return episode
 
     def __init__(self, channel):
         self.parent = channel
