@@ -312,7 +312,3 @@ registry.feed_handler.register(SoundcloudFavFeed.fetch_channel)
 def search_for_user(query):
     json_url = 'https://api-v2.soundcloud.com/search/users?q=%s' % (urllib.parse.quote(query))
     return urlopen_with_token(json_url).json()["collection"]
-
-
-if __name__ == '__main__':
-    get_client_id()
