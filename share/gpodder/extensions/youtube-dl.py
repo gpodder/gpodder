@@ -18,6 +18,10 @@ except:
 import gpodder
 from gpodder import download, feedcore, model, registry, util, youtube
 
+import gi  # isort:skip
+gi.require_version('Gtk', '3.0')  # isort:skip
+from gi.repository import Gtk  # isort:skip
+
 _ = gpodder.gettext
 
 
@@ -477,3 +481,40 @@ class gPodderExtension:
         # create a new gPodderYoutubeDL to force using it even if manage_downloads is False
         downloader = gPodderYoutubeDL(self.container.manager.core.config, self.container.config, force=True)
         self.gpodder.download_episode_list(episodes, downloader=downloader)
+
+    def toggle_manage_channel(self, widget):
+        self.container.config.manage_channel = widget.get_active()
+
+    def toggle_manage_downloads(self, widget):
+        self.container.config.manage_downloads = widget.get_active()
+
+    def show_preferences(self):
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
+        box.set_border_width(10)
+
+        checkbox = Gtk.CheckButton(_('Parse Youtube channel feeds with Youtube-DL to access more than 15 episodes'))
+        checkbox.set_active(self.container.config.manage_channel)
+        checkbox.connect('toggled', self.toggle_manage_channel)
+        box.pack_start(checkbox, False, False, 0)
+
+        box.pack_start(Gtk.HSeparator(), False, False, 0)
+
+        checkbox = Gtk.CheckButton(_('Download all supported episodes with Youtube-DL'))
+        checkbox.set_active(self.container.config.manage_downloads)
+        checkbox.connect('toggled', self.toggle_manage_downloads)
+        box.pack_start(checkbox, False, False, 0)
+        note = Gtk.Label(use_markup=True, wrap=True, label=_(
+            'Youtube-DL provides access to additional Youtube formats and DRM content.'
+            '  Episodes from non-Youtube channels, that have Youtube-DL support, will <b>fail</b> to download unless you manually'
+            ' <a href="https://gpodder.github.io/docs/youtube.html#formats">add custom formats</a> for each site.'
+            '  <b>Download with Youtube-DL</b> appears in the episode menu when this option is disabled,'
+            ' and can be used to manually download from supported sites.'))
+        note.connect('activate-link', lambda label, url: util.open_website(url))
+        note.set_property('xalign', 0.0)
+        box.add(note)
+
+        box.show_all()
+        return box
+
+    def on_preferences(self):
+        return [(_('Youtube-DL'), self.show_preferences)]
