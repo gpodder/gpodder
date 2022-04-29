@@ -637,6 +637,7 @@ class gPodderPreferences(BuilderWidget):
             children = self.btn_playlistfolder.get_children()
             if children:
                 label = children.pop()
+                label.set_ellipsize(Pango.EllipsizeMode.START)
                 label.set_xalign(0.0)
         else:
             self.btn_playlistfolder.set_sensitive(False)
@@ -720,6 +721,7 @@ class gPodderPreferences(BuilderWidget):
                 children = self.btn_playlistfolder.get_children()
                 if children:
                     label = children.pop()
+                    label.set_ellipsize(Pango.EllipsizeMode.START)
                     label.set_xalign(0.0)
             break
 
