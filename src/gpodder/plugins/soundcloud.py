@@ -20,6 +20,7 @@
 
 # Soundcloud.com API client module for gPodder
 # Thomas Perl <thp@gpodder.org>; 2009-11-03
+
 import email
 import json
 import logging
@@ -51,15 +52,23 @@ class SoundcloudException(Exception):
 
 
 def get_client_id():
+
     response = util.urlopen("https://w.soundcloud.com/player/?url=http")
+    if not response.ok:
+        raise SoundcloudException("Error when fetching {url}".format(url=response.request.url))
     for result in re.finditer(r"https://widget\.sndcdn\.com/widget-[0-9a-f\-]+\.js", response.text):
         match = re.search(r'client_id.*?\"(.+?)\"', util.urlopen(result.group(0)).text)
         if match:
             return match.group(1)
+    raise SoundcloudException("Unable to gather client_id for soundcloud")
 
 
 def soundcloud_url_from_permalink(url):
-    return urlopen_with_token(url).json()["url"]
+    response = urlopen_with_token(url)
+    if not response.ok:
+        logger.warning("Error when fetching {url}".format(url=response.request.url))
+        return None
+    return response.json()["url"]
 
 
 def urlopen_with_token(url):
@@ -73,12 +82,18 @@ def urlopen_with_token(url):
     else:
         url_without_id = url + "?client_id="
     start = time.time()
-    response = util.urlopen(f"{url_without_id}{client_id}")
-    logger.debug(f"Opened {url_without_id}{client_id} in {int((time.time() - start) * 1000)} ms")
+    response = util.urlopen("{url_without_id}{client_id}".format(
+        url_without_id=url_without_id, client_id=client_id)
+    )
+    logger.debug("Opened {url_without_id}{client_id} in {duration} ms".format(
+        url_without_id=url_without_id, client_id=client_id, duration=int((time.time() - start) * 1000)
+    ))
     if response.status_code == 401:
         # Retry
         client_id = get_client_id()
-    response = util.urlopen(f"{url_without_id}{client_id}")
+    response = util.urlopen("{url_without_id}{client_id}".format(
+        url_without_id=url_without_id, client_id=client_id)
+    )
     if response.status_code == 401:
         # Client ID doesn't work
         raise SoundcloudException("Client ID does not seem to work")
@@ -103,6 +118,8 @@ def get_metadata(url):
     metadata via the HTTP header fields.
     """
     track_response = util.urlopen(url, method="HEAD")
+    if not track_response.ok:
+        raise SoundcloudException("Couldn't fetch metadata for downlaod")
     filesize = int(track_response.headers['content-length']) or 0
     filetype = track_response.headers['content-type'] or 'application/octet-stream'
     headers_s = '\n'.join('%s:%s' % (k, v) for k, v in list(track_response.headers.items()))
@@ -113,9 +130,10 @@ def get_metadata(url):
 
 
 class SoundcloudUser(object):
-    def __init__(self, username):
+    def __init__(self, username, max_episodes):
         self.username = username
         self.cache_file = os.path.join(gpodder.home, 'Soundcloud')
+        self.max_episodes = max_episodes
         if os.path.exists(self.cache_file):
             try:
                 self.cache = json.load(open(self.cache_file, 'r'))
@@ -174,10 +192,13 @@ class SoundcloudUser(object):
         track it can find for its user."""
         try:
             json_url = ('https://api-v2.soundcloud.com/users/{user}/{feed}'
-                        '?limit=200'.format(user=self.get_user_id(), feed=feed))
+                        '?limit={limit}'.format(user=self.get_user_id(), feed=feed, limit=self.max_episodes))
             logger.debug("loading %s", json_url)
 
-            json_tracks = urlopen_with_token(json_url).json()
+            request = urlopen_with_token(json_url)
+            if not request.ok:
+                raise SoundcloudException("Could not fetch tracks")
+            json_tracks = request.json()
             tracks = [track for track in json_tracks["collection"] if track['streamable'] or track['downloadable']]
             total_count = len(json_tracks)
 
@@ -199,14 +220,17 @@ class SoundcloudUser(object):
                         perma_url = transcoding['url']
                         url = soundcloud_url_from_permalink(perma_url)
                 if not url:
-                    logger.warning(f"Didn't find downloadable mp3 for track {track['title']}")
+                    logger.warning("Didn't find downloadable mp3 for track {title}".format(title=track["title"]))
                 if url not in self.cache:
                     try:
                         self.cache[url] = get_metadata(url)
                     except:
                         continue
 
-                filesize, _unused, _unused = self.cache[url]
+                try:
+                    filesize, _unused, _unused = self.cache[url]
+                except SoundcloudException:
+                    filesize = 0
 
                 yield {
                     'title': track.get('title', track.get('permalink')) or _('Unknown track'),
@@ -216,7 +240,7 @@ class SoundcloudUser(object):
                     'perma_url': perma_url,
                     'file_size': filesize,
                     'mime_type': "audio/mpeg",
-                    'guid': str(track.get('permalink', track.get('id'))),
+                    'guid': str(track.get('id')),
                     'published': soundcloud_parsedate(track.get('created_at', None)),
                 }
         finally:
@@ -240,7 +264,7 @@ class SoundcloudFeed(model.Feed):
 
     def __init__(self, username, max_episodes):
         self.username = username
-        self.sc_user = SoundcloudUser(username)
+        self.sc_user = SoundcloudUser(username, max_episodes)
         self.max_episodes = max_episodes
 
     def get_title(self):
@@ -311,4 +335,7 @@ registry.feed_handler.register(SoundcloudFavFeed.fetch_channel)
 
 def search_for_user(query):
     json_url = 'https://api-v2.soundcloud.com/search/users?q=%s' % (urllib.parse.quote(query))
-    return urlopen_with_token(json_url).json()["collection"]
+    request = urlopen_with_token(json_url)
+    if not request.ok:
+        raise SoundcloudException("Request returned an error")
+    return request.json()["collection"]
