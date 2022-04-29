@@ -754,36 +754,39 @@
                             <property name="orientation">vertical</property>
                             <property name="spacing">12</property>
                             <child>
-                              <object class="GtkBox">
+                              <object class="GtkFlowBox">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
-                                <property name="orientation">vertical</property>
-                                <property name="spacing">12</property>
+                                <property name="min-children-per-line">1</property>
+                                <property name="max-children-per-line">2</property>
+                                <property name="selection-mode">none</property>
                                 <child>
-                                  <object class="GtkLabel" id="label_device_type">
+                                  <object class="GtkFlowBoxChild">
                                     <property name="visible">True</property>
-                                    <property name="can-focus">False</property>
-                                    <property name="label" translatable="yes">Device type:</property>
-                                    <property name="xalign">0</property>
+                                    <property name="can-focus">True</property>
+                                    <child>
+                                      <object class="GtkLabel" id="label_device_type">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="label" translatable="yes">Device type:</property>
+                                        <property name="xalign">0</property>
+                                      </object>
+                                    </child>
                                   </object>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">True</property>
-                                    <property name="position">0</property>
-                                  </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkComboBox" id="combobox_device_type">
+                                  <object class="GtkFlowBoxChild">
                                     <property name="visible">True</property>
-                                    <property name="can-focus">False</property>
-                                    <property name="hexpand">True</property>
-                                    <signal name="changed" handler="on_combobox_device_type_changed" swapped="no"/>
+                                    <property name="can-focus">True</property>
+                                    <child>
+                                      <object class="GtkComboBox" id="combobox_device_type">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="hexpand">True</property>
+                                        <signal name="changed" handler="on_combobox_device_type_changed" swapped="no"/>
+                                      </object>
+                                    </child>
                                   </object>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">True</property>
-                                    <property name="position">1</property>
-                                  </packing>
                                 </child>
                               </object>
                               <packing>
@@ -793,37 +796,40 @@
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkBox">
+                              <object class="GtkFlowBox">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
-                                <property name="orientation">vertical</property>
-                                <property name="spacing">12</property>
+                                <property name="min-children-per-line">1</property>
+                                <property name="max-children-per-line">2</property>
+                                <property name="selection-mode">none</property>
                                 <child>
-                                  <object class="GtkLabel" id="label_device_mount">
-                                    <property name="visible">True</property>
-                                    <property name="can-focus">False</property>
-                                    <property name="label" translatable="yes">Mountpoint:</property>
-                                    <property name="xalign">0</property>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">True</property>
-                                    <property name="position">0</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkButton" id="btn_filesystemMountpoint">
+                                  <object class="GtkFlowBoxChild">
                                     <property name="visible">True</property>
                                     <property name="can-focus">True</property>
-                                    <property name="receives-default">False</property>
-                                    <property name="hexpand">True</property>
-                                    <signal name="clicked" handler="on_btn_device_mountpoint_clicked" swapped="no"/>
+                                    <child>
+                                      <object class="GtkLabel" id="label_device_mount">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="label" translatable="yes">Mountpoint:</property>
+                                        <property name="xalign">0</property>
+                                      </object>
+                                    </child>
                                   </object>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">True</property>
-                                    <property name="position">1</property>
-                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkFlowBoxChild">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">True</property>
+                                    <child>
+                                      <object class="GtkButton" id="btn_filesystemMountpoint">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">True</property>
+                                        <property name="receives-default">False</property>
+                                        <property name="hexpand">True</property>
+                                        <signal name="clicked" handler="on_btn_device_mountpoint_clicked" swapped="no"/>
+                                      </object>
+                                    </child>
+                                  </object>
                                 </child>
                               </object>
                               <packing>
@@ -860,36 +866,39 @@
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkBox">
+                              <object class="GtkFlowBox">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
-                                <property name="orientation">vertical</property>
-                                <property name="spacing">12</property>
+                                <property name="min-children-per-line">1</property>
+                                <property name="max-children-per-line">2</property>
+                                <property name="selection-mode">none</property>
                                 <child>
-                                  <object class="GtkLabel" id="label_device_playlists">
-                                    <property name="visible">True</property>
-                                    <property name="can-focus">False</property>
-                                    <property name="label" translatable="yes">Playlists Folder:</property>
-                                    <property name="xalign">0</property>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">True</property>
-                                    <property name="position">0</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkButton" id="btn_playlistfolder">
+                                  <object class="GtkFlowBoxChild">
                                     <property name="visible">True</property>
                                     <property name="can-focus">True</property>
-                                    <property name="receives-default">False</property>
-                                    <signal name="clicked" handler="on_btn_playlist_folder_clicked" swapped="no"/>
+                                    <child>
+                                      <object class="GtkLabel" id="label_device_playlists">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="label" translatable="yes">Playlists Folder:</property>
+                                        <property name="xalign">0</property>
+                                      </object>
+                                    </child>
                                   </object>
-                                  <packing>
-                                    <property name="expand">True</property>
-                                    <property name="fill">True</property>
-                                    <property name="position">1</property>
-                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkFlowBoxChild">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">True</property>
+                                    <child>
+                                      <object class="GtkButton" id="btn_playlistfolder">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">True</property>
+                                        <property name="receives-default">False</property>
+                                        <signal name="clicked" handler="on_btn_playlist_folder_clicked" swapped="no"/>
+                                      </object>
+                                    </child>
+                                  </object>
                                 </child>
                               </object>
                               <packing>
@@ -926,52 +935,55 @@
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkBox">
+                              <object class="GtkFlowBox">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
-                                <property name="orientation">vertical</property>
-                                <property name="spacing">12</property>
+                                <property name="min-children-per-line">1</property>
+                                <property name="max-children-per-line">2</property>
+                                <property name="selection-mode">none</property>
                                 <child>
-                                  <object class="GtkLabel" id="label_on_sync">
+                                  <object class="GtkFlowBoxChild">
                                     <property name="visible">True</property>
-                                    <property name="can-focus">False</property>
-                                    <property name="label" translatable="yes">After syncing an episode:</property>
-                                    <property name="xalign">0</property>
+                                    <property name="can-focus">True</property>
+                                    <child>
+                                      <object class="GtkLabel" id="label_on_sync">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="label" translatable="yes">After syncing an episode:</property>
+                                        <property name="xalign">0</property>
+                                      </object>
+                                    </child>
                                   </object>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">True</property>
-                                    <property name="position">0</property>
-                                  </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkComboBox" id="combobox_on_sync">
+                                  <object class="GtkFlowBoxChild">
                                     <property name="visible">True</property>
-                                    <property name="can-focus">False</property>
-                                    <signal name="changed" handler="on_combobox_on_sync_changed" swapped="no"/>
+                                    <property name="can-focus">True</property>
+                                    <child>
+                                      <object class="GtkComboBox" id="combobox_on_sync">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <signal name="changed" handler="on_combobox_on_sync_changed" swapped="no"/>
+                                      </object>
+                                    </child>
                                   </object>
-                                  <packing>
-                                    <property name="expand">True</property>
-                                    <property name="fill">True</property>
-                                    <property name="position">1</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkSeparator">
-                                    <property name="visible">True</property>
-                                    <property name="can-focus">False</property>
-                                  </object>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">True</property>
-                                    <property name="position">2</property>
-                                  </packing>
                                 </child>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
                                 <property name="fill">True</property>
                                 <property name="position">7</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkSeparator">
+                                <property name="visible">True</property>
+                                <property name="can-focus">False</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">8</property>
                               </packing>
                             </child>
                             <child>
@@ -987,7 +999,7 @@
                               <packing>
                                 <property name="expand">False</property>
                                 <property name="fill">True</property>
-                                <property name="position">8</property>
+                                <property name="position">9</property>
                               </packing>
                             </child>
                             <child>
@@ -1003,7 +1015,7 @@
                               <packing>
                                 <property name="expand">False</property>
                                 <property name="fill">True</property>
-                                <property name="position">9</property>
+                                <property name="position">10</property>
                               </packing>
                             </child>
                           </object>
