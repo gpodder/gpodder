@@ -194,6 +194,7 @@ class EpisodeListModel(Gtk.ListStore):
         # Are we currently showing "all episodes"/section or a single channel?
         self._section_view = False
 
+        self.ICON_WEB_BROWSER = 'web-browser'
         self.ICON_AUDIO_FILE = 'audio-x-generic'
         self.ICON_VIDEO_FILE = 'video-x-generic'
         self.ICON_IMAGE_FILE = 'image-x-generic'
@@ -465,6 +466,12 @@ class EpisodeListModel(Gtk.ListStore):
             elif episode._download_error is not None:
                 tooltip.append(_('ERROR: %s') % episode._download_error)
                 status_icon = self.ICON_ERROR
+                if episode.state == gpodder.STATE_NORMAL and episode.is_new:
+                    view_show_downloaded = self._config.ui.gtk.episode_list.always_show_new
+                    view_show_unplayed = True
+            elif not episode.url:
+                tooltip.append(_('No downloadable content'))
+                status_icon = self.ICON_WEB_BROWSER
                 if episode.state == gpodder.STATE_NORMAL and episode.is_new:
                     view_show_downloaded = self._config.ui.gtk.episode_list.always_show_new
                     view_show_unplayed = True

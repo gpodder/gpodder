@@ -351,7 +351,11 @@ class PodcastEpisode(PodcastModelObject):
         if link_has_media:
             return episode
 
-        return None
+        # The episode has no downloadable content.
+        # It is either a blog post or it links to a webpage with content accessible from shownotes title.
+        # Remove the URL so downloading will fail.
+        episode.url = ''
+        return episode
 
     def __init__(self, channel):
         self.parent = channel
@@ -506,6 +510,13 @@ class PodcastEpisode(PodcastModelObject):
         """
         return self.state != gpodder.STATE_DELETED and not self.archive and (
             not self.download_task or self.download_task.status == self.download_task.FAILED)
+
+    def can_lock(self):
+        """
+        gPodder.on_item_toggle_lock_activate() unlocks deleted episodes and toggles all others.
+        Locked episodes can always be unlocked.
+        """
+        return self.state != gpodder.STATE_DELETED or self.archive
 
     def check_is_new(self):
         return (self.state == gpodder.STATE_NORMAL and self.is_new and

@@ -128,7 +128,7 @@ class CurrentTrackTracker(object):
                              'calc: %r observed: %r', cur['pos'], kwargs['pos'])
                 self.notify_stop()
 
-            if ((kwargs['pos']) == 0 and
+            if ((kwargs['pos']) <= 0 and
                     self.pos is not None and
                     self.length is not None and
                     (self.length - USECS_IN_SEC) < self.pos and
@@ -144,7 +144,8 @@ class CurrentTrackTracker(object):
                     logger.debug('pos=0 not end of stream (calculated pos: %f/%f [%f])',
                                  self.pos / USECS_IN_SEC, self.length / USECS_IN_SEC,
                                  (self.pos / USECS_IN_SEC) - (self.length / USECS_IN_SEC))
-                self.pos = kwargs.pop('pos')
+                newpos = kwargs.pop('pos')
+                self.pos = newpos if newpos >= 0 else 0
 
         if 'status' in kwargs:
             self.status = kwargs.pop('status')
@@ -274,35 +275,28 @@ class MPRISDBusReceiver(object):
             collected_info['rate'] = changed_properties['Rate']
         # Fix #788 pos=0 when Stopped resulting in not saving position on VLC quit
         if changed_properties.get('PlaybackStatus') != 'Stopped':
-            collected_info['pos'] = self.query_position(sender)
-
+            try:
+                collected_info['pos'] = self.query_property(sender, 'Position')
+            except dbus.exceptions.DBusException:
+                pass
         if 'status' not in collected_info:
-            collected_info['status'] = str(self.query_status(sender))
-        logger.debug('collected info: %r', collected_info)
+            try:
+                collected_info['status'] = str(self.query_property(
+                    sender, 'PlaybackStatus'))
+            except dbus.exceptions.DBusException:
+                pass
 
+        logger.debug('collected info: %r', collected_info)
         self.cur.update(**collected_info)
 
     def on_seeked(self, position):
         logger.debug('seeked to pos: %f', position)
         self.cur.update(pos=position)
 
-    def query_position(self, sender):
+    def query_property(self, sender, prop):
         proxy = self.bus.get_object(sender, self.PATH_MPRIS)
         props = dbus.Interface(proxy, self.INTERFACE_PROPS)
-        try:
-            pos = props.Get(self.INTERFACE_MPRIS, 'Position')
-        except:
-            pos = None
-        return pos
-
-    def query_status(self, sender):
-        proxy = self.bus.get_object(sender, self.PATH_MPRIS)
-        props = dbus.Interface(proxy, self.INTERFACE_PROPS)
-        try:
-            status = props.Get(self.INTERFACE_MPRIS, 'PlaybackStatus')
-        except:
-            status = None
-        return status
+        return props.Get(self.INTERFACE_MPRIS, prop)
 
 
 class gPodderNotifier(dbus.service.Object):

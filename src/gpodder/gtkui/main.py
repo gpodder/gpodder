@@ -2207,7 +2207,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             any_new = any(e.is_new and e.state != gpodder.STATE_DELETED for e in episodes)
             downloaded = all(e.was_downloaded(and_exists=True) for e in episodes)
             downloading = any(e.downloading for e in episodes)
-            (open_instead_of_play, can_play, can_download, can_pause, can_cancel, can_delete) = self.play_or_download()
+            (open_instead_of_play, can_play, can_download, can_pause, can_cancel, can_delete, can_lock) = self.play_or_download()
             menu = self.application.builder.get_object('episodes-context')
 
             # Play
@@ -2255,9 +2255,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return True
 
     def set_episode_actions(self, open_instead_of_play=False, can_play=False, can_download=False, can_pause=False, can_cancel=False,
-                            can_delete=False):
+                            can_delete=False, can_lock=False, is_episode_selected=False):
         # play icon and label
-#        if open_instead_of_play:
+#        if open_instead_of_play or not is_episode_selected:
 #            self.toolPlay.set_icon_name('document-open')
 #            self.toolPlay.set_label(_('Open'))
 #        else:
@@ -2287,8 +2287,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.pause_action.set_enabled(can_pause)
         self.episodes_cancel_action.set_enabled(can_cancel)
         self.delete_action.set_enabled(can_delete)
-#        self.toggle_episode_new_action.set_enabled(can_play)
-#        self.toggle_episode_lock_action.set_enabled(can_play)
+#        self.toggle_episode_new_action.set_enabled(is_episode_selected)
+#        self.toggle_episode_lock_action.set_enabled(can_lock)
         self.episode_new_action.set_enabled(can_play)
         self.episode_lock_action.set_enabled(can_play)
 
@@ -2435,7 +2435,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 #            current_page = self.wNotebook.get_current_page()
 #        if current_page == 0:
         if True:
-            (open_instead_of_play, can_play, can_download, can_pause, can_cancel, can_delete) = (False,) * 6
+            (open_instead_of_play, can_play, can_download, can_pause, can_cancel, can_delete, can_lock) = (False,) * 7
 
             selection = self.treeAvailable.get_selection()
             if selection.count_selected_rows() > 0:
@@ -2451,16 +2451,20 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         logger.error('Invalid episode at path %s', str(path))
                         continue
 
+                    # These values should only ever be set, never unset them once set.
+                    # Actions filter episodes using these methods.
                     open_instead_of_play = open_instead_of_play or episode.file_type() not in ('audio', 'video')
                     can_play = can_play or episode.can_play(self.config)
                     can_download = can_download or episode.can_download()
                     can_pause = can_pause or episode.can_pause()
                     can_cancel = can_cancel or episode.can_cancel()
                     can_delete = can_delete or episode.can_delete()
+                    can_lock = can_lock or episode.can_lock()
 
-            self.set_episode_actions(open_instead_of_play, can_play, can_download, can_pause, can_cancel, can_delete)
+            self.set_episode_actions(open_instead_of_play, can_play, can_download, can_pause, can_cancel, can_delete, can_lock,
+                                    selection.count_selected_rows() > 0)
 
-            return (open_instead_of_play, can_play, can_download, can_pause, can_cancel, can_delete)
+            return (open_instead_of_play, can_play, can_download, can_pause, can_cancel, can_delete, can_lock)
         else:
             (can_queue, can_pause, can_cancel, can_remove) = (False,) * 4
 
@@ -2478,14 +2482,16 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         logger.error('Invalid task at path %s', str(path))
                         continue
 
+                    # These values should only ever be set, never unset them once set.
+                    # Actions filter tasks using these methods.
                     can_queue = can_queue or task.can_queue()
                     can_pause = can_pause or task.can_pause()
                     can_cancel = can_cancel or task.can_cancel()
                     can_remove = can_remove or task.can_remove()
 
-            self.set_episode_actions(False, False, can_queue, can_pause, can_cancel, can_remove)
+            self.set_episode_actions(False, False, can_queue, can_pause, can_cancel, can_remove, False, False)
 
-            return (False, False, can_queue, can_pause, can_cancel, can_remove)
+            return (False, False, can_queue, can_pause, can_cancel, can_remove, False)
 
     def on_cbMaxDownloads_toggled(self, widget, *args):
         self.spinMaxDownloads.set_sensitive(self.cbMaxDownloads.get_active())
@@ -3002,16 +3008,22 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     # download older episodes first
                     episodes = list(Model.sort_episodes_by_pubdate(episodes))
 
-                if not episodes:
+                # Remove episodes without downloadable content
+                downloadable_episodes = [e for e in episodes if e.url]
+
+                if not downloadable_episodes:
                     # Nothing new here - but inform the user
                     self.pbFeedUpdate.set_fraction(1.0)
-                    self.pbFeedUpdate.set_text(_('No new episodes'))
+                    self.pbFeedUpdate.set_text(
+                        _('No new episodes with downloadable content') if episodes else _('No new episodes'))
                     self.feed_cache_update_cancelled = True
                     self.btnCancelFeedUpdate.show()
                     self.btnCancelFeedUpdate.set_sensitive(True)
                     self.update_action.set_enabled(True)
                     self.btnCancelFeedUpdate.set_image(Gtk.Image.new_from_icon_name('edit-clear', Gtk.IconSize.BUTTON))
                 else:
+                    episodes = downloadable_episodes
+
                     count = len(episodes)
                     # New episodes are available
                     self.pbFeedUpdate.set_fraction(1.0)
@@ -3240,6 +3252,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.update_podcast_list_model(selected=True)
         self.update_episode_list_icons(selected=True)
         self.db.commit()
+
+        self.play_or_download()
 
     def mark_selected_episodes_new(self):
         for episode in self.get_selected_episodes():

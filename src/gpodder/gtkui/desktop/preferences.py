@@ -209,6 +209,7 @@ class gPodderPreferences(BuilderWidget):
         self.preferred_youtube_format_model = YouTubeVideoFormatListModel(self._config)
         self.combobox_preferred_youtube_format.set_model(self.preferred_youtube_format_model)
         cellrenderer = Gtk.CellRendererText()
+        cellrenderer.set_property('ellipsize', Pango.EllipsizeMode.END)
         self.combobox_preferred_youtube_format.pack_start(cellrenderer, True)
         self.combobox_preferred_youtube_format.add_attribute(cellrenderer, 'text', self.preferred_youtube_format_model.C_CAPTION)
         self.combobox_preferred_youtube_format.set_active(self.preferred_youtube_format_model.get_index())
@@ -216,6 +217,7 @@ class gPodderPreferences(BuilderWidget):
         self.preferred_youtube_hls_format_model = YouTubeVideoHLSFormatListModel(self._config)
         self.combobox_preferred_youtube_hls_format.set_model(self.preferred_youtube_hls_format_model)
         cellrenderer = Gtk.CellRendererText()
+        cellrenderer.set_property('ellipsize', Pango.EllipsizeMode.END)
         self.combobox_preferred_youtube_hls_format.pack_start(cellrenderer, True)
         self.combobox_preferred_youtube_hls_format.add_attribute(cellrenderer, 'text', self.preferred_youtube_hls_format_model.C_CAPTION)
         self.combobox_preferred_youtube_hls_format.set_active(self.preferred_youtube_hls_format_model.get_index())
@@ -223,6 +225,7 @@ class gPodderPreferences(BuilderWidget):
         self.preferred_vimeo_format_model = VimeoVideoFormatListModel(self._config)
         self.combobox_preferred_vimeo_format.set_model(self.preferred_vimeo_format_model)
         cellrenderer = Gtk.CellRendererText()
+        cellrenderer.set_property('ellipsize', Pango.EllipsizeMode.END)
         self.combobox_preferred_vimeo_format.pack_start(cellrenderer, True)
         self.combobox_preferred_vimeo_format.add_attribute(cellrenderer, 'text', self.preferred_vimeo_format_model.C_CAPTION)
         self.combobox_preferred_vimeo_format.set_active(self.preferred_vimeo_format_model.get_index())
@@ -322,6 +325,17 @@ class gPodderPreferences(BuilderWidget):
         if result:
             for label, callback in result:
                 self.prefs_stack.add_titled(callback(), label, label)
+
+        def _wrap_checkbox_labels(w, *args):
+            if w.get_name().startswith("no_label_wrap"):
+                return
+            elif isinstance(w, Gtk.CheckButton):
+                label = w.get_child()
+                label.set_line_wrap(True)
+            elif isinstance(w, Gtk.Container):
+                w.foreach(_wrap_checkbox_labels)
+
+        self.prefs_stack.foreach(_wrap_checkbox_labels)
 
     def _extensions_select_function(self, selection, model, path, path_currently_selected):
         return model.get_value(model.get_iter(path), self.C_SHOW_TOGGLE)
@@ -623,7 +637,8 @@ class gPodderPreferences(BuilderWidget):
             children = self.btn_playlistfolder.get_children()
             if children:
                 label = children.pop()
-                label.set_alignment(0., .5)
+                label.set_ellipsize(Pango.EllipsizeMode.START)
+                label.set_xalign(0.0)
         else:
             self.btn_playlistfolder.set_sensitive(False)
             self.btn_playlistfolder.set_label('')
@@ -645,10 +660,6 @@ class gPodderPreferences(BuilderWidget):
             self.btn_filesystemMountpoint.set_label(self._config.device_sync.device_folder or "")
             self.btn_filesystemMountpoint.set_sensitive(True)
             self.checkbutton_create_playlists.set_sensitive(True)
-            children = self.btn_filesystemMountpoint.get_children()
-            if children:
-                label = children.pop()
-                label.set_alignment(0., .5)
             self.toggle_playlist_interface(self._config.device_sync.playlists.create)
             self.combobox_on_sync.set_sensitive(True)
             self.checkbutton_skip_played_episodes.set_sensitive(True)
@@ -662,10 +673,11 @@ class gPodderPreferences(BuilderWidget):
             self.combobox_on_sync.set_sensitive(False)
             self.checkbutton_skip_played_episodes.set_sensitive(False)
 
-            children = self.btn_filesystemMountpoint.get_children()
-            if children:
-                label = children.pop()
-                label.set_alignment(0., .5)
+        children = self.btn_filesystemMountpoint.get_children()
+        if children:
+            label = children.pop()
+            label.set_ellipsize(Pango.EllipsizeMode.START)
+            label.set_xalign(0.0)
 
     def on_btn_device_mountpoint_clicked(self, widget):
         fs = Gtk.FileChooserDialog(title=_('Select folder for mount point'),
@@ -709,7 +721,8 @@ class gPodderPreferences(BuilderWidget):
                 children = self.btn_playlistfolder.get_children()
                 if children:
                     label = children.pop()
-                    label.set_alignment(0., .5)
+                    label.set_ellipsize(Pango.EllipsizeMode.START)
+                    label.set_xalign(0.0)
             break
 
         fs.destroy()
