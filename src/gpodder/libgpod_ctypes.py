@@ -296,7 +296,7 @@ class iPodTrack(object):
             self.filename_on_ipod = None
 
     def __repr__(self):
-        return f'iPodTrack(episode={self.episode_title}, podcast={self.podcast_title})'
+        return 'iPodTrack(episode={}, podcast={})'.format(self.episode_title, self.podcast_title)
 
     def initialize_bookmark(self, is_new, bookmark_time):
         self.track[0].mark_unplayed = 0x02 if is_new else 0x01
@@ -327,7 +327,7 @@ class iPodDatabase(object):
         self.itdb = libgpod.itdb_parse(mountpoint.encode(), None)
 
         if not self.itdb:
-            raise ValueError(f'iTunesDB not found at {self.mountpoint}')
+            raise ValueError('iTunesDB not found at {}'.format(self.mountpoint))
 
         logger.info('iTunesDB: %s', self.itdb)
 

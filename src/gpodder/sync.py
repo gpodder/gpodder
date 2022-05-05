@@ -181,7 +181,7 @@ class SyncTrack(object):
         self.__dict__.update(kwargs)
 
     def __repr__(self):
-        return f'SyncTrack(title={self.title}, podcast={self.podcast})'
+        return 'SyncTrack(title={}, podcast={})'.format(self.title, self.podcast)
 
     @property
     def playcount_str(self):
