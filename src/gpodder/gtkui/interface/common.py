@@ -133,10 +133,9 @@ class BuilderWidget(GtkBuilderWidget):
         dlg.destroy()
         return dict(confirmed=response == Gtk.ResponseType.YES, checked=checked)
 
-    def show_confirmation(self, message, title=None, checkbox=None, default_checked=False):
+    def show_confirmation(self, message, title=None):
         return self.show_confirmation_extended(
-            message, title=title,
-            checkbox=checkbox, default_checked=default_checked)["confirmed"]
+            message, title=title)["confirmed"]
 
     def show_text_edit_dialog(self, title, prompt, text=None, empty=False,
             is_url=False, affirmative_text=_('_OK')):

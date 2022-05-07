@@ -2946,7 +2946,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         message = self.format_delete_message(message, episodes, 5, 60)
 
         if confirm:
-            undownloadable = len([e.can_undownload() for e in episodes])
+            undownloadable = len([e for e in episodes if e.can_undownload()])
             if undownloadable:
                 checkbox = N_("Mark episode as new to allow downloading again",
                               "Mark episodes as new to allow downloading again",
