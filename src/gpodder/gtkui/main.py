@@ -2986,11 +2986,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 progress.on_progress(idx / len(episodes))
                 if not episode.archive:
                     progress.on_message(episode.title)
+                    # ep_undownload must be computed before delete_from_disk
+                    ep_undownload = undownload and episode.can_undownload()
                     episode.delete_from_disk()
                     episode_urls.add(episode.url)
                     channel_urls.add(episode.channel.url)
                     episodes_status_update.append(episode)
-                    if undownload:
+                    if ep_undownload:
                         # Undelete and mark episode as new
                         episode.state = gpodder.STATE_NORMAL
                         episode.is_new = True
