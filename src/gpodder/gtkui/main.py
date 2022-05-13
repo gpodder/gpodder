@@ -316,6 +316,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             ('delete', self.on_btnDownloadedDelete_clicked),
             ('toggleEpisodeNew', self.on_item_toggle_played_activate),
             ('toggleEpisodeLock', self.on_item_toggle_lock_activate),
+            ('openEpisodeDownloadFolder', self.on_open_episode_download_folder),
             ('toggleShownotes', self.on_shownotes_selected_episodes),
             ('sync', self.on_sync_to_device_activate),
             ('findPodcast', self.on_find_podcast_activate),
@@ -338,6 +339,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.delete_action = g.lookup_action('delete')
         self.toggle_episode_new_action = g.lookup_action('toggleEpisodeNew')
         self.toggle_episode_lock_action = g.lookup_action('toggleEpisodeLock')
+        self.open_episode_download_folder_action = g.lookup_action('openEpisodeDownloadFolder')
 
         action = Gio.SimpleAction.new_stateful(
             'showToolbar', None, GLib.Variant.new_boolean(self.config.show_toolbar))
@@ -1739,6 +1741,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
         assert self.active_channel is not None
         util.gui_open(self.active_channel.save_dir, gui=self)
 
+    def on_open_episode_download_folder(self, unused1=None, unused2=None):
+        episodes = self.get_selected_episodes()
+        assert len(episodes) == 1
+        util.gui_open(episodes[0].parent.save_dir, gui=self)
+
     def treeview_channels_show_context_menu(self, treeview, event=None):
         model, paths = self.treeview_handle_context_menu_click(treeview, event)
         if not paths:
@@ -2061,6 +2068,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
             item.set_action_name('win.toggleShownotes')
             menu.append(item)
 
+            if len(self.get_selected_episodes()) == 1:
+                item = Gtk.MenuItem(_('Open download folder'))
+                item.connect('activate', self.on_open_episode_download_folder)
+                menu.append(item)
+
             menu.attach_to_widget(treeview)
             menu.show_all()
             # Disable tooltips while we are showing the menu, so
@@ -2077,6 +2089,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def set_episode_actions(self, open_instead_of_play=False, can_play=False, can_download=False, can_pause=False, can_cancel=False,
                             can_delete=False, can_lock=False, is_episode_selected=False):
+        episodes = self.get_selected_episodes() if is_episode_selected else []
+
         # play icon and label
         if open_instead_of_play or not is_episode_selected:
             self.toolPlay.set_icon_name('document-open')
@@ -2084,7 +2098,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         else:
             self.toolPlay.set_icon_name('media-playback-start')
 
-            episodes = self.get_selected_episodes()
             downloaded = all(e.was_downloaded(and_exists=True) for e in episodes)
             downloading = any(e.downloading for e in episodes)
 
@@ -2110,6 +2123,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.delete_action.set_enabled(can_delete)
         self.toggle_episode_new_action.set_enabled(is_episode_selected)
         self.toggle_episode_lock_action.set_enabled(can_lock)
+        self.open_episode_download_folder_action.set_enabled(len(episodes) == 1)
 
     def set_title(self, new_title):
         self.default_title = new_title
