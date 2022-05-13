@@ -90,7 +90,7 @@ N_ = gpodder.ngettext
 try:
     locale.setlocale(locale.LC_ALL, '')
 except Exception as e:
-    logger.warn('Cannot set locale (%s)', e, exc_info=True)
+    logger.warning('Cannot set locale (%s)', e, exc_info=True)
 
 # Native filesystem encoding detection
 encoding = sys.getfilesystemencoding()
@@ -198,7 +198,7 @@ def make_directory(path):
     except GLib.Error as err:
         # The sync might be multithreaded, so directories can be created by other threads
         if not err.matches(Gio.io_error_quark(), Gio.IOErrorEnum.EXISTS):
-            logger.warn('Could not create directory %s: %s', path.get_uri(), err.message)
+            logger.warning('Could not create directory %s: %s', path.get_uri(), err.message)
             return False
 
     return True
@@ -404,9 +404,9 @@ def calculate_size(path):
                 try:
                     sum += calculate_size(os.path.join(path, item))
                 except:
-                    logger.warn('Cannot get size for %s', path, exc_info=True)
+                    logger.warning('Cannot get size for %s', path, exc_info=True)
         except:
-            logger.warn('Cannot access %s', path, exc_info=True)
+            logger.warning('Cannot access %s', path, exc_info=True)
 
         return sum
 
@@ -430,7 +430,7 @@ def file_modification_datetime(filename):
         timestamp = s[stat.ST_MTIME]
         return datetime.datetime.fromtimestamp(timestamp)
     except:
-        logger.warn('Cannot get mtime for %s', filename, exc_info=True)
+        logger.warning('Cannot get mtime for %s', filename, exc_info=True)
         return None
 
 
@@ -457,7 +457,7 @@ def file_modification_timestamp(filename):
         s = os.stat(filename)
         return s[stat.ST_MTIME]
     except:
-        logger.warn('Cannot get modification timestamp for %s', filename)
+        logger.warning('Cannot get modification timestamp for %s', filename)
         return -1
 
 
@@ -548,10 +548,10 @@ def format_date(timestamp):
     try:
         timestamp_date = time.localtime(timestamp)[:3]
     except ValueError as ve:
-        logger.warn('Cannot convert timestamp', exc_info=True)
+        logger.warning('Cannot convert timestamp', exc_info=True)
         return None
     except TypeError as te:
-        logger.warn('Cannot convert timestamp', exc_info=True)
+        logger.warning('Cannot convert timestamp', exc_info=True)
         return None
 
     if timestamp_date == today:
@@ -562,7 +562,7 @@ def format_date(timestamp):
     try:
         diff = int((time.time() - timestamp) / seconds_in_a_day)
     except:
-        logger.warn('Cannot convert "%s" to date.', timestamp, exc_info=True)
+        logger.warning('Cannot convert "%s" to date.', timestamp, exc_info=True)
         return None
 
     try:
@@ -1111,7 +1111,7 @@ def object_string_formatter(s, **kwargs):
                     to_s = str(getattr(o, attr))
                     result = result.replace(from_s, to_s)
                 except:
-                    logger.warn('Replace of "%s" failed for "%s".', attr, s)
+                    logger.warning('Replace of "%s" failed for "%s".', attr, s)
 
     return result
 
@@ -1977,7 +1977,7 @@ def connection_available():
             return online
 
     except Exception as e:
-        logger.warn('Cannot get connection status: %s', e, exc_info=True)
+        logger.warning('Cannot get connection status: %s', e, exc_info=True)
         # When we can't determine the connection status, act as if we're online (bug 1730)
         return True
 

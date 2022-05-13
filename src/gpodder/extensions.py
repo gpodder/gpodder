@@ -242,7 +242,8 @@ class ExtensionContainer(object):
             return {}
 
         encoding = util.guess_encoding(filename)
-        extension_py = open(filename, "r", encoding=encoding).read()
+        with open(filename, "r", encoding=encoding) as f:
+            extension_py = f.read()
         metadata = dict(re.findall(r"__([a-z_]+)__ = '([^']+)'", extension_py))
 
         # Support for using gpodder.gettext() as _ to localize text
@@ -366,7 +367,7 @@ class ExtensionManager(object):
                     'enabled' if new_enabled else 'disabled')
             container.set_enabled(new_enabled)
             if new_enabled and not container.enabled:
-                logger.warn('Could not enable extension: %s',
+                logger.warning('Could not enable extension: %s',
                         container.error)
                 self.core.config.extensions.enabled = [x
                         for x in self.core.config.extensions.enabled

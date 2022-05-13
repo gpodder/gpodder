@@ -60,7 +60,7 @@ class gPodderExtension(object):
         try:
             response = util.urlopen(url).read()
         except Exception as e:
-            logger.warn("subtitle url returned error %s", e)
+            logger.warning("subtitle url returned error %s", e)
             return ''
         return response
 
@@ -105,7 +105,7 @@ class gPodderExtension(object):
             with open(srt_filename, 'w+') as srtFile:
                 srtFile.write(sub.encode("utf-8"))
         except Exception as e:
-            logger.warn("Can't write srt file: %s", e)
+            logger.warning("Can't write srt file: %s", e)
 
     def on_episode_delete(self, episode, filename):
         srt_filename = self.get_srt_filename(filename)

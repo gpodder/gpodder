@@ -105,7 +105,7 @@ class gPodderExtension:
             gpodder.user_extensions.on_notification_show(_('File normalized'),
                     episode.title)
         else:
-            logger.warn('normalize-audio failed: %s / %s', stdout, stderr)
+            logger.warning('normalize-audio failed: %s / %s', stdout, stderr)
 
     def convert_episodes(self, episodes):
         for episode in episodes:

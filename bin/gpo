@@ -379,7 +379,7 @@ class gPodderCli(object):
                 podcast.rename(title)
             podcast.save()
         except Exception as e:
-            logger.warn('Cannot subscribe: %s', e, exc_info=True)
+            logger.warning('Cannot subscribe: %s', e, exc_info=True)
             if hasattr(e, 'strerror'):
                 self._error(e.strerror)
             else:

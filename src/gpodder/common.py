@@ -87,7 +87,7 @@ def find_partial_downloads(channels, start_progress_callback, progress_callback,
                 break
 
         for f in partial_files:
-            logger.warn('Partial file without episode: %s', f)
+            logger.warning('Partial file without episode: %s', f)
             util.delete_file(f)
 
     # never delete partial: either we can't clean them up because we offer to

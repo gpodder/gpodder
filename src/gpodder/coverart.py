@@ -91,7 +91,7 @@ class CoverDownloader(object):
                     raise ValueError(msg)
                 data = response.content
             except Exception as e:
-                logger.warn('Cover art download failed: %s', e)
+                logger.warning('Cover art download failed: %s', e)
                 return self._fallback_filename(title)
 
             try:
@@ -113,7 +113,7 @@ class CoverDownloader(object):
 
                 return filename + extension
             except Exception as e:
-                logger.warn('Cannot save cover art', exc_info=True)
+                logger.warning('Cannot save cover art', exc_info=True)
 
         # Fallback to cover art based on the podcast title
         return self._fallback_filename(title)

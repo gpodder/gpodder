@@ -161,7 +161,7 @@ class PodcastParserFeed(Feed):
                 num_duplicate_guids += 1
                 channel._update_error = ('Discarded {} episode(s) with non-unique GUID, contact the podcast publisher to fix this issue.'
                         .format(num_duplicate_guids))
-                logger.warn('Discarded episode with non-unique GUID, contact the podcast publisher to fix this issue. [%s] [%s]',
+                logger.warning('Discarded episode with non-unique GUID, contact the podcast publisher to fix this issue. [%s] [%s]',
                         channel.title, episode.title)
                 continue
 
@@ -660,7 +660,7 @@ class PodcastEpisode(PodcastModelObject):
         if not check_only and (force_update or not self.download_filename):
             # Avoid and catch gPodder bug 1440 and similar situations
             if template == '':
-                logger.warn('Empty template. Report this podcast URL %s',
+                logger.warning('Empty template. Report this podcast URL %s',
                         self.channel.url)
                 template = None
 
@@ -673,7 +673,7 @@ class PodcastEpisode(PodcastModelObject):
 
             if 'redirect' in episode_filename and template is None:
                 # This looks like a redirection URL - force URL resolving!
-                logger.warn('Looks like a redirection to me: %s', self.url)
+                logger.warning('Looks like a redirection to me: %s', self.url)
                 url = util.get_real_url(self.channel.authenticate_url(self.url))
                 logger.info('Redirection resolved to: %s', url)
                 episode_filename, _ = util.filename_from_url(url)
@@ -716,7 +716,7 @@ class PodcastEpisode(PodcastModelObject):
                     # call it from the downloading code before saving the file
                     logger.info('Choosing new filename: %s', new_file_name)
                 else:
-                    logger.warn('%s exists or %s does not', new_file_name, old_file_name)
+                    logger.warning('%s exists or %s does not', new_file_name, old_file_name)
                 logger.info('Updating filename of %s to "%s".', self.url, wanted_filename)
             elif self.download_filename is None:
                 logger.info('Setting download filename: %s', wanted_filename)
@@ -787,7 +787,7 @@ class PodcastEpisode(PodcastModelObject):
         try:
             return datetime.datetime.fromtimestamp(self.published).strftime('%H%M')
         except:
-            logger.warn('Cannot format pubtime: %s', self.title, exc_info=True)
+            logger.warning('Cannot format pubtime: %s', self.title, exc_info=True)
             return '0000'
 
     def playlist_title(self):
@@ -942,7 +942,7 @@ class PodcastChannel(PodcastModelObject):
             logger.debug('Strategy for %s changed to %s', self.title, caption)
             self.download_strategy = download_strategy
         else:
-            logger.warn('Cannot set strategy to %d', download_strategy)
+            logger.warning('Cannot set strategy to %d', download_strategy)
 
     def rewrite_url(self, new_url):
         new_url = util.normalize_feed_url(new_url)
@@ -1036,7 +1036,7 @@ class PodcastChannel(PodcastModelObject):
                         break
 
             if not found and not util.is_system_file(filename):
-                logger.warn('Unknown external file: %s', filename)
+                logger.warning('Unknown external file: %s', filename)
 
     @classmethod
     def sort_key(cls, podcast):

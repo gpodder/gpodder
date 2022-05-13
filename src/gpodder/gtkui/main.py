@@ -1840,8 +1840,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def save_episodes_as_file(self, episodes):
         def do_save_episode(copy_from, copy_to):
             if os.path.exists(copy_to):
-                logger.warn(copy_from)
-                logger.warn(copy_to)
+                logger.warning(copy_from)
+                logger.warning(copy_to)
                 title = _('File already exists')
                 d = {'filename': os.path.basename(copy_to)}
                 message = _('A file named "%(filename)s" already exists. Do you want to replace it?') % d
@@ -1850,7 +1850,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             try:
                 shutil.copyfile(copy_from, copy_to)
             except (OSError, IOError) as e:
-                logger.warn('Error copying from %s to %s: %r', copy_from, copy_to, e, exc_info=True)
+                logger.warning('Error copying from %s to %s: %r', copy_from, copy_to, e, exc_info=True)
                 folder, filename = os.path.split(copy_to)
                 # Remove characters not supported by VFAT (#282)
                 new_filename = re.sub(r"[\"*/:<>?\\|]", "_", filename)
@@ -1889,7 +1889,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         msg = _('Error saving to local folder: %(error)r.\n'
                                 'Would you like to continue?') % dict(error=e)
                         if not self.show_confirmation(msg, _('Error saving to local folder')):
-                            logger.warn("Save to Local Folder cancelled following error")
+                            logger.warning("Save to Local Folder cancelled following error")
                             break
                     else:
                         self.notification(_('Error saving to local folder: %(error)r') % dict(error=e),
@@ -3551,7 +3551,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             up_to_date, version, released, days = util.get_update_info()
         except Exception as e:
             if silent:
-                logger.warn('Could not check for updates.', exc_info=True)
+                logger.warning('Could not check for updates.', exc_info=True)
             else:
                 title = _('Could not check for updates')
                 message = _('Please try again later.')

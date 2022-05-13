@@ -255,10 +255,10 @@ class MPRISDBusReceiver(object):
                        invalidated_properties, path=None, sender=None):
         if interface_name != self.INTERFACE_MPRIS:
             if interface_name not in self.OTHER_MPRIS_INTERFACES:
-                logger.warn('unexpected interface: %s, props=%r', interface_name, list(changed_properties.keys()))
+                logger.warning('unexpected interface: %s, props=%r', interface_name, list(changed_properties.keys()))
             return
         if sender is None:
-            logger.warn('No sender associated to D-Bus signal, please report a bug')
+            logger.warning('No sender associated to D-Bus signal, please report a bug')
             return
 
         collected_info = {}

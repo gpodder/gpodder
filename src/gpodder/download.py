@@ -258,7 +258,7 @@ class DownloadURLOpener:
                 if current_size > 0:
                     headers['Range'] = 'bytes=%s-' % (current_size)
             except:
-                logger.warn('Cannot resume download: %s', filename, exc_info=True)
+                logger.warning('Cannot resume download: %s', filename, exc_info=True)
                 tfp = None
                 current_size = 0
 
@@ -292,7 +292,7 @@ class DownloadURLOpener:
                     tfp.close()
                     tfp = open(filename, 'wb')
                     current_size = 0
-                    logger.warn('Cannot resume: Invalid Content-Range (RFC2616).')
+                    logger.warning('Cannot resume: Invalid Content-Range (RFC2616).')
 
             result = headers, resp.url
             bs = 1024 * 8

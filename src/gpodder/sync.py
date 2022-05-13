@@ -94,15 +94,15 @@ def get_track_length(filename):
             # Notify user on eyed3 success if mplayer failed.
             # A warning is used to make it visible in gpo or on console.
             if attempted:
-                logger.warn('eyed3.mp3 successfully determined length: %s', filename)
+                logger.warning('eyed3.mp3 successfully determined length: %s', filename)
             return length
         except Exception:
             logger.error('eyed3.mp3 could not determine length: %s', filename, exc_info=True)
             attempted = True
 
     if not attempted:
-        logger.warn('Could not determine length: %s', filename)
-        logger.warn('Please install MPlayer or the eyed3.mp3 module for track length detection.')
+        logger.warning('Could not determine length: %s', filename)
+        logger.warning('Please install MPlayer or the eyed3.mp3 module for track length detection.')
 
     return int(60 * 60 * 1000 * 3)
     # Default is three hours (to be on the safe side)
@@ -608,7 +608,7 @@ class MP3PlayerDevice(Device):
         needed = util.calculate_size(from_file)
         free = self.get_free_space()
         if free == -1:
-            logger.warn('Cannot determine free disk space on device')
+            logger.warning('Cannot determine free disk space on device')
         elif needed > free:
             d = {'path': self.destination, 'free': util.format_filesize(free), 'need': util.format_filesize(needed)}
             message = _('Not enough space in %(path)s: %(free)s available, but need at least %(need)s')
