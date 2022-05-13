@@ -504,6 +504,12 @@ class PodcastEpisode(PodcastModelObject):
         """
         return self.download_task and self.download_task.can_cancel()
 
+    def can_undownload(self):
+        """
+        gPodder.on_btnUndownload_clicked() filters selection with this method.
+        """
+        return self.was_downloaded(and_exists=True) and not self.archive
+
     def can_delete(self):
         """
         gPodder.delete_episode_list() filters out locked episodes, and cancels all unlocked tasks in selection.
