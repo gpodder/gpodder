@@ -406,6 +406,7 @@ class ForceDownloadWorker(object):
         logger.info('Starting new thread: %s', self)
         logger.info('%s is processing: %s', self, self.task)
         self.task.run()
+        self.task.recycle()
 
 
 class DownloadQueueManager(object):
