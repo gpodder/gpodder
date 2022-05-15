@@ -45,7 +45,7 @@ class gPodderExtension:
     def read_episode_info(self, episode):
         filename = episode.local_filename(create=False, check_only=True)
         if filename is None:
-            logger.warn("%s: missing episode filename", __title__)
+            logger.warning("%s: missing episode filename", __title__)
             return None
         info = {
             'filename': filename,
@@ -74,4 +74,4 @@ class gPodderExtension:
         if proc.returncode == 0:
             logger.info("%s succeeded", command)
         else:
-            logger.warn("%s run with exit code %i", command, proc.returncode)
+            logger.warning("%s run with exit code %i", command, proc.returncode)

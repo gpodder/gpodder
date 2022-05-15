@@ -532,7 +532,7 @@ def get_gdpr_consent_url(html_data):
         logger.debug('YouTube GDPR accept consent URL is: %s', parser.url)
         return parser.url
     else:
-        logger.debug('YouTube GDPR accepted consent URL could not be resolved.', parser.url)
+        logger.debug('YouTube GDPR accepted consent URL could not be resolved.')
         raise YouTubeError('No acceptable GDPR consent URL')
 
 

@@ -745,7 +745,7 @@ class PodcastListModel(Gtk.ListStore):
                 return None
             return pixbuf
         except Exception as e:
-            logger.warn('Could not load cached cover art for %s', channel.url, exc_info=True)
+            logger.warning('Could not load cached cover art for %s', channel.url, exc_info=True)
             channel.cover_thumb = None
             channel.save()
             return None

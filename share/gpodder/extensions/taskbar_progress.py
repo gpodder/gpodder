@@ -176,7 +176,7 @@ class gPodderExtension:
         if self.window_handle is None:
             if not self.restart_warning:
                 return
-            logger.warn("No window handle available, a restart max fix this")
+            logger.warning("No window handle available, a restart max fix this")
             self.restart_warning = False
             return
         if 0 < progress < 1:

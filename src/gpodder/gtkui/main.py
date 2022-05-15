@@ -396,6 +396,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             ('delete', self.on_btnDownloadedDelete_clicked),
             # ('toggleEpisodeNew', self.on_item_toggle_played_activate),
             # ('toggleEpisodeLock', self.on_item_toggle_lock_activate),
+            ('openEpisodeDownloadFolder', self.on_open_episode_download_folder),
             ('toggleShownotes', self.on_shownotes_selected_episodes),
             ('sync', self.on_sync_to_device_activate),
             ('findPodcast', self.on_find_podcast_activate),
@@ -423,6 +424,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 #        self.toggle_episode_new_action = g.lookup_action('toggleEpisodeNew')
 #        self.toggle_episode_lock_action = g.lookup_action('toggleEpisodeLock')
         self.episode_new_action = g.lookup_action('episodeNew')
+        self.open_episode_download_folder_action = g.lookup_action('openEpisodeDownloadFolder')
         self.episode_lock_action = g.lookup_action('episodeLock')
 
         action = Gio.SimpleAction.new_stateful(
@@ -1974,6 +1976,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
         assert self.active_channel is not None
         util.gui_open(self.active_channel.save_dir, gui=self)
 
+    def on_open_episode_download_folder(self, unused1=None, unused2=None):
+        episodes = self.get_selected_episodes()
+        assert len(episodes) == 1
+        util.gui_open(episodes[0].parent.save_dir, gui=self)
+
     def treeview_channels_show_context_menu(self, treeview, event=None):
         model, paths = self.treeview_handle_context_menu_click(treeview, event)
         if not paths:
@@ -2085,8 +2092,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def save_episodes_as_file(self, episodes):
         def do_save_episode(copy_from, copy_to):
             if os.path.exists(copy_to):
-                logger.warn(copy_from)
-                logger.warn(copy_to)
+                logger.warning(copy_from)
+                logger.warning(copy_to)
                 title = _('File already exists')
                 d = {'filename': os.path.basename(copy_to)}
                 message = _('A file named "%(filename)s" already exists. Do you want to replace it?') % d
@@ -2095,7 +2102,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             try:
                 shutil.copyfile(copy_from, copy_to)
             except (OSError, IOError) as e:
-                logger.warn('Error copying from %s to %s: %r', copy_from, copy_to, e, exc_info=True)
+                logger.warning('Error copying from %s to %s: %r', copy_from, copy_to, e, exc_info=True)
                 folder, filename = os.path.split(copy_to)
                 # Remove characters not supported by VFAT (#282)
                 new_filename = re.sub(r"[\"*/:<>?\\|]", "_", filename)
@@ -2134,7 +2141,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         msg = _('Error saving to local folder: %(error)r.\n'
                                 'Would you like to continue?') % dict(error=e)
                         if not self.show_confirmation(msg, _('Error saving to local folder')):
-                            logger.warn("Save to Local Folder cancelled following error")
+                            logger.warning("Save to Local Folder cancelled following error")
                             break
                     else:
                         self.notification(_('Error saving to local folder: %(error)r') % dict(error=e),
@@ -2246,6 +2253,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 menu.remove(5)
                 self.have_episode_menu_file_items = False
 
+#            if len(self.get_selected_episodes()) == 1:
+#                item = Gtk.MenuItem(_('Open download folder'))
+#                item.connect('activate', self.on_open_episode_download_folder)
+#                menu.append(item)
+
             if event is None:
                 func = TreeViewHelper.make_popup_position_func(treeview)
                 x, y, unused = func(None)
@@ -2256,6 +2268,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def set_episode_actions(self, open_instead_of_play=False, can_play=False, can_download=False, can_pause=False, can_cancel=False,
                             can_delete=False, can_lock=False, is_episode_selected=False):
+        episodes = self.get_selected_episodes() if is_episode_selected else []
+
         # play icon and label
 #        if open_instead_of_play or not is_episode_selected:
 #            self.toolPlay.set_icon_name('document-open')
@@ -2263,7 +2277,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 #        else:
 #            self.toolPlay.set_icon_name('media-playback-start')
 #
-#            episodes = self.get_selected_episodes()
 #            downloaded = all(e.was_downloaded(and_exists=True) for e in episodes)
 #            downloading = any(e.downloading for e in episodes)
 #
@@ -2289,8 +2302,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.delete_action.set_enabled(can_delete)
 #        self.toggle_episode_new_action.set_enabled(is_episode_selected)
 #        self.toggle_episode_lock_action.set_enabled(can_lock)
-        self.episode_new_action.set_enabled(can_play)
         self.episode_lock_action.set_enabled(can_play)
+        self.open_episode_download_folder_action.set_enabled(len(episodes) == 1)
 
     def set_title(self, new_title):
         self.default_title = new_title
@@ -3124,7 +3137,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             titles.append('+%(count)d more ...' % {'count': len(things) - max_things})
         return '\n'.join(titles) + '\n\n' + message
 
-    def delete_episode_list(self, episodes, confirm=True, callback=None):
+    def delete_episode_list(self, episodes, confirm=True, callback=None, undownload=False):
 #        if self.wNotebook.get_current_page() > 0:
 #            selection = self.treeDownloads.get_selection()
 #            (model, paths) = selection.get_selected_rows()
@@ -3155,8 +3168,20 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         message = self.format_delete_message(message, episodes, 5, 60)
 
-        if confirm and not self.show_confirmation(message, title):
-            return False
+        if confirm:
+            undownloadable = len([e for e in episodes if e.can_undownload()])
+            if undownloadable:
+                checkbox = N_("Mark downloaded episodes as new, after deletion, to allow downloading again",
+                              "Mark downloaded episodes as new, after deletion, to allow downloading again",
+                              undownloadable)
+            else:
+                checkbox = None
+            res = self.show_confirmation_extended(
+                message, title,
+                checkbox=checkbox, default_checked=undownload)
+            if not res["confirmed"]:
+                return False
+            undownload = res["checked"]
 
         self.on_episodes_cancel_download_activate(force=True)
 
@@ -3184,10 +3209,17 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 progress.on_progress(idx / len(episodes))
                 if not episode.archive:
                     progress.on_message(episode.title)
+                    # ep_undownload must be computed before delete_from_disk
+                    ep_undownload = undownload and episode.can_undownload()
                     episode.delete_from_disk()
                     episode_urls.add(episode.url)
                     channel_urls.add(episode.channel.url)
                     episodes_status_update.append(episode)
+                    if ep_undownload:
+                        # Undelete and mark episode as new
+                        episode.state = gpodder.STATE_NORMAL
+                        episode.is_new = True
+                        episode.save()
 
             # Notify the web service about the status update + upload
             if self.mygpo_client.can_access_webservice():
@@ -3782,7 +3814,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             up_to_date, version, released, days = util.get_update_info()
         except Exception as e:
             if silent:
-                logger.warn('Could not check for updates.', exc_info=True)
+                logger.warning('Could not check for updates.', exc_info=True)
             else:
                 title = _('Could not check for updates')
                 message = _('Please try again later.')

@@ -72,7 +72,7 @@ class Win32Player(Player):
             self.command = win32_read_registry_key(self.command)
             return True
         except Exception as e:
-            logger.warn('Win32 player not found: %s (%s)', self.command, e)
+            logger.warning('Win32 player not found: %s (%s)', self.command, e)
 
         return False
 
