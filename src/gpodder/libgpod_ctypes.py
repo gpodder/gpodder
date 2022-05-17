@@ -57,8 +57,15 @@ libglib.g_strdup.restype = ctypes.c_void_p
 libglib.g_free.argtypes = (ctypes.c_void_p,)
 libglib.g_free.restype = None
 
-# XXX: Can we always assume time_t is 64-bit these days?
-time_t = ctypes.c_int64
+# See also: https://github.com/python/cpython/issues/92869
+if ctypes.sizeof(ctypes.c_void_p) == ctypes.sizeof(ctypes.c_int64):
+    time_t = ctypes.c_int64
+else:
+    # On 32-bit systems, time_t is historically 32-bit, but due to Y2K38
+    # there have been efforts to establish 64-bit time_t on 32-bit Linux:
+    # https://linux.slashdot.org/story/20/02/15/0247201/linux-is-ready-for-the-end-of-time
+    # https://www.gnu.org/software/libc/manual/html_node/64_002dbit-time-symbol-handling.html
+    time_t = ctypes.c_int32
 
 
 # glib/glist.h: struct _GList
