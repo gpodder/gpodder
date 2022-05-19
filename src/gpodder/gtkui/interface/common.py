@@ -19,7 +19,7 @@
 
 import os
 
-from gi.repository import Gdk, Gtk
+from gi.repository import Gdk, Gio, Gtk
 
 import gpodder
 from gpodder import util
@@ -377,3 +377,42 @@ class TreeViewHelper(object):
         area.x, area.y = treeview.convert_bin_window_to_widget_coords(area.x, area.y)
 
         return area
+
+
+class ExtensionMenuHelper(object):
+    """A helper class to handle extension submenus"""
+
+    def __init__(self, gpodder, menu, action_prefix, gen_callback_func=None):
+        self.gPodder = gpodder
+        self.menu = menu
+        self.action_prefix = action_prefix
+        self.gen_callback_func = gen_callback_func
+        self.actions = []
+
+    def replace_entries(self, new_entries):
+        # remove previous menu entries
+        for a in self.actions:
+            self.gPodder.remove_action(a.get_property('name'))
+        self.actions = []
+        self.menu.remove_all()
+        # create new ones
+        new_entries = list(new_entries or [])
+        for i, (label, callback) in enumerate(new_entries):
+            action_id = self.action_prefix + str(i)
+            action = Gio.SimpleAction.new(action_id)
+            action.set_enabled(callback is not None)
+            if callback is not None:
+                if self.gen_callback_func is None:
+                    action.connect('activate', callback)
+                else:
+                    action.connect('activate', self.gen_callback_func(callback))
+            self.actions.append(action)
+            self.gPodder.add_action(action)
+            itm = Gio.MenuItem.new(label, 'win.' + action_id)
+            self.menu.append_item(itm)
+
+
+class Dummy:
+    """A class for objects with arbitrary attributes (for imitating Gtk Events etc.)"""
+    def __init__(self, **kwds):
+        self.__dict__.update(kwds)
