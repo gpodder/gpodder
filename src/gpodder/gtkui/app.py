@@ -122,6 +122,7 @@ class gPodderApplication(Gtk.Application):
 
         builder = Gtk.Builder()
         builder.set_translation_domain(gpodder.textdomain)
+        self.builder = builder
 
         menu_filename = None
         for ui_folder in gpodder.ui_folders:

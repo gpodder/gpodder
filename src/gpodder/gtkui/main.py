@@ -50,7 +50,8 @@ from .download import DownloadStatusModel
 from .draw import (cake_size_from_widget, draw_cake_pixbuf,
                    draw_iconcell_scale, draw_text_box_centered)
 from .interface.addpodcast import gPodderAddPodcast
-from .interface.common import BuilderWidget, TreeViewHelper
+from .interface.common import (BuilderWidget, Dummy, ExtensionMenuHelper,
+                               TreeViewHelper)
 from .interface.progress import ProgressIndicator
 from .interface.searchtree import SearchTree
 from .model import EpisodeListModel, PodcastChannelProxy, PodcastListModel
@@ -813,6 +814,16 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # When no podcast is selected, clear the episode list model
         selection = self.treeChannels.get_selection()
 
+        # Set up channels context menu
+        menu = self.application.builder.get_object('channels-context')
+        # Extensions section, updated in signal handler
+        extmenu = Gio.Menu()
+        menu.insert_section(3, _('Extensions'), extmenu)
+        self.channel_context_menu_helper = ExtensionMenuHelper(
+            self.gPodder, extmenu, 'channel_context_action_')
+        self.channels_popover = Gtk.Popover.new_from_model(self.treeChannels, menu)
+        self.channels_popover.set_position(Gtk.PositionType.BOTTOM)
+
         # Set up type-ahead find for the podcast list
         def on_key_press(treeview, event):
             if event.keyval == Gdk.KEY_Right:
@@ -855,6 +866,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 return True
             elif event.keyval == Gdk.KEY_Delete:
                 return False
+            elif event.keyval == Gdk.KEY_Menu:
+                self.treeview_channels_show_context_menu(self.treeChannels)
+                return True
             else:
                 unicode_char_id = Gdk.keyval_to_unicode(event.keyval)
                 # < 32 to intercept Delete and Tab events
@@ -931,6 +945,19 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def init_episode_list_treeview(self):
         self.episode_list_model.set_view_mode(self.config.ui.gtk.episode_list.view_mode)
+
+        # Set up episode context menu
+        menu = self.application.builder.get_object('episodes-context')
+        # Extensions section, updated dynamically
+        extmenu = Gio.Menu()
+        menu.insert_section(1, _('Extensions'), extmenu)
+        self.episode_context_menu_helper = ExtensionMenuHelper(
+            self.gPodder, extmenu, 'episode_context_action_')
+        # Send To submenu section, shown only for downloaded episodes
+        self.sendto_menu = Gio.Menu()
+        menu.insert_section(2, None, self.sendto_menu)
+        self.episodes_popover = Gtk.Popover.new_from_model(self.treeAvailable, menu)
+        self.episodes_popover.set_position(Gtk.PositionType.BOTTOM)
 
         # Initialize progress icons
         cake_size = cake_size_from_widget(self.treeAvailable)
@@ -1086,6 +1113,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     self._search_episodes.hide_search()
                 else:
                     self.shownotes_object.hide_pane()
+            elif event.keyval == Gdk.KEY_Menu:
+                self.treeview_available_show_context_menu(self.treeAvailable)
             elif event.get_state() & Gdk.ModifierType.CONTROL_MASK:
                 # Don't handle type-ahead when control is pressed (so shortcuts
                 # with the Ctrl key still work, e.g. Ctrl+A, ...)
@@ -1185,6 +1214,19 @@ class gPodder(BuilderWidget, dbus.service.Object):
         selection.set_mode(Gtk.SelectionMode.MULTIPLE)
         self.download_selection_handler_id = selection.connect('changed', self.on_download_list_selection_changed)
         self.treeDownloads.set_search_equal_func(TreeViewHelper.make_search_equal_func(DownloadStatusModel))
+
+        # Set up downloads context menu
+        menu = self.application.builder.get_object('downloads-context')
+        self.downloads_popover = Gtk.Popover.new_from_model(self.treeDownloads, menu)
+        self.downloads_popover.set_position(Gtk.PositionType.BOTTOM)
+
+        def on_key_press(treeview, event):
+            if event.keyval == Gdk.KEY_Menu:
+                self.treeview_downloads_show_context_menu(self.treeDownloads)
+                return True
+            return False
+
+        self.treeDownloads.connect('key-press-event', on_key_press)
 
     def on_treeview_expose_event(self, treeview, ctx):
         model = treeview.get_model()
@@ -1800,83 +1842,22 @@ class gPodder(BuilderWidget, dbus.service.Object):
             selected_tasks, can_force, can_queue, can_pause, can_cancel, can_remove = \
                     self.downloads_list_get_selection(model, paths)
 
-            def make_menu_item(label, icon_name, tasks=None, status=None, sensitive=True, force_start=False, action=None):
-                # This creates a menu item for selection-wide actions
-                item = Gtk.ImageMenuItem.new_with_mnemonic(label)
-                if icon_name is not None:
-                    item.set_image(Gtk.Image.new_from_icon_name(icon_name, Gtk.IconSize.MENU))
-                if action is not None:
-                    item.connect('activate', action)
-                else:
-                    item.connect('activate', lambda item: self._for_each_task_set_status(tasks, status, force_start))
-                item.set_sensitive(sensitive)
-                return item
+            menu = self.application.builder.get_object('downloads-context')
+            dsec = menu.get_item_link(0, Gio.MENU_LINK_SECTION)
 
-            def move_selected_items_up(menu_item):
-                selection = self.treeDownloads.get_selection()
-                model, selected_paths = selection.get_selected_rows()
-                for path in selected_paths:
-                    index_above = path[0] - 1
-                    if index_above < 0:
-                        return
-                    task = model.get_value(
-                            model.get_iter(path),
-                            DownloadStatusModel.C_TASK)
-                    model.move_before(
-                            model.get_iter(path),
-                            model.get_iter((index_above,)))
-
-            def move_selected_items_down(menu_item):
-                selection = self.treeDownloads.get_selection()
-                model, selected_paths = selection.get_selected_rows()
-                for path in reversed(selected_paths):
-                    index_below = path[0] + 1
-                    if index_below >= len(model):
-                        return
-                    task = model.get_value(
-                            model.get_iter(path),
-                            DownloadStatusModel.C_TASK)
-                    model.move_after(
-                            model.get_iter(path),
-                            model.get_iter((index_below,)))
-
-            menu = Gtk.Menu()
-
+            dsec.remove(0)
             if can_force:
-                menu.append(make_menu_item(_('Start download now'), 'document-save',
-                                           selected_tasks,
-                                           download.DownloadTask.QUEUED,
-                                           force_start=True))
+                dsec.insert(0, _('Start download now'), 'win.download')
+                self.download_action.set_enabled(True)
             else:
-                menu.append(make_menu_item(_('Download'), 'document-save',
-                                           selected_tasks,
-                                           download.DownloadTask.QUEUED,
-                                           can_queue))
+                dsec.insert(0, _('Download'), 'win.download')
+                self.download_action.set_enabled(can_queue)
 
-            menu.append(make_menu_item(_('Pause'), 'media-playback-pause',
-                                       selected_tasks,
-                                       download.DownloadTask.PAUSING, can_pause))
-            menu.append(make_menu_item(_('Cancel'), 'media-playback-stop',
-                                       selected_tasks,
-                                       download.DownloadTask.CANCELLING,
-                                       can_cancel))
-            menu.append(Gtk.SeparatorMenuItem())
-            menu.append(make_menu_item(_('Move up'), 'go-up',
-                                       action=move_selected_items_up))
-            menu.append(make_menu_item(_('Move down'), 'go-down',
-                                       action=move_selected_items_down))
-            menu.append(Gtk.SeparatorMenuItem())
-            menu.append(make_menu_item(_('Remove from list'), 'list-remove',
-                                       selected_tasks, sensitive=can_remove))
+            self.gPodder.lookup_action('remove').set_enabled(can_remove)
 
-            menu.attach_to_widget(treeview)
-            menu.show_all()
-
-            if event is None:
-                func = TreeViewHelper.make_popup_position_func(treeview)
-                menu.popup(None, None, func, None, 3, Gtk.get_current_event_time())
-            else:
-                menu.popup(None, None, None, None, event.button, event.time)
+            area = TreeViewHelper.get_popup_rectangle(treeview, event)
+            self.downloads_popover.set_pointing_to(area)
+            self.downloads_popover.show()
             return True
 
     def on_mark_episodes_as_old(self, item, *args):
@@ -1920,70 +1901,19 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return True
 
         if event is None or event.button == 3:
-            menu = Gtk.Menu()
+            self.auto_archive_action.change_state(
+                GLib.Variant.new_boolean(self.active_channel.auto_archive_episodes))
 
-            item = Gtk.ImageMenuItem(_('Update podcast'))
-            item.set_image(Gtk.Image.new_from_icon_name('view-refresh', Gtk.IconSize.MENU))
-            item.set_action_name('win.updateChannel')
-            menu.append(item)
+            self.channel_context_menu_helper.replace_entries([
+                (label,
+                 None if func is None else lambda a, b, f=func: f(self.active_channel))
+                for label, func in list(
+                    gpodder.user_extensions.on_channel_context_menu(self.active_channel)
+                    or [])])
 
-            menu.append(Gtk.SeparatorMenuItem())
-
-            item = Gtk.MenuItem(_('Open download folder'))
-            item.connect('activate', self.on_open_download_folder)
-            menu.append(item)
-
-            menu.append(Gtk.SeparatorMenuItem())
-
-            item = Gtk.MenuItem(_('Mark episodes as old'))
-            item.connect('activate', self.on_mark_episodes_as_old)
-            menu.append(item)
-
-            item = Gtk.CheckMenuItem(_('Archive'))
-            item.set_active(self.active_channel.auto_archive_episodes)
-            item.connect('activate', self.on_channel_toggle_lock_activate)
-            menu.append(item)
-
-            item = Gtk.ImageMenuItem(_('Refresh image'))
-            item.connect('activate', self.on_itemRefreshCover_activate)
-            menu.append(item)
-
-            item = Gtk.ImageMenuItem(_('Delete podcast'))
-            item.set_image(Gtk.Image.new_from_icon_name('edit-delete', Gtk.IconSize.MENU))
-            item.connect('activate', self.on_itemRemoveChannel_activate)
-            menu.append(item)
-
-            result = gpodder.user_extensions.on_channel_context_menu(self.active_channel)
-            if result:
-                menu.append(Gtk.SeparatorMenuItem())
-                for label, callback in result:
-                    item = Gtk.MenuItem(label)
-                    if callback:
-                        item.connect('activate', lambda item, callback: callback(self.active_channel), callback)
-                    else:
-                        item.set_sensitive(False)
-                    menu.append(item)
-
-            menu.append(Gtk.SeparatorMenuItem())
-
-            item = Gtk.ImageMenuItem(_('Podcast settings'))
-            item.set_image(Gtk.Image.new_from_icon_name('document-properties', Gtk.IconSize.MENU))
-            item.set_action_name('win.editChannel')
-            menu.append(item)
-
-            menu.attach_to_widget(treeview)
-            menu.show_all()
-            # Disable tooltips while we are showing the menu, so
-            # the tooltip will not appear over the menu
-            self.treeview_allow_tooltips(self.treeChannels, False)
-            menu.connect('deactivate', lambda menushell: self.treeview_allow_tooltips(self.treeChannels, True))
-
-            if event is None:
-                func = TreeViewHelper.make_popup_position_func(treeview)
-                menu.popup(None, None, func, None, 3, Gtk.get_current_event_time())
-            else:
-                menu.popup(None, None, None, None, event.button, event.time)
-
+            area = TreeViewHelper.get_popup_rectangle(treeview, event)
+            self.channels_popover.set_pointing_to(area)
+            self.channels_popover.show()
             return True
 
     def cover_download_finished(self, channel, pixbuf):
@@ -2135,131 +2065,61 @@ class gPodder(BuilderWidget, dbus.service.Object):
             any_new = any(e.is_new and e.state != gpodder.STATE_DELETED for e in episodes)
             downloaded = all(e.was_downloaded(and_exists=True) for e in episodes)
             downloading = any(e.downloading for e in episodes)
-
-            menu = Gtk.Menu()
-
             (open_instead_of_play, can_play, can_preview, can_download, can_pause,
              can_cancel, can_delete, can_lock) = self.play_or_download()
 
+            menu = self.application.builder.get_object('episodes-context')
+            psec = menu.get_item_link(0, Gio.MENU_LINK_SECTION)
+
+            # Play / Stream / Preview / Open
+            psec.remove(0)
             if open_instead_of_play:
-                item = Gtk.ImageMenuItem(_('Open'))
-                item.set_image(Gtk.Image.new_from_icon_name('document-open', Gtk.IconSize.MENU))
+                psec.insert(0, _('Open'), 'win.play')
             else:
                 if downloaded:
-                    item = Gtk.ImageMenuItem(_('Play'))
+                    psec.insert(0, _('Play'), 'win.play')
                 elif can_preview:
-                    item = Gtk.ImageMenuItem(_('Preview'))
+                    psec.insert(0, _('Preview'), 'win.play')
                 else:
-                    item = Gtk.ImageMenuItem(_('Stream'))
-                item.set_image(Gtk.Image.new_from_icon_name('media-playback-start', Gtk.IconSize.MENU))
+                    psec.insert(0, _('Stream'), 'win.play')
 
-            item.set_sensitive(can_play)
-            item.connect('activate', self.on_playback_selected_episodes)
-            menu.append(item)
-
-            if can_download:
-                item = Gtk.ImageMenuItem(_('Download'))
-                item.set_image(Gtk.Image.new_from_icon_name('document-save', Gtk.IconSize.MENU))
-                item.set_action_name('win.download')
-                menu.append(item)
+            # Download / Pause
+            psec.remove(1)
             if can_pause:
-                item = Gtk.ImageMenuItem(_('Pause'))
-                item.set_image(Gtk.Image.new_from_icon_name('media-playback-pause', Gtk.IconSize.MENU))
-                item.set_action_name('win.pause')
-                menu.append(item)
-            if can_cancel:
-                item = Gtk.ImageMenuItem.new_with_mnemonic(_('_Cancel'))
-                item.set_action_name('win.cancel')
-                menu.append(item)
+                psec.insert(1, _('Pause'), 'win.pause')
+            else:
+                psec.insert(1, _('Download'), 'win.download')
 
-            item = Gtk.ImageMenuItem.new_with_mnemonic(_('_Delete'))
-            item.set_image(Gtk.Image.new_from_icon_name('edit-delete', Gtk.IconSize.MENU))
-            item.set_action_name('win.delete')
-            menu.append(item)
+            # Cancel
+            have_cancel = (psec.get_item_attribute_value(
+                2, "action", GLib.VariantType("s")).get_string() == 'win.cancel')
+            if not can_cancel and have_cancel:
+                psec.remove(2)
+            elif can_cancel and not have_cancel:
+                psec.insert(2, _('_Cancel'), 'win.cancel')
 
-            result = gpodder.user_extensions.on_episodes_context_menu(episodes)
-            if result:
-                menu.append(Gtk.SeparatorMenuItem())
-                submenus = {}
-                for label, callback in result:
-                    key, sep, title = label.rpartition('/')
-                    item = Gtk.ImageMenuItem(title)
-                    if callback:
-                        self._submenu_item_activate_hack(item, callback, episodes)
-                    else:
-                        item.set_sensitive(False)
-                    if key:
-                        if key not in submenus:
-                            sub_menu = self._add_sub_menu(menu, key)
-                            submenus[key] = sub_menu
-                        else:
-                            sub_menu = submenus[key]
-                        sub_menu.append(item)
-                    else:
-                        menu.append(item)
+            # Extensions section
+            self.episode_context_menu_helper.replace_entries([
+                (label, None if func is None else lambda a, b, f=func: f(episodes))
+                for label, func in list(
+                    gpodder.user_extensions.on_episodes_context_menu(episodes) or [])])
 
-            # Ok, this probably makes sense to only display for downloaded files
+            # 'Send to' submenu
             if downloaded:
-                menu.append(Gtk.SeparatorMenuItem())
-                share_menu = self._add_sub_menu(menu, _('Send to'))
-
-                item = Gtk.ImageMenuItem(_('Local folder'))
-                item.set_image(Gtk.Image.new_from_icon_name('folder', Gtk.IconSize.MENU))
-                self._submenu_item_activate_hack(item, self.save_episodes_as_file, episodes)
-                share_menu.append(item)
-                if self.bluetooth_available:
-                    item = Gtk.ImageMenuItem(_('Bluetooth device'))
-                    item.set_image(Gtk.Image.new_from_icon_name('bluetooth', Gtk.IconSize.MENU))
-                    self._submenu_item_activate_hack(item, self.copy_episodes_bluetooth, episodes)
-                    share_menu.append(item)
-
-            menu.append(Gtk.SeparatorMenuItem())
-
-            item = Gtk.CheckMenuItem(_('New'))
-            item.set_active(any_new)
-            if any_new:
-                item.connect('activate', lambda w: self.mark_selected_episodes_old())
+                if self.sendto_menu.get_n_items() < 1:
+                    self.sendto_menu.insert_submenu(
+                        0, _('Send to'),
+                        self.application.builder.get_object('episodes-context-sendto'))
             else:
-                item.connect('activate', lambda w: self.mark_selected_episodes_new())
-            menu.append(item)
+                self.sendto_menu.remove_all()
 
-            if can_lock:
-                item = Gtk.CheckMenuItem(_('Archive'))
-                item.set_active(any_locked)
-                item.connect('activate',
-                             lambda w: self.on_item_toggle_lock_activate(
-                                 w, False, not any_locked))
-                menu.append(item)
+            # New and Archive state
+            self.episode_new_action.change_state(GLib.Variant.new_boolean(any_new))
+            self.episode_lock_action.change_state(GLib.Variant.new_boolean(any_locked))
 
-            menu.append(Gtk.SeparatorMenuItem())
-            # Single item, add episode information menu item
-            item = Gtk.ImageMenuItem(_('Episode details'))
-            item.set_image(Gtk.Image.new_from_icon_name('dialog-information',
-                                                        Gtk.IconSize.MENU))
-            item.set_action_name('win.toggleShownotes')
-            menu.append(item)
-
-            if len(self.get_selected_episodes()) == 1:
-                item = Gtk.MenuItem(_('Open download folder'))
-                item.connect('activate', self.on_open_episode_download_folder)
-                menu.append(item)
-
-                item = Gtk.MenuItem(_('Select channel'))
-                item.connect('activate', self.on_select_channel_of_episode)
-                menu.append(item)
-
-            menu.attach_to_widget(treeview)
-            menu.show_all()
-            # Disable tooltips while we are showing the menu, so
-            # the tooltip will not appear over the menu
-            self.treeview_allow_tooltips(self.treeAvailable, False)
-            menu.connect('deactivate', lambda menushell: self.treeview_allow_tooltips(self.treeAvailable, True))
-            if event is None:
-                func = TreeViewHelper.make_popup_position_func(treeview)
-                menu.popup(None, None, func, None, 3, Gtk.get_current_event_time())
-            else:
-                menu.popup(None, None, None, None, event.button, event.time)
-
+            area = TreeViewHelper.get_popup_rectangle(treeview, event)
+            self.episodes_popover.set_pointing_to(area)
+            self.episodes_popover.show()
             return True
 
     def set_episode_actions(self, open_instead_of_play=False, can_play=False, can_download=False, can_pause=False, can_cancel=False,
@@ -3303,6 +3163,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.update_podcast_list_model(selected=True)
         self.update_episode_list_icons(all=True)
+        action.change_state(
+            GLib.Variant.new_boolean(self.active_channel.auto_archive_episodes))
+        self.channels_popover.popdown()
 
     def on_itemUpdateChannel_activate(self, *params):
         if self.active_channel is None:
