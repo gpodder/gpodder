@@ -296,6 +296,21 @@ class gPodder(BuilderWidget, dbus.service.Object):
         action.connect('activate', self.on_item_view_show_podcast_sections_toggled)
         g.add_action(action)
 
+        action = Gio.SimpleAction.new_stateful(
+            'episodeNew', None, GLib.Variant.new_boolean(False))
+        action.connect('activate', self.on_episode_new_activate)
+        g.add_action(action)
+
+        action = Gio.SimpleAction.new_stateful(
+            'episodeLock', None, GLib.Variant.new_boolean(False))
+        action.connect('activate', self.on_episode_lock_activate)
+        g.add_action(action)
+
+        action = Gio.SimpleAction.new_stateful(
+            'channelAutoArchive', None, GLib.Variant.new_boolean(False))
+        action.connect('activate', self.on_channel_toggle_lock_activate)
+        g.add_action(action)
+
         # View Episode List
 
         value = EpisodeListModel.VIEWS[
@@ -349,24 +364,33 @@ class gPodder(BuilderWidget, dbus.service.Object):
             # Subscriptions
             ('discover', self.on_itemImportChannels_activate),
             ('addChannel', self.on_itemAddChannel_activate),
+            ('removeChannel', self.on_itemRemoveChannel_activate),
             ('massUnsubscribe', self.on_itemMassUnsubscribe_activate),
             ('updateChannel', self.on_itemUpdateChannel_activate),
             ('editChannel', self.on_itemEditChannel_activate),
             ('importFromFile', self.on_item_import_from_file_activate),
             ('exportChannels', self.on_itemExportChannels_activate),
+            ('markEpisodesAsOld', self.on_mark_episodes_as_old),
+            ('refreshImage', self.on_itemRefreshCover_activate),
             # Episodes
             ('play', self.on_playback_selected_episodes),
             ('open', self.on_playback_selected_episodes),
             ('download', self.on_download_selected_episodes),
             ('pause', self.on_pause_selected_episodes),
             ('cancel', self.on_item_cancel_download_activate),
+            ('moveUp', self.on_move_selected_items_up),
+            ('moveDown', self.on_move_selected_items_down),
+            ('remove', self.on_remove_from_download_list),
             ('delete', self.on_btnDownloadedDelete_clicked),
             ('toggleEpisodeNew', self.on_item_toggle_played_activate),
             ('toggleEpisodeLock', self.on_item_toggle_lock_activate),
             ('openEpisodeDownloadFolder', self.on_open_episode_download_folder),
+            ('openChannelDownloadFolder', self.on_open_download_folder),
             ('selectChannel', self.on_select_channel_of_episode),
             ('findEpisode', self.on_find_episode_activate),
             ('toggleShownotes', self.on_shownotes_selected_episodes),
+            ('saveEpisodes', self.on_save_episodes_activate),
+            ('bluetoothEpisodes', self.on_bluetooth_episodes_activate),
             # Extras
             ('sync', self.on_sync_to_device_activate),
         ]
@@ -393,7 +417,17 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.toggle_episode_lock_action = g.lookup_action('toggleEpisodeLock')
         self.open_episode_download_folder_action = g.lookup_action('openEpisodeDownloadFolder')
         self.select_channel_of_episode_action = g.lookup_action('selectChannel')
-        # Extras
+        self.auto_archive_action = g.lookup_action('channelAutoArchive')
+        self.bluetooth_episodes_action = g.lookup_action('bluetoothEpisodes')
+        self.episode_new_action = g.lookup_action('episodeNew')
+        self.episode_lock_action = g.lookup_action('episodeLock')
+
+        self.bluetooth_episodes_action.set_enabled(self.bluetooth_available)
+
+        action = Gio.SimpleAction.new_stateful(
+            'showToolbar', None, GLib.Variant.new_boolean(self.config.show_toolbar))
+        action.connect('activate', self.on_itemShowToolbar_activate)
+        g.add_action(action)
 
     def inject_extensions_menu(self):
         """
@@ -1845,7 +1879,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 menu.popup(None, None, None, None, event.button, event.time)
             return True
 
-    def on_mark_episodes_as_old(self, item):
+    def on_mark_episodes_as_old(self, item, *args):
         assert self.active_channel is not None
 
         for episode in self.active_channel.get_all_episodes():
@@ -1855,7 +1889,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.update_podcast_list_model(selected=True)
         self.update_episode_list_icons(all=True)
 
-    def on_open_download_folder(self, item):
+    def on_open_download_folder(self, item, *args):
         assert self.active_channel is not None
         util.gui_open(self.active_channel.save_dir, gui=self)
 
@@ -1972,6 +2006,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
             filename += extension
         return filename
 
+    def on_save_episodes_activate(self, action, *args):
+        episodes = self.get_selected_episodes()
+        util.idle_add(self.save_episodes_as_file, episodes)
+
     def save_episodes_as_file(self, episodes):
         def do_save_episode(copy_from, copy_to):
             if os.path.exists(copy_to):
@@ -2031,6 +2069,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
                                           _('Error saving to local folder'), important=True)
 
         setattr(self, PRIVATE_FOLDER_ATTRIBUTE, folder)
+
+    def on_bluetooth_episodes_activate(self, action, *args):
+        episodes = self.get_selected_episodes()
+        util.idle_add(self.copy_episodes_bluetooth, episodes)
 
     def copy_episodes_bluetooth(self, episodes):
         episodes_to_copy = [e for e in episodes if e.was_downloaded(and_exists=True)]
@@ -2258,6 +2300,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.toggle_episode_lock_action.set_enabled(can_lock)
         self.open_episode_download_folder_action.set_enabled(len(episodes) == 1)
         self.select_channel_of_episode_action.set_enabled(len(episodes) == 1)
+
+        # Episodes context menu
+        self.episode_new_action.set_enabled(is_episode_selected)
+        self.episode_lock_action.set_enabled(can_lock)
 
     def set_title(self, new_title):
         self.default_title = new_title
@@ -3238,7 +3284,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.on_selected_episodes_status_changed()
         self.play_or_download()
 
-    def on_channel_toggle_lock_activate(self, widget, toggle=True, new_value=False):
+    def on_episode_lock_activate(self, action, *params):
+        new_value = not action.get_state().get_boolean()
+        self.on_item_toggle_lock_activate(None, toggle=False, new_value=new_value)
+        action.change_state(GLib.Variant.new_boolean(new_value))
+        self.episodes_popover.popdown()
+        return True
+
+    def on_channel_toggle_lock_activate(self, action, *params):
         if self.active_channel is None:
             return
 
@@ -3883,6 +3936,16 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_playback_selected_episodes(self, *params):
         self.playback_episodes(self.get_selected_episodes())
 
+    def on_episode_new_activate(self, action, *params):
+        state = not action.get_state().get_boolean()
+        if state:
+            self.mark_selected_episodes_new()
+        else:
+            self.mark_selected_episodes_old()
+        action.change_state(GLib.Variant.new_boolean(state))
+        self.episodes_popover.popdown()
+        return True
+
     def on_shownotes_selected_episodes(self, *params):
         episodes = self.get_selected_episodes()
         self.shownotes_object.toggle_pane_visibility(episodes)
@@ -3911,6 +3974,38 @@ class gPodder(BuilderWidget, dbus.service.Object):
                                model.get_value(model.get_iter(path),
                                DownloadStatusModel.C_TASK)) for path in paths]
             self._for_each_task_set_status(selected_tasks, download.DownloadTask.PAUSING)
+
+    def on_move_selected_items_up(self, action, *args):
+        selection = self.treeDownloads.get_selection()
+        model, selected_paths = selection.get_selected_rows()
+        for path in selected_paths:
+            index_above = path[0] - 1
+            if index_above < 0:
+                return
+            task = model.get_value(
+                    model.get_iter(path),
+                    DownloadStatusModel.C_TASK)
+            model.move_before(
+                    model.get_iter(path),
+                    model.get_iter((index_above,)))
+
+    def on_move_selected_items_down(self, action, *args):
+        selection = self.treeDownloads.get_selection()
+        model, selected_paths = selection.get_selected_rows()
+        for path in reversed(selected_paths):
+            index_below = path[0] + 1
+            if index_below >= len(model):
+                return
+            task = model.get_value(
+                    model.get_iter(path),
+                    DownloadStatusModel.C_TASK)
+            model.move_after(
+                    model.get_iter(path),
+                    model.get_iter((index_below,)))
+
+    def on_remove_from_download_list(self, action, *args):
+        selected_tasks, x, x, x, x, x = self.downloads_list_get_selection()
+        self._for_each_task_set_status(selected_tasks, None, False)
 
     def on_treeAvailable_row_activated(self, widget, path, view_column):
         """Double-click/enter action handler for treeAvailable"""
