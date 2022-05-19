@@ -804,6 +804,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
         ev = Dummy(x=x, y=y, button=3)
         return self.treeview_channels_show_context_menu(treeview, ev)
 
+    def on_treeview_podcasts_long_press(self, gesture, x, y, treeview):
+        ev = Dummy(x=x, y=y, button=3)
+        return self.treeview_channels_show_context_menu(treeview, ev)
+
     def on_treeview_episodes_button_released(self, treeview, event):
         if event.window != treeview.get_bin_window():
             return False
@@ -815,6 +819,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_treeview_episodes_long_press(self, gesture, x, y, treeview):
         ev = Dummy(x=x, y=y, button=3, time=Gtk.get_current_event_time())
+        return self.treeview_available_show_context_menu(treeview, ev)
+
+    def on_treeview_episodes_long_press(self, gesture, x, y, treeview):
+        ev = Dummy(x=x, y=y, button=3)
         return self.treeview_available_show_context_menu(treeview, ev)
 
     def on_treeview_downloads_button_released(self, treeview, event):
@@ -1229,6 +1237,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
 #        # Update the visibility of the columns and the check menu items
 #        self.update_episode_list_columns_visibility()
 
+        # Long press gesture
+        lp = Gtk.GestureLongPress.new(self.treeAvailable)
+        lp.set_touch_only(True)
+        lp.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
+        lp.connect("pressed", self.on_treeview_episodes_long_press, self.treeAvailable)
+        setattr(self.treeAvailable, "long-press-gesture", lp)
+
         # Set up type-ahead find for the episode list
         def on_key_press(treeview, event):
             if event.get_state() & Gdk.ModifierType.CONTROL_MASK:
@@ -1387,6 +1402,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
         menu = self.application.builder.get_object('downloads-context')
         self.downloads_popover = Gtk.Popover.new_from_model(self.treeDownloads, menu)
         self.downloads_popover.set_position(Gtk.PositionType.BOTTOM)
+
+        # Long press gesture
+        lp = Gtk.GestureLongPress.new(self.treeDownloads)
+        lp.set_touch_only(True)
+        lp.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
+        lp.connect("pressed", self.on_treeview_downloads_long_press, self.treeDownloads)
+        setattr(self.treeDownloads, "long-press-gesture", lp)
 
         def on_key_press(treeview, event):
             if event.keyval == Gdk.KEY_Menu:
