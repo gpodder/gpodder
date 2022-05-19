@@ -229,5 +229,43 @@
       </submenu>
     </submenu>
   </menu>
+  <menu id="channels-context">
+    <section>
+      <item>
+        <attribute name="action">win.updateChannel</attribute>
+        <attribute name="label" translatable="yes">Update channel</attribute>
+      </item>
+    </section>
+    <section>
+      <item>
+        <attribute name="action">win.openChannelDownloadFolder</attribute>
+        <attribute name="label" translatable="yes">Open download folder</attribute>
+      </item>
+    </section>
+    <section>
+      <item>
+        <attribute name="action">win.markEpisodesAsOld</attribute>
+        <attribute name="label" translatable="yes">Mark episodes as old</attribute>
+      </item>
+      <item>
+        <attribute name="action">win.channelAutoArchive</attribute>
+        <attribute name="label" translatable="yes">Archive all episodes</attribute>
+      </item>
+      <item>
+        <attribute name="action">win.refreshImage</attribute>
+        <attribute name="label" translatable="yes">Refresh image</attribute>
+      </item>
+      <item>
+        <attribute name="action">win.removeChannel</attribute>
+        <attribute name="label" translatable="yes">Delete channel</attribute>
+      </item>
+    </section>
+    <section>
+      <item>
+        <attribute name="action">win.editChannel</attribute>
+        <attribute name="label" translatable="yes">Channel settings</attribute>
+      </item>
+    </section>
+  </menu>
 </interface>
 <!-- :noTabs=true:tabSize=2:indentSize=2: -->

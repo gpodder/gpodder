@@ -849,11 +849,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # When no podcast is selected, clear the episode list model
         selection = self.treeChannels.get_selection()
 
-        # Set up context menu
+        # Set up channels context menu
         menu = self.application.builder.get_object('channels-context')
-        # extensions section, updated in signal handler
+        # Extensions section, updated in signal handler
         extmenu = Gio.Menu()
-        menu.insert_section(3, None, extmenu)
+        menu.insert_section(3, _('Extensions'), extmenu)
         self.channel_context_menu_helper = ExtensionMenuHelper(
             self.gPodder, extmenu, 'channel_context_action_')
         self.channels_popover = Gtk.Popover.new_from_model(self.treeChannels, menu)
@@ -911,6 +911,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 return False
             elif event.keyval == Gdk.KEY_BackSpace and self._search_podcasts.search_box.get_property('visible'):
                 self._search_podcasts.search_entry.grab_focus_without_selecting()
+            elif event.keyval == Gdk.KEY_Menu:
+                self.treeview_channels_show_context_menu(self.treeChannels)
+                return True
             else:
                 unicode_char_id = Gdk.keyval_to_unicode(event.keyval)
                 # < 32 to intercept Delete and Tab events
@@ -2001,16 +2004,17 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return True
 
         if event is None or event.button == 3:
+            self.auto_archive_action.change_state(
+                GLib.Variant.new_boolean(self.active_channel.auto_archive_episodes))
+
             entries = [(label, None if func is None else lambda a, b: func(self.active_channel))
-                for label, func in list(gpodder.user_extensions.on_channel_context_menu(self.active_channel) or [])]
+                for label, func in list(
+                    gpodder.user_extensions.on_channel_context_menu(self.active_channel) or [])]
             self.channel_context_menu_helper.replace_entries(entries)
 
-            if event is None:
-                func = TreeViewHelper.make_popup_position_func(treeview)
-                x, y, unused = func(None)
-            else:
-                x, y = event.x, event.y
-            self.context_popover_show(self.channels_popover, x, y)
+            area = TreeViewHelper.get_popup_rectangle(treeview, event)
+            self.channels_popover.set_pointing_to(area)
+            self.channels_popover.show()
             return True
 
 #        if event is None or event.button == 3:
@@ -3322,6 +3326,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.update_podcast_list_model(selected=True)
         self.update_episode_list_icons(all=True)
+        action.change_state(
+            GLib.Variant.new_boolean(self.active_channel.auto_archive_episodes))
+        self.channels_popover.popdown()
 
     def on_itemUpdateChannel_activate(self, *params):
         if self.active_channel is None:
