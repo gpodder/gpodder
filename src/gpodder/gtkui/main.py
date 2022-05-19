@@ -679,6 +679,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         return self.treeview_channels_show_context_menu(treeview, event)
 
+    def on_treeview_podcasts_long_press(self, gesture, x, y, treeview):
+        ev = Dummy(x=x, y=y, button=3)
+        return self.treeview_channels_show_context_menu(treeview, ev)
+
     def on_treeview_episodes_button_released(self, treeview, event):
         if event.window != treeview.get_bin_window():
             return False
@@ -729,6 +733,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         # When no podcast is selected, clear the episode list model
         selection = self.treeChannels.get_selection()
+
+        # Long press gesture
+        lp = Gtk.GestureLongPress.new(self.treeChannels)
+        lp.set_touch_only(True)
+        lp.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
+        lp.connect("pressed", self.on_treeview_podcasts_long_press, self.treeChannels)
 
         # Set up type-ahead find for the podcast list
         def on_key_press(treeview, event):
