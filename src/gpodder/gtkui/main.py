@@ -289,6 +289,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
         action.connect('activate', self.on_item_view_search_always_visible_toggled)
         g.add_action(action)
 
+        action = Gio.SimpleAction.new_stateful(
+            'channelAutoArchive', None, GLib.Variant.new_boolean(False))
+        action.connect('activate', self.on_channel_toggle_lock_activate)
+        g.add_action(action)
+
         value = EpisodeListModel.VIEWS[
             self.config.episode_list_view_mode or EpisodeListModel.VIEW_ALL]
         action = Gio.SimpleAction.new_stateful(
@@ -303,6 +308,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             ('removeOldEpisodes', self.on_itemRemoveOldEpisodes_activate),
             ('discover', self.on_itemImportChannels_activate),
             ('addChannel', self.on_itemAddChannel_activate),
+            ('removeChannel', self.on_itemRemoveChannel_activate),
             ('massUnsubscribe', self.on_itemMassUnsubscribe_activate),
             ('updateChannel', self.on_itemUpdateChannel_activate),
             ('editChannel', self.on_itemEditChannel_activate),
@@ -317,10 +323,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
             ('toggleEpisodeNew', self.on_item_toggle_played_activate),
             ('toggleEpisodeLock', self.on_item_toggle_lock_activate),
             ('openEpisodeDownloadFolder', self.on_open_episode_download_folder),
+            ('openChannelDownloadFolder', self.on_open_download_folder),
             ('toggleShownotes', self.on_shownotes_selected_episodes),
             ('sync', self.on_sync_to_device_activate),
             ('findPodcast', self.on_find_podcast_activate),
             ('findEpisode', self.on_find_episode_activate),
+            ('markEpisodesAsOld', self.on_mark_episodes_as_old),
+            ('refreshImage', self.on_itemRefreshCover_activate),
         ]
 
         for name, callback in action_defs:
@@ -340,6 +349,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.toggle_episode_new_action = g.lookup_action('toggleEpisodeNew')
         self.toggle_episode_lock_action = g.lookup_action('toggleEpisodeLock')
         self.open_episode_download_folder_action = g.lookup_action('openEpisodeDownloadFolder')
+        self.auto_archive_action = g.lookup_action('channelAutoArchive')
 
         action = Gio.SimpleAction.new_stateful(
             'showToolbar', None, GLib.Variant.new_boolean(self.config.show_toolbar))
@@ -1737,7 +1747,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 menu.popup(None, None, None, None, event.button, event.time)
             return True
 
-    def on_mark_episodes_as_old(self, item):
+    def on_mark_episodes_as_old(self, item, *args):
         assert self.active_channel is not None
 
         for episode in self.active_channel.get_all_episodes():
@@ -1747,7 +1757,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.update_podcast_list_model(selected=True)
         self.update_episode_list_icons(all=True)
 
-    def on_open_download_folder(self, item):
+    def on_open_download_folder(self, item, *args):
         assert self.active_channel is not None
         util.gui_open(self.active_channel.save_dir, gui=self)
 
@@ -3122,7 +3132,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.on_selected_episodes_status_changed()
         self.play_or_download()
 
-    def on_channel_toggle_lock_activate(self, widget, toggle=True, new_value=False):
+    def on_channel_toggle_lock_activate(self, action, *params):
         if self.active_channel is None:
             return
 
