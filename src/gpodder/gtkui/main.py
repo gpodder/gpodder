@@ -1290,9 +1290,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.shownotes_object.set_episodes(eps)
 
     def on_download_list_selection_changed(self, selection):
-#        if self.wNotebook.get_current_page() > 0:
-#            # Update the toolbar buttons
-#            self.play_or_download()
+        # if self.wNotebook.get_current_page() > 0:
+        # # Update the toolbar buttons
+        # self.play_or_download()
         pass
 
     def init_download_list_treeview(self):
@@ -1924,7 +1924,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             selected_tasks, can_force, can_queue, can_pause, can_cancel, can_remove = \
                     self.downloads_list_get_selection(model, paths)
 
-
             def make_menu_item(label, action_name, tasks=None, status=None, sensitive=True, force_start=False):
                 self.application.remove_action(action_name)
                 action = Gio.SimpleAction.new(action_name)
@@ -2445,9 +2444,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.episode_list_status_changed(episodes)
 
     def play_or_download(self, current_page=None):
-#        if current_page is None:
-#            current_page = self.wNotebook.get_current_page()
-#        if current_page == 0:
+        # if current_page is None:
+        #     current_page = self.wNotebook.get_current_page()
+        # if current_page == 0:
         if True:
             (open_instead_of_play, can_play, can_download, can_pause, can_cancel, can_delete, can_lock) = (False,) * 7
 
@@ -3138,15 +3137,15 @@ class gPodder(BuilderWidget, dbus.service.Object):
         return '\n'.join(titles) + '\n\n' + message
 
     def delete_episode_list(self, episodes, confirm=True, callback=None, undownload=False):
-#        if self.wNotebook.get_current_page() > 0:
-#            selection = self.treeDownloads.get_selection()
-#            (model, paths) = selection.get_selected_rows()
-#            selected_tasks = [(Gtk.TreeRowReference.new(model, path),
-#                               model.get_value(model.get_iter(path),
-#                               DownloadStatusModel.C_TASK)) for path in paths]
-#            self._for_each_task_set_status(selected_tasks, status=None, force_start=False)
-#            return
-#
+        #        if self.wNotebook.get_current_page() > 0:
+        #            selection = self.treeDownloads.get_selection()
+        #            (model, paths) = selection.get_selected_rows()
+        #            selected_tasks = [(Gtk.TreeRowReference.new(model, path),
+        #                               model.get_value(model.get_iter(path),
+        #                               DownloadStatusModel.C_TASK)) for path in paths]
+        #            self._for_each_task_set_status(selected_tasks, status=None, force_start=False)
+        #            return
+        #
         if not episodes:
             return False
 
