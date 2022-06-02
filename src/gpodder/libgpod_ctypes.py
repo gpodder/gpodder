@@ -65,6 +65,7 @@ else:
     # there have been efforts to establish 64-bit time_t on 32-bit Linux:
     # https://linux.slashdot.org/story/20/02/15/0247201/linux-is-ready-for-the-end-of-time
     # https://www.gnu.org/software/libc/manual/html_node/64_002dbit-time-symbol-handling.html
+    logger.info('libgpod may cause issues if time_t is 64-bit on your 32-bit system.')
     time_t = ctypes.c_int32
 
 
