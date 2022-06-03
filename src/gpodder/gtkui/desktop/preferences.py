@@ -671,7 +671,8 @@ class gPodderPreferences(BuilderWidget):
             self.toggle_playlist_interface(False)
             self.checkbutton_delete_using_playlists.set_sensitive(False)
             self.combobox_on_sync.set_sensitive(False)
-            self.checkbutton_skip_played_episodes.set_sensitive(False)
+            self.checkbutton_skip_played_episodes.set_sensitive(True)
+            self.checkbutton_delete_deleted_episodes.set_sensitive(True)
 
         children = self.btn_filesystemMountpoint.get_children()
         if children:
