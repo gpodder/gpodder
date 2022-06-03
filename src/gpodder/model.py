@@ -1222,7 +1222,7 @@ class PodcastChannel(PodcastModelObject):
                 next_feed = None
 
         # mark episodes not new
-        real_new_episode_count = 0
+        real_new_episodes = []
         # Search all entries for new episodes
         for episode in new_episodes:
             # Workaround for bug 340: If the episode has been
@@ -1234,17 +1234,18 @@ class PodcastChannel(PodcastModelObject):
                 episode.save()
 
             if episode.is_new:
-                real_new_episode_count += 1
+                real_new_episodes.append(episode)
 
             # Only allow a certain number of new episodes per update
             if (self.download_strategy == PodcastChannel.STRATEGY_LATEST
-                    and real_new_episode_count > 1):
+                    and len(real_new_episodes) > 1):
                 episode.is_new = False
                 episode.save()
 
         self.children.extend(new_episodes)
 
         self.remove_unreachable_episodes(existing, seen_guids, max_episodes)
+        return real_new_episodes
 
     def remove_unreachable_episodes(self, existing, seen_guids, max_episodes):
         # Remove "unreachable" episodes - episodes that have not been
@@ -1276,11 +1277,12 @@ class PodcastChannel(PodcastModelObject):
 
     def update(self, max_episodes=0):
         max_episodes = int(max_episodes)
+        new_episodes = []
         try:
             result = self.feed_fetcher.fetch_channel(self, max_episodes)
 
             if result.status == feedcore.UPDATED_FEED:
-                self._consume_updated_feed(result.feed, max_episodes)
+                new_episodes = self._consume_updated_feed(result.feed, max_episodes)
             elif result.status == feedcore.NEW_LOCATION:
                 # FIXME: could return the feed because in autodiscovery it is parsed already
                 url = result.feed
@@ -1290,7 +1292,7 @@ class PodcastChannel(PodcastModelObject):
                 self.url = url
                 # With the updated URL, fetch the feed again
                 self.update(max_episodes)
-                return
+                return new_episodes
             elif result.status == feedcore.NOT_MODIFIED:
                 pass
 
@@ -1317,6 +1319,7 @@ class PodcastChannel(PodcastModelObject):
         self._determine_common_prefix()
 
         self.db.commit()
+        return new_episodes
 
     def delete(self):
         self.db.delete_podcast(self)

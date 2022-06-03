@@ -154,6 +154,7 @@ defaults = {
 
             'toolbar': False,
             'new_episodes': 'show',  # ignore, show, queue, download
+            'only_added_are_new': False,  # Only just added episodes are considered new after an update
             'live_search_delay': 200,
             'search_always_visible': False,
             'find_as_you_type': True,
