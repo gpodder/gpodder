@@ -3068,6 +3068,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
                 def hide_update():
                     self.update_revealer.set_reveal_child(False)
+                    self.update_channel_action.set_enabled(True)
                     return False
 
                 GLib.timeout_add(2000, hide_update)
