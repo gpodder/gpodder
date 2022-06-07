@@ -119,14 +119,62 @@ class BuilderWidget(GtkBuilderWidget):
         dlg = Gtk.MessageDialog(self.main_window, Gtk.DialogFlags.MODAL, Gtk.MessageType.QUESTION, Gtk.ButtonsType.YES_NO)
         if title:
             dlg.set_title(str(title))
-            dlg.set_markup('<span weight="bold" size="larger">%s</span>\n\n%s' % (title, message))
+
+            # Long titles will cause an excessively wide dialog.
+            dlg.set_markup('<span weight="bold" size="larger">%s</span>' % title)
+
+            tv = Gtk.TextView()
+            tv.set_wrap_mode(Gtk.WrapMode.WORD_CHAR)
+            tv.set_border_width(10)
+            tv.set_editable(False)
+            tb = Gtk.TextBuffer()
+            tb.insert_markup(tb.get_start_iter(), message, -1)
+            tv.set_buffer(tb)
+            tv.set_property('expand', True)
+
+            sw = Gtk.ScrolledWindow()
+            sw.set_size_request(400, 150)
+            sw.set_property('shadow-type', Gtk.ShadowType.IN)
+            sw.add(tv)
+            sw.show_all()
+            dlg.get_message_area().pack_start(sw, True, True, 0)
+
+            # TextView height is not allocated until after it is realized,
+            # preventing its ScrolledWindow from being resized to fit message.
         else:
-            dlg.set_markup('<span weight="bold" size="larger">%s</span>' % (message))
+            # Long messages will cause an excessively wide dialog.
+            # Add a short title to move message to a TextView.
+            dlg.set_markup('<span weight="bold" size="larger">%s</span>' % message)
+
+        # make title or message copy/pastable
+        for lbl in dlg.get_message_area():
+            if isinstance(lbl, Gtk.Label):
+                lbl.set_halign(Gtk.Align.START)
+                lbl.set_selectable(True)
+
         if checkbox:
             cb = Gtk.CheckButton.new_with_label(checkbox)
+            cb_label = cb.get_child()
+            cb_label.set_line_wrap(True)
             cb.set_active(default_checked)
-            dlg.get_message_area().pack_end(cb, False, False, 0)
-            dlg.get_widget_for_response(Gtk.ResponseType.NO).grab_focus()
+
+            sw = Gtk.ScrolledWindow()
+            sw.set_size_request(400, -1)
+            sw.set_property('hscrollbar-policy', Gtk.PolicyType.NEVER)
+            sw.set_property('vscrollbar-policy', Gtk.PolicyType.NEVER)
+            sw.set_property('shadow-type', Gtk.ShadowType.NONE)
+            sw.add(cb)
+            sw.show_all()
+            dlg.get_message_area().pack_start(sw, True, True, 0)
+
+            # Resize ScrolledWindow after CheckButton height is allocated.
+            def on_cb_alloc(widget, allocation):
+                sw.set_size_request(400, allocation.height)
+                widget.disconnect(cb_alloc_id)
+            cb_alloc_id = cb.connect('size-allocate', on_cb_alloc)
+
+        dlg.get_widget_for_response(Gtk.ResponseType.NO).grab_focus()
+
         dlg.show_all()
         response = dlg.run()
         checked = checkbox and cb.get_active()
