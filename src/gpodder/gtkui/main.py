@@ -2932,7 +2932,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             titles.append('• ' + (html.escape(thing.title if len(thing.title) <= max_length else thing.title[:max_length] + '…')))
         if len(things) > max_things:
             titles.append('+%(count)d more…' % {'count': len(things) - max_things})
-        return '\n'.join(titles) + '\n\n' + message
+        return message + '\n\n' + '\n'.join(titles)
 
     def delete_episode_list(self, episodes, confirm=True, callback=None, undownload=False):
         if self.wNotebook.get_current_page() > 0:
