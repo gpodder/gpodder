@@ -2931,7 +2931,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         for index, thing in zip(range(max_things), things):
             titles.append('• ' + (html.escape(thing.title if len(thing.title) <= max_length else thing.title[:max_length] + '…')))
         if len(things) > max_things:
-            titles.append('+%(count)d more …' % {'count': len(things) - max_things})
+            titles.append('+%(count)d more…' % {'count': len(things) - max_things})
         return '\n'.join(titles) + '\n\n' + message
 
     def delete_episode_list(self, episodes, confirm=True, callback=None, undownload=False):
