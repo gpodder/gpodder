@@ -277,7 +277,13 @@ class DownloadURLOpener:
             try:
                 resp.raise_for_status()
             except HTTPError as e:
-                raise gPodderDownloadHTTPError(url, resp.status_code, str(e))
+                if auth is not None:
+                    # Try again without authentification (bug 1296)
+                    self.channel.auth_username = None
+                    self.channel.auth_password = None
+                    return self.retrieve_resume(url, filename, reporthook, data)
+                else:
+                    raise gPodderDownloadHTTPError(url, resp.status_code, str(e))
 
             headers = resp.headers
 
