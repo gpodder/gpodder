@@ -2226,9 +2226,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 else:
                     menu.insert(0, _('Stream'), 'win.play')
 
-            # Delete
-            self.gPodder.lookup_action('delete').set_enabled(downloaded)
-
             # New
             self.gPodder.lookup_action('episodeNew').change_state(GLib.Variant.new_boolean(any_new))
 
