@@ -156,6 +156,7 @@ defaults = {
             'new_episodes': 'show',  # ignore, show, queue, download
             'live_search_delay': 200,
             'search_always_visible': False,
+            'find_as_you_type': True,
 
             'podcast_list': {
                 'all_episodes': True,

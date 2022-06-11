@@ -777,8 +777,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 # < 32 to intercept Delete and Tab events
                 if unicode_char_id < 32:
                     return False
-                input_char = chr(unicode_char_id)
-                self._search_podcasts.show_search(input_char)
+                if self.config.ui.gtk.find_as_you_type:
+                    input_char = chr(unicode_char_id)
+                    self._search_podcasts.show_search(input_char)
             return True
         self.treeChannels.connect('key-press-event', on_key_press)
 
@@ -1000,8 +1001,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 # < 32 to intercept Delete and Tab events
                 if unicode_char_id < 32:
                     return False
-                input_char = chr(unicode_char_id)
-                self._search_episodes.show_search(input_char)
+                if self.config.ui.gtk.find_as_you_type:
+                    input_char = chr(unicode_char_id)
+                    self._search_episodes.show_search(input_char)
             return True
         self.treeAvailable.connect('key-press-event', on_key_press)
 
