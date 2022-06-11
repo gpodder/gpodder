@@ -15,6 +15,7 @@ function main {
         git mingw-w64-i686-gdk-pixbuf2 \
         mingw-w64-i686-librsvg \
         mingw-w64-i686-gtk3 \
+        mingw-w64-i686-dbus \
 		intltool \
         base-devel mingw-w64-i686-toolchain
 
