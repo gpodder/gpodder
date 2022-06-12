@@ -47,6 +47,8 @@ DefaultConfig = {
     # If for some reason youtube-dl download doesn't work for you, you can fallback to gpodder code.
     # Set to False to fall back to default gpodder code (less available formats).
     'manage_downloads': True,
+    # Embed all available subtitles to downloaded videos. Needs ffmpeg.
+    'embed_subtitles': False,
 }
 
 
@@ -330,6 +332,7 @@ class gPodderYoutubeDL(download.CustomDownloader):
         logger.debug('format=%s', opts['format'])
 
     def fetch_info(self, url, tempname, reporthook):
+        subs = self.my_config.embed_subtitles
         opts = {
             'paths': {'home': os.path.dirname(tempname)},
             # Postprocessing in yt-dlp breaks without ext
@@ -337,7 +340,10 @@ class gPodderYoutubeDL(download.CustomDownloader):
                         else tempname) + '.%(ext)s',
             'nopart': True,  # don't append .part (already .partial)
             'retries': 3,  # retry a few times
-            'progress_hooks': [reporthook]  # to notify UI
+            'progress_hooks': [reporthook],  # to notify UI
+            'writesubtitles': subs,
+            'subtitleslangs': ['all'] if subs else [],
+            'postprocessors': [{'key': 'FFmpegEmbedSubtitle'}] if subs else [],
         }
         opts.update(self._ydl_opts)
         self.add_format(self.gpodder_config, opts)
@@ -484,6 +490,7 @@ class gPodderExtension:
     def __init__(self, container):
         self.container = container
         self.ytdl = None
+        self.infobar = None
 
     def on_load(self):
         self.ytdl = gPodderYoutubeDL(self.container.manager.core.config, self.container.config)
@@ -533,6 +540,17 @@ class gPodderExtension:
     def toggle_manage_downloads(self, widget):
         self.container.config.manage_downloads = widget.get_active()
 
+    def toggle_embed_subtitles(self, widget):
+        if widget.get_active():
+            if not util.find_command('ffmpeg'):
+                self.infobar.show()
+                widget.set_active(False)
+                self.container.config.embed_subtitles = False
+            else:
+                self.container.config.embed_subtitles = True
+        else:
+            self.container.config.embed_subtitles = False
+
     def show_preferences(self):
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
         box.set_border_width(10)
@@ -563,7 +581,21 @@ class gPodderExtension:
         note.set_property('xalign', 0.0)
         box.add(note)
 
+        box.pack_start(Gtk.HSeparator(), False, False, 0)
+
+        checkbox = Gtk.CheckButton(_('Embed all available subtitles to downloaded video'))
+        checkbox.set_active(self.container.config.embed_subtitles)
+        checkbox.connect('toggled', self.toggle_embed_subtitles)
+        box.pack_start(checkbox, False, False, 0)
+
+        infobar = Gtk.InfoBar()
+        infobar.get_content_area().add(Gtk.Label(wrap=True, label=_(
+            'The "ffmpeg" command was not found. FFmpeg is required for embedding subtitles.')))
+        self.infobar = infobar
+        box.pack_end(infobar, False, False, 0)
+
         box.show_all()
+        infobar.hide()
         return box
 
     def on_preferences(self):
