@@ -1636,7 +1636,7 @@ def sanitize_filename_ext(filename, ext, max_length, max_length_with_ext):
     """
     sanitized_fn = sanitize_filename(filename, max_length)
     sanitized_ext = sanitize_filename(ext, max_length_with_ext - len(sanitized_fn))
-    return (sanitized_fn, "." + sanitized_ext)
+    return (sanitized_fn, ('.' + sanitized_ext) if sanitized_ext else '')
 
 
 def find_mount_point(directory):
