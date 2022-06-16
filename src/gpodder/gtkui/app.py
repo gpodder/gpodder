@@ -210,6 +210,7 @@ class gPodderApplication(Gtk.Application):
         pb = GdkPixbuf.Pixbuf.new_from_file_at_size(gpodder.icon_file, 160, 160)
         bg.pack_start(Gtk.Image.new_from_pixbuf(pb), False, False, 0)
         label = Gtk.Label(justify=Gtk.Justification.CENTER)
+        label.set_selectable(True)
         label.set_markup('\n'.join(x.strip() for x in """
         <b>gPodder {version} ({date})</b>
 
