@@ -358,6 +358,26 @@ class TreeViewHelper(object):
             return (x, y, True)
         return position_func
 
+    @staticmethod
+    def get_selected_rectangle(treeview):
+        """
+        :return: Gdk.Rectangle to pass to Gtk.Popover.set_pointing_to()
+        It's used for instance when the popup trigger is the Menu key:
+        it will position the popover on top of the selected row even if the mouse is elsewhere
+        """
+
+        # If there's a selection, place the popup menu on top of
+        # the first-selected row (otherwise in the top left corner)
+        selection = treeview.get_selection()
+        model, paths = selection.get_selected_rows()
+        if paths:
+            path = paths[0]
+            area = treeview.get_cell_area(path, treeview.get_column(0))
+        else:
+            area = Gdk.Rectangle()  # x, y, width, height are all 0
+
+        return area
+
 
 class ExtensionMenuHelper(object):
     """A helper class to handle extension submenus"""
