@@ -51,7 +51,8 @@ from .download import DownloadStatusModel
 from .draw import (cake_size_from_widget, draw_cake_pixbuf,
                    draw_iconcell_scale, draw_text_box_centered)
 from .interface.addpodcast import gPodderAddPodcast
-from .interface.common import BuilderWidget, TreeViewHelper
+from .interface.common import (BuilderWidget, Dummy, ExtensionMenuHelper,
+                               TreeViewHelper)
 from .interface.progress import ProgressIndicator
 from .interface.searchtree import SearchTree
 from .model import EpisodeListModel, PodcastChannelProxy, PodcastListModel
@@ -750,6 +751,16 @@ class gPodder(BuilderWidget, dbus.service.Object):
         lp.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
         lp.connect("pressed", self.on_treeview_podcasts_long_press, self.treeChannels)
 
+        # Set up context menu
+        menu = self.application.builder.get_object('channels-context')
+        # Extensions section, updated in signal handler
+        extmenu = Gio.Menu()
+        menu.insert_section(3, None, extmenu)
+        self.channel_context_menu_helper = ExtensionMenuHelper(
+            self.gPodder, extmenu, 'channel_context_action_')
+        self.channel_context_menu = Gtk.Menu.new_from_model(menu)
+        self.channel_context_menu.attach_to_widget(self.treeChannels)
+
         # Set up type-ahead find for the podcast list
         def on_key_press(treeview, event):
             if event.keyval == Gdk.KEY_Right:
@@ -792,6 +803,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 return True
             elif event.keyval == Gdk.KEY_Delete:
                 return False
+            elif event.keyval == Gdk.KEY_Menu:
+                self.treeview_channels_show_context_menu(self.treeChannels)
+                return True
             else:
                 unicode_char_id = Gdk.keyval_to_unicode(event.keyval)
                 # < 32 to intercept Delete and Tab events
@@ -1778,69 +1792,21 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return True
 
         if event is None or event.button == 3:
-            menu = Gtk.Menu()
+            self.auto_archive_action.change_state(
+                GLib.Variant.new_boolean(self.active_channel.auto_archive_episodes))
 
-            item = Gtk.ImageMenuItem(_('Update podcast'))
-            item.set_image(Gtk.Image.new_from_icon_name('view-refresh', Gtk.IconSize.MENU))
-            item.set_action_name('win.updateChannel')
-            menu.append(item)
-
-            menu.append(Gtk.SeparatorMenuItem())
-
-            item = Gtk.MenuItem(_('Open download folder'))
-            item.connect('activate', self.on_open_download_folder)
-            menu.append(item)
-
-            menu.append(Gtk.SeparatorMenuItem())
-
-            item = Gtk.MenuItem(_('Mark episodes as old'))
-            item.connect('activate', self.on_mark_episodes_as_old)
-            menu.append(item)
-
-            item = Gtk.CheckMenuItem(_('Archive'))
-            item.set_active(self.active_channel.auto_archive_episodes)
-            item.connect('activate', self.on_channel_toggle_lock_activate)
-            menu.append(item)
-
-            item = Gtk.ImageMenuItem(_('Refresh image'))
-            item.connect('activate', self.on_itemRefreshCover_activate)
-            menu.append(item)
-
-            item = Gtk.ImageMenuItem(_('Delete podcast'))
-            item.set_image(Gtk.Image.new_from_icon_name('edit-delete', Gtk.IconSize.MENU))
-            item.connect('activate', self.on_itemRemoveChannel_activate)
-            menu.append(item)
-
-            result = gpodder.user_extensions.on_channel_context_menu(self.active_channel)
-            if result:
-                menu.append(Gtk.SeparatorMenuItem())
-                for label, callback in result:
-                    item = Gtk.MenuItem(label)
-                    if callback:
-                        item.connect('activate', lambda item, callback: callback(self.active_channel), callback)
-                    else:
-                        item.set_sensitive(False)
-                    menu.append(item)
-
-            menu.append(Gtk.SeparatorMenuItem())
-
-            item = Gtk.ImageMenuItem(_('Podcast settings'))
-            item.set_image(Gtk.Image.new_from_icon_name('document-properties', Gtk.IconSize.MENU))
-            item.set_action_name('win.editChannel')
-            menu.append(item)
-
-            menu.attach_to_widget(treeview)
-            menu.show_all()
-            # Disable tooltips while we are showing the menu, so
-            # the tooltip will not appear over the menu
-            self.treeview_allow_tooltips(self.treeChannels, False)
-            menu.connect('deactivate', lambda menushell: self.treeview_allow_tooltips(self.treeChannels, True))
+            entries = [(label, None if func is None else lambda a, b: func(self.active_channel))
+                for label, func in list(
+                    gpodder.user_extensions.on_channel_context_menu(self.active_channel) or [])]
+            self.channel_context_menu_helper.replace_entries(entries)
 
             if event is None:
-                func = TreeViewHelper.make_popup_position_func(treeview)
-                menu.popup(None, None, func, None, 3, Gtk.get_current_event_time())
+                rect = TreeViewHelper.get_selected_rectangle(treeview)
+                self.channel_context_menu.popup_at_rect(
+                    treeview.get_window(), rect, Gdk.Gravity.SOUTH,
+                    Gdk.Gravity.NORTH_WEST, event)
             else:
-                menu.popup(None, None, None, None, event.button, event.time)
+                self.channel_context_menu.popup_at_pointer(event)
 
             return True
 
@@ -3144,6 +3110,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.update_podcast_list_model(selected=True)
         self.update_episode_list_icons(all=True)
+        action.change_state(
+            GLib.Variant.new_boolean(self.active_channel.auto_archive_episodes))
 
     def on_itemUpdateChannel_activate(self, *params):
         if self.active_channel is None:
