@@ -31,6 +31,10 @@ from comtypes import COMMETHOD, GUID, IUnknown, client, wireHWND
 
 import gpodder
 
+import gi  # isort:skip
+from gi.repository import Gtk  # isort:skip
+
+
 _ = gpodder.gettext
 
 
@@ -159,6 +163,10 @@ class gPodderExtension:
     def on_unload(self):
         if self.taskbar is not None:
             self.taskbar.SetProgressState(self.window_handle, TBPF_NOPROGRESS)
+            # let the taskbar change state otherwise gpodder is stuck on exit
+            # (tested on windows 7 pro)
+            while Gtk.events_pending():
+                Gtk.main_iteration()
 
     def on_ui_object_available(self, name, ui_object):
         def callback(self, window, *args):
