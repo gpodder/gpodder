@@ -100,7 +100,7 @@
         </item>
       </section>
     </submenu>
-    <submenu id="menuChannels">
+    <submenu id="menuEpisodes">
       <attribute name="label" translatable="yes">_Episodes</attribute>
       <section>
         <item>
@@ -115,6 +115,10 @@
         <item>
           <attribute name="action">win.download</attribute>
           <attribute name="label" translatable="yes">Download</attribute>
+        </item>
+        <item>
+          <attribute name="action">win.pause</attribute>
+          <attribute name="label" translatable="yes">Pause</attribute>
         </item>
         <item>
           <attribute name="action">win.cancel</attribute>
@@ -134,6 +138,12 @@
         <item>
           <attribute name="action">win.toggleEpisodeLock</attribute>
           <attribute name="label" translatable="yes">Change delete lock</attribute>
+        </item>
+      </section>
+      <section>
+        <item>
+          <attribute name="action">win.openEpisodeDownloadFolder</attribute>
+          <attribute name="label" translatable="yes">Open download folder</attribute>
         </item>
       </section>
       <section>

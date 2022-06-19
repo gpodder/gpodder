@@ -25,10 +25,11 @@ from gpodder.feedcore import Fetcher, Result, NEW_LOCATION, NOT_MODIFIED, UPDATE
 
 
 class MyFetcher(Fetcher):
-    def parse_feed(self, url, data_stream, headers, status, **kwargs):
+    def parse_feed(self, url, feed_data, data_stream, headers, status, **kwargs):
         return Result(status, {
             'parse_feed': {
                 'url': url,
+                'feed_data': feed_data,
                 'data_stream': data_stream,
                 'headers': headers,
                 'extra_args': dict(**kwargs),

@@ -255,7 +255,7 @@ class gPodderSyncUI(object):
                                             try:
                                                 episodes_to_delete.append(episode_dict[episode_filename])
                                             except KeyError as ioe:
-                                                logger.warn('Episode %s, removed from device has already been deleted from gpodder',
+                                                logger.warning('Episode %s, removed from device has already been deleted from gpodder',
                                                             episode_filename)
                     # delete all episodes from gpodder (will prompt user)
 

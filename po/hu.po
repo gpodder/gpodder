@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gPodder\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-10-15 04:02-0600\n"
+"POT-Creation-Date: 2022-04-29 13:02-0600\n"
 "PO-Revision-Date: 2018-02-25 20:35+0100\n"
 "Last-Translator: Balázs Meskó <mesko.balazs@fsf.hu>\n"
 "Language-Team: Hungarian\n"
@@ -65,76 +65,75 @@ msgstr "Soundcloud keresés"
 msgid "Imported OPML file"
 msgstr "Importált OMPL fájl"
 
-#: src/gpodder/download.py:544 src/gpodder/sync.py:730
+#: src/gpodder/download.py:545 src/gpodder/sync.py:729
 msgid "Queued"
 msgstr "Sorbaállítva"
 
-#: src/gpodder/download.py:544 src/gpodder/sync.py:730
-#: src/gpodder/gtkui/model.py:392
+#: src/gpodder/download.py:545 src/gpodder/gtkui/model.py:393
 msgid "Downloading"
 msgstr "Letöltés"
 
-#: src/gpodder/download.py:545 src/gpodder/model.py:784 src/gpodder/sync.py:731
+#: src/gpodder/download.py:546 src/gpodder/model.py:850 src/gpodder/sync.py:730
 msgid "Finished"
 msgstr "Elkészült"
 
-#: src/gpodder/download.py:545 src/gpodder/sync.py:731
+#: src/gpodder/download.py:546 src/gpodder/sync.py:730
 msgid "Failed"
 msgstr "Sikertelen"
 
-#: src/gpodder/download.py:545 src/gpodder/sync.py:731
+#: src/gpodder/download.py:546 src/gpodder/sync.py:730
 #, fuzzy
 #| msgid "Cancelling..."
 msgid "Cancelling"
 msgstr "Megszakítás…"
 
-#: src/gpodder/download.py:545 src/gpodder/sync.py:731
+#: src/gpodder/download.py:546 src/gpodder/sync.py:730
 msgid "Cancelled"
 msgstr "Megszakítva"
 
-#: src/gpodder/download.py:545 src/gpodder/sync.py:731
+#: src/gpodder/download.py:546 src/gpodder/sync.py:730
 #, fuzzy
 #| msgid "Pause"
 msgid "Pausing"
 msgstr "Szüneteltetés"
 
-#: src/gpodder/download.py:545 src/gpodder/sync.py:731
-#: src/gpodder/gtkui/model.py:384
+#: src/gpodder/download.py:546 src/gpodder/sync.py:730
+#: src/gpodder/gtkui/model.py:385
 msgid "Paused"
 msgstr "Szüneteltetve"
 
-#: src/gpodder/download.py:902
+#: src/gpodder/download.py:936
 #, fuzzy
 #| msgid "Select the episodes you want to download:"
 msgid "Episode has no URL to download"
 msgstr "Válassza ki a letöltendő epizódokat:"
 
-#: src/gpodder/download.py:905
+#: src/gpodder/download.py:939
 msgid "Missing content from server"
 msgstr "Hiányzik a tartalom a kiszolgálón"
 
-#: src/gpodder/download.py:911
+#: src/gpodder/download.py:945
 #, python-format
 msgid "Couldn't connect to server %(host)s:%(port)s"
 msgstr ""
 
-#: src/gpodder/download.py:920
+#: src/gpodder/download.py:954
 #, fuzzy, python-format
 #| msgid "Syntax error: %(error)s"
 msgid "Request Error: %(error)s"
 msgstr "Szintaktikai hiba: %(error)s"
 
-#: src/gpodder/download.py:926
+#: src/gpodder/download.py:960
 #, python-format
 msgid "I/O Error: %(error)s: %(filename)s"
 msgstr "I/O hiba: %(error)s: %(filename)s"
 
-#: src/gpodder/download.py:933
+#: src/gpodder/download.py:967
 #, python-format
 msgid "HTTP Error %(code)s: %(message)s"
 msgstr "HTTP %(code)s hiba: %(message)s"
 
-#: src/gpodder/download.py:937 src/gpodder/sync.py:918
+#: src/gpodder/download.py:971 src/gpodder/sync.py:929
 #, python-format
 msgid "Error: %s"
 msgstr "Hiba: %s"
@@ -151,8 +150,8 @@ msgstr "Felület"
 msgid "Post download"
 msgstr "Letöltés után"
 
-#: src/gpodder/extensions.py:59 src/gpodder/model.py:848
-#: src/gpodder/model.py:1262
+#: src/gpodder/extensions.py:59 src/gpodder/model.py:914
+#: src/gpodder/model.py:1328
 msgid "Other"
 msgstr "Egyéb"
 
@@ -175,41 +174,41 @@ msgstr "Legalább a következő parancsok egyike szükséges: %(list_of_commands
 msgid "Python module not found: %(module)s"
 msgstr "A Python modul nem található: %(module)s"
 
-#: src/gpodder/model.py:296 src/gpodder/model.py:508 src/gpodder/youtube.py:541
+#: src/gpodder/model.py:297 src/gpodder/model.py:574 src/gpodder/youtube.py:570
 #: src/gpodder/plugins/soundcloud.py:170
-#: share/gpodder/extensions/youtube-dl.py:216
+#: share/gpodder/extensions/youtube-dl.py:214
 msgid "No description available"
 msgstr "Nem áll rendelkezésre leírás"
 
-#: src/gpodder/model.py:742
+#: src/gpodder/model.py:808
 msgid "unknown"
 msgstr "ismeretlen"
 
-#: src/gpodder/model.py:813
+#: src/gpodder/model.py:879
 msgid "Default"
 msgstr "Alapértelmezés"
 
-#: src/gpodder/model.py:814
+#: src/gpodder/model.py:880
 msgid "Only keep latest"
 msgstr "Csak a legfrissebb megtartása"
 
-#: src/gpodder/model.py:1245 src/gpodder/model.py:1260
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:37
+#: src/gpodder/model.py:1311 src/gpodder/model.py:1326
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:39
 msgid "Video"
 msgstr "Videó"
 
-#: src/gpodder/model.py:1258
+#: src/gpodder/model.py:1324
 msgid "Audio"
 msgstr "Hang"
 
-#: src/gpodder/model.py:1438
+#: src/gpodder/model.py:1504
 #, python-format
 msgid ""
 "Warning: path to gPodder home (%(root)s) is very long and can result in "
 "failure to download files.\n"
 msgstr ""
 
-#: src/gpodder/model.py:1440
+#: src/gpodder/model.py:1506
 msgid "You're advised to set it to a shorter path."
 msgstr ""
 
@@ -223,55 +222,55 @@ msgstr "%s hozzáadása"
 msgid "Remove %s"
 msgstr "%s eltávolítása"
 
-#: src/gpodder/sync.py:204
+#: src/gpodder/sync.py:203
 msgid "Cancelled by user"
 msgstr "A felhasználó megszakította"
 
-#: src/gpodder/sync.py:207
+#: src/gpodder/sync.py:206
 msgid "Writing data to disk"
 msgstr "Adatok lemezre írása"
 
-#: src/gpodder/sync.py:316
+#: src/gpodder/sync.py:315
 msgid "Opening iPod database"
 msgstr "iPod adatbázis megnyitása"
 
-#: src/gpodder/sync.py:326
+#: src/gpodder/sync.py:325
 msgid "iPod opened"
 msgstr "iPod megnyitva"
 
-#: src/gpodder/sync.py:337
+#: src/gpodder/sync.py:336
 msgid "Saving iPod database"
 msgstr "iPod adatbázis mentése"
 
-#: src/gpodder/sync.py:342
+#: src/gpodder/sync.py:341
 msgid "Writing extended gtkpod database"
 msgstr "Bővített gtkpod adatbázis írása"
 
-#: src/gpodder/sync.py:418 src/gpodder/sync.py:708
+#: src/gpodder/sync.py:417 src/gpodder/sync.py:707
 #, python-format
 msgid "Removing %s"
 msgstr "%s eltávolítása"
 
-#: src/gpodder/sync.py:433 src/gpodder/sync.py:596
+#: src/gpodder/sync.py:432 src/gpodder/sync.py:595
 #, python-format
 msgid "Adding %s"
 msgstr "%s hozzáadása"
 
-#: src/gpodder/sync.py:451
+#: src/gpodder/sync.py:450
 #, python-format
 msgid "Error copying %(episode)s: Not enough free space on %(mountpoint)s"
 msgstr ""
 "Hiba a(z) %(episode)s másolásakor: Nincs elég szabad hely itt: %(mountpoint)s"
 
-#: src/gpodder/sync.py:540
+#: src/gpodder/sync.py:539
 msgid "Opening MP3 player"
 msgstr "MP3 lejátszó megnyitása"
 
-#: src/gpodder/sync.py:562
+#: src/gpodder/sync.py:561
 msgid "MP3 player opened"
 msgstr "MP3 lejátszó megnyitva"
 
-#: src/gpodder/sync.py:615
+#: src/gpodder/sync.py:614
 #, python-format
 msgid ""
 "Not enough space in %(path)s: %(free)s available, but need at least %(need)s"
@@ -279,11 +278,16 @@ msgstr ""
 "Nincs elég hely a(z) %(path)s útvonalon: %(free)s szabad, de legalább "
 "%(need)s szükséges"
 
-#: src/gpodder/sync.py:638
+#: src/gpodder/sync.py:637
 #, fuzzy, python-format
 #| msgid "Error opening %(filename)s: %(message)s"
 msgid "Error copying %(from_file)s to %(to_file)s: %(message)s"
 msgstr "Hiba a(z) %(filename)s megnyitásakor: %(message)s"
+
+#: src/gpodder/sync.py:729
+#, fuzzy
+msgid "Syncing"
+msgstr "%s hozzáadása"
 
 #: src/gpodder/syncui.py:89
 msgid "No device configured"
@@ -324,10 +328,10 @@ msgstr "Frissítés sikeres"
 msgid "The playlist on your MP3 player has been updated."
 msgstr "Az MP3 lejátszó lejátszólistája frissült."
 
-#: src/gpodder/syncui.py:284 src/gpodder/gtkui/main.py:857
-#: src/gpodder/gtkui/main.py:1038 src/gpodder/gtkui/main.py:2958
-#: src/gpodder/gtkui/main.py:3157
-#: src/gpodder/gtkui/desktop/episodeselector.py:131
+#: src/gpodder/syncui.py:284 src/gpodder/gtkui/main.py:862
+#: src/gpodder/gtkui/main.py:1044 src/gpodder/gtkui/main.py:3010
+#: src/gpodder/gtkui/main.py:3220
+#: src/gpodder/gtkui/desktop/episodeselector.py:129
 msgid "Episode"
 msgstr "Epizód"
 
@@ -339,73 +343,101 @@ msgstr "Az epizódok törölve lettek az eszközön"
 msgid "Error writing playlist files"
 msgstr "Hiba a lejátszólista fájlok írásakor"
 
-#: src/gpodder/util.py:472
+#: src/gpodder/util.py:479
 #, python-format
 msgid "%(count)d day ago"
 msgid_plural "%(count)d days ago"
 msgstr[0] "%(count)d napja"
 msgstr[1] "%(count)d napja"
 
-#: src/gpodder/util.py:551
+#: src/gpodder/util.py:558
 msgid "Today"
 msgstr "Ma"
 
-#: src/gpodder/util.py:553
+#: src/gpodder/util.py:560
 msgid "Yesterday"
 msgstr "Tegnap"
 
-#: src/gpodder/util.py:596 src/gpodder/util.py:599
+#: src/gpodder/util.py:603 src/gpodder/util.py:606
 msgid "(unknown)"
 msgstr "(ismeretlen)"
 
-#: src/gpodder/util.py:1426 src/gpodder/util.py:1448
+#: src/gpodder/util.py:1437 src/gpodder/util.py:1459
 #, python-format
 msgid "%(count)d second"
 msgid_plural "%(count)d seconds"
 msgstr[0] "%(count)d másodperc"
 msgstr[1] "%(count)d másodperce"
 
-#: src/gpodder/util.py:1440
+#: src/gpodder/util.py:1451
 #, python-format
 msgid "%(count)d hour"
 msgid_plural "%(count)d hours"
 msgstr[0] "%(count)d óra"
 msgstr[1] "%(count)d óra"
 
-#: src/gpodder/util.py:1444
+#: src/gpodder/util.py:1455
 #, python-format
 msgid "%(count)d minute"
 msgid_plural "%(count)d minutes"
 msgstr[0] "%(count)d perc"
 msgstr[1] "%(count)d perc"
 
-#: src/gpodder/util.py:1452
+#: src/gpodder/util.py:1463
 msgid "and"
 msgstr "és"
 
-#: src/gpodder/gtkui/app.py:176
+#: src/gpodder/util.py:1499
+#, python-format
+msgid "System default program '%(opener)s' not found"
+msgstr ""
+
+#: src/gpodder/util.py:1508
+#, python-format
+msgid "Cannot open file/folder '%(filename)s' using default program"
+msgstr ""
+
+#: src/gpodder/util.py:1510
+#, python-format
+msgid "Cannot open '%(filename)s' using '%(opener)s'"
+msgstr ""
+
+#: src/gpodder/util.py:1512
+#, fuzzy
+#| msgid "Cannot open device"
+msgid "Cannot open file/folder"
+msgstr "Az eszköz nem nyitható meg"
+
+#: src/gpodder/gtkui/app.py:177
 msgid "Cannot start gPodder"
 msgstr "A gPoddert nem lehetett elindítani"
 
-#: src/gpodder/gtkui/app.py:177
+#: src/gpodder/gtkui/app.py:178
 #, python-format
 msgid "D-Bus error: %s"
 msgstr "D-Bus hiba: %s"
 
-#: src/gpodder/gtkui/app.py:203
+#: src/gpodder/gtkui/app.py:204
 msgid "About gPodder"
 msgstr "A gPodder névjegye"
 
-#: src/gpodder/gtkui/app.py:226
+#: src/gpodder/gtkui/app.py:206
+#: src/gpodder/gtkui/desktop/episodeselector.py:329
+#: share/gpodder/ui/gtk/gpodderconfigeditor.ui.h:2
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:3
+msgid "_Close"
+msgstr ""
+
+#: src/gpodder/gtkui/app.py:227
 #, fuzzy
 msgid "Website"
 msgstr "Webhely:"
 
-#: src/gpodder/gtkui/app.py:227
+#: src/gpodder/gtkui/app.py:228
 msgid "Bug Tracker"
 msgstr ""
 
-#: src/gpodder/gtkui/app.py:281
+#: src/gpodder/gtkui/app.py:282
 msgid "Path to gPodder home is too long"
 msgstr ""
 
@@ -434,141 +466,160 @@ msgstr "Parancs: %s"
 msgid "Default application"
 msgstr "Alapértelmezett alkalmazás"
 
-#: src/gpodder/gtkui/main.py:170 share/applications/gpodder.desktop.in.h:1
+#: src/gpodder/gtkui/main.py:171 share/applications/gpodder.desktop.in.h:1
 msgid "gPodder"
 msgstr "gPodder"
 
-#: src/gpodder/gtkui/main.py:363 share/gpodder/ui/gtk/menus.ui.h:30
-msgid "E_xtras"
-msgstr "E_xtrák"
-
-#: src/gpodder/gtkui/main.py:364
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:38
+#: src/gpodder/gtkui/main.py:362
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:40
 msgid "Extensions"
 msgstr "Bővítmények"
 
-#: src/gpodder/gtkui/main.py:384
+#: src/gpodder/gtkui/main.py:382
 msgid "Loading incomplete downloads"
 msgstr "Befejezetlen letöltések betöltése"
 
-#: src/gpodder/gtkui/main.py:385
+#: src/gpodder/gtkui/main.py:383
 msgid "Some episodes have not finished downloading in a previous session."
 msgstr "Néhány epizód letöltése nem fejeződött be az előző munkamenetben."
 
-#: src/gpodder/gtkui/main.py:388 bin/gpo:608
+#: src/gpodder/gtkui/main.py:386 bin/gpo:608
 #, python-format
 msgid "%(count)d partial file"
 msgid_plural "%(count)d partial files"
 msgstr[0] "%(count)d részleges fájl"
 msgstr[1] "%(count)d részleges fájl"
 
-#: src/gpodder/gtkui/main.py:401
+#: src/gpodder/gtkui/main.py:399
 msgid "Resume all"
 msgstr "Összes folytatása"
 
-#: src/gpodder/gtkui/main.py:413
+#: src/gpodder/gtkui/main.py:411
 msgid "Incomplete downloads from a previous session were found."
 msgstr "Befejezetlen letöltések találhatóak az előző munkamenetből."
 
-#: src/gpodder/gtkui/main.py:523
+#: src/gpodder/gtkui/main.py:521
 msgid "Action"
 msgstr "Művelet"
 
-#: src/gpodder/gtkui/main.py:570
+#: src/gpodder/gtkui/main.py:568
 msgid "Confirm changes from gpodder.net"
 msgstr "A gpodder.net módosításainak megerősítése"
 
-#: src/gpodder/gtkui/main.py:571
+#: src/gpodder/gtkui/main.py:569
 msgid "Select the actions you want to carry out."
 msgstr "Válassza ki a végrehajtandó műveleteket."
 
-#: src/gpodder/gtkui/main.py:611
+#: src/gpodder/gtkui/main.py:573
+msgid "A_pply"
+msgstr ""
+
+#: src/gpodder/gtkui/main.py:609
 msgid "Uploading subscriptions"
 msgstr "Feliratkozások feltöltése"
 
-#: src/gpodder/gtkui/main.py:612
+#: src/gpodder/gtkui/main.py:610
 msgid "Your subscriptions are being uploaded to the server."
 msgstr "A feliratkozásai feltöltésre kerülnek a kiszolgálóra."
 
-#: src/gpodder/gtkui/main.py:617
+#: src/gpodder/gtkui/main.py:615
 msgid "List uploaded successfully."
 msgstr "Lista sikeresen feltöltve."
 
-#: src/gpodder/gtkui/main.py:624
+#: src/gpodder/gtkui/main.py:623
+msgid ""
+"Could not find your device.\n"
+"\n"
+"Check login is a username (not an email)\n"
+"and that the device name matches one in your account."
+msgstr ""
+
+#: src/gpodder/gtkui/main.py:629
 msgid "Error while uploading"
 msgstr "Hiba a feltöltéskor"
 
-#: src/gpodder/gtkui/main.py:876
+#: src/gpodder/gtkui/main.py:881
 msgid "Size"
 msgstr "Méret"
 
-#: src/gpodder/gtkui/main.py:881
+#: src/gpodder/gtkui/main.py:886
 msgid "Duration"
 msgstr "Időtartam"
 
-#: src/gpodder/gtkui/main.py:885
+#: src/gpodder/gtkui/main.py:890
 msgid "Released"
 msgstr "Kiadva"
 
-#: src/gpodder/gtkui/main.py:891
+#: src/gpodder/gtkui/main.py:896
 #, fuzzy
 #| msgid "Size"
 msgid "Size+"
 msgstr "Méret"
 
-#: src/gpodder/gtkui/main.py:899
+#: src/gpodder/gtkui/main.py:904
 #, fuzzy
 #| msgid "Duration"
 msgid "Duration+"
 msgstr "Időtartam"
 
-#: src/gpodder/gtkui/main.py:1058 src/gpodder/gtkui/main.py:1213
-#: share/gpodder/ui/gtk/gpodder.ui.h:11
+#: src/gpodder/gtkui/main.py:1064 src/gpodder/gtkui/main.py:1236
+#: share/gpodder/ui/gtk/gpodder.ui.h:13
 msgid "Progress"
 msgstr "Előrehaladás"
 
-#: src/gpodder/gtkui/main.py:1086
+#: src/gpodder/gtkui/main.py:1098
 msgid "No episodes in current view"
 msgstr "Nincs epizód a jelenlegi nézetben"
 
-#: src/gpodder/gtkui/main.py:1088
+#: src/gpodder/gtkui/main.py:1100
 msgid "No episodes available"
 msgstr "Nem érhető el epizód"
 
-#: src/gpodder/gtkui/main.py:1094
+#: src/gpodder/gtkui/main.py:1106
 msgid "No podcasts in this view"
 msgstr "Nincs podcast ebben a nézetben"
 
-#: src/gpodder/gtkui/main.py:1096
+#: src/gpodder/gtkui/main.py:1108
 msgid "No subscriptions"
 msgstr "Nincs feliratkozás"
 
-#: src/gpodder/gtkui/main.py:1098
+#: src/gpodder/gtkui/main.py:1110
 msgid "No active tasks"
 msgstr "Nincs aktív feladat"
 
-#: src/gpodder/gtkui/main.py:1217 src/gpodder/gtkui/main.py:1219
+#: src/gpodder/gtkui/main.py:1240 src/gpodder/gtkui/main.py:1242
 #, python-format
 msgid "%(count)d active"
 msgid_plural "%(count)d active"
 msgstr[0] "%(count)d aktív"
 msgstr[1] "%(count)d aktív"
 
-#: src/gpodder/gtkui/main.py:1221
-#, python-format
-msgid "%(count)d failed"
-msgid_plural "%(count)d failed"
-msgstr[0] "%(count)d meghiúsult"
-msgstr[1] "%(count)d meghiúsult"
+#: src/gpodder/gtkui/main.py:1244
+#, fuzzy, python-format
+#| msgid "%(count)d second"
+#| msgid_plural "%(count)d seconds"
+msgid "%(count)d pausing"
+msgid_plural "%(count)d pausing"
+msgstr[0] "%(count)d másodperc"
+msgstr[1] "%(count)d másodperce"
 
-#: src/gpodder/gtkui/main.py:1223
+#: src/gpodder/gtkui/main.py:1246
+#, fuzzy, python-format
+#| msgid "%(count)d active"
+#| msgid_plural "%(count)d active"
+msgid "%(count)d cancelling"
+msgid_plural "%(count)d cancelling"
+msgstr[0] "%(count)d aktív"
+msgstr[1] "%(count)d aktív"
+
+#: src/gpodder/gtkui/main.py:1248
 #, python-format
 msgid "%(count)d queued"
 msgid_plural "%(count)d queued"
 msgstr[0] "%(count)d sorbaállítva"
 msgstr[1] "%(count)d sorbaállítva"
 
-#: src/gpodder/gtkui/main.py:1225
+#: src/gpodder/gtkui/main.py:1250
 #, fuzzy, python-format
 #| msgid "%(count)d second"
 #| msgid_plural "%(count)d seconds"
@@ -577,324 +628,342 @@ msgid_plural "%(count)d paused"
 msgstr[0] "%(count)d másodperc"
 msgstr[1] "%(count)d másodperce"
 
-#: src/gpodder/gtkui/main.py:1238
+#: src/gpodder/gtkui/main.py:1252
+#, python-format
+msgid "%(count)d failed"
+msgid_plural "%(count)d failed"
+msgstr[0] "%(count)d meghiúsult"
+msgstr[1] "%(count)d meghiúsult"
+
+#: src/gpodder/gtkui/main.py:1265
 #, python-format
 msgid "downloading %(count)d file"
 msgid_plural "downloading %(count)d files"
 msgstr[0] "%(count)d fájl letöltése"
 msgstr[1] "%(count)d fájl letöltése"
 
-#: src/gpodder/gtkui/main.py:1250
+#: src/gpodder/gtkui/main.py:1277
 #, python-format
 msgid "synchronizing %(count)d file"
 msgid_plural "synchronizing %(count)d files"
 msgstr[0] "%(count)d fájl szinkronizálása"
 msgstr[1] "%(count)d fájl szinkronizálása"
 
-#: src/gpodder/gtkui/main.py:1254
+#: src/gpodder/gtkui/main.py:1281
 #, python-format
 msgid "%(queued)d task queued"
 msgid_plural "%(queued)d tasks queued"
 msgstr[0] "%(queued)d feladat sorbaállítva"
 msgstr[1] "%(queued)d feladat sorbaállítva"
 
-#: src/gpodder/gtkui/main.py:1281
+#: src/gpodder/gtkui/main.py:1308
 msgid "Please report this problem and restart gPodder:"
 msgstr "Jelentse a problémát, és indítsa újra a gPoddert:"
 
-#: src/gpodder/gtkui/main.py:1282
+#: src/gpodder/gtkui/main.py:1309
 msgid "Unhandled exception"
 msgstr "Nem kezelt kivétel"
 
-#: src/gpodder/gtkui/main.py:1350
+#: src/gpodder/gtkui/main.py:1377
 #, python-format
 msgid "Feedparser error: %s"
 msgstr "Feedparser hiba: %s"
 
-#: src/gpodder/gtkui/main.py:1366 src/gpodder/gtkui/model.py:464
-#: src/gpodder/gtkui/model.py:795 src/gpodder/gtkui/desktop/channel.py:81
+#: src/gpodder/gtkui/main.py:1393 src/gpodder/gtkui/model.py:465
+#: src/gpodder/gtkui/model.py:804 src/gpodder/gtkui/desktop/channel.py:81
 #, python-format
 msgid "ERROR: %s"
 msgstr ""
 
-#: src/gpodder/gtkui/main.py:1487
+#: src/gpodder/gtkui/main.py:1506
 msgid "Could not download some episodes:"
 msgstr "Néhány epizódot nem lehetett letölteni:"
 
-#: src/gpodder/gtkui/main.py:1489 src/gpodder/gtkui/main.py:1492
+#: src/gpodder/gtkui/main.py:1508 src/gpodder/gtkui/main.py:1511
 msgid "Downloads finished"
 msgstr "Elkészült letöltések"
 
-#: src/gpodder/gtkui/main.py:1495
+#: src/gpodder/gtkui/main.py:1514
 msgid "Downloads failed"
 msgstr "Meghiúsult letöltések"
 
-#: src/gpodder/gtkui/main.py:1500
+#: src/gpodder/gtkui/main.py:1519
 msgid "Could not sync some episodes:"
 msgstr "Néhány epizódot nem lehetett szinkronizálni:"
 
-#: src/gpodder/gtkui/main.py:1503 src/gpodder/gtkui/main.py:1507
+#: src/gpodder/gtkui/main.py:1522 src/gpodder/gtkui/main.py:1526
 msgid "Device synchronization finished"
 msgstr "Eszközszinkronizáció elkészült"
 
-#: src/gpodder/gtkui/main.py:1511
+#: src/gpodder/gtkui/main.py:1530
 msgid "Device synchronization failed"
 msgstr "Eszközszinkronizáció meghiúsult"
 
-#: src/gpodder/gtkui/main.py:1554
+#: src/gpodder/gtkui/main.py:1573
 #, python-format
 msgid "%(count)d more episode"
 msgid_plural "%(count)d more episodes"
 msgstr[0] "%(count)d további epizód"
 msgstr[1] "%(count)d további epizód"
 
-#: src/gpodder/gtkui/main.py:1677
+#: src/gpodder/gtkui/main.py:1692
 msgid "Start download now"
 msgstr "Letöltés indítása most"
 
-#: src/gpodder/gtkui/main.py:1682 src/gpodder/gtkui/main.py:1969
-#: src/gpodder/gtkui/desktop/episodeselector.py:140
+#: src/gpodder/gtkui/main.py:1697 src/gpodder/gtkui/main.py:1983
 #: src/gpodder/gtkui/desktop/podcastdirectory.py:194
-#: share/gpodder/ui/gtk/gpodder.ui.h:1 share/gpodder/ui/gtk/menus.ui.h:23
+#: share/gpodder/ui/gtk/gpodder.ui.h:2 share/gpodder/ui/gtk/menus.ui.h:23
 msgid "Download"
 msgstr "Letöltés"
 
-#: src/gpodder/gtkui/main.py:1687 src/gpodder/gtkui/desktop/channel.py:210
-#: share/gpodder/ui/gtk/gpodder.ui.h:2
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:2
-#: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:6
-#: share/gpodder/ui/gtk/menus.ui.h:24
-msgid "Cancel"
-msgstr "Mégse"
-
-#: src/gpodder/gtkui/main.py:1691
+#: src/gpodder/gtkui/main.py:1702 src/gpodder/gtkui/main.py:1988
+#: share/gpodder/ui/gtk/gpodder.ui.h:3 share/gpodder/ui/gtk/menus.ui.h:24
 msgid "Pause"
 msgstr "Szüneteltetés"
 
-#: src/gpodder/gtkui/main.py:1695
+#: src/gpodder/gtkui/main.py:1705 src/gpodder/gtkui/desktop/channel.py:210
+#: share/gpodder/ui/gtk/gpodder.ui.h:4 share/gpodder/ui/gtk/menus.ui.h:25
+msgid "Cancel"
+msgstr "Mégse"
+
+#: src/gpodder/gtkui/main.py:1710
 msgid "Move up"
 msgstr "Mozgás felfelé"
 
-#: src/gpodder/gtkui/main.py:1697
+#: src/gpodder/gtkui/main.py:1712
 msgid "Move down"
 msgstr "Mozgás lefelé"
 
-#: src/gpodder/gtkui/main.py:1700
+#: src/gpodder/gtkui/main.py:1715
 msgid "Remove from list"
 msgstr "Eltávolítás a listából"
 
-#: src/gpodder/gtkui/main.py:1741 share/gpodder/ui/gtk/menus.ui.h:16
+#: src/gpodder/gtkui/main.py:1756 share/gpodder/ui/gtk/menus.ui.h:16
 msgid "Update podcast"
 msgstr "Podcast frissítése"
 
-#: src/gpodder/gtkui/main.py:1748
+#: src/gpodder/gtkui/main.py:1763
 msgid "Open download folder"
 msgstr "Letöltési mappa megnyitása"
 
-#: src/gpodder/gtkui/main.py:1754
+#: src/gpodder/gtkui/main.py:1769
 msgid "Mark episodes as old"
 msgstr "Epizód régiként megjelölése"
 
-#: src/gpodder/gtkui/main.py:1758 src/gpodder/gtkui/main.py:2030
+#: src/gpodder/gtkui/main.py:1773 src/gpodder/gtkui/main.py:2049
 msgid "Archive"
 msgstr "Archiválás"
 
-#: src/gpodder/gtkui/main.py:1763
+#: src/gpodder/gtkui/main.py:1778
 #, fuzzy
 #| msgid "_Refresh"
 msgid "Refresh image"
 msgstr "_Frissítés"
 
-#: src/gpodder/gtkui/main.py:1767
+#: src/gpodder/gtkui/main.py:1782
 msgid "Delete podcast"
 msgstr "Podcast törlése"
 
-#: src/gpodder/gtkui/main.py:1785 share/gpodder/ui/gtk/menus.ui.h:17
+#: src/gpodder/gtkui/main.py:1800 share/gpodder/ui/gtk/menus.ui.h:17
 msgid "Podcast settings"
 msgstr "Podcast beállításai"
 
-#: src/gpodder/gtkui/main.py:1830
-msgid "File already exist"
+#: src/gpodder/gtkui/main.py:1845
+msgid "File already exists"
 msgstr ""
 
-#: src/gpodder/gtkui/main.py:1832
+#: src/gpodder/gtkui/main.py:1847
 #, python-format
-msgid "A file named \"%(filename)s\" already exist. Do you want to replace it?"
+msgid ""
+"A file named \"%(filename)s\" already exists. Do you want to replace it?"
 msgstr ""
 
-#: src/gpodder/gtkui/main.py:1874
+#: src/gpodder/gtkui/main.py:1889
 #, python-format
 msgid ""
 "Error saving to local folder: %(error)r.\n"
 "Would you like to continue?"
 msgstr ""
 
-#: src/gpodder/gtkui/main.py:1876 src/gpodder/gtkui/main.py:1881
+#: src/gpodder/gtkui/main.py:1891 src/gpodder/gtkui/main.py:1896
 #, fuzzy
 msgid "Error saving to local folder"
 msgstr "Hiba a lejátszólista fájlok írásakor"
 
-#: src/gpodder/gtkui/main.py:1880
+#: src/gpodder/gtkui/main.py:1895
 #, python-format
 msgid "Error saving to local folder: %(error)r"
 msgstr ""
 
-#: src/gpodder/gtkui/main.py:1901
+#: src/gpodder/gtkui/main.py:1916
 msgid "Error converting file."
 msgstr "Hiba a fájl átalakításakor."
 
-#: src/gpodder/gtkui/main.py:1901
+#: src/gpodder/gtkui/main.py:1916
 msgid "Bluetooth file transfer"
 msgstr "Bluetooth fájlátvitel"
 
-#: src/gpodder/gtkui/main.py:1952
+#: src/gpodder/gtkui/main.py:1967 src/gpodder/gtkui/main.py:2083
 #: src/gpodder/gtkui/desktop/podcastdirectory.py:197
 #: share/gpodder/ui/gtk/menus.ui.h:22
 msgid "Open"
 msgstr "Megnyitás"
 
-#: src/gpodder/gtkui/main.py:1955 share/gpodder/ui/gtk/menus.ui.h:21
+#: src/gpodder/gtkui/main.py:1971 src/gpodder/gtkui/main.py:2092
+#: share/gpodder/ui/gtk/gpodder.ui.h:1 share/gpodder/ui/gtk/menus.ui.h:21
 msgid "Play"
 msgstr "Lejátszás"
 
-#: src/gpodder/gtkui/main.py:1959
+#: src/gpodder/gtkui/main.py:1973 src/gpodder/gtkui/main.py:2094
 msgid "Preview"
 msgstr "Előnézet"
 
-#: src/gpodder/gtkui/main.py:1961
+#: src/gpodder/gtkui/main.py:1975 src/gpodder/gtkui/main.py:2096
 msgid "Stream"
 msgstr "Folyam"
 
-#: src/gpodder/gtkui/main.py:1974 share/gpodder/ui/gtk/gpodderaddpodcast.ui.h:2
-#: share/gpodder/ui/gtk/gpodderexporttolocalfolder.ui.h:2
+#: src/gpodder/gtkui/main.py:1993 src/gpodder/gtkui/main.py:2880
+#: src/gpodder/gtkui/main.py:3480 src/gpodder/gtkui/main.py:3508
+#: src/gpodder/gtkui/interface/common.py:134
+#: src/gpodder/gtkui/interface/common.py:270
+#: src/gpodder/gtkui/desktop/channel.py:149
+#: src/gpodder/gtkui/desktop/episodeselector.py:327
+#: src/gpodder/gtkui/desktop/preferences.py:686
+#: src/gpodder/gtkui/desktop/preferences.py:704
+#: share/gpodder/extensions/concatenate_videos.py:41
+#: share/gpodder/ui/gtk/gpodderaddpodcast.ui.h:2
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:2
+#: share/gpodder/ui/gtk/gpodderepisodeselector.ui.h:3
+#: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:6
 #: share/gpodder/ui/gtk/gpodderwelcome.ui.h:2
 msgid "_Cancel"
 msgstr "_Mégse"
 
-#: src/gpodder/gtkui/main.py:1978
+#: src/gpodder/gtkui/main.py:1997 src/gpodder/gtkui/main.py:3040
+#: src/gpodder/gtkui/main.py:3379
 msgid "_Delete"
 msgstr "_Törlés"
 
-#: src/gpodder/gtkui/main.py:2007
+#: src/gpodder/gtkui/main.py:2026
 msgid "Send to"
 msgstr "Küldés"
 
-#: src/gpodder/gtkui/main.py:2009
+#: src/gpodder/gtkui/main.py:2028
 msgid "Local folder"
 msgstr "Helyi mappa"
 
-#: src/gpodder/gtkui/main.py:2014
+#: src/gpodder/gtkui/main.py:2033
 msgid "Bluetooth device"
 msgstr "Bluetooth eszköz"
 
-#: src/gpodder/gtkui/main.py:2021
+#: src/gpodder/gtkui/main.py:2040
 msgid "New"
 msgstr "Új"
 
-#: src/gpodder/gtkui/main.py:2039 share/gpodder/ui/gtk/menus.ui.h:29
+#: src/gpodder/gtkui/main.py:2058 share/gpodder/ui/gtk/menus.ui.h:30
 msgid "Episode details"
 msgstr "Epizód részletei"
 
-#: src/gpodder/gtkui/main.py:2210
+#: src/gpodder/gtkui/main.py:2247
 msgid "Please check your media player settings in the preferences dialog."
 msgstr ""
 "Ellenőrizze a médialejátszó beállításait a beállítások párbeszédablakon."
 
-#: src/gpodder/gtkui/main.py:2211
+#: src/gpodder/gtkui/main.py:2248
 msgid "Error opening player"
 msgstr "Hiba a lejátszó megnyitásakor"
 
-#: src/gpodder/gtkui/main.py:2468
+#: src/gpodder/gtkui/main.py:2505
 msgid "Adding podcasts"
 msgstr "Podcastok hozzáadása"
 
-#: src/gpodder/gtkui/main.py:2469
+#: src/gpodder/gtkui/main.py:2506
 msgid "Please wait while episode information is downloaded."
 msgstr "Várjon amíg az epizódinformációk letöltődnek."
 
-#: src/gpodder/gtkui/main.py:2476
+#: src/gpodder/gtkui/main.py:2513
 msgid "Existing subscriptions skipped"
 msgstr "Létező feliratkozások kihagyva"
 
-#: src/gpodder/gtkui/main.py:2477
+#: src/gpodder/gtkui/main.py:2514
 msgid "You are already subscribed to these podcasts:"
 msgstr "Már feliratkozott ezekre a podcastokra:"
 
-#: src/gpodder/gtkui/main.py:2485 bin/gpo:344
+#: src/gpodder/gtkui/main.py:2522 bin/gpo:344
 msgid "Podcast requires authentication"
 msgstr "A podcasthoz hitelesítés szükséges"
 
-#: src/gpodder/gtkui/main.py:2486 bin/gpo:345
+#: src/gpodder/gtkui/main.py:2523 bin/gpo:345
 #, python-format
 msgid "Please login to %s:"
 msgstr "Jelentkezzen be ide: %s:"
 
-#: src/gpodder/gtkui/main.py:2494 src/gpodder/gtkui/main.py:2589
+#: src/gpodder/gtkui/main.py:2531 src/gpodder/gtkui/main.py:2626
 msgid "Authentication failed"
 msgstr "A hitelesítés meghiúsult"
 
-#: src/gpodder/gtkui/main.py:2500
+#: src/gpodder/gtkui/main.py:2537
 msgid "Website redirection detected"
 msgstr "Webhely átirányítás észlelve"
 
-#: src/gpodder/gtkui/main.py:2501
+#: src/gpodder/gtkui/main.py:2538
 #, python-format
 msgid "The URL %(url)s redirects to %(target)s."
 msgstr "A(z) %(url)s URL átirányítja ide: %(target)s."
 
-#: src/gpodder/gtkui/main.py:2502
+#: src/gpodder/gtkui/main.py:2539
 msgid "Do you want to visit the website now?"
 msgstr "Felkeresi most a webhelyet?"
 
-#: src/gpodder/gtkui/main.py:2511
+#: src/gpodder/gtkui/main.py:2548
 msgid "Could not add some podcasts"
 msgstr "Néhány epizódot nem lehetett hozzáadni"
 
-#: src/gpodder/gtkui/main.py:2512
+#: src/gpodder/gtkui/main.py:2549
 msgid "Some podcasts could not be added to your list:"
 msgstr "Néhány podcast nem adható hozzá a listájához:"
 
-#: src/gpodder/gtkui/main.py:2514
+#: src/gpodder/gtkui/main.py:2551
 msgid "Unknown"
 msgstr "Ismeretlen"
 
-#: src/gpodder/gtkui/main.py:2598
+#: src/gpodder/gtkui/main.py:2635
 msgid "Redirection detected"
 msgstr "Átirányítás észlelve"
 
-#: src/gpodder/gtkui/main.py:2632
+#: src/gpodder/gtkui/main.py:2669
 msgid "Merging episode actions"
 msgstr "Epizódműveletek egyesítése"
 
-#: src/gpodder/gtkui/main.py:2633
+#: src/gpodder/gtkui/main.py:2670
 msgid "Episode actions from gpodder.net are merged."
 msgstr "Az epizódműveletrk egyesítésre kerülnek a gpodder.net-ről."
 
-#: src/gpodder/gtkui/main.py:2658
+#: src/gpodder/gtkui/main.py:2695
 msgid "Cancelling..."
 msgstr "Megszakítás…"
 
-#: src/gpodder/gtkui/main.py:2667
+#: src/gpodder/gtkui/main.py:2704
 msgid "Please connect to a network, then try again."
 msgstr "Kapcsolódjon egy hálózathoz, majd próbálja újra."
 
-#: src/gpodder/gtkui/main.py:2668
+#: src/gpodder/gtkui/main.py:2705
 msgid "No network connection"
 msgstr "Nincs hálózati kapcsolat"
 
-#: src/gpodder/gtkui/main.py:2689
+#: src/gpodder/gtkui/main.py:2726
 #, python-format
 msgid "Updating %(count)d feed..."
 msgid_plural "Updating %(count)d feeds..."
 msgstr[0] "%(count)d lista frissítése…"
 msgstr[1] "%(count)d lista frissítése…"
 
-#: src/gpodder/gtkui/main.py:2705
+#: src/gpodder/gtkui/main.py:2742
 #, python-format
 msgid "Updating %(podcast)s (%(position)d/%(total)d)"
 msgstr "%(podcast)s frissítése (%(position)d / %(total)d)"
 
-#: src/gpodder/gtkui/main.py:2751
+#: src/gpodder/gtkui/main.py:2788
 #, fuzzy, python-format
 #| msgid "%(count)d failed"
 #| msgid_plural "%(count)d failed"
@@ -903,47 +972,59 @@ msgid_plural "%(count)d channels failed to update"
 msgstr[0] "%(count)d meghiúsult"
 msgstr[1] "%(count)d meghiúsult"
 
-#: src/gpodder/gtkui/main.py:2754
+#: src/gpodder/gtkui/main.py:2791
 #, fuzzy
 #| msgid "Error while updating feed"
 msgid "Error while updating feeds"
 msgstr "Hiba a lista frissítésekor"
 
-#: src/gpodder/gtkui/main.py:2780
+#: src/gpodder/gtkui/main.py:2821
+#, fuzzy
+#| msgid "No new episodes available"
+msgid "No new episodes with downloadable content"
+msgstr "Nem érhető el új epizód"
+
+#: src/gpodder/gtkui/main.py:2821
 msgid "No new episodes"
 msgstr "Nincs új epizód"
 
-#: src/gpodder/gtkui/main.py:2793
+#: src/gpodder/gtkui/main.py:2836
 #, python-format
 msgid "Downloading %(count)d new episode."
 msgid_plural "Downloading %(count)d new episodes."
 msgstr[0] "%(count)d új epizód letöltése."
 msgstr[1] "%(count)d új epizód letöltése."
 
-#: src/gpodder/gtkui/main.py:2796 src/gpodder/gtkui/main.py:2803
-#: src/gpodder/gtkui/main.py:3175
+#: src/gpodder/gtkui/main.py:2839 src/gpodder/gtkui/main.py:2846
+#: src/gpodder/gtkui/main.py:3238
 msgid "New episodes available"
 msgstr "Új epizód érhető el"
 
-#: src/gpodder/gtkui/main.py:2800
+#: src/gpodder/gtkui/main.py:2843
 #, python-format
 msgid "%(count)d new episode added to download list."
 msgid_plural "%(count)d new episodes added to download list."
 msgstr[0] "%(count)d új epizód hozzáadva a letöltési listához."
 msgstr[1] "%(count)d új epizód hozzáadva a letöltési listához."
 
-#: src/gpodder/gtkui/main.py:2809
+#: src/gpodder/gtkui/main.py:2852
 #, python-format
 msgid "%(count)d new episode available"
 msgid_plural "%(count)d new episodes available"
 msgstr[0] "%(count)d új epizód érhető el"
 msgstr[1] "%(count)d új epizód érhető el"
 
-#: src/gpodder/gtkui/main.py:2840
+#: src/gpodder/gtkui/main.py:2881
+#, fuzzy
+#| msgid "Quit"
+msgid "_Quit"
+msgstr "Kilépés"
+
+#: src/gpodder/gtkui/main.py:2883
 msgid "Quit gPodder"
 msgstr "Kilépés a gPodderből"
 
-#: src/gpodder/gtkui/main.py:2841
+#: src/gpodder/gtkui/main.py:2884
 msgid ""
 "You are downloading episodes. You can resume downloads the next time you "
 "start gPodder. Do you want to quit now?"
@@ -951,11 +1032,11 @@ msgstr ""
 "Jelenleg epizódokat tölt le. A gPodder következő indításakor folytathatja a "
 "letöltéseket. Biztos kilép most?"
 
-#: src/gpodder/gtkui/main.py:2887 bin/gpo:839
+#: src/gpodder/gtkui/main.py:2939 bin/gpo:839
 msgid "Episodes are locked"
 msgstr "Az epizódok rögzítettek"
 
-#: src/gpodder/gtkui/main.py:2889 bin/gpo:841
+#: src/gpodder/gtkui/main.py:2941 bin/gpo:841
 msgid ""
 "The selected episodes are locked. Please unlock the episodes that you want "
 "to delete before trying to delete them."
@@ -963,124 +1044,122 @@ msgstr ""
 "A kiválasztott epizódok zároltak. Oldja fel a törlendő epizódok zárolósát "
 "mielőtt törölni próbálja azokat."
 
-#: src/gpodder/gtkui/main.py:2896 bin/gpo:848
+#: src/gpodder/gtkui/main.py:2948 bin/gpo:848
 #, python-format
 msgid "Delete %(count)d episode?"
 msgid_plural "Delete %(count)d episodes?"
 msgstr[0] "Töröl %(count)d epizódot?"
 msgstr[1] "Töröl %(count)d epizódot?"
 
-#: src/gpodder/gtkui/main.py:2898 bin/gpo:850
+#: src/gpodder/gtkui/main.py:2950 bin/gpo:850
 msgid "Deleting episodes removes downloaded files."
 msgstr "Az epizódok törlése eltávolítja a letöltött fájlokat."
 
-#: src/gpodder/gtkui/main.py:2907
+#: src/gpodder/gtkui/main.py:2959
 msgid "Deleting episodes"
 msgstr "Epizódok törlése"
 
-#: src/gpodder/gtkui/main.py:2908 bin/gpo:855
+#: src/gpodder/gtkui/main.py:2960 bin/gpo:855
 msgid "Please wait while episodes are deleted"
 msgstr "Várjon az epizódok törlésére"
 
-#: src/gpodder/gtkui/main.py:2961
+#: src/gpodder/gtkui/main.py:3013
 #, python-format
 msgid "Select older than %(count)d day"
 msgid_plural "Select older than %(count)d days"
 msgstr[0] "%(count)d napnál régebbiek kiválasztása"
 msgstr[1] "%(count)d napnál régebbiek kiválasztása"
 
-#: src/gpodder/gtkui/main.py:2963
+#: src/gpodder/gtkui/main.py:3015
 msgid "Select played"
 msgstr "Lejátszott kiválasztása"
 
-#: src/gpodder/gtkui/main.py:2964
+#: src/gpodder/gtkui/main.py:3016
 msgid "Select finished"
 msgstr "Elkészült kiválasztása"
 
-#: src/gpodder/gtkui/main.py:2968
+#: src/gpodder/gtkui/main.py:3020
 msgid "Select the episodes you want to delete:"
 msgstr "Válassza ki a törlendő epizódokat:"
 
-#: src/gpodder/gtkui/main.py:2985 share/gpodder/ui/gtk/menus.ui.h:10
+#: src/gpodder/gtkui/main.py:3037 share/gpodder/ui/gtk/menus.ui.h:10
 msgid "Delete episodes"
 msgstr "Epizódok törlése"
 
-#: src/gpodder/gtkui/main.py:3039 src/gpodder/gtkui/main.py:3290
-#: src/gpodder/gtkui/main.py:3398
+#: src/gpodder/gtkui/main.py:3097 src/gpodder/gtkui/main.py:3353
+#: src/gpodder/gtkui/main.py:3461
 msgid "No podcast selected"
 msgstr "Nincs podcast kiválasztva"
 
-#: src/gpodder/gtkui/main.py:3040
+#: src/gpodder/gtkui/main.py:3098
 msgid "Please select a podcast in the podcasts list to update."
 msgstr "Válassza ki a frissítendő podcastot a podcastok listájából."
 
-#: src/gpodder/gtkui/main.py:3130
+#: src/gpodder/gtkui/main.py:3193
 #, python-format
 msgid "Download error while downloading %(episode)s: %(message)s"
 msgstr "Letöltési hiba a(z) %(episode)s letöltésekor: %(message)s"
 
-#: src/gpodder/gtkui/main.py:3131
+#: src/gpodder/gtkui/main.py:3194
 msgid "Download error"
 msgstr "Letöltési hiba"
 
-#: src/gpodder/gtkui/main.py:3160
+#: src/gpodder/gtkui/main.py:3223
 msgid "Select the episodes you want to download:"
 msgstr "Válassza ki a letöltendő epizódokat:"
 
-#: src/gpodder/gtkui/main.py:3183
-msgid "Mark as old"
+#: src/gpodder/gtkui/main.py:3246
+#, fuzzy
+#| msgid "Mark as old"
+msgid "_Mark as old"
 msgstr "Megjelölés régiként"
 
-#: src/gpodder/gtkui/main.py:3190
+#: src/gpodder/gtkui/main.py:3253
 msgid "Please check for new episodes later."
 msgstr "Ellenőrizze később az új epizódokat."
 
-#: src/gpodder/gtkui/main.py:3191
+#: src/gpodder/gtkui/main.py:3254
 msgid "No new episodes available"
 msgstr "Nem érhető el új epizód"
 
-#: src/gpodder/gtkui/main.py:3253
+#: src/gpodder/gtkui/main.py:3316
 #, python-format
 msgid "Subscriptions on %(server)s"
 msgstr "Feliratkozások itt: %(server)s"
 
-#: src/gpodder/gtkui/main.py:3264
+#: src/gpodder/gtkui/main.py:3327
 msgid "Login to gpodder.net"
 msgstr "Bejelentkezés ide: gpodder.net"
 
-#: src/gpodder/gtkui/main.py:3265
+#: src/gpodder/gtkui/main.py:3328
 msgid "Please login to download your subscriptions."
 msgstr "Jelentkezzen be a feliratkozásai letöltéséhez."
 
-#: src/gpodder/gtkui/main.py:3291
+#: src/gpodder/gtkui/main.py:3354
 msgid "Please select a podcast in the podcasts list to edit."
 msgstr "Válassza ki a szerkesztendő podcastot a podcastok listájából."
 
-#: src/gpodder/gtkui/main.py:3305
+#: src/gpodder/gtkui/main.py:3368
 msgid "Podcast"
 msgstr "Podcast"
 
-#: src/gpodder/gtkui/main.py:3311 share/gpodder/ui/gtk/menus.ui.h:15
+#: src/gpodder/gtkui/main.py:3374 share/gpodder/ui/gtk/menus.ui.h:15
 msgid "Delete podcasts"
 msgstr "Podcast törlése"
 
-#: src/gpodder/gtkui/main.py:3312
+#: src/gpodder/gtkui/main.py:3375
 msgid "Select the podcast you want to delete."
 msgstr "Válassza ki a törlendő podcastokat."
 
-#: src/gpodder/gtkui/main.py:3316 share/gpodder/ui/gtk/menus.ui.h:25
-msgid "Delete"
-msgstr "Törlés"
-
-#: src/gpodder/gtkui/main.py:3325
+#: src/gpodder/gtkui/main.py:3388
 msgid "Deleting podcast"
 msgstr "Podcast törlése"
 
-#: src/gpodder/gtkui/main.py:3326
+#: src/gpodder/gtkui/main.py:3389
 msgid "Please wait while the podcast is deleted"
 msgstr "Várjon a podcast törlésére"
 
-#: src/gpodder/gtkui/main.py:3327
+#: src/gpodder/gtkui/main.py:3390
 msgid ""
 "This podcast and all its episodes will be PERMANENTLY DELETED.\n"
 "Are you sure you want to continue?"
@@ -1088,15 +1167,15 @@ msgstr ""
 "A podcast és az összes epizódja VÉGLEGESEN TÖRÖLVE LESZ.\n"
 "Biztos folytatja?"
 
-#: src/gpodder/gtkui/main.py:3329
+#: src/gpodder/gtkui/main.py:3392
 msgid "Deleting podcasts"
 msgstr "Podcastok törlése"
 
-#: src/gpodder/gtkui/main.py:3330
+#: src/gpodder/gtkui/main.py:3393
 msgid "Please wait while the podcasts are deleted"
 msgstr "Várjon a podcastok törlésére"
 
-#: src/gpodder/gtkui/main.py:3331
+#: src/gpodder/gtkui/main.py:3394
 msgid ""
 "These podcasts and all their episodes will be PERMANENTLY DELETED.\n"
 "Are you sure you want to continue?"
@@ -1104,27 +1183,34 @@ msgstr ""
 "A podcastok és az összes epizódjuk VÉGLEGESEN TÖRÖLVE LESZNEK.\n"
 "Biztos folytatja?"
 
-#: src/gpodder/gtkui/main.py:3399
+#: src/gpodder/gtkui/main.py:3462
 msgid "Please select a podcast in the podcasts list to remove."
 msgstr "Válassza ki az eltávolítandó podcastot a podcastok listájából."
 
-#: src/gpodder/gtkui/main.py:3409
+#: src/gpodder/gtkui/main.py:3472
 msgid "OPML files"
 msgstr "OMPL fájlok"
 
-#: src/gpodder/gtkui/main.py:3414
+#: src/gpodder/gtkui/main.py:3477
 msgid "Import from OPML"
 msgstr "Importálás OPML-ből"
 
-#: src/gpodder/gtkui/main.py:3428
+#: src/gpodder/gtkui/main.py:3481 src/gpodder/gtkui/desktop/channel.py:132
+#: src/gpodder/gtkui/desktop/channel.py:150
+#: src/gpodder/gtkui/desktop/preferences.py:687
+#: src/gpodder/gtkui/desktop/preferences.py:705
+msgid "_Open"
+msgstr "Me_gnyitás"
+
+#: src/gpodder/gtkui/main.py:3491
 msgid "Import podcasts from OPML file"
 msgstr "Podcastok importálása OPML fájlból"
 
-#: src/gpodder/gtkui/main.py:3435
+#: src/gpodder/gtkui/main.py:3498
 msgid "Nothing to export"
 msgstr "Nincs mit exportálni"
 
-#: src/gpodder/gtkui/main.py:3436
+#: src/gpodder/gtkui/main.py:3499
 msgid ""
 "Your list of podcast subscriptions is empty. Please subscribe to some "
 "podcasts first before trying to export your subscription list."
@@ -1132,73 +1218,81 @@ msgstr ""
 "A podcast feliratkozási listája üres. Iratkozzon fel pár podcastra, mielőtt "
 "exportálná a feliratkozási listáját."
 
-#: src/gpodder/gtkui/main.py:3442
+#: src/gpodder/gtkui/main.py:3505
 msgid "Export to OPML"
 msgstr "Exportálás OPML-be"
 
-#: src/gpodder/gtkui/main.py:3455
+#: src/gpodder/gtkui/main.py:3509 src/gpodder/gtkui/interface/common.py:271
+#: src/gpodder/gtkui/desktop/channel.py:199
+#: src/gpodder/gtkui/desktop/channel.py:207
+#: share/gpodder/extensions/concatenate_videos.py:42
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:5
+msgid "_Save"
+msgstr ""
+
+#: src/gpodder/gtkui/main.py:3518
 #, python-format
 msgid "%(count)d subscription exported"
 msgid_plural "%(count)d subscriptions exported"
 msgstr[0] "%(count)d feliratkozás exportálva"
 msgstr[1] "%(count)d feliratkozás exportálva"
 
-#: src/gpodder/gtkui/main.py:3458
+#: src/gpodder/gtkui/main.py:3521
 msgid "Your podcast list has been successfully exported."
 msgstr "A podcastlistája sikeresen exportálásra került."
 
-#: src/gpodder/gtkui/main.py:3462
+#: src/gpodder/gtkui/main.py:3525
 msgid "Could not export OPML to file. Please check your permissions."
 msgstr "Az OPML nem exportálható fájlba. Ellenőrizze a jogosultságokat."
 
-#: src/gpodder/gtkui/main.py:3464
+#: src/gpodder/gtkui/main.py:3527
 msgid "OPML export failed"
 msgstr "Az OPML exportálás meghiúsult"
 
-#: src/gpodder/gtkui/main.py:3477
+#: src/gpodder/gtkui/main.py:3540
 msgid "Managed by distribution"
 msgstr ""
 
-#: src/gpodder/gtkui/main.py:3478
+#: src/gpodder/gtkui/main.py:3541
 msgid "Please check your distribution for gPodder updates."
 msgstr ""
 
-#: src/gpodder/gtkui/main.py:3493
+#: src/gpodder/gtkui/main.py:3556
 msgid "Could not check for updates"
 msgstr "Nem lehetett frissítést keresni"
 
-#: src/gpodder/gtkui/main.py:3494
+#: src/gpodder/gtkui/main.py:3557
 msgid "Please try again later."
 msgstr "Próbálja újra később."
 
-#: src/gpodder/gtkui/main.py:3499
+#: src/gpodder/gtkui/main.py:3562
 msgid "No updates available"
 msgstr "Nem érhető el frissítés"
 
-#: src/gpodder/gtkui/main.py:3500
+#: src/gpodder/gtkui/main.py:3563
 msgid "You have the latest version of gPodder."
 msgstr "A gPodder legfrissebb verziójával rendelkezik."
 
-#: src/gpodder/gtkui/main.py:3504
+#: src/gpodder/gtkui/main.py:3567
 msgid "New version available"
 msgstr "Új verzió érhető el"
 
-#: src/gpodder/gtkui/main.py:3506
+#: src/gpodder/gtkui/main.py:3569
 #, python-format
 msgid "Installed version: %s"
 msgstr "Telepített verzió: %s"
 
-#: src/gpodder/gtkui/main.py:3507
+#: src/gpodder/gtkui/main.py:3570
 #, python-format
 msgid "Newest version: %s"
 msgstr "Új verzió: %s"
 
-#: src/gpodder/gtkui/main.py:3508
+#: src/gpodder/gtkui/main.py:3571
 #, python-format
 msgid "Release date: %s"
 msgstr "Kiadási dátum: %s"
 
-#: src/gpodder/gtkui/main.py:3510
+#: src/gpodder/gtkui/main.py:3573
 msgid "Download the latest version from gpodder.org?"
 msgstr "Letölti a legfrissebb verziót a gpodder.org-ról?"
 
@@ -1208,13 +1302,13 @@ msgid "released %s"
 msgstr "kiadva: %s"
 
 #: src/gpodder/gtkui/model.py:68 src/gpodder/gtkui/model.py:86
-#: src/gpodder/gtkui/model.py:295 src/gpodder/gtkui/shownotes.py:203
+#: src/gpodder/gtkui/model.py:296 src/gpodder/gtkui/shownotes.py:203
 #: src/gpodder/gtkui/shownotes.py:344
 #, python-format
 msgid "from %s"
 msgstr "innen: %s"
 
-#: src/gpodder/gtkui/model.py:79 src/gpodder/gtkui/model.py:454
+#: src/gpodder/gtkui/model.py:79 src/gpodder/gtkui/model.py:455
 msgid "played"
 msgstr "lejátszott"
 
@@ -1231,67 +1325,71 @@ msgstr "ma"
 msgid "downloaded %s"
 msgstr "letöltve: %s"
 
-#: src/gpodder/gtkui/model.py:402
+#: src/gpodder/gtkui/model.py:403
 msgid "Deleted"
 msgstr "Törölt"
 
-#: src/gpodder/gtkui/model.py:416
+#: src/gpodder/gtkui/model.py:417
 msgid "Downloaded episode"
 msgstr "Epizód letöltve"
 
-#: src/gpodder/gtkui/model.py:419
+#: src/gpodder/gtkui/model.py:420
 msgid "Downloaded video episode"
 msgstr "Videoepizód letöltve"
 
-#: src/gpodder/gtkui/model.py:422
+#: src/gpodder/gtkui/model.py:423
 msgid "Downloaded image"
 msgstr "Kép letöltve"
 
-#: src/gpodder/gtkui/model.py:425
+#: src/gpodder/gtkui/model.py:426
 msgid "Downloaded file"
 msgstr "Fájl letöltve"
 
-#: src/gpodder/gtkui/model.py:441
+#: src/gpodder/gtkui/model.py:442
 msgid "missing file"
 msgstr "hiányzó fájl"
 
-#: src/gpodder/gtkui/model.py:445
+#: src/gpodder/gtkui/model.py:446
 msgid "never displayed"
 msgstr "sosem volt megjelenítve"
 
-#: src/gpodder/gtkui/model.py:447
+#: src/gpodder/gtkui/model.py:448
 msgid "never played"
 msgstr "sosem volt játszva"
 
-#: src/gpodder/gtkui/model.py:449
+#: src/gpodder/gtkui/model.py:450
 msgid "never opened"
 msgstr "sosem volt megnyitva"
 
-#: src/gpodder/gtkui/model.py:452
+#: src/gpodder/gtkui/model.py:453
 msgid "displayed"
 msgstr "megjelenített"
 
-#: src/gpodder/gtkui/model.py:456
+#: src/gpodder/gtkui/model.py:457
 msgid "opened"
 msgstr "megnyitott"
 
-#: src/gpodder/gtkui/model.py:458
+#: src/gpodder/gtkui/model.py:459
 msgid "deletion prevented"
 msgstr "törlés megakadályozva"
 
-#: src/gpodder/gtkui/model.py:470
+#: src/gpodder/gtkui/model.py:471
+msgid "No downloadable content"
+msgstr ""
+
+#: src/gpodder/gtkui/model.py:477
 msgid "New episode"
 msgstr "Új epizód"
 
-#: src/gpodder/gtkui/model.py:518 share/gpodder/ui/gtk/menus.ui.h:36
+#: src/gpodder/gtkui/model.py:525 share/gpodder/ui/gtk/menus.ui.h:37
 msgid "All episodes"
 msgstr "Összes epizód"
 
-#: src/gpodder/gtkui/model.py:519
+#: src/gpodder/gtkui/model.py:526
 msgid "from all podcasts"
 msgstr "az összes podcastból"
 
-#: src/gpodder/gtkui/model.py:800
+#: src/gpodder/gtkui/model.py:809
 msgid "Subscription paused"
 msgstr "Feliratkozás szüneteltetve"
 
@@ -1329,13 +1427,19 @@ msgstr "Műsorjegyzetek megnyitása böngészőben"
 msgid "Open link in web browser"
 msgstr "Hivatkozás megnyitása böngészőben"
 
-#: src/gpodder/gtkui/interface/addpodcast.py:77
+#: src/gpodder/gtkui/interface/addpodcast.py:78
 msgid "Nothing to paste."
 msgstr "Nincs mit beilleszteni."
 
-#: src/gpodder/gtkui/interface/addpodcast.py:77
+#: src/gpodder/gtkui/interface/addpodcast.py:78
 msgid "Clipboard is empty"
 msgstr "A vágólap üres"
+
+#: src/gpodder/gtkui/interface/common.py:130
+#: share/gpodder/ui/gtk/gpodderchannel.ui.h:3
+#: share/gpodder/ui/gtk/gpodderepisodeselector.ui.h:4
+msgid "_OK"
+msgstr ""
 
 #: src/gpodder/gtkui/interface/common.py:177
 msgid "Username"
@@ -1403,9 +1507,10 @@ msgstr "Szakasz hozzáadása"
 msgid "New section:"
 msgstr "Új szakasz:"
 
-#: src/gpodder/gtkui/desktop/channel.py:132
-msgid "_Open"
-msgstr "Me_gnyitás"
+#: src/gpodder/gtkui/desktop/channel.py:115
+#: share/gpodder/ui/gtk/gpodderaddpodcast.ui.h:3
+msgid "_Add"
+msgstr ""
 
 #: src/gpodder/gtkui/desktop/channel.py:136
 msgid "_Refresh"
@@ -1428,43 +1533,49 @@ msgstr "Fogd és vidd"
 msgid "You can only drop local files and http:// URLs here."
 msgstr "Helyi fájlokat és http:// URL-eket húzhat ide."
 
-#: src/gpodder/gtkui/desktop/channel.py:199
-#: src/gpodder/gtkui/desktop/channel.py:207
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:5
-msgid "Save"
-msgstr ""
-
-#: src/gpodder/gtkui/desktop/episodeselector.py:104
+#: src/gpodder/gtkui/desktop/episodeselector.py:102
 msgid "Remove"
 msgstr "Eltávolítás"
 
-#: src/gpodder/gtkui/desktop/episodeselector.py:284
-#: share/gpodder/ui/gtk/gpodderepisodeselector.ui.h:2
-msgid "Select all"
+#: src/gpodder/gtkui/desktop/episodeselector.py:138
+#, fuzzy
+#| msgid "Download"
+msgid "_Download"
+msgstr "Letöltés"
+
+#: src/gpodder/gtkui/desktop/episodeselector.py:282
+#: share/gpodder/ui/gtk/gpodderepisodeselector.ui.h:5
+#: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:4
+#, fuzzy
+#| msgid "Select all"
+msgid "Select _all"
 msgstr "Összes kijelölése"
 
-#: src/gpodder/gtkui/desktop/episodeselector.py:288
-#: share/gpodder/ui/gtk/gpodderepisodeselector.ui.h:3
-msgid "Select none"
+#: src/gpodder/gtkui/desktop/episodeselector.py:286
+#: share/gpodder/ui/gtk/gpodderepisodeselector.ui.h:6
+#: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:5
+#, fuzzy
+#| msgid "Select none"
+msgid "Select _none"
 msgstr "Kijelölés törlése"
 
-#: src/gpodder/gtkui/desktop/episodeselector.py:320
+#: src/gpodder/gtkui/desktop/episodeselector.py:318
 msgid "Nothing selected"
 msgstr "Semmi nincs kijelölve"
 
-#: src/gpodder/gtkui/desktop/episodeselector.py:321
+#: src/gpodder/gtkui/desktop/episodeselector.py:319
 #, python-format
 msgid "%(count)d episode"
 msgid_plural "%(count)d episodes"
 msgstr[0] "%(count)d epizód"
 msgstr[1] "%(count)d epizód"
 
-#: src/gpodder/gtkui/desktop/episodeselector.py:324
+#: src/gpodder/gtkui/desktop/episodeselector.py:322
 #, python-format
 msgid "size: %s"
 msgstr "fájl: %s"
 
-#: src/gpodder/gtkui/desktop/exportlocal.py:58
+#: src/gpodder/gtkui/desktop/exportlocal.py:53
 #, python-format
 msgid "Export remaining %(count)d episode to this folder with its default name"
 msgid_plural ""
@@ -1543,56 +1654,56 @@ msgstr "Törlés a gPodderből"
 msgid "Custom (%(format_ids)s)"
 msgstr "Egyéni (%(format_ids)s)"
 
-#: src/gpodder/gtkui/desktop/preferences.py:355
+#: src/gpodder/gtkui/desktop/preferences.py:369
 msgid "Name"
 msgstr "Név"
 
-#: src/gpodder/gtkui/desktop/preferences.py:407
+#: src/gpodder/gtkui/desktop/preferences.py:421
 msgid "Documentation"
 msgstr "Dokumentáció"
 
-#: src/gpodder/gtkui/desktop/preferences.py:412
+#: src/gpodder/gtkui/desktop/preferences.py:426
 msgid "Extension info"
 msgstr "Bővítményinformációk"
 
-#: src/gpodder/gtkui/desktop/preferences.py:417
+#: src/gpodder/gtkui/desktop/preferences.py:431
 msgid "Support the author"
 msgstr "A szerző támogatása"
 
-#: src/gpodder/gtkui/desktop/preferences.py:459 bin/gpo:1042
+#: src/gpodder/gtkui/desktop/preferences.py:473 bin/gpo:1052
 msgid "Extension cannot be activated"
 msgstr "A bővítmény nem aktiválható"
 
-#: src/gpodder/gtkui/desktop/preferences.py:511
+#: src/gpodder/gtkui/desktop/preferences.py:525
 msgid "Configure audio player"
 msgstr "Zenelejátszó beállítása"
 
-#: src/gpodder/gtkui/desktop/preferences.py:512
-#: src/gpodder/gtkui/desktop/preferences.py:522
+#: src/gpodder/gtkui/desktop/preferences.py:526
+#: src/gpodder/gtkui/desktop/preferences.py:536
 msgid "Command:"
 msgstr "Parancs:"
 
-#: src/gpodder/gtkui/desktop/preferences.py:521
+#: src/gpodder/gtkui/desktop/preferences.py:535
 msgid "Configure video player"
 msgstr "Videolejátszó beállítása"
 
-#: src/gpodder/gtkui/desktop/preferences.py:534
-#: src/gpodder/gtkui/desktop/preferences.py:558
+#: src/gpodder/gtkui/desktop/preferences.py:548
+#: src/gpodder/gtkui/desktop/preferences.py:572
 msgid "manually"
 msgstr "saját kezűleg"
 
-#: src/gpodder/gtkui/desktop/preferences.py:560
+#: src/gpodder/gtkui/desktop/preferences.py:574
 #, python-format
 msgid "after %(count)d day"
 msgid_plural "after %(count)d days"
 msgstr[0] "%(count)d nap után"
 msgstr[1] "%(count)d nap után"
 
-#: src/gpodder/gtkui/desktop/preferences.py:594
+#: src/gpodder/gtkui/desktop/preferences.py:608
 msgid "Replace subscription list on server"
 msgstr "Feliratkozási lista cseréje a kiszolgálón"
 
-#: src/gpodder/gtkui/desktop/preferences.py:595
+#: src/gpodder/gtkui/desktop/preferences.py:609
 msgid ""
 "Remote podcasts that have not been added locally will be removed on the "
 "server. Continue?"
@@ -1600,15 +1711,15 @@ msgstr ""
 "A távoli podcastok amelyek nem lettek helyben hozzáadva, eltávolításra "
 "kerülnek a kiszolgálóról. Folytatja?"
 
-#: src/gpodder/gtkui/desktop/preferences.py:671
+#: src/gpodder/gtkui/desktop/preferences.py:683
 msgid "Select folder for mount point"
 msgstr "Válasszon mappát csatolási pontnak"
 
-#: src/gpodder/gtkui/desktop/preferences.py:689
+#: src/gpodder/gtkui/desktop/preferences.py:701
 msgid "Select folder for playlists"
 msgstr "Válasszon mappát a lejátszólistákhoz"
 
-#: src/gpodder/gtkui/desktop/preferences.py:703
+#: src/gpodder/gtkui/desktop/preferences.py:715
 #, fuzzy
 #| msgid "Create playlists on device"
 msgid "The playlists folder must be on the device"
@@ -1894,11 +2005,11 @@ msgstr "Letöltött fájlok címkézése Mutagen használatával"
 msgid "Add episode and podcast titles to MP3/OGG tags"
 msgstr "Epizód és podcast címek hozzáadása az MP3/OGG címkékhez"
 
-#: share/gpodder/extensions/taskbar_progress.py:36
+#: share/gpodder/extensions/taskbar_progress.py:37
 msgid "Show download progress on the taskbar"
 msgstr "Letöltési előrehaladásának megjelenítése a tálcán"
 
-#: share/gpodder/extensions/taskbar_progress.py:37
+#: share/gpodder/extensions/taskbar_progress.py:38
 msgid "Displays the progress on the Windows taskbar."
 msgstr "A letöltés előrehaladásának megjelenítése a Windows tálcán."
 
@@ -1923,7 +2034,7 @@ msgid "Show main window"
 msgstr "Főablak megjelenítése"
 
 #: share/gpodder/extensions/ubuntu_appindicator.py:58
-#: share/gpodder/ui/gtk/gpodder.ui.h:4 share/gpodder/ui/gtk/menus.ui.h:6
+#: share/gpodder/ui/gtk/gpodder.ui.h:6 share/gpodder/ui/gtk/menus.ui.h:6
 msgid "Quit"
 msgstr "Kilépés"
 
@@ -1951,56 +2062,85 @@ msgstr "Videofájlok átalakítása"
 msgid "Transcode video files to avi/mp4/m4v"
 msgstr "Videofájlok átalakítása avi/mp4/m4v formátumba"
 
-#: share/gpodder/extensions/youtube-dl.py:28
-msgid "Manage Youtube subscriptions using youtube-dl (pip install youtube_dl)"
+#: share/gpodder/extensions/youtube-dl.py:32
+msgid ""
+"Manage Youtube subscriptions using youtube-dl (pip install youtube_dl) or yt-"
+"dlp (pip install yt-dlp)"
 msgstr ""
 
-#: share/gpodder/extensions/youtube-dl.py:34
+#: share/gpodder/extensions/youtube-dl.py:38
 #, python-format
 msgid ""
-"Your version of youtube-dl %(have_version)s has known issues, please upgrade "
-"to %(want_version)s or newer."
+"Your version of youtube-dl/yt-dlp %(have_version)s has known issues, please "
+"upgrade to %(want_version)s or newer."
 msgstr ""
 
-#: share/gpodder/extensions/youtube-dl.py:467
+#: share/gpodder/extensions/youtube-dl.py:472
 #, fuzzy
 #| msgid "Download to:"
 msgid "Old Youtube-DL"
 msgstr "Letöltés ide:"
 
-#: share/gpodder/extensions/youtube-dl.py:472
+#: share/gpodder/extensions/youtube-dl.py:476
 #, fuzzy
 #| msgid "Download to:"
 msgid "Download with Youtube-DL"
 msgstr "Letöltés ide:"
 
-#: share/gpodder/ui/gtk/gpodder.ui.h:3
+#: share/gpodder/extensions/youtube-dl.py:495
+msgid ""
+"Parse Youtube channel feeds with Youtube-DL to access more than 15 episodes"
+msgstr ""
+
+#: share/gpodder/extensions/youtube-dl.py:502
+#, fuzzy
+#| msgid "Download to:"
+msgid "Download all supported episodes with Youtube-DL"
+msgstr "Letöltés ide:"
+
+#: share/gpodder/extensions/youtube-dl.py:507
+msgid ""
+"Youtube-DL provides access to additional Youtube formats and DRM content.  "
+"Episodes from non-Youtube channels, that have Youtube-DL support, will "
+"<b>fail</b> to download unless you manually <a href=\"https://gpodder.github."
+"io/docs/youtube.html#formats\">add custom formats</a> for each site.  "
+"<b>Download with Youtube-DL</b> appears in the episode menu when this option "
+"is disabled, and can be used to manually download from supported sites."
+msgstr ""
+
+#: share/gpodder/extensions/youtube-dl.py:520
+#, fuzzy
+#| msgid "Download to:"
+msgid "Youtube-DL"
+msgstr "Letöltés ide:"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:5
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:1
 #: share/gpodder/ui/gtk/menus.ui.h:1
 msgid "Preferences"
 msgstr "Beállítások"
 
-#: share/gpodder/ui/gtk/gpodder.ui.h:5 share/gpodder/ui/gtk/menus.ui.h:8
+#: share/gpodder/ui/gtk/gpodder.ui.h:7 share/gpodder/ui/gtk/menus.ui.h:8
 msgid "Check for new episodes"
 msgstr "Új epizódok ellenőrzése"
 
-#: share/gpodder/ui/gtk/gpodder.ui.h:6
+#: share/gpodder/ui/gtk/gpodder.ui.h:8
 msgid "Filter:"
 msgstr "Szűrő:"
 
-#: share/gpodder/ui/gtk/gpodder.ui.h:7
+#: share/gpodder/ui/gtk/gpodder.ui.h:9
 msgid "Podcasts"
 msgstr "Podcastok"
 
-#: share/gpodder/ui/gtk/gpodder.ui.h:8
+#: share/gpodder/ui/gtk/gpodder.ui.h:10
 msgid "Limit rate to"
 msgstr "Sebesség korlátozása erre:"
 
-#: share/gpodder/ui/gtk/gpodder.ui.h:9
+#: share/gpodder/ui/gtk/gpodder.ui.h:11
 msgid "KiB/s"
 msgstr "KiB/s"
 
-#: share/gpodder/ui/gtk/gpodder.ui.h:10
+#: share/gpodder/ui/gtk/gpodder.ui.h:12
 msgid "Limit downloads to"
 msgstr "Letöltések korlátozása erre:"
 
@@ -2008,20 +2148,12 @@ msgstr "Letöltések korlátozása erre:"
 msgid "Add a new podcast"
 msgstr "Új podcast hozzáadása"
 
-#: share/gpodder/ui/gtk/gpodderaddpodcast.ui.h:3
-msgid "_Add"
-msgstr ""
-
 #: share/gpodder/ui/gtk/gpodderaddpodcast.ui.h:5
 msgid "_Paste"
 msgstr ""
 
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:1
 msgid "Channel Editor"
-msgstr ""
-
-#: share/gpodder/ui/gtk/gpodderchannel.ui.h:3
-msgid "OK"
 msgstr ""
 
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:4
@@ -2090,11 +2222,6 @@ msgstr "Beállítás"
 msgid "gPodder Configuration Editor"
 msgstr "gPodder konfigurációszerkesztő"
 
-#: share/gpodder/ui/gtk/gpodderconfigeditor.ui.h:2
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:3
-msgid "_Close"
-msgstr ""
-
 #: share/gpodder/ui/gtk/gpodderconfigeditor.ui.h:3
 msgid "Search for:"
 msgstr "Keresés erre:"
@@ -2109,9 +2236,11 @@ msgstr "Összes megjelenítése"
 msgid "Select episodes"
 msgstr "Válassz epizódot"
 
-#: share/gpodder/ui/gtk/gpodderexporttolocalfolder.ui.h:3
-msgid "_Save"
-msgstr ""
+#: share/gpodder/ui/gtk/gpodderepisodeselector.ui.h:2
+#, fuzzy
+#| msgid "Remove"
+msgid "_Remove"
+msgstr "Eltávolítás"
 
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:1
 msgid "Find new podcasts"
@@ -2124,14 +2253,6 @@ msgstr "címke"
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:3
 msgid "..."
 msgstr "…"
-
-#: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:4
-msgid "Select All"
-msgstr "Összes kijelölése"
-
-#: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:5
-msgid "Select None"
-msgstr "Kijelölés törlése"
 
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:7
 #, fuzzy
@@ -2178,98 +2299,110 @@ msgid "Device name:"
 msgstr "Eszköznév:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:14
-msgid "Replace list on server with local subscriptions"
+#, fuzzy
+#| msgid "Replace list on server with local subscriptions"
+msgid "Replace subscription list on server with local subscriptions:"
 msgstr "Lista cseréje a kiszolgálón a helyi feliratkozásokkal"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:15
+#, fuzzy
+#| msgid "Uploading subscriptions"
+msgid "Upload local subscriptions"
+msgstr "Feliratkozások feltöltése"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:16
 msgid "gpodder.net"
 msgstr "gpodder.net"
 
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:16
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:17
 msgid "Update interval:"
 msgstr "Frissítési időköz:"
 
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:17
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:18
 msgid "Maximum number of episodes per podcast:"
 msgstr "Epizódok maximális száma podcastonként:"
 
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:18
-msgid "When new episodes are found:"
-msgstr "Ha új epizód található:"
-
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:19
-msgid "Check connection before updating (if supported)"
+msgid "200"
 msgstr ""
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:20
+msgid "When new episodes are found:"
+msgstr "Ha új epizód található:"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:21
+msgid "Check connection before updating (if supported)"
+msgstr ""
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:22
 msgid "Updating"
 msgstr "Frissítés"
 
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:21
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:23
 msgid "Delete played episodes:"
 msgstr "Lejátszott epizódok törlése:"
 
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:22
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:24
 msgid "Remove played episodes even if unfinished"
 msgstr "Lejátszott epizódok eltávolítása akkor is, ha még nincsenek kész"
 
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:23
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:25
 msgid "Also remove unplayed episodes"
 msgstr "Nem játszott epizódok eltávolítása"
 
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:24
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:26
 msgid "Clean-up"
 msgstr "Tisztítás"
 
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:25
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:27
 msgid "Device type:"
 msgstr "Eszköztípus:"
 
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:26
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:28
 msgid "Mountpoint:"
 msgstr "Csatolási pont:"
 
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:27
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:29
 msgid "Create playlists on device"
 msgstr "Lejátszólisták létrehozása az eszközön"
 
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:28
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:30
 msgid "Playlists Folder:"
 msgstr "Lejátszólista mappa:"
 
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:29
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:31
 msgid "Remove episodes deleted on device from gPodder"
 msgstr "Az eszközön törölt epizódok eltávolítása a gPodderből"
 
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:30
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:32
 msgid "After syncing an episode:"
 msgstr "Epizód szinkronizálása után:"
 
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:31
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:33
 msgid "Only sync unplayed episodes"
 msgstr "Csak a nem játszott epizódok szinkronizálása"
 
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:32
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:34
 #, fuzzy
 #| msgid "Remove episodes deleted on device from gPodder"
 msgid "Remove episodes deleted in gPodder from device"
 msgstr "Az eszközön törölt epizódok eltávolítása a gPodderből"
 
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:33
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:35
 msgid "Devices"
 msgstr "Eszközök"
 
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:34
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:36
 msgid "Preferred YouTube format:"
 msgstr "Előnyben részesített YouTube formátum:"
 
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:35
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:37
 #, fuzzy
 #| msgid "Preferred YouTube format:"
 msgid "Preferred YouTube HLS format:"
 msgstr "Előnyben részesített YouTube formátum:"
 
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:36
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:38
 msgid "Preferred Vimeo format:"
 msgstr "Előnyben részesített Vimeo formátum:"
 
@@ -2351,66 +2484,74 @@ msgid "_Episodes"
 msgstr "Epizód"
 
 #: share/gpodder/ui/gtk/menus.ui.h:26
+msgid "Delete"
+msgstr "Törlés"
+
+#: share/gpodder/ui/gtk/menus.ui.h:27
 msgid "Toggle new status"
 msgstr "Új állapot átkapcsolása"
 
-#: share/gpodder/ui/gtk/menus.ui.h:27
+#: share/gpodder/ui/gtk/menus.ui.h:28
 msgid "Change delete lock"
 msgstr "Törlési zár módosítása"
 
-#: share/gpodder/ui/gtk/menus.ui.h:28
+#: share/gpodder/ui/gtk/menus.ui.h:29
 #, fuzzy
 #| msgid "Delete episodes"
 msgid "Find Episode"
 msgstr "Epizódok törlése"
 
 #: share/gpodder/ui/gtk/menus.ui.h:31
+msgid "E_xtras"
+msgstr "E_xtrák"
+
+#: share/gpodder/ui/gtk/menus.ui.h:32
 msgid "Sync to device"
 msgstr "Szinkronizálás eszközre"
 
-#: share/gpodder/ui/gtk/menus.ui.h:32
+#: share/gpodder/ui/gtk/menus.ui.h:33
 msgid "_View"
 msgstr ""
 
-#: share/gpodder/ui/gtk/menus.ui.h:33
+#: share/gpodder/ui/gtk/menus.ui.h:34
 msgid "Toolbar"
 msgstr "Eszköztár"
 
-#: share/gpodder/ui/gtk/menus.ui.h:34
+#: share/gpodder/ui/gtk/menus.ui.h:35
 msgid "Episode descriptions"
 msgstr "Epizódleírások"
 
-#: share/gpodder/ui/gtk/menus.ui.h:35
+#: share/gpodder/ui/gtk/menus.ui.h:36
 msgid "Always show Find entries"
 msgstr ""
 
-#: share/gpodder/ui/gtk/menus.ui.h:37
+#: share/gpodder/ui/gtk/menus.ui.h:38
 msgid "Hide deleted episodes"
 msgstr "Törölt epizódok elrejtése"
 
-#: share/gpodder/ui/gtk/menus.ui.h:38
+#: share/gpodder/ui/gtk/menus.ui.h:39
 msgid "Downloaded episodes"
 msgstr "Letöltött epizódok"
 
-#: share/gpodder/ui/gtk/menus.ui.h:39
+#: share/gpodder/ui/gtk/menus.ui.h:40
 msgid "Unplayed episodes"
 msgstr "Nem játszott epizódok"
 
-#: share/gpodder/ui/gtk/menus.ui.h:40
+#: share/gpodder/ui/gtk/menus.ui.h:41
 msgid "Hide podcasts without episodes"
 msgstr "Epizódok nélküli podcastok elrejtése"
 
-#: share/gpodder/ui/gtk/menus.ui.h:41
+#: share/gpodder/ui/gtk/menus.ui.h:42
 #, fuzzy
 #| msgid "No new episodes"
 msgid "Always show New Episodes"
 msgstr "Nincs új epizód"
 
-#: share/gpodder/ui/gtk/menus.ui.h:42
+#: share/gpodder/ui/gtk/menus.ui.h:43
 msgid "Require control click to sort episodes"
 msgstr ""
 
-#: share/gpodder/ui/gtk/menus.ui.h:43
+#: share/gpodder/ui/gtk/menus.ui.h:44
 msgid "Visible columns"
 msgstr "Látható oszlopok"
 
@@ -2561,7 +2702,7 @@ msgstr "URL módosítva erről: %(old_url)s erre: %(new_url)s."
 msgid "%(title)s: %(msg)s ([yes]/no): "
 msgstr ""
 
-#: bin/gpo:830 bin/gpo:1007
+#: bin/gpo:830 bin/gpo:1017
 msgid "yes"
 msgstr ""
 
@@ -2596,69 +2737,69 @@ msgstr ""
 msgid "Syncing %s"
 msgstr "%s hozzáadása"
 
-#: bin/gpo:990
+#: bin/gpo:1000
 msgid "(enabled)"
 msgstr ""
 
-#: bin/gpo:1001
+#: bin/gpo:1011
 msgid "Title:"
 msgstr ""
 
-#: bin/gpo:1002
+#: bin/gpo:1012
 #, fuzzy
 #| msgid "Strategy:"
 msgid "Category:"
 msgstr "Stratégia:"
 
-#: bin/gpo:1003
+#: bin/gpo:1013
 #, fuzzy
 #| msgid "Section:"
 msgid "Description:"
 msgstr "Szakasz:"
 
-#: bin/gpo:1004
+#: bin/gpo:1014
 msgid "Authors:"
 msgstr ""
 
-#: bin/gpo:1006
+#: bin/gpo:1016
 #, fuzzy
 #| msgid "Documentation"
 msgid "Documentation:"
 msgstr "Dokumentáció"
 
-#: bin/gpo:1007
+#: bin/gpo:1017
 msgid "Enabled:"
 msgstr ""
 
-#: bin/gpo:1007
+#: bin/gpo:1017
 msgid "no"
 msgstr ""
 
-#: bin/gpo:1032
+#: bin/gpo:1042
 msgid "enabled"
 msgstr ""
 
-#: bin/gpo:1032
+#: bin/gpo:1042
 #, fuzzy
 #| msgid "Updates disabled"
 msgid "disabled"
 msgstr "Frissítések letiltva"
 
-#: bin/gpo:1035
+#: bin/gpo:1045
 #, python-format
 msgid "Extension %(name)s (%(title)s) %(enabled)s"
 msgstr ""
 
-#: bin/gpo:1115
+#: bin/gpo:1125
 #, python-format
 msgid "Syntax error: %(error)s"
 msgstr "Szintaktikai hiba: %(error)s"
 
-#: bin/gpo:1233
+#: bin/gpo:1243
 msgid "Ambiguous command. Did you mean.."
 msgstr "Többértelmű parancs. Erre gondolt…"
 
-#: bin/gpo:1237
+#: bin/gpo:1247
 msgid "The requested function is not available."
 msgstr "A kért függvény nem érhető el."
 

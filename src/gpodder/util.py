@@ -73,14 +73,14 @@ logger = logging.getLogger(__name__)
 try:
     import html5lib
 except ImportError:
-    logger.warn('html5lib not found, falling back to HTMLParser')
+    logger.warning("html5lib was not found, fall-back to HTMLParser")
     html5lib = None
 
 if gpodder.ui.win32:
     try:
         import gpodder.utilwin32ctypes as win32file
     except ImportError:
-        logger.warn('Running on Win32 but utilwin32ctypes can\'t be loaded.')
+        logger.warning('Running on Win32: utilwin32ctypes cannot be loaded')
         win32file = None
 
 _ = gpodder.gettext
@@ -90,7 +90,7 @@ N_ = gpodder.ngettext
 try:
     locale.setlocale(locale.LC_ALL, '')
 except Exception as e:
-    logger.warn('Cannot set locale (%s)', e, exc_info=True)
+    logger.warning('Cannot set locale (%s)', e, exc_info=True)
 
 # Native filesystem encoding detection
 encoding = sys.getfilesystemencoding()
@@ -198,7 +198,7 @@ def make_directory(path):
     except GLib.Error as err:
         # The sync might be multithreaded, so directories can be created by other threads
         if not err.matches(Gio.io_error_quark(), Gio.IOErrorEnum.EXISTS):
-            logger.warn('Could not create directory %s: %s', path.get_uri(), err.message)
+            logger.warning('Could not create directory %s: %s', path.get_uri(), err.message)
             return False
 
     return True
@@ -246,6 +246,12 @@ def normalize_feed_url(url):
     'http://UserName:PassWord@example.com/'
     """
     if not url or len(url) < 8:
+        return None
+
+    # Removes leading and/or trailing whitespaces - if url contains whitespaces
+    # in between after str.strip() -> conclude invalid url & return None
+    url = url.strip()
+    if ' ' in url:
         return None
 
     # This is a list of prefixes that you can use to minimize the amount of
@@ -398,9 +404,9 @@ def calculate_size(path):
                 try:
                     sum += calculate_size(os.path.join(path, item))
                 except:
-                    logger.warn('Cannot get size for %s', path, exc_info=True)
+                    logger.warning('Cannot get size for %s', path, exc_info=True)
         except:
-            logger.warn('Cannot access %s', path, exc_info=True)
+            logger.warning('Cannot access %s', path, exc_info=True)
 
         return sum
 
@@ -424,7 +430,7 @@ def file_modification_datetime(filename):
         timestamp = s[stat.ST_MTIME]
         return datetime.datetime.fromtimestamp(timestamp)
     except:
-        logger.warn('Cannot get mtime for %s', filename, exc_info=True)
+        logger.warning('Cannot get mtime for %s', filename, exc_info=True)
         return None
 
 
@@ -451,7 +457,7 @@ def file_modification_timestamp(filename):
         s = os.stat(filename)
         return s[stat.ST_MTIME]
     except:
-        logger.warn('Cannot get modification timestamp for %s', filename)
+        logger.warning('Cannot get modification timestamp for %s', filename)
         return -1
 
 
@@ -542,10 +548,10 @@ def format_date(timestamp):
     try:
         timestamp_date = time.localtime(timestamp)[:3]
     except ValueError as ve:
-        logger.warn('Cannot convert timestamp', exc_info=True)
+        logger.warning('Cannot convert timestamp', exc_info=True)
         return None
     except TypeError as te:
-        logger.warn('Cannot convert timestamp', exc_info=True)
+        logger.warning('Cannot convert timestamp', exc_info=True)
         return None
 
     if timestamp_date == today:
@@ -556,7 +562,7 @@ def format_date(timestamp):
     try:
         diff = int((time.time() - timestamp) / seconds_in_a_day)
     except:
-        logger.warn('Cannot convert "%s" to date.', timestamp, exc_info=True)
+        logger.warning('Cannot convert "%s" to date.', timestamp, exc_info=True)
         return None
 
     try:
@@ -1105,7 +1111,7 @@ def object_string_formatter(s, **kwargs):
                     to_s = str(getattr(o, attr))
                     result = result.replace(from_s, to_s)
                 except:
-                    logger.warn('Replace of "%s" failed for "%s".', attr, s)
+                    logger.warning('Replace of "%s" failed for "%s".', attr, s)
 
     return result
 
@@ -1470,7 +1476,7 @@ def http_request(url, method='HEAD'):
     return conn.getresponse()
 
 
-def gui_open(filename):
+def gui_open(filename, gui=None):
     """
     Open a file or folder with the default application set
     by the Desktop environment. This uses "xdg-open" on all
@@ -1481,13 +1487,30 @@ def gui_open(filename):
     try:
         if gpodder.ui.win32:
             os.startfile(filename)
+            opener = None
         elif gpodder.ui.osx:
-            Popen(['open', filename], close_fds=True)
+            opener = 'open'
         else:
-            Popen(['xdg-open', filename], close_fds=True)
+            opener = 'xdg-open'
+
+        if opener:
+            opener_fullpath = shutil.which(opener)
+            if opener_fullpath is None:
+                raise Exception((_("System default program '%(opener)s' not found"))
+                    % {'opener': opener}
+                )
+            Popen([opener_fullpath, filename], close_fds=True)
         return True
     except:
         logger.error('Cannot open file/folder: "%s"', filename, exc_info=True)
+        if gui is not None:
+            if opener is None:
+                message = _("Cannot open file/folder '%(filename)s' using default program") % {'filename': filename}
+            else:
+                message = _("Cannot open '%(filename)s' using '%(opener)s'") \
+                                        % {'filename': filename, 'opener': opener}
+            gui.show_message_details(_('Cannot open file/folder'),
+                    str(sys.exc_info()[1]), message)
         return False
 
 
@@ -1954,7 +1977,7 @@ def connection_available():
             return online
 
     except Exception as e:
-        logger.warn('Cannot get connection status: %s', e, exc_info=True)
+        logger.warning('Cannot get connection status: %s', e, exc_info=True)
         # When we can't determine the connection status, act as if we're online (bug 1730)
         return True
 
@@ -2275,8 +2298,13 @@ def mount_volume_for_file(file, op=None):
     fashion
     """
     import gi
-    gi.require_version('Gtk', '3.0')
-    from gi.repository import Gio, GLib, Gtk
+    gi.require_version('Gio', '2.0')
+    from gi.repository import Gio, GLib
+    if gpodder.ui.gtk:
+        gi.require_version('Gtk', '3.0')
+        from gi.repository import Gtk
+    else:
+        loop = GLib.MainLoop()
 
     result = True
     message = None
@@ -2292,10 +2320,16 @@ def mount_volume_for_file(file, op=None):
                 message = err.message
                 result = False
         finally:
-            Gtk.main_quit()
+            if gpodder.ui.gtk:
+                Gtk.main_quit()
+            else:
+                loop.quit()
 
     file.mount_enclosing_volume(Gio.MountMountFlags.NONE, op, None, callback)
-    Gtk.main()
+    if gpodder.ui.gtk:
+        Gtk.main()
+    else:
+        loop.run()
     return result, message
 
 

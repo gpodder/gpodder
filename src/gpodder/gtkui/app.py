@@ -132,6 +132,7 @@ class gPodderApplication(Gtk.Application):
             logger.error('Cannot find gtk/menus.ui in %r, exiting' % gpodder.ui_folders)
             sys.exit(1)
 
+        self.menu_extras = builder.get_object('menuExtras')
         self.menu_view_columns = builder.get_object('menuViewColumns')
         self.set_menubar(menubar)
 
@@ -171,7 +172,7 @@ class gPodderApplication(Gtk.Application):
 
             self.bus_name = dbus.service.BusName(gpodder.dbus_bus_name, bus=gpodder.dbus_session_bus)
         except dbus.exceptions.DBusException as dbe:
-            logger.warn('Cannot get "on the bus".', exc_info=True)
+            logger.warning('Cannot get "on the bus".', exc_info=True)
             dlg = Gtk.MessageDialog(None, Gtk.DialogFlags.MODAL, Gtk.MessageType.ERROR,
                    Gtk.ButtonsType.CLOSE, _('Cannot start gPodder'))
             dlg.format_secondary_markup(_('D-Bus error: %s') % (str(dbe),))
@@ -202,13 +203,14 @@ class gPodderApplication(Gtk.Application):
     def on_about(self, action, param):
         dlg = Gtk.Dialog(_('About gPodder'), self.window.gPodder,
                 Gtk.DialogFlags.MODAL)
-        dlg.add_button(Gtk.STOCK_CLOSE, Gtk.ResponseType.OK).show()
+        dlg.add_button(_('_Close'), Gtk.ResponseType.OK).show()
         dlg.set_resizable(True)
 
         bg = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6, margin=16)
         pb = GdkPixbuf.Pixbuf.new_from_file_at_size(gpodder.icon_file, 160, 160)
         bg.pack_start(Gtk.Image.new_from_pixbuf(pb), False, False, 0)
         label = Gtk.Label(justify=Gtk.Justification.CENTER)
+        label.set_selectable(True)
         label.set_markup('\n'.join(x.strip() for x in """
         <b>gPodder {version} ({date})</b>
 

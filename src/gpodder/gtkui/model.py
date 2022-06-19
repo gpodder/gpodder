@@ -192,11 +192,12 @@ class EpisodeListModel(Gtk.ListStore):
         # Are we currently showing "all episodes"/section or a single channel?
         self._section_view = False
 
+        self.ICON_WEB_BROWSER = 'web-browser'
         self.ICON_AUDIO_FILE = 'audio-x-generic'
         self.ICON_VIDEO_FILE = 'video-x-generic'
         self.ICON_IMAGE_FILE = 'image-x-generic'
         self.ICON_GENERIC_FILE = 'text-x-generic'
-        self.ICON_DOWNLOADING = Gtk.STOCK_GO_DOWN
+        self.ICON_DOWNLOADING = 'go-down'
         self.ICON_DELETED = 'edit-delete'
         self.ICON_ERROR = 'dialog-error'
 
@@ -463,6 +464,12 @@ class EpisodeListModel(Gtk.ListStore):
             elif episode._download_error is not None:
                 tooltip.append(_('ERROR: %s') % episode._download_error)
                 status_icon = self.ICON_ERROR
+                if episode.state == gpodder.STATE_NORMAL and episode.is_new:
+                    view_show_downloaded = self._config.ui.gtk.episode_list.always_show_new
+                    view_show_unplayed = True
+            elif not episode.url:
+                tooltip.append(_('No downloadable content'))
+                status_icon = self.ICON_WEB_BROWSER
                 if episode.state == gpodder.STATE_NORMAL and episode.is_new:
                     view_show_downloaded = self._config.ui.gtk.episode_list.always_show_new
                     view_show_unplayed = True
@@ -736,7 +743,7 @@ class PodcastListModel(Gtk.ListStore):
                 return None
             return pixbuf
         except Exception as e:
-            logger.warn('Could not load cached cover art for %s', channel.url, exc_info=True)
+            logger.warning('Could not load cached cover art for %s', channel.url, exc_info=True)
             channel.cover_thumb = None
             channel.save()
             return None
@@ -767,6 +774,8 @@ class PodcastListModel(Gtk.ListStore):
         if pixbuf_overlay is None:
             # load cover if it's not in cache
             pixbuf = self._cover_downloader.get_cover(channel, avoid_downloading=True)
+            if pixbuf is None:
+                return None
             pixbuf_overlay = self._resize_pixbuf(channel.url, pixbuf)
             self._save_cached_thumb(channel, pixbuf_overlay)
 

@@ -27,6 +27,7 @@
 
 import collections
 import email
+import glob
 import logging
 import mimetypes
 import os
@@ -230,7 +231,7 @@ class DownloadURLOpener:
 # The following is based on Python's urllib.py "URLopener.retrieve"
 # Also based on http://mail.python.org/pipermail/python-list/2001-October/110069.html
 
-    def retrieve_resume(self, url, filename, reporthook=None, data=None):
+    def retrieve_resume(self, url, filename, reporthook=None, data=None, disable_auth=False):
         """Download files from an URL; return (headers, real_url)
 
         Resumes a download if the local filename exists and
@@ -243,7 +244,7 @@ class DownloadURLOpener:
             'User-agent': gpodder.user_agent
         }
 
-        if self.channel.auth_username or self.channel.auth_password:
+        if (self.channel.auth_username or self.channel.auth_password) and not disable_auth:
             logger.debug('Authenticating as "%s"', self.channel.auth_username)
             auth = (self.channel.auth_username, self.channel.auth_password)
         else:
@@ -257,7 +258,7 @@ class DownloadURLOpener:
                 if current_size > 0:
                     headers['Range'] = 'bytes=%s-' % (current_size)
             except:
-                logger.warn('Cannot resume download: %s', filename, exc_info=True)
+                logger.warning('Cannot resume download: %s', filename, exc_info=True)
                 tfp = None
                 current_size = 0
 
@@ -276,7 +277,11 @@ class DownloadURLOpener:
             try:
                 resp.raise_for_status()
             except HTTPError as e:
-                raise gPodderDownloadHTTPError(url, resp.status_code, str(e))
+                if auth is not None:
+                    # Try again without authentication (bug 1296)
+                    return self.retrieve_resume(url, filename, reporthook, data, True)
+                else:
+                    raise gPodderDownloadHTTPError(url, resp.status_code, str(e))
 
             headers = resp.headers
 
@@ -291,7 +296,7 @@ class DownloadURLOpener:
                     tfp.close()
                     tfp = open(filename, 'wb')
                     current_size = 0
-                    logger.warn('Cannot resume: Invalid Content-Range (RFC2616).')
+                    logger.warning('Cannot resume: Invalid Content-Range (RFC2616).')
 
             result = headers, resp.url
             bs = 1024 * 8
@@ -405,6 +410,7 @@ class ForceDownloadWorker(object):
         logger.info('Starting new thread: %s', self)
         logger.info('%s is processing: %s', self, self.task)
         self.task.run()
+        self.task.recycle()
 
 
 class DownloadQueueManager(object):
@@ -611,6 +617,18 @@ class DownloadTask(object):
 
     downloader = property(fget=__get_downloader, fset=__set_downloader)
 
+    def can_queue(self):
+        return self.status in (self.CANCELLED, self.PAUSED, self.FAILED)
+
+    def unpause(self):
+        with self:
+            # Resume a downloading task that was transitioning to paused
+            if self.status == self.PAUSING:
+                self.status = self.DOWNLOADING
+
+    def can_pause(self):
+        return self.status in (self.DOWNLOADING, self.QUEUED)
+
     def pause(self):
         with self:
             # Pause a queued download
@@ -619,6 +637,10 @@ class DownloadTask(object):
             # Request pause of a running download
             elif self.status == self.DOWNLOADING:
                 self.status = self.PAUSING
+                # download rate limited tasks sleep and take longer to transition from the PAUSING state to the PAUSED state
+
+    def can_cancel(self):
+        return self.status in (self.DOWNLOADING, self.QUEUED, self.PAUSED, self.FAILED)
 
     def cancel(self):
         with self:
@@ -631,9 +653,20 @@ class DownloadTask(object):
             elif self.status == self.DOWNLOADING:
                 self.status = self.CANCELLING
 
+    def can_remove(self):
+        return self.status in (self.CANCELLED, self.FAILED, self.DONE)
+
+    def delete_partial_files(self):
+        temporary_files = [self.tempname]
+        # YoutubeDL creates .partial.* files for adaptive formats
+        temporary_files += glob.glob('%s.*' % self.tempname)
+
+        for tempfile in temporary_files:
+            util.delete_file(tempfile)
+
     def removed_from_list(self):
         if self.status != self.DONE:
-            util.delete_file(self.tempname)
+            self.delete_partial_files()
 
     def __init__(self, episode, config, downloader=None):
         assert episode.download_task is None
@@ -683,6 +716,11 @@ class DownloadTask(object):
 
         # Store a reference to this task in the episode
         episode.download_task = self
+
+    def reuse(self):
+        if not os.path.exists(self.tempname):
+            # partial file was deleted when cancelled, recreate it
+            open(self.tempname, 'w').close()
 
     def notify_as_finished(self):
         if self.status == DownloadTask.DONE:
@@ -791,7 +829,8 @@ class DownloadTask(object):
         with self:
             if self.status == DownloadTask.CANCELLING:
                 self.status = DownloadTask.CANCELLED
-                util.delete_file(self.tempname)
+                self.__episode._download_error = None
+                self.delete_partial_files()
                 self.progress = 0.0
                 self.speed = 0.0
                 self.recycle()
@@ -892,7 +931,8 @@ class DownloadTask(object):
         except DownloadCancelledException:
             logger.info('Download has been cancelled/paused: %s', self)
             if self.status == DownloadTask.CANCELLING:
-                util.delete_file(self.tempname)
+                self.__episode._download_error = None
+                self.delete_partial_files()
                 self.progress = 0.0
                 self.speed = 0.0
             result = DownloadTask.CANCELLED

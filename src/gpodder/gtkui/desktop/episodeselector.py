@@ -279,11 +279,11 @@ class gPodderEpisodeSelector(BuilderWidget):
                     menu.append(item)
                 menu.append(Gtk.SeparatorMenuItem())
 
-            item = Gtk.MenuItem(_('Select all'))
+            item = Gtk.MenuItem(_('Select _all'))
             item.connect('activate', self.on_btnCheckAll_clicked)
             menu.append(item)
 
-            item = Gtk.MenuItem(_('Select none'))
+            item = Gtk.MenuItem(_('Select _none'))
             item.connect('activate', self.on_btnCheckNone_clicked)
             menu.append(item)
 

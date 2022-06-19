@@ -89,7 +89,7 @@ class DirectoryProvidersModel(Gtk.ListStore):
             try:
                 pixbuf = GdkPixbuf.Pixbuf.new_from_file(os.path.join(gpodder.images_folder, provider.icon)) if provider.icon else None
             except Exception as e:
-                logger.warn('Could not load icon: %s (%s)', provider.icon or '-', e)
+                logger.warning('Could not load icon: %s (%s)', provider.icon or '-', e)
                 pixbuf = None
             self.append((Pango.Weight.NORMAL, provider.name, pixbuf, provider))
 
@@ -203,7 +203,7 @@ class gPodderPodcastDirectory(BuilderWidget):
                 try:
                     tags = [(t.tag, t.weight) for t in provider.get_tags()]
                 except Exception as e:
-                    logger.warn('Got exception while loading tags: %s', e)
+                    logger.warning('Got exception while loading tags: %s', e)
                     tags = []
 
                 @util.idle_add
@@ -251,7 +251,7 @@ class gPodderPodcastDirectory(BuilderWidget):
             try:
                 podcasts = callback()
             except Exception as e:
-                logger.warn('Got exception while loading podcasts: %s', e)
+                logger.warning('Got exception while loading podcasts: %s', e)
                 podcasts = []
 
             @util.idle_add
@@ -263,7 +263,7 @@ class gPodderPodcastDirectory(BuilderWidget):
                 if original_provider == self.current_provider:
                     self.podcasts_model.load(podcasts or [])
                 else:
-                    logger.warn('Ignoring update from old thread')
+                    logger.warning('Ignoring update from old thread')
 
                 self.en_query.set_sensitive(True)
                 self.bt_search.set_sensitive(True)

@@ -445,7 +445,7 @@ class MygPoClient(object):
 
     def flush(self, now=False):
         if not self.can_access_webservice():
-            logger.warn('Flush requested, but sync disabled.')
+            logger.warning('Flush requested, but sync disabled.')
             return
 
         if self._worker_thread is None or now:
@@ -512,7 +512,7 @@ class MygPoClient(object):
                 raise
 
             except Exception as e:
-                logger.warn('Exception while polling for episodes.', exc_info=True)
+                logger.warning('Exception while polling for episodes.', exc_info=True)
 
             # Step 2: Upload Episode actions
 
@@ -534,7 +534,7 @@ class MygPoClient(object):
             return True
 
         except (MissingCredentials, mygpoclient.http.Unauthorized):
-            logger.warn('Invalid credentials. Disabling gpodder.net.')
+            logger.warning('Invalid credentials. Disabling gpodder.net.')
             self._config.mygpo.enabled = False
             return False
 
@@ -599,7 +599,7 @@ class MygPoClient(object):
             return True
 
         except (MissingCredentials, mygpoclient.http.Unauthorized):
-            logger.warn('Invalid credentials. Disabling gpodder.net.')
+            logger.warning('Invalid credentials. Disabling gpodder.net.')
             self._config.mygpo.enabled = False
             return False
 
@@ -616,7 +616,7 @@ class MygPoClient(object):
             return True
 
         except (MissingCredentials, mygpoclient.http.Unauthorized):
-            logger.warn('Invalid credentials. Disabling gpodder.net.')
+            logger.warning('Invalid credentials. Disabling gpodder.net.')
             self._config.mygpo.enabled = False
             return False
 
@@ -632,7 +632,7 @@ class MygPoClient(object):
             devices = self._client.get_devices()
 
         except (MissingCredentials, mygpoclient.http.Unauthorized):
-            logger.warn('Invalid credentials. Disabling gpodder.net.')
+            logger.warning('Invalid credentials. Disabling gpodder.net.')
             self._config.mygpo.enabled = False
             raise
 

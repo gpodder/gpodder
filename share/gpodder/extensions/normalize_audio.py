@@ -91,13 +91,14 @@ class gPodderExtension:
 
         cmd = [CONVERT_COMMANDS.get(extension, 'normalize-audio'), filename]
 
+        # Set cwd to prevent normalize from placing files in the directory gpodder was started from.
         if gpodder.ui.win32:
-            p = util.Popen(cmd)
+            p = util.Popen(cmd, cwd=episode.channel.save_dir)
             p.wait()
             stdout, stderr = ("<unavailable>",) * 2
         else:
-            p = util.Popen(cmd, stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE)
+            p = util.Popen(cmd, cwd=episode.channel.save_dir,
+                    stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             stdout, stderr = p.communicate()
 
         if p.returncode == 0:
@@ -105,7 +106,7 @@ class gPodderExtension:
             gpodder.user_extensions.on_notification_show(_('File normalized'),
                     episode.title)
         else:
-            logger.warn('normalize-audio failed: %s / %s', stdout, stderr)
+            logger.warning('normalize-audio failed: %s / %s', stdout, stderr)
 
     def convert_episodes(self, episodes):
         for episode in episodes:

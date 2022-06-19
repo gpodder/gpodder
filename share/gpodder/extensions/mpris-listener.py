@@ -125,10 +125,10 @@ class CurrentTrackTracker(object):
                     ('status' not in kwargs or kwargs['status'] == 'Playing') and not
                     subsecond_difference(cur['pos'], kwargs['pos'])):
                 logger.debug('notify Stopped: playback discontinuity:' +
-                             'calc: %f observed: %f', cur['pos'], kwargs['pos'])
+                             'calc: %r observed: %r', cur['pos'], kwargs['pos'])
                 self.notify_stop()
 
-            if ((kwargs['pos']) == 0 and
+            if ((kwargs['pos']) <= 0 and
                     self.pos is not None and
                     self.length is not None and
                     (self.length - USECS_IN_SEC) < self.pos and
@@ -144,7 +144,8 @@ class CurrentTrackTracker(object):
                     logger.debug('pos=0 not end of stream (calculated pos: %f/%f [%f])',
                                  self.pos / USECS_IN_SEC, self.length / USECS_IN_SEC,
                                  (self.pos / USECS_IN_SEC) - (self.length / USECS_IN_SEC))
-                self.pos = kwargs.pop('pos')
+                newpos = kwargs.pop('pos')
+                self.pos = newpos if newpos >= 0 else 0
 
         if 'status' in kwargs:
             self.status = kwargs.pop('status')
@@ -159,7 +160,7 @@ class CurrentTrackTracker(object):
         if self.status == 'Playing':
             self.notify_playing()
         else:
-            logger.debug('notify Stopped: status %s', self.status)
+            logger.debug('notify Stopped: status %r', self.status)
             self.notify_stop()
 
     def getinfo(self):
@@ -254,10 +255,10 @@ class MPRISDBusReceiver(object):
                        invalidated_properties, path=None, sender=None):
         if interface_name != self.INTERFACE_MPRIS:
             if interface_name not in self.OTHER_MPRIS_INTERFACES:
-                logger.warn('unexpected interface: %s, props=%r', interface_name, list(changed_properties.keys()))
+                logger.warning('unexpected interface: %s, props=%r', interface_name, list(changed_properties.keys()))
             return
         if sender is None:
-            logger.warn('No sender associated to D-Bus signal, please report a bug')
+            logger.warning('No sender associated to D-Bus signal, please report a bug')
             return
 
         collected_info = {}
@@ -274,27 +275,28 @@ class MPRISDBusReceiver(object):
             collected_info['rate'] = changed_properties['Rate']
         # Fix #788 pos=0 when Stopped resulting in not saving position on VLC quit
         if changed_properties.get('PlaybackStatus') != 'Stopped':
-            collected_info['pos'] = self.query_position(sender)
-
+            try:
+                collected_info['pos'] = self.query_property(sender, 'Position')
+            except dbus.exceptions.DBusException:
+                pass
         if 'status' not in collected_info:
-            collected_info['status'] = str(self.query_status(sender))
-        logger.debug('collected info: %r', collected_info)
+            try:
+                collected_info['status'] = str(self.query_property(
+                    sender, 'PlaybackStatus'))
+            except dbus.exceptions.DBusException:
+                pass
 
+        logger.debug('collected info: %r', collected_info)
         self.cur.update(**collected_info)
 
     def on_seeked(self, position):
         logger.debug('seeked to pos: %f', position)
         self.cur.update(pos=position)
 
-    def query_position(self, sender):
+    def query_property(self, sender, prop):
         proxy = self.bus.get_object(sender, self.PATH_MPRIS)
         props = dbus.Interface(proxy, self.INTERFACE_PROPS)
-        return props.Get(self.INTERFACE_MPRIS, 'Position')
-
-    def query_status(self, sender):
-        proxy = self.bus.get_object(sender, self.PATH_MPRIS)
-        props = dbus.Interface(proxy, self.INTERFACE_PROPS)
-        return props.Get(self.INTERFACE_MPRIS, 'PlaybackStatus')
+        return props.Get(self.INTERFACE_MPRIS, prop)
 
 
 class gPodderNotifier(dbus.service.Object):

@@ -155,7 +155,7 @@ class UserAppsReader(object):
         self.apps.append(UserApplication(
             _('Default application'), 'default',
             ';'.join((mime + '/*' for mime in self.mimetypes)),
-            Gtk.STOCK_OPEN))
+            'document-open'))
 
     def add_separator(self):
         self.apps.append(UserApplication(
@@ -177,7 +177,7 @@ class UserAppsReader(object):
                         caption, cmdline,
                         ';'.join(typ + '/*' for typ in types), None))
                 except Exception as e:
-                    logger.warn('Parse HKEY error: %s (%s)', hkey, e)
+                    logger.warning('Parse HKEY error: %s (%s)', hkey, e)
 
         for dir in userappsdirs:
             if os.path.exists(dir):

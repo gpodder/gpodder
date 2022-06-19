@@ -20,6 +20,7 @@
 # Windows 7 taskbar progress
 # Sean Munkel; 2013-01-05
 
+import ctypes
 import functools
 import logging
 from ctypes import (HRESULT, POINTER, Structure, alignment, c_int, c_uint,
@@ -176,7 +177,7 @@ class gPodderExtension:
         if self.window_handle is None:
             if not self.restart_warning:
                 return
-            logger.warn("No window handle available, a restart max fix this")
+            logger.warning("No window handle available, a restart max fix this")
             self.restart_warning = False
             return
         if 0 < progress < 1:

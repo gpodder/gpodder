@@ -112,7 +112,7 @@ class gPodderChannel(BuilderWidget):
 
     def on_button_add_section_clicked(self, widget):
         text = self.show_text_edit_dialog(_('Add section'), _('New section:'),
-            affirmative_text=Gtk.STOCK_ADD)
+            affirmative_text=_('_Add'))
 
         if text is not None:
             for index, (section,) in enumerate(self.section_list):
@@ -146,8 +146,8 @@ class gPodderChannel(BuilderWidget):
             title=_('Select new podcast cover artwork'),
             parent=self.gPodderChannel,
             action=Gtk.FileChooserAction.OPEN)
-        dlg.add_button(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL)
-        dlg.add_button(Gtk.STOCK_OPEN, Gtk.ResponseType.OK)
+        dlg.add_button(_('_Cancel'), Gtk.ResponseType.CANCEL)
+        dlg.add_button(_('_Open'), Gtk.ResponseType.OK)
 
         if dlg.run() == Gtk.ResponseType.OK:
             url = dlg.get_uri()
@@ -196,7 +196,7 @@ class gPodderChannel(BuilderWidget):
     # Title editing callbacks
     def on_title_edit_button_clicked(self, button):
         self.title_save_button_saves = True
-        self.title_save_button.set_label(_("Save"))
+        self.title_save_button.set_label(_("_Save"))
         self.title_stack.set_visible_child(self.title_edit_box)
         self.title_entry.set_text(self.title_label.get_text())
         self.title_entry.grab_focus()
@@ -204,7 +204,7 @@ class gPodderChannel(BuilderWidget):
     def on_title_entry_changed(self, entry):
         if len(entry.get_text()) > 0:
             self.title_save_button_saves = True
-            self.title_save_button.set_label(_("Save"))
+            self.title_save_button.set_label(_("_Save"))
         else:
             self.title_save_button_saves = False
             self.title_save_button.set_label(_("Cancel"))

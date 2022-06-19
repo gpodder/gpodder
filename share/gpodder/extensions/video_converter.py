@@ -114,7 +114,7 @@ class gPodderExtension:
             logger.info('Converted video file to %(format)s.' % {'format': self.config.output_format})
             gpodder.user_extensions.on_notification_show(_('File converted'), episode.title)
         else:
-            logger.warn('Error converting video file: %s / %s', stdout, stderr)
+            logger.warning('Error converting video file: %s / %s', stdout, stderr)
             gpodder.user_extensions.on_notification_show(_('Conversion failed'), episode.title)
 
     def _convert_episodes(self, episodes):

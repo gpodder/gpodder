@@ -110,13 +110,13 @@ class PodcastParserFeed(Feed):
     def get_link(self):
         vid = youtube.get_youtube_id(self.feed['url'])
         if vid is not None:
-            self.feed['link'] = youtube.get_channel_id_url(self.feed['url'])
+            self.feed['link'] = youtube.get_channel_id_url(self.feed['url'], self.fetcher.feed_data)
         return self.feed.get('link')
 
     def get_description(self):
         vid = youtube.get_youtube_id(self.feed['url'])
         if vid is not None:
-            self.feed['description'] = youtube.get_channel_desc(self.feed['url'])
+            self.feed['description'] = youtube.get_channel_desc(self.feed['url'], self.fetcher.feed_data)
         return self.feed.get('description')
 
     def get_cover_url(self):
@@ -161,7 +161,7 @@ class PodcastParserFeed(Feed):
                 num_duplicate_guids += 1
                 channel._update_error = ('Discarded {} episode(s) with non-unique GUID, contact the podcast publisher to fix this issue.'
                         .format(num_duplicate_guids))
-                logger.warn('Discarded episode with non-unique GUID, contact the podcast publisher to fix this issue. [%s] [%s]',
+                logger.warning('Discarded episode with non-unique GUID, contact the podcast publisher to fix this issue. [%s] [%s]',
                         channel.title, episode.title)
                 continue
 
@@ -215,7 +215,8 @@ class gPodderFetcher(feedcore.Fetcher):
         url = vimeo.get_real_channel_url(url)
         return url
 
-    def parse_feed(self, url, data_stream, headers, status, max_episodes=0, **kwargs):
+    def parse_feed(self, url, feed_data, data_stream, headers, status, max_episodes=0, **kwargs):
+        self.feed_data = feed_data
         try:
             feed = podcastparser.parse(url, data_stream)
             feed['url'] = url
@@ -350,7 +351,11 @@ class PodcastEpisode(PodcastModelObject):
         if link_has_media:
             return episode
 
-        return None
+        # The episode has no downloadable content.
+        # It is either a blog post or it links to a webpage with content accessible from shownotes title.
+        # Remove the URL so downloading will fail.
+        episode.url = ''
+        return episode
 
     def __init__(self, channel):
         self.parent = channel
@@ -451,6 +456,73 @@ class PodcastEpisode(PodcastModelObject):
             return False
 
         return task.status in (task.DOWNLOADING, task.QUEUED, task.PAUSING, task.PAUSED, task.CANCELLING)
+
+    def get_player(self, config):
+        file_type = self.file_type()
+        if file_type == 'video' and config.player.video and config.player.video != 'default':
+            player = config.player.video
+        elif file_type == 'audio' and config.player.audio and config.player.audio != 'default':
+            player = config.player.audio
+        else:
+            player = 'default'
+        return player
+
+    def can_play(self, config):
+        """
+        # gPodder.playback_episodes() filters selection with this method.
+        """
+        return self.was_downloaded(and_exists=True) or self.can_stream(config)
+
+    def can_stream(self, config):
+        """
+        Don't try streaming if the user has not defined a player
+        or else we would probably open the browser when giving a URL to xdg-open.
+        We look at the audio or video player depending on its file type.
+        """
+        player = self.get_player(config)
+        return player and player != 'default'
+
+    def can_download(self):
+        """
+        gPodder.on_download_selected_episodes() filters selection with this method.
+        PAUSING and PAUSED tasks can be resumed.
+        """
+        return not self.was_downloaded(and_exists=True) and (
+            not self.download_task
+            or self.download_task.can_queue()
+            or self.download_task.status == self.download_task.PAUSING)
+
+    def can_pause(self):
+        """
+        gPodder.on_pause_selected_episodes() filters selection with this method.
+        """
+        return self.download_task and self.download_task.can_pause()
+
+    def can_cancel(self):
+        """
+        DownloadTask.cancel() only cancels the following tasks.
+        """
+        return self.download_task and self.download_task.can_cancel()
+
+    def can_undownload(self):
+        """
+        gPodder.on_btnUndownload_clicked() filters selection with this method.
+        """
+        return self.was_downloaded(and_exists=True) and not self.archive
+
+    def can_delete(self):
+        """
+        gPodder.delete_episode_list() filters out locked episodes, and cancels all unlocked tasks in selection.
+        """
+        return self.state != gpodder.STATE_DELETED and not self.archive and (
+            not self.download_task or self.download_task.status == self.download_task.FAILED)
+
+    def can_lock(self):
+        """
+        gPodder.on_item_toggle_lock_activate() unlocks deleted episodes and toggles all others.
+        Locked episodes can always be unlocked.
+        """
+        return self.state != gpodder.STATE_DELETED or self.archive
 
     def check_is_new(self):
         return (self.state == gpodder.STATE_NORMAL and self.is_new and
@@ -594,7 +666,7 @@ class PodcastEpisode(PodcastModelObject):
         if not check_only and (force_update or not self.download_filename):
             # Avoid and catch gPodder bug 1440 and similar situations
             if template == '':
-                logger.warn('Empty template. Report this podcast URL %s',
+                logger.warning('Empty template. Report this podcast URL %s',
                         self.channel.url)
                 template = None
 
@@ -607,7 +679,7 @@ class PodcastEpisode(PodcastModelObject):
 
             if 'redirect' in episode_filename and template is None:
                 # This looks like a redirection URL - force URL resolving!
-                logger.warn('Looks like a redirection to me: %s', self.url)
+                logger.warning('Looks like a redirection to me: %s', self.url)
                 url = util.get_real_url(self.channel.authenticate_url(self.url))
                 logger.info('Redirection resolved to: %s', url)
                 episode_filename, _ = util.filename_from_url(url)
@@ -650,7 +722,7 @@ class PodcastEpisode(PodcastModelObject):
                     # call it from the downloading code before saving the file
                     logger.info('Choosing new filename: %s', new_file_name)
                 else:
-                    logger.warn('%s exists or %s does not', new_file_name, old_file_name)
+                    logger.warning('%s exists or %s does not', new_file_name, old_file_name)
                 logger.info('Updating filename of %s to "%s".', self.url, wanted_filename)
             elif self.download_filename is None:
                 logger.info('Setting download filename: %s', wanted_filename)
@@ -721,7 +793,7 @@ class PodcastEpisode(PodcastModelObject):
         try:
             return datetime.datetime.fromtimestamp(self.published).strftime('%H%M')
         except:
-            logger.warn('Cannot format pubtime: %s', self.title, exc_info=True)
+            logger.warning('Cannot format pubtime: %s', self.title, exc_info=True)
             return '0000'
 
     def playlist_title(self):
@@ -876,7 +948,7 @@ class PodcastChannel(PodcastModelObject):
             logger.debug('Strategy for %s changed to %s', self.title, caption)
             self.download_strategy = download_strategy
         else:
-            logger.warn('Cannot set strategy to %d', download_strategy)
+            logger.warning('Cannot set strategy to %d', download_strategy)
 
     def rewrite_url(self, new_url):
         new_url = util.normalize_feed_url(new_url)
@@ -970,7 +1042,7 @@ class PodcastChannel(PodcastModelObject):
                         break
 
             if not found and not util.is_system_file(filename):
-                logger.warn('Unknown external file: %s', filename)
+                logger.warning('Unknown external file: %s', filename)
 
     @classmethod
     def sort_key(cls, podcast):
