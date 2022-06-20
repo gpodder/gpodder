@@ -113,7 +113,7 @@ class DBusPodcastsProxy(dbus.service.Object):
         def episode_to_tuple(episode):
             title = safe_str(episode.title)
             url = safe_str(episode.url)
-            description = safe_first_line(episode.description)
+            description = safe_first_line(episode._text_description)
             filename = safe_str(episode.download_filename)
             file_type = safe_str(episode.file_type())
             is_new = (episode.state == gpodder.STATE_NORMAL and episode.is_new)

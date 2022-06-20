@@ -261,7 +261,7 @@ class gPodderExtension:
         else:
             info['title'] = title
 
-        info['subtitle'] = episode.description
+        info['subtitle'] = episode._text_description
 
         if self.container.config.genre_tag is not None:
             info['genre'] = self.container.config.genre_tag

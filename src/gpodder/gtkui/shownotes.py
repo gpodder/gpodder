@@ -219,7 +219,7 @@ class gPodderShownotesText(gPodderShownotes):
         self.text_buffer.insert_at_cursor('\n')
         self.text_buffer.insert_with_tags_by_name(self.text_buffer.get_end_iter(), details, 'details')
         self.text_buffer.insert_at_cursor('\n\n')
-        for target, text in util.extract_hyperlinked_text(episode.description_html or episode.description):
+        for target, text in util.extract_hyperlinked_text(episode.html_description()):
             hyperlinks.append((self.text_buffer.get_char_count(), target))
             if target:
                 self.text_buffer.insert_with_tags_by_name(
@@ -349,13 +349,10 @@ class gPodderShownotesHTML(gPodderShownotes):
             'duration': episode.get_play_info_string()})
         header_html = _('<div id="gpodder-title">\n%(heading)s\n<p>%(subheading)s</p>\n<p>%(details)s</p></div>\n') \
             % dict(heading=heading, subheading=subheading, details=details)
-        description_html = episode.description_html
-        if not description_html:
-            description_html = re.sub(r'\n', '<br>\n', episode.description)
         # uncomment to prevent background override in html shownotes
         # self.manager.remove_all_style_sheets ()
         logger.debug("base uri: %s (chan:%s)", self._base_uri, episode.channel.url)
-        self.html_view.load_html(header_html + description_html, self._base_uri)
+        self.html_view.load_html(header_html + episode.html_description(), self._base_uri)
         # uncomment to show web inspector
         # self.html_view.get_inspector().show()
         self.episode = episode

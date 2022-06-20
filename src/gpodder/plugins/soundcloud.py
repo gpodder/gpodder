@@ -167,7 +167,8 @@ class SoundcloudUser(object):
                 yield {
                     'title': track.get('title', track.get('permalink')) or _('Unknown track'),
                     'link': track.get('permalink_url') or 'https://soundcloud.com/' + self.username,
-                    'description': track.get('description') or _('No description available'),
+                    'description': util.remove_html_tags(track.get('description') or ''),
+                    'description_html': '',
                     'url': url,
                     'file_size': int(filesize),
                     'mime_type': filetype,

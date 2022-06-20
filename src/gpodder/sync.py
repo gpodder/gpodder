@@ -396,7 +396,7 @@ class iPodDevice(Device):
             return False
 
         track = self.ipod.add_track(local_filename, episode.title, episode.channel.title,
-                util.remove_html_tags(episode.description), episode.url, episode.channel.url,
+                episode._text_description, episode.url, episode.channel.url,
                 episode.published, get_track_length(local_filename), episode.file_type() == 'audio')
 
         self.update_from_episode(track, episode, initial=True)
