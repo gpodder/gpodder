@@ -58,6 +58,8 @@ TBPFLAG = c_int  # enum
 TBATF_USEMDITHUMBNAIL = 1
 TBATF_USEMDILIVEPREVIEW = 2
 TBATFLAG = c_int  # enum
+# return code
+S_OK = HRESULT(0).value
 
 
 class tagTHUMBBUTTON(Structure):
@@ -147,6 +149,12 @@ assert sizeof(tagTHUMBBUTTON) in [540, 552], sizeof(tagTHUMBBUTTON)
 assert alignment(tagTHUMBBUTTON) in [4, 8], alignment(tagTHUMBBUTTON)
 
 
+def consume_events():
+    """ consume pending events """
+    while Gtk.events_pending():
+        Gtk.main_iteration()
+
+
 # based on http://stackoverflow.com/a/1744503/905256
 class gPodderExtension:
     def __init__(self, container):
@@ -158,15 +166,20 @@ class gPodderExtension:
         self.taskbar = client.CreateObject(
             '{56FDF344-FD6D-11d0-958A-006097C9A090}',
             interface=ITaskbarList3)
-        self.taskbar.HrInit()
+        ret = self.taskbar.HrInit()
+        if ret != S_OK:
+            logger.warning("taskbar.HrInit failed: %r", ret)
+            del self.taskbar
 
     def on_unload(self):
+        # let the window change state? otherwise gpodder is stuck on exit
+        # (tested on windows 7 pro)
+        consume_events()
         if self.taskbar is not None:
             self.taskbar.SetProgressState(self.window_handle, TBPF_NOPROGRESS)
             # let the taskbar change state otherwise gpodder is stuck on exit
             # (tested on windows 7 pro)
-            while Gtk.events_pending():
-                Gtk.main_iteration()
+            consume_events()
 
     def on_ui_object_available(self, name, ui_object):
         def callback(self, window, *args):
@@ -175,13 +188,18 @@ class gPodderExtension:
             win_gpointer = ctypes.pythonapi.PyCapsule_GetPointer(window.get_window().__gpointer__, None)
             gdkdll = ctypes.CDLL("libgdk-3-0.dll")
             self.window_handle = gdkdll.gdk_win32_window_get_handle(win_gpointer)
-            self.taskbar.ActivateTab(self.window_handle)
+            ret = self.taskbar.ActivateTab(self.window_handle)
+            if ret != S_OK:
+                logger.warning("taskbar.ActivateTab failed: %r", ret)
+                del self.taskbar
 
         if name == 'gpodder-gtk':
             ui_object.main_window.connect('realize',
                     functools.partial(callback, self))
 
     def on_download_progress(self, progress):
+        if not self.taskbar:
+            return
         if self.window_handle is None:
             if not self.restart_warning:
                 return
