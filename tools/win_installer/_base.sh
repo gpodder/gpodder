@@ -97,7 +97,7 @@ urllib3==1.26.5
 chardet==4.0.0
 idna==3.2
 PySocks==1.7.1
-comtypes==1.1.10
+comtypes==1.1.11
 "
 
 function install_deps {
