@@ -471,6 +471,9 @@ class DownloadQueueManager(object):
         self.tasks.queue_task(task)
         self.__spawn_threads()
 
+    def has_workers(self):
+        return len(self.worker_threads) > 0
+
 
 class DownloadTask(object):
     """An object representing the download task of an episode
