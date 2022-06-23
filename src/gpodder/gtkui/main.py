@@ -2919,7 +2919,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # Notify all tasks to to carry out any clean-up actions
         self.download_status_model.tell_all_tasks_to_quit()
 
-        while Gtk.events_pending():
+        while Gtk.events_pending() or self.download_queue_manager.has_workers():
             Gtk.main_iteration()
 
         self.core.shutdown()
