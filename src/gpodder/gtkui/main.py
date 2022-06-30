@@ -2934,7 +2934,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             titles.append('+%(count)d more…' % {'count': len(things) - max_things})
         return '\n'.join(titles) + '\n\n' + message
 
-    def delete_episode_list(self, episodes, confirm=True, callback=None):
+    def delete_episode_list(self, episodes, confirm=True, callback=None, undownload=False):
         if self.wNotebook.get_current_page() > 0:
             selection = self.treeDownloads.get_selection()
             (model, paths) = selection.get_selected_rows()
@@ -2965,8 +2965,20 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         message = self.format_delete_message(message, episodes, 5, 60)
 
-        if confirm and not self.show_confirmation(message, title):
-            return False
+        if confirm:
+            undownloadable = len([e for e in episodes if e.can_undownload()])
+            if undownloadable:
+                checkbox = N_("Mark downloaded episodes as new, after deletion, to allow downloading again",
+                              "Mark downloaded episodes as new, after deletion, to allow downloading again",
+                              undownloadable)
+            else:
+                checkbox = None
+            res = self.show_confirmation_extended(
+                message, title,
+                checkbox=checkbox, default_checked=undownload)
+            if not res["confirmed"]:
+                return False
+            undownload = res["checked"]
 
         self.on_item_cancel_download_activate(force=True)
 
@@ -2994,10 +3006,17 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 progress.on_progress(idx / len(episodes))
                 if not episode.archive:
                     progress.on_message(episode.title)
+                    # ep_undownload must be computed before delete_from_disk
+                    ep_undownload = undownload and episode.can_undownload()
                     episode.delete_from_disk()
                     episode_urls.add(episode.url)
                     channel_urls.add(episode.channel.url)
                     episodes_status_update.append(episode)
+                    if ep_undownload:
+                        # Undelete and mark episode as new
+                        episode.state = gpodder.STATE_NORMAL
+                        episode.is_new = True
+                        episode.save()
 
             # Notify the web service about the status update + upload
             if self.mygpo_client.can_access_webservice():
