@@ -95,26 +95,39 @@ class YoutubeCustomDownload(download.CustomDownload):
         # (escape % because outtmpl used as a string template by youtube-dl)
         outtmpl = tempname.replace('%', '%%')
         res = self._ytdl.fetch_video(self._url, outtmpl, self._my_hook)
-        # Renaming is not required because the escaped percent is not escaped in the output file.
+        if program_name == 'yt-dlp':
+            # yt-dlp downloads to whatever file name it wants, so rename
+            filepath = res.get('requested_downloads', [{}])[0].get('filepath')
+            if filepath is None:
+                raise Exception("Could not determine youtube-dl output file")
+            if filepath != tempname:
+                logger.debug('yt-dlp downloaded to "%s" instead of "%s", moving',
+                             os.path.basename(filepath),
+                             os.path.basename(tempname))
+                os.remove(tempname)
+                os.rename(filepath, tempname)
+
         if 'duration' in res and res['duration']:
             self._episode.total_time = res['duration']
         headers = {}
         # youtube-dl doesn't return a content-type but an extension
         if 'ext' in res:
             dot_ext = '.{}'.format(res['ext'])
-            # See #673 when merging multiple formats, the extension is appended to the tempname
-            # by youtube-dl resulting in empty .partial file + .partial.mp4 exists
-            # and #796 .mkv is chosen by ytdl sometimes
-            for try_ext in (dot_ext, ".mp4", ".m4a", ".webm", ".mkv"):
-                tempname_with_ext = tempname + try_ext
-                if os.path.isfile(tempname_with_ext):
-                    logger.debug('youtube-dl downloaded to "%s" instead of "%s", moving',
-                                 os.path.basename(tempname_with_ext),
-                                 os.path.basename(tempname))
-                    os.remove(tempname)
-                    os.rename(tempname_with_ext, tempname)
-                    dot_ext = try_ext
-                    break
+            if program_name == 'youtube-dl':
+                # See #673 when merging multiple formats, the extension is appended to the tempname
+                # by youtube-dl resulting in empty .partial file + .partial.mp4 exists
+                # and #796 .mkv is chosen by ytdl sometimes
+                for try_ext in (dot_ext, ".mp4", ".m4a", ".webm", ".mkv"):
+                    tempname_with_ext = tempname + try_ext
+                    if os.path.isfile(tempname_with_ext):
+                        logger.debug('youtube-dl downloaded to "%s" instead of "%s", moving',
+                                     os.path.basename(tempname_with_ext),
+                                     os.path.basename(tempname))
+                        os.remove(tempname)
+                        os.rename(tempname_with_ext, tempname)
+                        dot_ext = try_ext
+                        break
+
             ext_filetype = util.mimetype_from_extension(dot_ext)
             if ext_filetype:
                 # YouTube weba formats have a webm extension and get a video/webm mime-type
@@ -301,7 +314,10 @@ class gPodderYoutubeDL(download.CustomDownloader):
 
     def fetch_video(self, url, tempname, reporthook):
         opts = {
-            'outtmpl': tempname,
+            'paths': {'home': os.path.dirname(tempname)},
+            # Postprocessing in yt-dlp breaks without ext
+            'outtmpl': (os.path.basename(tempname) if program_name == 'yt-dlp'
+                        else tempname) + '.%(ext)s',
             'nopart': True,  # don't append .part (already .partial)
             'retries': 3,  # retry a few times
             'progress_hooks': [reporthook]  # to notify UI
