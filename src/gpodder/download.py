@@ -231,7 +231,7 @@ class DownloadURLOpener:
 # The following is based on Python's urllib.py "URLopener.retrieve"
 # Also based on http://mail.python.org/pipermail/python-list/2001-October/110069.html
 
-    def retrieve_resume(self, url, filename, reporthook=None, data=None):
+    def retrieve_resume(self, url, filename, reporthook=None, data=None, disable_auth=False):
         """Download files from an URL; return (headers, real_url)
 
         Resumes a download if the local filename exists and
@@ -244,7 +244,7 @@ class DownloadURLOpener:
             'User-agent': gpodder.user_agent
         }
 
-        if self.channel.auth_username or self.channel.auth_password:
+        if (self.channel.auth_username or self.channel.auth_password) and not disable_auth:
             logger.debug('Authenticating as "%s"', self.channel.auth_username)
             auth = (self.channel.auth_username, self.channel.auth_password)
         else:
@@ -277,7 +277,11 @@ class DownloadURLOpener:
             try:
                 resp.raise_for_status()
             except HTTPError as e:
-                raise gPodderDownloadHTTPError(url, resp.status_code, str(e))
+                if auth is not None:
+                    # Try again without authentication (bug 1296)
+                    return self.retrieve_resume(url, filename, reporthook, data, True)
+                else:
+                    raise gPodderDownloadHTTPError(url, resp.status_code, str(e))
 
             headers = resp.headers
 
@@ -466,6 +470,9 @@ class DownloadQueueManager(object):
         """
         self.tasks.queue_task(task)
         self.__spawn_threads()
+
+    def has_workers(self):
+        return len(self.worker_threads) > 0
 
 
 class DownloadTask(object):

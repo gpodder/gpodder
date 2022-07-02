@@ -52,7 +52,7 @@ PyPI. With this, you get a self-contained gPodder CLI codebase.
 - Size detection on Windows: PyWin32
 - Native OS X support: ige-mac-integration
 - MP3 Player Sync Support: python-eyed3 (0.7 or newer)
-- iPod Sync Support: python-gpod
+- iPod Sync Support: libgpod (tested with 0.8.3)
 - Clickable links in GTK UI show notes: html5lib
 - HTML show notes: WebKit2 gobject bindings
     (webkit2gtk, webkitgtk4 or gir1.2-webkit2-4.0 packages).
