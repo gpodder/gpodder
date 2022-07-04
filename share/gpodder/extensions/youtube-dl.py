@@ -101,12 +101,12 @@ class YoutubeCustomDownload(download.CustomDownload):
         if 'ext' in res:
             dot_ext = '.{}'.format(res['ext'])
             # See #673 when merging multiple formats, the extension is appended to the tempname
-            # by YoutubeDL resulting in empty .partial file + .partial.mp4 exists
+            # by youtube-dl resulting in empty .partial file + .partial.mp4 exists
             # and #796 .mkv is chosen by ytdl sometimes
             for try_ext in (dot_ext, ".mp4", ".m4a", ".webm", ".mkv"):
                 tempname_with_ext = tempname + try_ext
                 if os.path.isfile(tempname_with_ext):
-                    logger.debug('Youtubedl downloaded to "%s" instead of "%s", moving',
+                    logger.debug('youtube-dl downloaded to "%s" instead of "%s", moving',
                                  os.path.basename(tempname_with_ext),
                                  os.path.basename(tempname))
                     os.remove(tempname)
@@ -277,7 +277,7 @@ class gPodderYoutubeDL(download.CustomDownloader):
         # when adding podcasts.
         # See https://docs.python.org/3/library/sys.html#sys.__stderr__ Note
         if not sys.stdout:
-            logger.debug('no stdout, setting YoutubeDL logger')
+            logger.debug('no stdout, setting youtube-dl logger')
             self._ydl_opts['logger'] = logger
 
     def add_format(self, gpodder_config, opts, fallback=None):

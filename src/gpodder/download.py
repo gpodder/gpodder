@@ -661,7 +661,7 @@ class DownloadTask(object):
 
     def delete_partial_files(self):
         temporary_files = [self.tempname]
-        # YoutubeDL creates .partial.* files for adaptive formats
+        # youtube-dl creates .partial.* files for adaptive formats
         temporary_files += glob.glob('%s.*' % self.tempname)
 
         for tempfile in temporary_files:
