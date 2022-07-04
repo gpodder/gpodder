@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Manage Youtube subscriptions using youtube-dl (https://github.com/ytdl-org/youtube-dl)
+# Manage YouTube subscriptions using youtube-dl (https://github.com/ytdl-org/youtube-dl)
 # Requirements: youtube-dl module (pip install youtube_dl)
 # (c) 2019-08-17 Eric Le Lay <elelay.fr:contact>
 # Released under the same license terms as gPodder itself.
@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 
 
 __title__ = 'youtube-dl'
-__description__ = _('Manage Youtube subscriptions using youtube-dl (pip install youtube_dl) or yt-dlp (pip install yt-dlp)')
+__description__ = _('Manage YouTube subscriptions using youtube-dl (pip install youtube_dl) or yt-dlp (pip install yt-dlp)')
 __only_for__ = 'gtk, cli'
 __authors__ = 'Eric Le Lay <elelay.fr:contact>'
 __doc__ = 'https://gpodder.github.io/docs/extensions/youtubedl.html'
@@ -115,7 +115,7 @@ class YoutubeCustomDownload(download.CustomDownload):
                     break
             ext_filetype = util.mimetype_from_extension(dot_ext)
             if ext_filetype:
-                # Youtube weba formats have a webm extension and get a video/webm mime-type
+                # YouTube weba formats have a webm extension and get a video/webm mime-type
                 # but audio content has no width or height, so change it to audio/webm for correct icon and player
                 if ext_filetype.startswith('video/') and ('height' not in res or res['height'] is None):
                     ext_filetype = ext_filetype.replace('video/', 'audio/')
@@ -175,7 +175,7 @@ class YoutubeFeed(model.Feed):
         return filtered_entries
 
     def get_title(self):
-        return '{} (Youtube)'.format(self._ie_result.get('title') or self._ie_result.get('id') or self._url)
+        return '{} (YouTube)'.format(self._ie_result.get('title') or self._ie_result.get('id') or self._url)
 
     def get_link(self):
         return self._ie_result.get('webpage_url')
@@ -491,7 +491,7 @@ class gPodderExtension:
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
         box.set_border_width(10)
 
-        checkbox = Gtk.CheckButton(_('Parse Youtube channel feeds with youtube-dl to access more than 15 episodes'))
+        checkbox = Gtk.CheckButton(_('Parse YouTube channel feeds with youtube-dl to access more than 15 episodes'))
         checkbox.set_active(self.container.config.manage_channel)
         checkbox.connect('toggled', self.toggle_manage_channel)
         box.pack_start(checkbox, False, False, 0)
@@ -503,8 +503,8 @@ class gPodderExtension:
         checkbox.connect('toggled', self.toggle_manage_downloads)
         box.pack_start(checkbox, False, False, 0)
         note = Gtk.Label(use_markup=True, wrap=True, label=_(
-            'youtube-dl provides access to additional Youtube formats and DRM content.'
-            '  Episodes from non-Youtube channels, that have youtube-dl support, will <b>fail</b> to download unless you manually'
+            'youtube-dl provides access to additional YouTube formats and DRM content.'
+            '  Episodes from non-YouTube channels, that have youtube-dl support, will <b>fail</b> to download unless you manually'
             ' <a href="https://gpodder.github.io/docs/youtube.html#formats">add custom formats</a> for each site.'
             '  <b>Download with youtube-dl</b> appears in the episode menu when this option is disabled,'
             ' and can be used to manually download from supported sites.'))
