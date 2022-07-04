@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gPodder\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-06-30 01:25-0600\n"
+"POT-Creation-Date: 2022-07-04 14:52-0600\n"
 "PO-Revision-Date: 2020-11-11 10:31+0100\n"
 "Last-Translator: Maurizio Ballo <xmaurizio.13@hotmail.com>\n"
 "Language-Team: Italian (http://www.transifex.com/projects/p/gpodder/language/"
@@ -194,7 +194,7 @@ msgid "Only keep latest"
 msgstr "Tieni solo i più recenti"
 
 #: src/gpodder/model.py:1335 src/gpodder/model.py:1350
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:39
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:38
 msgid "Video"
 msgstr "Video"
 
@@ -469,7 +469,7 @@ msgid "gPodder"
 msgstr "gPodder"
 
 #: src/gpodder/gtkui/main.py:364
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:40
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:39
 msgid "Extensions"
 msgstr "Estensioni"
 
@@ -2076,7 +2076,7 @@ msgstr "Codifica in file video avi/mp4m4v "
 #| msgid ""
 #| "Manage Youtube subscriptions using youtube-dl (pip install youtube_dl)"
 msgid ""
-"Manage Youtube subscriptions using youtube-dl (pip install youtube_dl) or yt-"
+"Manage YouTube subscriptions using youtube-dl (pip install youtube_dl) or yt-"
 "dlp (pip install yt-dlp)"
 msgstr ""
 "Gestisci le tue iscrizioni Youtube usando youtube-dl (pip install youtube_dl)"
@@ -2091,38 +2091,40 @@ msgstr ""
 #: share/gpodder/extensions/youtube-dl.py:471
 #, fuzzy
 #| msgid "Download with Youtube-DL"
-msgid "Old Youtube-DL"
+msgid "Old youtube-dl"
 msgstr "Scarica con Youtube-DL"
 
 #: share/gpodder/extensions/youtube-dl.py:475
-msgid "Download with Youtube-DL"
+#, fuzzy
+#| msgid "Download with Youtube-DL"
+msgid "Download with youtube-dl"
 msgstr "Scarica con Youtube-DL"
 
 #: share/gpodder/extensions/youtube-dl.py:494
 msgid ""
-"Parse Youtube channel feeds with Youtube-DL to access more than 15 episodes"
+"Parse YouTube channel feeds with youtube-dl to access more than 15 episodes"
 msgstr ""
 
 #: share/gpodder/extensions/youtube-dl.py:501
 #, fuzzy
 #| msgid "Download with Youtube-DL"
-msgid "Download all supported episodes with Youtube-DL"
+msgid "Download all supported episodes with youtube-dl"
 msgstr "Scarica con Youtube-DL"
 
 #: share/gpodder/extensions/youtube-dl.py:506
 msgid ""
-"Youtube-DL provides access to additional Youtube formats and DRM content.  "
-"Episodes from non-Youtube channels, that have Youtube-DL support, will "
+"youtube-dl provides access to additional YouTube formats and DRM content.  "
+"Episodes from non-YouTube channels, that have youtube-dl support, will "
 "<b>fail</b> to download unless you manually <a href=\"https://gpodder.github."
 "io/docs/youtube.html#formats\">add custom formats</a> for each site.  "
-"<b>Download with Youtube-DL</b> appears in the episode menu when this option "
+"<b>Download with youtube-dl</b> appears in the episode menu when this option "
 "is disabled, and can be used to manually download from supported sites."
 msgstr ""
 
 #: share/gpodder/extensions/youtube-dl.py:519
 #, fuzzy
 #| msgid "Download with Youtube-DL"
-msgid "Youtube-DL"
+msgid "youtube-dl"
 msgstr "Scarica con Youtube-DL"
 
 #: share/gpodder/ui/gtk/gpodder.ui.h:5
@@ -2334,84 +2336,80 @@ msgid "Maximum number of episodes per podcast:"
 msgstr "Massimo numero di episodi per podcast:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:19
-msgid "200"
-msgstr ""
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:20
 msgid "When new episodes are found:"
 msgstr "Quando vengono trovati nuovi episodi:"
 
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:21
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:20
 msgid "Check connection before updating (if supported)"
 msgstr ""
 
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:22
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:21
 msgid "Updating"
 msgstr "Aggiornamento"
 
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:23
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:22
 msgid "Delete played episodes:"
 msgstr "Elimina gli episodi riprodotti:"
 
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:24
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:23
 msgid "Remove played episodes even if unfinished"
 msgstr "Elimina episodi riprodotti anche se non del tutto"
 
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:25
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:24
 msgid "Also remove unplayed episodes"
 msgstr "Elimina anche gli episodi non riprodotti"
 
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:26
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:25
 msgid "Clean-up"
 msgstr "Pulizia"
 
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:27
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:26
 msgid "Device type:"
 msgstr "Tipo di dispositivo:"
 
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:28
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:27
 msgid "Mountpoint:"
 msgstr "Mountpoint:"
 
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:29
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:28
 msgid "Create playlists on device"
 msgstr "Crea playlist sull'unità "
 
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:30
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:29
 msgid "Playlists Folder:"
 msgstr "Cartella Playlist: "
 
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:31
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:30
 msgid "Remove episodes deleted on device from gPodder"
 msgstr "Elimina da gPodder gli episodi cancellati sul dispositivo"
 
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:32
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:31
 msgid "After syncing an episode:"
 msgstr "Dopo la sincronizzazione di un episodio:"
 
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:33
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:32
 msgid "Only sync unplayed episodes"
 msgstr "Sincronizza solo gli episodi non ascoltati"
 
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:34
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:33
 #, fuzzy
 #| msgid "Remove episodes deleted on device from gPodder"
 msgid "Remove episodes deleted in gPodder from device"
 msgstr "Elimina da gPodder gli episodi cancellati sul dispositivo"
 
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:35
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:34
 msgid "Devices"
 msgstr "Dispositivi"
 
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:36
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:35
 msgid "Preferred YouTube format:"
 msgstr "Formato YouTube preferito:"
 
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:37
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:36
 msgid "Preferred YouTube HLS format:"
 msgstr "Formato YouTube HSL preferito:"
 
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:38
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:37
 msgid "Preferred Vimeo format:"
 msgstr "Formato video preferito:"
 
