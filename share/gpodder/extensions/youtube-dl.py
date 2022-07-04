@@ -28,7 +28,7 @@ _ = gpodder.gettext
 logger = logging.getLogger(__name__)
 
 
-__title__ = 'Youtube-dl'
+__title__ = 'youtube-dl'
 __description__ = _('Manage Youtube subscriptions using youtube-dl (pip install youtube_dl) or yt-dlp (pip install yt-dlp)')
 __only_for__ = 'gtk, cli'
 __authors__ = 'Eric Le Lay <elelay.fr:contact>'
@@ -56,7 +56,7 @@ PLAYLIST_RE = re.compile(r'''https://www.youtube.com/feeds/videos.xml\?playlist_
 def youtube_parsedate(s):
     """Parse a string into a unix timestamp
 
-    Only strings provided by Youtube-dl API are
+    Only strings provided by youtube-dl API are
     parsed with this function (20170920).
     """
     if s:
@@ -395,7 +395,7 @@ class gPodderYoutubeDL(download.CustomDownloader):
                 if m:
                     url = 'https://www.youtube.com/playlist?list={}'.format(m.group(1))
         if url:
-            logger.info('Youtube-dl Handling %s => %s', channel.url, url)
+            logger.info('youtube-dl handling %s => %s', channel.url, url)
             return self.refresh(url, channel.url, max_episodes)
         return None
 
@@ -443,7 +443,7 @@ class gPodderExtension:
         registry.feed_handler.register(self.ytdl.fetch_channel)
         registry.custom_downloader.register(self.ytdl.custom_downloader)
 
-        logger.debug('Youtube-DL %s' % youtube_dl.version.__version__)
+        logger.debug('youtube-dl %s' % youtube_dl.version.__version__)
 
         if youtube_dl.utils.version_tuple(youtube_dl.version.__version__) < youtube_dl.utils.version_tuple(want_ytdl_version):
             logger.error(want_ytdl_version_msg
@@ -468,11 +468,11 @@ class gPodderExtension:
             if youtube_dl.utils.version_tuple(youtube_dl.version.__version__) < youtube_dl.utils.version_tuple(want_ytdl_version):
                 ui_object.notification(want_ytdl_version_msg %
                     {'have_version': youtube_dl.version.__version__, 'want_version': want_ytdl_version},
-                    _('Old Youtube-DL'), important=True, widget=ui_object.main_window)
+                    _('Old youtube-dl'), important=True, widget=ui_object.main_window)
 
     def on_episodes_context_menu(self, episodes):
         if not self.container.config.manage_downloads and any(e.can_download() for e in episodes):
-            return [(_("Download with Youtube-DL"), self.download_episodes)]
+            return [(_("Download with youtube-dl"), self.download_episodes)]
 
     def download_episodes(self, episodes):
         episodes = [e for e in episodes if e.can_download()]
@@ -491,22 +491,22 @@ class gPodderExtension:
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
         box.set_border_width(10)
 
-        checkbox = Gtk.CheckButton(_('Parse Youtube channel feeds with Youtube-DL to access more than 15 episodes'))
+        checkbox = Gtk.CheckButton(_('Parse Youtube channel feeds with youtube-dl to access more than 15 episodes'))
         checkbox.set_active(self.container.config.manage_channel)
         checkbox.connect('toggled', self.toggle_manage_channel)
         box.pack_start(checkbox, False, False, 0)
 
         box.pack_start(Gtk.HSeparator(), False, False, 0)
 
-        checkbox = Gtk.CheckButton(_('Download all supported episodes with Youtube-DL'))
+        checkbox = Gtk.CheckButton(_('Download all supported episodes with youtube-dl'))
         checkbox.set_active(self.container.config.manage_downloads)
         checkbox.connect('toggled', self.toggle_manage_downloads)
         box.pack_start(checkbox, False, False, 0)
         note = Gtk.Label(use_markup=True, wrap=True, label=_(
-            'Youtube-DL provides access to additional Youtube formats and DRM content.'
-            '  Episodes from non-Youtube channels, that have Youtube-DL support, will <b>fail</b> to download unless you manually'
+            'youtube-dl provides access to additional Youtube formats and DRM content.'
+            '  Episodes from non-Youtube channels, that have youtube-dl support, will <b>fail</b> to download unless you manually'
             ' <a href="https://gpodder.github.io/docs/youtube.html#formats">add custom formats</a> for each site.'
-            '  <b>Download with Youtube-DL</b> appears in the episode menu when this option is disabled,'
+            '  <b>Download with youtube-dl</b> appears in the episode menu when this option is disabled,'
             ' and can be used to manually download from supported sites.'))
         note.connect('activate-link', lambda label, url: util.open_website(url))
         note.set_property('xalign', 0.0)
@@ -516,4 +516,4 @@ class gPodderExtension:
         return box
 
     def on_preferences(self):
-        return [(_('Youtube-DL'), self.show_preferences)]
+        return [(_('youtube-dl'), self.show_preferences)]
