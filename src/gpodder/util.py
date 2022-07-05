@@ -1521,6 +1521,7 @@ def open_website(url):
     make sure your system is set up correctly.
     """
     run_in_background(lambda: webbrowser.open(url))
+    return True
 
 
 def copy_text_to_clipboard(text):
