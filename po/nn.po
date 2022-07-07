@@ -1,16 +1,16 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
+#
+# Translators:
 # Thomas Perl <thp@perli.net>, 2006.
 # Torstein Adolf Winterseth <kvikende@fsfe.org>, 2009, 2010.
 # Karl Ove Hufthammer <karl@huftis.org>, 2019, 2020, 2021, 2022.
-#
-# Translators:
 msgid ""
 msgstr ""
 "Project-Id-Version: gPodder\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-07-05 12:29-0600\n"
-"PO-Revision-Date: 2022-02-06 17:33+0100\n"
+"PO-Revision-Date: 2022-07-06 20:54+0200\n"
 "Last-Translator: Karl Ove Hufthammer <karl@huftis.org>\n"
 "Language-Team: Norwegian Nynorsk <l10n-no@lister.huftis.org>\n"
 "Language: nn\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Lokalize 21.12.1\n"
+"X-Generator: Lokalize 22.04.2\n"
 
 #: src/gpodder/config.py:53
 #, python-format
@@ -158,7 +158,7 @@ msgstr "Manglar skildring for utvidinga."
 #: src/gpodder/extensions.py:220
 #, python-format
 msgid "Command not found: %(command)s"
-msgstr "Fann ikkje kommandoen: %(command)s"
+msgstr "Fann ikkje denne kommandoen: %(command)s"
 
 #: src/gpodder/extensions.py:236
 #, python-format
@@ -168,7 +168,7 @@ msgstr "Treng minst éin av desse kommandoane: %(list_of_commands)s"
 #: src/gpodder/extensions.py:274
 #, python-format
 msgid "Python module not found: %(module)s"
-msgstr "Fann ikkje Python-modul: %(module)s"
+msgstr "Fann ikkje denne Python-modulen: %(module)s"
 
 #: src/gpodder/model.py:588 src/gpodder/model.py:595 src/gpodder/youtube.py:570
 msgid "No description available"
@@ -519,6 +519,10 @@ msgid ""
 "Check login is a username (not an email)\n"
 "and that the device name matches one in your account."
 msgstr ""
+"Fann ikkje eininga di.\n"
+"\n"
+"Sjå til at du har oppgjeve eit brukarnamn (ikkje ei e-postadresse)\n"
+"og at einings­namnet er det same som du har brukt i kontoen din."
 
 #: src/gpodder/gtkui/main.py:631
 msgid "Error while uploading"
@@ -579,22 +583,22 @@ msgstr[0] "%(count)d køyrer"
 msgstr[1] "%(count)d køyrer"
 
 #: src/gpodder/gtkui/main.py:1246
-#, fuzzy, python-format
+#, python-format
 #| msgid "%(count)d paused"
 #| msgid_plural "%(count)d paused"
 msgid "%(count)d pausing"
 msgid_plural "%(count)d pausing"
-msgstr[0] "%(count)d sett på pause"
-msgstr[1] "%(count)d sett på pause"
+msgstr[0] "%(count)d vert sett på pause"
+msgstr[1] "%(count)d vert sette på pause"
 
 #: src/gpodder/gtkui/main.py:1248
-#, fuzzy, python-format
+#, python-format
 #| msgid "%(count)d active"
 #| msgid_plural "%(count)d active"
 msgid "%(count)d cancelling"
 msgid_plural "%(count)d cancelling"
-msgstr[0] "%(count)d køyrer"
-msgstr[1] "%(count)d køyrer"
+msgstr[0] "%(count)d vert avbroten"
+msgstr[1] "%(count)d vert avbrotne"
 
 #: src/gpodder/gtkui/main.py:1250
 #, python-format
@@ -753,13 +757,12 @@ msgid "Podcast settings"
 msgstr "Podkastinnstillingar"
 
 #: src/gpodder/gtkui/main.py:1852
-#, fuzzy
 #| msgid "File already exist"
 msgid "File already exists"
 msgstr "Fila finst frå før"
 
 #: src/gpodder/gtkui/main.py:1854
-#, fuzzy, python-format
+#, python-format
 #| msgid ""
 #| "A file named \"%(filename)s\" already exist. Do you want to replace it?"
 msgid ""
@@ -964,10 +967,9 @@ msgid "Error while updating feeds"
 msgstr "Feil ved kjeldeoppdatering"
 
 #: src/gpodder/gtkui/main.py:2835
-#, fuzzy
 #| msgid "No new episodes available"
 msgid "No new episodes with downloadable content"
-msgstr "Ingen nye episodar er tilgjengelege"
+msgstr "Ingen nye episodar med nedlastbart innhald"
 
 #: src/gpodder/gtkui/main.py:2835
 msgid "No new episodes"
@@ -1036,7 +1038,7 @@ msgstr[1] "Vil du sletta %(count)d episodar?"
 
 #: src/gpodder/gtkui/main.py:2964 bin/gpo:850
 msgid "Deleting episodes removes downloaded files."
-msgstr "Viss du slettar ein episode, vert òg tilhøyrande fil sletta."
+msgstr "Viss du slettar ein episode, vert òg tilhøyrande fil på disken sletta."
 
 #: src/gpodder/gtkui/main.py:2973
 msgid "Deleting episodes"
@@ -1359,7 +1361,7 @@ msgstr "sletting hindra"
 
 #: src/gpodder/gtkui/model.py:471
 msgid "No downloadable content"
-msgstr ""
+msgstr "Manglar nedlastbart innhald"
 
 #: src/gpodder/gtkui/model.py:477
 msgid "New episode"
@@ -1559,8 +1561,7 @@ msgstr "storleik: %s"
 #: src/gpodder/gtkui/desktop/exportlocal.py:53
 #, python-format
 msgid "Export remaining %(count)d episode to this folder with its default name"
-msgid_plural ""
-"Export remaining %(count)d episodes to this folder with their default name"
+msgid_plural "Export remaining %(count)d episodes to this folder with their default name"
 msgstr[0] ""
 "Eksporter gjenståande %(count)d episode til denne mappa, med standardnamn"
 msgstr[1] ""
@@ -1622,11 +1623,11 @@ msgstr "Filsystembasert"
 
 #: src/gpodder/gtkui/desktop/preferences.py:91
 msgid "Mark as played"
-msgstr "Merk som avspela"
+msgstr "Merk han som avspela"
 
 #: src/gpodder/gtkui/desktop/preferences.py:92
 msgid "Delete from gPodder"
-msgstr "Slett frå gPodder"
+msgstr "Slett han frå gPodder"
 
 #: src/gpodder/gtkui/desktop/preferences.py:118
 #: src/gpodder/gtkui/desktop/preferences.py:144
@@ -1997,9 +1998,10 @@ msgstr "Vis nedlastingsframdrift på oppgåvelinja"
 msgid "Displays the progress on the Windows taskbar."
 msgstr "Vis framdriftslinja på oppgåvelinja i Windows"
 
+# Bør skrivast på imperativform for å vera konsistent med dei andre tekstane i denne innstillingsfana.
 #: share/gpodder/extensions/ted_subtitles.py:17
 msgid "Subtitle Downloader for TED Talks"
-msgstr "Undertekst-nedlastar for TED-føredrag"
+msgstr "Last ned undertekstar for TED-føredrag"
 
 #: share/gpodder/extensions/ted_subtitles.py:18
 msgid "Downloads .srt subtitles for TED Talks Videos"
@@ -2048,16 +2050,17 @@ msgid "Transcode video files to avi/mp4/m4v"
 msgstr "Transkod videofiler til AVI/MP4/M4V"
 
 #: share/gpodder/extensions/youtube-dl.py:32
-#, fuzzy
 #| msgid ""
 #| "Manage Youtube subscriptions using youtube-dl (pip install youtube_dl)"
 msgid ""
 "Manage YouTube subscriptions using youtube-dl (pip install youtube_dl) or yt-"
 "dlp (pip install yt-dlp)"
-msgstr "Handsam YouTube-abonnement med youtube-dl («pip install youtube_dl»)"
+msgstr ""
+"Handsam YouTube-abonnement med youtube-dl («pip install youtube_dl») eller yt-"
+"dlp («pip install yt-dlp»)"
 
 #: share/gpodder/extensions/youtube-dl.py:38
-#, fuzzy, python-format
+#, python-format
 #| msgid ""
 #| "Your version of youtube-dl %(have_version)s has known issues, please "
 #| "upgrade to %(want_version)s or newer."
@@ -2065,17 +2068,15 @@ msgid ""
 "Your version of youtube-dl/yt-dlp %(have_version)s has known issues, please "
 "upgrade to %(want_version)s or newer."
 msgstr ""
-"Versjonen av youtube-dl som du har, versjon %(have_version)s, har fleire "
+"Versjonen av youtube-dl/yt-dlp som du har, versjon %(have_version)s, har fleire "
 "kjende feil. Oppgrader til versjon %(want_version)s eller nyare."
 
 #: share/gpodder/extensions/youtube-dl.py:471
-#, fuzzy
 #| msgid "Old Youtube-DL"
 msgid "Old youtube-dl"
 msgstr "Gammal youtube-dl"
 
 #: share/gpodder/extensions/youtube-dl.py:475
-#, fuzzy
 #| msgid "Download with Youtube-DL"
 msgid "Download with youtube-dl"
 msgstr "Last ned med youtube-dl"
@@ -2084,12 +2085,12 @@ msgstr "Last ned med youtube-dl"
 msgid ""
 "Parse YouTube channel feeds with youtube-dl to access more than 15 episodes"
 msgstr ""
+"Les YouTube-kanalkjelder med youtube-dl for tilgang til meir enn 15 episodar"
 
 #: share/gpodder/extensions/youtube-dl.py:501
-#, fuzzy
 #| msgid "Download with Youtube-DL"
 msgid "Download all supported episodes with youtube-dl"
-msgstr "Last ned med youtube-dl"
+msgstr "Last ned alle støtta episodar med youtube-dl"
 
 #: share/gpodder/extensions/youtube-dl.py:506
 msgid ""
@@ -2100,12 +2101,17 @@ msgid ""
 "<b>Download with youtube-dl</b> appears in the episode menu when this option "
 "is disabled, and can be used to manually download from supported sites."
 msgstr ""
+"Programmet youtube-dl gjev tilgang til fleire YouTube-format og DRM-innhald. "
+"Merk at episodar frå kanalar på andre nett­stadar enn YouTube, men som er støtta av "
+"youtube-dl, <b>ikkje</b> vert lasta ned, med mindre du manuelt legg til eit "
+"<a href=\"https://gpodder.github.io/docs/youtube.html#formats\">tilpassa format</a> "
+"for kvar nettstad.  <b>Last ned med youtube-dl</b> vert vist i episode­menyen når valet "
+"ovanfor er slått av, slik at du kan lasta ned manuelt frå desse nettstadane."
 
 #: share/gpodder/extensions/youtube-dl.py:519
-#, fuzzy
 #| msgid "Old Youtube-DL"
-msgid "youtube-dl"
-msgstr "Gammal youtube-dl"
+msgid "Youtube-DL"
+msgstr "Youtube-dl"
 
 #: share/gpodder/ui/gtk/gpodder.ui.h:5
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:1
@@ -2270,16 +2276,14 @@ msgid "Device name:"
 msgstr "Einingsnamn:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:14
-#, fuzzy
 #| msgid "Replace list on server with local subscriptions"
 msgid "Replace subscription list on server with local subscriptions:"
-msgstr "Byt ut lista på tenaren med lokale abonnement"
+msgstr "Byt ut abonnements­lista på tenaren med lokale abonnement:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:15
-#, fuzzy
 #| msgid "Uploading subscriptions"
 msgid "Upload local subscriptions"
-msgstr "Lastar opp abonnement"
+msgstr "Last opp lokale abonnement"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:16
 msgid "gpodder.net"
@@ -2345,7 +2349,7 @@ msgstr "Slett automatisk episodar i gPodder som er sletta frå eininga"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:31
 msgid "After syncing an episode:"
-msgstr "Etter synkronisering av episode:"
+msgstr "Etter synkronisering av ein episode:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:32
 msgid "Only sync unplayed episodes"
