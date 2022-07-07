@@ -1,4 +1,3 @@
-# SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 #
@@ -7,21 +6,21 @@
 # Michiel Pater <michiel@wateennaam.nl>, 2012.
 # Pieter De Decker <pdedecker@gmail.com>, 2007.
 # Thomas Perl <thp@perli.net>, 2006.
+# Heimen Stoffels <vistausss@fastmail.com>, 2022.
 msgid ""
 msgstr ""
 "Project-Id-Version: gPodder\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-07-05 12:29-0600\n"
-"PO-Revision-Date: 2022-02-05 14:13+0100\n"
+"PO-Revision-Date: 2022-07-06 14:30+0200\n"
 "Last-Translator: Heimen Stoffels <vistausss@fastmail.com>\n"
-"Language-Team: Dutch (http://www.transifex.com/projects/p/gpodder/language/"
-"nl/)\n"
+"Language-Team: Dutch\n"
 "Language: nl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.0.1\n"
+"X-Generator: Poedit 3.1\n"
 
 #: src/gpodder/config.py:53
 #, python-format
@@ -522,6 +521,10 @@ msgid ""
 "Check login is a username (not an email)\n"
 "and that the device name matches one in your account."
 msgstr ""
+"Je apparaat is niet aangetroffen.\n"
+"\n"
+"Controleer je gebruikersnaam (mag geen e-mailadres zijn)\n"
+"en of de apparaatnaam overeenkomt met die op je account."
 
 #: src/gpodder/gtkui/main.py:631
 msgid "Error while uploading"
@@ -580,22 +583,18 @@ msgstr[0] "%(count)d actief"
 msgstr[1] "%(count)d actief"
 
 #: src/gpodder/gtkui/main.py:1246
-#, fuzzy, python-format
-#| msgid "%(count)d paused"
-#| msgid_plural "%(count)d paused"
+#, python-format
 msgid "%(count)d pausing"
 msgid_plural "%(count)d pausing"
-msgstr[0] "%(count)d gepauzeerd"
-msgstr[1] "%(count)d gepauzeerd"
+msgstr[0] "bezig met pauzeren van %(count)d"
+msgstr[1] "bezig met pauzeren van %(count)d"
 
 #: src/gpodder/gtkui/main.py:1248
-#, fuzzy, python-format
-#| msgid "%(count)d active"
-#| msgid_plural "%(count)d active"
+#, python-format
 msgid "%(count)d cancelling"
 msgid_plural "%(count)d cancelling"
-msgstr[0] "%(count)d actief"
-msgstr[1] "%(count)d actief"
+msgstr[0] "bezig met afbreken van %(count)d"
+msgstr[1] "bezig met afbreken van %(count)d"
 
 #: src/gpodder/gtkui/main.py:1250
 #, python-format
@@ -751,19 +750,14 @@ msgid "Podcast settings"
 msgstr "Podcast-instellingen"
 
 #: src/gpodder/gtkui/main.py:1852
-#, fuzzy
-#| msgid "File already exist"
 msgid "File already exists"
 msgstr "Bestand bestaat al"
 
 #: src/gpodder/gtkui/main.py:1854
-#, fuzzy, python-format
-#| msgid ""
-#| "A file named \"%(filename)s\" already exist. Do you want to replace it?"
+#, python-format
 msgid ""
 "A file named \"%(filename)s\" already exists. Do you want to replace it?"
-msgstr ""
-"Er bestaat al een bestand genaamd \"%(filename)s\". Wil je het vervangen?"
+msgstr "Er is al een bestand genaamd \"%(filename)s\". Wil je het vervangen?"
 
 #: src/gpodder/gtkui/main.py:1896
 #, python-format
@@ -962,10 +956,8 @@ msgid "Error while updating feeds"
 msgstr "Fout tijdens bijwerken van feeds"
 
 #: src/gpodder/gtkui/main.py:2835
-#, fuzzy
-#| msgid "No new episodes available"
 msgid "No new episodes with downloadable content"
-msgstr "Geen nieuwe afleveringen beschikbaar"
+msgstr "Geen nieuwe afleveringen beschikbaar met downloadbare inhoud"
 
 #: src/gpodder/gtkui/main.py:2835
 msgid "No new episodes"
@@ -1357,7 +1349,7 @@ msgstr "verwijdering voorkomen"
 
 #: src/gpodder/gtkui/model.py:471
 msgid "No downloadable content"
-msgstr ""
+msgstr "Geen downloadbare inhoud"
 
 #: src/gpodder/gtkui/model.py:477
 msgid "New episode"
@@ -1576,7 +1568,7 @@ msgstr "Zoeken"
 #: src/gpodder/gtkui/desktop/podcastdirectory.py:193
 #: share/gpodder/ui/gtk/gpodderaddpodcast.ui.h:4
 msgid "URL:"
-msgstr "URL:"
+msgstr "Url:"
 
 #: src/gpodder/gtkui/desktop/podcastdirectory.py:196
 msgid "Filename:"
@@ -2046,35 +2038,27 @@ msgid "Transcode video files to avi/mp4/m4v"
 msgstr "Videobestanden transcoderen naar avi/mp4/m4v"
 
 #: share/gpodder/extensions/youtube-dl.py:32
-#, fuzzy
-#| msgid ""
-#| "Manage Youtube subscriptions using youtube-dl (pip install youtube_dl)"
 msgid ""
 "Manage YouTube subscriptions using youtube-dl (pip install youtube_dl) or yt-"
 "dlp (pip install yt-dlp)"
-msgstr "YouTube-abonnementen beheren met youtube-dl (pip install youtube_dl)"
+msgstr ""
+"YouTube-abonnementen beheren met youtube-dl (pip install youtube_dl) of yt-"
+"dlp (pip install yt-dlp)"
 
 #: share/gpodder/extensions/youtube-dl.py:38
-#, fuzzy, python-format
-#| msgid ""
-#| "Your version of youtube-dl %(have_version)s has known issues, please "
-#| "upgrade to %(want_version)s or newer."
+#, python-format
 msgid ""
 "Your version of youtube-dl/yt-dlp %(have_version)s has known issues, please "
 "upgrade to %(want_version)s or newer."
 msgstr ""
-"Je versie van youtube-dl %(have_version)s bevat bekende problemen - werk "
-"deze bij naar %(want_version)s of nieuwer."
+"Je versie van youtube-dl/yt-dlp %(have_version)s bevat bekende problemen - "
+"werk deze bij naar %(want_version)s of nieuwer."
 
 #: share/gpodder/extensions/youtube-dl.py:471
-#, fuzzy
-#| msgid "Old Youtube-DL"
 msgid "Old youtube-dl"
-msgstr "Oude youtube-dl"
+msgstr "Verouderde youtube-dl"
 
 #: share/gpodder/extensions/youtube-dl.py:475
-#, fuzzy
-#| msgid "Download with Youtube-DL"
 msgid "Download with youtube-dl"
 msgstr "Downloaden met youtube-dl"
 
@@ -2082,12 +2066,12 @@ msgstr "Downloaden met youtube-dl"
 msgid ""
 "Parse YouTube channel feeds with youtube-dl to access more than 15 episodes"
 msgstr ""
+"Verwerk YouTube-kanaalfeeds met youtube-dl om toegang te krijgen tot meer "
+"dan 15 afleveringen"
 
 #: share/gpodder/extensions/youtube-dl.py:501
-#, fuzzy
-#| msgid "Download with Youtube-DL"
 msgid "Download all supported episodes with youtube-dl"
-msgstr "Downloaden met youtube-dl"
+msgstr "Alle ondersteunde afleveringen downloaden met youtube-dl"
 
 #: share/gpodder/extensions/youtube-dl.py:506
 msgid ""
@@ -2098,12 +2082,17 @@ msgid ""
 "<b>Download with youtube-dl</b> appears in the episode menu when this option "
 "is disabled, and can be used to manually download from supported sites."
 msgstr ""
+"youtube-dl biedt toegang tot aanvullende YouTube-formaten en drm-inhoud.  "
+"Afleveringen van niet-YouTube-kanalen die youtube-dl-ondersteuning hebben, "
+"kunnen <b>niet</b> worden gedownload, tenzij ze handmatig worden gedownload "
+"met <a href=\"https://gpodder.github.io/docs/youtube.html#formats"
+"\">aangepaste formaten</a> per site.  <b>Downloaden met youtube-dl</b> wordt "
+"toegevoegd aan elk afleveringenmenu als deze optie is uitgeschakeld en kan "
+"worden gebruikt om handmatig te downloaden van ondersteunde sites."
 
 #: share/gpodder/extensions/youtube-dl.py:519
-#, fuzzy
-#| msgid "Old Youtube-DL"
 msgid "youtube-dl"
-msgstr "Oude youtube-dl"
+msgstr "youtube-dl"
 
 #: share/gpodder/ui/gtk/gpodder.ui.h:5
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:1
@@ -2266,16 +2255,12 @@ msgid "Device name:"
 msgstr "Apparaatnaam:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:14
-#, fuzzy
-#| msgid "Replace list on server with local subscriptions"
 msgid "Replace subscription list on server with local subscriptions:"
-msgstr "Lijst op server vervangen door lokale abonnementen"
+msgstr "Lijst op server vervangen door lokale abonnementen:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:15
-#, fuzzy
-#| msgid "Uploading subscriptions"
 msgid "Upload local subscriptions"
-msgstr "Bezig met uploaden van abonnementen"
+msgstr "Bezig met uploaden van lokale abonnementen"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:16
 msgid "gpodder.net"
@@ -2646,7 +2631,7 @@ msgstr "Ongeldige url: %s"
 #: bin/gpo:801
 #, python-format
 msgid "Changed URL from %(old_url)s to %(new_url)s."
-msgstr "URL gewijzigd van %(old_url)s naar %(new_url)s."
+msgstr "De url is gewijzigd van %(old_url)s naar %(new_url)s."
 
 #: bin/gpo:826
 #, python-format
