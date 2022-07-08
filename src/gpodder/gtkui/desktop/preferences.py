@@ -321,21 +321,37 @@ class gPodderPreferences(BuilderWidget):
 
         gpodder.user_extensions.on_ui_object_available('preferences-gtk', self)
 
+        self.inject_extensions_preferences(init=True)
+
+        self.prefs_stack.foreach(self._wrap_checkbox_labels)
+
+    def _wrap_checkbox_labels(self, w, *args):
+        if w.get_name().startswith("no_label_wrap"):
+            return
+        elif isinstance(w, Gtk.CheckButton):
+            label = w.get_child()
+            label.set_line_wrap(True)
+        elif isinstance(w, Gtk.Container):
+            w.foreach(self._wrap_checkbox_labels)
+
+    def inject_extensions_preferences(self, init=False):
+        if not init:
+            # remove preferences buttons for all extensions
+            assert(self.prefs_stack.get_visible_child_name() == 'extensions')
+            found_extensions = False
+            for child in self.prefs_stack.get_children():
+                if found_extensions:
+                    self.prefs_stack.remove(child)
+                elif child == self.prefs_stack.get_visible_child():
+                    found_extensions = True
+
+        # add preferences buttons for all extensions
         result = gpodder.user_extensions.on_preferences()
         if result:
             for label, callback in result:
                 self.prefs_stack.add_titled(callback(), label, label)
 
-        def _wrap_checkbox_labels(w, *args):
-            if w.get_name().startswith("no_label_wrap"):
-                return
-            elif isinstance(w, Gtk.CheckButton):
-                label = w.get_child()
-                label.set_line_wrap(True)
-            elif isinstance(w, Gtk.Container):
-                w.foreach(_wrap_checkbox_labels)
-
-        self.prefs_stack.foreach(_wrap_checkbox_labels)
+            self.prefs_stack.foreach(self._wrap_checkbox_labels)
 
     def _extensions_select_function(self, selection, model, path, path_currently_selected):
         return model.get_value(model.get_iter(path), self.C_SHOW_TOGGLE)
@@ -464,6 +480,7 @@ class gPodderPreferences(BuilderWidget):
                 self.on_extension_enabled(container.module)
             else:
                 self.on_extension_disabled(container.module)
+            self.inject_extensions_preferences()
         elif container.error is not None:
             if hasattr(container.error, 'message'):
                 error_msg = container.error.message
