@@ -494,7 +494,7 @@ class gPodderPreferences(BuilderWidget):
         toggle_column.pack_start(toggle_cell, True)
         toggle_column.add_attribute(toggle_cell, 'active', self.C_TOGGLE)
         toggle_column.add_attribute(toggle_cell, 'visible', self.C_SHOW_TOGGLE)
-        toggle_column.set_property('min-width', 32)
+        toggle_column.set_property('min-width', 48)
         self.treeviewExtensions.append_column(toggle_column)
 
         name_cell = Gtk.CellRendererText()
