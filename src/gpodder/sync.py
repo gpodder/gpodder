@@ -50,7 +50,7 @@ gpod_available = True
 try:
     from gpodder import libgpod_ctypes
 except:
-    logger.info('iPod sync not available', exc_info=True)
+    logger.info('iPod sync not available')
     gpod_available = False
 
 mplayer_available = True if util.find_command('mplayer') is not None else False
@@ -59,7 +59,7 @@ eyed3mp3_available = True
 try:
     import eyed3.mp3
 except:
-    logger.info('eyeD3 MP3 not available', exc_info=True)
+    logger.info('eyeD3 MP3 not available')
     eyed3mp3_available = False
 
 
