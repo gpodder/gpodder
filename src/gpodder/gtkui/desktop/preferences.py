@@ -519,6 +519,15 @@ class gPodderPreferences(BuilderWidget):
         extension_column.set_expand(True)
         self.treeviewExtensions.append_column(extension_column)
 
+        def activate_to_context_menu(treeview, path, column):
+            if column == extension_column:
+                self.on_treeview_extension_show_context_menu(treeview)
+            else:
+                return
+
+        self.treeviewExtensions.connect('row-activated',
+            activate_to_context_menu)
+
         self.extensions_model = Gtk.ListStore(bool, str, object, bool)
 
         def key_func(pair):
