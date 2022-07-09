@@ -528,6 +528,13 @@ class gPodderPreferences(BuilderWidget):
         self.treeviewExtensions.connect('row-activated',
             activate_to_context_menu)
 
+        lp = Gtk.GestureLongPress.new(self.treeviewExtensions)
+        lp.set_touch_only(True)
+        lp.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
+        lp.connect("pressed", self.on_treeview_extension_long_press,
+            self.treeviewExtensions)
+        setattr(self.treeviewExtensions, "long-press-gesture", lp)
+
         self.extensions_model = Gtk.ListStore(bool, str, object, bool)
 
         def key_func(pair):
@@ -562,6 +569,9 @@ class gPodderPreferences(BuilderWidget):
             return self.on_treeview_extension_show_context_menu(treeview, event)
 
         return False
+
+    def on_treeview_extension_long_press(self, gesture, x, y, treeview):
+        return self.on_treeview_extension_show_context_menu(treeview)
 
     def on_treeview_extension_show_context_menu(self, treeview, event=None):
         selection = treeview.get_selection()
