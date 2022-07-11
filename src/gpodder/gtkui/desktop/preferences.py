@@ -337,21 +337,19 @@ class gPodderPreferences(BuilderWidget):
     def inject_extensions_preferences(self, init=False):
         if not init:
             # remove preferences buttons for all extensions
-            assert(self.prefs_stack.get_visible_child_name() == 'extensions')
-            found_extensions = False
             for child in self.prefs_stack.get_children():
-                if found_extensions:
+                if child.get_name().startswith("extension."):
                     self.prefs_stack.remove(child)
-                elif child == self.prefs_stack.get_visible_child():
-                    found_extensions = True
 
         # add preferences buttons for all extensions
         result = gpodder.user_extensions.on_preferences()
         if result:
             for label, callback in result:
-                self.prefs_stack.add_titled(callback(), label, label)
-
-            self.prefs_stack.foreach(self._wrap_checkbox_labels)
+                page = callback()
+                name = "extension." + label
+                page.set_name(name)
+                page.foreach(self._wrap_checkbox_labels)
+                self.prefs_stack.add_titled(page, name, label)
 
     def _extensions_select_function(self, selection, model, path, path_currently_selected):
         return model.get_value(model.get_iter(path), self.C_SHOW_TOGGLE)
