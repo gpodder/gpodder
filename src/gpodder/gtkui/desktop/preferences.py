@@ -21,7 +21,7 @@ import html
 import logging
 from urllib.request import getproxies
 
-from gi.repository import Gdk, Gtk, Pango
+from gi.repository import Gdk, Gio, Gtk, Pango
 
 import gpodder
 from gpodder import util, vimeo, youtube
@@ -485,6 +485,20 @@ class gPodderPreferences(BuilderWidget):
             return True
         self.treeviewExtensions.set_search_equal_func(search_equal_func)
 
+        ag = Gio.SimpleActionGroup()
+        ag.add_action(Gio.SimpleAction.new('doc'))
+        ag.add_action(Gio.SimpleAction.new('info'))
+        self.treeviewExtensions.insert_action_group('exts', ag)
+        self.extensions_context_actions = ag
+
+        self.extensions_context_cbids = dict.fromkeys(('doc', 'info'))
+
+        mm = Gio.Menu()
+        mm.append_item(Gio.MenuItem.new(_('Documentation'), 'exts.doc'))
+        mm.append_item(Gio.MenuItem.new(_('Extension info'), 'exts.info'))
+        self.extensions_context_menu = Gtk.Popover.new_from_model(
+            self.treeviewExtensions, mm)
+
         selection = self.treeviewExtensions.get_selection()
         selection.set_select_function(self._extensions_select_function)
 
@@ -548,24 +562,33 @@ class gPodderPreferences(BuilderWidget):
         if not container:
             return
 
-        menu = Gtk.Menu()
+        ag = self.extensions_context_actions
+        ids = self.extensions_context_cbids
+
+        # disconnect old callbacks
+        for name in ids:
+            action = ag.lookup_action(name)
+            action.set_enabled(False)
+            if ids[name] is not None:
+                action.disconnect(ids[name])
+                ids[name] = None
+
+        def connect_action_cb(name, callback):
+            action = ag.lookup_action(name)
+            ids[name] = action.connect('activate', callback)
+            action.set_enabled(True)
 
         if container.metadata.doc:
-            menu_item = Gtk.MenuItem(_('Documentation'))
-            menu_item.connect('activate', self.open_weblink,
-                container.metadata.doc)
-            menu.append(menu_item)
+            connect_action_cb("doc",
+                lambda a, p: util.open_website(container.metadata.doc))
 
-        menu_item = Gtk.MenuItem(_('Extension info'))
-        menu_item.connect('activate', self.show_extension_info, model, container)
-        menu.append(menu_item)
+        connect_action_cb("info",
+            lambda a, p: self.show_extension_info(None, model, container))
 
-        menu.show_all()
-        if event is None:
-            func = TreeViewHelper.make_popup_position_func(treeview)
-            menu.popup(None, None, func, None, 3, Gtk.get_current_event_time())
-        else:
-            menu.popup(None, None, None, None, 3, Gtk.get_current_event_time())
+        menu = self.extensions_context_menu
+        rect = TreeViewHelper.get_popup_rectangle(treeview, event, column=1)
+        menu.set_pointing_to(rect)
+        menu.popup()
 
         return True
 
@@ -611,9 +634,6 @@ class gPodderPreferences(BuilderWidget):
                          if key not in ('title', 'description'))
 
         self.show_message_details(container.metadata.title, container.metadata.description, info)
-
-    def open_weblink(self, w, url):
-        util.open_website(url)
 
     def on_dialog_destroy(self, widget):
         # Re-enable mygpo sync if the user has selected it
