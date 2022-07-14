@@ -84,20 +84,20 @@ function extract_installer {
 }
 
 PIP_REQUIREMENTS="\
-podcastparser==0.6.8
-mygpoclient==1.9
+certifi==2022.6.15
+chardet==4.0.0
+comtypes==1.1.11
 git+https://github.com/jaraco/pywin32-ctypes.git@f27d6a0
 html5lib==1.1
-webencodings==0.5.1
-certifi==2021.5.30
+idna==3.3
 mutagen==1.45.1
-yt-dlp
-requests==2.25.1
-urllib3==1.26.5
-chardet==4.0.0
-idna==3.2
+mygpoclient==1.9
+podcastparser==0.6.8
 PySocks==1.7.1
-comtypes==1.1.11
+requests==2.28.1
+urllib3==1.26.10
+webencodings==0.5.1
+yt-dlp
 "
 
 function install_deps {
