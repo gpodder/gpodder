@@ -68,9 +68,10 @@ cp -a "$checkout"/tools/mac-osx/make_cert_pem.py "$resources"/bin
 # install gPodder hard dependencies
 $run_pip install setuptools wheel
 $run_pip install mygpoclient==1.9 podcastparser==0.6.8 requests[socks]==2.28.1
-# install brotli
+# install brotli and pycryptodomex (build from source)
 $run_pip debug -v
 $run_pip install -v brotli
+$run_pip install -v pycryptodomex
 # install extension dependencies; no explicit version for yt-dlp
 $run_pip install html5lib==1.1 mutagen==1.45.1 yt-dlp
 
