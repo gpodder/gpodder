@@ -1067,16 +1067,18 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.sort_menubutton.set_popover(self.sort_popover)
         self.relabel_sort_menubutton(None, None)
 
-        # Set up context menu
+        # Set up episode context menu
         menu = self.application.builder.get_object('episodes-context')
-        # extensions section, updated in signal handler
+        # Extensions section, updated dynamically
         extmenu = Gio.Menu()
-        menu.insert_section(3, None, extmenu)
+        menu.insert_section(3, _('Extensions'), extmenu)
         self.episode_context_menu_helper = ExtensionMenuHelper(
             self.gPodder, extmenu, 'episode_context_action_')
+        # Send To submenu section, shown only for downloaded episodes
+        self.sendto_menu = Gio.Menu()
+        menu.insert_section(4, None, self.sendto_menu)
         self.episodes_popover = Gtk.Popover.new_from_model(self.treeAvailable, menu)
         self.episodes_popover.set_position(Gtk.PositionType.BOTTOM)
-        self.have_episode_menu_file_items = False
 
         # Long press gesture
         lp = Gtk.GestureLongPress.new(self.treeAvailable)
@@ -1260,6 +1262,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 except ValueError:
                     return True
                 self.treeAvailable.set_cursor(path)
+            elif event.keyval == Gdk.KEY_Menu:
+                self.treeview_available_show_context_menu()
             else:
                 unicode_char_id = Gdk.keyval_to_unicode(event.keyval)
                 # < 32 to intercept Delete and Tab events
@@ -2241,52 +2245,58 @@ class gPodder(BuilderWidget, dbus.service.Object):
             downloaded = all(e.was_downloaded(and_exists=True) for e in episodes)
             downloading = any(e.downloading for e in episodes)
             (open_instead_of_play, can_play, can_download, can_pause, can_cancel, can_delete, can_lock) = self.play_or_download()
+
             menu = self.application.builder.get_object('episodes-context')
+            psec = menu.get_item_link(0, Gio.MENU_LINK_SECTION)
 
-            # Play
-            menu.remove(0)
-            if downloaded:
-                menu.insert(0, _('Play'), 'win.play')
+            # Play / Stream / Preview / Open
+            psec.remove(0)
+            if open_instead_of_play:
+                psec.insert(0, _('Open'), 'win.play')
             else:
-                if downloading:
-                    menu.insert(0, _('Preview'), 'win.play')
+                if downloaded:
+                    psec.insert(0, _('Play'), 'win.play')
+                elif downloading:
+                    psec.insert(0, _('Preview'), 'win.play')
                 else:
-                    menu.insert(0, _('Stream'), 'win.play')
+                    psec.insert(0, _('Stream'), 'win.play')
 
-            # New
-            self.gPodder.lookup_action('episodeNew').change_state(GLib.Variant.new_boolean(any_new))
+            # Download / Pause
+            psec.remove(1)
+            if can_pause:
+                psec.insert(1, _('Pause'), 'win.pause')
+            else:
+                psec.insert(1, _('Download'), 'win.download')
+
+            # Cancel
+            have_cancel = (psec.get_item_attribute_value(
+                2, "action", GLib.VariantType("s")).get_string() == 'win.cancel')
+            if not can_cancel and have_cancel:
+                psec.remove(2)
+            elif can_cancel and not have_cancel:
+                psec.insert(2, _('_Cancel'), 'win.cancel')
 
             # Extensions section
             entries = [(label, None if func is None else lambda a, b: func(episodes))
                 for label, func in list(gpodder.user_extensions.on_episodes_context_menu(episodes) or [])]
             self.episode_context_menu_helper.replace_entries(entries)
 
-            if downloaded and not self.have_episode_menu_file_items:
-                # Send to submenu
-                menu.insert_submenu(3, _('Send to'),
-                    self.application.builder.get_object('episodes-context-send'))
-                # Archive checkbox
-                item = Gio.MenuItem.new(_('Archive'), 'win.episodeLock')
-                action = self.gPodder.lookup_action('episodeLock')
-                action.change_state(GLib.Variant.new_boolean(any_locked))
-                menu.insert_item(6, item)
-                self.have_episode_menu_file_items = True
-            elif not downloaded and self.have_episode_menu_file_items:
-                menu.remove(3)
-                menu.remove(5)
-                self.have_episode_menu_file_items = False
-
-#            if len(self.get_selected_episodes()) == 1:
-#                item = Gtk.MenuItem(_('Open download folder'))
-#                item.connect('activate', self.on_open_episode_download_folder)
-#                menu.append(item)
-
-            if event is None:
-                func = TreeViewHelper.make_popup_position_func(treeview)
-                x, y, unused = func(None)
+            # 'Send to' submenu
+            if downloaded:
+                if self.sendto_menu.get_n_items() < 1:
+                    self.sendto_menu.insert_submenu(
+                        0, _('Send to'),
+                        self.application.builder.get_object('episodes-context-sendto'))
             else:
-                x, y = event.x, event.y
-            self.context_popover_show(self.episodes_popover, x, y)
+                self.sendto_menu.remove_all()
+
+            # New and Archive state
+            self.episode_new_action.change_state(GLib.Variant.new_boolean(any_new))
+            self.episode_lock_action.change_state(GLib.Variant.new_boolean(any_locked))
+
+            area = TreeViewHelper.get_popup_rectangle(treeview, event)
+            self.episodes_popover.set_pointing_to(area)
+            self.episodes_popover.show()
             return True
 
     def set_episode_actions(self, open_instead_of_play=False, can_play=False, can_download=False, can_pause=False, can_cancel=False,

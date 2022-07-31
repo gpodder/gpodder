@@ -267,5 +267,54 @@
       </item>
     </section>
   </menu>
+  <menu id="episodes-context">
+    <section>
+      <item>
+        <attribute name="action">win.play</attribute>
+        <attribute name="label" translatable="yes">Play</attribute>
+      </item>
+      <item>
+        <attribute name="action">win.download</attribute>
+        <attribute name="label" translatable="yes">Download</attribute>
+      </item>
+      <!-- Cancel -->
+      <item>
+        <attribute name="action">win.delete</attribute>
+        <attribute name="label" translatable="yes">Delete</attribute>
+      </item>
+    </section>
+    <!-- Extensions -->
+    <!-- Send To -->
+    <section>
+      <item>
+        <attribute name="action">win.episodeNew</attribute>
+        <attribute name="label" translatable="yes">New</attribute>
+      </item>
+      <item>
+        <attribute name="action">win.episodeLock</attribute>
+        <attribute name="label" translatable="yes">Archive</attribute>
+      </item>
+    </section>
+    <section>
+      <item>
+        <attribute name="action">win.toggleShownotes</attribute>
+        <attribute name="label" translatable="yes">Episode details</attribute>
+      </item>
+      <item>
+        <attribute name="action">win.openEpisodeDownloadFolder</attribute>
+        <attribute name="label" translatable="yes">Open download folder</attribute>
+      </item>
+    </section>
+  </menu>
+  <menu id="episodes-context-sendto">
+    <item>
+      <attribute name="action">win.saveEpisodes</attribute>
+      <attribute name="label" translatable="yes">Local folder</attribute>
+    </item>
+    <item>
+      <attribute name="action">win.bluetoothEpisodes</attribute>
+      <attribute name="label" translatable="yes">Bluetooth device</attribute>
+    </item>
+  </menu>
 </interface>
 <!-- :noTabs=true:tabSize=2:indentSize=2: -->
