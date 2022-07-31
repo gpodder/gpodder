@@ -349,6 +349,16 @@ class gPodder(BuilderWidget, dbus.service.Object):
         g.add_action(action)
 
         action = Gio.SimpleAction.new_stateful(
+            'episodeNew', None, GLib.Variant.new_boolean(False))
+        action.connect('activate', self.on_episode_new_activate)
+        g.add_action(action)
+
+        action = Gio.SimpleAction.new_stateful(
+            'episodeLock', None, GLib.Variant.new_boolean(False))
+        action.connect('activate', self.on_episode_lock_activate)
+        g.add_action(action)
+
+        action = Gio.SimpleAction.new_stateful(
             'channelAutoArchive', None, GLib.Variant.new_boolean(False))
         action.connect('activate', self.on_channel_toggle_lock_activate)
         g.add_action(action)
@@ -433,7 +443,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.episode_new_action = g.lookup_action('episodeNew')
         self.open_episode_download_folder_action = g.lookup_action('openEpisodeDownloadFolder')
         self.auto_archive_action = g.lookup_action('channelAutoArchive')
+        self.bluetooth_episodes_action = g.lookup_action('bluetoothEpisodes')
+        self.episode_new_action = g.lookup_action('episodeNew')
         self.episode_lock_action = g.lookup_action('episodeLock')
+
+        self.bluetooth_episodes_action.set_enabled(self.bluetooth_available)
 
         action = Gio.SimpleAction.new_stateful(
             'showToolbar', None, GLib.Variant.new_boolean(self.config.show_toolbar))
@@ -2314,6 +2328,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.episode_lock_action.set_enabled(can_play)
         self.open_episode_download_folder_action.set_enabled(len(episodes) == 1)
 
+        # Episodes context menu
+        self.episode_new_action.set_enabled(is_episode_selected)
+        self.episode_lock_action.set_enabled(can_lock)
+
     def set_title(self, new_title):
         self.default_title = new_title
         self.gPodder.set_title(new_title)
@@ -3314,7 +3332,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.episodes_popover.popdown()
         return True
 
-    def on_channel_toggle_lock_activate(self, widget, toggle=True, new_value=False):
+    def on_episode_lock_activate(self, action, *params):
+        new_value = not action.get_state().get_boolean()
+        self.on_item_toggle_lock_activate(None, toggle=False, new_value=new_value)
+        action.change_state(GLib.Variant.new_boolean(new_value))
+        self.episodes_popover.popdown()
+        return True
+
+    def on_channel_toggle_lock_activate(self, action, *params):
         if self.active_channel is None:
             return
 
@@ -3919,6 +3944,16 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_playback_selected_episodes(self, *params):
         self.playback_episodes(self.get_selected_episodes())
+
+    def on_episode_new_activate(self, action, *params):
+        state = not action.get_state().get_boolean()
+        if state:
+            self.mark_selected_episodes_new()
+        else:
+            self.mark_selected_episodes_old()
+        action.change_state(GLib.Variant.new_boolean(state))
+        self.episodes_popover.popdown()
+        return True
 
     def on_new_toggled(self, button, *params):
         self.episode_new_action.activate()
