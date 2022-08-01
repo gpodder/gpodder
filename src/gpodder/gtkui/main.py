@@ -485,7 +485,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             def offer_resuming():
                 if resumable_episodes:
                     self.download_episode_list_paused(resumable_episodes)
-                    resume_all = Gtk.Button(_('Resume all'))
 
                     def on_resume_all(button):
                         selection = self.treeDownloads.get_selection()
@@ -494,6 +493,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         selection.unselect_all()
                         self._for_each_task_set_status(selected_tasks, download.DownloadTask.QUEUED)
                         self.message_area.hide()
+
+                    resume_all = Gtk.Button(_('Resume all'))
                     resume_all.connect('clicked', on_resume_all)
 
                     self.message_area = SimpleMessageArea(

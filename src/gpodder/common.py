@@ -40,7 +40,7 @@ def clean_up_downloads(delete_partial=False):
 
     if delete_partial:
         temporary_files += glob.glob('%s/*/*.partial' % gpodder.downloads)
-        # YoutubeDL creates .partial.* files for adaptive formats
+        # youtube-dl creates .partial.* files for adaptive formats
         temporary_files += glob.glob('%s/*/*.partial.*' % gpodder.downloads)
 
     for tempfile in temporary_files:
@@ -55,7 +55,7 @@ def find_partial_downloads(channels, start_progress_callback, progress_callback,
     progress_callback - A callback(title, progress) when an episode was found
     finish_progress_callback - A callback(resumable_episodes) when finished
     """
-    # Look for partial file downloads, ignoring .partial.* files created by YoutubeDL
+    # Look for partial file downloads, ignoring .partial.* files created by youtube-dl
     partial_files = glob.glob(os.path.join(gpodder.downloads, '*', '*.partial'))
     count = len(partial_files)
     resumable_episodes = []
