@@ -420,9 +420,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 logger.debug("find_partial_downloads done, calling extensions")
                 gpodder.user_extensions.on_find_partial_downloads_done()
 
-            if self.partial_downloads_indicator:
-                util.idle_add(self.partial_downloads_indicator.on_finished)
-                self.partial_downloads_indicator = None
+                if self.partial_downloads_indicator:
+                    util.idle_add(self.partial_downloads_indicator.on_finished)
+                    self.partial_downloads_indicator = None
             util.idle_add(offer_resuming)
 
         common.find_partial_downloads(self.channels,
