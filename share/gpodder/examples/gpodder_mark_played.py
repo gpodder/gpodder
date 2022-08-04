@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 # Example script that can be used as post-play extension in media players
 #
 # Set the configuration options "audio_played_dbus" and "video_played_dbus"
