@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 ####
 # 01/2011 Bernd Schlapsi <brot@gmx.info>
