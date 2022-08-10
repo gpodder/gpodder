@@ -408,6 +408,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
             ('pause', self.on_pause_selected_episodes),
             ('cancelFromEpisodes', self.on_episodes_cancel_download_activate),
             ('cancelFromProgress', self.on_progress_cancel_download_activate),
+            ('moveUp', self.on_move_selected_items_up),
+            ('moveDown', self.on_move_selected_items_down),
+            ('remove', self.on_remove_from_download_list),
             ('delete', self.on_btnDownloadedDelete_clicked),
             # ('toggleEpisodeNew', self.on_item_toggle_played_activate),
             # ('toggleEpisodeLock', self.on_item_toggle_lock_activate),
@@ -4018,6 +4021,38 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.on_btnDownloadedDelete_clicked(button, *args)
         self.navigate_from_shownotes()
         return True
+
+    def on_move_selected_items_up(self, action, *args):
+        selection = self.treeDownloads.get_selection()
+        model, selected_paths = selection.get_selected_rows()
+        for path in selected_paths:
+            index_above = path[0] - 1
+            if index_above < 0:
+                return
+            task = model.get_value(
+                    model.get_iter(path),
+                    DownloadStatusModel.C_TASK)
+            model.move_before(
+                    model.get_iter(path),
+                    model.get_iter((index_above,)))
+
+    def on_move_selected_items_down(self, action, *args):
+        selection = self.treeDownloads.get_selection()
+        model, selected_paths = selection.get_selected_rows()
+        for path in reversed(selected_paths):
+            index_below = path[0] + 1
+            if index_below >= len(model):
+                return
+            task = model.get_value(
+                    model.get_iter(path),
+                    DownloadStatusModel.C_TASK)
+            model.move_after(
+                    model.get_iter(path),
+                    model.get_iter((index_below,)))
+
+    def on_remove_from_download_list(self, action, *args):
+        selected_tasks, x, x, x, x, x = self.downloads_list_get_selection()
+        self._for_each_task_set_status(selected_tasks, None, False)
 
     def on_treeAvailable_row_activated(self, widget, path, view_column):
         """Double-click/enter action handler for treeAvailable"""
