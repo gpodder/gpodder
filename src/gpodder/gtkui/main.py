@@ -2205,34 +2205,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         util.run_in_background(lambda: convert_and_send_thread(episodes_to_copy))
 
-    def _add_sub_menu(self, menu, label):
-        root_item = Gtk.MenuItem(label)
-        menu.append(root_item)
-        sub_menu = Gtk.Menu()
-        root_item.set_submenu(sub_menu)
-        return sub_menu
-
-    def _submenu_item_activate_hack(self, item, callback, *args):
-        # See http://stackoverflow.com/questions/5221326/submenu-item-does-not-call-function-with-working-solution
-        # Note that we can't just call the callback on button-press-event, as
-        # it might be blocking (see http://gpodder.org/bug/1778), so we run
-        # this in the GUI thread at a later point in time (util.idle_add).
-        # Also, we also have to connect to the activate signal, as this is the
-        # only signal that is fired when keyboard navigation is used.
-
-        # It can happen that both (button-release-event and activate) signals
-        # are fired, and we must avoid calling the callback twice. We do this
-        # using a semaphore and only acquiring (but never releasing) it, making
-        # sure that the util.idle_add() call below is only ever called once.
-        only_once = threading.Semaphore(1)
-
-        def handle_event(item, event=None):
-            if only_once.acquire(False):
-                util.idle_add(callback, *args)
-
-        item.connect('button-press-event', handle_event)
-        item.connect('activate', handle_event)
-
     def treeview_available_show_context_menu(self, treeview, event=None):
         model, paths = self.treeview_handle_context_menu_click(treeview, event)
         if not paths:
