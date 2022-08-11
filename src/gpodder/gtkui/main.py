@@ -531,9 +531,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 logger.debug("find_partial_downloads done, calling extensions")
                 gpodder.user_extensions.on_find_partial_downloads_done()
 
-            if self.partial_downloads_indicator:
-                util.idle_add(self.partial_downloads_indicator.on_finished)
-                self.partial_downloads_indicator = None
+                if self.partial_downloads_indicator:
+                    util.idle_add(self.partial_downloads_indicator.on_finished)
+                    self.partial_downloads_indicator = None
             util.idle_add(offer_resuming)
 
         common.find_partial_downloads(self.channels,
@@ -1724,16 +1724,17 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
                 box.add(Gtk.HSeparator())
 
+                channel_description = util.remove_html_tags(channel.description)
                 if channel._update_error is not None:
                     description = _('ERROR: %s') % channel._update_error
-                elif len(channel.description) < 500:
-                    description = channel.description
+                elif len(channel_description) < 500:
+                    description = channel_description
                 else:
-                    pos = channel.description.find('\n\n')
+                    pos = channel_description.find('\n\n')
                     if pos == -1 or pos > 500:
-                        description = channel.description[:498] + '[...]'
+                        description = channel_description[:498] + '[...]'
                     else:
-                        description = channel.description[:pos]
+                        description = channel_description[:pos]
 
                 description = Gtk.Label(label=description)
                 description.set_max_width_chars(60)
@@ -2046,6 +2047,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.allow_tooltips(False)
 
             area = TreeViewHelper.get_popup_rectangle(treeview, event)
+
             self.channels_popover.set_pointing_to(area)
             self.channels_popover.show()
             return True
@@ -2372,7 +2374,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.update_podcast_list_model(set(e.channel.url for e in episodes))
         self.db.commit()
 
-    def playback_episodes_for_real(self, episodes, mark_as_played=True):
+    def playback_episodes_for_real(self, episodes):
         groups = collections.defaultdict(list)
         for episode in episodes:
             episode._download_error = None
@@ -2394,10 +2396,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 episode._download_error = str(e)
                 continue
 
-            if mark_as_played:
-                # Mark episode as played in the database
-                episode.playback_mark()
-                self.mygpo_client.on_playback([episode])
+            # Mark episode as played in the database
+            episode.playback_mark()
+            self.mygpo_client.on_playback([episode])
 
             # Determine the playback resume position - if the file
             # was played 100%, we simply start from the beginning
@@ -2459,12 +2460,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if self.mygpo_client.can_access_webservice():
             self.mygpo_client.flush()
 
-    def playback_episodes(self, episodes, mark_as_played=True):
+    def playback_episodes(self, episodes):
         # We need to create a list, because we run through it more than once
         episodes = list(Model.sort_episodes_by_pubdate(e for e in episodes if e.can_play(self.config)))
 
         try:
-            self.playback_episodes_for_real(episodes, mark_as_played)
+            self.playback_episodes_for_real(episodes)
         except Exception as e:
             logger.error('Error in playback!', exc_info=True)
             self.show_message(_('Please check your media player settings in the preferences dialog.'),
@@ -3859,12 +3860,23 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if self.show_confirmation(message, title):
                 util.open_website('http://gpodder.org/downloads')
 
-#            self.toolDownload.set_sensitive(False)
-#            self.toolPause.set_sensitive(False)
+    def on_wNotebook_switch_page(self, notebook, page, page_num):
+        self.play_or_download(in_downloads=page_num > 0)
+        if page_num == 0:
+            # The message area in the downloads tab should be hidden
+            # when the user switches away from the downloads tab
+            if self.message_area is not None:
+                self.message_area.hide()
+                self.message_area = None
 
     def on_treeChannels_row_activated(self, widget, path, *args):
         # double-click action of the podcast list or enter
         self.treeChannels.set_cursor(path)
+
+#        # open channel settings
+#        channel = self.get_selected_channels()[0]
+#        if channel and not isinstance(channel, PodcastChannelProxy):
+#            self.on_itemEditChannel_activate(None)
         self.navigate_from_shownotes()
         self.leaflet.set_can_swipe_forward(True)
         epath, ecolumn = self.treeAvailable.get_cursor()
@@ -3879,10 +3891,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.leaflet.navigate(Handy.NavigationDirection.FORWARD)
         return True
 
-        # open channel settings
-        channel = self.get_selected_channels()[0]
-        if channel and not isinstance(channel, PodcastChannelProxy):
-            self.on_itemEditChannel_activate(None)
 
     def get_selected_channels(self):
         """Get a list of selected channels from treeChannels"""
