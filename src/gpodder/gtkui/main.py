@@ -603,6 +603,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         return None
 
+    def in_downloads(self):
+        return self.wNotebook.get_current_page() > 0
+
     def on_played(self, start, end, total, file_uri):
         """Handle the "played" signal from a media player"""
         if start == 0 and end == 0 and total == 0:
@@ -1342,10 +1345,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.shownotes_object.set_episodes(eps)
 
     def on_download_list_selection_changed(self, selection):
-        # if self.wNotebook.get_current_page() > 0:
-        # # Update the toolbar buttons
-        # self.play_or_download()
-        pass
+        if self.in_downloads():
+            # Update the toolbar buttons
+            self.play_or_download()
 
     def init_download_list_treeview(self):
         # columns and renderers for "download progress" tab
@@ -2488,11 +2490,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.episode_list_status_changed(episodes)
 
-    def play_or_download(self, current_page=None):
-        # if current_page is None:
-        #     current_page = self.wNotebook.get_current_page()
-        # if current_page == 0:
-        if True:
+    def play_or_download(self, in_downloads=None):
+        if in_downloads is None:
+            in_downloads = self.in_downloads()
+        if not in_downloads:
             (open_instead_of_play, can_play, can_download, can_pause, can_cancel, can_delete, can_lock) = (False,) * 7
 
             selection = self.treeAvailable.get_selection()
@@ -3183,15 +3184,15 @@ class gPodder(BuilderWidget, dbus.service.Object):
         return '\n'.join(titles) + '\n\n' + message
 
     def delete_episode_list(self, episodes, confirm=True, callback=None):
-        #        if self.wNotebook.get_current_page() > 0:
-        #            selection = self.treeDownloads.get_selection()
-        #            (model, paths) = selection.get_selected_rows()
-        #            selected_tasks = [(Gtk.TreeRowReference.new(model, path),
-        #                               model.get_value(model.get_iter(path),
-        #                               DownloadStatusModel.C_TASK)) for path in paths]
-        #            self._for_each_task_set_status(selected_tasks, status=None, force_start=False)
-        #            return
-        #
+        if self.in_downloads():
+            selection = self.treeDownloads.get_selection()
+            (model, paths) = selection.get_selected_rows()
+            selected_tasks = [(Gtk.TreeRowReference.new(model, path),
+                               model.get_value(model.get_iter(path),
+                               DownloadStatusModel.C_TASK)) for path in paths]
+            self._for_each_task_set_status(selected_tasks, status=None, force_start=False)
+            return
+
         if not episodes:
             return False
 
@@ -4039,15 +4040,31 @@ class gPodder(BuilderWidget, dbus.service.Object):
         return True
 
     def on_download_selected_episodes(self, action_or_widget, param=None):
-        episodes = [e for e in self.get_selected_episodes() if e.can_download()]
-        self.download_episode_list(episodes)
-        self.update_downloads_list()
+        if self.in_downloads():
+            selection = self.treeDownloads.get_selection()
+            (model, paths) = selection.get_selected_rows()
+            selected_tasks = [(Gtk.TreeRowReference.new(model, path),
+                               model.get_value(model.get_iter(path),
+                               DownloadStatusModel.C_TASK)) for path in paths]
+            self._for_each_task_set_status(selected_tasks, status=download.DownloadTask.QUEUED, force_start=False)
+        else:
+            episodes = [e for e in self.get_selected_episodes() if e.can_download()]
+            self.download_episode_list(episodes)
+            self.update_downloads_list()
 
     def on_pause_selected_episodes(self, action_or_widget, param=None):
-        for episode in self.get_selected_episodes():
-            if episode.can_pause():
-                episode.download_task.pause()
-        self.update_downloads_list()
+        if self.in_downloads():
+            selection = self.treeDownloads.get_selection()
+            (model, paths) = selection.get_selected_rows()
+            selected_tasks = [(Gtk.TreeRowReference.new(model, path),
+                               model.get_value(model.get_iter(path),
+                               DownloadStatusModel.C_TASK)) for path in paths]
+            self._for_each_task_set_status(selected_tasks, status=download.DownloadTask.PAUSING, force_start=False)
+        else:
+            for episode in self.get_selected_episodes():
+                if episode.can_pause():
+                    episode.download_task.pause()
+            self.update_downloads_list()
 
     def on_episode_download_clicked(self, button):
         self.dl_del_label.set_text("Downloading")
@@ -4153,7 +4170,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.update_downloads_list()
 
     def on_item_cancel_download_activate(self, *params, force=False):
-        if self.treeDownloads.has_focus():
+        if self.in_downloads():
             selection = self.treeDownloads.get_selection()
             (model, paths) = selection.get_selected_rows()
             selected_tasks = [model.get_value(model.get_iter(path),
