@@ -390,6 +390,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
         action.connect('activate', self.relabel_sort_menubutton)
         g.add_action(action)
 
+        action = Gio.SimpleAction.new_stateful(
+            'showToolbar', None, GLib.Variant.new_boolean(self.config.show_toolbar))
+        action.connect('activate', self.on_itemShowToolbar_activate)
+        g.add_action(action)
+
         action_defs = [
             ('update', self.on_itemUpdate_activate),
             ('downloadAllNew', self.on_itemDownloadAllNew_activate),
@@ -404,13 +409,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
             ('exportChannels', self.on_itemExportChannels_activate),
             ('play', self.on_playback_selected_episodes),
             ('open', self.on_playback_selected_episodes),
-            ('download', self.on_download_selected_episodes),
-            ('pause', self.on_pause_selected_episodes),
-            ('cancelFromEpisodes', self.on_episodes_cancel_download_activate),
-            ('cancelFromProgress', self.on_progress_cancel_download_activate),
-            ('moveUp', self.on_move_selected_items_up),
-            ('moveDown', self.on_move_selected_items_down),
-            ('remove', self.on_remove_from_download_list),
+            # ('download', self.on_download_selected_episodes),
+            # ('pause', self.on_pause_selected_episodes),
+            # ('cancel', self.on_item_cancel_download_activate),
             ('delete', self.on_btnDownloadedDelete_clicked),
             # ('toggleEpisodeNew', self.on_item_toggle_played_activate),
             # ('toggleEpisodeLock', self.on_item_toggle_lock_activate),
@@ -437,9 +438,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.edit_channel_action = g.lookup_action('editChannel')
         self.play_action = g.lookup_action('play')
         self.open_action = g.lookup_action('open')
-        self.download_action = g.lookup_action('download')
-        self.pause_action = g.lookup_action('pause')
-        self.episodes_cancel_action = g.lookup_action('cancelFromEpisodes')
         self.delete_action = g.lookup_action('delete')
 #        self.toggle_episode_new_action = g.lookup_action('toggleEpisodeNew')
 #        self.toggle_episode_lock_action = g.lookup_action('toggleEpisodeLock')
@@ -452,10 +450,27 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.bluetooth_episodes_action.set_enabled(self.bluetooth_available)
 
-        action = Gio.SimpleAction.new_stateful(
-            'showToolbar', None, GLib.Variant.new_boolean(self.config.show_toolbar))
-        action.connect('activate', self.on_itemShowToolbar_activate)
-        g.add_action(action)
+        # Add Progress window actions to application
+        app = self.application
+
+        app_action_defs = [
+            ('download', self.on_download_selected_episodes),
+            ('pause', self.on_pause_selected_episodes),
+            ('cancel', self.on_item_cancel_download_activate),
+            ('moveUp', self.on_move_selected_items_up),
+            ('moveDown', self.on_move_selected_items_down),
+            ('remove', self.on_remove_from_download_list),
+        ]
+
+        for name, callback in app_action_defs:
+            action = Gio.SimpleAction.new(name, None)
+            action.connect('activate', callback)
+            app.add_action(action)
+
+        self.download_action = app.lookup_action('download')
+        self.pause_action = app.lookup_action('pause')
+        self.cancel_action = app.lookup_action('cancel')
+        self.remove_action = app.lookup_action('remove')
 
     def inject_extensions_menu(self):
         # NOTE: Not used with popover menus in adaptive version
@@ -1990,13 +2005,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             dsec.remove(0)
             if can_force:
-                dsec.insert(0, _('Start download now'), 'win.download')
+                dsec.insert(0, _('Start download now'), 'app.download')
                 self.download_action.set_enabled(True)
             else:
-                dsec.insert(0, _('Download'), 'win.download')
+                dsec.insert(0, _('Download'), 'app.download')
                 self.download_action.set_enabled(can_queue)
 
-            self.gPodder.lookup_action('remove').set_enabled(can_remove)
+            self.remove_action.set_enabled(can_remove)
 
             area = TreeViewHelper.get_popup_rectangle(treeview, event)
             self.downloads_popover.set_pointing_to(area)
@@ -2255,17 +2270,17 @@ class gPodder(BuilderWidget, dbus.service.Object):
             # Download / Pause
             psec.remove(1)
             if can_pause:
-                psec.insert(1, _('Pause'), 'win.pause')
+                psec.insert(1, _('Pause'), 'app.pause')
             else:
-                psec.insert(1, _('Download'), 'win.download')
+                psec.insert(1, _('Download'), 'app.download')
 
             # Cancel
             have_cancel = (psec.get_item_attribute_value(
-                2, "action", GLib.VariantType("s")).get_string() == 'win.cancel')
+                2, "action", GLib.VariantType("s")).get_string() == 'app.cancel')
             if not can_cancel and have_cancel:
                 psec.remove(2)
             elif can_cancel and not have_cancel:
-                psec.insert(2, _('_Cancel'), 'win.cancel')
+                psec.insert(2, _('_Cancel'), 'app.cancel')
 
             # Extensions section
             entries = [(label, None if func is None else lambda a, b: func(episodes))
@@ -2324,7 +2339,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.open_action.set_enabled(can_play and open_instead_of_play)
         self.download_action.set_enabled(can_download)
         self.pause_action.set_enabled(can_pause)
-        self.episodes_cancel_action.set_enabled(can_cancel)
+        self.cancel_action.set_enabled(can_cancel)
         self.delete_action.set_enabled(can_delete)
 #        self.toggle_episode_new_action.set_enabled(is_episode_selected)
 #        self.toggle_episode_lock_action.set_enabled(can_lock)
@@ -3201,7 +3216,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if confirm and not self.show_confirmation(message, title):
             return False
 
-        self.on_episodes_cancel_download_activate(force=True)
+        self.on_item_cancel_download_activate(force=True)
 
         progress = ProgressIndicator(_('Deleting episodes'),
                 _('Please wait while episodes are deleted'),
@@ -4006,7 +4021,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # ... then connect the correct handler
         if ep.downloading:
             self.dl_del_label.set_text(_("Cancel"))
-            self.dl_del_button.connect("clicked", self.on_episodes_cancel_download_activate)
+            self.dl_del_button.connect("clicked", self.on_item_cancel_download_activate)
         elif ep.was_downloaded(and_exists=True):
             self.dl_del_label.set_text(_("Delete"))
             self.dl_del_button.connect("clicked", self.on_episode_delete_clicked)
@@ -4137,20 +4152,19 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # Update the tab title and downloads list
         self.update_downloads_list()
 
-    def on_episodes_cancel_download_activate(self, *params, force=False):
-        selection = self.treeAvailable.get_selection()
-        (model, paths) = selection.get_selected_rows()
-        urls = [model.get_value(model.get_iter(path),
-                self.episode_list_model.C_URL) for path in paths]
-        selected_tasks = [task for task in self.download_tasks_seen
-                if task.url in urls]
-        self.cancel_task_list(selected_tasks, force=force)
-
-    def on_progress_cancel_download_activate(self, *params, force=False):
-        selection = self.treeDownloads.get_selection()
-        (model, paths) = selection.get_selected_rows()
-        selected_tasks = [model.get_value(model.get_iter(path),
-                self.download_status_model.C_TASK) for path in paths]
+    def on_item_cancel_download_activate(self, *params, force=False):
+        if self.treeDownloads.has_focus():
+            selection = self.treeDownloads.get_selection()
+            (model, paths) = selection.get_selected_rows()
+            selected_tasks = [model.get_value(model.get_iter(path),
+                    self.download_status_model.C_TASK) for path in paths]
+        else:
+            selection = self.treeAvailable.get_selection()
+            (model, paths) = selection.get_selected_rows()
+            urls = [model.get_value(model.get_iter(path),
+                    self.episode_list_model.C_URL) for path in paths]
+            selected_tasks = [task for task in self.download_tasks_seen
+                    if task.url in urls]
         self.cancel_task_list(selected_tasks, force=force)
 
     def on_btnCancelAll_clicked(self, widget, *args):
