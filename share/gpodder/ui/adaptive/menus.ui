@@ -7,12 +7,12 @@
         <attribute name="label" translatable="yes">Preferences</attribute>
         <attribute name="accel">&lt;Primary&gt;p</attribute>
       </item>
+    </section>
+    <section>
       <item>
         <attribute name="action">app.gotoMygpo</attribute>
         <attribute name="label" translatable="yes">Go to gpodder.net</attribute>
       </item>
-    </section>
-    <section>
       <item>
         <attribute name="action">win.sync</attribute>
         <attribute name="label" translatable="yes">Sync to device</attribute>
@@ -105,7 +105,7 @@
         </item>
       </section>
     </submenu>
-    <submenu id="menuChannels">
+    <submenu id="menuEpisodes">
       <attribute name="label" translatable="yes">_Episodes</attribute>
       <section>
         <item>
@@ -120,6 +120,10 @@
         <item>
           <attribute name="action">win.download</attribute>
           <attribute name="label" translatable="yes">Download</attribute>
+        </item>
+        <item>
+          <attribute name="action">win.pause</attribute>
+          <attribute name="label" translatable="yes">Pause</attribute>
         </item>
         <item>
           <attribute name="action">win.cancel</attribute>
@@ -139,6 +143,12 @@
         <item>
           <attribute name="action">win.toggleEpisodeLock</attribute>
           <attribute name="label" translatable="yes">Change delete lock</attribute>
+        </item>
+      </section>
+      <section>
+        <item>
+          <attribute name="action">win.openEpisodeDownloadFolder</attribute>
+          <attribute name="label" translatable="yes">Open download folder</attribute>
         </item>
       </section>
       <section>
@@ -210,11 +220,133 @@
           <attribute name="action">win.viewHideBoringPodcasts</attribute>
           <attribute name="label" translatable="yes">Hide podcasts without episodes</attribute>
         </item>
+        <item>
+          <attribute name="action">win.viewAlwaysShowNewEpisodes</attribute>
+          <attribute name="label" translatable="yes">Always show New Episodes</attribute>
+        </item>
+        <item>
+          <attribute name="action">win.viewCtrlClickToSortEpisodes</attribute>
+          <attribute name="label" translatable="yes">Require control click to sort episodes</attribute>
+        </item>
       </section>
       <submenu id="menuViewColumns">
         <attribute name="label" translatable="yes">Visible columns</attribute>
       </submenu>
     </submenu>
+  </menu>
+  <menu id="channels-context">
+    <section>
+      <item>
+        <attribute name="action">win.updateChannel</attribute>
+        <attribute name="label" translatable="yes">Update channel</attribute>
+      </item>
+    </section>
+    <section>
+      <item>
+        <attribute name="action">win.openChannelDownloadFolder</attribute>
+        <attribute name="label" translatable="yes">Open download folder</attribute>
+      </item>
+    </section>
+    <section>
+      <item>
+        <attribute name="action">win.markEpisodesAsOld</attribute>
+        <attribute name="label" translatable="yes">Mark episodes as old</attribute>
+      </item>
+      <item>
+        <attribute name="action">win.channelAutoArchive</attribute>
+        <attribute name="label" translatable="yes">Archive all episodes</attribute>
+      </item>
+      <item>
+        <attribute name="action">win.refreshImage</attribute>
+        <attribute name="label" translatable="yes">Refresh image</attribute>
+      </item>
+      <item>
+        <attribute name="action">win.removeChannel</attribute>
+        <attribute name="label" translatable="yes">Delete channel</attribute>
+      </item>
+    </section>
+    <section>
+      <item>
+        <attribute name="action">win.editChannel</attribute>
+        <attribute name="label" translatable="yes">Channel settings</attribute>
+      </item>
+    </section>
+  </menu>
+  <menu id="episodes-context">
+      <item>
+        <attribute name="action">win.play</attribute>
+        <attribute name="label" translatable="yes">Play</attribute>
+      </item>
+      <item>
+        <attribute name="action">win.download</attribute>
+        <attribute name="label" translatable="yes">Download</attribute>
+      </item>
+      <item>
+        <attribute name="action">win.delete</attribute>
+        <attribute name="label" translatable="yes">Delete</attribute>
+      </item>
+    <!-- Extensions -->
+    <!-- Send To -->
+    <section>
+      <item>
+        <attribute name="action">win.episodeNew</attribute>
+        <attribute name="label" translatable="yes">New</attribute>
+      </item>
+      <item>
+        <attribute name="action">win.episodeLock</attribute>
+        <attribute name="label" translatable="yes">Archive</attribute>
+      </item>
+    </section>
+    <section>
+      <item>
+        <attribute name="action">win.toggleShownotes</attribute>
+        <attribute name="label" translatable="yes">Episode details</attribute>
+      </item>
+      <item>
+        <attribute name="action">win.openEpisodeDownloadFolder</attribute>
+        <attribute name="label" translatable="yes">Open download folder</attribute>
+      </item>
+    </section>
+  </menu>
+  <menu id="episodes-context-sendto">
+    <item>
+      <attribute name="action">win.saveEpisodes</attribute>
+      <attribute name="label" translatable="yes">Local folder</attribute>
+    </item>
+    <item>
+      <attribute name="action">win.bluetoothEpisodes</attribute>
+      <attribute name="label" translatable="yes">Bluetooth device</attribute>
+    </item>
+  </menu>
+  <menu id="downloads-context">
+      <item>
+        <attribute name="action">win.download</attribute>
+        <attribute name="label" translatable="yes">Start download now</attribute>
+      </item>
+      <item>
+        <attribute name="action">win.pause</attribute>
+        <attribute name="label" translatable="yes">Pause</attribute>
+      </item>
+      <item>
+        <attribute name="action">win.cancel</attribute>
+        <attribute name="label" translatable="yes">Cancel</attribute>
+      </item>
+    <section>
+      <item>
+        <attribute name="action">win.moveUp</attribute>
+        <attribute name="label" translatable="yes">Move up</attribute>
+      </item>
+      <item>
+        <attribute name="action">win.moveDown</attribute>
+        <attribute name="label" translatable="yes">Move down</attribute>
+      </item>
+    </section>
+    <section>
+      <item>
+        <attribute name="action">win.remove</attribute>
+        <attribute name="label" translatable="yes">Remove from list</attribute>
+      </item>
+    </section>
   </menu>
   <menu id="plus-menu">
     <section>
@@ -308,90 +440,6 @@
       <attribute name="target">SORT_TITLE</attribute>
       <attribute name="accel">&lt;Primary&gt;2</attribute>
     </item>
-  </menu>
-  <menu id="channels-context">
-    <item>
-      <attribute name="action">win.updateChannel</attribute>
-      <attribute name="label" translatable="yes">Refresh</attribute>
-      <attribute name="accel">&lt;Primary&gt;0</attribute>
-    </item>
-    <item>
-      <attribute name="action">win.markAsOld</attribute>
-      <attribute name="label" translatable="yes">Mark episodes as old</attribute>
-      <attribute name="accel">&lt;Primary&gt;1</attribute>
-    </item>
-    <item>
-      <attribute name="action">win.editChannel</attribute>
-      <attribute name="label" translatable="yes">Channel settings</attribute>
-      <attribute name="accel">&lt;Primary&gt;2</attribute>
-    </item>
-    <section>
-      <item>
-        <attribute name="action">win.removeChannel</attribute>
-        <attribute name="label" translatable="yes">Delete</attribute>
-        <attribute name="accel">&lt;Primary&gt;3</attribute>
-      </item>
-    </section>
-  </menu>
-  <menu id="episodes-context">
-    <item>
-      <attribute name="action">win.play</attribute>
-      <attribute name="label" translatable="yes">Play</attribute>
-      <attribute name="accel">&lt;Primary&gt;0</attribute>
-    </item>
-    <item>
-      <attribute name="action">win.download</attribute>
-      <attribute name="label" translatable="yes">Download</attribute>
-      <attribute name="accel">&lt;Primary&gt;1</attribute>
-    </item>
-    <item>
-      <attribute name="action">win.delete</attribute>
-      <attribute name="label" translatable="yes">Delete</attribute>
-      <attribute name="accel">&lt;Primary&gt;2</attribute>
-    </item>
-    <section>
-      <item>
-        <attribute name="action">win.episodeNew</attribute>
-        <attribute name="label" translatable="yes">New</attribute>
-        <attribute name="accel">&lt;Primary&gt;3</attribute>
-      </item>
-    </section>
-  </menu>
-  <menu id="episodes-context-send">
-    <item>
-      <attribute name="action">win.saveEpisodes</attribute>
-      <attribute name="label" translatable="yes">Local folder</attribute>
-      <attribute name="accel">&lt;Primary&gt;0</attribute>
-    </item>
-    <item>
-      <attribute name="action">win.bluetoothEpisodes</attribute>
-      <attribute name="label" translatable="yes">Bluetooth device</attribute>
-      <attribute name="accel">&lt;Primary&gt;1</attribute>
-    </item>
-  </menu>
-  <menu id="downloads-context">
-    <item>
-      <attribute name="action">app.setDownloadQueued</attribute>
-      <attribute name="label" translatable="yes">Download</attribute>
-      <attribute name="accel">&lt;Primary&gt;0</attribute>
-    </item>
-    <item>
-      <attribute name="action">app.setDownloadCancelled</attribute>
-      <attribute name="label" translatable="yes">Cancel</attribute>
-      <attribute name="accel">&lt;Primary&gt;1</attribute>
-    </item>
-    <item>
-      <attribute name="action">app.setDownloadPaused</attribute>
-      <attribute name="label" translatable="yes">Pause</attribute>
-      <attribute name="accel">&lt;Primary&gt;2</attribute>
-    </item>
-    <section>
-      <item>
-        <attribute name="action">app.setDownloadRemove</attribute>
-        <attribute name="label" translatable="yes">Remove from list</attribute>
-        <attribute name="accel">&lt;Primary&gt;3</attribute>
-      </item>
-    </section>
   </menu>
 </interface>
 <!-- :noTabs=true:tabSize=2:indentSize=2: -->
