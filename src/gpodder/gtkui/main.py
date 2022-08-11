@@ -786,12 +786,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         return event.button == 3
 
-    def context_popover_show(self, popover, x, y):
-        rec = Gdk.Rectangle()
-        rec.x, rec.y = x, y
-        popover.set_pointing_to(rec)
-        popover.popup()
-
     def on_treeview_channels_button_released(self, treeview, event):
         if event.window != treeview.get_bin_window():
             return False
