@@ -1388,7 +1388,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         menu = self.application.builder.get_object('downloads-context')
         self.downloads_popover = Gtk.Popover.new_from_model(self.treeDownloads, menu)
         self.downloads_popover.set_position(Gtk.PositionType.BOTTOM)
-
         # Long press gesture
         lp = Gtk.GestureLongPress.new(self.treeDownloads)
         lp.set_touch_only(True)
@@ -3906,7 +3905,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.treeAvailable.grab_focus()
         self.leaflet.navigate(Handy.NavigationDirection.FORWARD)
         return True
-
 
     def get_selected_channels(self):
         """Get a list of selected channels from treeChannels"""
