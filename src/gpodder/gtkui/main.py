@@ -57,7 +57,6 @@ from .interface.progress import ProgressIndicator
 from .interface.searchtree import SearchTreeBar
 from .model import EpisodeListModel, PodcastChannelProxy, PodcastListModel
 from .services import CoverDownloader
-from .widgets import SimpleMessageArea
 
 import gi  # isort:skip
 gi.require_version('Gtk', '3.0')  # isort:skip
@@ -278,8 +277,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # Now, update the feed cache, when everything's in place
         self.feed_cache_update_cancelled = False
         self.update_podcast_list_model()
-
-        self.message_area = None
 
         self.partial_downloads_indicator = None
         util.run_in_background(self.find_partial_downloads)
@@ -504,6 +501,15 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 itm = Gio.MenuItem.new(label, 'win.' + action_id)
                 self.extensions_menu.append_item(itm)
 
+    def on_resume_all_infobar_response(self, infobar, response_id):
+        if response_id == Gtk.ResponseType.OK:
+            selection = self.treeDownloads.get_selection()
+            selection.select_all()
+            selected_tasks, _, _, _, _, _ = self.downloads_list_get_selection()
+            selection.unselect_all()
+            self._for_each_task_set_status(selected_tasks, download.DownloadTask.QUEUED)
+        self.resume_all_infobar.set_revealed(False)
+
     def find_partial_downloads(self):
         def start_progress_callback(count):
             if count:
@@ -515,8 +521,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     '%(count)d partial file', '%(count)d partial files',
                     count) % {'count': count})
 
-                self.on_show_progress_activate()
-
         def progress_callback(title, progress):
             self.partial_downloads_indicator.on_message(title)
             self.partial_downloads_indicator.on_progress(progress)
@@ -525,30 +529,16 @@ class gPodder(BuilderWidget, dbus.service.Object):
             def offer_resuming():
                 if resumable_episodes:
                     self.download_episode_list_paused(resumable_episodes)
-
-                    def on_resume_all(button):
-                        selection = self.treeDownloads.get_selection()
-                        selection.select_all()
-                        selected_tasks, _, _, _, _, _ = self.downloads_list_get_selection()
-                        selection.unselect_all()
-                        self._for_each_task_set_status(selected_tasks, download.DownloadTask.QUEUED)
-                        self.message_area.hide()
-
-                    resume_all = Gtk.Button(_('Resume all'))
-                    resume_all.connect('clicked', on_resume_all)
-
-                    self.message_area = SimpleMessageArea(
-                            _('Incomplete downloads from a previous session were found.'),
-                            (resume_all,))
-                    self.vboxDownloadStatusWidgets.attach(self.message_area, 0, -1, 1, 1)
-                    self.message_area.show_all()
+                    self.resume_all_infobar.set_revealed(True)
                     self.on_show_progress_activate()
+
                 logger.debug("find_partial_downloads done, calling extensions")
                 gpodder.user_extensions.on_find_partial_downloads_done()
 
                 if self.partial_downloads_indicator:
                     util.idle_add(self.partial_downloads_indicator.on_finished)
                     self.partial_downloads_indicator = None
+
             util.idle_add(offer_resuming)
 
         common.find_partial_downloads(self.channels,
@@ -1462,6 +1452,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_progress_close_button_clicked(self, *args):
         self.progress_window.hide()
+        # The infobar in the progress window should be hidden
+        # when the user closes it
+        self.resume_all_infobar.set_revealed(False)
         return True
 
     def set_download_list_state(self, state):
@@ -3878,11 +3871,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_wNotebook_switch_page(self, notebook, page, page_num):
         self.play_or_download(in_downloads=page_num > 0)
         if page_num == 0:
-            # The message area in the downloads tab should be hidden
+            # The infobar in the downloads tab should be hidden
             # when the user switches away from the downloads tab
-            if self.message_area is not None:
-                self.message_area.hide()
-                self.message_area = None
+            self.resume_all_infobar.set_revealed(False)
 
     def on_treeChannels_row_activated(self, widget, path, *args):
         # double-click action of the podcast list or enter
