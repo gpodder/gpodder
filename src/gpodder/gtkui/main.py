@@ -604,7 +604,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         return None
 
     def in_downloads(self):
-        return self.wNotebook.get_current_page() > 0
+        return self.application.get_active_window() == self.progress_window
 
     def on_played(self, start, end, total, file_uri):
         """Handle the "played" signal from a media player"""
