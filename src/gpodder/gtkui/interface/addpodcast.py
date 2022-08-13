@@ -73,7 +73,7 @@ class gPodderAddPodcast(BuilderWidget):
 
     def receive_clipboard_text(self, clipboard, text, data=None):
         if text is not None:
-            self.entry_url.set_text(text).strip()
+            self.entry_url.set_text(text.strip())
         else:
             self.show_message(_('Nothing to paste.'), _('Clipboard is empty'))
 
