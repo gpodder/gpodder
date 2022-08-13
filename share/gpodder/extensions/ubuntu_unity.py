@@ -13,7 +13,7 @@ from gpodder import util
 
 import gi  # isort:skip
 gi.require_version('Unity', '7.0')  # isort:skip
-from gi.repository import GObject, Unity  # isort:skip
+from gi.repository import GLib, Unity  # isort:skip
 
 
 _ = gpodder.gettext
@@ -59,4 +59,4 @@ class gPodderExtension:
         self.launcher_entry = None
 
     def on_download_progress(self, progress):
-        GObject.idle_add(self.launcher_entry.set_progress, float(progress))
+        GLib.idle_add(self.launcher_entry.set_progress, float(progress))

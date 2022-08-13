@@ -20,7 +20,7 @@
 
 import html
 
-from gi.repository import GObject, Gtk
+from gi.repository import GLib, GObject, Gtk
 
 
 class TagCloud(Gtk.Layout):
@@ -100,7 +100,7 @@ class TagCloud(Gtk.Layout):
         def unrelayout():
             self._in_relayout = False
             return False
-        GObject.idle_add(unrelayout)
+        GLib.idle_add(unrelayout)
 
 
 GObject.type_register(TagCloud)

@@ -60,7 +60,7 @@ from .widgets import SimpleMessageArea
 
 import gi  # isort:skip
 gi.require_version('Gtk', '3.0')  # isort:skip
-from gi.repository import Gdk, GdkPixbuf, Gio, GLib, GObject, Gtk, Pango  # isort:skip
+from gi.repository import Gdk, GdkPixbuf, Gio, GLib, Gtk, Pango  # isort:skip
 
 
 logger = logging.getLogger(__name__)
@@ -1124,7 +1124,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.things_adding_tasks -= 1
         if not self.download_list_update_enabled:
             self.update_downloads_list()
-            GObject.timeout_add(1500, self.update_downloads_list)
+            GLib.timeout_add(1500, self.update_downloads_list)
             self.download_list_update_enabled = True
 
     def cleanup_downloads(self):
@@ -2350,7 +2350,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if remaining_seconds > 3600:
             # timeout an hour early in the event daylight savings changes the clock forward
             remaining_seconds = remaining_seconds - 3600
-        GObject.timeout_add(remaining_seconds * 1000, self.refresh_episode_dates)
+        GLib.timeout_add(remaining_seconds * 1000, self.refresh_episode_dates)
 
     def update_podcast_list_model(self, urls=None, selected=False, select_url=None,
             sections_changed=False):
@@ -3697,7 +3697,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def restart_auto_update_timer(self):
         if self._auto_update_timer_source_id is not None:
             logger.debug('Removing existing auto update timer.')
-            GObject.source_remove(self._auto_update_timer_source_id)
+            GLib.source_remove(self._auto_update_timer_source_id)
             self._auto_update_timer_source_id = None
 
         if (self.config.auto_update_feeds and
@@ -3705,7 +3705,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             interval = 60 * 1000 * self.config.auto_update_frequency
             logger.debug('Setting up auto update timer with interval %d.',
                     self.config.auto_update_frequency)
-            self._auto_update_timer_source_id = GObject.timeout_add(
+            self._auto_update_timer_source_id = GLib.timeout_add(
                     interval, self._on_auto_update_timer)
 
     def _on_auto_update_timer(self):

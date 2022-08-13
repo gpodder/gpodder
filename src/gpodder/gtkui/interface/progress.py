@@ -17,7 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from gi.repository import GObject, Gtk, Pango
+from gi.repository import GLib, Gtk, Pango
 
 import gpodder
 from gpodder.gtkui.widgets import SpinningProgressIndicator
@@ -43,7 +43,7 @@ class ProgressIndicator(object):
         self._initial_message = None
         self._initial_progress = None
         self._progress_set = False
-        self.source_id = GObject.timeout_add(self.DELAY, self._create_progress)
+        self.source_id = GLib.timeout_add(self.DELAY, self._create_progress)
 
     def _on_delete_event(self, window, event):
         if self.cancellable:
@@ -83,8 +83,8 @@ class ProgressIndicator(object):
         self.dialog.set_image(self.indicator)
         self.dialog.show_all()
 
-        GObject.source_remove(self.source_id)
-        self.source_id = GObject.timeout_add(self.INTERVAL, self._update_gui)
+        GLib.source_remove(self.source_id)
+        self.source_id = GLib.timeout_add(self.INTERVAL, self._update_gui)
         return False
 
     def _update_gui(self):
@@ -110,4 +110,4 @@ class ProgressIndicator(object):
     def on_finished(self):
         if self.dialog is not None:
             self.dialog.destroy()
-        GObject.source_remove(self.source_id)
+        GLib.source_remove(self.source_id)

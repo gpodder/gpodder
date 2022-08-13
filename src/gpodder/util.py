@@ -1318,8 +1318,8 @@ def idle_add(func, *args):
     as possible from the main UI thread.
     """
     if gpodder.ui.gtk:
-        from gi.repository import GObject
-        GObject.idle_add(func, *args)
+        from gi.repository import GLib
+        GLib.idle_add(func, *args)
     else:
         func(*args)
 
