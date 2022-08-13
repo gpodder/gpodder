@@ -2942,7 +2942,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             selected_tasks = [(Gtk.TreeRowReference.new(model, path),
                                model.get_value(model.get_iter(path),
                                DownloadStatusModel.C_TASK)) for path in paths]
-            self._for_each_task_set_status(selected_tasks, status=None, force_start=False)
+            self._for_each_task_set_status(selected_tasks, status=None)
             return
 
         if not episodes:
@@ -3674,7 +3674,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             selected_tasks = [(Gtk.TreeRowReference.new(model, path),
                                model.get_value(model.get_iter(path),
                                DownloadStatusModel.C_TASK)) for path in paths]
-            self._for_each_task_set_status(selected_tasks, status=download.DownloadTask.QUEUED, force_start=False)
+            self._for_each_task_set_status(selected_tasks, download.DownloadTask.QUEUED)
 
     def on_pause_selected_episodes(self, action_or_widget, param=None):
         if self.wNotebook.get_current_page() == 0:
@@ -3688,7 +3688,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             selected_tasks = [(Gtk.TreeRowReference.new(model, path),
                                model.get_value(model.get_iter(path),
                                DownloadStatusModel.C_TASK)) for path in paths]
-            self._for_each_task_set_status(selected_tasks, status=download.DownloadTask.PAUSING, force_start=False)
+            self._for_each_task_set_status(selected_tasks, download.DownloadTask.PAUSING)
 
     def on_treeAvailable_row_activated(self, widget, path, view_column):
         """Double-click/enter action handler for treeAvailable"""
