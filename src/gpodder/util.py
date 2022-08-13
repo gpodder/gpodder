@@ -1324,6 +1324,34 @@ def idle_add(func, *args):
         func(*args)
 
 
+class IdleTimeout(object):
+    """Run a function in the main GUI thread at regular intervals since the last run
+
+    A simple timeout_add() continuously calls the function if it exceeds the interval,
+    which lags the UI and prevents idle_add() calls from happening. This class restarts
+    the timer after the function finishes, allowing other callbacks to run.
+    """
+    def __init__(self, milliseconds, func, *args):
+        if not gpodder.ui.gtk:
+            raise Exception('util.IdleTimeout() is only supported by Gtk+')
+        self.milliseconds = milliseconds
+        self.func = func
+        from gi.repository import GLib
+        self.id = GLib.timeout_add(milliseconds, self._callback, *args)
+
+    def _callback(self, *args):
+        self.cancel()
+        if self.func(args):
+            from gi.repository import GLib
+            self.id = GLib.timeout_add(self.milliseconds, self._callback, *args)
+
+    def cancel(self):
+        if self.id:
+            from gi.repository import GLib
+            GLib.source_remove(self.id)
+            self.id = 0
+
+
 def bluetooth_available():
     """
     Returns True or False depending on the availability

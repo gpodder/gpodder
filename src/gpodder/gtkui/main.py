@@ -1124,7 +1124,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.things_adding_tasks -= 1
         if not self.download_list_update_enabled:
             self.update_downloads_list()
-            GLib.timeout_add(1500, self.update_downloads_list)
+            util.IdleTimeout(1500, self.update_downloads_list)
             self.download_list_update_enabled = True
 
     def cleanup_downloads(self):
