@@ -99,7 +99,8 @@ class DirectoryProvidersModel(Gtk.ListStore):
 
 class gPodderPodcastDirectory(BuilderWidget):
     def new(self):
-        self.gPodderPodcastDirectory.set_transient_for(self.parent_widget)
+        # Setting a window transient causes phosh not to maximize it
+        # self.gPodderPodcastDirectory.set_transient_for(self.parent_widget)
         self.flap_show_image.set_from_file(os.path.join(
             gpodder.icons_folder, 'actions', 'view-sidebar-end-symbolic.svg'))
 

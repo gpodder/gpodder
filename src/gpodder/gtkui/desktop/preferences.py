@@ -190,7 +190,8 @@ class gPodderPreferences(BuilderWidget):
     C_TOGGLE, C_LABEL, C_EXTENSION, C_SHOW_TOGGLE = list(range(4))
 
     def new(self):
-        self.gPodderPreferences.set_transient_for(self.parent_widget)
+        # Setting a window transient causes phosh not to maximize it
+        # self.gPodderPreferences.set_transient_for(self.parent_widget)
         self.flap_show_image.set_from_file(os.path.join(
             gpodder.icons_folder, 'actions', 'view-sidebar-start-symbolic.svg'))
 

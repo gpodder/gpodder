@@ -28,7 +28,9 @@ _ = gpodder.gettext
 class gPodderWelcome(BuilderWidget):
 
     def new(self):
-        self.gPodderWelcome.set_transient_for(self.parent_widget)
+        # Setting a window transient causes phosh not to maximize it
+        # self.gPodderWelcome.set_transient_for(self.parent_widget)
+        pass
 
     def on_btnCancel_clicked(self, button):
         self.main_window.response(Gtk.ResponseType.CANCEL)

@@ -86,7 +86,7 @@ class gPodderEpisodeSelector(BuilderWidget):
     COLUMN_ADDITIONAL = 3
 
     def new(self):
-        self.gPodderEpisodeSelector.set_transient_for(self.parent_widget)
+        # self.gPodderEpisodeSelector.set_transient_for(self.parent_widget)
         if hasattr(self, 'title'):
             self.gPodderEpisodeSelector.set_title(self.title)
 
