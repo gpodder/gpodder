@@ -38,6 +38,7 @@ class gPodderAddPodcast(BuilderWidget):
         if hasattr(self, 'preset_url'):
             self.entry_url.set_text(self.preset_url)
         self.entry_url.connect('activate', self.on_entry_url_activate)
+        self.entry_url.connect('icon-press', self.on_clear_url)
         self.gPodderAddPodcast.show()
 
         if not hasattr(self, 'preset_url'):
@@ -63,6 +64,9 @@ class gPodderAddPodcast(BuilderWidget):
                     clipboard = Gtk.Clipboard.get(Gdk.SELECTION_PRIMARY)
                     clipboard.request_text(receive_clipboard_text, True)
             clipboard.request_text(receive_clipboard_text, False)
+
+    def on_clear_url(self, widget, icon_position, event):
+        self.entry_url.set_text('')
 
     def on_btn_close_clicked(self, widget):
         self.gPodderAddPodcast.destroy()
