@@ -150,7 +150,7 @@
           <packing>
             <property name="expand">True</property>
             <property name="fill">True</property>
-            <property name="position">1</property>
+            <property name="position">0</property>
           </packing>
         </child>
         <child>
@@ -170,7 +170,7 @@
                     <property name="layout-style">start</property>
                     <child>
                       <object class="GtkButton" id="btnSelectAll">
-                        <property name="label" translatable="yes">Select All</property>
+                        <property name="label" translatable="yes">Select _all</property>
                         <property name="visible">True</property>
                         <property name="can-focus">True</property>
                         <property name="receives-default">False</property>
@@ -180,12 +180,12 @@
                       <packing>
                         <property name="expand">False</property>
                         <property name="fill">False</property>
-                        <property name="position">1</property>
+                        <property name="position">0</property>
                       </packing>
                     </child>
                     <child>
                       <object class="GtkButton" id="btnSelectNone">
-                        <property name="label" translatable="yes">Select None</property>
+                        <property name="label" translatable="yes">Select _none</property>
                         <property name="visible">True</property>
                         <property name="can-focus">True</property>
                         <property name="receives-default">False</property>
@@ -195,7 +195,7 @@
                       <packing>
                         <property name="expand">False</property>
                         <property name="fill">False</property>
-                        <property name="position">2</property>
+                        <property name="position">1</property>
                       </packing>
                     </child>
                   </object>
@@ -213,12 +213,13 @@
                     <property name="layout-style">end</property>
                     <child>
                       <object class="GtkButton" id="btnCancel">
-                        <property name="label" translatable="yes">Cancel</property>
+                        <property name="label" translatable="yes">_Cancel</property>
                         <property name="visible">True</property>
                         <property name="can-focus">True</property>
                         <property name="can-default">True</property>
                         <property name="has-default">True</property>
                         <property name="receives-default">False</property>
+                        <property name="use-underline">True</property>
                         <signal name="clicked" handler="on_btnCancel_clicked" swapped="no"/>
                       </object>
                       <packing>
