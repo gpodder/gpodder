@@ -35,7 +35,8 @@ class gPodderChannel(BuilderWidget):
     def new(self):
         self.show_on_cover_load = True
 
-        self.gPodderChannel.set_transient_for(self.parent_widget)
+        # Setting a window transient causes phosh not to maximize it
+        # self.gPodderChannel.set_transient_for(self.parent_widget)
         self.title_label.set_text(self.channel.title)
         self.labelURL.set_text(self.channel.url)
         self.skip_feed_update_switch.set_active(self.channel.pause_subscription)
