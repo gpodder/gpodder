@@ -52,7 +52,7 @@ from .draw import (cake_size_from_widget, draw_cake_pixbuf,
                    draw_iconcell_scale, draw_text_box_centered)
 from .interface.addpodcast import gPodderAddPodcast
 from .interface.common import (BuilderWidget, Dummy, ExtensionMenuHelper,
-                               TreeViewHelper)
+                               TreeViewHelper, is_on_mobile_screen)
 from .interface.progress import ProgressIndicator
 from .interface.searchtree import SearchTreeBar
 from .model import EpisodeListModel, PodcastChannelProxy, PodcastListModel
@@ -298,6 +298,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
             util.idle_add(self.mygpo_client.flush, True)
 
         self.treeChannels.grab_focus()
+
+        # Swipe up to go back hack for episodes leaflet page
+        if is_on_mobile_screen(self.main_window):
+            self.episodes_scrolled_window.connect(
+                'edge-overshot', self.on_episodes_scrolled_window_edge_overshot)
 
         # First-time users should be asked if they want to see the OPML
         if self.options.subscribe:
@@ -817,6 +822,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_treeview_episodes_long_press(self, gesture, x, y, treeview):
         ev = Dummy(x=x, y=y, button=3)
         return self.treeview_available_show_context_menu(ev)
+
+    def on_episodes_scrolled_window_edge_overshot(self, scrolled_window, pos, *args):
+        if pos == Gtk.PositionType.TOP:
+            self.leaflet.navigate(Handy.NavigationDirection.BACK)
 
     def on_treeview_downloads_button_released(self, treeview, event):
         if event.window != treeview.get_bin_window():

@@ -347,10 +347,11 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkScrolledWindow">
+                          <object class="GtkScrolledWindow" id="episodes_scrolled_window">
                             <property name="visible">True</property>
                             <property name="can-focus">True</property>
                             <property name="vexpand">True</property>
+                            <property name="vscrollbar-policy">always</property>
                             <property name="shadow-type">in</property>
                             <child>
                               <object class="GtkTreeView" id="treeAvailable">
