@@ -327,9 +327,6 @@ class gPodderPreferences(BuilderWidget):
         self.set_extension_preferences()
 
         self._config.connect_gtk_window(self.main_window, 'preferences', True)
-        monitor = Gdk.Display.get_default().get_monitor_at_window(self.main_window.get_window())
-        if monitor.get_width_mm() < 120:  # Check if we're on a mobile screen
-            self.main_window.maximize()
 
         gpodder.user_extensions.on_ui_object_available('preferences-gtk', self)
 
