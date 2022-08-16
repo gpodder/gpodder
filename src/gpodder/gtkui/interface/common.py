@@ -50,6 +50,20 @@ def show_message_dialog(parent, message, title=None):
     dlg.destroy()
 
 
+def is_on_mobile_screen(widget):
+    """Return True if widget is on a small screen."""
+    w = widget
+    while not w.get_realized():
+        w = w.get_parent()
+
+    window = w.get_window()
+    if window is None:
+        return False
+
+    monitor = Gdk.Display.get_default().get_monitor_at_window(window)
+    return monitor.get_width_mm() < 120
+
+
 class BuilderWidget(GtkBuilderWidget):
     def __init__(self, parent, ui_folder=None, **kwargs):
         self._window_iconified = False
