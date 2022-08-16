@@ -303,6 +303,16 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if is_on_mobile_screen(self.main_window):
             self.episodes_scrolled_window.connect(
                 'edge-overshot', self.on_episodes_scrolled_window_edge_overshot)
+            self.channels_scrolled_window.connect(
+                'edge-overshot', self.on_channels_scrolled_window_edge_overshot)
+
+            # FIXME:
+            def _hmenu_popdown(button):
+                self.header_popover.popdown()
+
+            self.hbutton1.connect('clicked', _hmenu_popdown)
+            self.hbutton2.connect('clicked', _hmenu_popdown)
+            self.hbutton3.connect('clicked', _hmenu_popdown)
 
         # First-time users should be asked if they want to see the OPML
         if self.options.subscribe:
@@ -810,6 +820,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_treeview_channels_long_press(self, gesture, x, y, treeview):
         ev = Dummy(x=x, y=y, button=3)
         return self.treeview_channels_show_context_menu(ev)
+
+    def on_channels_scrolled_window_edge_overshot(self, scrolled_window, pos, *args):
+        if pos == Gtk.PositionType.TOP:
+            self.header_popover.popup()
 
     def on_treeview_episodes_button_released(self, treeview, event):
         if event.window != treeview.get_bin_window():

@@ -73,10 +73,11 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkScrolledWindow">
+                  <object class="GtkScrolledWindow" id="channels_scrolled_window">
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="vexpand">True</property>
+                    <property name="vscrollbar-policy">always</property>
                     <property name="shadow-type">in</property>
                     <child>
                       <object class="GtkTreeView" id="treeChannels">
@@ -513,6 +514,65 @@
       <headerbar name="episodes_header_bar"/>
       <headerbar name="details_header_bar"/>
     </headerbars>
+  </object>
+  <object class="GtkPopover" id="header_popover">
+    <property name="width-request">300</property>
+    <property name="can-focus">False</property>
+    <property name="border-width">10</property>
+    <property name="relative-to">header_bar</property>
+    <child>
+      <object class="GtkBox">
+        <property name="visible">True</property>
+        <property name="can-focus">False</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">8</property>
+        <child>
+          <object class="GtkButton" id="hbutton1">
+            <property name="label" translatable="yes">Preferences</property>
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">True</property>
+            <property name="action-name">app.preferences</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkButton" id="hbutton2">
+            <property name="label" translatable="yes">Download new episodes</property>
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">True</property>
+            <property name="action-name">win.downloadAllNew</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkButton" id="hbutton3">
+            <property name="label" translatable="yes">Update channels</property>
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">True</property>
+            <property name="action-name">win.update</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">2</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+    <style>
+      <class name="menu"/>
+    </style>
   </object>
   <object class="GtkWindow" id="progress_window">
     <property name="can-focus">False</property>
