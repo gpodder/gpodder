@@ -25,13 +25,16 @@ import gpodder
 from gpodder import util
 from gpodder.gtkui.draw import (draw_text_box_centered, get_background_color,
                                 get_foreground_color)
+from gpodder.gtkui.interface.common import is_on_mobile_screen
 
 # from gpodder.gtkui.draw import investigate_widget_colors
 
 import gi  # isort:skip
 gi.require_version('Gdk', '3.0')  # isort:skip
 gi.require_version('Gtk', '3.0')  # isort:skip
+gi.require_version('Handy', '1')  # isort:skip
 from gi.repository import Gdk, Gio, GLib, Gtk, Pango  # isort:skip
+from gi.repository import Handy  # isort:skip
 
 
 _ = gpodder.gettext
@@ -62,8 +65,16 @@ class gPodderShownotes:
 
         self.scrolled_window = Gtk.ScrolledWindow()
         self.scrolled_window.set_shadow_type(Gtk.ShadowType.IN)
-        self.scrolled_window.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
+        self.scrolled_window.set_policy(Gtk.PolicyType.AUTOMATIC,
+                                        Gtk.PolicyType.ALWAYS)
         self.scrolled_window.add(self.init())
+
+        # Swipe up to go back hack
+        self.navigable = self.shownotes_pane.get_parent().get_parent()  # FIXME
+        if (isinstance(self.navigable, (Handy.Deck, Handy.Leaflet))
+                and is_on_mobile_screen(self.navigable)):
+            self.scrolled_window.connect(
+                'edge-overshot', self.on_scrolled_window_edge_overshot)
 
         self.status = Gtk.Label.new()
         self.status.set_halign(Gtk.Align.START)
@@ -101,6 +112,10 @@ class gPodderShownotes:
 
         self.set_complain_about_selection(True)
         self.hide_pane()
+
+    def on_scrolled_window_edge_overshot(self, scrolled_window, pos, *args):
+        if pos == Gtk.PositionType.TOP:
+            self.navigable.navigate(Handy.NavigationDirection.BACK)
 
     # Either show the shownotes *or* a message, 'Please select an episode'
     def set_complain_about_selection(self, message=True):
