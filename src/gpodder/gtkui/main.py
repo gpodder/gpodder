@@ -883,6 +883,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.gPodder, extmenu, 'channel_context_action_')
         self.channels_popover = Gtk.Popover.new_from_model(self.treeChannels, menu)
         self.channels_popover.set_position(Gtk.PositionType.BOTTOM)
+        self.channels_popover.connect(
+            'closed', lambda popover: self.allow_tooltips(True))
 
         # Long press gesture
         lp = Gtk.GestureLongPress.new(self.treeChannels)
@@ -1090,6 +1092,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         menu.insert_section(4, None, self.sendto_menu)
         self.episodes_popover = Gtk.Popover.new_from_model(self.treeAvailable, menu)
         self.episodes_popover.set_position(Gtk.PositionType.BOTTOM)
+        self.episodes_popover.connect(
+            'closed', lambda popover: self.allow_tooltips(True))
 
         # Long press gesture
         lp = Gtk.GestureLongPress.new(self.treeAvailable)
@@ -1762,8 +1766,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         setattr(treeview, TreeViewHelper.LAST_TOOLTIP, None)
         return False
 
-    def treeview_allow_tooltips(self, treeview, allow):
-        setattr(treeview, TreeViewHelper.CAN_TOOLTIP, allow)
+    def allow_tooltips(self, allow):
+        setattr(self.treeChannels, TreeViewHelper.CAN_TOOLTIP, allow)
+        setattr(self.treeAvailable, TreeViewHelper.CAN_TOOLTIP, allow)
 
     def treeview_handle_context_menu_click(self, treeview, event):
         if event is None:
@@ -2049,6 +2054,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     gpodder.user_extensions.on_channel_context_menu(self.active_channel) or [])]
             self.channel_context_menu_helper.replace_entries(entries)
 
+            self.allow_tooltips(False)
+
             area = TreeViewHelper.get_popup_rectangle(treeview, event)
             self.channels_popover.set_pointing_to(area)
             self.channels_popover.show()
@@ -2284,6 +2291,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             # New and Archive state
             self.episode_new_action.change_state(GLib.Variant.new_boolean(any_new))
             self.episode_lock_action.change_state(GLib.Variant.new_boolean(any_locked))
+
+            self.allow_tooltips(False)
 
             area = TreeViewHelper.get_popup_rectangle(treeview, event)
             self.episodes_popover.set_pointing_to(area)
