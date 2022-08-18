@@ -796,44 +796,35 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if event.window != treeview.get_bin_window():
             return False
         if event.button == 3:
-            return self.treeview_channels_show_context_menu(treeview, event)
+            return self.treeview_channels_show_context_menu(event)
         else:
             return False
 
     def on_treeview_podcasts_long_press(self, gesture, x, y, treeview):
         ev = Dummy(x=x, y=y, button=3)
-        return self.treeview_channels_show_context_menu(treeview, ev)
-
-    def on_treeview_podcasts_long_press(self, gesture, x, y, treeview):
-        ev = Dummy(x=x, y=y, button=3)
-        return self.treeview_channels_show_context_menu(treeview, ev)
+        return self.treeview_channels_show_context_menu(ev)
 
     def on_treeview_episodes_button_released(self, treeview, event):
         if event.window != treeview.get_bin_window():
             return False
-
         if event.button == 3:
-            return self.treeview_available_show_context_menu(treeview, event)
+            return self.treeview_available_show_context_menu(event)
         else:
             return False
 
     def on_treeview_episodes_long_press(self, gesture, x, y, treeview):
-        ev = Dummy(x=x, y=y, button=3, time=Gtk.get_current_event_time())
-        return self.treeview_available_show_context_menu(treeview, ev)
-
-    def on_treeview_episodes_long_press(self, gesture, x, y, treeview):
         ev = Dummy(x=x, y=y, button=3)
-        return self.treeview_available_show_context_menu(treeview, ev)
+        return self.treeview_available_show_context_menu(ev)
 
     def on_treeview_downloads_button_released(self, treeview, event):
         if event.window != treeview.get_bin_window():
             return False
 
-        return self.treeview_downloads_show_context_menu(treeview, event)
+        return self.treeview_downloads_show_context_menu(event)
 
     def on_treeview_downloads_long_press(self, gesture, x, y, treeview):
         ev = Dummy(x=x, y=y, button=3)
-        return self.treeview_downloads_show_context_menu(treeview, ev)
+        return self.treeview_downloads_show_context_menu(ev)
 
     def on_find_podcast_activate(self, *args):
         if self._search_podcasts:
@@ -939,7 +930,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             elif event.keyval == Gdk.KEY_BackSpace and self._search_podcasts.search_box.get_property('visible'):
                 self._search_podcasts.search_entry.grab_focus_without_selecting()
             elif event.keyval == Gdk.KEY_Menu:
-                self.treeview_channels_show_context_menu(self.treeChannels)
+                self.treeview_channels_show_context_menu()
                 return True
             else:
                 unicode_char_id = Gdk.keyval_to_unicode(event.keyval)
@@ -958,8 +949,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.channelsbox.connect('key-press-event', on_key_press)
         self.treeChannels.connect('key-press-event', on_key_press_treeview)
-
-        self.treeChannels.connect('popup-menu', self.treeview_channels_show_context_menu)
+        self.treeChannels.connect('popup-menu',
+            lambda _tv, *args: self.treeview_channels_show_context_menu)
 
         # Enable separators to the podcast list to separate special podcasts
         # from others (this is used for the "all episodes" view)
@@ -1303,8 +1294,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.episodesbox.connect('key-press-event', on_key_press)
         self.treeAvailable.connect('key-press-event', on_key_press_treeview)
-
-        self.treeAvailable.connect('popup-menu', self.treeview_available_show_context_menu)
+        self.treeAvailable.connect('popup-menu',
+            lambda _tv, *args: self.treeview_available_show_context_menu)
 
 #        self.treeAvailable.enable_model_drag_source(Gdk.ModifierType.BUTTON1_MASK,
 #                (('text/uri-list', 0, 0),), Gdk.DragAction.COPY)
@@ -1394,8 +1385,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         lp.connect("pressed", self.on_treeview_downloads_long_press, self.treeDownloads)
         setattr(self.treeDownloads, "long-press-gesture", lp)
 
-        self.treeDownloads.connect('popup-menu', self.treeview_downloads_show_context_menu)
-
         # enable multiple selection support
         selection = self.treeDownloads.get_selection()
         selection.set_mode(Gtk.SelectionMode.MULTIPLE)
@@ -1416,11 +1405,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         def on_key_press(treeview, event):
             if event.keyval == Gdk.KEY_Menu:
-                self.treeview_downloads_show_context_menu(self.treeDownloads)
+                self.treeview_downloads_show_context_menu()
                 return True
             return False
 
         self.treeDownloads.connect('key-press-event', on_key_press)
+        self.treeDownloads.connect('popup-menu',
+            lambda _tv, *args: self.treeview_downloads_show_context_menu)
 
     def on_treeview_expose_event(self, treeview, ctx):
         model = treeview.get_model()
@@ -1988,7 +1979,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # Update the tab title and downloads list
         self.update_downloads_list()
 
-    def treeview_downloads_show_context_menu(self, treeview, event=None):
+    def treeview_downloads_show_context_menu(self, event=None):
+        treeview = self.treeDownloads
+
         model, paths = self.treeview_handle_context_menu_click(treeview, event)
         if not paths:
             return not treeview.is_rubber_banding_active()
@@ -2034,7 +2027,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         assert len(episodes) == 1
         util.gui_open(episodes[0].parent.save_dir, gui=self)
 
-    def treeview_channels_show_context_menu(self, treeview, event=None):
+    def treeview_channels_show_context_menu(self, event=None):
+        treeview = self.treeChannels
+
         model, paths = self.treeview_handle_context_menu_click(treeview, event)
         if not paths:
             return True
@@ -2231,7 +2226,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         util.run_in_background(lambda: convert_and_send_thread(episodes_to_copy))
 
-    def treeview_available_show_context_menu(self, treeview, event=None):
+    def treeview_available_show_context_menu(self, event=None):
+        treeview = self.treeAvailable
+
         model, paths = self.treeview_handle_context_menu_click(treeview, event)
         if not paths:
             return not treeview.is_rubber_banding_active()
