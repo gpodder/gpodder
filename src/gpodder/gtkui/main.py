@@ -757,13 +757,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         return event.button == 3
 
-    def on_treeview_podcasts_button_released(self, treeview, event):
+    def on_treeview_channels_button_released(self, treeview, event):
         if event.window != treeview.get_bin_window():
             return False
 
         return self.treeview_channels_show_context_menu(event)
 
-    def on_treeview_podcasts_long_press(self, gesture, x, y, treeview):
+    def on_treeview_channels_long_press(self, gesture, x, y, treeview):
         ev = Dummy(x=x, y=y, button=3)
         return self.treeview_channels_show_context_menu(ev)
 
@@ -842,7 +842,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         lp = Gtk.GestureLongPress.new(self.treeChannels)
         lp.set_touch_only(True)
         lp.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
-        lp.connect("pressed", self.on_treeview_podcasts_long_press, self.treeChannels)
+        lp.connect("pressed", self.on_treeview_channels_long_press, self.treeChannels)
         setattr(self.treeChannels, "long-press-gesture", lp)
 
         # Set up type-ahead find for the podcast list
