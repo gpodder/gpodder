@@ -114,10 +114,11 @@
             <property name="visible">True</property>
             <property name="can-focus">False</property>
             <child type="content">
-              <object class="GtkScrolledWindow">
+              <object class="GtkScrolledWindow" id="prefs_scrolled_window">
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <property name="hscrollbar-policy">never</property>
+                <property name="vscrollbar-policy">always</property>
                 <property name="shadow-type">in</property>
                 <child>
                   <object class="GtkViewport">
@@ -1129,7 +1130,6 @@
                             <property name="can-focus">False</property>
                             <property name="border-width">0</property>
                             <property name="orientation">vertical</property>
-                            <property name="spacing">0</property>
                             <child>
                               <object class="GtkTreeView" id="treeviewExtensions">
                                 <property name="visible">True</property>
