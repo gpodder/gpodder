@@ -192,8 +192,6 @@ class gPodderPreferences(BuilderWidget):
     def new(self):
         # Setting a window transient causes phosh not to maximize it
         # self.gPodderPreferences.set_transient_for(self.parent_widget)
-        self.flap_show_image.set_from_file(os.path.join(
-            gpodder.icons_folder, 'actions', 'view-sidebar-start-symbolic.svg'))
 
         for cb in (self.combo_audio_player_app, self.combo_video_player_app):
             cellrenderer = Gtk.CellRendererPixbuf()
@@ -332,6 +330,14 @@ class gPodderPreferences(BuilderWidget):
 
         self.inject_extensions_preferences(init=True)
 
+        self.background_color = get_background_color()
+        self.prefs_sidebar_bg.override_background_color(Gtk.StateFlags.NORMAL, self.background_color)
+
+        self.flap_show_image.set_from_file(os.path.join(
+            gpodder.icons_folder, 'actions', 'view-sidebar-start-symbolic.svg'))
+        self.prefs_stack.connect("notify::visible-child", self.on_prefs_sidebar_set_focus_child)
+        self.prefs_flap.set_reveal_flap(True)
+
         self.prefs_stack.foreach(self._wrap_checkbox_labels)
 
     def _wrap_checkbox_labels(self, w, *args):
@@ -359,12 +365,6 @@ class gPodderPreferences(BuilderWidget):
                 page.set_name(name)
                 page.foreach(self._wrap_checkbox_labels)
                 self.prefs_stack.add_titled(page, name, label)
-
-        self.background_color = get_background_color()
-        self.prefs_sidebar_bg.override_background_color(Gtk.StateFlags.NORMAL, self.background_color)
-
-        self.prefs_stack.connect("notify::visible-child", self.on_prefs_sidebar_set_focus_child)
-        self.prefs_flap.set_reveal_flap(True)
 
     def _extensions_select_function(self, selection, model, path, path_currently_selected):
         return model.get_value(model.get_iter(path), self.C_SHOW_TOGGLE)
