@@ -1383,6 +1383,19 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.download_selection_handler_id = selection.connect('changed', self.on_download_list_selection_changed)
         self.treeDownloads.set_search_equal_func(TreeViewHelper.make_search_equal_func(DownloadStatusModel))
 
+        # Set up downloads context menu
+        menu = self.application.builder.get_object('downloads-context')
+        self.downloads_popover = Gtk.Popover.new_from_model(self.treeDownloads, menu)
+        self.downloads_popover.set_position(Gtk.PositionType.BOTTOM)
+
+        def on_key_press(treeview, event):
+            if event.keyval == Gdk.KEY_Menu:
+                self.treeview_downloads_show_context_menu(self.treeDownloads)
+                return True
+            return False
+
+        self.treeDownloads.connect('key-press-event', on_key_press)
+
     def on_treeview_expose_event(self, treeview, ctx):
         model = treeview.get_model()
         if (model is not None and model.get_iter_first() is not None):
@@ -1957,41 +1970,22 @@ class gPodder(BuilderWidget, dbus.service.Object):
             selected_tasks, can_force, can_queue, can_pause, can_cancel, can_remove = \
                     self.downloads_list_get_selection(model, paths)
 
-            def make_menu_item(label, action_name, tasks=None, status=None, sensitive=True, force_start=False):
-                self.application.remove_action(action_name)
-                action = Gio.SimpleAction.new(action_name)
-                action.connect("activate",
-                        lambda _a, _b: self._for_each_task_set_status(
-                            tasks, status, force_start=force_start))
-                self.application.add_action(action)
-                action.set_enabled(sensitive)
-                return Gio.MenuItem.new(label, 'app.' + action_name)
-
             menu = self.application.builder.get_object('downloads-context')
-            menu.remove_all()
-            if can_force:
-                item = make_menu_item(_('Start download now'), 'setDownloadQueued',
-                    selected_tasks, download.DownloadTask.QUEUED, force_start=True)
-            else:
-                item = make_menu_item(_('Download'), 'setDownloadQueued',
-                    selected_tasks, download.DownloadTask.QUEUED, can_queue)
-            menu.append_item(item)
-            menu.append_item(make_menu_item(_('Cancel'), 'setDownloadCancelled',
-                selected_tasks, download.DownloadTask.CANCELLING))
-            menu.append_item(make_menu_item(_('Pause'), 'media-playback-pause',
-                                       selected_tasks,
-                                       download.DownloadTask.PAUSING, can_pause))
-            rmenu = Gio.Menu()
-            rmenu.append_item(make_menu_item(_('Remove from list'), 'setDownloadRemove',
-                selected_tasks, sensitive=can_remove))
-            menu.append_section(None, rmenu)
+            dsec = menu.get_item_link(0, Gio.MENU_LINK_SECTION)
 
-            if event is None:
-                func = TreeViewHelper.make_popup_position_func(treeview)
-                x, y, unused = func(None)
+            dsec.remove(0)
+            if can_force:
+                dsec.insert(0, _('Start download now'), 'win.download')
+                self.download_action.set_enabled(True)
             else:
-                x, y = event.x, event.y
-            self.context_popover_show(self.downloads_popover, x, y)
+                dsec.insert(0, _('Download'), 'win.download')
+                self.download_action.set_enabled(can_queue)
+
+            self.gPodder.lookup_action('remove').set_enabled(can_remove)
+
+            area = TreeViewHelper.get_popup_rectangle(treeview, event)
+            self.downloads_popover.set_pointing_to(area)
+            self.downloads_popover.show()
             return True
 
     def on_mark_episodes_as_old(self, item, *args):
