@@ -22,6 +22,8 @@
 #  gpodder.gtkui.config -- Config object with GTK+ support (2009-08-24)
 #
 
+import logging
+
 import gi  # isort:skip
 gi.require_version('Gdk', '3.0')  # isort:skip
 gi.require_version('Gtk', '3.0')  # isort:skip
@@ -29,6 +31,8 @@ from gi.repository import Gdk, Gtk, Pango
 
 import gpodder
 from gpodder import config, util
+
+logger = logging.getLogger(__name__)
 
 _ = gpodder.gettext
 
@@ -155,6 +159,25 @@ class UIConfig(config.Config):
 
         if gpodder.ui.win32:
             window.set_gravity(Gdk.Gravity.STATIC)
+
+        if -1 not in (cfg.x, cfg.y, cfg.width, cfg.height):
+            # get screen resolution
+            screen = Gdk.Screen.get_default()
+            screen_width = 0
+            screen_height = 0
+            for i in range(0, screen.get_n_monitors()):
+                monitor = screen.get_monitor_geometry(i)
+                screen_width += monitor.width
+                screen_height += monitor.height
+            logger.debug('Screen %d x %d' % (screen_width, screen_height))
+            # reset window position if more than 50% is off-screen
+            half_width = cfg.width / 2
+            half_height = cfg.height / 2
+            if (cfg.x + cfg.width - half_width) < 0 or (cfg.y + cfg.height - half_height) < 0 \
+                    or cfg.x > (screen_width - half_width) or cfg.y > (screen_height - half_height):
+                logger.warning('"%s" window was off-screen at (%d, %d), resetting to default position' % (config_prefix, cfg.x, cfg.y))
+                cfg.x = -1
+                cfg.y = -1
 
         if cfg.width != -1 and cfg.height != -1:
             window.resize(cfg.width, cfg.height)
