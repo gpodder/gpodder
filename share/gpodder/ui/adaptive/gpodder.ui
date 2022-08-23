@@ -296,6 +296,7 @@
                                 <property name="visible" bind-source="leaflet" bind-property="folded" bind-flags="sync-create">False</property>
                                 <property name="can-focus">True</property>
                                 <property name="receives-default">False</property>
+                                <property name="relief">none</property>
                                 <signal name="clicked" handler="on_episode_list_back_clicked" swapped="no"/>
                                 <child>
                                   <object class="GtkImage">
@@ -454,6 +455,7 @@
                                 <property name="visible">True</property>
                                 <property name="can-focus">True</property>
                                 <property name="receives-default">True</property>
+                                <property name="relief">none</property>
                                 <signal name="clicked" handler="on_deck_back_clicked" swapped="no"/>
                                 <child>
                                   <object class="GtkImage">
