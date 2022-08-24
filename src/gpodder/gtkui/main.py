@@ -3913,25 +3913,34 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.resume_all_infobar.set_revealed(False)
 
     def on_treeChannels_row_activated(self, widget, path, *args):
-        # double-click action of the podcast list or enter
-        self.treeChannels.set_cursor(path)
+        self.navigate_from_shownotes()
+        self.leaflet.set_can_swipe_forward(True)
+        self.treeAvailable.grab_focus()
+        self.leaflet.navigate(Handy.NavigationDirection.FORWARD)
 
+#        # The cursor is already set on button press, so no need to repeat
+#        # double-click action of the podcast list or enter
+#        self.treeChannels.set_cursor(path)
+#
 #        # open channel settings
 #        channel = self.get_selected_channels()[0]
 #        if channel and not isinstance(channel, PodcastChannelProxy):
 #            self.on_itemEditChannel_activate(None)
-        self.navigate_from_shownotes()
-        self.leaflet.set_can_swipe_forward(True)
-        epath, ecolumn = self.treeAvailable.get_cursor()
-        have_eps = True
-        if epath is None or epath[0] < 0:
-            have_eps = TreeViewHelper.set_cursor_to_first(self.treeAvailable)
-        else:
-            self.treeAvailable.set_cursor(epath)
-        if have_eps:
-            self.deck.set_can_swipe_forward(True)
-        self.treeAvailable.grab_focus()
-        self.leaflet.navigate(Handy.NavigationDirection.FORWARD)
+
+        # set_cursor_to_first() needs to be run after the UI update for
+        # some reason to avoid 'Invalid episode at path' debug messages
+        def set_to_first_idle():
+            epath, ecolumn = self.treeAvailable.get_cursor()
+            have_eps = True
+            if epath is None or epath[0] < 0:
+                have_eps = TreeViewHelper.set_cursor_to_first(self.treeAvailable)
+            else:
+                self.treeAvailable.set_cursor(epath)
+            if have_eps:
+                self.deck.set_can_swipe_forward(True)
+            return False
+
+        util.idle_add(set_to_first_idle)
         return True
 
     def get_selected_channels(self):
