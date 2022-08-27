@@ -1341,7 +1341,7 @@ class IdleTimeout(object):
 
     def _callback(self, *args):
         self.cancel()
-        if self.func(args):
+        if self.func(*args):
             from gi.repository import GLib
             self.id = GLib.timeout_add(self.milliseconds, self._callback, *args)
 
