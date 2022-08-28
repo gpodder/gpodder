@@ -1,0 +1,15 @@
+name: Publish to WinGet
+on:
+  release:
+    types: [released]
+jobs:
+  publish:
+    runs-on: windows-latest # action can only be run on windows
+    steps:
+      - uses: vedantmgoyal2009/winget-releaser@latest
+        with:
+          identifier: gpodder.gpodder
+          version-regex: '[0-9.]+'
+          installers-regex: 'installer\.exe$' # only installer.exe file
+          delete-previous-version: 'false'
+          token: ${{ secrets.WINGET_TOKEN }}
