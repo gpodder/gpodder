@@ -10,6 +10,6 @@ jobs:
         with:
           identifier: gpodder.gpodder
           version-regex: '[0-9.]+'
-          installers-regex: 'installer\.exe$' # only installer.exe file
+          installers-regex: 'installer\.exe$' # only the installer.exe file
           delete-previous-version: 'false'
           token: ${{ secrets.WINGET_TOKEN }}
