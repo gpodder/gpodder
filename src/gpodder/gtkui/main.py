@@ -1593,7 +1593,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         count = len(tasks)
         if count:
             progress_indicator = ProgressIndicator(
-                    download.DownloadTask.STATUS_MESSAGE[status] if status is not None else _('Removing'),
+                    _('Queueing') if status == download.DownloadTask.QUEUED else
+                    _('Removing') if status is None else download.DownloadTask.STATUS_MESSAGE[status],
                     '', True, self.get_dialog_parent())
             progress_indicator.on_message('0 / %d' % count)
         else:
@@ -3193,7 +3194,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             count = len(episodes)
             if count and not hide_progress:
                 progress_indicator = ProgressIndicator(
-                        download.DownloadTask.STATUS_MESSAGE[download.DownloadTask.QUEUED],
+                        _('Queueing'),
                         '', True, self.get_dialog_parent())
                 progress_indicator.on_message('0 / %d' % count)
             else:
