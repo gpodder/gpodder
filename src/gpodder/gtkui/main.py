@@ -1180,7 +1180,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         try:
             model = self.download_status_model
 
-            downloading, synchronizing, pausing, cancelling, queued, paused, failed, finished, others = (0,) * 9
+            downloading, synchronizing, pausing, cancelling, queued, paused, failed, finished = (0,) * 8
             total_speed, total_size, done_size = 0, 0, 0
             files_downloading = 0
 
@@ -1213,8 +1213,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         total_speed += speed
                     elif activity == download.DownloadTask.ACTIVITY_SYNCHRONIZE:
                         synchronizing += 1
-                    else:
-                        others += 1
                 elif status == download.DownloadTask.PAUSING:
                     pausing += 1
                     if activity == download.DownloadTask.ACTIVITY_DOWNLOAD:
@@ -1231,10 +1229,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     failed += 1
                 elif status == download.DownloadTask.DONE:
                     finished += 1
-                else:
-                    others += 1
-
-            # TODO: 'others' is not used
 
             # Remember which tasks we have seen after this run
             self.download_tasks_seen = download_tasks_seen
