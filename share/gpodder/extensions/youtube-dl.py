@@ -12,8 +12,10 @@ import time
 
 try:
     import yt_dlp as youtube_dl
+    program_name = 'yt-dlp'
 except:
     import youtube_dl
+    program_name = 'youtube-dl'
 
 import gpodder
 from gpodder import download, feedcore, model, registry, util, youtube
@@ -441,11 +443,9 @@ class gPodderExtension:
 
     def on_load(self):
         self.ytdl = gPodderYoutubeDL(self.container.manager.core.config, self.container.config)
-        logger.info('Registering youtube-dl.')
+        logger.info('Registering youtube-dl. (using %s %s)' % (program_name, youtube_dl.version.__version__))
         registry.feed_handler.register(self.ytdl.fetch_channel)
         registry.custom_downloader.register(self.ytdl.custom_downloader)
-
-        logger.debug('youtube-dl %s' % youtube_dl.version.__version__)
 
         if youtube_dl.utils.version_tuple(youtube_dl.version.__version__) < youtube_dl.utils.version_tuple(want_ytdl_version):
             logger.error(want_ytdl_version_msg
