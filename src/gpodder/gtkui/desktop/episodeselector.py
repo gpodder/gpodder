@@ -111,7 +111,7 @@ class gPodderEpisodeSelector(BuilderWidget):
             self.size_attribute = 'file_size'
 
         if not hasattr(self, 'tooltip_attribute'):
-            self.tooltip_attribute = 'description'
+            self.tooltip_attribute = '_text_description'
 
         if not hasattr(self, 'selection_buttons'):
             self.selection_buttons = {}
