@@ -92,11 +92,11 @@ class OnSyncActionList(Gtk.ListStore):
 
     def get_index(self):
         for index, row in enumerate(self):
-            if (self._config.device_sync.after_sync.delete_episodes and
-                    row[self.C_ON_SYNC_DELETE]):
+            if (self._config.device_sync.after_sync.delete_episodes
+                    and row[self.C_ON_SYNC_DELETE]):
                 return index
-            if (self._config.device_sync.after_sync.mark_episodes_played and
-                    row[self.C_ON_SYNC_MARK_PLAYED] and not
+            if (self._config.device_sync.after_sync.mark_episodes_played
+                    and row[self.C_ON_SYNC_MARK_PLAYED] and not
                     self._config.device_sync.after_sync.delete_episodes):
                 return index
         return 0  # Some sane default

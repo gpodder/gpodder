@@ -74,8 +74,8 @@ class gPodderConfigEditor(BuilderWidget):
             return True
         else:
             # either the variable name or its value
-            return (text in model.get_value(iter, 0).lower() or
-                    text in model.get_value(iter, 2).lower())
+            return (text in model.get_value(iter, 0).lower()
+                    or text in model.get_value(iter, 2).lower())
 
     def value_edited(self, renderer, path, new_text):
         model = self.configeditor.get_model()

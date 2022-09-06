@@ -79,8 +79,8 @@ class gPodderSyncUI(object):
                 continue
 
             for episode in channel.get_all_episodes():
-                if (episode.was_downloaded(and_exists=True) or
-                        not only_downloaded):
+                if (episode.was_downloaded(and_exists=True)
+                        or not only_downloaded):
                     episodes.append(episode)
         return episodes
 
@@ -133,8 +133,8 @@ class gPodderSyncUI(object):
                     return False
 
                 # Might not be synced if it's played already
-                if (not force_played and
-                        self._config.device_sync.skip_played_episodes):
+                if (not force_played
+                        and self._config.device_sync.skip_played_episodes):
                     return False
 
                 # In all other cases, we expect the episode to be
@@ -316,9 +316,9 @@ class gPodderSyncUI(object):
         def cleanup_episodes():
             # 'skip_played_episodes' must be used or else all the
             # played tracks will be copied then immediately deleted
-            if (self._config.device_sync.delete_deleted_episodes or
-                (self._config.device_sync.delete_played_episodes and
-                 self._config.device_sync.skip_played_episodes)):
+            if (self._config.device_sync.delete_deleted_episodes
+                or (self._config.device_sync.delete_played_episodes
+                    and self._config.device_sync.skip_played_episodes)):
                 all_episodes = self._filter_sync_episodes(
                     channels, only_downloaded=False)
                 for local_episode in all_episodes:

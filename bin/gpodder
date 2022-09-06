@@ -139,9 +139,9 @@ def main():
     from gpodder import log
     log.setup(options.verbose, options.quiet)
 
-    if (not (gpodder.ui.win32 or gpodder.ui.osx) and
-            os.environ.get('DISPLAY', '') == '' and
-            os.environ.get('WAYLAND_DISPLAY', '') == ''):
+    if (not (gpodder.ui.win32 or gpodder.ui.osx)
+            and os.environ.get('DISPLAY', '') == ''
+            and os.environ.get('WAYLAND_DISPLAY', '') == ''):
         logger.error('Cannot start gPodder: $DISPLAY or $WAYLAND_DISPLAY is not set.')
         sys.exit(1)
 

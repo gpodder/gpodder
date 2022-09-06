@@ -64,8 +64,8 @@ class GEpisode(model.PodcastEpisode):
             length_str = '%s; ' % util.format_filesize(self.file_size)
         else:
             length_str = ''
-        return ('<b>%s</b>\n<small>%s' + _('released %s') +
-                '; ' + _('from %s') + '</small>') % (
+        return ('<b>%s</b>\n<small>%s' + _('released %s')
+                + '; ' + _('from %s') + '</small>') % (
                 html.escape(re.sub(r'\s+', ' ', self.title)),
                 html.escape(length_str),
                 html.escape(self.pubdate_prop),
@@ -82,8 +82,8 @@ class GEpisode(model.PodcastEpisode):
         downloaded_string = self.get_age_string()
         if not downloaded_string:
             downloaded_string = _('today')
-        return ('<b>%s</b>\n<small>%s; %s; ' + _('downloaded %s') +
-                '; ' + _('from %s') + '</small>') % (
+        return ('<b>%s</b>\n<small>%s; %s; ' + _('downloaded %s')
+                + '; ' + _('from %s') + '</small>') % (
                 html.escape(self.title),
                 html.escape(util.format_filesize(self.file_size)),
                 html.escape(played_string),
@@ -459,8 +459,8 @@ class EpisodeListModel(Gtk.ListStore):
                         tooltip.append(_('deletion prevented'))
 
                 if episode.total_time > 0 and episode.current_position:
-                    tooltip.append('%d%%' % (100. * float(episode.current_position) /
-                                             float(episode.total_time),))
+                    tooltip.append('%d%%' % (
+                        100. * float(episode.current_position) / float(episode.total_time)))
             elif episode._download_error is not None:
                 tooltip.append(_('ERROR: %s') % episode._download_error)
                 status_icon = self.ICON_ERROR

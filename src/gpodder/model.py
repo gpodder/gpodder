@@ -282,8 +282,8 @@ class PodcastEpisode(PodcastModelObject):
     is_locked = property(fget=_deprecated, fset=_deprecated)
 
     def has_website_link(self):
-        return bool(self.link) and (self.link != self.url or
-                youtube.is_video_link(self.link))
+        return bool(self.link) and (self.link != self.url
+                or youtube.is_video_link(self.link))
 
     @classmethod
     def from_podcastparser_entry(cls, entry, channel):
@@ -417,8 +417,8 @@ class PodcastEpisode(PodcastModelObject):
         # "Podcast Name - Title" and "Podcast Name: Title" -> "Title"
         for postfix in (' - ', ': '):
             prefix = self.parent.title + postfix
-            if (self.title.startswith(prefix) and
-                    len(self.title) - len(prefix) > LEFTOVER_MIN):
+            if (self.title.startswith(prefix)
+                    and len(self.title) - len(prefix) > LEFTOVER_MIN):
                 return self.title[len(prefix):]
 
         regex_patterns = [
@@ -437,14 +437,14 @@ class PodcastEpisode(PodcastModelObject):
 
         # "#001: Title" -> "001: Title"
         if (
-                not self.parent._common_prefix and
-                re.match(r'^#\d+: ', self.title) and
-                len(self.title) - 1 > LEFTOVER_MIN):
+                not self.parent._common_prefix
+                and re.match(r'^#\d+: ', self.title)
+                and len(self.title) - 1 > LEFTOVER_MIN):
             return self.title[1:]
 
-        if (self.parent._common_prefix is not None and
-                self.title.startswith(self.parent._common_prefix) and
-                len(self.title) - len(self.parent._common_prefix) > LEFTOVER_MIN):
+        if (self.parent._common_prefix is not None
+                and self.title.startswith(self.parent._common_prefix)
+                and len(self.title) - len(self.parent._common_prefix) > LEFTOVER_MIN):
             return self.title[len(self.parent._common_prefix):]
 
         return self.title
@@ -535,8 +535,8 @@ class PodcastEpisode(PodcastModelObject):
         return self.state != gpodder.STATE_DELETED or self.archive
 
     def check_is_new(self):
-        return (self.state == gpodder.STATE_NORMAL and self.is_new and
-                not self.downloading)
+        return (self.state == gpodder.STATE_NORMAL and self.is_new
+                and not self.downloading)
 
     def save(self):
         gpodder.user_extensions.on_episode_save(self)
@@ -642,8 +642,8 @@ class PodcastEpisode(PodcastModelObject):
         filename = filename.strip('.' + string.whitespace) + extension
 
         for name in util.generate_names(filename):
-            if (not self.db.episode_filename_exists(self.podcast_id, name) or
-                    self.download_filename == name):
+            if (not self.db.episode_filename_exists(self.podcast_id, name)
+                    or self.download_filename == name):
                 return name
 
     def local_filename(self, create, force_update=False, check_only=False,
@@ -706,9 +706,9 @@ class PodcastEpisode(PodcastModelObject):
                 episode_filename, _ = util.filename_from_url(url)
 
             # Use title for YouTube, Vimeo and Soundcloud downloads
-            if (youtube.is_video_link(self.url) or
-                    vimeo.is_video_link(self.url) or
-                    episode_filename == 'stream'):
+            if (youtube.is_video_link(self.url)
+                    or vimeo.is_video_link(self.url)
+                    or episode_filename == 'stream'):
                 episode_filename = self.title
 
             # If the basename is empty, use the md5 hexdigest of the URL
@@ -865,9 +865,10 @@ class PodcastEpisode(PodcastModelObject):
         current position is greater than 99 percent of the
         total time or inside the last 10 seconds of a track.
         """
-        return (self.current_position > 0 and self.total_time > 0 and
-                (self.current_position + 10 >= self.total_time or
-                 self.current_position >= self.total_time * .99))
+        return (self.current_position > 0
+                and self.total_time > 0
+                and (self.current_position + 10 >= self.total_time
+                or self.current_position >= self.total_time * .99))
 
     def get_play_info_string(self, duration_only=False):
         duration = util.format_time(self.total_time)
@@ -1016,8 +1017,8 @@ class PodcastChannel(PodcastModelObject):
         ignore_files = ['folder' + ext for ext in
                 coverart.CoverDownloader.EXTENSIONS]
 
-        external_files = existing_files.difference(list(known_files) +
-                [os.path.join(self.save_dir, ignore_file)
+        external_files = existing_files.difference(list(known_files)
+                + [os.path.join(self.save_dir, ignore_file)
                  for ignore_file in ignore_files])
         if not external_files:
             return
@@ -1228,8 +1229,8 @@ class PodcastChannel(PodcastModelObject):
                 real_new_episode_count += 1
 
             # Only allow a certain number of new episodes per update
-            if (self.download_strategy == PodcastChannel.STRATEGY_LATEST and
-                    real_new_episode_count > 1):
+            if (self.download_strategy == PodcastChannel.STRATEGY_LATEST
+                    and real_new_episode_count > 1):
                 episode.is_new = False
                 episode.save()
 
@@ -1243,8 +1244,8 @@ class PodcastChannel(PodcastModelObject):
         # Keep episodes that are currently being downloaded, though (bug 1534)
         if self.id is not None:
             episodes_to_purge = [e for e in existing if
-                    e.state != gpodder.STATE_DOWNLOADED and
-                    e.guid not in seen_guids and not e.downloading]
+                    e.state != gpodder.STATE_DOWNLOADED
+                    and e.guid not in seen_guids and not e.downloading]
 
             for episode in episodes_to_purge:
                 logger.debug('Episode removed from feed: %s (%s)',
@@ -1415,8 +1416,8 @@ class PodcastChannel(PodcastModelObject):
         download_folder = download_folder.strip('.' + string.whitespace)
 
         for folder_name in util.generate_names(download_folder):
-            if (not self.db.podcast_download_folder_exists(folder_name) or
-                    self.download_folder == folder_name):
+            if (not self.db.podcast_download_folder_exists(folder_name)
+                    or self.download_folder == folder_name):
                 return folder_name
 
     def get_save_dir(self, force_new=False):

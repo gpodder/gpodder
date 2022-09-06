@@ -333,11 +333,11 @@ class ExtensionManager(object):
             logger.debug('Found extension "%s" in %s', name, filename)
             config = getattr(core.config.extensions, name)
             container = ExtensionContainer(self, name, config, filename)
-            if (name in enabled_extensions or
-                    container.metadata.mandatory_in_current_ui):
+            if (name in enabled_extensions
+                    or container.metadata.mandatory_in_current_ui):
                 container.set_enabled(True)
-            if (name in enabled_extensions and
-                    container.metadata.disable_in_current_ui):
+            if (name in enabled_extensions
+                    and container.metadata.disable_in_current_ui):
                 container.set_enabled(False)
             self.containers.append(container)
 
@@ -390,9 +390,9 @@ class ExtensionManager(object):
     def get_extensions(self):
         """Get a list of all loaded extensions and their enabled flag"""
         return [c for c in self.containers
-            if c.metadata.available_for_current_ui and
-            not c.metadata.mandatory_in_current_ui and
-            not c.metadata.disable_in_current_ui]
+            if c.metadata.available_for_current_ui
+            and not c.metadata.mandatory_in_current_ui
+            and not c.metadata.disable_in_current_ui]
 
     # Define all known handler functions here, decorate them with the
     # "call_extension" decorator to forward all calls to extension scripts that have

@@ -48,8 +48,8 @@ class gPodderExtension(object):
         srtContent = ''
         for captionIndex, caption in enumerate(jsonobject['captions'], 1):
             startTime = self.milli_to_srt(introduration + caption['startTime'])
-            endTime = self.milli_to_srt(introduration + caption['startTime'] +
-                                        caption['duration'])
+            endTime = self.milli_to_srt(introduration + caption['startTime']
+                                        + caption['duration'])
             srtContent += ''.join([str(captionIndex), os.linesep, startTime,
                                    ' --> ', endTime, os.linesep,
                                    caption['content'], os.linesep * 2])
