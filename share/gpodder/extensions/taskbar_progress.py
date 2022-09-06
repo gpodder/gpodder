@@ -32,6 +32,7 @@ from comtypes import COMMETHOD, GUID, IUnknown, client, wireHWND
 import gpodder
 
 import gi  # isort:skip
+gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk  # isort:skip
 
 

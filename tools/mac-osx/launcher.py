@@ -7,7 +7,7 @@ import subprocess
 import sys
 import time
 import traceback
-from os.path import dirname, expanduser, join
+from os.path import join
 from subprocess import PIPE, CalledProcessError, Popen
 
 

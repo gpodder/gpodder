@@ -27,8 +27,6 @@ import urllib.parse
 from html.parser import HTMLParser
 from io import BytesIO
 
-from requests.exceptions import RequestException
-
 from gpodder import util, youtube
 
 logger = logging.getLogger(__name__)

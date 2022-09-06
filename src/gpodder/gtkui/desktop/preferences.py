@@ -19,7 +19,6 @@
 
 import html
 import logging
-import urllib.parse
 
 from gi.repository import Gdk, Gtk, Pango
 

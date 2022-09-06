@@ -6,7 +6,6 @@
 import datetime
 import logging
 import os
-import subprocess
 
 import gpodder
 from gpodder import util

@@ -24,7 +24,6 @@
 #  Based on libpodcasts.py (thp, 2005-10-29)
 #
 
-import collections
 import datetime
 import glob
 import hashlib

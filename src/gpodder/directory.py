@@ -23,8 +23,6 @@
 # Thomas Perl <thp@gpodder.org>; 2014-10-22
 #
 
-import json
-import os
 import urllib.error
 import urllib.parse
 import urllib.request

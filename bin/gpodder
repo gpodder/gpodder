@@ -39,7 +39,6 @@ logger = logging.getLogger(__name__)
 
 try:
     import dbus
-    from dbus.mainloop.glib import DBusGMainLoop
     have_dbus = True
 except ImportError:
     print("""

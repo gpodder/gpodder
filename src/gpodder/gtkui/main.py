@@ -34,8 +34,7 @@ import requests.exceptions
 import urllib3.exceptions
 
 import gpodder
-from gpodder import (common, download, extensions, feedcore, my, opml, player,
-                     util, youtube)
+from gpodder import common, download, feedcore, my, opml, player, util, youtube
 from gpodder.dbusproxy import DBusPodcastsProxy
 from gpodder.model import Model, PodcastEpisode
 from gpodder.syncui import gPodderSyncUI
@@ -59,7 +58,7 @@ from .services import CoverDownloader
 
 import gi  # isort:skip
 gi.require_version('Gtk', '3.0')  # isort:skip
-from gi.repository import Gdk, GdkPixbuf, Gio, GLib, Gtk, Pango  # isort:skip
+from gi.repository import Gdk, Gio, GLib, Gtk, Pango  # isort:skip
 
 
 logger = logging.getLogger(__name__)

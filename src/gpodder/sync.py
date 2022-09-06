@@ -23,15 +23,10 @@
 # based on libipodsync.py (2006-04-05 Thomas Perl)
 # Ported to gPodder 3 by Joseph Wickremasinghe in June 2012
 
-import calendar
-import glob
 import logging
 import os.path
 import threading
 import time
-from enum import Enum
-from re import S
-from urllib.parse import urlparse
 
 import gpodder
 from gpodder import download, services, util

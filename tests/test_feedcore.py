@@ -21,7 +21,7 @@ import io
 import pytest
 import requests.exceptions
 
-from gpodder.feedcore import Fetcher, Result, NEW_LOCATION, NOT_MODIFIED, UPDATED_FEED
+from gpodder.feedcore import Fetcher, NEW_LOCATION, Result, UPDATED_FEED
 
 
 class MyFetcher(Fetcher):

@@ -11,7 +11,7 @@ import os
 import subprocess
 
 import gpodder
-from gpodder import util, youtube
+from gpodder import util
 
 logger = logging.getLogger(__name__)
 

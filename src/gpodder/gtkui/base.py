@@ -22,7 +22,6 @@ Based on SimpleGladeApp.py Copyright (C) 2004 Sandino Flores Moreno
 
 import os
 import re
-import sys
 import tokenize
 
 from gi.repository import Gtk
@@ -103,7 +102,6 @@ class GtkBuilderWidget(object):
         Method called when the user interface is loaded and ready to be used.
         At this moment, the widgets are loaded and can be refered as self.widget_name
         """
-        pass
 
     def main(self):
         """
@@ -149,4 +147,3 @@ class GtkBuilderWidget(object):
         This method is called by the default implementation of run()
         after a program is finished by pressing Control-C.
         """
-        pass

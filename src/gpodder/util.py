@@ -33,11 +33,8 @@ import collections
 import datetime
 import email
 import glob
-import gzip
 import http.client
-import io
 import itertools
-import json
 import locale
 import logging
 import mimetypes
@@ -57,7 +54,6 @@ import time
 import urllib.error
 import urllib.parse
 import webbrowser
-import xml.dom.minidom
 from html.entities import entitydefs, name2codepoint
 from html.parser import HTMLParser
 
@@ -2373,7 +2369,6 @@ def mount_volume_for_file(file, op=None):
 
 
 def scale_pixbuf(pixbuf, max):
-    import gi
     from gi.repository import GdkPixbuf
 
     w_cur = pixbuf.get_width()
