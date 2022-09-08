@@ -438,9 +438,19 @@ class gPodderCli(object):
         if podcast is None:
             self._error(_('You are not subscribed to %s.') % url)
         else:
+            # Clean up downloads and download directories
+            common.clean_up_downloads()
+
             podcast.delete()
             self._db.commit()
             self._error(_('Unsubscribed from %s.') % url)
+
+            # Delete downloaded episodes
+            podcast.remove_downloaded()
+
+            # TODO: subscribe and unsubscribe need to sync with mygpo
+            # Upload subscription list changes to the web service
+#            self.mygpo_client.on_unsubscribe([podcast.url])
 
         return True
 
