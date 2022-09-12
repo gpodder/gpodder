@@ -497,7 +497,7 @@ class PodcastEpisode(PodcastModelObject):
         PAUSING and PAUSED tasks can be resumed.
         """
         return not self.was_downloaded(and_exists=True) and (
-            not self.download_task
+            self.download_task is None
             or self.download_task.can_queue()
             or self.download_task.status == self.download_task.PAUSING)
 
@@ -505,20 +505,20 @@ class PodcastEpisode(PodcastModelObject):
         """
         gPodder.on_pause_selected_episodes() filters selection with this method.
         """
-        return self.download_task and self.download_task.can_pause()
+        return self.download_task is not None and self.download_task.can_pause()
 
     def can_cancel(self):
         """
         DownloadTask.cancel() only cancels the following tasks.
         """
-        return self.download_task and self.download_task.can_cancel()
+        return self.download_task is not None and self.download_task.can_cancel()
 
     def can_delete(self):
         """
         gPodder.delete_episode_list() filters out locked episodes, and cancels all unlocked tasks in selection.
         """
         return self.state != gpodder.STATE_DELETED and not self.archive and (
-            not self.download_task or self.download_task.status == self.download_task.FAILED)
+            self.download_task is None or self.download_task.status == self.download_task.FAILED)
 
     def can_lock(self):
         """
