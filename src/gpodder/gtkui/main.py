@@ -534,9 +534,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         ignored = []
 
         for action in actions:
-            if action.is_add and action.url not in existing_urls:
+            if action.action_type == my.SubscribeAction.ADD and action.url not in existing_urls:
                 changes.append(my.Change(action))
-            elif action.is_remove and action.url in existing_urls:
+            elif action.action_type == my.SubscribeAction.REMOVE and action.url in existing_urls:
                 podcast_object = None
                 for podcast in self.channels:
                     if podcast.url == action.url:
@@ -554,8 +554,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             # but for now, we just use "None" to use the feed-provided title
             title = None
             add_list = [(title, c.action.url)
-                    for c in selected if c.action.is_add]
-            remove_list = [c.podcast for c in selected if c.action.is_remove]
+                    for c in selected if c.action.action_type == my.SubscribeAction.ADD]
+            remove_list = [c.podcast for c in selected if c.action.action_type == my.SubscribeAction.REMOVE]
 
             # Apply the accepted changes locally
             self.add_podcast_list(add_list)

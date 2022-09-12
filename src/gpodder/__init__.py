@@ -74,6 +74,22 @@ except ImportError:
 del mygpoclient
 
 try:
+    import minidb
+except ImportError:
+    print("""
+  Error: Module "minidb" (python-minidb) not found.
+         The minidb module can be downloaded from
+         https://thp.io/2010/minidb/
+
+  From a source checkout, you can download local copies of all
+  CLI dependencies for debugging (will be placed into "src/"):
+
+      python3 tools/localdepends.py
+""")
+    sys.exit(1)
+del minidb
+
+try:
     import sqlite3
 except ImportError:
     print("""

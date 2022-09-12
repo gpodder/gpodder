@@ -31,13 +31,13 @@ import os
 import sys
 import time
 
-# Append gPodder's user agent to mygpoclient's user agent
+import minidb
 import mygpoclient
 from mygpoclient import api, public
 from mygpoclient import util as mygpoutil
 
 import gpodder
-from gpodder import minidb, util
+from gpodder import util
 
 _ = gpodder.gettext
 
@@ -45,6 +45,7 @@ _ = gpodder.gettext
 logger = logging.getLogger(__name__)
 
 
+# Append gPodder's user agent to mygpoclient's user agent
 mygpoclient.user_agent += ' ' + gpodder.user_agent
 
 # 2013-02-08: We should update this to 1.7 once we use the new features
@@ -74,95 +75,69 @@ EPISODE_ACTIONS_BATCH_SIZE = 100
 
 
 # Database model classes
-class SinceValue(object):
-    __slots__ = {'host': str, 'device_id': str, 'category': int, 'since': int}
+class SinceValue(minidb.Model):
+    host = str
+    device_id = str
+    category = int
+    since = int
 
     # Possible values for the "category" field
     PODCASTS, EPISODES = list(range(2))
 
-    def __init__(self, host, device_id, category, since=0):
-        self.host = host
-        self.device_id = device_id
-        self.category = category
-        self.since = since
 
-
-class SubscribeAction(object):
-    __slots__ = {'action_type': int, 'url': str}
+class SubscribeAction(minidb.Model):
+    action_type = int
+    url = str
 
     # Possible values for the "action_type" field
     ADD, REMOVE = list(range(2))
 
-    def __init__(self, action_type, url):
-        self.action_type = action_type
-        self.url = url
-
-    @property
-    def is_add(self):
-        return self.action_type == self.ADD
-
-    @property
-    def is_remove(self):
-        return self.action_type == self.REMOVE
-
-    @classmethod
-    def add(cls, url):
-        return cls(cls.ADD, url)
-
-    @classmethod
-    def remove(cls, url):
-        return cls(cls.REMOVE, url)
-
     @classmethod
     def undo(cls, action):
-        if action.is_add:
-            return cls(cls.REMOVE, action.url)
-        elif action.is_remove:
-            return cls(cls.ADD, action.url)
+        if action.action_type == self.ADD:
+            return cls(self.REMOVE, action.url)
+        elif action.action_type == self.REMOVE:
+            return cls(self.ADD, action.url)
 
         raise ValueError('Cannot undo action: %r' % action)
 
 
-# New entity name for "received" actions
-class ReceivedSubscribeAction(SubscribeAction): pass
+class ReceivedSubscribeAction(minidb.Model):
+    action_type = int
+    url = str
 
 
-class UpdateDeviceAction(object):
-    __slots__ = {'device_id': str, 'caption': str, 'device_type': str}
-
-    def __init__(self, device_id, caption, device_type):
-        self.device_id = device_id
-        self.caption = caption
-        self.device_type = device_type
+class UpdateDeviceAction(minidb.Model):
+    device_id = str
+    caption = str
+    device_type = str
 
 
-class EpisodeAction(object):
-    __slots__ = {'podcast_url': str, 'episode_url': str, 'device_id': str,
-                 'action': str, 'timestamp': int,
-                 'started': int, 'position': int, 'total': int}
-
-    def __init__(self, podcast_url, episode_url, device_id,
-            action, timestamp, started, position, total):
-        self.podcast_url = podcast_url
-        self.episode_url = episode_url
-        self.device_id = device_id
-        self.action = action
-        self.timestamp = timestamp
-        self.started = started
-        self.position = position
-        self.total = total
+class EpisodeAction(minidb.Model):
+    podcast_url = str
+    episode_url = str
+    device_id = str
+    action = str
+    timestamp = int
+    started = int
+    position = int
+    total = int
 
 
-# New entity name for "received" actions
-class ReceivedEpisodeAction(EpisodeAction): pass
+class ReceivedEpisodeAction(minidb.Model):
+    podcast_url = str
+    episode_url = str
+    device_id = str
+    action = str
+    timestamp = int
+    started = int
+    position = int
+    total = int
 
 
-class RewrittenUrl(object):
-    __slots__ = {'old_url': str, 'new_url': str}
-
-    def __init__(self, old_url, new_url):
-        self.old_url = old_url
-        self.new_url = new_url
+class RewrittenUrl(minidb.Model):
+    old_url = str
+    new_url = str
 # End Database model classes
 
 
@@ -174,19 +149,29 @@ class Change(object):
 
     @property
     def description(self):
-        if self.action.is_add:
+        if self.action.action_type == SubscribeAction.ADD:
             return _('Add %s') % self.action.url
         else:
             return _('Remove %s') % self.podcast.title
 
 
 class MygPoClient(object):
-    STORE_FILE = 'gpodder.net'
+    STORE_FILE = 'mygposync.db'
     FLUSH_TIMEOUT = 60
     FLUSH_RETRIES = 3
 
-    def __init__(self, config):
-        self._store = minidb.Store(os.path.join(gpodder.home, self.STORE_FILE))
+    def __init__(self, config, store=None):
+        if store is None:
+            store = minidb.Store(os.path.join(gpodder.home, self.STORE_FILE))
+
+        self._store = store
+
+        for modelclass in (SinceValue,
+                           SubscribeAction, ReceivedSubscribeAction,
+                           UpdateDeviceAction,
+                           EpisodeAction, ReceivedEpisodeAction,
+                           RewrittenUrl):
+            self._store.register(modelclass)
 
         self._config = config
         self._client = None
@@ -207,12 +192,12 @@ class MygPoClient(object):
         or when the mygpo client functionality is enabled.
         """
         # Remove all previous device update actions
-        self._store.remove(self._store.load(UpdateDeviceAction))
+        self._store.delete_all(UpdateDeviceAction)
 
         # Insert our new update action
-        action = UpdateDeviceAction(self.device_id,
-                self._config.mygpo.device.caption,
-                self._config.mygpo.device.type)
+        action = UpdateDeviceAction(device_id=self.device_id,
+                caption=self._config.mygpo.device.caption,
+                device_type=self._config.mygpo.device.type)
         self._store.save(action)
 
     def get_rewritten_urls(self):
@@ -222,8 +207,8 @@ class MygPoClient(object):
         should be merged into the database, and the old_url
         should be updated to new_url in every podcdast.
         """
-        rewritten_urls = self._store.load(RewrittenUrl)
-        self._store.remove(rewritten_urls)
+        rewritten_urls = list(self._store.load(RewrittenUrl))
+        self._store.delete_all(RewrittenUrl)
         return rewritten_urls
 
     def process_episode_actions(self, find_episode, on_updated=None):
@@ -277,7 +262,7 @@ class MygPoClient(object):
                         on_updated(episode)
 
         # Remove all received episode actions
-        self._store.delete(ReceivedEpisodeAction)
+        self._store.delete_all(ReceivedEpisodeAction)
         self._store.commit()
         logger.debug('Received episode actions processed.')
 
@@ -302,7 +287,8 @@ class MygPoClient(object):
         podcast backend.
         """
         # Simply remove the received actions from the queue
-        self._store.remove(actions)
+        for action in actions:
+            action.delete()
 
     def reject_received_actions(self, actions):
         """Reject (undo) a list of ReceivedSubscribeAction objects
@@ -313,11 +299,10 @@ class MygPoClient(object):
         state on the server matches the state on the client.
         """
         # Create "undo" actions for received subscriptions
-        self._store.save(SubscribeAction.undo(a) for a in actions)
+        for action in actions:
+            self._store.save(SubscribeAction.undo(a))
+            action.delete()
         self.flush()
-
-        # After we've handled the reverse-actions, clean up
-        self._store.remove(actions)
 
     @property
     def host(self):
@@ -341,46 +326,63 @@ class MygPoClient(object):
             raise Exception('Webservice access not enabled')
 
     def _convert_played_episode(self, episode, start, end, total):
-        return EpisodeAction(episode.channel.url,
-                episode.url, self.device_id, 'play',
-                int(time.time()), start, end, total)
+        return EpisodeAction(podcast_url=episode.channel.url,
+                episode_url=episode.url,
+                device_id=self.device_id,
+                action='play',
+                timestamp=int(time.time()),
+                started=start,
+                position=end,
+                total=total)
 
     def _convert_episode(self, episode, action):
-        return EpisodeAction(episode.channel.url,
-                episode.url, self.device_id, action,
-                int(time.time()), None, None, None)
+        return EpisodeAction(podcast_url=episode.channel.url,
+                episode_url=episode.url,
+                device_id=self.device_id,
+                action=action,
+                timestamp=int(time.time()),
+                started=None,
+                position=None,
+                total=None)
 
     def on_delete(self, episodes):
         logger.debug('Storing %d episode delete actions', len(episodes))
-        self._store.save(self._convert_episode(e, 'delete') for e in episodes)
+        for e in episodes:
+            self._convert_episode(e, 'delete').save(self._store)
 
     def on_download(self, episodes):
         logger.debug('Storing %d episode download actions', len(episodes))
-        self._store.save(self._convert_episode(e, 'download') for e in episodes)
+        for e in episodes:
+            self._convert_episode(e, 'download').save(self._store)
 
     def on_playback_full(self, episode, start, end, total):
         logger.debug('Storing full episode playback action')
-        self._store.save(self._convert_played_episode(episode, start, end, total))
+        self._convert_played_episode(episode, start, end, total).save(self._store)
 
     def on_playback(self, episodes):
         logger.debug('Storing %d episode playback actions', len(episodes))
-        self._store.save(self._convert_episode(e, 'play') for e in episodes)
+        for e in episodes:
+            self._convert_episode(e, 'play').save(self._store)
 
     def on_subscribe(self, urls):
-        # Cancel previously-inserted "remove" actions
-        self._store.remove(SubscribeAction.remove(url) for url in urls)
+        for url in urls:
+            # Cancel previously-inserted "remove" action
+            self._store.delete_where(SubscribeAction, (SubscribeAction.c.url == url and
+                                                       SubscribeAction.c.action_type == SubscribeAction.REMOVE))
 
-        # Insert new "add" actions
-        self._store.save(SubscribeAction.add(url) for url in urls)
+            # Insert new "add" action
+            SubscribeAction(url=url, action_type=SubscribeAction.ADD).save(self._store)
 
         self.flush()
 
     def on_unsubscribe(self, urls):
-        # Cancel previously-inserted "add" actions
-        self._store.remove(SubscribeAction.add(url) for url in urls)
+        for url in urls:
+            # Cancel previously-inserted "add" actions
+            self._store.delete_where(SubscribeAction, (SubscribeAction.c.url == url and
+                                                       SubscribeAction.c.action_type == SubscribeAction.ADD))
 
-        # Insert new "remove" actions
-        self._store.save(SubscribeAction.remove(url) for url in urls)
+            # Insert new "remove" actions
+            SubscribeAction(url=url, action_type=SubscribeAction.REMOVE).save(self._store)
 
         self.flush()
 
@@ -412,21 +414,23 @@ class MygPoClient(object):
                 # Update the device first, so it can be created if new
                 for action in self._store.load(UpdateDeviceAction):
                     if self.update_device(action):
-                        self._store.remove(action)
+                        action.delete()
                     else:
                         must_retry = True
 
                 # Upload podcast subscription actions
                 actions = self._store.load(SubscribeAction)
                 if self.synchronize_subscriptions(actions):
-                    self._store.remove(actions)
+                    for action in actions:
+                        action.delete()
                 else:
                     must_retry = True
 
                 # Upload episode actions
                 actions = self._store.load(EpisodeAction)
                 if self.synchronize_episodes(actions):
-                    self._store.remove(actions)
+                    for action in actions:
+                        action.delete()
                 else:
                     must_retry = True
 
@@ -480,10 +484,14 @@ class MygPoClient(object):
         def convert_from_api(action):
             dt = mygpoutil.iso8601_to_datetime(action.timestamp)
             action_ts = calendar.timegm(dt.timetuple())
-            return ReceivedEpisodeAction(action.podcast,
-                    action.episode, action.device,
-                    action.action, action_ts,
-                    action.started, action.position, action.total)
+            return ReceivedEpisodeAction(podcast_url=action.podcast,
+                    episode_url=action.episode,
+                    device_id=action.device,
+                    action=action.action,
+                    timestamp=action_ts,
+                    started=action.started,
+                    position=action.position,
+                    total=action.total)
 
         try:
             # Load the "since" value from the database
@@ -493,7 +501,7 @@ class MygPoClient(object):
 
             # Use a default since object for the first-time case
             if since_o is None:
-                since_o = SinceValue(self.host, self.device_id, SinceValue.EPISODES)
+                since_o = SinceValue(host=self.host, device_id=self.device_id, category=SinceValue.EPISODES, since=0)
 
             # Step 1: Download Episode actions
             try:
@@ -501,10 +509,12 @@ class MygPoClient(object):
 
                 received_actions = [convert_from_api(a) for a in changes.actions]
                 logger.debug('Received %d episode actions', len(received_actions))
-                self._store.save(received_actions)
+                for action in received_actions:
+                    action.save(self._store)
 
                 # Save the "since" value for later use
-                self._store.update(since_o, since=changes.since)
+                since_o.since = changes.since
+                since_o.save(self._store)
 
             except (MissingCredentials, mygpoclient.http.Unauthorized):
                 # handle outside
@@ -514,6 +524,8 @@ class MygPoClient(object):
                 logger.warning('Exception while polling for episodes.', exc_info=True)
 
             # Step 2: Upload Episode actions
+
+            actions = list(actions)
 
             # Uploads are done in batches; uploading can resume if only parts
             # be uploaded; avoids empty uploads as well
@@ -527,7 +539,8 @@ class MygPoClient(object):
                 self._client.upload_episode_actions(episode_actions)
 
                 # Actions have been uploaded to the server - remove them
-                self._store.remove(batch)
+                for action in batch:
+                    action.delete()
 
             logger.debug('Episode actions have been uploaded to the server.')
             return True
@@ -551,32 +564,31 @@ class MygPoClient(object):
 
             # Use a default since object for the first-time case
             if since_o is None:
-                since_o = SinceValue(self.host, self.device_id, SinceValue.PODCASTS)
+                since_o = SinceValue(host=self.host, device_id=self.device_id, category=SinceValue.PODCASTS, since=0)
 
             # Step 1: Pull updates from the server and notify the frontend
             result = self._client.pull_subscriptions(self.device_id, since_o.since)
 
             # Update the "since" value in the database
-            self._store.update(since_o, since=result.since)
+            since_o.since = result.since
+            since_o.save(self._store)
 
             # Store received actions for later retrieval (and in case we
             # have outdated actions in the database, simply remove them)
             for url in result.add:
                 logger.debug('Received add action: %s', url)
-                self._store.remove(ReceivedSubscribeAction.remove(url))
-                self._store.remove(ReceivedSubscribeAction.add(url))
-                self._store.save(ReceivedSubscribeAction.add(url))
+                self._store.delete_where(ReceivedSubscribeAction, ReceivedSubscribeAction.c.url == url)
+                ReceivedSubscribeAction(url=url, action_type=SubscribeAction.ADD).save(self._store)
             for url in result.remove:
                 logger.debug('Received remove action: %s', url)
-                self._store.remove(ReceivedSubscribeAction.add(url))
-                self._store.remove(ReceivedSubscribeAction.remove(url))
-                self._store.save(ReceivedSubscribeAction.remove(url))
+                self._store.delete_where(ReceivedSubscribeAction, ReceivedSubscribeAction.c.url == url)
+                ReceivedSubscribeAction(url=url, action_type=SubscribeAction.REMOVE).save(self._store)
 
             # Step 2: Push updates to the server and rewrite URLs (if any)
             actions = self._store.load(SubscribeAction)
 
-            add = [a.url for a in actions if a.is_add]
-            remove = [a.url for a in actions if a.is_remove]
+            add = [a.url for a in actions if a.action_type == SubscribeAction.ADD]
+            remove = [a.url for a in actions if a.action_type == SubscribeAction.REMOVE]
 
             if add or remove:
                 logger.debug('Uploading: +%d / -%d', len(add), len(remove))
@@ -584,16 +596,18 @@ class MygPoClient(object):
                 result = self._client.update_subscriptions(self.device_id, add, remove)
 
                 # Update the "since" value in the database
-                self._store.update(since_o, since=result.since)
+                since_o.since = result.since
+                since_o.save(self._store)
 
                 # Store URL rewrites for later retrieval by GUI
                 for old_url, new_url in result.update_urls:
                     if new_url:
                         logger.debug('Rewritten URL: %s', new_url)
-                        self._store.save(RewrittenUrl(old_url, new_url))
+                        RewrittenUrl(old_url=old_url, new_url=new_url).save(self._store)
 
             # Actions have been uploaded to the server - remove them
-            self._store.remove(actions)
+            for action in actions:
+                action.delete()
             logger.debug('All actions have been uploaded to the server.')
             return True
 
