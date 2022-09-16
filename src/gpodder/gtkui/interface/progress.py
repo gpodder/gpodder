@@ -98,7 +98,8 @@ class ProgressIndicator(object):
         self.dialog.show_all()
 
         self._update_gui()
-        GLib.source_remove(self.source_id)
+
+        # previous self.source_id timeout is removed when this returns False
         self.source_id = GLib.timeout_add(self.INTERVAL, self._update_gui)
         return False
 
