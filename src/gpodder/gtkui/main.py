@@ -636,7 +636,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         important=True)
             util.idle_add(show_error, e)
 
-        util.idle_add(indicator.on_finished)
+        indicator.on_finished()
 
     def on_button_subscribe_clicked(self, button):
         self.on_itemImportChannels_activate(button)
@@ -1612,7 +1612,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.__for_each_task_set_status(tasks, status, force_start=force_start, progress_callback=progress_callback)
 
         if progress_indicator:
-            util.idle_add(progress_indicator.on_finished)
+            progress_indicator.on_finished()
 
     def __for_each_task_set_status(self, tasks, status, force_start=False, progress_callback=None):
         count = len(tasks)
@@ -2557,6 +2557,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         def on_after_update():
             progress.on_finished()
+
             # Report already-existing subscriptions to the user
             if existing:
                 title = _('Existing subscriptions skipped')
@@ -2723,8 +2724,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.mygpo_client.process_episode_actions(self.find_episode)
 
-        indicator.on_finished()
         self.db.commit()
+
+        indicator.on_finished()
 
     def _update_cover(self, channel):
         if channel is not None:
@@ -3010,14 +3012,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 parent=self.get_dialog_parent())
 
         def finish_deletion(episode_urls, channel_urls):
-            progress.on_finished()
-
             # Episodes have been deleted - persist the database
             self.db.commit()
 
             self.update_episode_list_icons(episode_urls)
             self.update_podcast_list_model(channel_urls)
             self.play_or_download()
+
+            progress.on_finished()
 
         @util.run_in_background
         def thread_proc():
@@ -3221,8 +3223,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
             # Flush updated episode status
             if self.mygpo_client.can_access_webservice():
                 self.mygpo_client.flush()
+
             if progress_indicator:
-                util.idle_add(progress_indicator.on_finished)
+                progress_indicator.on_finished()
 
         queued_existing_task = False
         new_tasks = []
@@ -3476,6 +3479,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             # Re-load the channels and select the desired new channel
             self.update_podcast_list_model(select_url=select_url)
+
             progress.on_finished()
 
         @util.run_in_background
