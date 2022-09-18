@@ -1386,7 +1386,7 @@ def bluetooth_send_file(filename):
         return False
 
 
-def format_time(value):
+def format_time(seconds):
     """Format a seconds value to a string
 
     >>> format_time(0)
@@ -1397,12 +1397,22 @@ def format_time(value):
     '01:00:00'
     >>> format_time(10921)
     '03:02:01'
+    >>> format_time(86401)
+    '24:00:01'
     """
-    dt = datetime.datetime.utcfromtimestamp(value)
-    if dt.hour == 0:
-        return dt.strftime('%M:%S')
+    hours = 0
+    minutes = 0
+    if seconds >= 3600:
+        hours = seconds // 3600
+        seconds -= hours * 3600
+    if seconds >= 60:
+        minutes = seconds // 60
+        seconds -= minutes * 60
+
+    if hours == 0:
+        return '%02d:%02d' % (minutes, seconds)
     else:
-        return dt.strftime('%H:%M:%S')
+        return '%02d:%02d:%02d' % (hours, minutes, seconds)
 
 
 def parse_time(value):
