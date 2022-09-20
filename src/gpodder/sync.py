@@ -458,16 +458,20 @@ class MP3PlayerDevice(Device):
                 self.destination.get_uri(), err.message)
             return False
 
+        if info.get_file_type() != Gio.FileType.DIRECTORY:
+            logger.error('destination %s is not a directory', self.destination.get_uri())
+            return False
+
         # open is ok if the target is a directory, and it can be written to
         # for smb, query_info doesn't return FILE_ATTRIBUTE_ACCESS_CAN_WRITE,
         # -- if that's the case, just assume that it's writable
-        if (info.get_file_type() == Gio.FileType.DIRECTORY and (
-            not info.has_attribute(Gio.FILE_ATTRIBUTE_ACCESS_CAN_WRITE) or
-                info.get_attribute_boolean(Gio.FILE_ATTRIBUTE_ACCESS_CAN_WRITE))):
+        if (not info.has_attribute(Gio.FILE_ATTRIBUTE_ACCESS_CAN_WRITE) or
+                info.get_attribute_boolean(Gio.FILE_ATTRIBUTE_ACCESS_CAN_WRITE)):
             self.notify('status', _('MP3 player opened'))
             self.tracks_list = self.get_all_tracks()
             return True
 
+        logger.error('destination %s is not writable', self.destination.get_uri())
         return False
 
     def get_episode_folder_on_device(self, episode):
