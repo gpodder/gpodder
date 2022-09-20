@@ -428,6 +428,14 @@ class gPodderYoutubeDL(download.CustomDownloader):
         """
         if not self.force and not self.my_config.manage_downloads:
             return None
+
+        try:  # Reject URLs linking to known media files
+            (_, ext) = util.filename_from_url(episode.url)
+            if util.file_type_by_extension(ext) is not None:
+                return None
+        except Exception:
+            pass
+
         if self.is_supported_url(episode.url):
             return YoutubeCustomDownload(self, episode.url, episode)
 
