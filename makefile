@@ -37,8 +37,8 @@ MOFILES = $(patsubst po/%.po,$(LOCALEDIR)/%/LC_MESSAGES/gpodder.mo, $(POFILES))
 UIFILES=$(wildcard share/gpodder/ui/gtk/*.ui)
 UIFILES_H=$(subst .ui,.ui.h,$(UIFILES))
 GETTEXT_SOURCE=$(wildcard src/gpodder/*.py \
-		          src/gpodder/gtkui/*.py \
-		          src/gpodder/gtkui/interface/*.py \
+			  src/gpodder/gtkui/*.py \
+			  src/gpodder/gtkui/interface/*.py \
 			  src/gpodder/gtkui/desktop/*.py \
 			  src/gpodder/plugins/*.py \
 			  share/gpodder/extensions/*.py)
@@ -71,13 +71,12 @@ lint:
 	pycodestyle share src/gpodder tools bin/* *.py
 	isort -q $(ISORTOPTS) || isort --df $(ISORTOPTS)
 
-
 release: distclean
 	$(PYTHON) setup.py sdist
 
 releasetest: unittest $(DESKTOP_FILES) $(POFILES)
-	for f in $(DESKTOP_FILES); do desktop-file-validate $$f; done
-	for f in $(POFILES); do msgfmt --check $$f; done
+	for f in $(DESKTOP_FILES); do desktop-file-validate $$f || exit 1; done
+	for f in $(POFILES); do msgfmt --check $$f || exit 1; done
 
 $(GPODDER_SERVICE_FILE): $(GPODDER_SERVICE_FILE_IN)
 	sed -e 's#__PREFIX__#$(PREFIX)#' $< >$@
@@ -139,7 +138,6 @@ $(MESSAGES): $(GETTEXT_SOURCE)
 messages-force:
 	xgettext --from-code=utf-8 -LPython -k_:1 -kN_:1 -kN_:1,2 -kn_:1,2 -o $(MESSAGES)  $(GETTEXT_SOURCE)
 
-
 ##########################################################################
 
 # This only works in a Git working commit, and assumes that the local Git
@@ -170,5 +168,3 @@ distclean: clean
 .PHONY: help unittest release releasetest install manpages clean distclean messages headlink lint revbump
 
 ##########################################################################
-
-
