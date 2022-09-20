@@ -95,6 +95,10 @@ class gPodderApplication(Gtk.Application):
         action.connect('activate', self.on_help_activate)
         self.add_action(action)
 
+        action = Gio.SimpleAction.new('logs', None)
+        action.connect('activate', self.on_logs_activate)
+        self.add_action(action)
+
         action = Gio.SimpleAction.new('preferences', None)
         action.connect('activate', self.on_itemPreferences_activate)
         self.add_action(action)
@@ -247,6 +251,9 @@ class gPodderApplication(Gtk.Application):
 
     def on_help_activate(self, action, param):
         util.open_website('https://gpodder.github.io/docs/')
+
+    def on_logs_activate(self, action, param):
+        util.gui_open(os.path.join(gpodder.home, 'Logs'), gui=self.window)
 
     def on_itemPreferences_activate(self, action, param=None):
         gPodderPreferences(self.window.gPodder,
