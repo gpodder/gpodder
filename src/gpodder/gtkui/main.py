@@ -1015,7 +1015,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 (('text/uri-list', 0, 0),), Gdk.DragAction.COPY)
 
         def drag_data_get(tree, context, selection_data, info, timestamp):
-            uris = ['file://' + e.local_filename(create=False)
+            uris = ['file://' + urllib.parse.quote(e.local_filename(create=False))
                     for e in self.get_selected_episodes()
                     if e.was_downloaded(and_exists=True)]
             selection_data.set_uris(uris)
