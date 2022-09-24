@@ -105,14 +105,22 @@ class gPodderSyncUI(object):
                 done_callback()
             return
 
-        if not device.open():
+        try:
+            if not device.open():
+                self._show_message_cannot_open()
+                if done_callback:
+                    done_callback()
+                return
+            else:
+                # Only set if device is configured and opened successfully
+                self.device = device
+        except Exception as err:
+            logger.error('opening destination %s failed with %s',
+                device.destination.get_uri(), err.message)
             self._show_message_cannot_open()
             if done_callback:
                 done_callback()
             return
-        else:
-            # Only set if device is configured and opened successfully
-            self.device = device
 
         if episodes is None:
             force_played = False
