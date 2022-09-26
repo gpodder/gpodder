@@ -489,6 +489,8 @@ class EpisodeListModel(Gtk.ListStore):
         tooltip = ', '.join(tooltip)
 
         description = self._format_description(episode, include_description)
+        time = episode.get_play_info_string()
+        filesize = self._format_filesize(episode)
 
         return (
                 (self.C_STATUS_ICON, status_icon),
@@ -497,18 +499,16 @@ class EpisodeListModel(Gtk.ListStore):
                 (self.C_VIEW_SHOW_UNPLAYED, view_show_unplayed),
                 (self.C_DESCRIPTION, description),
                 (self.C_TOOLTIP, tooltip),
-                (self.C_TIME, episode.get_play_info_string()),
+                (self.C_TIME, time),
                 (self.C_TIME_VISIBLE, bool(episode.total_time)),
                 (self.C_TOTAL_TIME, episode.total_time),
                 (self.C_LOCKED, episode.archive),
-                (self.C_FILESIZE_TEXT, self._format_filesize(episode)),
+                (self.C_FILESIZE_TEXT, filesize),
                 (self.C_FILESIZE, episode.file_size),
 
-                (self.C_TIME_AND_SIZE, "%s\n<small>%s</small>"
-                    % (episode.get_play_info_string(), self._format_filesize(episode) if episode.file_size > 0 else "")),
+                (self.C_TIME_AND_SIZE, "%s\n<small>%s</small>" % (time, filesize if episode.file_size > 0 else "")),
                 (self.C_TOTAL_TIME_AND_SIZE, episode.total_time),
-                (self.C_FILESIZE_AND_TIME_TEXT, "%s\n<small>%s</small>"
-                    % (self._format_filesize(episode) if episode.file_size > 0 else "", episode.get_play_info_string())),
+                (self.C_FILESIZE_AND_TIME_TEXT, "%s\n<small>%s</small>" % (filesize if episode.file_size > 0 else "", time)),
                 (self.C_FILESIZE_AND_TIME, episode.file_size),
         )
 
