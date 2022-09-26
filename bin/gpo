@@ -88,6 +88,7 @@ import pydoc
 import re
 import shlex
 import sys
+import textwrap
 import threading
 
 try:
@@ -491,13 +492,18 @@ class gPodderCli(object):
                     return "disabled"
                 return "enabled"
 
-            title, url, status = podcast.title, podcast.url, \
-                feed_update_status_msg(podcast)
+            title, url, description, link, status = (
+                podcast.title, podcast.url, podcast.description, podcast.link,
+                feed_update_status_msg(podcast))
+            description = '\n'.join(textwrap.wrap(description, subsequent_indent=' ' * 8))
             episodes = self._episodesList(podcast)
             episodes = '\n      '.join(episodes)
             self._pager("""
     Title: %(title)s
     URL: %(url)s
+    Description:
+        %(description)s
+    Link: %(link)s
     Feed update is %(status)s
 
     Episodes:
