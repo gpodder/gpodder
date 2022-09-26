@@ -192,6 +192,7 @@ class EpisodeListModel(Gtk.ListStore):
         # Are we currently showing "all episodes"/section or a single channel?
         self._section_view = False
 
+        self.icon_theme = Gtk.IconTheme.get_default()
         self.ICON_WEB_BROWSER = 'web-browser'
         self.ICON_AUDIO_FILE = 'audio-x-generic'
         self.ICON_VIDEO_FILE = 'video-x-generic'
@@ -377,7 +378,6 @@ class EpisodeListModel(Gtk.ListStore):
         view_show_undeleted = True
         view_show_downloaded = False
         view_show_unplayed = False
-        icon_theme = Gtk.IconTheme.get_default()
 
         task = episode.download_task
 
@@ -434,7 +434,7 @@ class EpisodeListModel(Gtk.ListStore):
                         file_info = file.query_info('*', Gio.FileQueryInfoFlags.NONE, None)
                         icon = file_info.get_icon()
                         for icon_name in icon.get_names():
-                            if icon_theme.has_icon(icon_name):
+                            if self.icon_theme.has_icon(icon_name):
                                 status_icon = icon_name
                                 break
 
@@ -605,6 +605,7 @@ class PodcastListModel(Gtk.ListStore):
         self._scale = 1
         self._cover_downloader = cover_downloader
 
+        self.icon_theme = Gtk.IconTheme.get_default()
         self.ICON_DISABLED = 'media-playback-pause'
         self.ICON_ERROR = 'dialog-warning'
 
@@ -712,14 +713,13 @@ class PodcastListModel(Gtk.ListStore):
 
     def _overlay_pixbuf(self, pixbuf, icon):
         try:
-            icon_theme = Gtk.IconTheme.get_default()
-            emblem = icon_theme.load_icon(icon, self._max_image_side / 2, 0)
+            emblem = self.icon_theme.load_icon(icon, self._max_image_side / 2, 0)
             (width, height) = (emblem.get_width(), emblem.get_height())
             xpos = pixbuf.get_width() - width
             ypos = pixbuf.get_height() - height
             if ypos < 0:
                 # need to resize overlay for none standard icon size
-                emblem = icon_theme.load_icon(icon, pixbuf.get_height() - 1, 0)
+                emblem = self.icon_theme.load_icon(icon, pixbuf.get_height() - 1, 0)
                 (width, height) = (emblem.get_width(), emblem.get_height())
                 xpos = pixbuf.get_width() - width
                 ypos = pixbuf.get_height() - height
