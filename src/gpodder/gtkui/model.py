@@ -282,24 +282,27 @@ class EpisodeListModel(Gtk.ListStore):
         return self._search_term
 
     def _format_description(self, episode, include_description=False):
-        title = episode.trimmed_title
+        d = []
 
+        title = episode.trimmed_title
         if episode.state != gpodder.STATE_DELETED and episode.is_new:
-            yield '<b>'
-            yield html.escape(title)
-            yield '</b>'
+            d.append('<b>')
+            d.append(html.escape(title))
+            d.append('</b>')
         else:
-            yield html.escape(title)
+            d.append(html.escape(title))
 
         if include_description:
-            yield '\n'
+            d.append('\n')
             if self._section_view:
-                yield _('from %s') % html.escape(episode.channel.title)
+                d.append(_('from %s') % html.escape(episode.channel.title))
             else:
                 description = episode.one_line_description()
                 if description.startswith(title):
                     description = description[len(title):].strip()
-                yield html.escape(description)
+                d.append(html.escape(description))
+
+        return ''.join(d)
 
     def replace_from_channel(self, channel, include_description=False):
         """
@@ -485,7 +488,8 @@ class EpisodeListModel(Gtk.ListStore):
 
         tooltip = ', '.join(tooltip)
 
-        description = ''.join(self._format_description(episode, include_description))
+        description = self._format_description(episode, include_description)
+
         return (
                 (self.C_STATUS_ICON, status_icon),
                 (self.C_VIEW_SHOW_UNDELETED, view_show_undeleted),
