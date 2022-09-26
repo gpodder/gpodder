@@ -127,11 +127,11 @@ class BackgroundUpdate(object):
         while self.episodes:
             episode = self.episodes.pop(0)
             base_fields = (
-                (model.C_URL, episode.url),
-                (model.C_TITLE, episode.title),
-                (model.C_EPISODE, episode),
-                (model.C_PUBLISHED_TEXT, episode.cute_pubdate()),
-                (model.C_PUBLISHED, episode.published),
+                model.C_URL, episode.url,
+                model.C_TITLE, episode.title,
+                model.C_EPISODE, episode,
+                model.C_PUBLISHED_TEXT, episode.cute_pubdate(),
+                model.C_PUBLISHED, episode.published,
             )
             update_fields = model.get_update_fields(episode, include_description)
             try:
@@ -139,8 +139,11 @@ class BackgroundUpdate(object):
             # fix #727 the tree might be invalid when trying to update so discard the exception
             except ValueError:
                 break
-            model.set(it, *(x for fields in (base_fields, update_fields)
-                            for pair in fields for x in pair))
+            # model.get_update_fields() takes 38-67% of each iteration, depending on episode status
+            # with downloaded episodes using the most time
+            # model.set(), excluding the field expansion, takes 33-62% of each iteration
+            # and each iteration takes 1ms or more on slow machines
+            model.set(it, *(base_fields + update_fields))
             self.index += 1
 
             # Check for the time limit of 20 ms after each 50 rows processed
@@ -493,29 +496,29 @@ class EpisodeListModel(Gtk.ListStore):
         filesize = self._format_filesize(episode)
 
         return (
-                (self.C_STATUS_ICON, status_icon),
-                (self.C_VIEW_SHOW_UNDELETED, view_show_undeleted),
-                (self.C_VIEW_SHOW_DOWNLOADED, view_show_downloaded),
-                (self.C_VIEW_SHOW_UNPLAYED, view_show_unplayed),
-                (self.C_DESCRIPTION, description),
-                (self.C_TOOLTIP, tooltip),
-                (self.C_TIME, time),
-                (self.C_TIME_VISIBLE, bool(episode.total_time)),
-                (self.C_TOTAL_TIME, episode.total_time),
-                (self.C_LOCKED, episode.archive),
-                (self.C_FILESIZE_TEXT, filesize),
-                (self.C_FILESIZE, episode.file_size),
+                self.C_STATUS_ICON, status_icon,
+                self.C_VIEW_SHOW_UNDELETED, view_show_undeleted,
+                self.C_VIEW_SHOW_DOWNLOADED, view_show_downloaded,
+                self.C_VIEW_SHOW_UNPLAYED, view_show_unplayed,
+                self.C_DESCRIPTION, description,
+                self.C_TOOLTIP, tooltip,
+                self.C_TIME, time,
+                self.C_TIME_VISIBLE, bool(episode.total_time),
+                self.C_TOTAL_TIME, episode.total_time,
+                self.C_LOCKED, episode.archive,
+                self.C_FILESIZE_TEXT, filesize,
+                self.C_FILESIZE, episode.file_size,
 
-                (self.C_TIME_AND_SIZE, "%s\n<small>%s</small>" % (time, filesize if episode.file_size > 0 else "")),
-                (self.C_TOTAL_TIME_AND_SIZE, episode.total_time),
-                (self.C_FILESIZE_AND_TIME_TEXT, "%s\n<small>%s</small>" % (filesize if episode.file_size > 0 else "", time)),
-                (self.C_FILESIZE_AND_TIME, episode.file_size),
+                self.C_TIME_AND_SIZE, "%s\n<small>%s</small>" % (time, filesize if episode.file_size > 0 else ""),
+                self.C_TOTAL_TIME_AND_SIZE, episode.total_time,
+                self.C_FILESIZE_AND_TIME_TEXT, "%s\n<small>%s</small>" % (filesize if episode.file_size > 0 else "", time),
+                self.C_FILESIZE_AND_TIME, episode.file_size,
         )
 
     def update_by_iter(self, iter, include_description=False):
         episode = self.get_value(iter, self.C_EPISODE)
         if episode is not None:
-            self.set(iter, *(x for pair in self.get_update_fields(episode, include_description) for x in pair))
+            self.set(iter, *self.get_update_fields(episode, include_description))
 
 
 class PodcastChannelProxy:
