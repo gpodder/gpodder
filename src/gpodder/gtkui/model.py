@@ -146,8 +146,8 @@ class BackgroundUpdate(object):
             model.set(it, *(base_fields + update_fields))
             self.index += 1
 
-            # Check for the time limit of 20 ms after each 50 rows processed
-            if self.index % 50 == 0 and (time.time() - started) > 0.02:
+            # Check for the time limit of 500ms after each 50 rows processed
+            if self.index % 50 == 0 and (time.time() - started) > 0.5:
                 break
 
         return bool(self.episodes)
