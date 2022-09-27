@@ -376,31 +376,23 @@ class EpisodeListModel(Gtk.ListStore):
                 include_description)
 
     def get_update_fields(self, episode, include_description):
-        show_bullet = False
-        show_padlock = False
-        show_missing = False
-        status_icon = None
         tooltip = []
+        status_icon = None
         view_show_undeleted = True
         view_show_downloaded = False
         view_show_unplayed = False
 
-        task = episode.download_task
-
-        if task is not None and task.status in (task.PAUSING, task.PAUSED):
-            tooltip.append('%s %d%%' % (_('Paused'),
-                int(task.progress * 100)))
-
-            status_icon = 'media-playback-pause'
-
-            view_show_downloaded = True
-            view_show_unplayed = True
-        elif episode.downloading:
-            tooltip.append('%s %d%%' % (_('Downloading'),
-                int(task.progress * 100)))
-
-            index = int(self.PROGRESS_STEPS * task.progress)
-            status_icon = 'gpodder-progress-%d' % index
+        if episode.downloading:
+            task = episode.download_task
+            if task.status in (task.PAUSING, task.PAUSED):
+                tooltip.append('%s %d%%' % (_('Paused'),
+                    int(task.progress * 100)))
+                status_icon = 'media-playback-pause'
+            else:
+                tooltip.append('%s %d%%' % (_('Downloading'),
+                    int(task.progress * 100)))
+                index = int(self.PROGRESS_STEPS * task.progress)
+                status_icon = 'gpodder-progress-%d' % index
 
             view_show_downloaded = True
             view_show_unplayed = True
@@ -410,13 +402,8 @@ class EpisodeListModel(Gtk.ListStore):
                 status_icon = self.ICON_DELETED
                 view_show_undeleted = False
             elif episode.state == gpodder.STATE_DOWNLOADED:
-                tooltip = []
                 view_show_downloaded = True
                 view_show_unplayed = episode.is_new
-                show_bullet = episode.is_new
-                show_padlock = episode.archive
-                show_missing = not episode.file_exists()
-                filename = episode.local_filename(create=False, check_only=True)
 
                 file_type = episode.file_type()
                 if file_type == 'audio':
@@ -434,6 +421,7 @@ class EpisodeListModel(Gtk.ListStore):
 
                 # Try to find a themed icon for this file
                 # doesn't work on win32 (opus files are showed as text)
+                filename = episode.local_filename(create=False, check_only=True)
                 if filename is not None and have_gio and not gpodder.ui.win32:
                     file = Gio.File.new_for_path(filename)
                     if file.query_exists():
@@ -444,24 +432,24 @@ class EpisodeListModel(Gtk.ListStore):
                                 status_icon = icon_name
                                 break
 
-                if show_missing:
+                if not episode.file_exists():
                     tooltip.append(_('missing file'))
                 else:
-                    if show_bullet:
-                        if file_type == 'image':
-                            tooltip.append(_('never displayed'))
-                        elif file_type in ('audio', 'video'):
+                    if episode.is_new:
+                        if file_type in ('audio', 'video'):
                             tooltip.append(_('never played'))
+                        elif file_type == 'image':
+                            tooltip.append(_('never displayed'))
                         else:
                             tooltip.append(_('never opened'))
                     else:
-                        if file_type == 'image':
-                            tooltip.append(_('displayed'))
-                        elif file_type in ('audio', 'video'):
+                        if file_type in ('audio', 'video'):
                             tooltip.append(_('played'))
+                        elif file_type == 'image':
+                            tooltip.append(_('displayed'))
                         else:
                             tooltip.append(_('opened'))
-                    if show_padlock:
+                    if episode.archive:
                         tooltip.append(_('deletion prevented'))
 
                 if episode.total_time > 0 and episode.current_position:
