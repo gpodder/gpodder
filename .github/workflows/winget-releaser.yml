@@ -6,7 +6,7 @@ jobs:
   publish:
     runs-on: windows-latest # action can only be run on windows
     steps:
-      - uses: vedantmgoyal2009/winget-releaser@0727cc2cdf0f3ecafd492608d2aff67b13adff55
+      - uses: vedantmgoyal2009/winget-releaser@1492f6c8620789a03865436b2eb95c6a944f8405
         with:
           identifier: gpodder.gpodder
           version-regex: '[0-9.]+'
