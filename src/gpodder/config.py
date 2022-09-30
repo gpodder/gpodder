@@ -430,3 +430,13 @@ class Config(object):
             logger.debug("setting config.device_sync.max_filename_length=120"
                          " (999 is bad for NTFS and ext{2-4})")
             self.device_sync.max_filename_length = 120
+
+    def clamp_range(self, name, min, max):
+        value = getattr(self, name)
+        if value < min:
+            setattr(self, name, min)
+            return True
+        if value > max:
+            setattr(self, name, max)
+            return True
+        return False
