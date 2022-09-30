@@ -1328,6 +1328,24 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.update_podcast_list_model()
         elif name == 'ui.gtk.episode_list.columns':
             self.update_episode_list_columns_visibility()
+        elif name == 'limit.downloads.concurrent_max':
+            # Do not allow value to be set below 1
+            if new_value < 1:
+                self.config.limit.downloads.concurrent_max = 1
+                return
+            # Clamp current value to new maximum value
+            if self.config.limit.downloads.concurrent > new_value:
+                self.config.limit.downloads.concurrent = new_value
+            self.spinMaxDownloads.get_adjustment().set_upper(new_value)
+        elif name == 'limit.downloads.concurrent':
+            if self.config.clamp_range('limit.downloads.concurrent', 1, self.config.limit.downloads.concurrent_max):
+                return
+            self.spinMaxDownloads.set_value(new_value)
+        elif name == 'limit.bandwidth.kbps':
+            adjustment = self.spinLimitDownloads.get_adjustment()
+            if self.config.clamp_range('limit.bandwidth.kbps', adjustment.get_lower(), adjustment.get_upper()):
+                return
+            self.spinLimitDownloads.set_value(new_value)
 
     def on_treeview_query_tooltip(self, treeview, x, y, keyboard_tooltip, tooltip):
         # With get_bin_window, we get the window that contains the rows without
