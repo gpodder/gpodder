@@ -157,6 +157,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.config.connect_gtk_spinbutton('limit_rate_value', self.spinLimitDownloads)
         self.config.connect_gtk_togglebutton('limit_rate', self.cbLimitDownloads)
 
+        self.spinMaxDownloads.set_sensitive(self.cbMaxDownloads.get_active())
+        self.spinLimitDownloads.set_sensitive(self.cbLimitDownloads.get_active())
+
         # When the amount of maximum downloads changes, notify the queue manager
         def changed_cb(spinbutton):
             return self.download_queue_manager.update_max_downloads()
