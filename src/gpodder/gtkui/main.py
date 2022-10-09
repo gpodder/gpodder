@@ -2149,10 +2149,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         # play icon and label
         if open_instead_of_play or not is_episode_selected:
-            self.toolPlay.set_icon_name('document-open')
+            self.toolPlay.set_icon_name('document-open-symbolic')
             self.toolPlay.set_label(_('Open'))
         else:
-            self.toolPlay.set_icon_name('media-playback-start')
+            self.toolPlay.set_icon_name('media-playback-start-symbolic')
 
             downloaded = all(e.was_downloaded(and_exists=True) for e in episodes)
             downloading = any(e.downloading for e in episodes)

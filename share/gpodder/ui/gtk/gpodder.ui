@@ -36,7 +36,7 @@
                 <property name="can-focus">False</property>
                 <property name="is-important">True</property>
                 <property name="label" translatable="yes">Play</property>
-                <property name="icon-name">media-playback-start</property>
+                <property name="icon-name">media-playback-start-symbolic</property>
                 <signal name="clicked" handler="on_playback_selected_episodes" swapped="no"/>
               </object>
               <packing>
@@ -51,7 +51,7 @@
                 <property name="can-focus">False</property>
                 <property name="is-important">True</property>
                 <property name="label" translatable="yes">Download</property>
-                <property name="icon-name">go-down</property>
+                <property name="icon-name">document-save-symbolic</property>
                 <signal name="clicked" handler="on_download_selected_episodes" swapped="no"/>
               </object>
               <packing>
@@ -66,7 +66,7 @@
                 <property name="can-focus">False</property>
                 <property name="is-important">True</property>
                 <property name="label" translatable="yes">Pause</property>
-                <property name="icon-name">media-playback-pause</property>
+                <property name="icon-name">media-playback-pause-symbolic</property>
                 <signal name="clicked" handler="on_pause_selected_episodes" swapped="no"/>
               </object>
               <packing>
@@ -81,7 +81,7 @@
                 <property name="can-focus">False</property>
                 <property name="is-important">True</property>
                 <property name="label" translatable="yes">Cancel</property>
-                <property name="icon-name">process-stop</property>
+                <property name="icon-name">process-stop-symbolic</property>
                 <signal name="clicked" handler="on_item_cancel_download_activate" swapped="no"/>
               </object>
               <packing>
@@ -105,7 +105,7 @@
                 <property name="can-focus">False</property>
                 <property name="action-name">app.preferences</property>
                 <property name="label" translatable="yes">Preferences</property>
-                <property name="icon-name">preferences-desktop</property>
+                <property name="icon-name">preferences-other-symbolic</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -127,7 +127,7 @@
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="label" translatable="yes">Quit</property>
-                <property name="icon-name">application-exit</property>
+                <property name="icon-name">application-exit-symbolic</property>
                 <signal name="clicked" handler="on_gPodder_delete_event" swapped="no"/>
               </object>
               <packing>
