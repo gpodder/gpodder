@@ -3664,10 +3664,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_wNotebook_switch_page(self, notebook, page, page_num):
         self.play_or_download(current_page=page_num)
-        if page_num == 0:
-            # The infobar in the downloads tab should be hidden
-            # when the user switches away from the downloads tab
-            self.resume_all_infobar.set_revealed(False)
 
     def on_treeChannels_row_activated(self, widget, path, *args):
         # double-click action of the podcast list or enter
