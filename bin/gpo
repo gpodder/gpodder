@@ -635,7 +635,10 @@ class gPodderCli(object):
 
     def _download_episode(self, episode):
         with self._action('Downloading %s' % episode.title):
-            task = download.DownloadTask(episode, self._config)
+            if episode.download_task is None:
+                task = download.DownloadTask(episode, self._config)
+            else:
+                task = episode.download_task
             task.add_progress_callback(self._update_action)
             task.status = download.DownloadTask.DOWNLOADING
             task.run()
@@ -647,6 +650,11 @@ class gPodderCli(object):
             episodes = list(model.Model.sort_episodes_by_pubdate(episodes))
 
         if episodes:
+            # Queue episodes to create partial files
+            for e in episodes:
+                if e.download_task is None:
+                    download.DownloadTask(e, self._config)
+
             last_podcast = None
             for episode in episodes:
                 if episode.channel != last_podcast:
