@@ -717,6 +717,7 @@ class DownloadTask(object):
         self.speed = 0.0
         self.progress = 0.0
         self.error_message = None
+        self.custom_downloader = None
 
         # Have we already shown this task in a notification?
         self._notification_shown = False
@@ -898,6 +899,7 @@ class DownloadTask(object):
             else:
                 downloader = DefaultDownloader.custom_downloader(self._config, self.episode)
 
+            self.custom_downloader = downloader
             headers, real_url = downloader.retrieve_resume(self.tempname, self.status_updated)
 
             new_mimetype = headers.get('content-type', self.__episode.mime_type)

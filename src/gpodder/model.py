@@ -480,7 +480,15 @@ class PodcastEpisode(PodcastModelObject):
         """
         # gPodder.playback_episodes() filters selection with this method.
         """
-        return self.was_downloaded(and_exists=True) or self.can_stream(config)
+        return (self.was_downloaded(and_exists=True)
+                or self.can_preview()
+                or self.can_stream(config))
+
+    def can_preview(self):
+        return (self.downloading
+                and self.download_task.custom_downloader is not None
+                and self.download_task.custom_downloader.partial_filename is not None
+                and os.path.exists(self.download_task.custom_downloader.partial_filename))
 
     def can_stream(self, config):
         """
@@ -620,11 +628,10 @@ class PodcastEpisode(PodcastModelObject):
         Also returns the filename of a partially downloaded file
         in case partial (preview) playback is desired.
         """
-        url = self.local_filename(create=False)
+        if (allow_partial and self.can_preview()):
+            return self.download_task.custom_downloader.partial_filename
 
-        if (allow_partial and url is not None and
-                os.path.exists(url + '.partial')):
-            return url + '.partial'
+        url = self.local_filename(create=False)
 
         if url is None or not os.path.exists(url):
             # FIXME: may custom downloaders provide the real url ?
