@@ -85,6 +85,15 @@ class YoutubeCustomDownload(download.CustomDownload):
         self._reporthook = None
         self._prev_dl_bytes = 0
         self._episode = episode
+        self._partial_filename = None
+
+    @property
+    def partial_filename(self):
+        return self._partial_filename
+
+    @partial_filename.setter
+    def partial_filename(self, val):
+        self._partial_filename = val
 
     def retrieve_resume(self, tempname, reporthook=None):
         """
@@ -94,7 +103,14 @@ class YoutubeCustomDownload(download.CustomDownload):
         # outtmpl: use given tempname by DownloadTask
         # (escape % because outtmpl used as a string template by youtube-dl)
         outtmpl = tempname.replace('%', '%%')
-        res = self._ytdl.fetch_video(self._url, outtmpl, self._my_hook)
+        info, opts = self._ytdl.fetch_info(self._url, outtmpl, self._my_hook)
+        if program_name == 'yt-dlp':
+            self.partial_filename = os.path.join(
+                opts['paths']['home'], opts['outtmpl']['default']) % info
+        elif program_name == 'youtube-dl':
+            self.partial_filename = opts['outtmpl'] % info
+
+        res = self._ytdl.fetch_video(info, opts)
         if program_name == 'yt-dlp':
             # yt-dlp downloads to whatever file name it wants, so rename
             filepath = res.get('requested_downloads', [{}])[0].get('filepath')
@@ -312,7 +328,7 @@ class gPodderYoutubeDL(download.CustomDownloader):
             opts['format'] += '/' + fallback
         logger.debug('format=%s', opts['format'])
 
-    def fetch_video(self, url, tempname, reporthook):
+    def fetch_info(self, url, tempname, reporthook):
         opts = {
             'paths': {'home': os.path.dirname(tempname)},
             # Postprocessing in yt-dlp breaks without ext
@@ -325,7 +341,12 @@ class gPodderYoutubeDL(download.CustomDownloader):
         opts.update(self._ydl_opts)
         self.add_format(self.gpodder_config, opts)
         with youtube_dl.YoutubeDL(opts) as ydl:
-            return ydl.extract_info(url, download=True)
+            info = ydl.extract_info(url, download=False)
+            return info, opts
+
+    def fetch_video(self, info, opts):
+        with youtube_dl.YoutubeDL(opts) as ydl:
+            return ydl.process_video_result(info, download=True)
 
     def refresh_entries(self, ie_result):
         # only interested in video metadata
