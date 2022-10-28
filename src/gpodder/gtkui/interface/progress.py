@@ -17,7 +17,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from gi.repository import GObject, Gtk, Pango
+import time
+
+from gi.repository import GLib, Gtk, Pango
 
 import gpodder
 from gpodder.gtkui.widgets import SpinningProgressIndicator
@@ -35,7 +37,10 @@ class ProgressIndicator(object):
     def __init__(self, title, subtitle=None, cancellable=False, parent=None):
         self.title = title
         self.subtitle = subtitle
-        self.cancellable = cancellable
+        self.cancellable = True if cancellable else False
+        self.cancel_callback = cancellable
+        self.cancel_id = 0
+        self.next_update = time.time() + (self.DELAY / 1000)
         self.parent = parent
         self.dialog = None
         self.progressbar = None
@@ -43,11 +48,12 @@ class ProgressIndicator(object):
         self._initial_message = None
         self._initial_progress = None
         self._progress_set = False
-        self.source_id = GObject.timeout_add(self.DELAY, self._create_progress)
+        self.source_id = GLib.timeout_add(self.DELAY, self._create_progress)
 
     def _on_delete_event(self, window, event):
         if self.cancellable:
             self.dialog.response(Gtk.ResponseType.CANCEL)
+            self.cancellable = False
         return True
 
     def _create_progress(self):
@@ -55,6 +61,14 @@ class ProgressIndicator(object):
                 0, 0, Gtk.ButtonsType.CANCEL, self.subtitle or self.title)
         self.dialog.set_modal(True)
         self.dialog.connect('delete-event', self._on_delete_event)
+        if self.cancellable:
+            def cancel_callback(dialog, response):
+                self.cancellable = False
+                self.dialog.set_deletable(False)
+                self.dialog.set_response_sensitive(Gtk.ResponseType.CANCEL, False)
+                if callable(self.cancel_callback):
+                    self.cancel_callback(dialog, response)
+            self.cancel_id = self.dialog.connect('response', cancel_callback)
         self.dialog.set_title(self.title)
         self.dialog.set_deletable(self.cancellable)
 
@@ -83,8 +97,10 @@ class ProgressIndicator(object):
         self.dialog.set_image(self.indicator)
         self.dialog.show_all()
 
-        GObject.source_remove(self.source_id)
-        self.source_id = GObject.timeout_add(self.INTERVAL, self._update_gui)
+        self._update_gui()
+
+        # previous self.source_id timeout is removed when this returns False
+        self.source_id = GLib.timeout_add(self.INTERVAL, self._update_gui)
         return False
 
     def _update_gui(self):
@@ -92,7 +108,15 @@ class ProgressIndicator(object):
             self.indicator.step_animation()
         if not self._progress_set and self.progressbar:
             self.progressbar.pulse()
+        self.next_update = time.time() + (self.INTERVAL / 1000)
         return True
+
+    def update_gui(self):
+        if self.dialog:
+            if self.source_id:
+                GLib.source_remove(self.source_id)
+                self.source_id = 0
+            self._update_gui()
 
     def on_message(self, message):
         if self.progressbar:
@@ -109,5 +133,8 @@ class ProgressIndicator(object):
 
     def on_finished(self):
         if self.dialog is not None:
+            if self.cancel_id:
+                self.dialog.disconnect(self.cancel_id)
             self.dialog.destroy()
-        GObject.source_remove(self.source_id)
+        if self.source_id:
+            GLib.source_remove(self.source_id)

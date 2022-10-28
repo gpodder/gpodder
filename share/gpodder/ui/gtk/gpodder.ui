@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.38.2 -->
+<!-- Generated with glade 3.40.0 -->
 <!--*- mode: xml -*-->
 <interface>
   <requires lib="gtk+" version="3.16"/>
@@ -36,7 +36,7 @@
                 <property name="can-focus">False</property>
                 <property name="is-important">True</property>
                 <property name="label" translatable="yes">Play</property>
-                <property name="icon-name">media-playback-start</property>
+                <property name="icon-name">media-playback-start-symbolic</property>
                 <signal name="clicked" handler="on_playback_selected_episodes" swapped="no"/>
               </object>
               <packing>
@@ -51,7 +51,7 @@
                 <property name="can-focus">False</property>
                 <property name="is-important">True</property>
                 <property name="label" translatable="yes">Download</property>
-                <property name="icon-name">go-down</property>
+                <property name="icon-name">document-save-symbolic</property>
                 <signal name="clicked" handler="on_download_selected_episodes" swapped="no"/>
               </object>
               <packing>
@@ -66,7 +66,7 @@
                 <property name="can-focus">False</property>
                 <property name="is-important">True</property>
                 <property name="label" translatable="yes">Pause</property>
-                <property name="icon-name">media-playback-pause</property>
+                <property name="icon-name">media-playback-pause-symbolic</property>
                 <signal name="clicked" handler="on_pause_selected_episodes" swapped="no"/>
               </object>
               <packing>
@@ -81,7 +81,7 @@
                 <property name="can-focus">False</property>
                 <property name="is-important">True</property>
                 <property name="label" translatable="yes">Cancel</property>
-                <property name="icon-name">process-stop</property>
+                <property name="icon-name">process-stop-symbolic</property>
                 <signal name="clicked" handler="on_item_cancel_download_activate" swapped="no"/>
               </object>
               <packing>
@@ -105,7 +105,7 @@
                 <property name="can-focus">False</property>
                 <property name="action-name">app.preferences</property>
                 <property name="label" translatable="yes">Preferences</property>
-                <property name="icon-name">preferences-desktop</property>
+                <property name="icon-name">preferences-other-symbolic</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -127,7 +127,7 @@
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="label" translatable="yes">Quit</property>
-                <property name="icon-name">application-exit</property>
+                <property name="icon-name">application-exit-symbolic</property>
                 <signal name="clicked" handler="on_gPodder_delete_event" swapped="no"/>
               </object>
               <packing>
@@ -384,17 +384,85 @@
                   </packing>
                 </child>
                 <child>
-                  <!-- n-columns=1 n-rows=2 -->
-                  <object class="GtkGrid" id="vboxDownloadStatusWidgets">
+                  <object class="GtkBox">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
-                    <property name="border-width">5</property>
                     <property name="orientation">vertical</property>
-                    <property name="row-spacing">5</property>
                     <child>
-                      <object class="GtkScrolledWindow" id="scrolledwindow1">
+                      <object class="GtkInfoBar" id="resume_all_infobar">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="message-type">question</property>
+                        <property name="show-close-button">True</property>
+                        <property name="revealed">False</property>
+                        <signal name="response" handler="on_resume_all_infobar_response" swapped="no"/>
+                        <child internal-child="action_area">
+                          <object class="GtkButtonBox">
+                            <property name="can-focus">False</property>
+                            <property name="spacing">6</property>
+                            <property name="layout-style">end</property>
+                            <child>
+                              <object class="GtkButton" id="resume_all_button">
+                                <property name="label" translatable="yes">Resume all</property>
+                                <property name="visible">True</property>
+                                <property name="can-focus">True</property>
+                                <property name="receives-default">True</property>
+                              </object>
+                              <packing>
+                                <property name="expand">True</property>
+                                <property name="fill">True</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">False</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child internal-child="content_area">
+                          <object class="GtkBox">
+                            <property name="can-focus">False</property>
+                            <property name="spacing">16</property>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="visible">True</property>
+                                <property name="can-focus">False</property>
+                                <property name="label" translatable="yes">Incomplete downloads from a previous session were found.</property>
+                                <property name="wrap">True</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">False</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <action-widgets>
+                          <action-widget response="-5">resume_all_button</action-widget>
+                        </action-widgets>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkScrolledWindow">
                         <property name="visible">True</property>
                         <property name="can-focus">True</property>
+                        <property name="margin-start">5</property>
+                        <property name="margin-end">5</property>
+                        <property name="margin-top">5</property>
+                        <property name="margin-bottom">5</property>
                         <property name="vexpand">True</property>
                         <property name="shadow-type">in</property>
                         <child>
@@ -415,23 +483,26 @@
                         </child>
                       </object>
                       <packing>
-                        <property name="left-attach">0</property>
-                        <property name="top-attach">0</property>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
                       </packing>
                     </child>
                     <child>
-                      <!-- n-columns=3 n-rows=1 -->
-                      <object class="GtkGrid" id="hboxDownloadSettings">
+                      <object class="GtkBox">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
-                        <property name="border-width">5</property>
-                        <property name="column-spacing">10</property>
+                        <property name="margin-start">5</property>
+                        <property name="margin-end">5</property>
+                        <property name="margin-top">5</property>
+                        <property name="margin-bottom">10</property>
+                        <property name="spacing">5</property>
                         <child>
-                          <!-- n-columns=3 n-rows=1 -->
-                          <object class="GtkGrid" id="hboxDownloadLimit">
+                          <object class="GtkBox">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
-                            <property name="column-spacing">5</property>
+                            <property name="margin-start">5</property>
+                            <property name="spacing">5</property>
                             <child>
                               <object class="GtkCheckButton" id="cbLimitDownloads">
                                 <property name="label" translatable="yes">Limit rate to</property>
@@ -442,22 +513,27 @@
                                 <signal name="toggled" handler="on_cbLimitDownloads_toggled" swapped="no"/>
                               </object>
                               <packing>
-                                <property name="left-attach">0</property>
-                                <property name="top-attach">0</property>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">0</property>
                               </packing>
                             </child>
                             <child>
                               <object class="GtkSpinButton" id="spinLimitDownloads">
                                 <property name="visible">True</property>
                                 <property name="can-focus">True</property>
-                                <property name="invisible-char">●</property>
+                                <property name="caps-lock-warning">False</property>
+                                <property name="input-purpose">number</property>
                                 <property name="adjustment">adjustment1</property>
                                 <property name="climb-rate">1</property>
                                 <property name="digits">1</property>
+                                <property name="numeric">True</property>
+                                <property name="update-policy">if-valid</property>
                               </object>
                               <packing>
-                                <property name="left-attach">1</property>
-                                <property name="top-attach">0</property>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">1</property>
                               </packing>
                             </child>
                             <child>
@@ -468,33 +544,23 @@
                                 <property name="xalign">0</property>
                               </object>
                               <packing>
-                                <property name="left-attach">2</property>
-                                <property name="top-attach">0</property>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">2</property>
                               </packing>
                             </child>
                           </object>
                           <packing>
-                            <property name="left-attach">0</property>
-                            <property name="top-attach">0</property>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">0</property>
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkLabel" id="DownloadSettingsSpacer">
+                          <object class="GtkBox">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
-                            <property name="hexpand">True</property>
-                          </object>
-                          <packing>
-                            <property name="left-attach">1</property>
-                            <property name="top-attach">0</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <!-- n-columns=2 n-rows=1 -->
-                          <object class="GtkGrid" id="hboxDownloadRate">
-                            <property name="visible">True</property>
-                            <property name="can-focus">False</property>
-                            <property name="column-spacing">5</property>
+                            <property name="spacing">5</property>
                             <child>
                               <object class="GtkCheckButton" id="cbMaxDownloads">
                                 <property name="label" translatable="yes">Limit downloads to</property>
@@ -505,33 +571,42 @@
                                 <signal name="toggled" handler="on_cbMaxDownloads_toggled" swapped="no"/>
                               </object>
                               <packing>
-                                <property name="left-attach">0</property>
-                                <property name="top-attach">0</property>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">0</property>
                               </packing>
                             </child>
                             <child>
                               <object class="GtkSpinButton" id="spinMaxDownloads">
                                 <property name="visible">True</property>
                                 <property name="can-focus">True</property>
-                                <property name="invisible-char">●</property>
+                                <property name="caps-lock-warning">False</property>
+                                <property name="input-purpose">number</property>
                                 <property name="adjustment">adjustment2</property>
                                 <property name="climb-rate">1</property>
+                                <property name="snap-to-ticks">True</property>
+                                <property name="numeric">True</property>
+                                <property name="update-policy">if-valid</property>
                               </object>
                               <packing>
-                                <property name="left-attach">1</property>
-                                <property name="top-attach">0</property>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">1</property>
                               </packing>
                             </child>
                           </object>
                           <packing>
-                            <property name="left-attach">2</property>
-                            <property name="top-attach">0</property>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="pack-type">end</property>
+                            <property name="position">1</property>
                           </packing>
                         </child>
                       </object>
                       <packing>
-                        <property name="left-attach">0</property>
-                        <property name="top-attach">1</property>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">2</property>
                       </packing>
                     </child>
                   </object>

@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 ####
 # 01/2011 Bernd Schlapsi <brot@gmx.info>

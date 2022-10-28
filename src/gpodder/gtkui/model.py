@@ -30,7 +30,7 @@ import re
 import time
 from itertools import groupby
 
-from gi.repository import GdkPixbuf, GObject, Gtk
+from gi.repository import GdkPixbuf, GLib, GObject, Gtk
 
 import gpodder
 from gpodder import coverart, model, query, util
@@ -331,10 +331,10 @@ class EpisodeListModel(Gtk.ListStore):
 
     def _update_from_episodes(self, episodes, include_description):
         if self.background_update_tag is not None:
-            GObject.source_remove(self.background_update_tag)
+            GLib.source_remove(self.background_update_tag)
 
         self.background_update = BackgroundUpdate(self, episodes, include_description)
-        self.background_update_tag = GObject.idle_add(self._update_background)
+        self.background_update_tag = GLib.idle_add(self._update_background)
 
     def _update_background(self):
         if self.background_update is not None:

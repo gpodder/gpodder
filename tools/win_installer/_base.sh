@@ -473,10 +473,10 @@ function build_portable_installer {
     mkdir "$PORTABLE"/config
     cp -RT "${MINGW_ROOT}" "$PORTABLE"/data
 
-    rm -Rf 7zout 7z1604.exe
+    rm -Rf 7zout 7z2201.exe
     7z a payload.7z "$PORTABLE"
-    wget -P "$DIR" -c http://www.7-zip.org/a/7z1604.exe
-    7z x -o7zout 7z1604.exe
+    wget -P "$DIR" -c http://www.7-zip.org/a/7z2201.exe
+    7z x -o7zout 7z2201.exe
     cat 7zout/7z.sfx payload.7z > "$PORTABLE".exe
-    rm -Rf 7zout 7z1604.exe payload.7z "$PORTABLE"
+    rm -Rf 7zout 7z2201.exe payload.7z "$PORTABLE"
 }

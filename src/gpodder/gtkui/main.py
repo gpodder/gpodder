@@ -62,7 +62,7 @@ import gi  # isort:skip
 gi.require_version('Gtk', '3.0')  # isort:skip
 gi.require_version('Gdk', '3.0')  # isort:skip
 gi.require_version('Handy', '1')  # isort:skip
-from gi.repository import Gdk, GdkPixbuf, Gio, GLib, GObject, Gtk, Pango  # isort:skip
+from gi.repository import Gdk, GdkPixbuf, Gio, GLib, Gtk, Pango  # isort:skip
 from gi.repository import Handy  # isort:skip
 
 
@@ -203,6 +203,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.config.connect_gtk_togglebutton('max_downloads_enabled', self.cbMaxDownloads)
         self.config.connect_gtk_spinbutton('limit_rate_value', self.spinLimitDownloads)
         self.config.connect_gtk_togglebutton('limit_rate', self.cbLimitDownloads)
+
+        self.spinMaxDownloads.set_sensitive(self.cbMaxDownloads.get_active())
+        self.spinLimitDownloads.set_sensitive(self.cbLimitDownloads.get_active())
 
         # When the amount of maximum downloads changes, notify the queue manager
         def changed_cb(spinbutton):
@@ -530,7 +533,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if response_id == Gtk.ResponseType.OK:
             selection = self.treeDownloads.get_selection()
             selection.select_all()
-            selected_tasks, _, _, _, _, _ = self.downloads_list_get_selection()
+            selected_tasks = self.downloads_list_get_selection()[0]
             selection.unselect_all()
             self._for_each_task_set_status(selected_tasks, download.DownloadTask.QUEUED)
         self.resume_all_infobar.set_revealed(False)
@@ -549,14 +552,16 @@ class gPodder(BuilderWidget, dbus.service.Object):
         def progress_callback(title, progress):
             self.partial_downloads_indicator.on_message(title)
             self.partial_downloads_indicator.on_progress(progress)
+            if time.time() >= self.partial_downloads_indicator.next_update:
+                self.partial_downloads_indicator.update_gui()
+                self.force_ui_update()
 
         def finish_progress_callback(resumable_episodes):
             def offer_resuming():
                 if resumable_episodes:
-                    self.download_episode_list_paused(resumable_episodes)
+                    self.download_episode_list_paused(resumable_episodes, hide_progress=True)
                     self.resume_all_infobar.set_revealed(True)
                     self.on_show_progress_activate()
-
                 logger.debug("find_partial_downloads done, calling extensions")
                 gpodder.user_extensions.on_find_partial_downloads_done()
 
@@ -778,7 +783,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         important=True)
             util.idle_add(show_error, e)
 
-        util.idle_add(indicator.on_finished)
+        indicator.on_finished()
 
     def on_button_subscribe_clicked(self, button):
         self.on_itemImportChannels_activate(button)
@@ -1336,7 +1341,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 #                (('text/uri-list', 0, 0),), Gdk.DragAction.COPY)
 #
 #        def drag_data_get(tree, context, selection_data, info, timestamp):
-#            uris = ['file://' + e.local_filename(create=False)
+#            uris = ['file://' + urllib.parse.quote(e.local_filename(create=False))
 #                    for e in self.get_selected_episodes()
 #                    if e.was_downloaded(and_exists=True)]
 #            selection_data.set_uris(uris)
@@ -1497,7 +1502,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.things_adding_tasks -= 1
         if not self.download_list_update_enabled:
             self.update_downloads_list()
-            GObject.timeout_add(1500, self.update_downloads_list)
+            util.IdleTimeout(1500, self.update_downloads_list)
             self.download_list_update_enabled = True
 
     def cleanup_downloads(self):
@@ -1544,7 +1549,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         try:
             model = self.download_status_model
 
-            downloading, synchronizing, pausing, cancelling, queued, paused, failed, finished, others = (0,) * 9
+            downloading, synchronizing, pausing, cancelling, queued, paused, failed, finished = (0,) * 8
             total_speed, total_size, done_size = 0, 0, 0
             files_downloading = 0
 
@@ -1577,8 +1582,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         total_speed += speed
                     elif activity == download.DownloadTask.ACTIVITY_SYNCHRONIZE:
                         synchronizing += 1
-                    else:
-                        others += 1
                 elif status == download.DownloadTask.PAUSING:
                     pausing += 1
                     if activity == download.DownloadTask.ACTIVITY_DOWNLOAD:
@@ -1595,10 +1598,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     failed += 1
                 elif status == download.DownloadTask.DONE:
                     finished += 1
-                else:
-                    others += 1
-
-            # TODO: 'others' is not used
 
             # Remember which tasks we have seen after this run
             self.download_tasks_seen = download_tasks_seen
@@ -1706,6 +1705,24 @@ class gPodder(BuilderWidget, dbus.service.Object):
         elif name == 'ui.gtk.episode_list.columns':
             # self.update_episode_list_columns_visibility()
             pass
+        elif name == 'limit.downloads.concurrent_max':
+            # Do not allow value to be set below 1
+            if new_value < 1:
+                self.config.limit.downloads.concurrent_max = 1
+                return
+            # Clamp current value to new maximum value
+            if self.config.limit.downloads.concurrent > new_value:
+                self.config.limit.downloads.concurrent = new_value
+            self.spinMaxDownloads.get_adjustment().set_upper(new_value)
+        elif name == 'limit.downloads.concurrent':
+            if self.config.clamp_range('limit.downloads.concurrent', 1, self.config.limit.downloads.concurrent_max):
+                return
+            self.spinMaxDownloads.set_value(new_value)
+        elif name == 'limit.bandwidth.kbps':
+            adjustment = self.spinLimitDownloads.get_adjustment()
+            if self.config.clamp_range('limit.bandwidth.kbps', adjustment.get_lower(), adjustment.get_upper()):
+                return
+            self.spinLimitDownloads.set_value(new_value)
 
     def on_treeview_query_tooltip(self, treeview, x, y, keyboard_tooltip, tooltip):
         # With get_bin_window, we get the window that contains the rows without
@@ -1962,7 +1979,40 @@ class gPodder(BuilderWidget, dbus.service.Object):
         else:
             self.download_queue_manager.queue_task(task)
 
+    def force_ui_update(self):
+        def callback():
+            Gtk.main_quit()
+        GLib.timeout_add(1, callback)
+        Gtk.main()
+
     def _for_each_task_set_status(self, tasks, status, force_start=False):
+        count = len(tasks)
+        if count:
+            progress_indicator = ProgressIndicator(
+                    _('Queueing') if status == download.DownloadTask.QUEUED else
+                    _('Removing') if status is None else download.DownloadTask.STATUS_MESSAGE[status],
+                    '', True, self.get_dialog_parent())
+            progress_indicator.on_message('0 / %d' % count)
+        else:
+            progress_indicator = None
+
+        def progress_callback(title, progress):
+            progress_indicator.on_message(title)
+            progress_indicator.on_progress(progress)
+            if time.time() >= progress_indicator.next_update:
+                progress_indicator.update_gui()
+                self.force_ui_update()
+                if not progress_indicator.cancellable:
+                    return False
+            return True
+        self.__for_each_task_set_status(tasks, status, force_start=force_start, progress_callback=progress_callback)
+
+        if progress_indicator:
+            progress_indicator.on_finished()
+
+    def __for_each_task_set_status(self, tasks, status, force_start=False, progress_callback=None):
+        count = len(tasks)
+        n = 0
         episode_urls = set()
         model = self.treeDownloads.get_model()
         for row_reference, task in tasks:
@@ -2011,6 +2061,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 else:
                     # We can (hopefully) simply set the task status here
                     task.status = status
+            if progress_callback:
+                n += 1
+                if not progress_callback('%d / %d' % (n, count), n / count):
+                    break
         # Tell the podcasts tab to update icons for our removed podcasts
         self.update_episode_list_icons(episode_urls)
         # Update the tab title and downloads list
@@ -2340,10 +2394,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         # play icon and label
 #        if open_instead_of_play or not is_episode_selected:
-#            self.toolPlay.set_icon_name('document-open')
+#            self.toolPlay.set_icon_name('document-open-symbolic')
 #            self.toolPlay.set_label(_('Open'))
 #        else:
-#            self.toolPlay.set_icon_name('media-playback-start')
+#            self.toolPlay.set_icon_name('media-playback-start-symbolic')
 #
 #            downloaded = all(e.was_downloaded(and_exists=True) for e in episodes)
 #            downloading = any(e.downloading for e in episodes)
@@ -2601,7 +2655,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if remaining_seconds > 3600:
             # timeout an hour early in the event daylight savings changes the clock forward
             remaining_seconds = remaining_seconds - 3600
-        GObject.timeout_add(remaining_seconds * 1000, self.refresh_episode_dates)
+        GLib.timeout_add(remaining_seconds * 1000, self.refresh_episode_dates)
 
     def update_podcast_list_model(self, urls=None, selected=False, select_url=None,
             sections_changed=False):
@@ -2793,6 +2847,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         def on_after_update():
             progress.on_finished()
+
             # Report already-existing subscriptions to the user
             if existing:
                 title = _('Existing subscriptions skipped')
@@ -2960,8 +3015,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.mygpo_client.process_episode_actions(self.find_episode)
 
-        indicator.on_finished()
         self.db.commit()
+
+        indicator.on_finished()
 
     def _update_cover(self, channel):
         if channel is not None:
@@ -3217,7 +3273,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             selected_tasks = [(Gtk.TreeRowReference.new(model, path),
                                model.get_value(model.get_iter(path),
                                DownloadStatusModel.C_TASK)) for path in paths]
-            self._for_each_task_set_status(selected_tasks, status=None, force_start=False)
+            self._for_each_task_set_status(selected_tasks, status=None)
             return
 
         if not episodes:
@@ -3251,8 +3307,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 parent=self.get_dialog_parent())
 
         def finish_deletion(episode_urls, channel_urls):
-            progress.on_finished()
-
             # Episodes have been deleted - persist the database
             self.db.commit()
 
@@ -3260,6 +3314,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.update_podcast_list_model(channel_urls)
             self.update_header_bar_subtitle()
             self.play_or_download()
+
+            progress.on_finished()
 
         @util.run_in_background
         def thread_proc():
@@ -3445,11 +3501,21 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             util.idle_add(show_welcome_window)
 
-    def download_episode_list_paused(self, episodes):
-        self.download_episode_list(episodes, True)
+    def download_episode_list_paused(self, episodes, hide_progress=False):
+        self.download_episode_list(episodes, True, hide_progress=hide_progress)
 
-    def download_episode_list(self, episodes, add_paused=False, force_start=False, downloader=None):
+    def download_episode_list(self, episodes, add_paused=False, force_start=False, downloader=None, hide_progress=False):
         def queue_tasks(tasks, queued_existing_task):
+            n = 0
+            count = len(episodes)
+            if count and not hide_progress:
+                progress_indicator = ProgressIndicator(
+                        _('Queueing'),
+                        '', True, self.get_dialog_parent())
+                progress_indicator.on_message('0 / %d' % count)
+            else:
+                progress_indicator = None
+
             for task in tasks:
                 with task:
                     if add_paused:
@@ -3457,11 +3523,23 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     else:
                         self.mygpo_client.on_download([task.episode])
                         self.queue_task(task, force_start)
+                if progress_indicator:
+                    n += 1
+                    progress_indicator.on_message('%d / %d' % (n, count))
+                    progress_indicator.on_progress(n / count)
+                    if time.time() >= progress_indicator.next_update:
+                        progress_indicator.update_gui()
+                        self.force_ui_update()
+                        if not progress_indicator.cancellable:
+                            break
             if tasks or queued_existing_task:
                 self.set_download_list_state(gPodderSyncUI.DL_ONEOFF)
             # Flush updated episode status
             if self.mygpo_client.can_access_webservice():
                 self.mygpo_client.flush()
+
+            if progress_indicator:
+                progress_indicator.on_finished()
 
         queued_existing_task = False
         new_tasks = []
@@ -3907,10 +3985,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_wNotebook_switch_page(self, notebook, page, page_num):
         self.play_or_download(in_downloads=page_num > 0)
-        if page_num == 0:
-            # The infobar in the downloads tab should be hidden
-            # when the user switches away from the downloads tab
-            self.resume_all_infobar.set_revealed(False)
 
     def on_treeChannels_row_activated(self, widget, path, *args):
         self.navigate_from_shownotes()
@@ -4081,7 +4155,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             selected_tasks = [(Gtk.TreeRowReference.new(model, path),
                                model.get_value(model.get_iter(path),
                                DownloadStatusModel.C_TASK)) for path in paths]
-            self._for_each_task_set_status(selected_tasks, status=download.DownloadTask.QUEUED, force_start=False)
+            self._for_each_task_set_status(selected_tasks, download.DownloadTask.QUEUED)
         else:
             episodes = [e for e in self.get_selected_episodes() if e.can_download()]
             self.download_episode_list(episodes)
@@ -4094,7 +4168,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             selected_tasks = [(Gtk.TreeRowReference.new(model, path),
                                model.get_value(model.get_iter(path),
                                DownloadStatusModel.C_TASK)) for path in paths]
-            self._for_each_task_set_status(selected_tasks, status=download.DownloadTask.PAUSING, force_start=False)
+            self._for_each_task_set_status(selected_tasks, download.DownloadTask.PAUSING)
         else:
             for episode in self.get_selected_episodes():
                 if episode.can_pause():
@@ -4158,7 +4232,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def restart_auto_update_timer(self):
         if self._auto_update_timer_source_id is not None:
             logger.debug('Removing existing auto update timer.')
-            GObject.source_remove(self._auto_update_timer_source_id)
+            GLib.source_remove(self._auto_update_timer_source_id)
             self._auto_update_timer_source_id = None
 
         if (self.config.auto_update_feeds and
@@ -4166,7 +4240,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             interval = 60 * 1000 * self.config.auto_update_frequency
             logger.debug('Setting up auto update timer with interval %d.',
                     self.config.auto_update_frequency)
-            self._auto_update_timer_source_id = GObject.timeout_add(
+            self._auto_update_timer_source_id = GLib.timeout_add(
                     interval, self._on_auto_update_timer)
 
     def _on_auto_update_timer(self):

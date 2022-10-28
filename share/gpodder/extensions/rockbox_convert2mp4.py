@@ -1,4 +1,3 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 # Requirements: apt-get install python-kaa-metadata  ffmpeg python-dbus
 # To use, copy it as a Python script into ~/.config/gpodder/extensions/rockbox_mp4_convert.py
