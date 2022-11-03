@@ -322,8 +322,10 @@ class gPodderExtension:
         downloader = coverart.CoverDownloader()
         #check if episode has a cover
         if episode.cover_file is not None:
+            print("episode has a cover")
             return downloader.get_cover(episode.cover_file, episode.episode_art_url,
                 episode.channel.url, episode.channel.title, None, None, True)
         else:
+            print("episode has no cover")
             #if not, just use the podcast cover
             return self.get_cover(episode.channel)
