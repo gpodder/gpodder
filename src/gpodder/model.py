@@ -294,7 +294,7 @@ class PodcastEpisode(PodcastModelObject):
         episode.link = entry['link']
         episode.episode_art_url = entry.get('episode_art_url')
         if entry.get('description_html'):
-            episode.description = ''
+            episode.description = util.remove_html_tags(entry['description_html'])
             episode.description_html = entry['description_html']
         else:
             episode.description = util.remove_html_tags(entry['description'] or '')
