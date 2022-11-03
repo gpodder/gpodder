@@ -25,7 +25,7 @@ import gpodder
 from gpodder import util
 from gpodder.gtkui.draw import (draw_text_box_centered, get_background_color,
                                 get_foreground_color)
-from gpodder.gtkui.interface.common import is_on_mobile_screen
+from gpodder.gtkui.interface.common import have_touchscreen
 
 # from gpodder.gtkui.draw import investigate_widget_colors
 
@@ -72,7 +72,7 @@ class gPodderShownotes:
         # Swipe up to go back hack
         self.navigable = self.shownotes_pane.get_parent().get_parent()  # FIXME
         if (isinstance(self.navigable, (Handy.Deck, Handy.Leaflet))
-                and is_on_mobile_screen(self.navigable)):
+                and have_touchscreen()):
             self.scrolled_window.connect(
                 'edge-overshot', self.on_scrolled_window_edge_overshot)
 

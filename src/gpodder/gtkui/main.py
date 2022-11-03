@@ -52,7 +52,7 @@ from .draw import (cake_size_from_widget, draw_cake_pixbuf,
                    draw_iconcell_scale, draw_text_box_centered)
 from .interface.addpodcast import gPodderAddPodcast
 from .interface.common import (BuilderWidget, Dummy, ExtensionMenuHelper,
-                               TreeViewHelper, is_on_mobile_screen)
+                               TreeViewHelper, have_touchscreen)
 from .interface.progress import ProgressIndicator
 from .interface.searchtree import SearchTreeBar
 from .model import EpisodeListModel, PodcastChannelProxy, PodcastListModel
@@ -304,7 +304,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.treeChannels.grab_focus()
 
         # Swipe up to go back hack for episodes leaflet page
-        if is_on_mobile_screen(self.main_window):
+        if have_touchscreen():
             self.episodes_scrolled_window.connect(
                 'edge-overshot', self.on_episodes_scrolled_window_edge_overshot)
             self.channels_scrolled_window.connect(

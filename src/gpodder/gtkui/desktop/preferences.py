@@ -32,7 +32,7 @@ from gpodder import util, vimeo, youtube
 from gpodder.gtkui.desktopfile import PlayerListModel
 from gpodder.gtkui.draw import get_background_color
 from gpodder.gtkui.interface.common import (BuilderWidget, TreeViewHelper,
-                                            is_on_mobile_screen,
+                                            have_touchscreen,
                                             show_message_dialog)
 from gpodder.gtkui.interface.configeditor import gPodderConfigEditor
 
@@ -337,7 +337,7 @@ class gPodderPreferences(BuilderWidget):
         self.flap_show_image.set_from_file(os.path.join(
             gpodder.icons_folder, 'actions', 'view-sidebar-start-symbolic.svg'))
         self.prefs_stack.connect("notify::visible-child", self.on_prefs_sidebar_set_focus_child)
-        if is_on_mobile_screen(self.main_window):
+        if have_touchscreen():
             self.prefs_scrolled_window.connect(
                 'edge-overshot', self.on_prefs_scrolled_window_edge_overshot)
         self.prefs_flap.set_reveal_flap(True)

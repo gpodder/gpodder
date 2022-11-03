@@ -50,18 +50,11 @@ def show_message_dialog(parent, message, title=None):
     dlg.destroy()
 
 
-def is_on_mobile_screen(widget):
-    """Return True if widget is on a small screen."""
-    w = widget
-    while not w.get_realized():
-        w = w.get_parent()
-
-    window = w.get_window()
-    if window is None:
-        return False
-
-    monitor = Gdk.Display.get_default().get_monitor_at_window(window)
-    return monitor.get_width_mm() < 120
+def have_touchscreen():
+    """Return True if the default seat of default display has touch capability
+    """
+    return bool(Gdk.Display.get_default_seat(
+        Gdk.Display.get_default()).get_capabilities() & Gdk.SeatCapabilities.TOUCH)
 
 
 class BuilderWidget(GtkBuilderWidget):
