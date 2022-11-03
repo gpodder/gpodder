@@ -190,6 +190,7 @@ class Mp3File(AudioFile):
         if audio.tags is None:
             audio.add_tags()
 
+        #add Front Cover image
         audio.tags.add(
             APIC(
                 encoding=3,  # 3 is for utf-8
@@ -224,7 +225,8 @@ class gPodderExtension:
         audioClass = None
 
         if self.container.config.auto_embed_coverart:
-            cover = self.get_cover(episode.channel)
+            #cover = self.get_cover(episode.channel)
+            cover = self.get_episode_cover(episode)
 
         if info['filename'].endswith('.mp3'):
             audioClass = Mp3File
@@ -315,3 +317,13 @@ class gPodderExtension:
         downloader = coverart.CoverDownloader()
         return downloader.get_cover(podcast.cover_file, podcast.cover_url,
             podcast.url, podcast.title, None, None, True)
+        
+    def get_episode_cover(self, episode):
+        downloader = coverart.CoverDownloader()
+        #check if episode has a cover
+        if episode.cover_file is not None:
+            return downloader.get_cover(episode.cover_file, episode.episode_art_url,
+                episode.channel.url, episode.channel.title, None, None, True)
+        else:
+            #if not, just use the podcast cover
+            return self.get_cover(episode.channel)

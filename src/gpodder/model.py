@@ -898,6 +898,18 @@ class PodcastEpisode(PodcastModelObject):
         # See #648 refreshing a youtube podcast clears downloaded file size
         if self.state != gpodder.STATE_DOWNLOADED:
             setattr(self, 'file_size', getattr(episode, 'file_size'))
+    
+    @property
+    def cover_file(self):
+        #check if there is an episode cover in the first place
+        if self.episode_art_url is None:
+            return None
+        #create a cover file name from the episode_art_url
+        cover_name = self.episode_art_url.split('/')[-1]
+        cover_name = cover_name.split('?')[0]
+        #remove .jpg or .png
+        cover_name = cover_name.split('.')[0]
+        return os.path.join(self.channel.save_dir, cover_name)
 
 
 class PodcastChannel(PodcastModelObject):
