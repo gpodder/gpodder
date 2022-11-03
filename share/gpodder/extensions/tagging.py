@@ -68,7 +68,7 @@ DefaultConfig = {
 
 
 class AudioFile(object):
-    def __init__(self, filename, album, title, subtitle, genre, pubDate, cover):
+    def __init__(self, filename, album, title, subtitle, genre, pubDate, cover, track_id, season):
         self.filename = filename
         self.album = album
         self.title = title
@@ -76,6 +76,9 @@ class AudioFile(object):
         self.genre = genre
         self.pubDate = pubDate
         self.cover = cover
+        self.track_id = track_id
+        self.season = season
+
 
     def remove_tags(self):
         audio = File(self.filename, easy=True)
@@ -115,6 +118,12 @@ class AudioFile(object):
             if set_artist_to_album:
                 audio.tags['artist'] = self.album
 
+            if self.track_id is not None:
+                audio.tags['tracknumber'] = str(self.track_id)
+            
+            if self.season is not None:
+                audio.tags['discnumber'] = str(self.season)
+
         if type(audio) is EasyMP3:
             audio.save(v2_version=set_version)
         else:
@@ -144,8 +153,8 @@ class AudioFile(object):
 
 
 class OggFile(AudioFile):
-    def __init__(self, filename, album, title, subtitle, genre, pubDate, cover):
-        super(OggFile, self).__init__(filename, album, title, subtitle, genre, pubDate, cover)
+    def __init__(self, filename, album, title, subtitle, genre, pubDate, cover, track_id, season):
+        super(OggFile, self).__init__(filename, album, title, subtitle, genre, pubDate, cover, track_id, season)
 
     def insert_coverart(self):
         audio = File(self.filename, easy=True)
@@ -155,8 +164,8 @@ class OggFile(AudioFile):
 
 
 class Mp4File(AudioFile):
-    def __init__(self, filename, album, title, subtitle, genre, pubDate, cover):
-        super(Mp4File, self).__init__(filename, album, title, subtitle, genre, pubDate, cover)
+    def __init__(self, filename, album, title, subtitle, genre, pubDate, cover, track_id, season):
+        super(Mp4File, self).__init__(filename, album, title, subtitle, genre, pubDate, cover, track_id, season)
 
     def insert_coverart(self):
         audio = File(self.filename)
@@ -172,8 +181,8 @@ class Mp4File(AudioFile):
 
 
 class Mp3File(AudioFile):
-    def __init__(self, filename, album, title, subtitle, genre, pubDate, cover):
-        super(Mp3File, self).__init__(filename, album, title, subtitle, genre, pubDate, cover)
+    def __init__(self, filename, album, title, subtitle, genre, pubDate, cover, track_id, season):
+        super(Mp3File, self).__init__(filename, album, title, subtitle, genre, pubDate, cover, track_id, season)
 
     def insert_coverart(self):
         audio = MP3(self.filename, ID3=ID3)
@@ -234,7 +243,9 @@ class gPodderExtension:
                 info['subtitle'],
                 info['genre'],
                 info['pubDate'],
-                cover)
+                cover,
+                info['track_id'],
+                info['season'])
         return audio
 
     def read_episode_info(self, episode):
@@ -244,7 +255,9 @@ class gPodderExtension:
             'title': None,
             'subtitle': None,
             'genre': None,
-            'pubDate': None
+            'pubDate': None,
+            'track_id': None,
+            'season': None
         }
 
         # read filename (incl. file path) from gPodder database
@@ -276,6 +289,10 @@ class gPodderExtension:
                 info['pubDate'] = pubDate.strftime('%Y-%m-%d %H:%M')
             except:
                 info['pubDate'] = None
+        
+        # get track_id and season from the gPodder database
+        info['track_id'] = episode.track_id
+        info['season'] = episode.season
 
         return info
 

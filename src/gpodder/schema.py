@@ -52,6 +52,8 @@ EpisodeColumns = (
     'description_html',
     'episode_art_url',
     'chapters',
+    'track_id',
+    'season',
 )
 
 PodcastColumns = (
@@ -74,7 +76,7 @@ PodcastColumns = (
     'cover_thumb',
 )
 
-CURRENT_VERSION = 8
+CURRENT_VERSION = 9
 
 
 # SQL commands to upgrade old database versions to new ones
@@ -121,6 +123,13 @@ UPGRADE_SQL = [
         (7, 8, """
         ALTER TABLE episode ADD COLUMN episode_art_url TEXT NULL DEFAULT NULL
         ALTER TABLE episode ADD COLUMN chapters TEXT NULL DEFAULT NULL
+        UPDATE podcast SET http_last_modified=NULL, http_etag=NULL
+        """),
+
+        # Version 9: Add track ID and season number
+        (8, 9, """
+        ALTER TABLE episode ADD COLUMN track_id INTEGER NULL DEFAULT NULL
+        ALTER TABLE episode ADD COLUMN season INTEGER NULL DEFAULT NULL
         UPDATE podcast SET http_last_modified=NULL, http_etag=NULL
         """),
 ]
@@ -183,7 +192,9 @@ def initialize_database(db):
         payment_url TEXT NULL DEFAULT NULL,
         description_html TEXT NOT NULL DEFAULT '',
         episode_art_url TEXT NULL DEFAULT NULL,
-        chapters TEXT NULL DEFAULT NULL
+        chapters TEXT NULL DEFAULT NULL,
+        track_id INTEGER NOT NULL DEFAULT 0,
+        season INTEGER NOT NULL DEFAULT 0
     )
     """)
 
@@ -312,6 +323,8 @@ def convert_gpodder2_db(old_db, new_db):
                 '',
                 None,
                 None,
+                0,
+                0,
         )
         new_db.execute("""
         INSERT INTO episode VALUES (%s)
