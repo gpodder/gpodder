@@ -1057,12 +1057,21 @@ class PodcastChannel(PodcastModelObject):
                 glob.glob(os.path.join(self.save_dir, '*'))
                 if not filename.endswith('.partial'))
 
-        ignore_files = ['folder' + ext for ext in
+        ignore_files = ['' + ext for ext in
                 coverart.CoverDownloader.EXTENSIONS]
 
         external_files = existing_files.difference(list(known_files) +
                 [os.path.join(self.save_dir, ignore_file)
                  for ignore_file in ignore_files])
+
+        #remove any existing files with .jpg or .png
+        to_keep = []
+        for filename in external_files:
+            if not filename.endswith('.jpg') and not filename.endswith('.png'):
+                to_keep.append(filename)
+        
+        external_files = to_keep
+        
         if not external_files:
             return
 
