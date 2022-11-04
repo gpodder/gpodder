@@ -125,6 +125,15 @@ class PodcastParserFeed(Feed):
 
     def get_payment_url(self):
         return self.feed.get('payment_url')
+    
+    def get_author(self):
+        return self.feed.get('itunes_author')
+
+    def get_keywords(self):
+        return self.feed.get('itunes_keywords')
+
+    def get_categorys(self):
+        return self.feed.get('itunes_category')
 
     def get_http_etag(self):
         return self.feed.get('headers', {}).get('etag')
@@ -316,6 +325,9 @@ class PodcastEpisode(PodcastModelObject):
             episode.season = entry['season']
         else:
             episode.season = 0
+        
+        if entry.get('itunes_author'):
+            episode.author = entry['itunes_author']
 
         audio_available = any(enclosure['mime_type'].startswith('audio/') for enclosure in entry['enclosures'])
         video_available = any(enclosure['mime_type'].startswith('video/') for enclosure in entry['enclosures'])
@@ -394,6 +406,7 @@ class PodcastEpisode(PodcastModelObject):
         self.published = 0
         self.download_filename = None
         self.payment_url = None
+        self.author = ''
 
         self.state = gpodder.STATE_NORMAL
         self.is_new = True
@@ -892,7 +905,7 @@ class PodcastEpisode(PodcastModelObject):
 
     def update_from(self, episode):
         for k in ('title', 'url', 'episode_art_url', 'description', 'description_html', 'chapters', 'link',
-                  'published', 'guid', 'payment_url', 'track_id', 'season'):
+                  'published', 'guid', 'payment_url', 'track_id', 'season', 'author'):
             setattr(self, k, getattr(episode, k))
         # Don't overwrite file size on downloaded episodes
         # See #648 refreshing a youtube podcast clears downloaded file size
@@ -944,6 +957,9 @@ class PodcastChannel(PodcastModelObject):
         self.description = ''
         self.cover_url = None
         self.payment_url = None
+        self.author = None
+        self.keywords = None
+        self.categorys = None
 
         self.auth_username = ''
         self.auth_password = ''
@@ -1165,12 +1181,15 @@ class PodcastChannel(PodcastModelObject):
             # End YouTube- and Vimeo-specific title FIX
 
     def _consume_metadata(self, title, link, description, cover_url,
-            payment_url):
+            payment_url, author, keywords, categorys):
         self._consume_updated_title(title)
         self.link = link
         self.description = description
         self.cover_url = cover_url
         self.payment_url = payment_url
+        self.author = author
+        self.keywords = keywords
+        self.categorys = categorys
         self.save()
 
     def _consume_updated_feed(self, feed, max_episodes=0):
@@ -1178,7 +1197,10 @@ class PodcastChannel(PodcastModelObject):
                                feed.get_link() or self.link,
                                feed.get_description() or '',
                                feed.get_cover_url() or None,
-                               feed.get_payment_url() or None)
+                               feed.get_payment_url() or None,
+                               feed.get_author() or None,
+                               feed.get_keywords() or None,
+                               feed.get_categorys() or None)
 
         # Update values for HTTP conditional requests
         self.http_etag = feed.get_http_etag() or self.http_etag
