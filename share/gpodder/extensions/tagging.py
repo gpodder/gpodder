@@ -313,6 +313,12 @@ class gPodderExtension:
         title = episode.title
         if (self.container.config.strip_album_from_title and title and info['album'] and title.startswith(info['album'])):
             info['title'] = title[len(info['album']):].lstrip()
+            # remove leading ': ' and '; 'from title
+            if info['title'].startswith(': '):
+                info['title'] = info['title'][2:]
+
+            if info['title'].startswith('; '):
+                info['title'] = info['title'][2:]
         else:
             info['title'] = title
 
