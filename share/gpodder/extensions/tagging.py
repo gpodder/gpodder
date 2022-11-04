@@ -134,7 +134,7 @@ class AudioFile(object):
                     #use the podcast artist as album artist
                     #use the episode artist as track artist (if they are different)
                     #deliminate multiple artists with ' / '
-                    audio.tags['albumartist'] = self.album
+                    audio.tags['albumartist'] = self.podcast_artist
 
                     if self.podcast_artist != self.episode_artist and self.episode_artist is not None:
                         audio.tags['artist'] = self.episode_artist
