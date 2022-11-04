@@ -21,6 +21,18 @@
 # This extension script adds episode title and podcast title to the audio file
 # The episode title is written into the title tag
 # The podcast title is written into the album tag
+# TODO:
+# add artists into database schema
+#     use the podcast artist as album artist
+#     use the episode artist as track artist (if they are different)
+#     deliminate multiple artists with ' / '
+# add genre into database schema (only on the podcast level)
+#     this is done by pulling both the itunes keywords, and the itunes categorys, and merging them all into a list, deliminated by ' / '
+# seperate artists based on , with the artist_seperator between each one so it is parsed as seperate artists in most programs
+# add config options for episode number and season number
+# add config option for pulling seperate image for each episode
+# Review all changes to make sure they fallback if they have errors
+# linting
 
 import base64
 import datetime
