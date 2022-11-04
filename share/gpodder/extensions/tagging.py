@@ -183,8 +183,8 @@ class AudioFile(object):
 
 
 class OggFile(AudioFile):
-    def __init__(self, filename, album, title, subtitle, genre, pubDate, cover, track_id, season):
-        super(OggFile, self).__init__(filename, album, title, subtitle, genre, pubDate, cover, track_id, season)
+    def __init__(self, filename, album, title, subtitle, genre, pubDate, cover, track_id, season, podcast_artists, episode_artists, categorys, keywords):
+        super(OggFile, self).__init__(filename, album, title, subtitle, genre, pubDate, cover, track_id, season, podcast_artists, episode_artists, categorys, keywords)
 
     def insert_coverart(self):
         audio = File(self.filename, easy=True)
@@ -194,8 +194,8 @@ class OggFile(AudioFile):
 
 
 class Mp4File(AudioFile):
-    def __init__(self, filename, album, title, subtitle, genre, pubDate, cover, track_id, season):
-        super(Mp4File, self).__init__(filename, album, title, subtitle, genre, pubDate, cover, track_id, season)
+    def __init__(self, filename, album, title, subtitle, genre, pubDate, cover, track_id, season, podcast_artists, episode_artists, categorys, keywords):
+        super(Mp4File, self).__init__(filename, album, title, subtitle, genre, pubDate, cover, track_id, season, podcast_artists, episode_artists, categorys, keywords)
 
     def insert_coverart(self):
         audio = File(self.filename)
@@ -211,8 +211,8 @@ class Mp4File(AudioFile):
 
 
 class Mp3File(AudioFile):
-    def __init__(self, filename, album, title, subtitle, genre, pubDate, cover, track_id, season):
-        super(Mp3File, self).__init__(filename, album, title, subtitle, genre, pubDate, cover, track_id, season)
+    def __init__(self, filename, album, title, subtitle, genre, pubDate, cover, track_id, season, podcast_artists, episode_artists, categorys, keywords):
+        super(Mp3File, self).__init__(filename, album, title, subtitle, genre, pubDate, cover, track_id, season, podcast_artists, episode_artists, categorys, keywords)
 
     def insert_coverart(self):
         audio = MP3(self.filename, ID3=ID3)
