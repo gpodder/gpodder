@@ -136,7 +136,7 @@ class AudioFile(object):
                     #deliminate multiple artists with ' / '
                     audio.tags['albumartist'] = self.album
 
-                    if self.podcast_artist != self.episode_artist:
+                    if self.podcast_artist != self.episode_artist and self.episode_artist is not None:
                         audio.tags['artist'] = self.episode_artist
             
             if (self.categorys is not None or self.keywords is not None) and additional_genre_tags:
@@ -283,7 +283,7 @@ class gPodderExtension:
                 info["podcast_artist"],
                 info["episode_artist"],
                 info["categorys"],
-                info["keywords"]),
+                info["keywords"])
         return audio
 
     def read_episode_info(self, episode):
