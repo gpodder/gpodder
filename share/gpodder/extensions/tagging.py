@@ -29,8 +29,6 @@
 # add genre into database schema (only on the podcast level)
 #     this is done by pulling both the itunes keywords, and the itunes categorys, and merging them all into a list, deliminated by ' / '
 # seperate artists based on , with the artist_seperator between each one so it is parsed as seperate artists in most programs
-# add config options for episode number and season number
-# add config option for pulling seperate image for each episode
 # Review all changes to make sure they fallback if they have errors
 # linting
 
@@ -73,7 +71,10 @@ DefaultConfig = {
     'genre_tag': 'Podcast',
     'always_remove_tags': False,
     'auto_embed_coverart': False,
+    'use_episode_specific_cover': False,
     'set_artist_to_album': False,
+    'set_episode_number_to_track': False,
+    'set_season_number_to_disc': False,
     'set_version': 4,
     'modify_tags': True
 }
@@ -98,7 +99,7 @@ class AudioFile(object):
             audio.delete()
         audio.save()
 
-    def write_basic_tags(self, modify_tags, set_artist_to_album, set_version):
+    def write_basic_tags(self, modify_tags, set_artist_to_album, set_version, set_episode_number_to_track, set_season_number_to_disc):
         audio = File(self.filename, easy=True)
 
         if audio is None:
@@ -130,10 +131,10 @@ class AudioFile(object):
             if set_artist_to_album:
                 audio.tags['artist'] = self.album
 
-            if self.track_id is not None:
+            if self.track_id is not None and set_episode_number_to_track:
                 audio.tags['tracknumber'] = str(self.track_id)
             
-            if self.season is not None:
+            if self.season is not None and set_season_number_to_disc:
                 audio.tags['discnumber'] = str(self.season)
 
         if type(audio) is EasyMP3:
@@ -237,8 +238,10 @@ class gPodderExtension:
         audioClass = None
 
         if self.container.config.auto_embed_coverart:
-            #cover = self.get_cover(episode.channel)
-            cover = self.get_episode_cover(episode)
+            if self.container.config.use_episode_specific_cover:
+                cover = self.get_episode_cover(episode)
+            else:
+                cover = self.get_cover(episode.channel)
 
         if info['filename'].endswith('.mp3'):
             audioClass = Mp3File
@@ -318,7 +321,9 @@ class gPodderExtension:
         else:
             audio.write_basic_tags(self.container.config.modify_tags,
                                    self.container.config.set_artist_to_album,
-                                   self.container.config.set_version)
+                                   self.container.config.set_version, 
+                                   self.container.config.set_episode_number_to_track, 
+                                   self.container.config.set_season_number_to_disc)
 
             if self.container.config.auto_embed_coverart:
                 audio.insert_coverart()
