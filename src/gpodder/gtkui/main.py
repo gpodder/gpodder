@@ -2003,7 +2003,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             menu = Gtk.Menu()
 
-            (open_instead_of_play, can_play, can_download, can_pause, can_cancel, can_delete, can_lock) = self.play_or_download()
+            (open_instead_of_play, can_play, can_preview, can_download, can_pause,
+             can_cancel, can_delete, can_lock) = self.play_or_download()
 
             if open_instead_of_play:
                 item = Gtk.ImageMenuItem(_('Open'))
@@ -2011,7 +2012,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             else:
                 if downloaded:
                     item = Gtk.ImageMenuItem(_('Play'))
-                elif downloading:
+                elif can_preview:
                     item = Gtk.ImageMenuItem(_('Preview'))
                 else:
                     item = Gtk.ImageMenuItem(_('Stream'))
@@ -2302,7 +2303,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if current_page is None:
             current_page = self.wNotebook.get_current_page()
         if current_page == 0:
-            (open_instead_of_play, can_play, can_download, can_pause, can_cancel, can_delete, can_lock) = (False,) * 7
+            (open_instead_of_play, can_play, can_preview, can_download,
+             can_pause, can_cancel, can_delete, can_lock) = (False,) * 8
 
             selection = self.treeAvailable.get_selection()
             if selection.count_selected_rows() > 0:
@@ -2322,6 +2324,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     # Actions filter episodes using these methods.
                     open_instead_of_play = open_instead_of_play or episode.file_type() not in ('audio', 'video')
                     can_play = can_play or episode.can_play(self.config)
+                    can_preview = can_preview or episode.can_preview()
                     can_download = can_download or episode.can_download()
                     can_pause = can_pause or episode.can_pause()
                     can_cancel = can_cancel or episode.can_cancel()
@@ -2331,7 +2334,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.set_episode_actions(open_instead_of_play, can_play, can_download, can_pause, can_cancel, can_delete, can_lock,
                                     selection.count_selected_rows() > 0)
 
-            return (open_instead_of_play, can_play, can_download, can_pause, can_cancel, can_delete, can_lock)
+            return (open_instead_of_play, can_play, can_preview, can_download,
+                    can_pause, can_cancel, can_delete, can_lock)
         else:
             (can_queue, can_pause, can_cancel, can_remove) = (False,) * 4
 
@@ -2358,7 +2362,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             self.set_episode_actions(False, False, can_queue, can_pause, can_cancel, can_remove, False, False)
 
-            return (False, False, can_queue, can_pause, can_cancel, can_remove, False)
+            return (False, False, False, can_queue, can_pause, can_cancel,
+                    can_remove, False)
 
     def on_cbMaxDownloads_toggled(self, widget, *args):
         self.spinMaxDownloads.set_sensitive(self.cbMaxDownloads.get_active())
