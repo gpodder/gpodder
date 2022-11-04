@@ -130,10 +130,20 @@ class PodcastParserFeed(Feed):
         return self.feed.get('itunes_author')
 
     def get_keywords(self):
-        return self.feed.get('itunes_keywords')
+        #convert all commas into " / "
+        keywords = self.feed.get('itunes_keywords')
+        if keywords is not None:
+            keywords = keywords.replace(", ", " / ")
+        return keywords
 
     def get_categorys(self):
-        return self.feed.get('itunes_category')
+        #its coming in as a list like this ['Technology', 'Podcasting']
+        #however this doesnt work with the database as it expects a string
+        #convert it to a string, deliminated by " / "
+        categorys = self.feed.get('itunes_category')
+        if categorys is not None:
+            categorys = " / ".join(categorys)
+        return categorys
 
     def get_http_etag(self):
         return self.feed.get('headers', {}).get('etag')
