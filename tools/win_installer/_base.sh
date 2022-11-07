@@ -92,6 +92,7 @@ html5lib==1.1
 idna==3.3
 mutagen==1.45.1
 mygpoclient==1.9
+minidb==2.0.7
 podcastparser==0.6.8
 PySocks==1.7.1
 requests==2.28.1

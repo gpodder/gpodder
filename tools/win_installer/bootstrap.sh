@@ -24,7 +24,7 @@ function main {
         mingw-w64-i686-python3-cairo \
         mingw-w64-i686-python3-pip
 
-    pip3 install --user podcastparser mygpoclient \
+    pip3 install --user podcastparser mygpoclient minidb \
 						pywin32-ctypes \
 						html5lib webencodings six
 }

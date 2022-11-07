@@ -26,8 +26,9 @@ tmp_dir = tempfile.mkdtemp()
 
 MODULES = [
     # Module name, Regex-file chooser (1st group = location in "src/")
-    ('podcastparser', r'podcastparser-[0-9.]+/(podcastparser.py)'),
-    ('mygpoclient', r'mygpoclient-[0-9.]+/(mygpoclient/[^/]*\.py)')
+    ('podcastparser', r'podcastparser-[0-9.]+/(podcastparser\.py)'),
+    ('mygpoclient', r'mygpoclient-[0-9.]+/(mygpoclient/[^/]*\.py)'),
+    ('minidb', r'minidb-[0-9.]+/(minidb\.py)'),
 ]
 
 

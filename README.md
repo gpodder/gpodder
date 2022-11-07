@@ -29,6 +29,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 - [Python 3.5](http://python.org/) or newer
 - [Podcastparser](http://gpodder.org/podcastparser/) 0.6.0 or newer
 - [mygpoclient](http://gpodder.org/mygpoclient/) 1.7 or newer
+- [minidb](https://thp.io/2010/minidb/) 2.0.7 or newer
 - [requests](https://requests.readthedocs.io) 2.24.0 or newer
 - Python D-Bus bindings
 
@@ -36,7 +37,7 @@ As an alternative to python-dbus on Mac OS X and Windows, you can use
 the dummy (no-op) D-Bus module provided in "tools/fake-dbus-module/".
 
 For quick testing, you can use the script tools/localdepends.py to
-install local copies of podcastparser and mygpoclient into "src/" from
+install podcastparser, mygpoclient and minidb into "src/" from
 PyPI. With this, you get a self-contained gPodder CLI codebase.
 
 
