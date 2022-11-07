@@ -529,6 +529,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             ('moveUp', self.on_move_selected_items_up),
             ('moveDown', self.on_move_selected_items_down),
             ('remove', self.on_remove_from_download_list),
+            ('preview_from_downloads', self.on_preview_from_downloads),
         ]
 
         for name, callback in app_action_defs:
@@ -540,6 +541,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.pause_action = app.lookup_action('pause')
         self.cancel_action = app.lookup_action('cancel')
         self.remove_action = app.lookup_action('remove')
+        self.preview_from_dls_action = app.lookup_action('preview_from_downloads')
 
     def update_header_bar_subtitle(self, text=None):
         if self.application.want_headerbar:
@@ -1953,7 +1955,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             selection = self.treeDownloads.get_selection()
             model, paths = selection.get_selected_rows()
 
-        can_force, can_queue, can_pause, can_cancel, can_remove = (True,) * 5
+        (can_force, can_queue, can_pause, can_cancel, can_remove,
+            can_preview) = (True,) * 6
         selected_tasks = [(Gtk.TreeRowReference.new(model, path),
                            model.get_value(model.get_iter(path),
                            DownloadStatusModel.C_TASK)) for path in paths]
@@ -1969,8 +1972,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 can_cancel = False
             if not task.can_remove():
                 can_remove = False
+            if not task.episode.can_preview():
+                can_preview = False
 
-        return selected_tasks, can_force, can_queue, can_pause, can_cancel, can_remove
+        return (selected_tasks, can_force, can_queue, can_pause, can_cancel,
+                can_remove, can_preview)
 
     def downloads_finished(self, download_tasks_seen):
         # Separate tasks into downloads & syncs
@@ -2170,8 +2176,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return not treeview.is_rubber_banding_active()
 
         if event is None or event.button == 3:
-            selected_tasks, can_force, can_queue, can_pause, can_cancel, can_remove = \
-                    self.downloads_list_get_selection(model, paths)
+            (selected_tasks, can_force, can_queue, can_pause, can_cancel, can_remove,
+             can_preview) = self.downloads_list_get_selection(model, paths)
+
+            self.preview_from_dls_action.set_enabled(can_preview)
 
             menu = self.application.builder.get_object('downloads-context')
             dsec = menu.get_item_link(0, Gio.MENU_LINK_SECTION)
@@ -4254,6 +4262,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_playback_selected_episodes(self, *params):
         self.playback_episodes(self.get_selected_episodes())
 
+    def on_preview_from_downloads(self, *params):
+        selected_tasks = self.downloads_list_get_selection()[0]
+        episodes = [t[1].episode for t in selected_tasks if t[1].episode is not None]
+        self.playback_episodes(episodes)
+
     def on_episode_new_activate(self, action, *params):
         state = not action.get_state().get_boolean()
         if state:
@@ -4391,7 +4404,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     model.get_iter((index_below,)))
 
     def on_remove_from_download_list(self, action, *args):
-        selected_tasks, x, x, x, x, x = self.downloads_list_get_selection()
+        selected_tasks = self.downloads_list_get_selection()[0]
         self._for_each_task_set_status(selected_tasks, None, False)
 
     def on_treeAvailable_row_activated(self, widget, path, view_column):
