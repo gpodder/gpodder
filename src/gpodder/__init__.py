@@ -49,10 +49,7 @@ except ImportError:
          The podcastparser module can be downloaded from
          http://gpodder.org/podcastparser/
 
-  From a source checkout, you can download local copies of all
-  CLI dependencies for debugging (will be placed into "src/"):
-
-      python3 tools/localdepends.py
+  From a source checkout, see https://gpodder.github.io/docs/run-from-git.html
 """)
     sys.exit(1)
 del podcastparser
@@ -65,10 +62,7 @@ except ImportError:
          The mygpoclient module can be downloaded from
          http://gpodder.org/mygpoclient/
 
-  From a source checkout, you can download local copies of all
-  CLI dependencies for debugging (will be placed into "src/"):
-
-      python3 tools/localdepends.py
+  From a source checkout, see https://gpodder.github.io/docs/run-from-git.html
 """)
     sys.exit(1)
 del mygpoclient
