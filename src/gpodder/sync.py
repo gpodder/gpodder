@@ -530,7 +530,17 @@ class MP3PlayerDevice(Device):
 
         util.make_directory(folder)
 
-        if not to_file.query_exists():
+        to_file_exists = to_file.query_exists()
+        from_size = episode.file_size
+        to_size = episode.file_size
+        if to_file_exists:
+            try:
+                info = to_file.query_info(Gio.FILE_ATTRIBUTE_STANDARD_SIZE, Gio.FileQueryInfoFlags.NONE)
+                to_size = info.get_attribute_uint64(Gio.FILE_ATTRIBUTE_STANDARD_SIZE)
+            except GLib.Error:
+                # Assume same size and don't sync again
+                pass
+        if not to_file_exists or from_size != to_size:
             logger.info('Copying %s => %s',
                     os.path.basename(from_file),
                     to_file.get_uri())
