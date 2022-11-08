@@ -137,10 +137,18 @@ class PodcastParserFeed(Feed):
         return keywords
 
     def get_categorys(self):
-        #its coming in as a list like this ['Technology', 'Podcasting']
+        #its coming in as a list like this 
+        #'itunes_categories': [['Fiction', 'Comedy Fiction'], ['Leisure', 'Games']],
         #however this doesnt work with the database as it expects a string
         #convert it to a string, deliminated by " / "
-        categorys = self.feed.get('itunes_category')
+        categorys = self.feed.get('itunes_categories')
+
+        #flatten the list
+        new_list = []
+        for item in categorys:
+            new_list.extend(item)
+        categorys = new_list
+        
         if categorys is not None:
             categorys = " / ".join(categorys)
         return categorys

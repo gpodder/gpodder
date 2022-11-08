@@ -139,7 +139,7 @@ class AudioFile(object):
                     if self.podcast_artist != self.episode_artist and self.episode_artist is not None:
                         #change all commas to ' / ' so that the artist(s) is displayed correctly in iTunes
                         audio.tags['artist'] = self.episode_artist.replace(', ', ' / ')
-            
+
             if (self.categorys is not None or self.keywords is not None) and additional_genre_tags:
                 #take self.categorys and self.keywords and merge them together into a single string, with ' / ' as the deliminator. only add the deliminator if both exist. otherwise just add the one that exists
                 if self.categorys is not None and self.keywords is not None:
