@@ -17,7 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from gi.repository import Gdk, GdkPixbuf, Gtk
+from gi.repository import Gdk, Gio, Gtk
 
 import gpodder
 from gpodder import util
@@ -74,6 +74,22 @@ class gPodderChannel(BuilderWidget):
         if self.channel.auth_password:
             self.FeedPassword.set_text(self.channel.auth_password)
 
+        # Cover image
+        ag = Gio.SimpleActionGroup()
+        open_cover_action = Gio.SimpleAction.new("openCover", None)
+        open_cover_action.connect('activate', self.on_open_cover_activate)
+        ag.add_action(open_cover_action)
+        refresh_cover_action = Gio.SimpleAction.new("refreshCover", None)
+        refresh_cover_action.connect('activate', self.on_refresh_cover_activate)
+        ag.add_action(refresh_cover_action)
+        self.main_window.insert_action_group("channel", ag)
+
+        cover_menu = Gio.Menu()
+        cover_menu.append("Change cover image", "channel.openCover")
+        cover_menu.append("Refresh image", "channel.refreshCover")
+
+        self.cover_menubutton.set_menu_model(cover_menu)
+
         self.cover_downloader.register('cover-available', self.cover_download_finished)
         self.cover_downloader.request_cover(self.channel)
 
@@ -92,8 +108,6 @@ class gPodderChannel(BuilderWidget):
         border = 6
         size = self.MAX_SIZE + border * 2
         self.imgCover.set_size_request(size, size)
-        self.imgCoverEventBox.connect('button-press-event',
-                self.on_cover_popup_menu)
 
         # Title save button state
         self.title_save_button_saves = True
@@ -123,25 +137,7 @@ class gPodderChannel(BuilderWidget):
             self.section_list.append([text])
             self.combo_section.set_active(len(self.section_list) - 1)
 
-    def on_cover_popup_menu(self, widget, event):
-        if not event.triggers_context_menu():
-            return
-
-        menu = Gtk.Menu()
-
-        item = Gtk.MenuItem.new_with_mnemonic(_('_Open'))
-        item.connect('activate', self.on_btnDownloadCover_clicked)
-        menu.append(item)
-
-        item = Gtk.MenuItem.new_with_mnemonic(_('_Refresh'))
-        item.connect('activate', self.on_btnClearCover_clicked)
-        menu.append(item)
-
-        menu.attach_to_widget(widget)
-        menu.show_all()
-        menu.popup(None, None, None, None, event.button, event.time)
-
-    def on_btnDownloadCover_clicked(self, widget):
+    def on_open_cover_activate(self, action, *args):
         dlg = Gtk.FileChooserDialog(
             title=_('Select new podcast cover artwork'),
             parent=self.gPodderChannel,
@@ -156,7 +152,7 @@ class gPodderChannel(BuilderWidget):
 
         dlg.destroy()
 
-    def on_btnClearCover_clicked(self, widget):
+    def on_refresh_cover_activate(self, action, *args):
         self.clear_cover_cache(self.channel.url)
         self.cover_downloader.replace_cover(self.channel, custom_url=False)
 
@@ -216,6 +212,13 @@ class gPodderChannel(BuilderWidget):
         if self.title_save_button_saves:
             self.title_label.set_text(self.title_entry.get_text())
         self.title_stack.set_visible_child(self.title_box)
+
+    def on_feed_url_copy_button_clicked(self, button):
+        clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
+        clipboard.set_text(self.channel.url, -1)
+
+    def on_open_folder_button_clicked(self, button):
+        util.gui_open(self.channel.save_dir, gui=self)
 
     def on_row_activated(self, listbox, row, *args):
         # Find the correct widget in the row to activate
