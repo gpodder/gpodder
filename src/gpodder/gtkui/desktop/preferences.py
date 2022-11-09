@@ -234,6 +234,8 @@ class gPodderPreferences(BuilderWidget):
                                               self.checkbutton_show_all_episodes)
         self._config.connect_gtk_togglebutton('podcast_list_sections',
                                               self.checkbutton_podcast_sections)
+        self._config.connect_gtk_togglebutton('ui.gtk.find_as_you_type',
+                                              self.checkbutton_find_as_you_type)
 
         self.update_interval_presets = [0, 10, 30, 60, 2 * 60, 6 * 60, 12 * 60]
         adjustment_update_interval = self.hscale_update_interval.get_adjustment()
