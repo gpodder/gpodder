@@ -5,7 +5,6 @@
 # Released under the same license terms as gPodder itself.
 import functools
 import logging
-import subprocess
 
 import gpodder
 from gpodder import util

@@ -34,8 +34,7 @@ import requests.exceptions
 import urllib3.exceptions
 
 import gpodder
-from gpodder import (common, download, extensions, feedcore, my, opml, player,
-                     util, youtube)
+from gpodder import common, download, feedcore, my, opml, player, util, youtube
 from gpodder.dbusproxy import DBusPodcastsProxy
 from gpodder.model import Model, PodcastEpisode
 from gpodder.syncui import gPodderSyncUI
@@ -59,7 +58,7 @@ from .services import CoverDownloader
 
 import gi  # isort:skip
 gi.require_version('Gtk', '3.0')  # isort:skip
-from gi.repository import Gdk, GdkPixbuf, Gio, GLib, Gtk, Pango  # isort:skip
+from gi.repository import Gdk, Gio, GLib, Gtk, Pango  # isort:skip
 
 
 logger = logging.getLogger(__name__)
@@ -497,8 +496,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 # Assume the episode's total time for the action
                 total = episode.total_time
 
-            assert (episode.current_position_updated is None or
-                    now >= episode.current_position_updated)
+            assert (episode.current_position_updated is None
+                    or now >= episode.current_position_updated)
 
             episode.current_position = end
             episode.current_position_updated = now
@@ -650,8 +649,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 path, column, x, y = result
                 # The user clicked the icon if she clicked in the first column
                 # and the x position is in the area where the icon resides
-                if (x < self.EPISODE_LIST_ICON_WIDTH and
-                        column == treeview.get_columns()[0]):
+                if (x < self.EPISODE_LIST_ICON_WIDTH
+                        and column == treeview.get_columns()[0]):
                     model = treeview.get_model()
                     cursor_episode = model.get_value(model.get_iter(path),
                             EpisodeListModel.C_EPISODE)
@@ -842,8 +841,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # Initialize progress icons
         cake_size = cake_size_from_widget(self.treeAvailable)
         for i in range(EpisodeListModel.PROGRESS_STEPS + 1):
-            pixbuf = draw_cake_pixbuf(i /
-                   EpisodeListModel.PROGRESS_STEPS, size=cake_size)
+            pixbuf = draw_cake_pixbuf(
+                i / EpisodeListModel.PROGRESS_STEPS, size=cake_size)
             icon_name = 'gpodder-progress-%d' % i
             Gtk.IconTheme.add_builtin_icon(icon_name, cake_size, pixbuf)
 
@@ -1444,14 +1443,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
         selection = treeview.get_selection()
         model, paths = selection.get_selected_rows()
 
-        if path is None or (path not in paths and
-                event.button == 3):
+        if path is None or (path not in paths
+                and event.button == 3):
             # We have right-clicked, but not into the selection,
             # assume we don't want to operate on the selection
             paths = []
 
-        if (path is not None and not paths and
-                event.button == 3):
+        if (path is not None and not paths
+                and event.button == 3):
             # No selection or clicked outside selection;
             # select the single item where we clicked
             treeview.grab_focus()
@@ -2441,8 +2440,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         else:
             list_model_length = len(self.podcast_list_model)
 
-        force_update = (sections_active != self.config.podcast_list_sections or
-                sections_changed)
+        force_update = (sections_active != self.config.podcast_list_sections
+                or sections_changed)
 
         # Filter items in the list model that are not podcasts, so we get the
         # correct podcast list count (ignore section headers and separators)
@@ -2915,8 +2914,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                             count) % {'count': count}
                         self.show_message(title, _('New episodes available'))
                     else:
-                        if (show_new_episodes_dialog and
-                                self.config.auto_download == 'show'):
+                        if (show_new_episodes_dialog
+                                and self.config.auto_download == 'show'):
                             self.new_episodes_show(episodes, notification=True)
                         else:  # !show_new_episodes_dialog or auto_download == 'ignore'
                             message = N_('%(count)d new episode available',
@@ -3772,8 +3771,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             GLib.source_remove(self._auto_update_timer_source_id)
             self._auto_update_timer_source_id = None
 
-        if (self.config.auto_update_feeds and
-                self.config.auto_update_frequency):
+        if (self.config.auto_update_feeds
+                and self.config.auto_update_frequency):
             interval = 60 * 1000 * self.config.auto_update_frequency
             logger.debug('Setting up auto update timer with interval %d.',
                     self.config.auto_update_frequency)
@@ -3923,8 +3922,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         try:
             file.mount_enclosing_volume_finish(res)
         except GLib.Error as err:
-            if (not err.matches(Gio.io_error_quark(), Gio.IOErrorEnum.NOT_SUPPORTED) and
-                    not err.matches(Gio.io_error_quark(), Gio.IOErrorEnum.ALREADY_MOUNTED)):
+            if (not err.matches(Gio.io_error_quark(), Gio.IOErrorEnum.NOT_SUPPORTED)
+                    and not err.matches(Gio.io_error_quark(), Gio.IOErrorEnum.ALREADY_MOUNTED)):
                 logger.error('mounting volume %s failed: %s' % (file.get_uri(), err.message))
                 result = False
         finally:

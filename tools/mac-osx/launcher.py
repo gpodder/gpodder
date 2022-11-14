@@ -7,7 +7,7 @@ import subprocess
 import sys
 import time
 import traceback
-from os.path import dirname, expanduser, join
+from os.path import join
 from subprocess import PIPE, CalledProcessError, Popen
 
 
@@ -32,9 +32,9 @@ class MakeCertPem:
         """
         cmd = ["security", "find-certificate", "-a", "-p",
                "/System/Library/Keychains/SystemRootCertificates.keychain"]
-        cert_re = re.compile(b"^-----BEGIN CERTIFICATE-----$" +
-                             b".+?" +
-                             b"^-----END CERTIFICATE-----$", re.M | re.S)
+        cert_re = re.compile(b"^-----BEGIN CERTIFICATE-----$"
+                             + b".+?"
+                             + b"^-----END CERTIFICATE-----$", re.M | re.S)
         try:
             certs_str = subprocess.check_output(cmd)
             all_certs = cert_re.findall(certs_str)

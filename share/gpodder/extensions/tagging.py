@@ -26,7 +26,6 @@ import base64
 import datetime
 import logging
 import mimetypes
-import os
 
 from mutagen import File
 from mutagen.easyid3 import EasyID3

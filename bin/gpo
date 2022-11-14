@@ -1176,8 +1176,8 @@ class gPodderCli(object):
         defaults = defaults or ()
         minarg, maxarg = len(args) - len(defaults), len(args)
 
-        if (len(command_line) < minarg or
-                (len(command_line) > maxarg and varargs is None)):
+        if (len(command_line) < minarg
+                or (len(command_line) > maxarg and varargs is None)):
             self._error('Wrong argument count for %s.' % func.__name__)
             return False
 

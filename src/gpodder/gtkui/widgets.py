@@ -23,9 +23,8 @@
 #  Thomas Perl <thp@gpodder.org> 2009-03-31
 #
 
-import html
 
-from gi.repository import Gdk, GObject, Gtk, Pango
+from gi.repository import Gtk
 
 
 class SpinningProgressIndicator(Gtk.Image):

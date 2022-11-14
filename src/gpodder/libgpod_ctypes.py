@@ -28,7 +28,6 @@
 import ctypes
 import logging
 import os
-import struct
 
 logger = logging.getLogger(__name__)
 

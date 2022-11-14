@@ -104,8 +104,8 @@ def get_expired_episodes(channels, config):
                 continue
 
             # Download strategy "Only keep latest"
-            if (channel.download_strategy == channel.STRATEGY_LATEST and
-                    index > 0):
+            if (channel.download_strategy == channel.STRATEGY_LATEST
+                    and index > 0):
                 logger.info('Removing episode (only keep latest strategy): %s',
                         episode.title)
                 yield episode

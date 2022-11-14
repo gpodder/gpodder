@@ -25,7 +25,7 @@
 
 import logging
 
-from gi.repository import GdkPixbuf, Gtk
+from gi.repository import GdkPixbuf
 
 import gpodder
 from gpodder import coverart, util

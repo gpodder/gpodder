@@ -18,7 +18,6 @@
 #
 
 import os
-import shutil
 
 from gi.repository import Gdk, Gtk
 

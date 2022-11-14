@@ -25,15 +25,12 @@
 #  Based on libwget.py (2005-10-29)
 #
 
-import collections
-import email
 import glob
 import logging
 import mimetypes
 import os
 import os.path
 import shutil
-import socket
 import threading
 import time
 import urllib.error
