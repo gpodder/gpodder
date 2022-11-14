@@ -37,6 +37,7 @@ import socket
 import threading
 import time
 import urllib.error
+from abc import ABC, abstractmethod
 
 import requests
 from requests.adapters import HTTPAdapter
@@ -54,9 +55,24 @@ _ = gpodder.gettext
 REDIRECT_RETRIES = 3
 
 
-class CustomDownload:
+class CustomDownload(ABC):
     """ abstract class for custom downloads. DownloadTask call retrieve_resume() on it """
 
+    @property
+    @abstractmethod
+    def partial_filename(self):
+        """
+        Full path to the temporary file actually being downloaded (downloaders
+        may not support setting a tempname).
+        """
+        ...
+
+    @partial_filename.setter
+    @abstractmethod
+    def partial_filename(self, val):
+        ...
+
+    @abstractmethod
     def retrieve_resume(self, tempname, reporthook):
         """
         :param str tempname: temporary filename for the download
@@ -66,13 +82,14 @@ class CustomDownload:
         return {}, None
 
 
-class CustomDownloader:
+class CustomDownloader(ABC):
     """
     abstract class for custom downloaders.
 
     DownloadTask calls custom_downloader to get a CustomDownload
     """
 
+    @abstractmethod
     def custom_downloader(self, config, episode):
         """
         if this custom downloader has a custom download method (e.g. youtube-dl),
@@ -331,12 +348,22 @@ class DefaultDownload(CustomDownload):
         self._config = config
         self.__episode = episode
         self._url = url
+        self.__partial_filename = None
+
+    @property
+    def partial_filename(self):
+        return self.__partial_filename
+
+    @partial_filename.setter
+    def partial_filename(self, val):
+        self.__partial_filename = val
 
     def retrieve_resume(self, tempname, reporthook):
         url = self._url
         logger.info("Downloading %s", url)
         max_retries = max(0, self._config.auto.retries)
         downloader = DownloadURLOpener(self.__episode.channel, max_retries=max_retries)
+        self.partial_filename = tempname
 
         # Retry the download on incomplete download (other retries are done by the Retry strategy)
         for retry in range(max_retries + 1):
@@ -690,6 +717,7 @@ class DownloadTask(object):
         self.speed = 0.0
         self.progress = 0.0
         self.error_message = None
+        self.custom_downloader = None
 
         # Have we already shown this task in a notification?
         self._notification_shown = False
@@ -871,6 +899,7 @@ class DownloadTask(object):
             else:
                 downloader = DefaultDownloader.custom_downloader(self._config, self.episode)
 
+            self.custom_downloader = downloader
             headers, real_url = downloader.retrieve_resume(self.tempname, self.status_updated)
 
             new_mimetype = headers.get('content-type', self.__episode.mime_type)
