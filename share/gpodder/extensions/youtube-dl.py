@@ -536,6 +536,11 @@ class gPodderExtension:
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
         box.set_border_width(10)
 
+        label = Gtk.Label('%s %s' % (program_name, youtube_dl.version.__version__))
+        box.pack_start(label, False, False, 0)
+
+        box.pack_start(Gtk.HSeparator(), False, False, 0)
+
         checkbox = Gtk.CheckButton(_('Parse YouTube channel feeds with youtube-dl to access more than 15 episodes'))
         checkbox.set_active(self.container.config.manage_channel)
         checkbox.connect('toggled', self.toggle_manage_channel)
