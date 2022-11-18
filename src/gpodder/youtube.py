@@ -447,6 +447,13 @@ def get_channel_id_url(url, feed_data=None):
                 raw_xml_data = io.BytesIO(r.content)
                 xml_data = xml.etree.ElementTree.parse(raw_xml_data)
                 channel_id = xml_data.find("{http://www.youtube.com/xml/schemas/2015}channelId").text
+                if channel_id is None:
+                    # check entries if feed has an empty channelId
+                    m = re.search(r'<yt:channelId>([^<]+)</yt:channelId>', r.text)
+                    if m:
+                        channel_id = m.group(1)
+                    if channel_id is None:
+                        raise Exception('Could not retrieve youtube channel id.')
             channel_url = 'https://www.youtube.com/channel/{}'.format(channel_id)
             return channel_url
 
