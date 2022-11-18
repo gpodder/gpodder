@@ -18,7 +18,7 @@ Contributions are made to this repo via Issues and Pull Requests (PRs). Make sur
 python3 -m venv venv
 source activate venv/bin/activate
 ```
-5. Install dependencies: `python3 tools/localdepends.py`
+5. Install dependencies: [Run from Git](https://gpodder.github.io/docs/run-from-git.html)
 6. Start the program with debug mode: `./bin/gpodder -v`
 7. Make the changes, commit in a branch and push the branch to your fork and then submit a Pull Request.
 

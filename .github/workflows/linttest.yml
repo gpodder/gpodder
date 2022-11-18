@@ -25,7 +25,7 @@ jobs:
           sudo apt-get update -q
           sudo apt-get install intltool desktop-file-utils
           pip3 install pytest-cov minimock pycodestyle isort requests pytest pytest-httpserver
-          python3 tools/localdepends.py
+          pip3 install podcastparser mygpoclient
       - name: Lint
         run: make lint
       - name: Test
