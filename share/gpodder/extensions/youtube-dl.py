@@ -13,9 +13,11 @@ import time
 try:
     import yt_dlp as youtube_dl
     program_name = 'yt-dlp'
+    want_ytdl_version = '2021.02.04'
 except:
     import youtube_dl
     program_name = 'youtube-dl'
+    want_ytdl_version = '2021.02.04'
 
 import gpodder
 from gpodder import download, feedcore, model, registry, util, youtube
@@ -36,7 +38,6 @@ __only_for__ = 'gtk, cli'
 __authors__ = 'Eric Le Lay <elelay.fr:contact>'
 __doc__ = 'https://gpodder.github.io/docs/extensions/youtubedl.html'
 
-want_ytdl_version = '2021.02.04'
 want_ytdl_version_msg = _('Your version of youtube-dl/yt-dlp %(have_version)s has known issues, please upgrade to %(want_version)s or newer.')
 
 DefaultConfig = {
