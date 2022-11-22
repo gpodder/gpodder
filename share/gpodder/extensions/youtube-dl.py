@@ -106,8 +106,8 @@ class YoutubeCustomDownload(download.CustomDownload):
         outtmpl = tempname.replace('%', '%%')
         info, opts = self._ytdl.fetch_info(self._url, outtmpl, self._my_hook)
         if program_name == 'yt-dlp':
-            self.partial_filename = os.path.join(
-                opts['paths']['home'], opts['outtmpl']['default']) % info
+            default = opts['outtmpl']['default'] if type(opts['outtmpl']) == dict else opts['outtmpl']
+            self.partial_filename = os.path.join(opts['paths']['home'], default) % info
         elif program_name == 'youtube-dl':
             self.partial_filename = opts['outtmpl'] % info
 
