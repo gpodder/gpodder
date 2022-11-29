@@ -94,7 +94,7 @@ class AudioFile(object):
             audio.add_tags()
 
         if modify_tags:
-            if remove_before_modify and audio.tags is not None:
+            if remove_before_modify:
                 audio.delete()
 
             if self.album is not None:
