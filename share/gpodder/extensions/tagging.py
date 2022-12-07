@@ -62,7 +62,8 @@ DefaultConfig = {
     'auto_embed_coverart': False,
     'set_artist_to_album': False,
     'set_version': 4,
-    'modify_tags': True
+    'modify_tags': True,
+    'remove_before_modify': False
 }
 
 
@@ -82,7 +83,7 @@ class AudioFile(object):
             audio.delete()
         audio.save()
 
-    def write_basic_tags(self, modify_tags, set_artist_to_album, set_version):
+    def write_basic_tags(self, remove_before_modify, modify_tags, set_artist_to_album, set_version):
         audio = File(self.filename, easy=True)
 
         if audio is None:
@@ -93,6 +94,9 @@ class AudioFile(object):
             audio.add_tags()
 
         if modify_tags:
+            if remove_before_modify:
+                audio.delete()
+
             if self.album is not None:
                 audio.tags['album'] = self.album
 
@@ -284,7 +288,8 @@ class gPodderExtension:
         if self.container.config.always_remove_tags:
             audio.remove_tags()
         else:
-            audio.write_basic_tags(self.container.config.modify_tags,
+            audio.write_basic_tags(self.container.config.remove_before_modify,
+                                   self.container.config.modify_tags,
                                    self.container.config.set_artist_to_album,
                                    self.container.config.set_version)
 
