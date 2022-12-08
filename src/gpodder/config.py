@@ -228,7 +228,6 @@ defaults = {
 
 # The sooner this goes away, the better
 gPodderSettings_LegacySupport = {
-    'limit_rate': 'limit.bandwidth.enabled',
     'max_downloads_enabled': 'limit.downloads.enabled',
     'max_downloads': 'limit.downloads.concurrent',
     'episode_old_age': 'auto.cleanup.days',

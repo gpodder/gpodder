@@ -723,7 +723,7 @@ class DownloadTask(object):
         self.__start_time = 0
         self.__start_blocks = 0
         self.__limit_rate_value = self._config.limit.bandwidth.kbps
-        self.__limit_rate = self._config.limit_rate
+        self.__limit_rate = self._config.limit.bandwidth.enabled
 
         # Progress update functions
         self._progress_updated = None
@@ -805,12 +805,12 @@ class DownloadTask(object):
             now = time.time()
             if self.__start_time > 0:
                 # Has rate limiting been enabled or disabled?
-                if self.__limit_rate != self._config.limit_rate:
+                if self.__limit_rate != self._config.limit.bandwidth.enabled:
                     # If it has been enabled then reset base time and block count
-                    if self._config.limit_rate:
+                    if self._config.limit.bandwidth.enabled:
                         self.__start_time = now
                         self.__start_blocks = count
-                    self.__limit_rate = self._config.limit_rate
+                    self.__limit_rate = self._config.limit.bandwidth.enabled
 
                 # Has the rate been changed and are we currently limiting?
                 if self.__limit_rate_value != self._config.limit.bandwidth.kbps and self.__limit_rate:
@@ -831,7 +831,7 @@ class DownloadTask(object):
 
             self.speed = float(speed)
 
-            if self._config.limit_rate and speed > self._config.limit.bandwidth.kbps:
+            if self._config.limit.bandwidth.enabled and speed > self._config.limit.bandwidth.kbps:
                 # calculate the time that should have passed to reach
                 # the desired download rate and wait if necessary
                 should_have_passed = (count - self.__start_blocks) * blockSize / (self._config.limit.bandwidth.kbps * 1024.0)
