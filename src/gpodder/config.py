@@ -228,7 +228,6 @@ defaults = {
 
 # The sooner this goes away, the better
 gPodderSettings_LegacySupport = {
-    'episode_list_columns': 'ui.gtk.episode_list.columns',
 }
 
 logger = logging.getLogger(__name__)

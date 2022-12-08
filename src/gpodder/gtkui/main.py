@@ -803,14 +803,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def set_episode_list_column(self, index, new_value):
         mask = (1 << index)
         if new_value:
-            self.config.episode_list_columns |= mask
+            self.config.ui.gtk.episode_list.columns |= mask
         else:
-            self.config.episode_list_columns &= ~mask
+            self.config.ui.gtk.episode_list.columns &= ~mask
 
     def update_episode_list_columns_visibility(self):
         columns = TreeViewHelper.get_columns(self.treeAvailable)
         for index, column in enumerate(columns):
-            visible = bool(self.config.episode_list_columns & (1 << index))
+            visible = bool(self.config.ui.gtk.episode_list.columns & (1 << index))
             column.set_visible(visible)
             self.view_column_actions[index].set_state(GLib.Variant.new_boolean(visible))
         self.treeAvailable.columns_autosize()
