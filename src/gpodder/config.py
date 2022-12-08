@@ -228,8 +228,6 @@ defaults = {
 
 # The sooner this goes away, the better
 gPodderSettings_LegacySupport = {
-    'episode_list_descriptions': 'ui.gtk.episode_list.descriptions',
-    'podcast_list_view_all': 'ui.gtk.podcast_list.all_episodes',
     'podcast_list_sections': 'ui.gtk.podcast_list.sections',
     'episode_list_view_mode': 'ui.gtk.episode_list.view_mode',
     'podcast_list_view_mode': 'ui.gtk.podcast_list.view_mode',

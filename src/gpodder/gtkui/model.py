@@ -838,7 +838,7 @@ class PodcastListModel(Gtk.ListStore):
                     # C_DOWNLOADS, C_COVER_VISIBLE, C_SECTION
                     0, False, section.title)
 
-        if config.podcast_list_view_all and channels:
+        if config.ui.gtk.podcast_list.all_episodes and channels:
             all_episodes = PodcastChannelProxy(db, config, channels, '', self)
             iter = self.append(channel_to_row(all_episodes))
             self.update_by_iter(iter)

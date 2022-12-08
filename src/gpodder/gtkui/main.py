@@ -264,7 +264,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         g = self.gPodder
 
         action = Gio.SimpleAction.new_stateful(
-            'showEpisodeDescription', None, GLib.Variant.new_boolean(self.config.episode_list_descriptions))
+            'showEpisodeDescription', None, GLib.Variant.new_boolean(self.config.ui.gtk.episode_list.descriptions))
         action.connect('activate', self.on_itemShowDescription_activate)
         g.add_action(action)
 
@@ -2189,7 +2189,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         True (the former updates just the selected
         episodes and the latter updates all episodes).
         """
-        descriptions = self.config.episode_list_descriptions
+        descriptions = self.config.ui.gtk.episode_list.descriptions
 
         if urls is not None:
             # We have a list of URLs to walk through
@@ -2432,7 +2432,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         sections_active = any(is_section(x) for x in self.podcast_list_model)
 
-        if self.config.podcast_list_view_all:
+        if self.config.ui.gtk.podcast_list.all_episodes:
             # Update "all episodes" view in any case (if enabled)
             self.podcast_list_model.update_first_row()
             # List model length minus 1, because of "All"
@@ -2456,7 +2456,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if iter is not None:
                 # If we have selected the "all episodes" view, we have
                 # to update all channels for selected episodes:
-                if self.config.podcast_list_view_all and \
+                if self.config.ui.gtk.podcast_list.all_episodes and \
                         self.podcast_list_model.iter_is_first_row(iter):
                     urls = self.get_podcast_urls_from_selected_episodes()
                     self.podcast_list_model.update_by_urls(urls)
@@ -2511,7 +2511,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.treeAvailable.get_selection().unselect_all()
             self.treeAvailable.scroll_to_point(0, 0)
 
-            descriptions = self.config.episode_list_descriptions
+            descriptions = self.config.ui.gtk.episode_list.descriptions
             with self.treeAvailable.get_selection().handler_block(self.episode_selection_handler_id):
                 # have to block the on_episode_list_selection_changed handler because
                 # when selecting any channel from All Episodes, on_episode_list_selection_changed
@@ -3360,7 +3360,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_itemShowDescription_activate(self, action, param):
         state = action.get_state()
-        self.config.episode_list_descriptions = not state
+        self.config.ui.gtk.episode_list.descriptions = not state
         action.set_state(GLib.Variant.new_boolean(not state))
 
     def on_item_view_hide_boring_podcasts_toggled(self, action, param):

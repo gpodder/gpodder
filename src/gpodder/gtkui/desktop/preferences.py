@@ -229,7 +229,7 @@ class gPodderPreferences(BuilderWidget):
         self.combobox_preferred_vimeo_format.add_attribute(cellrenderer, 'text', self.preferred_vimeo_format_model.C_CAPTION)
         self.combobox_preferred_vimeo_format.set_active(self.preferred_vimeo_format_model.get_index())
 
-        self._config.connect_gtk_togglebutton('podcast_list_view_all',
+        self._config.connect_gtk_togglebutton('ui.gtk.podcast_list.all_episodes',
                                               self.checkbutton_show_all_episodes)
         self._config.connect_gtk_togglebutton('podcast_list_sections',
                                               self.checkbutton_podcast_sections)
