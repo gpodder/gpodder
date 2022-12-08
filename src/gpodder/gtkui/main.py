@@ -269,7 +269,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         g.add_action(action)
 
         action = Gio.SimpleAction.new_stateful(
-            'viewHideBoringPodcasts', None, GLib.Variant.new_boolean(self.config.podcast_list_hide_boring))
+            'viewHideBoringPodcasts', None, GLib.Variant.new_boolean(self.config.ui.gtk.podcast_list.hide_empty))
         action.connect('activate', self.on_item_view_hide_boring_podcasts_toggled)
         g.add_action(action)
 
@@ -1102,7 +1102,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         elif role == TreeViewHelper.ROLE_PODCASTS:
             if self.config.ui.gtk.episode_list.view_mode != \
                     EpisodeListModel.VIEW_ALL and \
-                    self.config.podcast_list_hide_boring and \
+                    self.config.ui.gtk.podcast_list.hide_empty and \
                     len(self.channels) > 0:
                 text = _('No podcasts in this view')
             else:
@@ -3365,7 +3365,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_item_view_hide_boring_podcasts_toggled(self, action, param):
         state = action.get_state()
-        self.config.podcast_list_hide_boring = not state
+        self.config.ui.gtk.podcast_list.hide_empty = not state
         action.set_state(GLib.Variant.new_boolean(not state))
         self.apply_podcast_list_hide_boring()
 
@@ -3398,7 +3398,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.apply_podcast_list_hide_boring()
 
     def apply_podcast_list_hide_boring(self):
-        if self.config.podcast_list_hide_boring:
+        if self.config.ui.gtk.podcast_list.hide_empty:
             self.podcast_list_model.set_view_mode(self.config.ui.gtk.episode_list.view_mode)
         else:
             self.podcast_list_model.set_view_mode(-1)
