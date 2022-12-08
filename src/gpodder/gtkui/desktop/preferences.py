@@ -251,7 +251,7 @@ class gPodderPreferences(BuilderWidget):
             index = self.update_interval_presets.index(self._config.auto_update_frequency)
             self.hscale_update_interval.set_value(index)
 
-        self._config.connect_gtk_spinbutton('max_episodes_per_feed', self.spinbutton_episode_limit)
+        self._config.connect_gtk_spinbutton('limit.episodes', self.spinbutton_episode_limit)
 
         self.auto_download_model = NewEpisodeActionList(self._config)
         self.combo_auto_download.set_model(self.auto_download_model)

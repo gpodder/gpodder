@@ -2668,7 +2668,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     # The URL is valid and does not exist already - subscribe!
                     channel = self.model.load_podcast(url=url, create=True,
                             authentication_tokens=auth_tokens.get(url, None),
-                            max_episodes=self.config.max_episodes_per_feed)
+                            max_episodes=self.config.limit.episodes)
 
                     try:
                         username, password = util.username_password_from_url(url)
@@ -2815,7 +2815,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 try:
                     channel._update_error = None
                     util.idle_add(indicate_updating_podcast, channel)
-                    channel.update(max_episodes=self.config.max_episodes_per_feed)
+                    channel.update(max_episodes=self.config.limit.episodes)
                     self._update_cover(channel)
                 except Exception as e:
                     message = str(e)

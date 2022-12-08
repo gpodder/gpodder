@@ -336,7 +336,7 @@ class gPodderCli(object):
                     return self._model.load_podcast(
                         url, create=True,
                         authentication_tokens=auth_tokens.get(url, None),
-                        max_episodes=self._config.max_episodes_per_feed)
+                        max_episodes=self._config.limit.episodes)
                 except feedcore.AuthenticationRequired as e:
                     if e.url in auth_tokens:
                         print(inred(_('Wrong username/password')))
