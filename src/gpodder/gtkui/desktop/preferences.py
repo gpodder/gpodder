@@ -239,16 +239,16 @@ class gPodderPreferences(BuilderWidget):
         self.update_interval_presets = [0, 10, 30, 60, 2 * 60, 6 * 60, 12 * 60]
         adjustment_update_interval = self.hscale_update_interval.get_adjustment()
         adjustment_update_interval.set_upper(len(self.update_interval_presets) - 1)
-        if self._config.auto_update_frequency in self.update_interval_presets:
-            index = self.update_interval_presets.index(self._config.auto_update_frequency)
+        if self._config.auto.update.frequency in self.update_interval_presets:
+            index = self.update_interval_presets.index(self._config.auto.update.frequency)
             self.hscale_update_interval.set_value(index)
         else:
             # Patch in the current "custom" value into the mix
-            self.update_interval_presets.append(self._config.auto_update_frequency)
+            self.update_interval_presets.append(self._config.auto.update.frequency)
             self.update_interval_presets.sort()
 
             adjustment_update_interval.set_upper(len(self.update_interval_presets) - 1)
-            index = self.update_interval_presets.index(self._config.auto_update_frequency)
+            index = self.update_interval_presets.index(self._config.auto.update.frequency)
             self.hscale_update_interval.set_value(index)
 
         self._config.connect_gtk_spinbutton('limit.episodes', self.spinbutton_episode_limit)
@@ -576,7 +576,7 @@ class gPodderPreferences(BuilderWidget):
     def on_update_interval_value_changed(self, range):
         value = int(range.get_value())
         self._config.auto_update_feeds = (value > 0)
-        self._config.auto_update_frequency = self.update_interval_presets[value]
+        self._config.auto.update.frequency = self.update_interval_presets[value]
 
     def on_combo_auto_download_changed(self, widget):
         index = self.combo_auto_download.get_active()

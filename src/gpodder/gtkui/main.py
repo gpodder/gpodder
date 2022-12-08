@@ -3773,10 +3773,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self._auto_update_timer_source_id = None
 
         if (self.config.auto_update_feeds
-                and self.config.auto_update_frequency):
-            interval = 60 * 1000 * self.config.auto_update_frequency
+                and self.config.auto.update.frequency):
+            interval = 60 * 1000 * self.config.auto.update.frequency
             logger.debug('Setting up auto update timer with interval %d.',
-                    self.config.auto_update_frequency)
+                    self.config.auto.update.frequency)
             self._auto_update_timer_source_id = GLib.timeout_add(
                     interval, self._on_auto_update_timer)
 
