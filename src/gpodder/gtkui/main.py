@@ -151,7 +151,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.config.connect_gtk_spinbutton('limit.downloads.concurrent', self.spinMaxDownloads,
                                            self.config.limit.downloads.concurrent_max)
-        self.config.connect_gtk_togglebutton('max_downloads_enabled', self.cbMaxDownloads)
+        self.config.connect_gtk_togglebutton('limit.downloads.enabled', self.cbMaxDownloads)
         self.config.connect_gtk_spinbutton('limit.bandwidth.kbps', self.spinLimitDownloads)
         self.config.connect_gtk_togglebutton('limit.bandwidth.enabled', self.cbLimitDownloads)
 

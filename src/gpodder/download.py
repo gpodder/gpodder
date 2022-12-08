@@ -452,7 +452,7 @@ class DownloadQueueManager(object):
     def __continue_check_callback(self, worker_thread):
         with self.worker_threads_access:
             if len(self.worker_threads) > self._config.max_downloads and \
-                    self._config.max_downloads_enabled:
+                    self._config.limit.downloads.enabled:
                 self.worker_threads.remove(worker_thread)
                 return False
             else:
@@ -463,7 +463,7 @@ class DownloadQueueManager(object):
         """
         with self.worker_threads_access:
             work_count = self.tasks.available_work_count()
-            if self._config.max_downloads_enabled:
+            if self._config.limit.downloads.enabled:
                 # always allow at least 1 download
                 spawn_limit = max(int(self._config.max_downloads), 1)
             else:
