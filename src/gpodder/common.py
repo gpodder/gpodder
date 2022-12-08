@@ -126,7 +126,7 @@ def get_expired_episodes(channels, config):
 
             # Do not delete unfinished episodes (except if configured)
             if not episode.is_finished():
-                if not config.auto_remove_unfinished_episodes:
+                if not config.auto.cleanup.unfinished:
                     continue
 
             # Do not delete unplayed episodes (except if configured)

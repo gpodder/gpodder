@@ -275,7 +275,7 @@ class gPodderPreferences(BuilderWidget):
 
         self._config.connect_gtk_togglebutton('auto_remove_unplayed_episodes',
                                               self.checkbutton_expiration_unplayed)
-        self._config.connect_gtk_togglebutton('auto_remove_unfinished_episodes',
+        self._config.connect_gtk_togglebutton('auto.cleanup.unfinished',
                                               self.checkbutton_expiration_unfinished)
 
         self.device_type_model = DeviceTypeActionList(self._config)
