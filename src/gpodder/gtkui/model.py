@@ -844,7 +844,7 @@ class PodcastListModel(Gtk.ListStore):
             self.update_by_iter(iter)
 
             # Separator item
-            if not config.podcast_list_sections:
+            if not config.ui.gtk.podcast_list.sections:
                 self.append(('', '', '', None, SeparatorMarker, None, '',
                     True, True, True, True, True, True, 0, False, ''))
 
@@ -854,13 +854,13 @@ class PodcastListModel(Gtk.ListStore):
         def key_func(channel):
             return (channel.group_by, model.Model.podcast_sort_key(channel))
 
-        if config.podcast_list_sections:
+        if config.ui.gtk.podcast_list.sections:
             groups = groupby(sorted(channels, key=key_func), groupby_func)
         else:
             groups = [(None, sorted(channels, key=model.Model.podcast_sort_key))]
 
         for section, section_channels in groups:
-            if config.podcast_list_sections and section is not None:
+            if config.ui.gtk.podcast_list.sections and section is not None:
                 section_channels = list(section_channels)
                 section_obj = PodcastChannelProxy(db, config, section_channels, section, self)
                 iter = self.append(section_to_row(section_obj))

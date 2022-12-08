@@ -231,7 +231,7 @@ class gPodderPreferences(BuilderWidget):
 
         self._config.connect_gtk_togglebutton('ui.gtk.podcast_list.all_episodes',
                                               self.checkbutton_show_all_episodes)
-        self._config.connect_gtk_togglebutton('podcast_list_sections',
+        self._config.connect_gtk_togglebutton('ui.gtk.podcast_list.sections',
                                               self.checkbutton_podcast_sections)
         self._config.connect_gtk_togglebutton('ui.gtk.find_as_you_type',
                                               self.checkbutton_find_as_you_type)

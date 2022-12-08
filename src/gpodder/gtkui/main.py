@@ -2440,7 +2440,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         else:
             list_model_length = len(self.podcast_list_model)
 
-        force_update = (sections_active != self.config.podcast_list_sections
+        force_update = (sections_active != self.config.ui.gtk.podcast_list.sections
                 or sections_changed)
 
         # Filter items in the list model that are not podcasts, so we get the
@@ -2464,7 +2464,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     # Otherwise just update the selected row (a podcast)
                     self.podcast_list_model.update_by_filter_iter(iter)
 
-                if self.config.podcast_list_sections:
+                if self.config.ui.gtk.podcast_list.sections:
                     self.podcast_list_model.update_sections()
         elif list_model_length == len(self.channels) and not force_update:
             # we can keep the model, but have to update some
@@ -2474,7 +2474,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             else:
                 # ok, we got a bunch of urls to update
                 self.podcast_list_model.update_by_urls(urls)
-                if self.config.podcast_list_sections:
+                if self.config.ui.gtk.podcast_list.sections:
                     self.podcast_list_model.update_sections()
         else:
             if model and iter and select_url is None:
