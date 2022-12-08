@@ -228,7 +228,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         # Start the auto-update procedure
         self._auto_update_timer_source_id = None
-        if self.config.auto_update_feeds:
+        if self.config.auto.update.enabled:
             self.restart_auto_update_timer()
 
         # Find expired (old) episodes and delete them
@@ -3772,7 +3772,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             GLib.source_remove(self._auto_update_timer_source_id)
             self._auto_update_timer_source_id = None
 
-        if (self.config.auto_update_feeds
+        if (self.config.auto.update.enabled
                 and self.config.auto.update.frequency):
             interval = 60 * 1000 * self.config.auto.update.frequency
             logger.debug('Setting up auto update timer with interval %d.',

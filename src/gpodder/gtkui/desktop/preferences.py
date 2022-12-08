@@ -575,7 +575,7 @@ class gPodderPreferences(BuilderWidget):
 
     def on_update_interval_value_changed(self, range):
         value = int(range.get_value())
-        self._config.auto_update_feeds = (value > 0)
+        self._config.auto.update.enabled = (value > 0)
         self._config.auto.update.frequency = self.update_interval_presets[value]
 
     def on_combo_auto_download_changed(self, widget):

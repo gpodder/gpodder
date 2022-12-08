@@ -236,7 +236,6 @@ gPodderSettings_LegacySupport = {
     'podcast_list_hide_boring': 'ui.gtk.podcast_list.hide_empty',
     'episode_list_columns': 'ui.gtk.episode_list.columns',
     'auto_cleanup_downloads': 'ui.gtk.download_list.remove_finished',
-    'auto_update_feeds': 'auto.update.enabled',
 }
 
 logger = logging.getLogger(__name__)
