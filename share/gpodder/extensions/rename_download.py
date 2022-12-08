@@ -5,9 +5,11 @@
 
 import logging
 import os
+import time
 
 import gpodder
 from gpodder import util
+from gpodder.gtkui.interface.progress import ProgressIndicator
 from gpodder.model import PodcastEpisode
 
 logger = logging.getLogger(__name__)
@@ -31,6 +33,7 @@ DefaultConfig = {
 class gPodderExtension:
     def __init__(self, container):
         self.container = container
+        self.gpodder = None
         self.config = self.container.config
 
     def on_episode_downloaded(self, episode):
@@ -43,6 +46,38 @@ class gPodderExtension:
             logger.info('Renaming: %s -> %s', current_filename, new_filename)
             os.rename(current_filename, new_filename)
             util.rename_episode_file(episode, new_filename)
+
+    def on_ui_object_available(self, name, ui_object):
+        if name == 'gpodder-gtk':
+            self.gpodder = ui_object
+
+    def on_create_menu(self):
+        return [(_("Rename all downloaded episodes"), self.rename_all_downloaded_episodes)]
+
+    def rename_all_downloaded_episodes(self):
+        model = self.gpodder.episode_list_model
+        episodes = [row[model.C_EPISODE] for row in model if row[model.C_EPISODE].state == gpodder.STATE_DOWNLOADED]
+
+        number_of_episodes = len(episodes)
+        progress_indicator = ProgressIndicator(
+            _('Renaming all downloaded episodes'),
+            '', True, self.gpodder.get_dialog_parent())
+        progress_indicator.on_message('0 / %d' % number_of_episodes)
+
+        renamed_count = 0
+        for episode in episodes:
+            self.on_episode_downloaded(episode)
+
+            renamed_count += 1
+            progress_indicator.on_message('%d / %d' % (renamed_count, number_of_episodes))
+            progress_indicator.on_progress(renamed_count / number_of_episodes)
+            if time.time() >= progress_indicator.next_update:
+                progress_indicator.update_gui()
+                self.gpodder.force_ui_update()
+                if not progress_indicator.cancellable:
+                    break
+
+        progress_indicator.on_finished()
 
     def make_filename(self, current_filename, title, sortdate, podcast_title):
         dirname = os.path.dirname(current_filename)
