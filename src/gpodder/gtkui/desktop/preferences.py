@@ -273,7 +273,7 @@ class gPodderPreferences(BuilderWidget):
         else:
             self.hscale_expiration.set_value(0)
 
-        self._config.connect_gtk_togglebutton('auto_remove_unplayed_episodes',
+        self._config.connect_gtk_togglebutton('auto.cleanup.unplayed',
                                               self.checkbutton_expiration_unplayed)
         self._config.connect_gtk_togglebutton('auto.cleanup.unfinished',
                                               self.checkbutton_expiration_unfinished)
@@ -596,7 +596,7 @@ class gPodderPreferences(BuilderWidget):
         if value == 0:
             self.checkbutton_expiration_unplayed.set_active(False)
             self._config.auto.cleanup.played = False
-            self._config.auto_remove_unplayed_episodes = False
+            self._config.auto.cleanup.unplayed = False
         else:
             self._config.auto.cleanup.played = True
             self._config.auto.cleanup.days = value
