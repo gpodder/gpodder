@@ -263,7 +263,7 @@ class gPodderPreferences(BuilderWidget):
         self._config.connect_gtk_togglebutton('check_connection',
                                               self.checkbutton_check_connection)
 
-        if self._config.auto_remove_played_episodes:
+        if self._config.auto.cleanup.played:
             adjustment_expiration = self.hscale_expiration.get_adjustment()
             if self._config.auto.cleanup.days > adjustment_expiration.get_upper():
                 # Patch the adjustment to include the higher current value
@@ -595,10 +595,10 @@ class gPodderPreferences(BuilderWidget):
 
         if value == 0:
             self.checkbutton_expiration_unplayed.set_active(False)
-            self._config.auto_remove_played_episodes = False
+            self._config.auto.cleanup.played = False
             self._config.auto_remove_unplayed_episodes = False
         else:
-            self._config.auto_remove_played_episodes = True
+            self._config.auto.cleanup.played = True
             self._config.auto.cleanup.days = value
 
         self.checkbutton_expiration_unplayed.set_sensitive(value > 0)
