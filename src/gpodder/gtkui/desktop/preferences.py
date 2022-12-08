@@ -50,13 +50,13 @@ class NewEpisodeActionList(Gtk.ListStore):
 
     def get_index(self):
         for index, row in enumerate(self):
-            if self._config.auto_download == row[self.C_AUTO_DOWNLOAD]:
+            if self._config.ui.gtk.new_episodes == row[self.C_AUTO_DOWNLOAD]:
                 return index
 
         return 1  # Some sane default
 
     def set_index(self, index):
-        self._config.auto_download = self[index][self.C_AUTO_DOWNLOAD]
+        self._config.ui.gtk.new_episodes = self[index][self.C_AUTO_DOWNLOAD]
 
 
 class DeviceTypeActionList(Gtk.ListStore):

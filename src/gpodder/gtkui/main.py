@@ -2900,13 +2900,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     # New episodes are available
                     self.pbFeedUpdate.set_fraction(1.0)
 
-                    if self.config.auto_download == 'download':
+                    if self.config.ui.gtk.new_episodes == 'download':
                         self.download_episode_list(episodes)
                         title = N_('Downloading %(count)d new episode.',
                                    'Downloading %(count)d new episodes.',
                                    count) % {'count': count}
                         self.show_message(title, _('New episodes available'))
-                    elif self.config.auto_download == 'queue':
+                    elif self.config.ui.gtk.new_episodes == 'queue':
                         self.download_episode_list_paused(episodes)
                         title = N_(
                             '%(count)d new episode added to download list.',
@@ -2915,9 +2915,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         self.show_message(title, _('New episodes available'))
                     else:
                         if (show_new_episodes_dialog
-                                and self.config.auto_download == 'show'):
+                                and self.config.ui.gtk.new_episodes == 'show'):
                             self.new_episodes_show(episodes, notification=True)
-                        else:  # !show_new_episodes_dialog or auto_download == 'ignore'
+                        else:  # !show_new_episodes_dialog or ui.gtk.new_episodes == 'ignore'
                             message = N_('%(count)d new episode available',
                                          '%(count)d new episodes available',
                                          count) % {'count': count}

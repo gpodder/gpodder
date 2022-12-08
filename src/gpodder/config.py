@@ -238,7 +238,6 @@ gPodderSettings_LegacySupport = {
     'auto_cleanup_downloads': 'ui.gtk.download_list.remove_finished',
     'auto_update_feeds': 'auto.update.enabled',
     'auto_update_frequency': 'auto.update.frequency',
-    'auto_download': 'ui.gtk.new_episodes',
 }
 
 logger = logging.getLogger(__name__)
