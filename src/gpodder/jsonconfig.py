@@ -77,7 +77,7 @@ class JsonConfig(object):
 
             func(name, old_value, new_value)
 
-            name: The key name, e.g. "ui.gtk.show_toolbar"
+            name: The key name, e.g. "ui.gtk.toolbar"
             old_value: The old value, e.g. False
             new_value: The new value, e.g. True
 

@@ -107,7 +107,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.main_window.set_titlebar(self.header_bar)
 
         gpodder.user_extensions.on_ui_object_available('gpodder-gtk', self)
-        self.toolbar.set_property('visible', self.config.show_toolbar)
+        self.toolbar.set_property('visible', self.config.ui.gtk.toolbar)
 
         self.bluetooth_available = util.bluetooth_available()
 
@@ -341,7 +341,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.open_episode_download_folder_action = g.lookup_action('openEpisodeDownloadFolder')
 
         action = Gio.SimpleAction.new_stateful(
-            'showToolbar', None, GLib.Variant.new_boolean(self.config.show_toolbar))
+            'showToolbar', None, GLib.Variant.new_boolean(self.config.ui.gtk.toolbar))
         action.connect('activate', self.on_itemShowToolbar_activate)
         g.add_action(action)
 
@@ -3355,7 +3355,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_itemShowToolbar_activate(self, action, param):
         state = action.get_state()
-        self.config.show_toolbar = not state
+        self.config.ui.gtk.toolbar = not state
         action.set_state(GLib.Variant.new_boolean(not state))
 
     def on_itemShowDescription_activate(self, action, param):
