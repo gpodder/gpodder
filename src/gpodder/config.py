@@ -226,10 +226,6 @@ defaults = {
     },
 }
 
-# The sooner this goes away, the better
-gPodderSettings_LegacySupport = {
-}
-
 logger = logging.getLogger(__name__)
 
 
@@ -389,18 +385,12 @@ class Config(object):
         self.schedule_save()
 
     def __getattr__(self, name):
-        if name in gPodderSettings_LegacySupport:
-            name = gPodderSettings_LegacySupport[name]
-
         return getattr(self.__json_config, name)
 
     def __setattr__(self, name, value):
         if name.startswith('_'):
             object.__setattr__(self, name, value)
             return
-
-        if name in gPodderSettings_LegacySupport:
-            name = gPodderSettings_LegacySupport[name]
 
         setattr(self.__json_config, name, value)
 
