@@ -51,8 +51,8 @@ class gPodderExtension:
         if name == 'gpodder-gtk':
             self.gpodder = ui_object
 
-    def on_rename_all_episodes_menu(self):
-        return [(_("Renaming all downloaded episodes"), self.rename_all_downloaded_episodes)]
+    def on_create_menu(self):
+        return [(_("Rename all downloaded episodes"), self.rename_all_downloaded_episodes)]
 
     def rename_all_downloaded_episodes(self):
         model = self.gpodder.episode_list_model
