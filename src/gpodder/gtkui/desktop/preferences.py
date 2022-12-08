@@ -265,11 +265,11 @@ class gPodderPreferences(BuilderWidget):
 
         if self._config.auto_remove_played_episodes:
             adjustment_expiration = self.hscale_expiration.get_adjustment()
-            if self._config.episode_old_age > adjustment_expiration.get_upper():
+            if self._config.auto.cleanup.days > adjustment_expiration.get_upper():
                 # Patch the adjustment to include the higher current value
-                adjustment_expiration.set_upper(self._config.episode_old_age)
+                adjustment_expiration.set_upper(self._config.auto.cleanup.days)
 
-            self.hscale_expiration.set_value(self._config.episode_old_age)
+            self.hscale_expiration.set_value(self._config.auto.cleanup.days)
         else:
             self.hscale_expiration.set_value(0)
 
@@ -599,7 +599,7 @@ class gPodderPreferences(BuilderWidget):
             self._config.auto_remove_unplayed_episodes = False
         else:
             self._config.auto_remove_played_episodes = True
-            self._config.episode_old_age = value
+            self._config.auto.cleanup.days = value
 
         self.checkbutton_expiration_unplayed.set_sensitive(value > 0)
         self.checkbutton_expiration_unfinished.set_sensitive(value > 0)

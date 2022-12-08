@@ -3079,11 +3079,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
             ('markup_delete_episodes', None, None, _('Episode')),
         )
 
-        msg_older_than = N_('Select older than %(count)d day', 'Select older than %(count)d days', self.config.episode_old_age)
+        msg_older_than = N_('Select older than %(count)d day', 'Select older than %(count)d days', self.config.auto.cleanup.days)
         selection_buttons = {
                 _('Select played'): lambda episode: not episode.is_new,
                 _('Select finished'): lambda episode: episode.is_finished(),
-                msg_older_than % {'count': self.config.episode_old_age}: lambda episode: episode.age_in_days() > self.config.episode_old_age,
+                msg_older_than % {'count': self.config.auto.cleanup.days}:
+                lambda episode: episode.age_in_days() > self.config.auto.cleanup.days,
         }
 
         instructions = _('Select the episodes you want to delete:')

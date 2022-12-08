@@ -228,7 +228,6 @@ defaults = {
 
 # The sooner this goes away, the better
 gPodderSettings_LegacySupport = {
-    'episode_old_age': 'auto.cleanup.days',
     'auto_remove_played_episodes': 'auto.cleanup.played',
     'auto_remove_unfinished_episodes': 'auto.cleanup.unfinished',
     'auto_remove_unplayed_episodes': 'auto.cleanup.unplayed',
