@@ -127,11 +127,11 @@ class BackgroundUpdate(object):
         while self.episodes:
             episode = self.episodes.pop(0)
             base_fields = (
-                (model.C_URL, episode.url),
-                (model.C_TITLE, episode.title),
-                (model.C_EPISODE, episode),
-                (model.C_PUBLISHED_TEXT, episode.cute_pubdate()),
-                (model.C_PUBLISHED, episode.published),
+                model.C_URL, episode.url,
+                model.C_TITLE, episode.title,
+                model.C_EPISODE, episode,
+                model.C_PUBLISHED_TEXT, episode.cute_pubdate(),
+                model.C_PUBLISHED, episode.published,
             )
             update_fields = model.get_update_fields(episode, include_description)
             try:
@@ -139,12 +139,15 @@ class BackgroundUpdate(object):
             # fix #727 the tree might be invalid when trying to update so discard the exception
             except ValueError:
                 break
-            model.set(it, *(x for fields in (base_fields, update_fields)
-                            for pair in fields for x in pair))
+            # model.get_update_fields() takes 38-67% of each iteration, depending on episode status
+            # with downloaded episodes using the most time
+            # model.set(), excluding the field expansion, takes 33-62% of each iteration
+            # and each iteration takes 1ms or more on slow machines
+            model.set(it, *(base_fields + update_fields))
             self.index += 1
 
-            # Check for the time limit of 20 ms after each 50 rows processed
-            if self.index % 50 == 0 and (time.time() - started) > 0.02:
+            # Check for the time limit of 500ms after each 50 rows processed
+            if self.index % 50 == 0 and (time.time() - started) > 0.5:
                 break
 
         return bool(self.episodes)
@@ -192,6 +195,7 @@ class EpisodeListModel(Gtk.ListStore):
         # Are we currently showing "all episodes"/section or a single channel?
         self._section_view = False
 
+        self.icon_theme = Gtk.IconTheme.get_default()
         self.ICON_WEB_BROWSER = 'web-browser'
         self.ICON_AUDIO_FILE = 'audio-x-generic'
         self.ICON_VIDEO_FILE = 'video-x-generic'
@@ -281,24 +285,27 @@ class EpisodeListModel(Gtk.ListStore):
         return self._search_term
 
     def _format_description(self, episode, include_description=False):
-        title = episode.trimmed_title
+        d = []
 
+        title = episode.trimmed_title
         if episode.state != gpodder.STATE_DELETED and episode.is_new:
-            yield '<b>'
-            yield html.escape(title)
-            yield '</b>'
+            d.append('<b>')
+            d.append(html.escape(title))
+            d.append('</b>')
         else:
-            yield html.escape(title)
+            d.append(html.escape(title))
 
         if include_description:
-            yield '\n'
+            d.append('\n')
             if self._section_view:
-                yield _('from %s') % html.escape(episode.channel.title)
+                d.append(_('from %s') % html.escape(episode.channel.title))
             else:
                 description = episode.one_line_description()
                 if description.startswith(title):
                     description = description[len(title):].strip()
-                yield html.escape(description)
+                d.append(html.escape(description))
+
+        return ''.join(d)
 
     def replace_from_channel(self, channel, include_description=False):
         """
@@ -369,32 +376,23 @@ class EpisodeListModel(Gtk.ListStore):
                 include_description)
 
     def get_update_fields(self, episode, include_description):
-        show_bullet = False
-        show_padlock = False
-        show_missing = False
-        status_icon = None
         tooltip = []
+        status_icon = None
         view_show_undeleted = True
         view_show_downloaded = False
         view_show_unplayed = False
-        icon_theme = Gtk.IconTheme.get_default()
 
-        task = episode.download_task
-
-        if task is not None and task.status in (task.PAUSING, task.PAUSED):
-            tooltip.append('%s %d%%' % (_('Paused'),
-                int(task.progress * 100)))
-
-            status_icon = 'media-playback-pause'
-
-            view_show_downloaded = True
-            view_show_unplayed = True
-        elif episode.downloading:
-            tooltip.append('%s %d%%' % (_('Downloading'),
-                int(task.progress * 100)))
-
-            index = int(self.PROGRESS_STEPS * task.progress)
-            status_icon = 'gpodder-progress-%d' % index
+        if episode.downloading:
+            task = episode.download_task
+            if task.status in (task.PAUSING, task.PAUSED):
+                tooltip.append('%s %d%%' % (_('Paused'),
+                    int(task.progress * 100)))
+                status_icon = 'media-playback-pause'
+            else:
+                tooltip.append('%s %d%%' % (_('Downloading'),
+                    int(task.progress * 100)))
+                index = int(self.PROGRESS_STEPS * task.progress)
+                status_icon = 'gpodder-progress-%d' % index
 
             view_show_downloaded = True
             view_show_unplayed = True
@@ -404,13 +402,8 @@ class EpisodeListModel(Gtk.ListStore):
                 status_icon = self.ICON_DELETED
                 view_show_undeleted = False
             elif episode.state == gpodder.STATE_DOWNLOADED:
-                tooltip = []
                 view_show_downloaded = True
                 view_show_unplayed = episode.is_new
-                show_bullet = episode.is_new
-                show_padlock = episode.archive
-                show_missing = not episode.file_exists()
-                filename = episode.local_filename(create=False, check_only=True)
 
                 file_type = episode.file_type()
                 if file_type == 'audio':
@@ -428,34 +421,35 @@ class EpisodeListModel(Gtk.ListStore):
 
                 # Try to find a themed icon for this file
                 # doesn't work on win32 (opus files are showed as text)
+                filename = episode.local_filename(create=False, check_only=True)
                 if filename is not None and have_gio and not gpodder.ui.win32:
                     file = Gio.File.new_for_path(filename)
                     if file.query_exists():
                         file_info = file.query_info('*', Gio.FileQueryInfoFlags.NONE, None)
                         icon = file_info.get_icon()
                         for icon_name in icon.get_names():
-                            if icon_theme.has_icon(icon_name):
+                            if self.icon_theme.has_icon(icon_name):
                                 status_icon = icon_name
                                 break
 
-                if show_missing:
+                if not episode.file_exists():
                     tooltip.append(_('missing file'))
                 else:
-                    if show_bullet:
-                        if file_type == 'image':
-                            tooltip.append(_('never displayed'))
-                        elif file_type in ('audio', 'video'):
+                    if episode.is_new:
+                        if file_type in ('audio', 'video'):
                             tooltip.append(_('never played'))
+                        elif file_type == 'image':
+                            tooltip.append(_('never displayed'))
                         else:
                             tooltip.append(_('never opened'))
                     else:
-                        if file_type == 'image':
-                            tooltip.append(_('displayed'))
-                        elif file_type in ('audio', 'video'):
+                        if file_type in ('audio', 'video'):
                             tooltip.append(_('played'))
+                        elif file_type == 'image':
+                            tooltip.append(_('displayed'))
                         else:
                             tooltip.append(_('opened'))
-                    if show_padlock:
+                    if episode.archive:
                         tooltip.append(_('deletion prevented'))
 
                 if episode.total_time > 0 and episode.current_position:
@@ -485,33 +479,34 @@ class EpisodeListModel(Gtk.ListStore):
 
         tooltip = ', '.join(tooltip)
 
-        description = ''.join(self._format_description(episode, include_description))
-        return (
-                (self.C_STATUS_ICON, status_icon),
-                (self.C_VIEW_SHOW_UNDELETED, view_show_undeleted),
-                (self.C_VIEW_SHOW_DOWNLOADED, view_show_downloaded),
-                (self.C_VIEW_SHOW_UNPLAYED, view_show_unplayed),
-                (self.C_DESCRIPTION, description),
-                (self.C_TOOLTIP, tooltip),
-                (self.C_TIME, episode.get_play_info_string()),
-                (self.C_TIME_VISIBLE, bool(episode.total_time)),
-                (self.C_TOTAL_TIME, episode.total_time),
-                (self.C_LOCKED, episode.archive),
-                (self.C_FILESIZE_TEXT, self._format_filesize(episode)),
-                (self.C_FILESIZE, episode.file_size),
+        description = self._format_description(episode, include_description)
+        time = episode.get_play_info_string()
+        filesize = self._format_filesize(episode)
 
-                (self.C_TIME_AND_SIZE, "%s\n<small>%s</small>"
-                    % (episode.get_play_info_string(), self._format_filesize(episode) if episode.file_size > 0 else "")),
-                (self.C_TOTAL_TIME_AND_SIZE, episode.total_time),
-                (self.C_FILESIZE_AND_TIME_TEXT, "%s\n<small>%s</small>"
-                    % (self._format_filesize(episode) if episode.file_size > 0 else "", episode.get_play_info_string())),
-                (self.C_FILESIZE_AND_TIME, episode.file_size),
+        return (
+                self.C_STATUS_ICON, status_icon,
+                self.C_VIEW_SHOW_UNDELETED, view_show_undeleted,
+                self.C_VIEW_SHOW_DOWNLOADED, view_show_downloaded,
+                self.C_VIEW_SHOW_UNPLAYED, view_show_unplayed,
+                self.C_DESCRIPTION, description,
+                self.C_TOOLTIP, tooltip,
+                self.C_TIME, time,
+                self.C_TIME_VISIBLE, bool(episode.total_time),
+                self.C_TOTAL_TIME, episode.total_time,
+                self.C_LOCKED, episode.archive,
+                self.C_FILESIZE_TEXT, filesize,
+                self.C_FILESIZE, episode.file_size,
+
+                self.C_TIME_AND_SIZE, "%s\n<small>%s</small>" % (time, filesize if episode.file_size > 0 else ""),
+                self.C_TOTAL_TIME_AND_SIZE, episode.total_time,
+                self.C_FILESIZE_AND_TIME_TEXT, "%s\n<small>%s</small>" % (filesize if episode.file_size > 0 else "", time),
+                self.C_FILESIZE_AND_TIME, episode.file_size,
         )
 
     def update_by_iter(self, iter, include_description=False):
         episode = self.get_value(iter, self.C_EPISODE)
         if episode is not None:
-            self.set(iter, *(x for pair in self.get_update_fields(episode, include_description) for x in pair))
+            self.set(iter, *self.get_update_fields(episode, include_description))
 
 
 class PodcastChannelProxy:
@@ -605,6 +600,7 @@ class PodcastListModel(Gtk.ListStore):
         self._scale = 1
         self._cover_downloader = cover_downloader
 
+        self.icon_theme = Gtk.IconTheme.get_default()
         self.ICON_DISABLED = 'media-playback-pause'
         self.ICON_ERROR = 'dialog-warning'
 
@@ -712,14 +708,13 @@ class PodcastListModel(Gtk.ListStore):
 
     def _overlay_pixbuf(self, pixbuf, icon):
         try:
-            icon_theme = Gtk.IconTheme.get_default()
-            emblem = icon_theme.load_icon(icon, self._max_image_side / 2, 0)
+            emblem = self.icon_theme.load_icon(icon, self._max_image_side / 2, 0)
             (width, height) = (emblem.get_width(), emblem.get_height())
             xpos = pixbuf.get_width() - width
             ypos = pixbuf.get_height() - height
             if ypos < 0:
                 # need to resize overlay for none standard icon size
-                emblem = icon_theme.load_icon(icon, pixbuf.get_height() - 1, 0)
+                emblem = self.icon_theme.load_icon(icon, pixbuf.get_height() - 1, 0)
                 (width, height) = (emblem.get_width(), emblem.get_height())
                 xpos = pixbuf.get_width() - width
                 ypos = pixbuf.get_height() - height
