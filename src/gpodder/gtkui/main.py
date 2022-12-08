@@ -289,7 +289,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         g.add_action(action)
 
         value = EpisodeListModel.VIEWS[
-            self.config.episode_list_view_mode or EpisodeListModel.VIEW_ALL]
+            self.config.ui.gtk.episode_list.view_mode or EpisodeListModel.VIEW_ALL]
         action = Gio.SimpleAction.new_stateful(
             'viewEpisodes', GLib.VariantType.new('s'),
             GLib.Variant.new_string(value))
@@ -836,7 +836,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         return False
 
     def init_episode_list_treeview(self):
-        self.episode_list_model.set_view_mode(self.config.episode_list_view_mode)
+        self.episode_list_model.set_view_mode(self.config.ui.gtk.episode_list.view_mode)
 
         # Initialize progress icons
         cake_size = cake_size_from_widget(self.treeAvailable)
@@ -1095,12 +1095,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
         height = treeview.get_allocated_height()
 
         if role == TreeViewHelper.ROLE_EPISODES:
-            if self.config.episode_list_view_mode != EpisodeListModel.VIEW_ALL:
+            if self.config.ui.gtk.episode_list.view_mode != EpisodeListModel.VIEW_ALL:
                 text = _('No episodes in current view')
             else:
                 text = _('No episodes available')
         elif role == TreeViewHelper.ROLE_PODCASTS:
-            if self.config.episode_list_view_mode != \
+            if self.config.ui.gtk.episode_list.view_mode != \
                     EpisodeListModel.VIEW_ALL and \
                     self.config.podcast_list_hide_boring and \
                     len(self.channels) > 0:
@@ -3391,15 +3391,15 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     search.hide_search()
 
     def on_item_view_episodes_changed(self, action, param):
-        self.config.episode_list_view_mode = getattr(EpisodeListModel, param.get_string()) or EpisodeListModel.VIEW_ALL
+        self.config.ui.gtk.episode_list.view_mode = getattr(EpisodeListModel, param.get_string()) or EpisodeListModel.VIEW_ALL
         action.set_state(param)
 
-        self.episode_list_model.set_view_mode(self.config.episode_list_view_mode)
+        self.episode_list_model.set_view_mode(self.config.ui.gtk.episode_list.view_mode)
         self.apply_podcast_list_hide_boring()
 
     def apply_podcast_list_hide_boring(self):
         if self.config.podcast_list_hide_boring:
-            self.podcast_list_model.set_view_mode(self.config.episode_list_view_mode)
+            self.podcast_list_model.set_view_mode(self.config.ui.gtk.episode_list.view_mode)
         else:
             self.podcast_list_model.set_view_mode(-1)
 
