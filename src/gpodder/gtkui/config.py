@@ -120,7 +120,7 @@ class UIConfig(config.Config):
         It's not done automatically (always look for name + '_max') because it's
         used only once. If it becomes commonplace, better make it automatic.
 
-        :param str name: configuration key (e.g. 'max_downloads' or 'limit.downloads.concurrent')
+        :param str name: configuration key (e.g. 'limit.downloads.concurrent')
         :param Gtk.SpinButton spinbutton: button to bind to config
         :param float forced_upper: forced upper limit on spinbutton.
                                    Overrides value in .ui to be consistent with code

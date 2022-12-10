@@ -451,8 +451,8 @@ class DownloadQueueManager(object):
 
     def __continue_check_callback(self, worker_thread):
         with self.worker_threads_access:
-            if len(self.worker_threads) > self._config.max_downloads and \
-                    self._config.max_downloads_enabled:
+            if len(self.worker_threads) > self._config.limit.downloads.concurrent and \
+                    self._config.limit.downloads.enabled:
                 self.worker_threads.remove(worker_thread)
                 return False
             else:
@@ -463,9 +463,9 @@ class DownloadQueueManager(object):
         """
         with self.worker_threads_access:
             work_count = self.tasks.available_work_count()
-            if self._config.max_downloads_enabled:
+            if self._config.limit.downloads.enabled:
                 # always allow at least 1 download
-                spawn_limit = max(int(self._config.max_downloads), 1)
+                spawn_limit = max(int(self._config.limit.downloads.concurrent), 1)
             else:
                 spawn_limit = self._config.limit.downloads.concurrent_max
             running = len(self.worker_threads)
@@ -722,8 +722,8 @@ class DownloadTask(object):
         # Variables for speed limit and speed calculation
         self.__start_time = 0
         self.__start_blocks = 0
-        self.__limit_rate_value = self._config.limit_rate_value
-        self.__limit_rate = self._config.limit_rate
+        self.__limit_rate_value = self._config.limit.bandwidth.kbps
+        self.__limit_rate = self._config.limit.bandwidth.enabled
 
         # Progress update functions
         self._progress_updated = None
@@ -805,18 +805,18 @@ class DownloadTask(object):
             now = time.time()
             if self.__start_time > 0:
                 # Has rate limiting been enabled or disabled?
-                if self.__limit_rate != self._config.limit_rate:
+                if self.__limit_rate != self._config.limit.bandwidth.enabled:
                     # If it has been enabled then reset base time and block count
-                    if self._config.limit_rate:
+                    if self._config.limit.bandwidth.enabled:
                         self.__start_time = now
                         self.__start_blocks = count
-                    self.__limit_rate = self._config.limit_rate
+                    self.__limit_rate = self._config.limit.bandwidth.enabled
 
                 # Has the rate been changed and are we currently limiting?
-                if self.__limit_rate_value != self._config.limit_rate_value and self.__limit_rate:
+                if self.__limit_rate_value != self._config.limit.bandwidth.kbps and self.__limit_rate:
                     self.__start_time = now
                     self.__start_blocks = count
-                    self.__limit_rate_value = self._config.limit_rate_value
+                    self.__limit_rate_value = self._config.limit.bandwidth.kbps
 
                 passed = now - self.__start_time
                 if passed > 0:
@@ -831,10 +831,10 @@ class DownloadTask(object):
 
             self.speed = float(speed)
 
-            if self._config.limit_rate and speed > self._config.limit_rate_value:
+            if self._config.limit.bandwidth.enabled and speed > self._config.limit.bandwidth.kbps:
                 # calculate the time that should have passed to reach
                 # the desired download rate and wait if necessary
-                should_have_passed = (count - self.__start_blocks) * blockSize / (self._config.limit_rate_value * 1024.0)
+                should_have_passed = (count - self.__start_blocks) * blockSize / (self._config.limit.bandwidth.kbps * 1024.0)
                 if should_have_passed > passed:
                     # sleep a maximum of 10 seconds to not cause time-outs
                     delay = min(10.0, float(should_have_passed - passed))

@@ -112,26 +112,26 @@ def get_expired_episodes(channels, config):
                 continue
 
             # Only expire episodes if the age in days is positive
-            if config.episode_old_age < 1:
+            if config.auto.cleanup.days < 1:
                 continue
 
             # Never consider fresh episodes as old
-            if episode.age_in_days() < config.episode_old_age:
+            if episode.age_in_days() < config.auto.cleanup.days:
                 continue
 
             # Do not delete played episodes (except if configured)
             if not episode.is_new:
-                if not config.auto_remove_played_episodes:
+                if not config.auto.cleanup.played:
                     continue
 
             # Do not delete unfinished episodes (except if configured)
             if not episode.is_finished():
-                if not config.auto_remove_unfinished_episodes:
+                if not config.auto.cleanup.unfinished:
                     continue
 
             # Do not delete unplayed episodes (except if configured)
             if episode.is_new:
-                if not config.auto_remove_unplayed_episodes:
+                if not config.auto.cleanup.unplayed:
                     continue
 
             yield episode

@@ -226,31 +226,6 @@ defaults = {
     },
 }
 
-# The sooner this goes away, the better
-gPodderSettings_LegacySupport = {
-    'limit_rate': 'limit.bandwidth.enabled',
-    'limit_rate_value': 'limit.bandwidth.kbps',
-    'max_downloads_enabled': 'limit.downloads.enabled',
-    'max_downloads': 'limit.downloads.concurrent',
-    'episode_old_age': 'auto.cleanup.days',
-    'auto_remove_played_episodes': 'auto.cleanup.played',
-    'auto_remove_unfinished_episodes': 'auto.cleanup.unfinished',
-    'auto_remove_unplayed_episodes': 'auto.cleanup.unplayed',
-    'max_episodes_per_feed': 'limit.episodes',
-    'show_toolbar': 'ui.gtk.toolbar',
-    'episode_list_descriptions': 'ui.gtk.episode_list.descriptions',
-    'podcast_list_view_all': 'ui.gtk.podcast_list.all_episodes',
-    'podcast_list_sections': 'ui.gtk.podcast_list.sections',
-    'episode_list_view_mode': 'ui.gtk.episode_list.view_mode',
-    'podcast_list_view_mode': 'ui.gtk.podcast_list.view_mode',
-    'podcast_list_hide_boring': 'ui.gtk.podcast_list.hide_empty',
-    'episode_list_columns': 'ui.gtk.episode_list.columns',
-    'auto_cleanup_downloads': 'ui.gtk.download_list.remove_finished',
-    'auto_update_feeds': 'auto.update.enabled',
-    'auto_update_frequency': 'auto.update.frequency',
-    'auto_download': 'ui.gtk.new_episodes',
-}
-
 logger = logging.getLogger(__name__)
 
 
@@ -410,18 +385,12 @@ class Config(object):
         self.schedule_save()
 
     def __getattr__(self, name):
-        if name in gPodderSettings_LegacySupport:
-            name = gPodderSettings_LegacySupport[name]
-
         return getattr(self.__json_config, name)
 
     def __setattr__(self, name, value):
         if name.startswith('_'):
             object.__setattr__(self, name, value)
             return
-
-        if name in gPodderSettings_LegacySupport:
-            name = gPodderSettings_LegacySupport[name]
 
         setattr(self.__json_config, name, value)
 

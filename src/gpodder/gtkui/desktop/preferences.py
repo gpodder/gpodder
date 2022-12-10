@@ -50,13 +50,13 @@ class NewEpisodeActionList(Gtk.ListStore):
 
     def get_index(self):
         for index, row in enumerate(self):
-            if self._config.auto_download == row[self.C_AUTO_DOWNLOAD]:
+            if self._config.ui.gtk.new_episodes == row[self.C_AUTO_DOWNLOAD]:
                 return index
 
         return 1  # Some sane default
 
     def set_index(self, index):
-        self._config.auto_download = self[index][self.C_AUTO_DOWNLOAD]
+        self._config.ui.gtk.new_episodes = self[index][self.C_AUTO_DOWNLOAD]
 
 
 class DeviceTypeActionList(Gtk.ListStore):
@@ -229,9 +229,9 @@ class gPodderPreferences(BuilderWidget):
         self.combobox_preferred_vimeo_format.add_attribute(cellrenderer, 'text', self.preferred_vimeo_format_model.C_CAPTION)
         self.combobox_preferred_vimeo_format.set_active(self.preferred_vimeo_format_model.get_index())
 
-        self._config.connect_gtk_togglebutton('podcast_list_view_all',
+        self._config.connect_gtk_togglebutton('ui.gtk.podcast_list.all_episodes',
                                               self.checkbutton_show_all_episodes)
-        self._config.connect_gtk_togglebutton('podcast_list_sections',
+        self._config.connect_gtk_togglebutton('ui.gtk.podcast_list.sections',
                                               self.checkbutton_podcast_sections)
         self._config.connect_gtk_togglebutton('ui.gtk.find_as_you_type',
                                               self.checkbutton_find_as_you_type)
@@ -239,19 +239,19 @@ class gPodderPreferences(BuilderWidget):
         self.update_interval_presets = [0, 10, 30, 60, 2 * 60, 6 * 60, 12 * 60]
         adjustment_update_interval = self.hscale_update_interval.get_adjustment()
         adjustment_update_interval.set_upper(len(self.update_interval_presets) - 1)
-        if self._config.auto_update_frequency in self.update_interval_presets:
-            index = self.update_interval_presets.index(self._config.auto_update_frequency)
+        if self._config.auto.update.frequency in self.update_interval_presets:
+            index = self.update_interval_presets.index(self._config.auto.update.frequency)
             self.hscale_update_interval.set_value(index)
         else:
             # Patch in the current "custom" value into the mix
-            self.update_interval_presets.append(self._config.auto_update_frequency)
+            self.update_interval_presets.append(self._config.auto.update.frequency)
             self.update_interval_presets.sort()
 
             adjustment_update_interval.set_upper(len(self.update_interval_presets) - 1)
-            index = self.update_interval_presets.index(self._config.auto_update_frequency)
+            index = self.update_interval_presets.index(self._config.auto.update.frequency)
             self.hscale_update_interval.set_value(index)
 
-        self._config.connect_gtk_spinbutton('max_episodes_per_feed', self.spinbutton_episode_limit)
+        self._config.connect_gtk_spinbutton('limit.episodes', self.spinbutton_episode_limit)
 
         self.auto_download_model = NewEpisodeActionList(self._config)
         self.combo_auto_download.set_model(self.auto_download_model)
@@ -263,19 +263,19 @@ class gPodderPreferences(BuilderWidget):
         self._config.connect_gtk_togglebutton('check_connection',
                                               self.checkbutton_check_connection)
 
-        if self._config.auto_remove_played_episodes:
+        if self._config.auto.cleanup.played:
             adjustment_expiration = self.hscale_expiration.get_adjustment()
-            if self._config.episode_old_age > adjustment_expiration.get_upper():
+            if self._config.auto.cleanup.days > adjustment_expiration.get_upper():
                 # Patch the adjustment to include the higher current value
-                adjustment_expiration.set_upper(self._config.episode_old_age)
+                adjustment_expiration.set_upper(self._config.auto.cleanup.days)
 
-            self.hscale_expiration.set_value(self._config.episode_old_age)
+            self.hscale_expiration.set_value(self._config.auto.cleanup.days)
         else:
             self.hscale_expiration.set_value(0)
 
-        self._config.connect_gtk_togglebutton('auto_remove_unplayed_episodes',
+        self._config.connect_gtk_togglebutton('auto.cleanup.unplayed',
                                               self.checkbutton_expiration_unplayed)
-        self._config.connect_gtk_togglebutton('auto_remove_unfinished_episodes',
+        self._config.connect_gtk_togglebutton('auto.cleanup.unfinished',
                                               self.checkbutton_expiration_unfinished)
 
         self.device_type_model = DeviceTypeActionList(self._config)
@@ -575,8 +575,8 @@ class gPodderPreferences(BuilderWidget):
 
     def on_update_interval_value_changed(self, range):
         value = int(range.get_value())
-        self._config.auto_update_feeds = (value > 0)
-        self._config.auto_update_frequency = self.update_interval_presets[value]
+        self._config.auto.update.enabled = (value > 0)
+        self._config.auto.update.frequency = self.update_interval_presets[value]
 
     def on_combo_auto_download_changed(self, widget):
         index = self.combo_auto_download.get_active()
@@ -595,11 +595,11 @@ class gPodderPreferences(BuilderWidget):
 
         if value == 0:
             self.checkbutton_expiration_unplayed.set_active(False)
-            self._config.auto_remove_played_episodes = False
-            self._config.auto_remove_unplayed_episodes = False
+            self._config.auto.cleanup.played = False
+            self._config.auto.cleanup.unplayed = False
         else:
-            self._config.auto_remove_played_episodes = True
-            self._config.episode_old_age = value
+            self._config.auto.cleanup.played = True
+            self._config.auto.cleanup.days = value
 
         self.checkbutton_expiration_unplayed.set_sensitive(value > 0)
         self.checkbutton_expiration_unfinished.set_sensitive(value > 0)
