@@ -284,7 +284,7 @@ class EpisodeListModel(Gtk.ListStore):
     def get_search_term(self):
         return self._search_term
 
-    def _format_description(self, episode, include_description=False):
+    def _format_description(self, episode, include_description):
         d = []
 
         title = episode.trimmed_title
@@ -307,7 +307,7 @@ class EpisodeListModel(Gtk.ListStore):
 
         return ''.join(d)
 
-    def replace_from_channel(self, channel, include_description=False):
+    def replace_from_channel(self, channel, include_description):
         """
         Add episode from the given channel to this model.
         Downloading should be a callback.
@@ -352,7 +352,7 @@ class EpisodeListModel(Gtk.ListStore):
 
         return False
 
-    def update_all(self, include_description=False):
+    def update_all(self, include_description):
         if self.background_update is None:
             episodes = [row[self.C_EPISODE] for row in self]
         else:
@@ -363,12 +363,12 @@ class EpisodeListModel(Gtk.ListStore):
 
         self._update_from_episodes(episodes, include_description)
 
-    def update_by_urls(self, urls, include_description=False):
+    def update_by_urls(self, urls, include_description):
         for row in self:
             if row[self.C_URL] in urls:
                 self.update_by_iter(row.iter, include_description)
 
-    def update_by_filter_iter(self, iter, include_description=False):
+    def update_by_filter_iter(self, iter, include_description):
         # Convenience function for use by "outside" methods that use iters
         # from the filtered episode list model (i.e. all UI things normally)
         iter = self._sorter.convert_iter_to_child_iter(iter)
@@ -490,7 +490,7 @@ class EpisodeListModel(Gtk.ListStore):
                 self.C_FILESIZE_AND_TIME, episode.file_size,
         )
 
-    def update_by_iter(self, iter, include_description=False):
+    def update_by_iter(self, iter, include_description):
         episode = self.get_value(iter, self.C_EPISODE)
         if episode is not None:
             self.set(iter, *self.get_update_fields(episode, include_description))
