@@ -317,6 +317,7 @@ class PodcastEpisode(PodcastModelObject):
             episode.url = _url
         media_available = audio_available or video_available or link_has_media
 
+        url_is_invalid = False
         for enclosure in entry['enclosures']:
             episode.mime_type = enclosure['mime_type']
 
@@ -332,6 +333,7 @@ class PodcastEpisode(PodcastModelObject):
 
             episode.url = util.normalize_feed_url(enclosure['url'])
             if not episode.url:
+                url_is_invalid = True
                 continue
 
             episode.file_size = enclosure['file_size']
@@ -343,6 +345,9 @@ class PodcastEpisode(PodcastModelObject):
             # The episode has no downloadable content.
             # Set an empty URL so downloading will fail.
             episode.url = ''
+            # Display an error icon if URL is invalid.
+            if url_is_invalid or (entry['link'] is not None and entry['link'] != ''):
+                episode._download_error = 'Invalid episode URL'
             return episode
 
         if any(mod.is_video_link(episode.url) for mod in (youtube, vimeo)):
