@@ -340,7 +340,10 @@ class PodcastEpisode(PodcastModelObject):
         # Brute-force detection of the episode link
         episode.url = util.normalize_feed_url(entry['link'])
         if not episode.url:
-            return None
+            # The episode has no downloadable content.
+            # Set an empty URL so downloading will fail.
+            episode.url = ''
+            return episode
 
         if any(mod.is_video_link(episode.url) for mod in (youtube, vimeo)):
             return episode
