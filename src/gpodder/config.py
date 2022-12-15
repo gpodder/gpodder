@@ -159,18 +159,18 @@ defaults = {
             'find_as_you_type': True,
 
             'podcast_list': {
-                'all_episodes': True,
-                'sections': True,
                 'view_mode': 1,
                 'hide_empty': False,
+                'all_episodes': True,
+                'sections': True,
             },
 
             'episode_list': {
-                'descriptions': True,
                 'view_mode': 1,
-                'columns': int('110', 2),  # bitfield of visible columns
                 'always_show_new': True,
+                'descriptions': True,
                 'ctrl_click_to_sort': False,
+                'columns': int('110', 2),  # bitfield of visible columns
             },
 
             'download_list': {

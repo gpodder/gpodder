@@ -263,10 +263,19 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def create_actions(self):
         g = self.gPodder
 
+        # View
+
         action = Gio.SimpleAction.new_stateful(
-            'showEpisodeDescription', None, GLib.Variant.new_boolean(self.config.ui.gtk.episode_list.descriptions))
-        action.connect('activate', self.on_itemShowDescription_activate)
+            'showToolbar', None, GLib.Variant.new_boolean(self.config.ui.gtk.toolbar))
+        action.connect('activate', self.on_itemShowToolbar_activate)
         g.add_action(action)
+
+        action = Gio.SimpleAction.new_stateful(
+            'searchAlwaysVisible', None, GLib.Variant.new_boolean(self.config.ui.gtk.search_always_visible))
+        action.connect('activate', self.on_item_view_search_always_visible_toggled)
+        g.add_action(action)
+
+        # View Podcast List
 
         action = Gio.SimpleAction.new_stateful(
             'viewHideBoringPodcasts', None, GLib.Variant.new_boolean(self.config.ui.gtk.podcast_list.hide_empty))
@@ -274,19 +283,16 @@ class gPodder(BuilderWidget, dbus.service.Object):
         g.add_action(action)
 
         action = Gio.SimpleAction.new_stateful(
-            'viewAlwaysShowNewEpisodes', None, GLib.Variant.new_boolean(self.config.ui.gtk.episode_list.always_show_new))
-        action.connect('activate', self.on_item_view_always_show_new_episodes_toggled)
+            'viewShowAllEpisodes', None, GLib.Variant.new_boolean(self.config.ui.gtk.podcast_list.all_episodes))
+        action.connect('activate', self.on_item_view_show_all_episodes_toggled)
         g.add_action(action)
 
         action = Gio.SimpleAction.new_stateful(
-            'viewCtrlClickToSortEpisodes', None, GLib.Variant.new_boolean(self.config.ui.gtk.episode_list.ctrl_click_to_sort))
-        action.connect('activate', self.on_item_view_ctrl_click_to_sort_episodes_toggled)
+            'viewShowPodcastSections', None, GLib.Variant.new_boolean(self.config.ui.gtk.podcast_list.sections))
+        action.connect('activate', self.on_item_view_show_podcast_sections_toggled)
         g.add_action(action)
 
-        action = Gio.SimpleAction.new_stateful(
-            'searchAlwaysVisible', None, GLib.Variant.new_boolean(self.config.ui.gtk.search_always_visible))
-        action.connect('activate', self.on_item_view_search_always_visible_toggled)
-        g.add_action(action)
+        # View Episode List
 
         value = EpisodeListModel.VIEWS[
             self.config.ui.gtk.episode_list.view_mode or EpisodeListModel.VIEW_ALL]
@@ -296,10 +302,31 @@ class gPodder(BuilderWidget, dbus.service.Object):
         action.connect('activate', self.on_item_view_episodes_changed)
         g.add_action(action)
 
+        action = Gio.SimpleAction.new_stateful(
+            'viewAlwaysShowNewEpisodes', None, GLib.Variant.new_boolean(self.config.ui.gtk.episode_list.always_show_new))
+        action.connect('activate', self.on_item_view_always_show_new_episodes_toggled)
+        g.add_action(action)
+
+        action = Gio.SimpleAction.new_stateful(
+            'showEpisodeDescription', None, GLib.Variant.new_boolean(self.config.ui.gtk.episode_list.descriptions))
+        action.connect('activate', self.on_itemShowDescription_activate)
+        g.add_action(action)
+
+        action = Gio.SimpleAction.new_stateful(
+            'viewCtrlClickToSortEpisodes', None, GLib.Variant.new_boolean(self.config.ui.gtk.episode_list.ctrl_click_to_sort))
+        action.connect('activate', self.on_item_view_ctrl_click_to_sort_episodes_toggled)
+        g.add_action(action)
+
+        # Other Menus
+
         action_defs = [
+            # gPodder
+            # Podcasts
             ('update', self.on_itemUpdate_activate),
             ('downloadAllNew', self.on_itemDownloadAllNew_activate),
             ('removeOldEpisodes', self.on_itemRemoveOldEpisodes_activate),
+            ('findPodcast', self.on_find_podcast_activate),
+            # Subscriptions
             ('discover', self.on_itemImportChannels_activate),
             ('addChannel', self.on_itemAddChannel_activate),
             ('massUnsubscribe', self.on_itemMassUnsubscribe_activate),
@@ -307,6 +334,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             ('editChannel', self.on_itemEditChannel_activate),
             ('importFromFile', self.on_item_import_from_file_activate),
             ('exportChannels', self.on_itemExportChannels_activate),
+            # Episodes
             ('play', self.on_playback_selected_episodes),
             ('open', self.on_playback_selected_episodes),
             ('download', self.on_download_selected_episodes),
@@ -316,10 +344,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
             ('toggleEpisodeNew', self.on_item_toggle_played_activate),
             ('toggleEpisodeLock', self.on_item_toggle_lock_activate),
             ('openEpisodeDownloadFolder', self.on_open_episode_download_folder),
-            ('toggleShownotes', self.on_shownotes_selected_episodes),
-            ('sync', self.on_sync_to_device_activate),
-            ('findPodcast', self.on_find_podcast_activate),
             ('findEpisode', self.on_find_episode_activate),
+            ('toggleShownotes', self.on_shownotes_selected_episodes),
+            # Extras
+            ('sync', self.on_sync_to_device_activate),
         ]
 
         for name, callback in action_defs:
@@ -327,9 +355,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
             action.connect('activate', callback)
             g.add_action(action)
 
+        # gPodder
+        # Podcasts
         self.update_action = g.lookup_action('update')
+        # Subscriptions
         self.update_channel_action = g.lookup_action('updateChannel')
         self.edit_channel_action = g.lookup_action('editChannel')
+        # Episodes
         self.play_action = g.lookup_action('play')
         self.open_action = g.lookup_action('open')
         self.download_action = g.lookup_action('download')
@@ -339,11 +371,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.toggle_episode_new_action = g.lookup_action('toggleEpisodeNew')
         self.toggle_episode_lock_action = g.lookup_action('toggleEpisodeLock')
         self.open_episode_download_folder_action = g.lookup_action('openEpisodeDownloadFolder')
-
-        action = Gio.SimpleAction.new_stateful(
-            'showToolbar', None, GLib.Variant.new_boolean(self.config.ui.gtk.toolbar))
-        action.connect('activate', self.on_itemShowToolbar_activate)
-        g.add_action(action)
+        # Extras
 
     def inject_extensions_menu(self):
         """
@@ -3359,27 +3387,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.config.ui.gtk.toolbar = not state
         action.set_state(GLib.Variant.new_boolean(not state))
 
-    def on_itemShowDescription_activate(self, action, param):
-        state = action.get_state()
-        self.config.ui.gtk.episode_list.descriptions = not state
-        action.set_state(GLib.Variant.new_boolean(not state))
-
-    def on_item_view_hide_boring_podcasts_toggled(self, action, param):
-        state = action.get_state()
-        self.config.ui.gtk.podcast_list.hide_empty = not state
-        action.set_state(GLib.Variant.new_boolean(not state))
-        self.apply_podcast_list_hide_boring()
-
-    def on_item_view_always_show_new_episodes_toggled(self, action, param):
-        state = action.get_state()
-        self.config.ui.gtk.episode_list.always_show_new = not state
-        action.set_state(GLib.Variant.new_boolean(not state))
-
-    def on_item_view_ctrl_click_to_sort_episodes_toggled(self, action, param):
-        state = action.get_state()
-        self.config.ui.gtk.episode_list.ctrl_click_to_sort = not state
-        action.set_state(GLib.Variant.new_boolean(not state))
-
     def on_item_view_search_always_visible_toggled(self, action, param):
         state = action.get_state()
         self.config.ui.gtk.search_always_visible = not state
@@ -3391,12 +3398,43 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 else:
                     search.hide_search()
 
+    def on_item_view_hide_boring_podcasts_toggled(self, action, param):
+        state = action.get_state()
+        self.config.ui.gtk.podcast_list.hide_empty = not state
+        action.set_state(GLib.Variant.new_boolean(not state))
+        self.apply_podcast_list_hide_boring()
+
+    def on_item_view_show_all_episodes_toggled(self, action, param):
+        state = action.get_state()
+        self.config.ui.gtk.podcast_list.all_episodes = not state
+        action.set_state(GLib.Variant.new_boolean(not state))
+
+    def on_item_view_show_podcast_sections_toggled(self, action, param):
+        state = action.get_state()
+        self.config.ui.gtk.podcast_list.sections = not state
+        action.set_state(GLib.Variant.new_boolean(not state))
+
     def on_item_view_episodes_changed(self, action, param):
         self.config.ui.gtk.episode_list.view_mode = getattr(EpisodeListModel, param.get_string()) or EpisodeListModel.VIEW_ALL
         action.set_state(param)
 
         self.episode_list_model.set_view_mode(self.config.ui.gtk.episode_list.view_mode)
         self.apply_podcast_list_hide_boring()
+
+    def on_item_view_always_show_new_episodes_toggled(self, action, param):
+        state = action.get_state()
+        self.config.ui.gtk.episode_list.always_show_new = not state
+        action.set_state(GLib.Variant.new_boolean(not state))
+
+    def on_itemShowDescription_activate(self, action, param):
+        state = action.get_state()
+        self.config.ui.gtk.episode_list.descriptions = not state
+        action.set_state(GLib.Variant.new_boolean(not state))
+
+    def on_item_view_ctrl_click_to_sort_episodes_toggled(self, action, param):
+        state = action.get_state()
+        self.config.ui.gtk.episode_list.ctrl_click_to_sort = not state
+        action.set_state(GLib.Variant.new_boolean(not state))
 
     def apply_podcast_list_hide_boring(self):
         if self.config.ui.gtk.podcast_list.hide_empty:
