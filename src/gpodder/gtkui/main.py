@@ -188,7 +188,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.channels = self.model.get_podcasts()
 
         # For loading the list model
-        self.episode_list_model = EpisodeListModel(self.config, self.on_episode_list_filter_changed)
+        self.episode_list_model = EpisodeListModel(self.on_episode_list_filter_changed)
 
         self.create_actions()
 
@@ -2189,21 +2189,21 @@ class gPodder(BuilderWidget, dbus.service.Object):
         True (the former updates just the selected
         episodes and the latter updates all episodes).
         """
-        descriptions = self.config.ui.gtk.episode_list.descriptions
+        self.episode_list_model.cache_config(self.config)
 
         if urls is not None:
             # We have a list of URLs to walk through
-            self.episode_list_model.update_by_urls(urls, descriptions)
+            self.episode_list_model.update_by_urls(urls)
         elif selected and not all:
             # We should update all selected episodes
             selection = self.treeAvailable.get_selection()
             model, paths = selection.get_selected_rows()
             for path in reversed(paths):
                 iter = model.get_iter(path)
-                self.episode_list_model.update_by_filter_iter(iter, descriptions)
+                self.episode_list_model.update_by_filter_iter(iter)
         elif all and not selected:
             # We update all (even the filter-hidden) episodes
-            self.episode_list_model.update_all(descriptions)
+            self.episode_list_model.update_all()
         else:
             # Wrong/invalid call - have to specify at least one parameter
             raise ValueError('Invalid call to update_episode_list_icons')
@@ -2511,13 +2511,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.treeAvailable.get_selection().unselect_all()
             self.treeAvailable.scroll_to_point(0, 0)
 
-            descriptions = self.config.ui.gtk.episode_list.descriptions
+            self.episode_list_model.cache_config(self.config)
+
             with self.treeAvailable.get_selection().handler_block(self.episode_selection_handler_id):
                 # have to block the on_episode_list_selection_changed handler because
                 # when selecting any channel from All Episodes, on_episode_list_selection_changed
                 # is called once per episode (4k time in my case), causing episode shownotes
                 # to be updated as many time, resulting in UI freeze for 10 seconds.
-                self.episode_list_model.replace_from_channel(self.active_channel, descriptions)
+                self.episode_list_model.replace_from_channel(self.active_channel)
         else:
             self.episode_list_model.clear()
 
