@@ -3351,6 +3351,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.new_episodes_window = None
             self.download_episode_list(episodes)
 
+        # Remove episodes without downloadable content
+        episodes = [e for e in episodes if e.url]
+        if len(episodes) == 0:
+            return
+
         if selected is None:
             # Select all by default
             selected = [True] * len(episodes)
