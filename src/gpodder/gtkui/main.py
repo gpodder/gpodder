@@ -308,8 +308,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         g.add_action(action)
 
         action = Gio.SimpleAction.new_stateful(
-            'showEpisodeDescription', None, GLib.Variant.new_boolean(self.config.ui.gtk.episode_list.descriptions))
-        action.connect('activate', self.on_itemShowDescription_activate)
+            'viewShowEpisodeDescription', None, GLib.Variant.new_boolean(self.config.ui.gtk.episode_list.descriptions))
+        action.connect('activate', self.on_item_view_show_episode_description_toggled)
         g.add_action(action)
 
         action = Gio.SimpleAction.new_stateful(
@@ -3426,7 +3426,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.config.ui.gtk.episode_list.always_show_new = not state
         action.set_state(GLib.Variant.new_boolean(not state))
 
-    def on_itemShowDescription_activate(self, action, param):
+    def on_item_view_show_episode_description_toggled(self, action, param):
         state = action.get_state()
         self.config.ui.gtk.episode_list.descriptions = not state
         action.set_state(GLib.Variant.new_boolean(not state))
