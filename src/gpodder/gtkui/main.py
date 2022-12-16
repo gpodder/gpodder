@@ -1660,6 +1660,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         n = 0
         episode_urls = set()
         model = self.treeDownloads.get_model()
+        has_queued_tasks = False
         for row_reference, task in tasks:
             with task:
                 if status == download.DownloadTask.QUEUED:
@@ -1675,7 +1676,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                             self.download_tasks_seen.add(task)
 
                         self.queue_task(task, force_start)
-                        self.set_download_list_state(gPodderSyncUI.DL_ONEOFF)
+                        has_queued_tasks = True
                 elif status == download.DownloadTask.CANCELLING:
                     logger.info(("cancelling task %s" % task.status))
                     task.cancel()
@@ -1710,6 +1711,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 n += 1
                 if not progress_callback('%d / %d' % (n, count), n / count):
                     break
+        if has_queued_tasks:
+            self.set_download_list_state(gPodderSyncUI.DL_ONEOFF)
         # Tell the podcasts tab to update icons for our removed podcasts
         self.update_episode_list_icons(episode_urls)
         # Update the tab title and downloads list
@@ -3844,15 +3847,18 @@ class gPodder(BuilderWidget, dbus.service.Object):
         (model, paths) = selection.get_selected_rows()
         selected_tasks = [(Gtk.TreeRowReference.new(model, path), model.get_value(model.get_iter(path), 0)) for path in paths]
 
+        has_queued_tasks = False
         for tree_row_reference, task in selected_tasks:
             with task:
                 if task.status in (task.DOWNLOADING, task.QUEUED):
                     task.pause()
                 elif task.status in (task.CANCELLED, task.PAUSED, task.FAILED):
                     self.download_queue_manager.queue_task(task)
-                    self.set_download_list_state(gPodderSyncUI.DL_ONEOFF)
+                    has_queued_tasks = True
                 elif task.status == task.DONE:
                     model.remove(model.get_iter(tree_row_reference.get_path()))
+        if has_queued_tasks:
+            self.set_download_list_state(gPodderSyncUI.DL_ONEOFF)
 
         self.play_or_download()
 
