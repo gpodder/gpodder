@@ -3244,7 +3244,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def download_episode_list(self, episodes, add_paused=False, force_start=False, downloader=None, hide_progress=False):
         def queue_tasks(tasks, queued_existing_task):
             n = 0
-            count = len(episodes)
+            count = len(tasks)
             if count and not hide_progress:
                 progress_indicator = ProgressIndicator(
                         _('Queueing'),
