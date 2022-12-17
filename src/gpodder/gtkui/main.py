@@ -1711,12 +1711,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 n += 1
                 if not progress_callback('%d / %d' % (n, count), n / count):
                     break
+
+        # Update the tab title and downloads list
         if has_queued_tasks:
             self.set_download_list_state(gPodderSyncUI.DL_ONEOFF)
+        else:
+            self.update_downloads_list()
         # Tell the podcasts tab to update icons for our removed podcasts
         self.update_episode_list_icons(episode_urls)
-        # Update the tab title and downloads list
-        self.update_downloads_list()
 
     def treeview_downloads_show_context_menu(self, treeview, event=None):
         model, paths = self.treeview_handle_context_menu_click(treeview, event)
