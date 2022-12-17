@@ -1320,8 +1320,25 @@ def idle_add(func, *args):
         func(*args)
 
 
+def idle_timeout_add(milliseconds, func, *args):
+    """Run a function in the main GUI thread at regular intervals, at idle priority
+
+    PRIORITY_HIGH           -100
+    PRIORITY_DEFAULT        0        timeout_add()
+    PRIORITY_HIGH_IDLE      100
+    resizing                110
+    redraw                  120
+    PRIORITY_DEFAULT_IDLE   200      idle_add()
+    PRIORITY_LOW            300
+    """
+    if not gpodder.ui.gtk:
+        raise Exception('util.idle_timeout_add() is only supported by Gtk+')
+    from gi.repository import GLib
+    return GLib.timeout_add(milliseconds, func, *args, priority=GLib.PRIORITY_DEFAULT_IDLE)
+
+
 class IdleTimeout(object):
-    """Run a function in the main GUI thread at regular intervals since the last run
+    """Run a function in the main GUI thread at regular intervals since the last run, at idle priority
 
     A simple timeout_add() continuously calls the function if it exceeds the interval,
     which lags the UI and prevents idle_add() calls from happening. This class restarts
@@ -1333,13 +1350,13 @@ class IdleTimeout(object):
         self.milliseconds = milliseconds
         self.func = func
         from gi.repository import GLib
-        self.id = GLib.timeout_add(milliseconds, self._callback, *args)
+        self.id = GLib.timeout_add(milliseconds, self._callback, *args, priority=GLib.PRIORITY_DEFAULT_IDLE)
 
     def _callback(self, *args):
         self.cancel()
         if self.func(*args):
             from gi.repository import GLib
-            self.id = GLib.timeout_add(self.milliseconds, self._callback, *args)
+            self.id = GLib.timeout_add(self.milliseconds, self._callback, *args, priority=GLib.PRIORITY_DEFAULT_IDLE)
 
     def cancel(self):
         if self.id:

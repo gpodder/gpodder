@@ -2431,7 +2431,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if remaining_seconds > 3600:
             # timeout an hour early in the event daylight savings changes the clock forward
             remaining_seconds = remaining_seconds - 3600
-        GLib.timeout_add(remaining_seconds * 1000, self.refresh_episode_dates)
+        util.idle_timeout_add(remaining_seconds * 1000, self.refresh_episode_dates)
 
     def update_podcast_list_model(self, urls=None, selected=False, select_url=None,
             sections_changed=False):
@@ -3821,8 +3821,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             interval = 60 * 1000 * self.config.auto.update.frequency
             logger.debug('Setting up auto update timer with interval %d.',
                     self.config.auto.update.frequency)
-            self._auto_update_timer_source_id = GLib.timeout_add(
-                    interval, self._on_auto_update_timer)
+            self._auto_update_timer_source_id = util.idle_timeout_add(interval, self._on_auto_update_timer)
 
     def _on_auto_update_timer(self):
         if self.config.check_connection and not util.connection_available():

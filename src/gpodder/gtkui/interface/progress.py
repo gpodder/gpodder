@@ -50,6 +50,7 @@ class ProgressIndicator(object):
         self._initial_message = None
         self._initial_progress = None
         self._progress_set = False
+        # use timeout_add, not util.idle_timeout_add, so it updates before Gtk+ redraws the dialog
         self.source_id = GLib.timeout_add(self.DELAY, self._create_progress)
 
         self.set_max_ticks(max_ticks)
@@ -111,6 +112,7 @@ class ProgressIndicator(object):
         self._update_gui()
 
         # previous self.source_id timeout is removed when this returns False
+        # use timeout_add, not util.idle_timeout_add, so it updates before Gtk+ redraws the dialog
         self.source_id = GLib.timeout_add(self.INTERVAL, self._update_gui)
         return False
 
