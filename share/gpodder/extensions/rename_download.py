@@ -79,6 +79,9 @@ class gPodderExtension:
 
         progress_indicator.on_finished()
 
+        self.gpodder.show_message(_('Renamed %(count)d downloaded episodes') % {'count': number_of_episodes},
+            _('Renaming finished'), important=True)
+
     def make_filename(self, current_filename, title, sortdate, podcast_title):
         dirname = os.path.dirname(current_filename)
         filename = os.path.basename(current_filename)
