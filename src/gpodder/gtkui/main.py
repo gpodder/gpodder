@@ -93,6 +93,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.last_episode_date_refresh = None
         self.refresh_episode_dates()
 
+        self.on_episode_list_selection_changed_id = None
+
     def new(self):
         if self.application.want_headerbar:
             self.header_bar = Gtk.HeaderBar()
@@ -1059,6 +1061,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self._search_episodes.show_search(grab_focus=False)
 
     def on_episode_list_selection_changed(self, selection):
+        # Only update the UI every 250ms to prevent lag when rapidly changing selected episode or shift-selecting episodes
+        if self.on_episode_list_selection_changed_id is None:
+            self.on_episode_list_selection_changed_id = util.idle_timeout_add(250, self._on_episode_list_selection_changed)
+
+    def _on_episode_list_selection_changed(self):
+        self.on_episode_list_selection_changed_id = None
+
         # Update the toolbar buttons
         self.play_or_download()
         # and the shownotes
