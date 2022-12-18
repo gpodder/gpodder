@@ -72,6 +72,8 @@ class DownloadStatusModel(Gtk.ListStore):
         self._status_ids[download.DownloadTask.PAUSING] = 'media-playback-pause'
         self._status_ids[download.DownloadTask.PAUSED] = 'media-playback-pause'
 
+        self.enabled = True
+
     def _format_message(self, episode, message, podcast):
         episode = html.escape(episode)
         podcast = html.escape(podcast)

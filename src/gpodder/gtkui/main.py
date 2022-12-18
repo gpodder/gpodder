@@ -198,7 +198,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.init_download_list_treeview()
 
         self.download_tasks_seen = set()
-        self.download_list_update_enabled = False
+        self.download_list_update_timer = None
         self.things_adding_tasks = 0
         self.download_task_monitors = set()
 
@@ -1150,10 +1150,17 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.things_adding_tasks += 1
         elif state == gPodderSyncUI.DL_ADDED_TASKS:
             self.things_adding_tasks -= 1
-        if not self.download_list_update_enabled:
+        if self.download_list_update_timer is None:
             self.update_downloads_list()
-            util.IdleTimeout(1500, self.update_downloads_list)
-            self.download_list_update_enabled = True
+            self.download_list_update_timer = util.IdleTimeout(1500, self.update_downloads_list)
+
+    def stop_download_list_update_timer(self):
+        if self.download_list_update_timer is None:
+            return False
+
+        self.download_list_update_timer.cancel()
+        self.download_list_update_timer = None
+        return True
 
     def cleanup_downloads(self):
         model = self.download_status_model
@@ -1317,7 +1324,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     self.cleanup_downloads()
 
                 # Stop updating the download list here
-                self.download_list_update_enabled = False
+                self.stop_download_list_update_timer()
 
             self.gPodder.set_title(' - '.join(title))
 
@@ -1326,7 +1333,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if channel_urls:
                 self.update_podcast_list_model(channel_urls)
 
-            return self.download_list_update_enabled
+            return (self.download_list_update_timer is not None)
         except Exception as e:
             logger.error('Exception happened while updating download list.', exc_info=True)
             self.show_message(
@@ -1636,12 +1643,16 @@ class gPodder(BuilderWidget, dbus.service.Object):
         else:
             progress_indicator = None
 
-        self.__for_each_task_set_status(tasks, status, force_start=force_start, progress_indicator=progress_indicator)
+        restart_timer = self.stop_download_list_update_timer()
+        self.download_queue_manager.disable()
+        self.__for_each_task_set_status(tasks, status, force_start=force_start, progress_indicator=progress_indicator,
+            restart_timer=restart_timer)
+        self.download_queue_manager.enable()
 
         if progress_indicator:
             progress_indicator.on_finished()
 
-    def __for_each_task_set_status(self, tasks, status, force_start=False, progress_indicator=None):
+    def __for_each_task_set_status(self, tasks, status, force_start=False, progress_indicator=None, restart_timer=False):
         episode_urls = set()
         model = self.treeDownloads.get_model()
         has_queued_tasks = False
@@ -1698,7 +1709,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             progress_indicator.on_tick(final=_('Finishing...'))
 
         # Update the tab title and downloads list
-        if has_queued_tasks:
+        if has_queued_tasks or restart_timer:
             self.set_download_list_state(gPodderSyncUI.DL_ONEOFF)
         else:
             self.update_downloads_list()
@@ -3238,6 +3249,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             else:
                 progress_indicator = None
 
+            restart_timer = self.stop_download_list_update_timer()
+            self.download_queue_manager.disable()
             for task in tasks:
                 with task:
                     if add_paused:
@@ -3250,8 +3263,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         break
             if progress_indicator:
                 progress_indicator.on_tick(final=_('Finishing...'))
+            self.download_queue_manager.enable()
 
-            if tasks or queued_existing_task:
+            # Update the tab title and downloads list
+            if tasks or queued_existing_task or restart_timer:
                 self.set_download_list_state(gPodderSyncUI.DL_ONEOFF)
             # Flush updated episode status
             if self.mygpo_client.can_access_webservice():
