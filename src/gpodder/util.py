@@ -1348,21 +1348,40 @@ class IdleTimeout(object):
         if not gpodder.ui.gtk:
             raise Exception('util.IdleTimeout() is only supported by Gtk+')
         self.milliseconds = milliseconds
+        self.max_milliseconds = 0
         self.func = func
         from gi.repository import GLib
         self.id = GLib.timeout_add(milliseconds, self._callback, *args, priority=GLib.PRIORITY_DEFAULT_IDLE)
 
+    def set_max_milliseconds(self, max):
+        self.max_milliseconds = max
+        return self
+
     def _callback(self, *args):
         self.cancel()
+        start_time = time.time()
         if self.func(*args):
+            if self.max_milliseconds > self.milliseconds:
+                duration = round((time.time() - start_time) * 1000)
+                if duration > self.max_milliseconds:
+                    duration = self.max_milliseconds
+                milliseconds = round(lerp(self.milliseconds, self.max_milliseconds, duration / self.max_milliseconds))
+            else:
+                milliseconds = self.milliseconds
             from gi.repository import GLib
-            self.id = GLib.timeout_add(self.milliseconds, self._callback, *args, priority=GLib.PRIORITY_DEFAULT_IDLE)
+            self.id = GLib.timeout_add(milliseconds, self._callback, *args, priority=GLib.PRIORITY_DEFAULT_IDLE)
 
     def cancel(self):
         if self.id:
             from gi.repository import GLib
             GLib.source_remove(self.id)
             self.id = 0
+
+
+def lerp(a, b, f):
+    """Linear interpolation between 'a' and 'b', where 'f' is between 0.0 and 1.0
+    """
+    return ((1.0 - f) * a) + (f * b)
 
 
 def bluetooth_available():

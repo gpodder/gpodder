@@ -1161,7 +1161,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.things_adding_tasks -= 1
         if self.download_list_update_timer is None:
             self.update_downloads_list()
-            self.download_list_update_timer = util.IdleTimeout(1500, self.update_downloads_list)
+            self.download_list_update_timer = util.IdleTimeout(1500, self.update_downloads_list).set_max_milliseconds(5000)
 
     def stop_download_list_update_timer(self):
         if self.download_list_update_timer is None:
