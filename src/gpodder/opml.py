@@ -38,7 +38,6 @@ import io
 import logging
 import os
 import os.path
-import shutil
 import xml.dom.minidom
 from email.utils import formatdate
 

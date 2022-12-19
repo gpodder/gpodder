@@ -5,7 +5,6 @@
 import os
 import sys
 
-import gi
 from gi.repository import GLib
 
 BASE = os.path.normpath(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))

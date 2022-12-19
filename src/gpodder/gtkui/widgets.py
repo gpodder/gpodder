@@ -23,13 +23,10 @@
 #  Thomas Perl <thp@gpodder.org> 2009-03-31
 #
 
-import html
 
 import gi  # isort:skip
-gi.require_version('Gdk', '3.0')  # isort:skip
 gi.require_version('Gtk', '3.0')  # isort:skip
-from gi.repository import Gdk, GObject, Gtk, Pango
-
+from gi.repository import Gtk
 
 class SpinningProgressIndicator(Gtk.Image):
     # Progress indicator loading inspired by glchess from gnome-games-clutter

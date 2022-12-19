@@ -4,12 +4,8 @@
 # Thomas Perl <thp@gpodder.org>; 2012-02-06
 
 import logging
-import os
-import subprocess
-import sys
 
 import gpodder
-from gpodder import util
 
 import gi  # isort:skip
 gi.require_version('Unity', '7.0')  # isort:skip

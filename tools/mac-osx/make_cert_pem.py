@@ -32,9 +32,9 @@ def get_certs(openssl):
 
     cmd = ["security", "find-certificate", "-a", "-p",
            "/System/Library/Keychains/SystemRootCertificates.keychain"]
-    cert_re = re.compile(b"^-----BEGIN CERTIFICATE-----$" +
-                         b".+?" +
-                         b"^-----END CERTIFICATE-----$", re.M | re.S)
+    cert_re = re.compile(b"^-----BEGIN CERTIFICATE-----$"
+                         + b".+?"
+                         + b"^-----END CERTIFICATE-----$", re.M | re.S)
     try:
         certs_str = subprocess.check_output(cmd)
         all_certs = cert_re.findall(certs_str)

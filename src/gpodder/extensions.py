@@ -32,15 +32,9 @@ For an example extension see share/gpodder/examples/extensions.py
 import functools
 import glob
 import imp
-import inspect
-import json
 import logging
 import os
 import re
-import shlex
-import subprocess
-import sys
-from datetime import datetime
 
 import gpodder
 from gpodder import util
@@ -339,11 +333,11 @@ class ExtensionManager(object):
             logger.debug('Found extension "%s" in %s', name, filename)
             config = getattr(core.config.extensions, name)
             container = ExtensionContainer(self, name, config, filename)
-            if (name in enabled_extensions or
-                    container.metadata.mandatory_in_current_ui):
+            if (name in enabled_extensions
+                    or container.metadata.mandatory_in_current_ui):
                 container.set_enabled(True)
-            if (name in enabled_extensions and
-                    container.metadata.disable_in_current_ui):
+            if (name in enabled_extensions
+                    and container.metadata.disable_in_current_ui):
                 container.set_enabled(False)
             self.containers.append(container)
 
@@ -396,9 +390,9 @@ class ExtensionManager(object):
     def get_extensions(self):
         """Get a list of all loaded extensions and their enabled flag"""
         return [c for c in self.containers
-            if c.metadata.available_for_current_ui and
-            not c.metadata.mandatory_in_current_ui and
-            not c.metadata.disable_in_current_ui]
+            if c.metadata.available_for_current_ui
+            and not c.metadata.mandatory_in_current_ui
+            and not c.metadata.disable_in_current_ui]
 
     # Define all known handler functions here, decorate them with the
     # "call_extension" decorator to forward all calls to extension scripts that have
@@ -414,7 +408,6 @@ class ExtensionManager(object):
         @param update_podcast_callback: Function to update a podcast feed
         @param download_episode_callback: Function to download an episode
         """
-        pass
 
     @call_extensions
     def on_podcast_subscribe(self, podcast):
@@ -422,7 +415,6 @@ class ExtensionManager(object):
 
         @param podcast: A gpodder.model.PodcastChannel instance
         """
-        pass
 
     @call_extensions
     def on_podcast_updated(self, podcast):
@@ -432,7 +424,6 @@ class ExtensionManager(object):
 
         @param podcast: A gpodder.model.PodcastChannel instance
         """
-        pass
 
     @call_extensions
     def on_podcast_update_failed(self, podcast, exception):
@@ -442,7 +433,6 @@ class ExtensionManager(object):
 
         @param exception: The reason.
         """
-        pass
 
     @call_extensions
     def on_podcast_save(self, podcast):
@@ -453,7 +443,6 @@ class ExtensionManager(object):
 
         @param podcast: A gpodder.model.PodcastChannel instance
         """
-        pass
 
     @call_extensions
     def on_podcast_delete(self, podcast):
@@ -461,7 +450,6 @@ class ExtensionManager(object):
 
         @param podcast: A gpodder.model.PodcastChannel instance
         """
-        pass
 
     @call_extensions
     def on_episode_playback(self, episode):
@@ -472,7 +460,6 @@ class ExtensionManager(object):
 
         @param episode: A gpodder.model.PodcastEpisode instance
         """
-        pass
 
     @call_extensions
     def on_episode_save(self, episode):
@@ -483,7 +470,6 @@ class ExtensionManager(object):
 
         @param episode: A gpodder.model.PodcastEpisode instance
         """
-        pass
 
     @call_extensions
     def on_episode_downloaded(self, episode):
@@ -493,13 +479,11 @@ class ExtensionManager(object):
 
         @param episode: A gpodder.model.PodcastEpisode instance
         """
-        pass
 
     @call_extensions
     def on_all_episodes_downloaded(self):
         """Called when all episodes has been downloaded
         """
-        pass
 
     @call_extensions
     def on_episode_synced(self, device, episode):
@@ -515,7 +499,6 @@ class ExtensionManager(object):
         @param device: A gpodder.sync.Device instance
         @param episode: A gpodder.model.PodcastEpisode instance
         """
-        pass
 
     @call_extensions
     def on_create_menu(self):
@@ -529,7 +512,6 @@ class ExtensionManager(object):
 
         [('Sync to Smartphone', lambda : ...)]
         """
-        pass
 
     @call_extensions
     def on_episodes_context_menu(self, episodes):
@@ -546,7 +528,6 @@ class ExtensionManager(object):
 
         @param episodes: A list of gpodder.model.PodcastEpisode instances
         """
-        pass
 
     @call_extensions
     def on_channel_context_menu(self, channel):
@@ -561,13 +542,11 @@ class ExtensionManager(object):
         [('Update channel', lambda channel: ...)]
         @param channel: A gpodder.model.PodcastChannel instance
         """
-        pass
 
     @call_extensions
     def on_episode_delete(self, episode, filename):
         """Called just before the episode's disk file is about to be
         deleted."""
-        pass
 
     @call_extensions
     def on_episode_removed_from_podcast(self, episode):
@@ -577,7 +556,6 @@ class ExtensionManager(object):
 
         @param podcast: A gpodder.model.PodcastChannel instance
         """
-        pass
 
     @call_extensions
     def on_notification_show(self, title, message):
@@ -586,7 +564,6 @@ class ExtensionManager(object):
         @param title: title of the notification
         @param message: message of the notification
         """
-        pass
 
     @call_extensions
     def on_download_progress(self, progress):
@@ -594,7 +571,6 @@ class ExtensionManager(object):
 
         @param progress: The current progress value (0..1)
         """
-        pass
 
     @call_extensions
     def on_ui_object_available(self, name, ui_object):
@@ -606,7 +582,6 @@ class ExtensionManager(object):
         @param name: The name/ID of the object
         @param ui_object: The object itself
         """
-        pass
 
     @call_extensions
     def on_application_started(self):
@@ -619,7 +594,6 @@ class ExtensionManager(object):
 
         It is called after on_ui_object_available and on_ui_initialized.
         """
-        pass
 
     @call_extensions
     def on_find_partial_downloads_done(self):
@@ -630,7 +604,6 @@ class ExtensionManager(object):
 
         It is called after on_application_started.
         """
-        pass
 
     @call_extensions
     def on_preferences(self):
@@ -644,7 +617,6 @@ class ExtensionManager(object):
 
         [('Tab name', lambda: ...)]
         """
-        pass
 
     @call_extensions
     def on_channel_settings(self, channel):
@@ -661,4 +633,3 @@ class ExtensionManager(object):
 
         @param channel: A gpodder.model.PodcastChannel instance
         """
-        pass

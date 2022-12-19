@@ -23,15 +23,10 @@
 # based on libipodsync.py (2006-04-05 Thomas Perl)
 # Ported to gPodder 3 by Joseph Wickremasinghe in June 2012
 
-import calendar
-import glob
 import logging
 import os.path
 import threading
 import time
-from enum import Enum
-from re import S
-from urllib.parse import urlparse
 
 import gpodder
 from gpodder import download, services, util
@@ -226,8 +221,8 @@ class Device(services.ObservableService):
         for track in list(tracklist):
             # Filter tracks that are not meant to be synchronized
             does_not_exist = not track.was_downloaded(and_exists=True)
-            exclude_played = (not track.is_new and
-                    self._config.device_sync.skip_played_episodes)
+            exclude_played = (not track.is_new
+                    and self._config.device_sync.skip_played_episodes)
             wrong_type = track.file_type() not in self.allowed_types
 
             if does_not_exist:
@@ -352,8 +347,8 @@ class iPodDevice(Device):
 
     def episode_on_device(self, episode):
         return next((track for track in self.tracks_list
-                     if track.ipod_track.podcast_rss == episode.channel.url and
-                     track.ipod_track.podcast_url == episode.url), None)
+                     if track.ipod_track.podcast_rss == episode.channel.url
+                     and track.ipod_track.podcast_url == episode.url), None)
 
     def remove_track(self, track):
         self.notify('status', _('Removing %s') % track.title)
@@ -449,8 +444,8 @@ class MP3PlayerDevice(Device):
 
         try:
             info = self.destination.query_info(
-                Gio.FILE_ATTRIBUTE_ACCESS_CAN_WRITE + "," +
-                Gio.FILE_ATTRIBUTE_STANDARD_TYPE,
+                Gio.FILE_ATTRIBUTE_ACCESS_CAN_WRITE + ","
+                + Gio.FILE_ATTRIBUTE_STANDARD_TYPE,
                 Gio.FileQueryInfoFlags.NONE,
                 None)
         except GLib.Error as err:
@@ -465,8 +460,8 @@ class MP3PlayerDevice(Device):
         # open is ok if the target is a directory, and it can be written to
         # for smb, query_info doesn't return FILE_ATTRIBUTE_ACCESS_CAN_WRITE,
         # -- if that's the case, just assume that it's writable
-        if (not info.has_attribute(Gio.FILE_ATTRIBUTE_ACCESS_CAN_WRITE) or
-                info.get_attribute_boolean(Gio.FILE_ATTRIBUTE_ACCESS_CAN_WRITE)):
+        if (not info.has_attribute(Gio.FILE_ATTRIBUTE_ACCESS_CAN_WRITE)
+                or info.get_attribute_boolean(Gio.FILE_ATTRIBUTE_ACCESS_CAN_WRITE)):
             self.notify('status', _('MP3 player opened'))
             self.tracks_list = self.get_all_tracks()
             return True
@@ -530,7 +525,17 @@ class MP3PlayerDevice(Device):
 
         util.make_directory(folder)
 
-        if not to_file.query_exists():
+        to_file_exists = to_file.query_exists()
+        from_size = episode.file_size
+        to_size = episode.file_size
+        if to_file_exists:
+            try:
+                info = to_file.query_info(Gio.FILE_ATTRIBUTE_STANDARD_SIZE, Gio.FileQueryInfoFlags.NONE)
+                to_size = info.get_attribute_uint64(Gio.FILE_ATTRIBUTE_STANDARD_SIZE)
+            except GLib.Error:
+                # Assume same size and don't sync again
+                pass
+        if not to_file_exists or from_size != to_size:
             logger.info('Copying %s => %s',
                     os.path.basename(from_file),
                     to_file.get_uri())
@@ -563,10 +568,10 @@ class MP3PlayerDevice(Device):
         tracks = []
 
         attributes = (
-            Gio.FILE_ATTRIBUTE_STANDARD_NAME + "," +
-            Gio.FILE_ATTRIBUTE_STANDARD_TYPE + "," +
-            Gio.FILE_ATTRIBUTE_STANDARD_SIZE + "," +
-            Gio.FILE_ATTRIBUTE_TIME_MODIFIED)
+            Gio.FILE_ATTRIBUTE_STANDARD_NAME + ","
+            + Gio.FILE_ATTRIBUTE_STANDARD_TYPE + ","
+            + Gio.FILE_ATTRIBUTE_STANDARD_SIZE + ","
+            + Gio.FILE_ATTRIBUTE_TIME_MODIFIED)
 
         root_path = self.destination
         for path_info in root_path.enumerate_children(attributes, Gio.FileQueryInfoFlags.NONE, None):

@@ -13,9 +13,11 @@ import time
 try:
     import yt_dlp as youtube_dl
     program_name = 'yt-dlp'
+    want_ytdl_version = '2021.02.04'
 except:
     import youtube_dl
     program_name = 'youtube-dl'
+    want_ytdl_version = '2021.02.04'
 
 import gpodder
 from gpodder import download, feedcore, model, registry, util, youtube
@@ -36,7 +38,6 @@ __only_for__ = 'gtk, cli'
 __authors__ = 'Eric Le Lay <elelay.fr:contact>'
 __doc__ = 'https://gpodder.github.io/docs/extensions/youtubedl.html'
 
-want_ytdl_version = '2021.02.04'
 want_ytdl_version_msg = _('Your version of youtube-dl/yt-dlp %(have_version)s has known issues, please upgrade to %(want_version)s or newer.')
 
 DefaultConfig = {
@@ -46,6 +47,8 @@ DefaultConfig = {
     # If for some reason youtube-dl download doesn't work for you, you can fallback to gpodder code.
     # Set to False to fall back to default gpodder code (less available formats).
     'manage_downloads': True,
+    # Embed all available subtitles to downloaded videos. Needs ffmpeg.
+    'embed_subtitles': False,
 }
 
 
@@ -85,6 +88,15 @@ class YoutubeCustomDownload(download.CustomDownload):
         self._reporthook = None
         self._prev_dl_bytes = 0
         self._episode = episode
+        self._partial_filename = None
+
+    @property
+    def partial_filename(self):
+        return self._partial_filename
+
+    @partial_filename.setter
+    def partial_filename(self, val):
+        self._partial_filename = val
 
     def retrieve_resume(self, tempname, reporthook=None):
         """
@@ -94,27 +106,47 @@ class YoutubeCustomDownload(download.CustomDownload):
         # outtmpl: use given tempname by DownloadTask
         # (escape % because outtmpl used as a string template by youtube-dl)
         outtmpl = tempname.replace('%', '%%')
-        res = self._ytdl.fetch_video(self._url, outtmpl, self._my_hook)
-        # Renaming is not required because the escaped percent is not escaped in the output file.
+        info, opts = self._ytdl.fetch_info(self._url, outtmpl, self._my_hook)
+        if program_name == 'yt-dlp':
+            default = opts['outtmpl']['default'] if type(opts['outtmpl']) == dict else opts['outtmpl']
+            self.partial_filename = os.path.join(opts['paths']['home'], default) % info
+        elif program_name == 'youtube-dl':
+            self.partial_filename = opts['outtmpl'] % info
+
+        res = self._ytdl.fetch_video(info, opts)
+        if program_name == 'yt-dlp':
+            # yt-dlp downloads to whatever file name it wants, so rename
+            filepath = res.get('requested_downloads', [{}])[0].get('filepath')
+            if filepath is None:
+                raise Exception("Could not determine youtube-dl output file")
+            if filepath != tempname:
+                logger.debug('yt-dlp downloaded to "%s" instead of "%s", moving',
+                             os.path.basename(filepath),
+                             os.path.basename(tempname))
+                os.remove(tempname)
+                os.rename(filepath, tempname)
+
         if 'duration' in res and res['duration']:
             self._episode.total_time = res['duration']
         headers = {}
         # youtube-dl doesn't return a content-type but an extension
         if 'ext' in res:
             dot_ext = '.{}'.format(res['ext'])
-            # See #673 when merging multiple formats, the extension is appended to the tempname
-            # by youtube-dl resulting in empty .partial file + .partial.mp4 exists
-            # and #796 .mkv is chosen by ytdl sometimes
-            for try_ext in (dot_ext, ".mp4", ".m4a", ".webm", ".mkv"):
-                tempname_with_ext = tempname + try_ext
-                if os.path.isfile(tempname_with_ext):
-                    logger.debug('youtube-dl downloaded to "%s" instead of "%s", moving',
-                                 os.path.basename(tempname_with_ext),
-                                 os.path.basename(tempname))
-                    os.remove(tempname)
-                    os.rename(tempname_with_ext, tempname)
-                    dot_ext = try_ext
-                    break
+            if program_name == 'youtube-dl':
+                # See #673 when merging multiple formats, the extension is appended to the tempname
+                # by youtube-dl resulting in empty .partial file + .partial.mp4 exists
+                # and #796 .mkv is chosen by ytdl sometimes
+                for try_ext in (dot_ext, ".mp4", ".m4a", ".webm", ".mkv"):
+                    tempname_with_ext = tempname + try_ext
+                    if os.path.isfile(tempname_with_ext):
+                        logger.debug('youtube-dl downloaded to "%s" instead of "%s", moving',
+                                     os.path.basename(tempname_with_ext),
+                                     os.path.basename(tempname))
+                        os.remove(tempname)
+                        os.rename(tempname_with_ext, tempname)
+                        dot_ext = try_ext
+                        break
+
             ext_filetype = util.mimetype_from_extension(dot_ext)
             if ext_filetype:
                 # YouTube weba formats have a webm extension and get a video/webm mime-type
@@ -299,17 +331,29 @@ class gPodderYoutubeDL(download.CustomDownloader):
             opts['format'] += '/' + fallback
         logger.debug('format=%s', opts['format'])
 
-    def fetch_video(self, url, tempname, reporthook):
+    def fetch_info(self, url, tempname, reporthook):
+        subs = self.my_config.embed_subtitles
         opts = {
-            'outtmpl': tempname,
+            'paths': {'home': os.path.dirname(tempname)},
+            # Postprocessing in yt-dlp breaks without ext
+            'outtmpl': (os.path.basename(tempname) if program_name == 'yt-dlp'
+                        else tempname) + '.%(ext)s',
             'nopart': True,  # don't append .part (already .partial)
             'retries': 3,  # retry a few times
-            'progress_hooks': [reporthook]  # to notify UI
+            'progress_hooks': [reporthook],  # to notify UI
+            'writesubtitles': subs,
+            'subtitleslangs': ['all'] if subs else [],
+            'postprocessors': [{'key': 'FFmpegEmbedSubtitle'}] if subs else [],
         }
         opts.update(self._ydl_opts)
         self.add_format(self.gpodder_config, opts)
         with youtube_dl.YoutubeDL(opts) as ydl:
-            return ydl.extract_info(url, download=True)
+            info = ydl.extract_info(url, download=False)
+            return info, opts
+
+    def fetch_video(self, info, opts):
+        with youtube_dl.YoutubeDL(opts) as ydl:
+            return ydl.process_video_result(info, download=True)
 
     def refresh_entries(self, ie_result):
         # only interested in video metadata
@@ -446,6 +490,7 @@ class gPodderExtension:
     def __init__(self, container):
         self.container = container
         self.ytdl = None
+        self.infobar = None
 
     def on_load(self):
         self.ytdl = gPodderYoutubeDL(self.container.manager.core.config, self.container.config)
@@ -495,9 +540,25 @@ class gPodderExtension:
     def toggle_manage_downloads(self, widget):
         self.container.config.manage_downloads = widget.get_active()
 
+    def toggle_embed_subtitles(self, widget):
+        if widget.get_active():
+            if not util.find_command('ffmpeg'):
+                self.infobar.show()
+                widget.set_active(False)
+                self.container.config.embed_subtitles = False
+            else:
+                self.container.config.embed_subtitles = True
+        else:
+            self.container.config.embed_subtitles = False
+
     def show_preferences(self):
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
         box.set_border_width(10)
+
+        label = Gtk.Label('%s %s' % (program_name, youtube_dl.version.__version__))
+        box.pack_start(label, False, False, 0)
+
+        box.pack_start(Gtk.HSeparator(), False, False, 0)
 
         checkbox = Gtk.CheckButton(_('Parse YouTube channel feeds with youtube-dl to access more than 15 episodes'))
         checkbox.set_active(self.container.config.manage_channel)
@@ -520,7 +581,21 @@ class gPodderExtension:
         note.set_property('xalign', 0.0)
         box.add(note)
 
+        box.pack_start(Gtk.HSeparator(), False, False, 0)
+
+        checkbox = Gtk.CheckButton(_('Embed all available subtitles to downloaded video'))
+        checkbox.set_active(self.container.config.embed_subtitles)
+        checkbox.connect('toggled', self.toggle_embed_subtitles)
+        box.pack_start(checkbox, False, False, 0)
+
+        infobar = Gtk.InfoBar()
+        infobar.get_content_area().add(Gtk.Label(wrap=True, label=_(
+            'The "ffmpeg" command was not found. FFmpeg is required for embedding subtitles.')))
+        self.infobar = infobar
+        box.pack_end(infobar, False, False, 0)
+
         box.show_all()
+        infobar.hide()
         return box
 
     def on_preferences(self):

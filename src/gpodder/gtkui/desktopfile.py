@@ -169,7 +169,6 @@ class UserAppsReader(object):
 
         self.__has_read = True
         if gpodder.ui.win32:
-            import winreg
             for caption, types, hkey in WIN32_APP_REG_KEYS:
                 try:
                     cmdline = win32_read_registry_key(hkey)

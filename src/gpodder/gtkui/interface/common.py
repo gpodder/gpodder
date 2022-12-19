@@ -18,7 +18,6 @@
 #
 
 import os
-import shutil
 
 import gi  # isort:skip
 gi.require_version('Gdk', '3.0')  # isort:skip

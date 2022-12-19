@@ -25,18 +25,16 @@
 #  Based on libwget.py (2005-10-29)
 #
 
-import collections
-import email
 import glob
 import logging
 import mimetypes
 import os
 import os.path
 import shutil
-import socket
 import threading
 import time
 import urllib.error
+from abc import ABC, abstractmethod
 
 import requests
 from requests.adapters import HTTPAdapter
@@ -54,9 +52,24 @@ _ = gpodder.gettext
 REDIRECT_RETRIES = 3
 
 
-class CustomDownload:
+class CustomDownload(ABC):
     """ abstract class for custom downloads. DownloadTask call retrieve_resume() on it """
 
+    @property
+    @abstractmethod
+    def partial_filename(self):
+        """
+        Full path to the temporary file actually being downloaded (downloaders
+        may not support setting a tempname).
+        """
+        ...
+
+    @partial_filename.setter
+    @abstractmethod
+    def partial_filename(self, val):
+        ...
+
+    @abstractmethod
     def retrieve_resume(self, tempname, reporthook):
         """
         :param str tempname: temporary filename for the download
@@ -66,13 +79,14 @@ class CustomDownload:
         return {}, None
 
 
-class CustomDownloader:
+class CustomDownloader(ABC):
     """
     abstract class for custom downloaders.
 
     DownloadTask calls custom_downloader to get a CustomDownload
     """
 
+    @abstractmethod
     def custom_downloader(self, config, episode):
         """
         if this custom downloader has a custom download method (e.g. youtube-dl),
@@ -331,12 +345,22 @@ class DefaultDownload(CustomDownload):
         self._config = config
         self.__episode = episode
         self._url = url
+        self.__partial_filename = None
+
+    @property
+    def partial_filename(self):
+        return self.__partial_filename
+
+    @partial_filename.setter
+    def partial_filename(self, val):
+        self.__partial_filename = val
 
     def retrieve_resume(self, tempname, reporthook):
         url = self._url
         logger.info("Downloading %s", url)
         max_retries = max(0, self._config.auto.retries)
         downloader = DownloadURLOpener(self.__episode.channel, max_retries=max_retries)
+        self.partial_filename = tempname
 
         # Retry the download on incomplete download (other retries are done by the Retry strategy)
         for retry in range(max_retries + 1):
@@ -427,8 +451,8 @@ class DownloadQueueManager(object):
 
     def __continue_check_callback(self, worker_thread):
         with self.worker_threads_access:
-            if len(self.worker_threads) > self._config.max_downloads and \
-                    self._config.max_downloads_enabled:
+            if len(self.worker_threads) > self._config.limit.downloads.concurrent and \
+                    self._config.limit.downloads.enabled:
                 self.worker_threads.remove(worker_thread)
                 return False
             else:
@@ -439,9 +463,9 @@ class DownloadQueueManager(object):
         """
         with self.worker_threads_access:
             work_count = self.tasks.available_work_count()
-            if self._config.max_downloads_enabled:
+            if self._config.limit.downloads.enabled:
                 # always allow at least 1 download
-                spawn_limit = max(int(self._config.max_downloads), 1)
+                spawn_limit = max(int(self._config.limit.downloads.concurrent), 1)
             else:
                 spawn_limit = self._config.limit.downloads.concurrent_max
             running = len(self.worker_threads)
@@ -690,6 +714,7 @@ class DownloadTask(object):
         self.speed = 0.0
         self.progress = 0.0
         self.error_message = None
+        self.custom_downloader = None
 
         # Have we already shown this task in a notification?
         self._notification_shown = False
@@ -697,8 +722,8 @@ class DownloadTask(object):
         # Variables for speed limit and speed calculation
         self.__start_time = 0
         self.__start_blocks = 0
-        self.__limit_rate_value = self._config.limit_rate_value
-        self.__limit_rate = self._config.limit_rate
+        self.__limit_rate_value = self._config.limit.bandwidth.kbps
+        self.__limit_rate = self._config.limit.bandwidth.enabled
 
         # Progress update functions
         self._progress_updated = None
@@ -780,18 +805,18 @@ class DownloadTask(object):
             now = time.time()
             if self.__start_time > 0:
                 # Has rate limiting been enabled or disabled?
-                if self.__limit_rate != self._config.limit_rate:
+                if self.__limit_rate != self._config.limit.bandwidth.enabled:
                     # If it has been enabled then reset base time and block count
-                    if self._config.limit_rate:
+                    if self._config.limit.bandwidth.enabled:
                         self.__start_time = now
                         self.__start_blocks = count
-                    self.__limit_rate = self._config.limit_rate
+                    self.__limit_rate = self._config.limit.bandwidth.enabled
 
                 # Has the rate been changed and are we currently limiting?
-                if self.__limit_rate_value != self._config.limit_rate_value and self.__limit_rate:
+                if self.__limit_rate_value != self._config.limit.bandwidth.kbps and self.__limit_rate:
                     self.__start_time = now
                     self.__start_blocks = count
-                    self.__limit_rate_value = self._config.limit_rate_value
+                    self.__limit_rate_value = self._config.limit.bandwidth.kbps
 
                 passed = now - self.__start_time
                 if passed > 0:
@@ -806,10 +831,10 @@ class DownloadTask(object):
 
             self.speed = float(speed)
 
-            if self._config.limit_rate and speed > self._config.limit_rate_value:
+            if self._config.limit.bandwidth.enabled and speed > self._config.limit.bandwidth.kbps:
                 # calculate the time that should have passed to reach
                 # the desired download rate and wait if necessary
-                should_have_passed = (count - self.__start_blocks) * blockSize / (self._config.limit_rate_value * 1024.0)
+                should_have_passed = (count - self.__start_blocks) * blockSize / (self._config.limit.bandwidth.kbps * 1024.0)
                 if should_have_passed > passed:
                     # sleep a maximum of 10 seconds to not cause time-outs
                     delay = min(10.0, float(should_have_passed - passed))
@@ -871,6 +896,7 @@ class DownloadTask(object):
             else:
                 downloader = DefaultDownloader.custom_downloader(self._config, self.episode)
 
+            self.custom_downloader = downloader
             headers, real_url = downloader.retrieve_resume(self.tempname, self.status_updated)
 
             new_mimetype = headers.get('content-type', self.__episode.mime_type)

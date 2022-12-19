@@ -1,10 +1,9 @@
-import dbus.exceptions
+import dbus.exceptions  # noqa: F401
 
 
 class SessionBus(object):
     def __init__(self, *args, **kwargs):
         self.fake = True
-        pass
 
     def add_signal_receiver(self, *args, **kwargs):
         pass

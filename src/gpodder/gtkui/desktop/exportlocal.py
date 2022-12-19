@@ -18,10 +18,7 @@
 #
 import os
 
-from gi.repository import Gtk, Pango
-
 import gpodder
-from gpodder import util
 from gpodder.gtkui.interface.common import BuilderWidget
 
 _ = gpodder.gettext

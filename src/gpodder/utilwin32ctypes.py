@@ -20,7 +20,7 @@
 
 import ctypes
 from ctypes import HRESULT, Structure, byref, c_ulonglong
-from ctypes.wintypes import (BOOL, BYTE, DWORD, HANDLE, LPCWSTR, MAX_PATH,
+from ctypes.wintypes import (BOOL, BYTE, DWORD, HANDLE, LPCWSTR,
                              PULARGE_INTEGER, WORD)
 from uuid import UUID
 

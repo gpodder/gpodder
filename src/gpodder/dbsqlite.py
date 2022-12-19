@@ -25,8 +25,6 @@
 #
 
 import logging
-import re
-import sys
 import threading
 from sqlite3 import dbapi2 as sqlite
 

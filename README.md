@@ -35,9 +35,8 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 As an alternative to python-dbus on Mac OS X and Windows, you can use
 the dummy (no-op) D-Bus module provided in "tools/fake-dbus-module/".
 
-For quick testing, you can use the script tools/localdepends.py to
-install local copies of podcastparser and mygpoclient into "src/" from
-PyPI. With this, you get a self-contained gPodder CLI codebase.
+For quick testing, see [Run from Git](https://gpodder.github.io/docs/run-from-git.html)
+to install dependencies.
 
 
 ### GTK3 UI - Additional Dependencies

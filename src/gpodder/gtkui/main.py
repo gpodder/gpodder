@@ -34,8 +34,7 @@ import requests.exceptions
 import urllib3.exceptions
 
 import gpodder
-from gpodder import (common, download, extensions, feedcore, my, opml, player,
-                     util, youtube)
+from gpodder import common, download, feedcore, my, opml, player, util, youtube
 from gpodder.dbusproxy import DBusPodcastsProxy
 from gpodder.model import Model, PodcastEpisode
 from gpodder.syncui import gPodderSyncUI
@@ -62,7 +61,7 @@ import gi  # isort:skip
 gi.require_version('Gtk', '3.0')  # isort:skip
 gi.require_version('Gdk', '3.0')  # isort:skip
 gi.require_version('Handy', '1')  # isort:skip
-from gi.repository import Gdk, GdkPixbuf, Gio, GLib, Gtk, Pango  # isort:skip
+from gi.repository import Gdk, Gio, GLib, Gtk, Pango  # isort:skip
 from gi.repository import Handy  # isort:skip
 
 
@@ -200,9 +199,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.config.connect_gtk_spinbutton('limit.downloads.concurrent', self.spinMaxDownloads,
                                            self.config.limit.downloads.concurrent_max)
-        self.config.connect_gtk_togglebutton('max_downloads_enabled', self.cbMaxDownloads)
-        self.config.connect_gtk_spinbutton('limit_rate_value', self.spinLimitDownloads)
-        self.config.connect_gtk_togglebutton('limit_rate', self.cbLimitDownloads)
+        self.config.connect_gtk_togglebutton('limit.downloads.enabled', self.cbMaxDownloads)
+        self.config.connect_gtk_spinbutton('limit.bandwidth.kbps', self.spinLimitDownloads)
+        self.config.connect_gtk_togglebutton('limit.bandwidth.enabled', self.cbLimitDownloads)
 
         self.spinMaxDownloads.set_sensitive(self.cbMaxDownloads.get_active())
         self.spinLimitDownloads.set_sensitive(self.cbLimitDownloads.get_active())
@@ -237,7 +236,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.channels = self.model.get_podcasts()
 
         # For loading the list model
-        self.episode_list_model = EpisodeListModel(self.config, self.on_episode_list_filter_changed)
+        self.episode_list_model = EpisodeListModel(self.on_episode_list_filter_changed)
 
         self.create_actions()
 
@@ -287,7 +286,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         # Start the auto-update procedure
         self._auto_update_timer_source_id = None
-        if self.config.auto_update_feeds:
+        if self.config.auto.update.enabled:
             self.restart_auto_update_timer()
 
         # Find expired (old) episodes and delete them
@@ -339,29 +338,33 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def create_actions(self):
         g = self.gPodder
 
-        action = Gio.SimpleAction.new_stateful(
-            'showEpisodeDescription', None, GLib.Variant.new_boolean(self.config.episode_list_descriptions))
-        action.connect('activate', self.on_itemShowDescription_activate)
-        g.add_action(action)
+        # View
 
         action = Gio.SimpleAction.new_stateful(
-            'viewHideBoringPodcasts', None, GLib.Variant.new_boolean(self.config.podcast_list_hide_boring))
-        action.connect('activate', self.on_item_view_hide_boring_podcasts_toggled)
-        g.add_action(action)
-
-        action = Gio.SimpleAction.new_stateful(
-            'viewAlwaysShowNewEpisodes', None, GLib.Variant.new_boolean(self.config.ui.gtk.episode_list.always_show_new))
-        action.connect('activate', self.on_item_view_always_show_new_episodes_toggled)
-        g.add_action(action)
-
-        action = Gio.SimpleAction.new_stateful(
-            'viewCtrlClickToSortEpisodes', None, GLib.Variant.new_boolean(self.config.ui.gtk.episode_list.ctrl_click_to_sort))
-        action.connect('activate', self.on_item_view_ctrl_click_to_sort_episodes_toggled)
+            'showToolbar', None, GLib.Variant.new_boolean(self.config.ui.gtk.toolbar))
+        action.connect('activate', self.on_itemShowToolbar_activate)
         g.add_action(action)
 
         action = Gio.SimpleAction.new_stateful(
             'searchAlwaysVisible', None, GLib.Variant.new_boolean(self.config.ui.gtk.search_always_visible))
         action.connect('activate', self.on_item_view_search_always_visible_toggled)
+        g.add_action(action)
+
+        # View Podcast List
+
+        action = Gio.SimpleAction.new_stateful(
+            'viewHideBoringPodcasts', None, GLib.Variant.new_boolean(self.config.ui.gtk.podcast_list.hide_empty))
+        action.connect('activate', self.on_item_view_hide_boring_podcasts_toggled)
+        g.add_action(action)
+
+        action = Gio.SimpleAction.new_stateful(
+            'viewShowAllEpisodes', None, GLib.Variant.new_boolean(self.config.ui.gtk.podcast_list.all_episodes))
+        action.connect('activate', self.on_item_view_show_all_episodes_toggled)
+        g.add_action(action)
+
+        action = Gio.SimpleAction.new_stateful(
+            'viewShowPodcastSections', None, GLib.Variant.new_boolean(self.config.ui.gtk.podcast_list.sections))
+        action.connect('activate', self.on_item_view_show_podcast_sections_toggled)
         g.add_action(action)
 
         action = Gio.SimpleAction.new_stateful(
@@ -391,7 +394,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         g.add_action(action)
 
         value = EpisodeListModel.VIEWS[
-            self.config.episode_list_view_mode or EpisodeListModel.VIEW_ALL]
+            self.config.ui.gtk.episode_list.view_mode or EpisodeListModel.VIEW_ALL]
         action = Gio.SimpleAction.new_stateful(
             'viewEpisodes', GLib.VariantType.new('s'),
             GLib.Variant.new_string(value))
@@ -411,10 +414,31 @@ class gPodder(BuilderWidget, dbus.service.Object):
         action.connect('activate', self.on_itemShowToolbar_activate)
         g.add_action(action)
 
+        action = Gio.SimpleAction.new_stateful(
+            'viewAlwaysShowNewEpisodes', None, GLib.Variant.new_boolean(self.config.ui.gtk.episode_list.always_show_new))
+        action.connect('activate', self.on_item_view_always_show_new_episodes_toggled)
+        g.add_action(action)
+
+        action = Gio.SimpleAction.new_stateful(
+            'viewShowEpisodeDescription', None, GLib.Variant.new_boolean(self.config.ui.gtk.episode_list.descriptions))
+        action.connect('activate', self.on_item_view_show_episode_description_toggled)
+        g.add_action(action)
+
+        action = Gio.SimpleAction.new_stateful(
+            'viewCtrlClickToSortEpisodes', None, GLib.Variant.new_boolean(self.config.ui.gtk.episode_list.ctrl_click_to_sort))
+        action.connect('activate', self.on_item_view_ctrl_click_to_sort_episodes_toggled)
+        g.add_action(action)
+
+        # Other Menus
+
         action_defs = [
+            # gPodder
+            # Podcasts
             ('update', self.on_itemUpdate_activate),
             ('downloadAllNew', self.on_itemDownloadAllNew_activate),
             ('removeOldEpisodes', self.on_itemRemoveOldEpisodes_activate),
+            ('findPodcast', self.on_find_podcast_activate),
+            # Subscriptions
             ('discover', self.on_itemImportChannels_activate),
             ('addChannel', self.on_itemAddChannel_activate),
             ('removeChannel', self.on_itemRemoveChannel_activate),
@@ -423,6 +447,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             ('editChannel', self.on_itemEditChannel_activate),
             ('importFromFile', self.on_item_import_from_file_activate),
             ('exportChannels', self.on_itemExportChannels_activate),
+            # Episodes
             ('play', self.on_playback_selected_episodes),
             ('open', self.on_playback_selected_episodes),
             # ('download', self.on_download_selected_episodes),
@@ -433,10 +458,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
             # ('toggleEpisodeLock', self.on_item_toggle_lock_activate),
             ('openEpisodeDownloadFolder', self.on_open_episode_download_folder),
             ('openChannelDownloadFolder', self.on_open_download_folder),
+            ('findEpisode', self.on_find_episode_activate),
             ('toggleShownotes', self.on_shownotes_selected_episodes),
+            # Extras
             ('sync', self.on_sync_to_device_activate),
             ('findPodcast', self.on_find_podcast_activate),
-            ('findEpisode', self.on_find_episode_activate),
             ('markEpisodesAsOld', self.on_mark_episodes_as_old),
             ('refreshImage', self.on_itemRefreshCover_activate),
             ('showProgress', self.on_show_progress_activate),
@@ -449,9 +475,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
             action.connect('activate', callback)
             g.add_action(action)
 
+        # gPodder
+        # Podcasts
         self.update_action = g.lookup_action('update')
+        # Subscriptions
         self.update_channel_action = g.lookup_action('updateChannel')
         self.edit_channel_action = g.lookup_action('editChannel')
+        # Episodes
         self.play_action = g.lookup_action('play')
         self.open_action = g.lookup_action('open')
         self.delete_action = g.lookup_action('delete')
@@ -459,6 +489,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 #        self.toggle_episode_lock_action = g.lookup_action('toggleEpisodeLock')
         self.episode_new_action = g.lookup_action('episodeNew')
         self.open_episode_download_folder_action = g.lookup_action('openEpisodeDownloadFolder')
+        # Extras
         self.auto_archive_action = g.lookup_action('channelAutoArchive')
         self.bluetooth_episodes_action = g.lookup_action('bluetoothEpisodes')
         self.episode_new_action = g.lookup_action('episodeNew')
@@ -649,8 +680,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 # Assume the episode's total time for the action
                 total = episode.total_time
 
-            assert (episode.current_position_updated is None or
-                    now >= episode.current_position_updated)
+            assert (episode.current_position_updated is None
+                    or now >= episode.current_position_updated)
 
             episode.current_position = end
             episode.current_position_updated = now
@@ -803,8 +834,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 path, column, x, y = result
                 # The user clicked the icon if she clicked in the first column
                 # and the x position is in the area where the icon resides
-                if (x < self.EPISODE_LIST_ICON_WIDTH and
-                        column == treeview.get_columns()[0]):
+                if (x < self.EPISODE_LIST_ICON_WIDTH
+                        and column == treeview.get_columns()[0]):
                     model = treeview.get_model()
                     cursor_episode = model.get_value(model.get_iter(path),
                             EpisodeListModel.C_EPISODE)
@@ -977,8 +1008,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 # < 32 to intercept Delete and Tab events
                 if unicode_char_id < 32:
                     return False
-                input_char = chr(unicode_char_id)
-                self._search_podcasts.show_search(input_char)
+                if self.config.ui.gtk.find_as_you_type:
+                    input_char = chr(unicode_char_id)
+                    self._search_podcasts.show_search(input_char)
             return True
 
         # Consume arrow keys before native TreeView keyboard handlers
@@ -1023,14 +1055,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def set_episode_list_column(self, index, new_value):
         mask = (1 << index)
         if new_value:
-            self.config.episode_list_columns |= mask
+            self.config.ui.gtk.episode_list.columns |= mask
         else:
-            self.config.episode_list_columns &= ~mask
+            self.config.ui.gtk.episode_list.columns &= ~mask
 
     def update_episode_list_columns_visibility(self):
         columns = TreeViewHelper.get_columns(self.treeAvailable)
         for index, column in enumerate(columns):
-            visible = bool(self.config.episode_list_columns & (1 << index))
+            visible = bool(self.config.ui.gtk.episode_list.columns & (1 << index))
             column.set_visible(visible)
             self.view_column_actions[index].set_state(GLib.Variant.new_boolean(visible))
         self.treeAvailable.columns_autosize()
@@ -1099,7 +1131,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         return False
 
     def init_episode_list_treeview(self):
-        self.episode_list_model.set_view_mode(self.config.episode_list_view_mode)
+        self.episode_list_model.set_view_mode(self.config.ui.gtk.episode_list.view_mode)
 
         self.view_popover = Gtk.Popover.new_from_model(self.view_menubutton,
             self.application.builder.get_object('view-menu'))
@@ -1136,8 +1168,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # Initialize progress icons
         cake_size = cake_size_from_widget(self.treeAvailable)
         for i in range(EpisodeListModel.PROGRESS_STEPS + 1):
-            pixbuf = draw_cake_pixbuf(i /
-                   EpisodeListModel.PROGRESS_STEPS, size=cake_size)
+            pixbuf = draw_cake_pixbuf(
+                i / EpisodeListModel.PROGRESS_STEPS, size=cake_size)
             icon_name = 'gpodder-progress-%d' % i
             Gtk.IconTheme.add_builtin_icon(icon_name, cake_size, pixbuf)
 
@@ -1322,8 +1354,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 # < 32 to intercept Delete and Tab events
                 if unicode_char_id < 32:
                     return False
-                input_char = chr(unicode_char_id)
-                self._search_episodes.show_search(input_char)
+                if self.config.ui.gtk.find_as_you_type:
+                    input_char = chr(unicode_char_id)
+                    self._search_episodes.show_search(input_char)
             return True
 
         # Consume arrow keys before native TreeView keyboard handlers
@@ -1464,14 +1497,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
         height = treeview.get_allocated_height()
 
         if role == TreeViewHelper.ROLE_EPISODES:
-            if self.config.episode_list_view_mode != EpisodeListModel.VIEW_ALL:
+            if self.config.ui.gtk.episode_list.view_mode != EpisodeListModel.VIEW_ALL:
                 text = _('No episodes in current view')
             else:
                 text = _('No episodes available')
         elif role == TreeViewHelper.ROLE_PODCASTS:
-            if self.config.episode_list_view_mode != \
+            if self.config.ui.gtk.episode_list.view_mode != \
                     EpisodeListModel.VIEW_ALL and \
-                    self.config.podcast_list_hide_boring and \
+                    self.config.ui.gtk.podcast_list.hide_empty and \
                     len(self.channels) > 0:
                 text = _('No podcasts in this view')
             else:
@@ -1826,14 +1859,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
         selection = treeview.get_selection()
         model, paths = selection.get_selected_rows()
 
-        if path is None or (path not in paths and
-                event.button == 3):
+        if path is None or (path not in paths
+                and event.button == 3):
             # We have right-clicked, but not into the selection,
             # assume we don't want to operate on the selection
             paths = []
 
-        if (path is not None and not paths and
-                event.button == 3):
+        if (path is not None and not paths
+                and event.button == 3):
             # No selection or clicked outside selection;
             # select the single item where we clicked
             treeview.grab_focus()
@@ -2015,6 +2048,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         n = 0
         episode_urls = set()
         model = self.treeDownloads.get_model()
+        has_queued_tasks = False
         for row_reference, task in tasks:
             with task:
                 if status == download.DownloadTask.QUEUED:
@@ -2030,7 +2064,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                             self.download_tasks_seen.add(task)
 
                         self.queue_task(task, force_start)
-                        self.set_download_list_state(gPodderSyncUI.DL_ONEOFF)
+                        has_queued_tasks = True
                 elif status == download.DownloadTask.CANCELLING:
                     logger.info(("cancelling task %s" % task.status))
                     task.cancel()
@@ -2065,10 +2099,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 n += 1
                 if not progress_callback('%d / %d' % (n, count), n / count):
                     break
+
+        # Update the tab title and downloads list
+        if has_queued_tasks:
+            self.set_download_list_state(gPodderSyncUI.DL_ONEOFF)
+        else:
+            self.update_downloads_list()
         # Tell the podcasts tab to update icons for our removed podcasts
         self.update_episode_list_icons(episode_urls)
-        # Update the tab title and downloads list
-        self.update_downloads_list()
 
     def treeview_downloads_show_context_menu(self, event=None):
         treeview = self.treeDownloads
@@ -2331,7 +2369,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             any_new = any(e.is_new and e.state != gpodder.STATE_DELETED for e in episodes)
             downloaded = all(e.was_downloaded(and_exists=True) for e in episodes)
             downloading = any(e.downloading for e in episodes)
-            (open_instead_of_play, can_play, can_download, can_pause, can_cancel, can_delete, can_lock) = self.play_or_download()
+            (open_instead_of_play, can_play, can_preview, can_download, can_pause,
+             can_cancel, can_delete, can_lock) = self.play_or_download()
 
             menu = self.application.builder.get_object('episodes-context')
             psec = menu.get_item_link(0, Gio.MENU_LINK_SECTION)
@@ -2343,7 +2382,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             else:
                 if downloaded:
                     psec.insert(0, _('Play'), 'win.play')
-                elif downloading:
+                elif can_preview:
                     psec.insert(0, _('Preview'), 'win.play')
                 else:
                     psec.insert(0, _('Stream'), 'win.play')
@@ -2446,21 +2485,21 @@ class gPodder(BuilderWidget, dbus.service.Object):
         True (the former updates just the selected
         episodes and the latter updates all episodes).
         """
-        descriptions = self.config.episode_list_descriptions
+        self.episode_list_model.cache_config(self.config)
 
         if urls is not None:
             # We have a list of URLs to walk through
-            self.episode_list_model.update_by_urls(urls, descriptions)
+            self.episode_list_model.update_by_urls(urls)
         elif selected and not all:
             # We should update all selected episodes
             selection = self.treeAvailable.get_selection()
             model, paths = selection.get_selected_rows()
             for path in reversed(paths):
                 iter = model.get_iter(path)
-                self.episode_list_model.update_by_filter_iter(iter, descriptions)
+                self.episode_list_model.update_by_filter_iter(iter)
         elif all and not selected:
             # We update all (even the filter-hidden) episodes
-            self.episode_list_model.update_all(descriptions)
+            self.episode_list_model.update_all()
         else:
             # Wrong/invalid call - have to specify at least one parameter
             raise ValueError('Invalid call to update_episode_list_icons')
@@ -2573,7 +2612,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if in_downloads is None:
             in_downloads = self.in_downloads()
         if not in_downloads:
-            (open_instead_of_play, can_play, can_download, can_pause, can_cancel, can_delete, can_lock) = (False,) * 7
+            (open_instead_of_play, can_play, can_preview, can_download,
+             can_pause, can_cancel, can_delete, can_lock) = (False,) * 8
 
             selection = self.treeAvailable.get_selection()
             if selection.count_selected_rows() > 0:
@@ -2593,6 +2633,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     # Actions filter episodes using these methods.
                     open_instead_of_play = open_instead_of_play or episode.file_type() not in ('audio', 'video')
                     can_play = can_play or episode.can_play(self.config)
+                    can_preview = can_preview or episode.can_preview()
                     can_download = can_download or episode.can_download()
                     can_pause = can_pause or episode.can_pause()
                     can_cancel = can_cancel or episode.can_cancel()
@@ -2602,7 +2643,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.set_episode_actions(open_instead_of_play, can_play, can_download, can_pause, can_cancel, can_delete, can_lock,
                                     selection.count_selected_rows() > 0)
 
-            return (open_instead_of_play, can_play, can_download, can_pause, can_cancel, can_delete, can_lock)
+            return (open_instead_of_play, can_play, can_preview, can_download,
+                    can_pause, can_cancel, can_delete, can_lock)
         else:
             (can_queue, can_pause, can_cancel, can_remove) = (False,) * 4
 
@@ -2629,7 +2671,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             self.set_episode_actions(False, False, can_queue, can_pause, can_cancel, can_remove, False, False)
 
-            return (False, False, can_queue, can_pause, can_cancel, can_remove, False)
+            return (False, False, False, can_queue, can_pause, can_cancel,
+                    can_remove, False)
 
     def on_cbMaxDownloads_toggled(self, widget, *args):
         self.spinMaxDownloads.set_sensitive(self.cbMaxDownloads.get_active())
@@ -2685,7 +2728,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         sections_active = any(is_section(x) for x in self.podcast_list_model)
 
-        if self.config.podcast_list_view_all:
+        if self.config.ui.gtk.podcast_list.all_episodes:
             # Update "all episodes" view in any case (if enabled)
             self.podcast_list_model.update_first_row()
             # List model length minus 1, because of "All"
@@ -2693,8 +2736,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         else:
             list_model_length = len(self.podcast_list_model)
 
-        force_update = (sections_active != self.config.podcast_list_sections or
-                sections_changed)
+        force_update = (sections_active != self.config.ui.gtk.podcast_list.sections
+                or sections_changed)
 
         # Filter items in the list model that are not podcasts, so we get the
         # correct podcast list count (ignore section headers and separators)
@@ -2709,7 +2752,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             if iter is not None:
                 # If we have selected the "all episodes" view, we have
                 # to update all channels for selected episodes:
-                if self.config.podcast_list_view_all and \
+                if self.config.ui.gtk.podcast_list.all_episodes and \
                         self.podcast_list_model.iter_is_first_row(iter):
                     urls = self.get_podcast_urls_from_selected_episodes()
                     self.podcast_list_model.update_by_urls(urls)
@@ -2717,7 +2760,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     # Otherwise just update the selected row (a podcast)
                     self.podcast_list_model.update_by_filter_iter(iter)
 
-                if self.config.podcast_list_sections:
+                if self.config.ui.gtk.podcast_list.sections:
                     self.podcast_list_model.update_sections()
         elif list_model_length == len(self.channels) and not force_update:
             # we can keep the model, but have to update some
@@ -2727,7 +2770,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             else:
                 # ok, we got a bunch of urls to update
                 self.podcast_list_model.update_by_urls(urls)
-                if self.config.podcast_list_sections:
+                if self.config.ui.gtk.podcast_list.sections:
                     self.podcast_list_model.update_sections()
         else:
             if model and iter and select_url is None:
@@ -2783,13 +2826,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.treeAvailable.get_selection().unselect_all()
                 self.treeAvailable.scroll_to_point(0, 0)
 
-            descriptions = self.config.episode_list_descriptions
+            self.episode_list_model.cache_config(self.config)
+
             with self.treeAvailable.get_selection().handler_block(self.episode_selection_handler_id):
                 # have to block the on_episode_list_selection_changed handler because
                 # when selecting any channel from All Episodes, on_episode_list_selection_changed
                 # is called once per episode (4k time in my case), causing episode shownotes
                 # to be updated as many time, resulting in UI freeze for 10 seconds.
-                self.episode_list_model.replace_from_channel(self.active_channel, descriptions)
+                self.episode_list_model.replace_from_channel(self.active_channel)
         else:
             self.episode_list_model.clear()
 
@@ -2940,7 +2984,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     # The URL is valid and does not exist already - subscribe!
                     channel = self.model.load_podcast(url=url, create=True,
                             authentication_tokens=auth_tokens.get(url, None),
-                            max_episodes=self.config.max_episodes_per_feed)
+                            max_episodes=self.config.limit.episodes)
 
                     try:
                         username, password = util.username_password_from_url(url)
@@ -3084,7 +3128,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 try:
                     channel._update_error = None
                     util.idle_add(indicate_updating_podcast, channel)
-                    channel.update(max_episodes=self.config.max_episodes_per_feed)
+                    channel.update(max_episodes=self.config.limit.episodes)
                     self._update_cover(channel)
                 except Exception as e:
                     message = str(e)
@@ -3169,13 +3213,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     # New episodes are available
                     self.pbFeedUpdate.set_fraction(1.0)
 
-                    if self.config.auto_download == 'download':
+                    if self.config.ui.gtk.new_episodes == 'download':
                         self.download_episode_list(episodes)
                         title = N_('Downloading %(count)d new episode.',
                                    'Downloading %(count)d new episodes.',
                                    count) % {'count': count}
                         self.show_message(title, _('New episodes available'))
-                    elif self.config.auto_download == 'queue':
+                    elif self.config.ui.gtk.new_episodes == 'queue':
                         self.download_episode_list_paused(episodes)
                         title = N_(
                             '%(count)d new episode added to download list.',
@@ -3183,10 +3227,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
                             count) % {'count': count}
                         self.show_message(title, _('New episodes available'))
                     else:
-                        if (show_new_episodes_dialog and
-                                self.config.auto_download == 'show'):
+                        if (show_new_episodes_dialog
+                                and self.config.ui.gtk.new_episodes == 'show'):
                             self.new_episodes_show(episodes, notification=True)
-                        else:  # !show_new_episodes_dialog or auto_download == 'ignore'
+                        else:  # !show_new_episodes_dialog or ui.gtk.new_episodes == 'ignore'
                             message = N_('%(count)d new episode available',
                                          '%(count)d new episodes available',
                                          count) % {'count': count}
@@ -3357,11 +3401,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
             ('markup_delete_episodes', None, None, _('Episode')),
         )
 
-        msg_older_than = N_('Select older than %(count)d day', 'Select older than %(count)d days', self.config.episode_old_age)
+        msg_older_than = N_('Select older than %(count)d day', 'Select older than %(count)d days', self.config.auto.cleanup.days)
         selection_buttons = {
                 _('Select played'): lambda episode: not episode.is_new,
                 _('Select finished'): lambda episode: episode.is_finished(),
-                msg_older_than % {'count': self.config.episode_old_age}: lambda episode: episode.age_in_days() > self.config.episode_old_age,
+                msg_older_than % {'count': self.config.auto.cleanup.days}:
+                lambda episode: episode.age_in_days() > self.config.auto.cleanup.days,
         }
 
         instructions = _('Select the episodes you want to delete:')
@@ -3507,7 +3552,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def download_episode_list(self, episodes, add_paused=False, force_start=False, downloader=None, hide_progress=False):
         def queue_tasks(tasks, queued_existing_task):
             n = 0
-            count = len(episodes)
+            count = len(tasks)
             if count and not hide_progress:
                 progress_indicator = ProgressIndicator(
                         _('Queueing'),
@@ -3617,6 +3662,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.new_episodes_window = None
             self.download_episode_list(episodes)
 
+        # Remove episodes without downloadable content
+        episodes = [e for e in episodes if e.url]
+        if len(episodes) == 0:
+            return
+
         if selected is None:
             # Select all by default
             selected = [True] * len(episodes)
@@ -3652,28 +3702,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_itemShowToolbar_activate(self, action, param):
         state = action.get_state()
-        self.config.show_toolbar = not state
-        action.set_state(GLib.Variant.new_boolean(not state))
-
-    def on_itemShowDescription_activate(self, action, param):
-        state = action.get_state()
-        self.config.episode_list_descriptions = not state
-        action.set_state(GLib.Variant.new_boolean(not state))
-
-    def on_item_view_hide_boring_podcasts_toggled(self, action, param):
-        state = action.get_state()
-        self.config.podcast_list_hide_boring = not state
-        action.set_state(GLib.Variant.new_boolean(not state))
-        self.apply_podcast_list_hide_boring()
-
-    def on_item_view_always_show_new_episodes_toggled(self, action, param):
-        state = action.get_state()
-        self.config.ui.gtk.episode_list.always_show_new = not state
-        action.set_state(GLib.Variant.new_boolean(not state))
-
-    def on_item_view_ctrl_click_to_sort_episodes_toggled(self, action, param):
-        state = action.get_state()
-        self.config.ui.gtk.episode_list.ctrl_click_to_sort = not state
+        self.config.ui.gtk.toolbar = not state
         action.set_state(GLib.Variant.new_boolean(not state))
 
     def on_item_view_search_always_visible_toggled(self, action, param):
@@ -3687,11 +3716,27 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 else:
                     search.hide_search()
 
+    def on_item_view_hide_boring_podcasts_toggled(self, action, param):
+        state = action.get_state()
+        self.config.ui.gtk.podcast_list.hide_empty = not state
+        action.set_state(GLib.Variant.new_boolean(not state))
+        self.apply_podcast_list_hide_boring()
+
+    def on_item_view_show_all_episodes_toggled(self, action, param):
+        state = action.get_state()
+        self.config.ui.gtk.podcast_list.all_episodes = not state
+        action.set_state(GLib.Variant.new_boolean(not state))
+
+    def on_item_view_show_podcast_sections_toggled(self, action, param):
+        state = action.get_state()
+        self.config.ui.gtk.podcast_list.sections = not state
+        action.set_state(GLib.Variant.new_boolean(not state))
+
     def on_item_view_episodes_changed(self, action, param):
-        self.config.episode_list_view_mode = getattr(EpisodeListModel, param.get_string()) or EpisodeListModel.VIEW_ALL
+        self.config.ui.gtk.episode_list.view_mode = getattr(EpisodeListModel, param.get_string()) or EpisodeListModel.VIEW_ALL
         action.set_state(param)
 
-        self.episode_list_model.set_view_mode(self.config.episode_list_view_mode)
+        self.episode_list_model.set_view_mode(self.config.ui.gtk.episode_list.view_mode)
         self.apply_podcast_list_hide_boring()
 
     def relabel_view_menubutton(self, action, param):
@@ -3702,12 +3747,27 @@ class gPodder(BuilderWidget, dbus.service.Object):
             EpisodeListModel.VIEW_UNPLAYED: 'Unplayed',
         }
         label = self.view_menubutton.get_child()
-        label.set_text(view2text[self.config.episode_list_view_mode])
+        label.set_text(view2text[self.config.ui.gtk.episode_list.view_mode])
         self.view_popover.popdown()
 
+    def on_item_view_always_show_new_episodes_toggled(self, action, param):
+        state = action.get_state()
+        self.config.ui.gtk.episode_list.always_show_new = not state
+        action.set_state(GLib.Variant.new_boolean(not state))
+
+    def on_item_view_show_episode_description_toggled(self, action, param):
+        state = action.get_state()
+        self.config.ui.gtk.episode_list.descriptions = not state
+        action.set_state(GLib.Variant.new_boolean(not state))
+
+    def on_item_view_ctrl_click_to_sort_episodes_toggled(self, action, param):
+        state = action.get_state()
+        self.config.ui.gtk.episode_list.ctrl_click_to_sort = not state
+        action.set_state(GLib.Variant.new_boolean(not state))
+
     def apply_podcast_list_hide_boring(self):
-        if self.config.podcast_list_hide_boring:
-            self.podcast_list_model.set_view_mode(self.config.episode_list_view_mode)
+        if self.config.ui.gtk.podcast_list.hide_empty:
+            self.podcast_list_model.set_view_mode(self.config.ui.gtk.episode_list.view_mode)
         else:
             self.podcast_list_model.set_view_mode(-1)
 
@@ -4235,11 +4295,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
             GLib.source_remove(self._auto_update_timer_source_id)
             self._auto_update_timer_source_id = None
 
-        if (self.config.auto_update_feeds and
-                self.config.auto_update_frequency):
-            interval = 60 * 1000 * self.config.auto_update_frequency
+        if (self.config.auto.update.enabled
+                and self.config.auto.update.frequency):
+            interval = 60 * 1000 * self.config.auto.update.frequency
             logger.debug('Setting up auto update timer with interval %d.',
-                    self.config.auto_update_frequency)
+                    self.config.auto.update.frequency)
             self._auto_update_timer_source_id = GLib.timeout_add(
                     interval, self._on_auto_update_timer)
 
@@ -4263,15 +4323,18 @@ class gPodder(BuilderWidget, dbus.service.Object):
         (model, paths) = selection.get_selected_rows()
         selected_tasks = [(Gtk.TreeRowReference.new(model, path), model.get_value(model.get_iter(path), 0)) for path in paths]
 
+        has_queued_tasks = False
         for tree_row_reference, task in selected_tasks:
             with task:
                 if task.status in (task.DOWNLOADING, task.QUEUED):
                     task.pause()
                 elif task.status in (task.CANCELLED, task.PAUSED, task.FAILED):
                     self.download_queue_manager.queue_task(task)
-                    self.set_download_list_state(gPodderSyncUI.DL_ONEOFF)
+                    has_queued_tasks = True
                 elif task.status == task.DONE:
                     model.remove(model.get_iter(tree_row_reference.get_path()))
+        if has_queued_tasks:
+            self.set_download_list_state(gPodderSyncUI.DL_ONEOFF)
 
         self.play_or_download()
 
@@ -4414,8 +4477,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         try:
             file.mount_enclosing_volume_finish(res)
         except GLib.Error as err:
-            if (not err.matches(Gio.io_error_quark(), Gio.IOErrorEnum.NOT_SUPPORTED) and
-                    not err.matches(Gio.io_error_quark(), Gio.IOErrorEnum.ALREADY_MOUNTED)):
+            if (not err.matches(Gio.io_error_quark(), Gio.IOErrorEnum.NOT_SUPPORTED)
+                    and not err.matches(Gio.io_error_quark(), Gio.IOErrorEnum.ALREADY_MOUNTED)):
                 logger.error('mounting volume %s failed: %s' % (file.get_uri(), err.message))
                 result = False
         finally:

@@ -20,7 +20,6 @@
 # Soundcloud.com API client module for gPodder
 # Thomas Perl <thp@gpodder.org>; 2009-11-03
 
-import email
 import json
 import logging
 import os
