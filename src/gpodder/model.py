@@ -335,9 +335,9 @@ class PodcastEpisode(PodcastModelObject):
             episode.chapters = json.dumps(entry["chapters"])
         
         if entry.get('number'):
-            episode.track_id = entry['number']
+            episode.episode_num = entry['number']
         else:
-            episode.track_id = 0
+            episode.episode_num = 0
 
         if entry.get('season'):
             episode.season = entry['season']
@@ -418,7 +418,7 @@ class PodcastEpisode(PodcastModelObject):
         self.description = ''
         self.description_html = ''
         self.chapters = None
-        self.track_id = 0
+        self.episode_num = 0
         self.season = 0
         self.link = ''
         self.published = 0
@@ -923,7 +923,7 @@ class PodcastEpisode(PodcastModelObject):
 
     def update_from(self, episode):
         for k in ('title', 'url', 'episode_art_url', 'description', 'description_html', 'chapters', 'link',
-                  'published', 'guid', 'payment_url', 'track_id', 'season', 'author'):
+                  'published', 'guid', 'payment_url', 'episode_num', 'season', 'author'):
             setattr(self, k, getattr(episode, k))
         # Don't overwrite file size on downloaded episodes
         # See #648 refreshing a youtube podcast clears downloaded file size

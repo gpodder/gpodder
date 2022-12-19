@@ -52,7 +52,7 @@ EpisodeColumns = (
     'description_html',
     'episode_art_url',
     'chapters',
-    'track_id',
+    'episode_num',
     'season',
     'author',
 )
@@ -132,7 +132,7 @@ UPGRADE_SQL = [
 
         # Version 9: Add track ID, season number, author, categorys and keywords
         (8, 9, """
-        ALTER TABLE episode ADD COLUMN track_id INTEGER NULL DEFAULT 0
+        ALTER TABLE episode ADD COLUMN episode_num INTEGER NULL DEFAULT 0
         ALTER TABLE episode ADD COLUMN season INTEGER NULL DEFAULT 0
         ALTER TABLE episode ADD COLUMN author TEXT NULL DEFAULT ''
         ALTER TABLE podcast ADD COLUMN author TEXT NULL DEFAULT ''
@@ -204,7 +204,7 @@ def initialize_database(db):
         description_html TEXT NOT NULL DEFAULT '',
         episode_art_url TEXT NULL DEFAULT NULL,
         chapters TEXT NULL DEFAULT NULL,
-        track_id INTEGER NOT NULL DEFAULT 0,
+        episode_num INTEGER NOT NULL DEFAULT 0,
         season INTEGER NOT NULL DEFAULT 0,
         author TEXT NULL DEFAULT NULL
     )
