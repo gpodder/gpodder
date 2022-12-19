@@ -21,6 +21,9 @@
 # This extension script adds episode title and podcast title to the audio file
 # The episode title is written into the title tag
 # The podcast title is written into the album tag
+# TODO:
+# Review all changes to make sure they fallback if they have errors
+# linting
 
 import base64
 import datetime
@@ -58,9 +61,14 @@ __category__ = 'post-download'
 DefaultConfig = {
     'strip_album_from_title': True,
     'genre_tag': 'Podcast',
+    'additional_genre_tags': False,
+    'artist_tags': False,
     'always_remove_tags': False,
     'auto_embed_coverart': False,
+    'use_episode_specific_cover': False,
     'set_artist_to_album': False,
+    'set_episode_number_to_track': False,
+    'set_season_number_to_disc': False,
     'set_version': 4,
     'modify_tags': True,
     'remove_before_modify': False
@@ -68,7 +76,7 @@ DefaultConfig = {
 
 
 class AudioFile(object):
-    def __init__(self, filename, album, title, subtitle, genre, pubDate, cover):
+    def __init__(self, filename, album, title, subtitle, genre, pubDate, cover, episode_num, season, podcast_artist, episode_artist, categorys, keywords):
         self.filename = filename
         self.album = album
         self.title = title
@@ -76,6 +84,13 @@ class AudioFile(object):
         self.genre = genre
         self.pubDate = pubDate
         self.cover = cover
+        self.episode_num = episode_num
+        self.season = season
+        self.podcast_artist = podcast_artist
+        self.episode_artist = episode_artist
+        self.categorys = categorys
+        self.keywords = keywords
+
 
     def remove_tags(self):
         audio = File(self.filename, easy=True)
@@ -83,7 +98,7 @@ class AudioFile(object):
             audio.delete()
         audio.save()
 
-    def write_basic_tags(self, remove_before_modify, modify_tags, set_artist_to_album, set_version):
+    def write_basic_tags(self, remove_before_modify, modify_tags, set_artist_to_album, set_version, set_episode_number_to_track, set_season_number_to_disc, additional_genre_tags, artist_tags):
         audio = File(self.filename, easy=True)
 
         if audio is None:
@@ -117,6 +132,31 @@ class AudioFile(object):
 
             if set_artist_to_album:
                 audio.tags['artist'] = self.album
+            else:
+                if self.podcast_artist is not None and artist_tags:
+                    #use the podcast artist as album artist
+                    #use the episode artist as track artist (if they are different)
+                    #deliminate multiple artists with ' / '
+                    audio.tags['albumartist'] = self.podcast_artist
+
+                    if self.podcast_artist != self.episode_artist and self.episode_artist is not None:
+                        #change all commas to ' / ' so that the artist(s) is displayed correctly in iTunes
+                        audio.tags['artist'] = self.episode_artist.replace(', ', ' / ')
+
+            if (self.categorys is not None or self.keywords is not None) and additional_genre_tags:
+                #take self.categorys and self.keywords and merge them together into a single string, with ' / ' as the deliminator. only add the deliminator if both exist. otherwise just add the one that exists
+                if self.categorys is not None and self.keywords is not None:
+                    audio.tags['genre'] = self.categorys + ' / ' + self.keywords
+                elif self.categorys is not None:
+                    audio.tags['genre'] = self.categorys
+                elif self.keywords is not None:
+                    audio.tags['genre'] = self.keywords
+
+            if self.episode_num is not None and set_episode_number_to_track:
+                audio.tags['tracknumber'] = str(self.episode_num)
+            
+            if self.season is not None and set_season_number_to_disc:
+                audio.tags['discnumber'] = str(self.season)
 
         if type(audio) is EasyMP3:
             audio.save(v2_version=set_version)
@@ -147,8 +187,8 @@ class AudioFile(object):
 
 
 class OggFile(AudioFile):
-    def __init__(self, filename, album, title, subtitle, genre, pubDate, cover):
-        super(OggFile, self).__init__(filename, album, title, subtitle, genre, pubDate, cover)
+    def __init__(self, filename, album, title, subtitle, genre, pubDate, cover, episode_num, season, podcast_artists, episode_artists, categorys, keywords):
+        super(OggFile, self).__init__(filename, album, title, subtitle, genre, pubDate, cover, episode_num, season, podcast_artists, episode_artists, categorys, keywords)
 
     def insert_coverart(self):
         audio = File(self.filename, easy=True)
@@ -158,8 +198,8 @@ class OggFile(AudioFile):
 
 
 class Mp4File(AudioFile):
-    def __init__(self, filename, album, title, subtitle, genre, pubDate, cover):
-        super(Mp4File, self).__init__(filename, album, title, subtitle, genre, pubDate, cover)
+    def __init__(self, filename, album, title, subtitle, genre, pubDate, cover, episode_num, season, podcast_artists, episode_artists, categorys, keywords):
+        super(Mp4File, self).__init__(filename, album, title, subtitle, genre, pubDate, cover, episode_num, season, podcast_artists, episode_artists, categorys, keywords)
 
     def insert_coverart(self):
         audio = File(self.filename)
@@ -175,8 +215,8 @@ class Mp4File(AudioFile):
 
 
 class Mp3File(AudioFile):
-    def __init__(self, filename, album, title, subtitle, genre, pubDate, cover):
-        super(Mp3File, self).__init__(filename, album, title, subtitle, genre, pubDate, cover)
+    def __init__(self, filename, album, title, subtitle, genre, pubDate, cover, episode_num, season, podcast_artists, episode_artists, categorys, keywords):
+        super(Mp3File, self).__init__(filename, album, title, subtitle, genre, pubDate, cover, episode_num, season, podcast_artists, episode_artists, categorys, keywords)
 
     def insert_coverart(self):
         audio = MP3(self.filename, ID3=ID3)
@@ -184,6 +224,7 @@ class Mp3File(AudioFile):
         if audio.tags is None:
             audio.add_tags()
 
+        #add Front Cover image
         audio.tags.add(
             APIC(
                 encoding=3,  # 3 is for utf-8
@@ -218,7 +259,10 @@ class gPodderExtension:
         audioClass = None
 
         if self.container.config.auto_embed_coverart:
-            cover = self.get_cover(episode.channel)
+            if self.container.config.use_episode_specific_cover:
+                cover = self.get_episode_cover(episode)
+            else:
+                cover = self.get_cover(episode.channel)
 
         if info['filename'].endswith('.mp3'):
             audioClass = Mp3File
@@ -237,7 +281,13 @@ class gPodderExtension:
                 info['subtitle'],
                 info['genre'],
                 info['pubDate'],
-                cover)
+                cover,
+                info['episode_num'],
+                info['season'],
+                info["podcast_artist"],
+                info["episode_artist"],
+                info["categorys"],
+                info["keywords"])
         return audio
 
     def read_episode_info(self, episode):
@@ -247,7 +297,13 @@ class gPodderExtension:
             'title': None,
             'subtitle': None,
             'genre': None,
-            'pubDate': None
+            'pubDate': None,
+            'episode_num': None,
+            'season': None,
+            'podcast_artist': None,
+            'episode_artist': None,
+            'categorys': None,
+            'keywords': None,
         }
 
         # read filename (incl. file path) from gPodder database
@@ -260,6 +316,12 @@ class gPodderExtension:
         title = episode.title
         if (self.container.config.strip_album_from_title and title and info['album'] and title.startswith(info['album'])):
             info['title'] = title[len(info['album']):].lstrip()
+            # remove leading ': ' and '; 'from title
+            if info['title'].startswith(': '):
+                info['title'] = info['title'][2:]
+
+            if info['title'].startswith('; '):
+                info['title'] = info['title'][2:]
         else:
             info['title'] = title
 
@@ -279,6 +341,22 @@ class gPodderExtension:
                 info['pubDate'] = pubDate.strftime('%Y-%m-%d %H:%M')
             except:
                 info['pubDate'] = None
+        
+        # get episode_num and season from the gPodder database
+        info['episode_num'] = episode.episode_num
+        info['season'] = episode.season
+
+        # get podcast artist from the gPodder database
+        info['podcast_artist'] = episode.channel.author
+
+        # get episode artist from the gPodder database
+        info['episode_artist'] = episode.author
+
+        # get categorys from the gPodder database
+        info['categorys'] = episode.channel.categorys
+
+        # get keywords from the gPodder database
+        info['keywords'] = episode.channel.keywords
 
         return info
 
@@ -291,7 +369,11 @@ class gPodderExtension:
             audio.write_basic_tags(self.container.config.remove_before_modify,
                                    self.container.config.modify_tags,
                                    self.container.config.set_artist_to_album,
-                                   self.container.config.set_version)
+                                   self.container.config.set_version, 
+                                   self.container.config.set_episode_number_to_track, 
+                                   self.container.config.set_season_number_to_disc,
+                                   self.container.config.additional_genre_tags,
+                                   self.container.config.artist_tags)
 
             if self.container.config.auto_embed_coverart:
                 audio.insert_coverart()
@@ -302,3 +384,13 @@ class gPodderExtension:
         downloader = coverart.CoverDownloader()
         return downloader.get_cover(podcast.cover_file, podcast.cover_url,
             podcast.url, podcast.title, None, None, True)
+        
+    def get_episode_cover(self, episode):
+        downloader = coverart.CoverDownloader()
+        #check if episode has a cover
+        if episode.cover_file is not None:
+            return downloader.get_cover(episode.cover_file, episode.episode_art_url,
+                episode.channel.url, episode.channel.title, None, None, True)
+        else:
+            #if not, just use the podcast cover
+            return self.get_cover(episode.channel)

@@ -52,6 +52,9 @@ EpisodeColumns = (
     'description_html',
     'episode_art_url',
     'chapters',
+    'episode_num',
+    'season',
+    'author',
 )
 
 PodcastColumns = (
@@ -72,9 +75,12 @@ PodcastColumns = (
     'download_strategy',
     'sync_to_mp3_player',
     'cover_thumb',
+    'author',
+    'categorys',
+    'keywords',
 )
 
-CURRENT_VERSION = 8
+CURRENT_VERSION = 9
 
 
 # SQL commands to upgrade old database versions to new ones
@@ -123,6 +129,17 @@ UPGRADE_SQL = [
         ALTER TABLE episode ADD COLUMN chapters TEXT NULL DEFAULT NULL
         UPDATE podcast SET http_last_modified=NULL, http_etag=NULL
         """),
+
+        # Version 9: Add track ID, season number, author, categorys and keywords
+        (8, 9, """
+        ALTER TABLE episode ADD COLUMN episode_num INTEGER NULL DEFAULT 0
+        ALTER TABLE episode ADD COLUMN season INTEGER NULL DEFAULT 0
+        ALTER TABLE episode ADD COLUMN author TEXT NULL DEFAULT ''
+        ALTER TABLE podcast ADD COLUMN author TEXT NULL DEFAULT ''
+        ALTER TABLE podcast ADD COLUMN categorys TEXT NULL DEFAULT ''
+        ALTER TABLE podcast ADD COLUMN keywords TEXT NULL DEFAULT ''
+        UPDATE podcast SET http_last_modified=NULL, http_etag=NULL
+        """),
 ]
 
 
@@ -147,7 +164,10 @@ def initialize_database(db):
         payment_url TEXT NULL DEFAULT NULL,
         download_strategy INTEGER NOT NULL DEFAULT 0,
         sync_to_mp3_player INTEGER NOT NULL DEFAULT 1,
-        cover_thumb BLOB NULL DEFAULT NULL
+        cover_thumb BLOB NULL DEFAULT NULL,
+        author TEXT NULL DEFAULT NULL,
+        categorys TEXT NULL DEFAULT NULL,
+        keywords TEXT NULL DEFAULT NULL
     )
     """)
 
@@ -183,7 +203,10 @@ def initialize_database(db):
         payment_url TEXT NULL DEFAULT NULL,
         description_html TEXT NOT NULL DEFAULT '',
         episode_art_url TEXT NULL DEFAULT NULL,
-        chapters TEXT NULL DEFAULT NULL
+        chapters TEXT NULL DEFAULT NULL,
+        episode_num INTEGER NOT NULL DEFAULT 0,
+        season INTEGER NOT NULL DEFAULT 0,
+        author TEXT NULL DEFAULT NULL
     )
     """)
 
@@ -278,6 +301,9 @@ def convert_gpodder2_db(old_db, new_db):
                 0,
                 row['sync_to_devices'],
                 None,
+                row['author'] or '',
+                row['categorys'] or '',
+                row['keywords'] or '',
         )
         new_db.execute("""
         INSERT INTO podcast VALUES (%s)
@@ -312,6 +338,9 @@ def convert_gpodder2_db(old_db, new_db):
                 '',
                 None,
                 None,
+                0,
+                0,
+                row['author'] or '',
         )
         new_db.execute("""
         INSERT INTO episode VALUES (%s)
