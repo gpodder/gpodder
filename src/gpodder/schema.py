@@ -76,7 +76,7 @@ PodcastColumns = (
     'sync_to_mp3_player',
     'cover_thumb',
     'author',
-    'categorys',
+    'categories',
     'keywords',
 )
 
@@ -130,13 +130,13 @@ UPGRADE_SQL = [
         UPDATE podcast SET http_last_modified=NULL, http_etag=NULL
         """),
 
-        # Version 9: Add track ID, season number, author, categorys and keywords
+        # Version 9: Add track ID, season number, author, categories and keywords
         (8, 9, """
         ALTER TABLE episode ADD COLUMN episode_num INTEGER NULL DEFAULT 0
         ALTER TABLE episode ADD COLUMN season INTEGER NULL DEFAULT 0
         ALTER TABLE episode ADD COLUMN author TEXT NULL DEFAULT ''
         ALTER TABLE podcast ADD COLUMN author TEXT NULL DEFAULT ''
-        ALTER TABLE podcast ADD COLUMN categorys TEXT NULL DEFAULT ''
+        ALTER TABLE podcast ADD COLUMN categories TEXT NULL DEFAULT ''
         ALTER TABLE podcast ADD COLUMN keywords TEXT NULL DEFAULT ''
         UPDATE podcast SET http_last_modified=NULL, http_etag=NULL
         """),
@@ -166,7 +166,7 @@ def initialize_database(db):
         sync_to_mp3_player INTEGER NOT NULL DEFAULT 1,
         cover_thumb BLOB NULL DEFAULT NULL,
         author TEXT NULL DEFAULT NULL,
-        categorys TEXT NULL DEFAULT NULL,
+        categories TEXT NULL DEFAULT NULL,
         keywords TEXT NULL DEFAULT NULL
     )
     """)
@@ -302,7 +302,7 @@ def convert_gpodder2_db(old_db, new_db):
                 row['sync_to_devices'],
                 None,
                 row['author'] or '',
-                row['categorys'] or '',
+                row['categories'] or '',
                 row['keywords'] or '',
         )
         new_db.execute("""

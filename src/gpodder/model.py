@@ -135,22 +135,22 @@ class PodcastParserFeed(Feed):
             keywords = keywords.replace(", ", " / ")
         return keywords
 
-    def get_categorys(self):
+    def get_categories(self):
         #its coming in as a list like this 
         #'itunes_categories': [['Fiction', 'Comedy Fiction'], ['Leisure', 'Games']],
         #however this doesnt work with the database as it expects a string
         #convert it to a string, deliminated by " / "
-        categorys = self.feed.get('itunes_categories')
+        categories = self.feed.get('itunes_categories')
 
         #flatten the list
         new_list = []
-        for item in categorys:
+        for item in categories:
             new_list.extend(item)
-        categorys = new_list
+        categories = new_list
         
-        if categorys is not None:
-            categorys = " / ".join(categorys)
-        return categorys
+        if categories is not None:
+            categories = " / ".join(categories)
+        return categories
 
     def get_http_etag(self):
         return self.feed.get('headers', {}).get('etag')
@@ -992,7 +992,7 @@ class PodcastChannel(PodcastModelObject):
         self.payment_url = None
         self.author = None
         self.keywords = None
-        self.categorys = None
+        self.categories = None
 
         self.auth_username = ''
         self.auth_password = ''
@@ -1223,7 +1223,7 @@ class PodcastChannel(PodcastModelObject):
             # End YouTube- and Vimeo-specific title FIX
 
     def _consume_metadata(self, title, link, description, cover_url,
-            payment_url, author, keywords, categorys):
+            payment_url, author, keywords, categories):
         self._consume_updated_title(title)
         self.link = link
         self.description = description
@@ -1231,7 +1231,7 @@ class PodcastChannel(PodcastModelObject):
         self.payment_url = payment_url
         self.author = author
         self.keywords = keywords
-        self.categorys = categorys
+        self.categories = categories
         self.save()
 
     def _consume_updated_feed(self, feed, max_episodes=0):
@@ -1242,7 +1242,7 @@ class PodcastChannel(PodcastModelObject):
                                feed.get_payment_url() or None,
                                feed.get_author() or None,
                                feed.get_keywords() or None,
-                               feed.get_categorys() or None)
+                               feed.get_categories() or None)
 
         # Update values for HTTP conditional requests
         self.http_etag = feed.get_http_etag() or self.http_etag
