@@ -9,7 +9,6 @@ import time
 
 import gpodder
 from gpodder import util
-from gpodder.gtkui.interface.progress import ProgressIndicator
 from gpodder.model import PodcastEpisode
 
 logger = logging.getLogger(__name__)
@@ -57,6 +56,8 @@ class gPodderExtension:
     def rename_all_downloaded_episodes(self):
         model = self.gpodder.episode_list_model
         episodes = [row[model.C_EPISODE] for row in model if row[model.C_EPISODE].state == gpodder.STATE_DOWNLOADED]
+
+        from gpodder.gtkui.interface.progress import ProgressIndicator
 
         number_of_episodes = len(episodes)
         progress_indicator = ProgressIndicator(
