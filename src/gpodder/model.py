@@ -68,6 +68,18 @@ class Feed:
         """ :return str: optional -- feed's payment url """
         return None
 
+    def get_author(self):
+        """ :return str: optional -- feed's author """
+        return None
+
+    def get_keywords(self):
+        """ :return str: optional -- feed's keywords """
+        return None
+
+    def get_categories(self):
+        """ :return str: optional -- feed's categories """
+        return None
+
     def get_http_etag(self):
         """ :return str: optional -- last HTTP etag header, for conditional request next time """
         return None
