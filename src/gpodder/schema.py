@@ -301,9 +301,9 @@ def convert_gpodder2_db(old_db, new_db):
                 0,
                 row['sync_to_devices'],
                 None,
-                row['author'] or '',
-                row['categories'] or '',
-                row['keywords'] or '',
+                '', #Author
+                '', #Categories
+                '', #Keywords
         )
         new_db.execute("""
         INSERT INTO podcast VALUES (%s)
@@ -340,7 +340,7 @@ def convert_gpodder2_db(old_db, new_db):
                 None,
                 0,
                 0,
-                row['author'] or '',
+                '', #Author
         )
         new_db.execute("""
         INSERT INTO episode VALUES (%s)
