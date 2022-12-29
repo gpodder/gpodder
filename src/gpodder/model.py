@@ -345,15 +345,9 @@ class PodcastEpisode(PodcastModelObject):
         if entry.get("chapters"):
             episode.chapters = json.dumps(entry["chapters"])
         
-        if entry.get('number'):
-            episode.episode_num = entry['number']
-        else:
-            episode.episode_num = 0
+        episode.episode_num = entry.get('number', 0)
 
-        if entry.get('season'):
-            episode.season = entry['season']
-        else:
-            episode.season = 0
+        episode.season = entry.get('season', 0)
         
         if entry.get('itunes_author'):
             episode.author = entry['itunes_author']
