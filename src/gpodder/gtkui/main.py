@@ -3336,14 +3336,30 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if not tasks:
             return
 
+        progress_indicator = ProgressIndicator(
+                download.DownloadTask.STATUS_MESSAGE[download.DownloadTask.CANCELLING],
+                '', True, self.get_dialog_parent(), len(tasks))
+
+        restart_timer = self.stop_download_list_update_timer()
+        self.download_queue_manager.disable()
         for task in tasks:
             task.cancel()
+
+            if not progress_indicator.on_tick():
+                break
+        progress_indicator.on_tick(final=_('Finishing...'))
+        self.download_queue_manager.enable()
 
         self.update_episode_list_icons([task.url for task in tasks])
         self.play_or_download()
 
         # Update the tab title and downloads list
-        self.update_downloads_list()
+        if restart_timer:
+            self.set_download_list_state(gPodderSyncUI.DL_ONEOFF)
+        else:
+            self.update_downloads_list()
+
+        progress_indicator.on_finished()
 
     def new_episodes_show(self, episodes, notification=False, selected=None):
         columns = (
