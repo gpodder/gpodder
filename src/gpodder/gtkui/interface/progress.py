@@ -22,6 +22,7 @@ import time
 from gi.repository import GLib, Gtk, Pango
 
 import gpodder
+from gpodder import util
 from gpodder.gtkui.widgets import SpinningProgressIndicator
 
 _ = gpodder.gettext
@@ -32,14 +33,15 @@ class ProgressIndicator(object):
     DELAY = 500
 
     # Time between GUI updates after window creation
-    INTERVAL = 100
+    INTERVAL = 250
 
-    def __init__(self, title, subtitle=None, cancellable=False, parent=None):
+    def __init__(self, title, subtitle=None, cancellable=False, parent=None, max_ticks=None):
         self.title = title
         self.subtitle = subtitle
         self.cancellable = True if cancellable else False
         self.cancel_callback = cancellable
         self.cancel_id = 0
+        self.cancelled = False
         self.next_update = time.time() + (self.DELAY / 1000)
         self.parent = parent
         self.dialog = None
@@ -50,10 +52,19 @@ class ProgressIndicator(object):
         self._progress_set = False
         self.source_id = GLib.timeout_add(self.DELAY, self._create_progress)
 
+        self.set_max_ticks(max_ticks)
+
+    def set_max_ticks(self, max_ticks):
+        self.max_ticks = max_ticks
+        self.tick_counter = 0
+        if max_ticks is not None:
+            self.on_message('0 / %d' % max_ticks)
+
     def _on_delete_event(self, window, event):
         if self.cancellable:
             self.dialog.response(Gtk.ResponseType.CANCEL)
             self.cancellable = False
+            self.cancelled = True
         return True
 
     def _create_progress(self):
@@ -64,6 +75,7 @@ class ProgressIndicator(object):
         if self.cancellable:
             def cancel_callback(dialog, response):
                 self.cancellable = False
+                self.cancelled = True
                 self.dialog.set_deletable(False)
                 self.dialog.set_response_sensitive(Gtk.ResponseType.CANCEL, False)
                 if callable(self.cancel_callback):
@@ -78,8 +90,7 @@ class ProgressIndicator(object):
                 if isinstance(label, Gtk.Label):
                     label.set_selectable(False)
 
-        self.dialog.set_response_sensitive(Gtk.ResponseType.CANCEL,
-                self.cancellable)
+        self.dialog.set_response_sensitive(Gtk.ResponseType.CANCEL, self.cancellable)
 
         self.progressbar = Gtk.ProgressBar()
         self.progressbar.set_show_text(True)
@@ -111,13 +122,6 @@ class ProgressIndicator(object):
         self.next_update = time.time() + (self.INTERVAL / 1000)
         return True
 
-    def update_gui(self):
-        if self.dialog:
-            if self.source_id:
-                GLib.source_remove(self.source_id)
-                self.source_id = 0
-            self._update_gui()
-
     def on_message(self, message):
         if self.progressbar:
             self.progressbar.set_text(message)
@@ -130,6 +134,39 @@ class ProgressIndicator(object):
             self.progressbar.set_fraction(progress)
         else:
             self._initial_progress = progress
+
+    def on_tick(self, final=False):
+        if final:
+            # Dialog is no longer cancellable
+            self.cancellable = False
+            if self.dialog is not None:
+                self.dialog.set_response_sensitive(Gtk.ResponseType.CANCEL, False)
+                self.dialog.set_deletable(False)
+            elif 2 * (time.time() - (self.next_update - (self.DELAY / 1000))) > (self.DELAY / 1000):
+                # Assume final operation will take as long as all ticks and open dialog
+                if self.source_id:
+                    GLib.source_remove(self.source_id)
+                self._create_progress()
+
+        if self.max_ticks is not None and not final:
+            self.tick_counter += 1
+
+        if time.time() >= self.next_update or (final and self.dialog):
+            if type(final) == str:
+                self.on_message(final)
+                self.on_progress(1.0)
+            elif self.max_ticks is not None:
+                self.on_message('%d / %d' % (self.tick_counter, self.max_ticks))
+                self.on_progress(self.tick_counter / self.max_ticks)
+
+            # Allow UI to redraw.
+            util.idle_add(Gtk.main_quit)
+            # self._create_progress() or self._update_gui() is called by a timer to update the dialog
+            Gtk.main()
+
+            if self.cancelled:
+                return False
+        return True
 
     def on_finished(self):
         if self.dialog is not None:

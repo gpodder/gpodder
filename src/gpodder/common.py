@@ -47,7 +47,7 @@ def clean_up_downloads(delete_partial=False):
         util.delete_file(tempfile)
 
 
-def find_partial_downloads(channels, start_progress_callback, progress_callback, finish_progress_callback):
+def find_partial_downloads(channels, start_progress_callback, progress_callback, final_progress_callback, finish_progress_callback):
     """Find partial downloads and match them with episodes
 
     channels - A list of all model.PodcastChannel objects
@@ -85,6 +85,8 @@ def find_partial_downloads(channels, start_progress_callback, progress_callback,
 
             if not candidates:
                 break
+
+        final_progress_callback()
 
         for f in partial_files:
             logger.warning('Partial file without episode: %s', f)

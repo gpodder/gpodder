@@ -429,9 +429,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
         def progress_callback(title, progress):
             self.partial_downloads_indicator.on_message(title)
             self.partial_downloads_indicator.on_progress(progress)
-            if time.time() >= self.partial_downloads_indicator.next_update:
-                self.partial_downloads_indicator.update_gui()
-                self.force_ui_update()
+            self.partial_downloads_indicator.on_tick()  # not cancellable
+
+        def final_progress_callback():
+            self.partial_downloads_indicator.on_tick(final=_('Finishing...'))
 
         def finish_progress_callback(resumable_episodes):
             def offer_resuming():
@@ -452,6 +453,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         common.find_partial_downloads(self.channels,
                 start_progress_callback,
                 progress_callback,
+                final_progress_callback,
                 finish_progress_callback)
 
     def episode_object_by_uri(self, uri):
@@ -1624,40 +1626,22 @@ class gPodder(BuilderWidget, dbus.service.Object):
         else:
             self.download_queue_manager.queue_task(task)
 
-    def force_ui_update(self):
-        def callback():
-            Gtk.main_quit()
-        GLib.timeout_add(1, callback)
-        Gtk.main()
-
     def _for_each_task_set_status(self, tasks, status, force_start=False):
         count = len(tasks)
         if count:
             progress_indicator = ProgressIndicator(
                     _('Queueing') if status == download.DownloadTask.QUEUED else
                     _('Removing') if status is None else download.DownloadTask.STATUS_MESSAGE[status],
-                    '', True, self.get_dialog_parent())
-            progress_indicator.on_message('0 / %d' % count)
+                    '', True, self.get_dialog_parent(), count)
         else:
             progress_indicator = None
 
-        def progress_callback(title, progress):
-            progress_indicator.on_message(title)
-            progress_indicator.on_progress(progress)
-            if time.time() >= progress_indicator.next_update:
-                progress_indicator.update_gui()
-                self.force_ui_update()
-                if not progress_indicator.cancellable:
-                    return False
-            return True
-        self.__for_each_task_set_status(tasks, status, force_start=force_start, progress_callback=progress_callback)
+        self.__for_each_task_set_status(tasks, status, force_start=force_start, progress_indicator=progress_indicator)
 
         if progress_indicator:
             progress_indicator.on_finished()
 
-    def __for_each_task_set_status(self, tasks, status, force_start=False, progress_callback=None):
-        count = len(tasks)
-        n = 0
+    def __for_each_task_set_status(self, tasks, status, force_start=False, progress_indicator=None):
         episode_urls = set()
         model = self.treeDownloads.get_model()
         has_queued_tasks = False
@@ -1707,10 +1691,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 else:
                     # We can (hopefully) simply set the task status here
                     task.status = status
-            if progress_callback:
-                n += 1
-                if not progress_callback('%d / %d' % (n, count), n / count):
+            if progress_indicator:
+                if not progress_indicator.on_tick():
                     break
+        if progress_indicator:
+            progress_indicator.on_tick(final=_('Finishing...'))
 
         # Update the tab title and downloads list
         if has_queued_tasks:
@@ -3245,13 +3230,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def download_episode_list(self, episodes, add_paused=False, force_start=False, downloader=None, hide_progress=False):
         def queue_tasks(tasks, queued_existing_task):
-            n = 0
             count = len(tasks)
             if count and not hide_progress:
                 progress_indicator = ProgressIndicator(
                         _('Queueing'),
-                        '', True, self.get_dialog_parent())
-                progress_indicator.on_message('0 / %d' % count)
+                        '', True, self.get_dialog_parent(), count)
             else:
                 progress_indicator = None
 
@@ -3263,14 +3246,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         self.mygpo_client.on_download([task.episode])
                         self.queue_task(task, force_start)
                 if progress_indicator:
-                    n += 1
-                    progress_indicator.on_message('%d / %d' % (n, count))
-                    progress_indicator.on_progress(n / count)
-                    if time.time() >= progress_indicator.next_update:
-                        progress_indicator.update_gui()
-                        self.force_ui_update()
-                        if not progress_indicator.cancellable:
-                            break
+                    if not progress_indicator.on_tick():
+                        break
+            if progress_indicator:
+                progress_indicator.on_tick(final=_('Finishing...'))
+
             if tasks or queued_existing_task:
                 self.set_download_list_state(gPodderSyncUI.DL_ONEOFF)
             # Flush updated episode status
