@@ -308,6 +308,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
         g.add_action(action)
 
         action = Gio.SimpleAction.new_stateful(
+            'viewTrimEpisodeTitlePrefix', None, GLib.Variant.new_boolean(self.config.ui.gtk.episode_list.trim_title_prefix))
+        action.connect('activate', self.on_item_view_trim_episode_title_prefix_toggled)
+        g.add_action(action)
+
+        action = Gio.SimpleAction.new_stateful(
             'viewShowEpisodeDescription', None, GLib.Variant.new_boolean(self.config.ui.gtk.episode_list.descriptions))
         action.connect('activate', self.on_item_view_show_episode_description_toggled)
         g.add_action(action)
@@ -1341,6 +1346,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if name == 'ui.gtk.toolbar':
             self.toolbar.set_property('visible', new_value)
         elif name in ('ui.gtk.episode_list.descriptions',
+                'ui.gtk.episode_list.trim_title_prefix',
                 'ui.gtk.episode_list.always_show_new'):
             self.update_episode_list_model()
         elif name in ('auto.update.enabled', 'auto.update.frequency'):
@@ -3434,6 +3440,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_item_view_always_show_new_episodes_toggled(self, action, param):
         state = action.get_state()
         self.config.ui.gtk.episode_list.always_show_new = not state
+        action.set_state(GLib.Variant.new_boolean(not state))
+
+    def on_item_view_trim_episode_title_prefix_toggled(self, action, param):
+        state = action.get_state()
+        self.config.ui.gtk.episode_list.trim_title_prefix = not state
         action.set_state(GLib.Variant.new_boolean(not state))
 
     def on_item_view_show_episode_description_toggled(self, action, param):

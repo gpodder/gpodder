@@ -213,10 +213,12 @@ class EpisodeListModel(Gtk.ListStore):
         # Caching config values is faster than accessing them directly from config.ui.gtk.episode_list.*
         # and is easier to maintain then threading them through every method call.
         self._config_ui_gtk_episode_list_always_show_new = False
+        self._config_ui_gtk_episode_list_trim_title_prefix = False
         self._config_ui_gtk_episode_list_descriptions = False
 
     def cache_config(self, config):
         self._config_ui_gtk_episode_list_always_show_new = config.ui.gtk.episode_list.always_show_new
+        self._config_ui_gtk_episode_list_trim_title_prefix = config.ui.gtk.episode_list.trim_title_prefix
         self._config_ui_gtk_episode_list_descriptions = config.ui.gtk.episode_list.descriptions
 
     def _format_filesize(self, episode):
@@ -292,7 +294,7 @@ class EpisodeListModel(Gtk.ListStore):
     def _format_description(self, episode):
         d = []
 
-        title = episode.trimmed_title
+        title = episode.trimmed_title if self._config_ui_gtk_episode_list_trim_title_prefix else episode.title
         if episode.state != gpodder.STATE_DELETED and episode.is_new:
             d.append('<b>')
             d.append(html.escape(title))

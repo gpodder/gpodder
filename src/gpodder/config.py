@@ -168,6 +168,7 @@ defaults = {
             'episode_list': {
                 'view_mode': 1,
                 'always_show_new': True,
+                'trim_title_prefix': True,
                 'descriptions': True,
                 'ctrl_click_to_sort': False,
                 'columns': int('110', 2),  # bitfield of visible columns
