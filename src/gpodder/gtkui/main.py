@@ -3824,7 +3824,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if self.wNotebook.get_current_page() == 0:
             episodes = [e for e in self.get_selected_episodes() if e.can_download()]
             self.download_episode_list(episodes)
-            self.update_downloads_list()
         else:
             selection = self.treeDownloads.get_selection()
             (model, paths) = selection.get_selected_rows()
