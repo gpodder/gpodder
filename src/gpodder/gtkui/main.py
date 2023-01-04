@@ -3835,10 +3835,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_pause_selected_episodes(self, action_or_widget, param=None):
         if self.wNotebook.get_current_page() == 0:
-            for episode in self.get_selected_episodes():
-                if episode.can_pause():
-                    episode.download_task.pause()
-            self.update_downloads_list()
+            selection = self.get_selected_episodes()
+            selected_tasks = [(None, e.download_task) for e in selection if e.download_task is not None and e.can_pause()]
+            self._for_each_task_set_status(selected_tasks, download.DownloadTask.PAUSING)
         else:
             selection = self.treeDownloads.get_selection()
             (model, paths) = selection.get_selected_rows()
