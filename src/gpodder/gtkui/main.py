@@ -3249,27 +3249,38 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.download_episode_list(episodes, True, hide_progress=hide_progress)
 
     def download_episode_list(self, episodes, add_paused=False, force_start=False, downloader=None, hide_progress=False):
-        def queue_tasks(tasks, queued_existing_task):
-            count = len(tasks)
-            if count and not hide_progress:
-                progress_indicator = ProgressIndicator(
-                        _('Queueing'),
-                        '', True, self.get_dialog_parent(), count)
-            else:
-                progress_indicator = None
+        # Start progress indicator to queue existing tasks
+        count = len(episodes)
+        if count and not hide_progress:
+            progress_indicator = ProgressIndicator(
+                    _('Queueing'),
+                    '', True, self.get_dialog_parent(), count)
+        else:
+            progress_indicator = None
 
-            restart_timer = self.stop_download_list_update_timer()
-            self.download_queue_manager.disable()
-            for task in tasks:
-                with task:
-                    if add_paused:
-                        task.status = task.PAUSED
-                    else:
-                        self.mygpo_client.on_download([task.episode])
-                        self.queue_task(task, force_start)
+        restart_timer = self.stop_download_list_update_timer()
+        self.download_queue_manager.disable()
+
+        def queue_tasks(tasks, queued_existing_task):
+            if progress_indicator is None or not progress_indicator.cancelled:
                 if progress_indicator:
-                    if not progress_indicator.on_tick():
-                        break
+                    count = len(tasks)
+                    if count:
+                        # Restart progress indicator to queue new tasks
+                        progress_indicator.set_max_ticks(count)
+                        progress_indicator.on_progress(0.0)
+
+                for task in tasks:
+                    with task:
+                        if add_paused:
+                            task.status = task.PAUSED
+                        else:
+                            self.mygpo_client.on_download([task.episode])
+                            self.queue_task(task, force_start)
+                    if progress_indicator:
+                        if not progress_indicator.on_tick():
+                            break
+
             if progress_indicator:
                 progress_indicator.on_tick(final=_('Finishing...'))
             self.download_queue_manager.enable()
@@ -3292,6 +3303,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
             episodes = list(Model.sort_episodes_by_pubdate(episodes))
 
         for episode in episodes:
+            if progress_indicator:
+                # The continues require ticking before doing the work
+                if not progress_indicator.on_tick():
+                    break
+
             logger.debug('Downloading episode: %s', episode.title)
             if not episode.was_downloaded(and_exists=True):
                 episode._download_error = None
