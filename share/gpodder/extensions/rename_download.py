@@ -54,15 +54,13 @@ class gPodderExtension:
         return [(_("Rename all downloaded episodes"), self.rename_all_downloaded_episodes)]
 
     def rename_all_downloaded_episodes(self):
-        model = self.gpodder.episode_list_model
-        episodes = [row[model.C_EPISODE] for row in model if row[model.C_EPISODE].state == gpodder.STATE_DOWNLOADED]
-
-        from gpodder.gtkui.interface.progress import ProgressIndicator
-
+        episodes = [e for c in self.gpodder.channels for e in [e for e in c.children if e.state == gpodder.STATE_DOWNLOADED]]
         number_of_episodes = len(episodes)
         if number_of_episodes == 0:
             self.gpodder.show_message(_('No downloaded episodes to rename'),
                 _('Rename all downloaded episodes'), important=True)
+
+        from gpodder.gtkui.interface.progress import ProgressIndicator
 
         progress_indicator = ProgressIndicator(
             _('Renaming all downloaded episodes'),
