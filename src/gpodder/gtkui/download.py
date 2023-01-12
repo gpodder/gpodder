@@ -72,6 +72,8 @@ class DownloadStatusModel(Gtk.ListStore):
         self._status_ids[download.DownloadTask.PAUSING] = 'media-playback-pause'
         self._status_ids[download.DownloadTask.PAUSED] = 'media-playback-pause'
 
+        self.enabled = True
+
     def _format_message(self, episode, message, podcast):
         episode = html.escape(episode)
         podcast = html.escape(podcast)
@@ -193,10 +195,7 @@ class DownloadStatusModel(Gtk.ListStore):
     # as only the main thread is allowed to manipulate the list store.
     def get_next(self):
         dqr = DequeueRequest()
-        # this can not be idle_add because update_downloads_list() is called from a higher
-        # priority timeout_add and would spin forever, never calling this.
-        from gi.repository import GLib
-        GLib.timeout_add(0, self.__get_next, dqr)
+        util.idle_add(self.__get_next, dqr)
         return dqr.dequeue()
 
     def _work_gen(self):

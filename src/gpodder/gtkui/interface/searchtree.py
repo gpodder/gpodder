@@ -48,6 +48,7 @@ class SearchTree:
         if self.search_box.get_property('visible'):
             if self._search_timeout is not None:
                 GLib.source_remove(self._search_timeout)
+            # use timeout_add, not util.idle_timeout_add, so it updates the TreeView before background tasks
             self._search_timeout = GLib.timeout_add(
                     self.config.ui.gtk.live_search_delay,
                     self.set_search_term, editable.get_chars(0, -1))

@@ -412,7 +412,7 @@ class DownloadQueueWorker(object):
             if not self.continue_check_callback(self):
                 return
 
-            task = self.queue.get_next()
+            task = self.queue.get_next() if self.queue.enabled else None
             if not task:
                 logger.info('No more tasks for %s to carry out.', self)
                 break
@@ -445,6 +445,13 @@ class DownloadQueueManager(object):
         self.worker_threads_access = threading.RLock()
         self.worker_threads = []
 
+    def disable(self):
+        self.tasks.enabled = False
+
+    def enable(self):
+        self.tasks.enabled = True
+        self.__spawn_threads()
+
     def __exit_callback(self, worker_thread):
         with self.worker_threads_access:
             self.worker_threads.remove(worker_thread)
@@ -461,6 +468,9 @@ class DownloadQueueManager(object):
     def __spawn_threads(self):
         """Spawn new worker threads if necessary
         """
+        if not self.tasks.enabled:
+            return
+
         with self.worker_threads_access:
             work_count = self.tasks.available_work_count()
             if self._config.limit.downloads.enabled:
