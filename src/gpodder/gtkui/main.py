@@ -439,7 +439,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.partial_downloads_indicator.on_tick()  # not cancellable
 
         def final_progress_callback():
-            self.partial_downloads_indicator.on_tick(final=_('Finishing...'))
+            self.partial_downloads_indicator.on_tick(final=_('Cleaning up...'))
 
         def finish_progress_callback(resumable_episodes):
             def offer_resuming():
@@ -1720,7 +1720,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 if not progress_indicator.on_tick():
                     break
         if progress_indicator:
-            progress_indicator.on_tick(final=_('Finishing...'))
+            progress_indicator.on_tick(final=_('Updating...'))
 
         # Update the tab title and downloads list
         if has_queued_tasks or restart_timer:
@@ -3287,7 +3287,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                             break
 
             if progress_indicator:
-                progress_indicator.on_tick(final=_('Finishing...'))
+                progress_indicator.on_tick(final=_('Updating...'))
             self.download_queue_manager.enable()
 
             # Update the tab title and downloads list
@@ -3368,7 +3368,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             if not progress_indicator.on_tick():
                 break
-        progress_indicator.on_tick(final=_('Finishing...'))
+        progress_indicator.on_tick(final=_('Updating...'))
         self.download_queue_manager.enable()
 
         self.update_episode_list_icons([task.url for task in tasks])
