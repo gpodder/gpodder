@@ -1660,8 +1660,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         restart_timer = self.stop_download_list_update_timer()
         self.download_queue_manager.disable()
-        self.__for_each_task_set_status(tasks, status, force_start=force_start, progress_indicator=progress_indicator,
-            restart_timer=restart_timer)
+        self.__for_each_task_set_status(tasks, status, force_start, progress_indicator, restart_timer)
         self.download_queue_manager.enable()
 
         if progress_indicator:
