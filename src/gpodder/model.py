@@ -292,6 +292,11 @@ class PodcastEpisode(PodcastModelObject):
         episode.title = entry['title']
         episode.link = entry['link']
         episode.episode_art_url = entry.get('episode_art_url')
+
+        # Only one of the two description fields should be set at a time.
+        # This keeps the database from doubling in size and reduces load time from slow storage.
+        # episode._text_description is initialized by episode.cache_text_description() from the set field.
+        # episode.html_description() returns episode.description_html or generates from episode.description.
         if entry.get('description_html'):
             episode.description = ''
             episode.description_html = entry['description_html']
