@@ -60,6 +60,10 @@ class gPodderExtension:
         from gpodder.gtkui.interface.progress import ProgressIndicator
 
         number_of_episodes = len(episodes)
+        if number_of_episodes == 0:
+            self.gpodder.show_message(_('No downloaded episodes to rename'),
+                _('Rename downloaded episodes'), important=True)
+
         progress_indicator = ProgressIndicator(
             _('Renaming all downloaded episodes'),
             '', True, self.gpodder.get_dialog_parent(), number_of_episodes)
