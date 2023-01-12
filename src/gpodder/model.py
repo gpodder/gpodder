@@ -1018,6 +1018,9 @@ class PodcastChannel(PodcastModelObject):
 
                 known_files.add(filename)
 
+        # youtube-dl and yt-dlp create <name>.partial and <name>.partial.<ext> files while downloading.
+        # On startup, the latter is reported as an unknown external file.
+        # Both files are properly removed when the download completes.
         existing_files = set(filename for filename in
                 glob.glob(os.path.join(self.save_dir, '*'))
                 if not filename.endswith('.partial'))
