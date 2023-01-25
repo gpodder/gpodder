@@ -121,6 +121,12 @@ class Matcher(object):
             return episode.channel.title
         elif k == 'section':
             return episode.channel.section
+        elif k == 'url':
+            return episode.url
+        elif k == 'link':
+            return episode.link
+        elif k == 'filename':
+            return episode.download_filename
 
         raise KeyError(k)
 
