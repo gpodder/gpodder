@@ -351,6 +351,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             ('toggleEpisodeNew', self.on_item_toggle_played_activate),
             ('toggleEpisodeLock', self.on_item_toggle_lock_activate),
             ('openEpisodeDownloadFolder', self.on_open_episode_download_folder),
+            ('selectChannel', self.on_select_channel_of_episode),
             ('findEpisode', self.on_find_episode_activate),
             ('toggleShownotes', self.on_shownotes_selected_episodes),
             # Extras
@@ -378,6 +379,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.toggle_episode_new_action = g.lookup_action('toggleEpisodeNew')
         self.toggle_episode_lock_action = g.lookup_action('toggleEpisodeLock')
         self.open_episode_download_folder_action = g.lookup_action('openEpisodeDownloadFolder')
+        self.select_channel_of_episode_action = g.lookup_action('selectChannel')
         # Extras
 
     def inject_extensions_menu(self):
@@ -1837,6 +1839,16 @@ class gPodder(BuilderWidget, dbus.service.Object):
         assert len(episodes) == 1
         util.gui_open(episodes[0].parent.save_dir, gui=self)
 
+    def on_select_channel_of_episode(self, unused1=None, unused2=None):
+        episodes = self.get_selected_episodes()
+        assert len(episodes) == 1
+        channel = episodes[0].parent
+        # Focus channel list
+        self.treeChannels.grab_focus()
+        # Select channel in list
+        path = self.podcast_list_model.get_filter_path_from_url(channel.url)
+        self.treeChannels.set_cursor(path)
+
     def treeview_channels_show_context_menu(self, treeview, event=None):
         model, paths = self.treeview_handle_context_menu_click(treeview, event)
         if not paths:
@@ -2165,6 +2177,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 item.connect('activate', self.on_open_episode_download_folder)
                 menu.append(item)
 
+                item = Gtk.MenuItem(_('Select channel'))
+                item.connect('activate', self.on_select_channel_of_episode)
+                menu.append(item)
+
             menu.attach_to_widget(treeview)
             menu.show_all()
             # Disable tooltips while we are showing the menu, so
@@ -2216,6 +2232,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.toggle_episode_new_action.set_enabled(is_episode_selected)
         self.toggle_episode_lock_action.set_enabled(can_lock)
         self.open_episode_download_folder_action.set_enabled(len(episodes) == 1)
+        self.select_channel_of_episode_action.set_enabled(len(episodes) == 1)
 
     def set_title(self, new_title):
         self.default_title = new_title
