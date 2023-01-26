@@ -136,30 +136,30 @@ class PodcastParserFeed(Feed):
 
     def get_payment_url(self):
         return self.feed.get('payment_url')
-    
+
     def get_author(self):
         return self.feed.get('itunes_author')
 
     def get_keywords(self):
-        #convert all commas into " / "
+        # convert all commas into " / "
         keywords = self.feed.get('itunes_keywords')
         if keywords is not None:
             keywords = keywords.replace(", ", " / ")
         return keywords
 
     def get_categories(self):
-        #its coming in as a list like this 
-        #'itunes_categories': [['Fiction', 'Comedy Fiction'], ['Leisure', 'Games']],
-        #however this doesnt work with the database as it expects a string
-        #convert it to a string, deliminated by " / "
+        # its coming in as a list like this
+        # 'itunes_categories': [['Fiction', 'Comedy Fiction'], ['Leisure', 'Games']],
+        # however this doesnt work with the database as it expects a string
+        # convert it to a string, deliminated by " / "
         categories = self.feed.get('itunes_categories')
 
-        #flatten the list
+        # flatten the list
         new_list = []
         for item in categories:
             new_list.extend(item)
         categories = new_list
-        
+
         if categories is not None:
             categories = " / ".join(categories)
         return categories
@@ -344,11 +344,11 @@ class PodcastEpisode(PodcastModelObject):
         episode.chapters = None
         if entry.get("chapters"):
             episode.chapters = json.dumps(entry["chapters"])
-        
+
         episode.episode_num = entry.get('number', 0)
 
         episode.season = entry.get('season', 0)
-        
+
         if entry.get('itunes_author'):
             episode.author = entry['itunes_author']
 
@@ -950,16 +950,16 @@ class PodcastEpisode(PodcastModelObject):
         # See #648 refreshing a youtube podcast clears downloaded file size
         if self.state != gpodder.STATE_DOWNLOADED:
             setattr(self, 'file_size', getattr(episode, 'file_size'))
-    
+
     @property
     def cover_file(self):
-        #check if there is an episode cover in the first place
+        # check if there is an episode cover in the first place
         if self.episode_art_url is None:
             return None
-        #create a cover file name from the episode_art_url
+        # create a cover file name from the episode_art_url
         cover_name = self.episode_art_url.split('/')[-1]
         cover_name = cover_name.split('?')[0]
-        #remove .jpg or .png
+        # remove .jpg or .png
         cover_name = cover_name.split('.')[0]
         return os.path.join(self.channel.save_dir, cover_name)
 
@@ -1093,14 +1093,14 @@ class PodcastChannel(PodcastModelObject):
                 + [os.path.join(self.save_dir, ignore_file)
                  for ignore_file in ignore_files])
 
-        #remove any existing files with .jpg or .png
+        # remove any existing files with .jpg or .png
         to_keep = []
         for filename in external_files:
             if not filename.endswith('.jpg') and not filename.endswith('.png'):
                 to_keep.append(filename)
-        
+
         external_files = to_keep
-        
+
         if not external_files:
             return
 

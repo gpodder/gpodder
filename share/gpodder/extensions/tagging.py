@@ -76,7 +76,8 @@ DefaultConfig = {
 
 
 class AudioFile(object):
-    def __init__(self, filename, album, title, subtitle, genre, pubDate, cover, episode_num, season, podcast_artist, episode_artist, categories, keywords):
+    def __init__(self, filename, album, title, subtitle, genre, pubDate, cover, episode_num, season, podcast_artist, episode_artist,
+    categories, keywords):
         self.filename = filename
         self.album = album
         self.title = title
@@ -91,14 +92,14 @@ class AudioFile(object):
         self.categories = categories
         self.keywords = keywords
 
-
     def remove_tags(self):
         audio = File(self.filename, easy=True)
         if audio.tags is not None:
             audio.delete()
         audio.save()
 
-    def write_basic_tags(self, remove_before_modify, modify_tags, set_artist_to_album, set_version, set_episode_number_to_track, set_season_number_to_disc, additional_genre_tags, artist_tags):
+    def write_basic_tags(self, remove_before_modify, modify_tags, set_artist_to_album, set_version, set_episode_number_to_track,
+    set_season_number_to_disc, additional_genre_tags, artist_tags):
         audio = File(self.filename, easy=True)
 
         if audio is None:
@@ -134,17 +135,18 @@ class AudioFile(object):
                 audio.tags['artist'] = self.album
             else:
                 if self.podcast_artist is not None and artist_tags:
-                    #use the podcast artist as album artist
-                    #use the episode artist as track artist (if they are different)
-                    #deliminate multiple artists with ' / '
+                    # use the podcast artist as album artist
+                    # use the episode artist as track artist (if they are different)
+                    # deliminate multiple artists with ' / '
                     audio.tags['albumartist'] = self.podcast_artist
 
                     if self.podcast_artist != self.episode_artist and self.episode_artist is not None:
-                        #change all commas to ' / ' so that the artist(s) is displayed correctly in iTunes
+                        # change all commas to ' / ' so that the artist(s) is displayed correctly in iTunes
                         audio.tags['artist'] = self.episode_artist.replace(', ', ' / ')
 
             if (self.categories is not None or self.keywords is not None) and additional_genre_tags:
-                #take self.categories and self.keywords and merge them together into a single string, with ' / ' as the deliminator. only add the deliminator if both exist. otherwise just add the one that exists
+                # take self.categories and self.keywords and merge them together into a single string, with ' / ' as the deliminator.
+                # only add the deliminator if both exist. otherwise just add the one that exists
                 if self.categories is not None and self.keywords is not None:
                     audio.tags['genre'] = self.categories + ' / ' + self.keywords
                 elif self.categories is not None:
@@ -154,7 +156,7 @@ class AudioFile(object):
 
             if self.episode_num is not None and set_episode_number_to_track:
                 audio.tags['tracknumber'] = str(self.episode_num)
-            
+
             if self.season is not None and set_season_number_to_disc:
                 audio.tags['discnumber'] = str(self.season)
 
@@ -187,8 +189,10 @@ class AudioFile(object):
 
 
 class OggFile(AudioFile):
-    def __init__(self, filename, album, title, subtitle, genre, pubDate, cover, episode_num, season, podcast_artists, episode_artists, categories, keywords):
-        super(OggFile, self).__init__(filename, album, title, subtitle, genre, pubDate, cover, episode_num, season, podcast_artists, episode_artists, categories, keywords)
+    def __init__(self, filename, album, title, subtitle, genre, pubDate, cover, episode_num, season, podcast_artists, episode_artists,
+    categories, keywords):
+        super(OggFile, self).__init__(filename, album, title, subtitle, genre, pubDate, cover, episode_num, season, podcast_artists,
+        episode_artists, categories, keywords)
 
     def insert_coverart(self):
         audio = File(self.filename, easy=True)
@@ -198,8 +202,10 @@ class OggFile(AudioFile):
 
 
 class Mp4File(AudioFile):
-    def __init__(self, filename, album, title, subtitle, genre, pubDate, cover, episode_num, season, podcast_artists, episode_artists, categories, keywords):
-        super(Mp4File, self).__init__(filename, album, title, subtitle, genre, pubDate, cover, episode_num, season, podcast_artists, episode_artists, categories, keywords)
+    def __init__(self, filename, album, title, subtitle, genre, pubDate, cover, episode_num, season, podcast_artists, episode_artists,
+    categories, keywords):
+        super(Mp4File, self).__init__(filename, album, title, subtitle, genre, pubDate, cover, episode_num, season, podcast_artists,
+        episode_artists, categories, keywords)
 
     def insert_coverart(self):
         audio = File(self.filename)
@@ -215,8 +221,10 @@ class Mp4File(AudioFile):
 
 
 class Mp3File(AudioFile):
-    def __init__(self, filename, album, title, subtitle, genre, pubDate, cover, episode_num, season, podcast_artists, episode_artists, categories, keywords):
-        super(Mp3File, self).__init__(filename, album, title, subtitle, genre, pubDate, cover, episode_num, season, podcast_artists, episode_artists, categories, keywords)
+    def __init__(self, filename, album, title, subtitle, genre, pubDate, cover, episode_num, season, podcast_artists, episode_artists,
+    categories, keywords):
+        super(Mp3File, self).__init__(filename, album, title, subtitle, genre, pubDate, cover, episode_num, season, podcast_artists,
+        episode_artists, categories, keywords)
 
     def insert_coverart(self):
         audio = MP3(self.filename, ID3=ID3)
@@ -224,7 +232,7 @@ class Mp3File(AudioFile):
         if audio.tags is None:
             audio.add_tags()
 
-        #add Front Cover image
+        # add Front Cover image
         audio.tags.add(
             APIC(
                 encoding=3,  # 3 is for utf-8
@@ -341,7 +349,7 @@ class gPodderExtension:
                 info['pubDate'] = pubDate.strftime('%Y-%m-%d %H:%M')
             except:
                 info['pubDate'] = None
-        
+
         # get episode_num and season from the gPodder database
         info['episode_num'] = episode.episode_num
         info['season'] = episode.season
@@ -369,8 +377,8 @@ class gPodderExtension:
             audio.write_basic_tags(self.container.config.remove_before_modify,
                                    self.container.config.modify_tags,
                                    self.container.config.set_artist_to_album,
-                                   self.container.config.set_version, 
-                                   self.container.config.set_episode_number_to_track, 
+                                   self.container.config.set_version,
+                                   self.container.config.set_episode_number_to_track,
                                    self.container.config.set_season_number_to_disc,
                                    self.container.config.additional_genre_tags,
                                    self.container.config.artist_tags)
@@ -384,13 +392,13 @@ class gPodderExtension:
         downloader = coverart.CoverDownloader()
         return downloader.get_cover(podcast.cover_file, podcast.cover_url,
             podcast.url, podcast.title, None, None, True)
-        
+
     def get_episode_cover(self, episode):
         downloader = coverart.CoverDownloader()
-        #check if episode has a cover
+        # check if episode has a cover
         if episode.cover_file is not None:
             return downloader.get_cover(episode.cover_file, episode.episode_art_url,
                 episode.channel.url, episode.channel.title, None, None, True)
         else:
-            #if not, just use the podcast cover
+            # if not, just use the podcast cover
             return self.get_cover(episode.channel)
