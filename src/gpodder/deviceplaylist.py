@@ -39,8 +39,8 @@ class gPodderDevicePlaylist(object):
     def __init__(self, config, playlist_name):
         self._config = config
         self.linebreak = '\r\n'
-        self.playlist_file = util.sanitize_filename(playlist_name, self._config.device_sync.max_filename_length)
-        + '.' + self._config.device_sync.playlists.extension
+        self.playlist_file = (util.sanitize_filename(playlist_name, self._config.device_sync.max_filename_length) +
+                             '.' + self._config.device_sync.playlists.extension)
         device_folder = util.new_gio_file(self._config.device_sync.device_folder)
         self.playlist_folder = device_folder.resolve_relative_path(self._config.device_sync.playlists.folder)
 
