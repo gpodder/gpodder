@@ -249,6 +249,9 @@ class gPodderPreferences(BuilderWidget):
 
         self._config.connect_gtk_spinbutton('limit.episodes', self.spinbutton_episode_limit)
 
+        self._config.connect_gtk_togglebutton('ui.gtk.only_added_are_new',
+                                              self.checkbutton_only_added_are_new)
+
         self.auto_download_model = NewEpisodeActionList(self._config)
         self.combo_auto_download.set_model(self.auto_download_model)
         cellrenderer = Gtk.CellRendererText()

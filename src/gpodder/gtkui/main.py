@@ -2863,6 +2863,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         def update_feed_cache_proc():
             updated_channels = []
             nr_update_errors = 0
+            new_episodes = []
             for updated, channel in enumerate(channels):
                 if self.feed_cache_update_cancelled:
                     break
@@ -2876,7 +2877,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 try:
                     channel._update_error = None
                     util.idle_add(indicate_updating_podcast, channel)
-                    channel.update(max_episodes=self.config.limit.episodes)
+                    new_episodes.extend(channel.update(max_episodes=self.config.limit.episodes))
                     self._update_cover(channel)
                 except Exception as e:
                     message = str(e)
@@ -2920,7 +2921,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                        nr_update_errors) % {'count': nr_update_errors},
                     _('Error while updating feeds'), widget=self.treeChannels)
 
-            def update_feed_cache_finish_callback():
+            def update_feed_cache_finish_callback(new_episodes):
                 # Process received episode actions for all updated URLs
                 self.process_received_episode_actions()
 
@@ -2933,9 +2934,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     # The user decided to abort the feed update
                     self.show_update_feeds_buttons()
 
-                # Only search for new episodes in podcasts that have been
-                # updated, not in other podcasts (for single-feed updates)
-                episodes = self.get_new_episodes([c for c in updated_channels])
+                # The filter extension can mark newly added episodes as old,
+                # so take only episodes marked as new.
+                episodes = ((e for e in new_episodes if e.check_is_new())
+                            if self.config.ui.gtk.only_added_are_new
+                            else self.get_new_episodes([c for c in updated_channels]))
 
                 if self.config.downloads.chronological_order:
                     # download older episodes first
@@ -2986,7 +2989,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
                     self.show_update_feeds_buttons()
 
-            util.idle_add(update_feed_cache_finish_callback)
+            util.idle_add(update_feed_cache_finish_callback, new_episodes)
 
     def on_gPodder_delete_event(self, *args):
         """Called when the GUI wants to close the window
