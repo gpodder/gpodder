@@ -208,6 +208,7 @@ defaults = {
             'two_way_sync': False,
             'use_absolute_path': True,
             'folder': 'Playlists',
+            'extension': 'm3u',
         }
 
     },
