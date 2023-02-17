@@ -256,7 +256,10 @@ class gPodderSyncUI(object):
                                 # if playlist doesn't exist (yet) episodes_in_playlist will be empty
                                 if episodes_in_playlists:
                                     for episode_filename in episodes_in_playlists:
-                                        if not playlist.mountpoint.resolve_relative_path(episode_filename).query_exists():
+                                        if ((not self._config.device_sync.playlists.use_absolute_path
+                                        and not playlist.playlist_folder.resolve_relative_path(episode_filename).query_exists()) or
+                                        (self._config.device_sync.playlists.use_absolute_path
+                                        and not playlist.mountpoint.resolve_relative_path(episode_filename).query_exists())):
                                             # episode was synced but no longer on device
                                             # i.e. must have been deleted by user, so delete from gpodder
                                             try:

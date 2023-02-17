@@ -102,7 +102,7 @@ class gPodderDevicePlaylist(object):
         foldername = episode_foldername_on_device(self._config, episode)
         if foldername:
             filename = os.path.join(foldername, filename)
-        if self._config.device_sync.playlist.absolute_path:
+        if self._config.device_sync.playlists.use_absolute_path:
             filename = os.path.join(util.relpath(self._config.device_sync.device_folder, self.mountpoint.get_uri()), filename)
         return filename
 
