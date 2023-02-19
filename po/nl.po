@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: gPodder\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2023-02-17 19:06-0700\n"
-"PO-Revision-Date: 2022-09-26 18:20+0200\n"
+"PO-Revision-Date: 2023-02-18 14:15+0100\n"
 "Last-Translator: Heimen Stoffels <vistausss@fastmail.com>\n"
 "Language-Team: Dutch\n"
 "Language: nl\n"
@@ -20,7 +20,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.1.1\n"
+"X-Generator: Poedit 3.2.2\n"
 
 #: src/gpodder/config.py:53
 #, python-format
@@ -479,10 +479,8 @@ msgstr[0] "%(count)d gedeeltelijk bestand"
 msgstr[1] "%(count)d gedeeltelijke bestanden"
 
 #: src/gpodder/gtkui/main.py:444
-#, fuzzy
-#| msgid "Clean-up"
 msgid "Cleaning up..."
-msgstr "Opruiming"
+msgstr "Bezig met opruimen…"
 
 #: src/gpodder/gtkui/main.py:559
 msgid "Action"
@@ -696,10 +694,8 @@ msgstr "Bezig met verwijderen"
 
 #: src/gpodder/gtkui/main.py:1725 src/gpodder/gtkui/main.py:3310
 #: src/gpodder/gtkui/main.py:3391
-#, fuzzy
-#| msgid "Updating"
 msgid "Updating..."
-msgstr "Bijwerken"
+msgstr "Bezig met bijwerken…"
 
 #: src/gpodder/gtkui/main.py:1787
 msgid "Start download now"
@@ -860,10 +856,8 @@ msgid "Episode details"
 msgstr "Details van aflevering"
 
 #: src/gpodder/gtkui/main.py:2180 share/gpodder/ui/gtk/menus.ui.h:31
-#, fuzzy
-#| msgid "Select _none"
 msgid "Select channel"
-msgstr "_Niets selecteren"
+msgstr "Kies een kanaal"
 
 #: src/gpodder/gtkui/main.py:2370
 msgid "Please check your media player settings in the preferences dialog."
@@ -1953,29 +1947,21 @@ msgstr ""
 #: share/gpodder/extensions/rename_download.py:54
 #: share/gpodder/extensions/rename_download.py:61
 #: share/gpodder/extensions/rename_download.py:80
-#, fuzzy
-#| msgid "Downloaded episodes"
 msgid "Rename all downloaded episodes"
-msgstr "Gedownloade afleveringen"
+msgstr "Alle gedownloade afleveringen hernoemen"
 
 #: share/gpodder/extensions/rename_download.py:60
-#, fuzzy
-#| msgid "Downloaded episodes"
 msgid "No downloaded episodes to rename"
-msgstr "Gedownloade afleveringen"
+msgstr "Er zijn geen gedownloade afleveringen"
 
 #: share/gpodder/extensions/rename_download.py:66
-#, fuzzy
-#| msgid "Downloaded episodes"
 msgid "Renaming all downloaded episodes"
-msgstr "Gedownloade afleveringen"
+msgstr "Bezig met hernoemen…"
 
 #: share/gpodder/extensions/rename_download.py:79
-#, fuzzy, python-format
-#| msgid "%(count)d new episode"
-#| msgid_plural "%(count)d new episodes"
+#, python-format
 msgid "Renamed %(count)d downloaded episodes"
-msgstr "%(count)d nieuwe aflevering"
+msgstr "Er zijn %(count)d afleveringen hernoemd"
 
 #: share/gpodder/extensions/rm_ogg_cover.py:37
 msgid "Remove cover art from OGG files"
@@ -2134,13 +2120,15 @@ msgstr ""
 
 #: share/gpodder/extensions/youtube-dl.py:586
 msgid "Embed all available subtitles to downloaded video"
-msgstr ""
+msgstr "Alle beschikbare ondertitelingen in video's opnemen"
 
 #: share/gpodder/extensions/youtube-dl.py:593
 msgid ""
 "The \"ffmpeg\" command was not found. FFmpeg is required for embedding "
 "subtitles."
 msgstr ""
+"‘ffmpeg’ is niet aangetroffen. FFmpeg is vereist voor het opnemen van "
+"ondertitelingen."
 
 #: share/gpodder/extensions/youtube-dl.py:602
 msgid "youtube-dl"
@@ -2292,7 +2280,7 @@ msgstr "Audiospeler:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:6
 msgid "Find as you type"
-msgstr ""
+msgstr "Zoeken tijdens het typen"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:7
 msgid "General"
@@ -2332,7 +2320,7 @@ msgstr "Maximaal aantal afleveringen per podcast:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:18
 msgid "Consider only episodes added in the update as new"
-msgstr ""
+msgstr "Alleen bijgewerkte afleveringen markeren als nieuw"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:19
 msgid "When new episodes are found:"
@@ -2556,7 +2544,7 @@ msgstr "Altijd nieuwe afleveringen tonen"
 
 #: share/gpodder/ui/gtk/menus.ui.h:47
 msgid "Trim episode title prefix"
-msgstr ""
+msgstr "Voorvoegsel van afleveringen inkorten"
 
 #: share/gpodder/ui/gtk/menus.ui.h:48
 msgid "Episode descriptions"
