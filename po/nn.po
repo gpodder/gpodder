@@ -4,13 +4,13 @@
 # Translators:
 # Thomas Perl <thp@perli.net>, 2006.
 # Torstein Adolf Winterseth <kvikende@fsfe.org>, 2009, 2010.
-# Karl Ove Hufthammer <karl@huftis.org>, 2019, 2020, 2021, 2022.
+# Karl Ove Hufthammer <karl@huftis.org>, 2019, 2020, 2021, 2022, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: gPodder\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2023-02-17 19:06-0700\n"
-"PO-Revision-Date: 2022-09-28 20:51+0200\n"
+"PO-Revision-Date: 2023-02-19 09:11+0100\n"
 "Last-Translator: Karl Ove Hufthammer <karl@huftis.org>\n"
 "Language-Team: Norwegian Nynorsk <l10n-no@lister.huftis.org>\n"
 "Language: nn\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Lokalize 22.08.1\n"
+"X-Generator: Lokalize 22.12.2\n"
 
 #: src/gpodder/config.py:53
 #, python-format
@@ -477,10 +477,9 @@ msgstr[0] "%(count)d delvis nedlasta fil"
 msgstr[1] "%(count)d delvis nedlasta filer"
 
 #: src/gpodder/gtkui/main.py:444
-#, fuzzy
 #| msgid "Clean-up"
 msgid "Cleaning up..."
-msgstr "Opprydding"
+msgstr "Ryddar opp …"
 
 #: src/gpodder/gtkui/main.py:559
 msgid "Action"
@@ -698,10 +697,9 @@ msgstr "Fjernar"
 # Faneoverskrift i innstillingane.
 #: src/gpodder/gtkui/main.py:1725 src/gpodder/gtkui/main.py:3310
 #: src/gpodder/gtkui/main.py:3391
-#, fuzzy
 #| msgid "Updating"
 msgid "Updating..."
-msgstr "Oppdatering"
+msgstr "Oppdaterer …"
 
 #: src/gpodder/gtkui/main.py:1787
 msgid "Start download now"
@@ -865,10 +863,9 @@ msgid "Episode details"
 msgstr "Episodedetaljar"
 
 #: src/gpodder/gtkui/main.py:2180 share/gpodder/ui/gtk/menus.ui.h:31
-#, fuzzy
 #| msgid "Select _none"
 msgid "Select channel"
-msgstr "Vel _ingen"
+msgstr "Vel kanal"
 
 #: src/gpodder/gtkui/main.py:2370
 msgid "Please check your media player settings in the preferences dialog."
@@ -1568,8 +1565,7 @@ msgstr "storleik: %s"
 #: src/gpodder/gtkui/desktop/exportlocal.py:50
 #, python-format
 msgid "Export remaining %(count)d episode to this folder with its default name"
-msgid_plural ""
-"Export remaining %(count)d episodes to this folder with their default name"
+msgid_plural "Export remaining %(count)d episodes to this folder with their default name"
 msgstr[0] ""
 "Eksporter gjenståande %(count)d episode til denne mappa, med standardnamn"
 msgstr[1] ""
@@ -1956,29 +1952,26 @@ msgstr "Endra namn på episodane til «<episodetittel>.<filetternamn>»"
 #: share/gpodder/extensions/rename_download.py:54
 #: share/gpodder/extensions/rename_download.py:61
 #: share/gpodder/extensions/rename_download.py:80
-#, fuzzy
 #| msgid "Downloaded episodes"
 msgid "Rename all downloaded episodes"
-msgstr "Nedlasta episodar"
+msgstr "Endra namn på alle nedlasta episodar"
 
 #: share/gpodder/extensions/rename_download.py:60
-#, fuzzy
 #| msgid "Downloaded episodes"
 msgid "No downloaded episodes to rename"
-msgstr "Nedlasta episodar"
+msgstr "Ingen nedlasta episodar å endra namn på"
 
 #: share/gpodder/extensions/rename_download.py:66
-#, fuzzy
 #| msgid "Downloaded episodes"
 msgid "Renaming all downloaded episodes"
-msgstr "Nedlasta episodar"
+msgstr "Endrar namn på alle nedlasta episodar"
 
 #: share/gpodder/extensions/rename_download.py:79
-#, fuzzy, python-format
+#, python-format
 #| msgid "%(count)d new episode"
 #| msgid_plural "%(count)d new episodes"
 msgid "Renamed %(count)d downloaded episodes"
-msgstr "%(count)d ny episode"
+msgstr "Endra namn på %(count)d nedlasta episodar"
 
 #: share/gpodder/extensions/rm_ogg_cover.py:37
 msgid "Remove cover art from OGG files"
@@ -2139,12 +2132,14 @@ msgstr ""
 #: share/gpodder/extensions/youtube-dl.py:586
 msgid "Embed all available subtitles to downloaded video"
 msgstr ""
+"Bygg alle tilgjengelege undertekstar inn i nedlasta videofil"
 
 #: share/gpodder/extensions/youtube-dl.py:593
 msgid ""
 "The \"ffmpeg\" command was not found. FFmpeg is required for embedding "
 "subtitles."
 msgstr ""
+"Fann ikkje programfila «ffmpeg». Du treng FFmpeg for å byggja inn undertekstar."
 
 #: share/gpodder/extensions/youtube-dl.py:602
 msgid "youtube-dl"
@@ -2299,6 +2294,7 @@ msgstr "Lydavspelar:"
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:6
 msgid "Find as you type"
 msgstr ""
+"Kontinuerleg søk"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:7
 msgid "General"
@@ -2339,6 +2335,7 @@ msgstr "Øvre grense på episodar per podkast:"
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:18
 msgid "Consider only episodes added in the update as new"
 msgstr ""
+"Rekn berre episodar lagde til i oppdateringa som nye"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:19
 msgid "When new episodes are found:"
@@ -2561,6 +2558,7 @@ msgstr "Vis alltid nye episodar"
 #: share/gpodder/ui/gtk/menus.ui.h:47
 msgid "Trim episode title prefix"
 msgstr ""
+"Fjern prefiks frå episodetitlar"
 
 #: share/gpodder/ui/gtk/menus.ui.h:48
 msgid "Episode descriptions"
