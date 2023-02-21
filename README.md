@@ -26,7 +26,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 ## Dependencies
 
-- [Python 3.5](http://python.org/) or newer
+- [Python 3.7](http://python.org/) or newer
 - [Podcastparser](http://gpodder.org/podcastparser/) 0.6.0 or newer
 - [mygpoclient](http://gpodder.org/mygpoclient/) 1.7 or newer
 - [requests](https://requests.readthedocs.io) 2.24.0 or newer
@@ -135,7 +135,7 @@ into an alternative root (default /) and prefix (default /usr):
 [*Debian*](https://wiki.debian.org/Python#Deviations_from_upstream) and *Ubuntu* use `dist-packages`
 instead of `site-packages` for third party installs, so you'll want something like:
 
-    sudo python3 setup.py install --root / --prefix /usr/local --optimize=1 --install-lib=/usr/local/lib/python3.5/dist-packages
+    sudo python3 setup.py install --root / --prefix /usr/local --optimize=1 --install-lib=/usr/local/lib/python3.10/dist-packages
 
 In fact, first try running `python -c "import sys; print(sys.path)"` to check what is the exact path.
 It depends on your version of python.
