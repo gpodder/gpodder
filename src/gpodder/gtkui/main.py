@@ -2886,7 +2886,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     else:
                         channel._update_error = '?'
                     nr_update_errors += 1
-                    logger.error('Error: %s', message, exc_info=(e.__class__ not in [
+                    logger.error('Error updating feed: %s: %s', channel.title, message, exc_info=(e.__class__ not in [
                         gpodder.feedcore.BadRequest,
                         gpodder.feedcore.AuthenticationRequired,
                         gpodder.feedcore.Unsubscribe,
