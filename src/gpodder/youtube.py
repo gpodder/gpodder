@@ -453,14 +453,14 @@ def get_channel_id_url(url, feed_data=None):
                     if m:
                         channel_id = m.group(1)
                     if channel_id is None:
-                        raise Exception('Could not retrieve youtube channel id.')
+                        raise Exception('Could not retrieve YouTube channel ID for URL %s.' % url)
             channel_url = 'https://www.youtube.com/channel/{}'.format(channel_id)
             return channel_url
 
         except Exception:
-            logger.warning('Could not retrieve youtube channel id.', exc_info=True)
+            logger.warning('Could not retrieve YouTube channel ID for URL %s.' % url, exc_info=True)
 
-    raise Exception('Could not retrieve youtube channel id.')
+    raise Exception('Could not retrieve YouTube channel ID for URL %s.' % url)
 
 
 def get_cover(url, feed_data=None):

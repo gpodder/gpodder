@@ -39,7 +39,8 @@ class gPodderDevicePlaylist(object):
     def __init__(self, config, playlist_name):
         self._config = config
         self.linebreak = '\r\n'
-        self.playlist_file = util.sanitize_filename(playlist_name, self._config.device_sync.max_filename_length) + '.m3u'
+        self.playlist_file = (util.sanitize_filename(playlist_name, self._config.device_sync.max_filename_length) +
+                             '.' + self._config.device_sync.playlists.extension)
         device_folder = util.new_gio_file(self._config.device_sync.device_folder)
         self.playlist_folder = device_folder.resolve_relative_path(self._config.device_sync.playlists.folder)
 
@@ -101,7 +102,7 @@ class gPodderDevicePlaylist(object):
         foldername = episode_foldername_on_device(self._config, episode)
         if foldername:
             filename = os.path.join(foldername, filename)
-        if self._config.device_sync.playlist.absolute_path:
+        if self._config.device_sync.playlists.use_absolute_path:
             filename = os.path.join(util.relpath(self._config.device_sync.device_folder, self.mountpoint.get_uri()), filename)
         return filename
 

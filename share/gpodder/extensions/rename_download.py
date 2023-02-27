@@ -9,7 +9,6 @@ import time
 
 import gpodder
 from gpodder import util
-from gpodder.gtkui.interface.progress import ProgressIndicator
 from gpodder.model import PodcastEpisode
 
 logger = logging.getLogger(__name__)
@@ -55,32 +54,30 @@ class gPodderExtension:
         return [(_("Rename all downloaded episodes"), self.rename_all_downloaded_episodes)]
 
     def rename_all_downloaded_episodes(self):
-        model = self.gpodder.episode_list_model
-        episodes = [row[model.C_EPISODE] for row in model if row[model.C_EPISODE].state == gpodder.STATE_DOWNLOADED]
-
+        episodes = [e for c in self.gpodder.channels for e in [e for e in c.children if e.state == gpodder.STATE_DOWNLOADED]]
         number_of_episodes = len(episodes)
+        if number_of_episodes == 0:
+            self.gpodder.show_message(_('No downloaded episodes to rename'),
+                _('Rename all downloaded episodes'), important=True)
+
+        from gpodder.gtkui.interface.progress import ProgressIndicator
+
         progress_indicator = ProgressIndicator(
             _('Renaming all downloaded episodes'),
-            '', True, self.gpodder.get_dialog_parent())
-        progress_indicator.on_message('0 / %d' % number_of_episodes)
+            '', True, self.gpodder.get_dialog_parent(), number_of_episodes)
 
-        renamed_count = 0
         for episode in episodes:
             self.on_episode_downloaded(episode)
 
-            renamed_count += 1
-            progress_indicator.on_message('%d / %d' % (renamed_count, number_of_episodes))
-            progress_indicator.on_progress(renamed_count / number_of_episodes)
-            if time.time() >= progress_indicator.next_update:
-                progress_indicator.update_gui()
-                self.gpodder.force_ui_update()
-                if not progress_indicator.cancellable:
-                    break
+            if not progress_indicator.on_tick():
+                break
+        renamed_count = progress_indicator.tick_counter
 
         progress_indicator.on_finished()
 
-        self.gpodder.show_message(_('Renamed %(count)d downloaded episodes') % {'count': number_of_episodes},
-            _('Renaming finished'), important=True)
+        if renamed_count > 0:
+            self.gpodder.show_message(_('Renamed %(count)d downloaded episodes') % {'count': renamed_count},
+                _('Rename all downloaded episodes'), important=True)
 
     def make_filename(self, current_filename, title, sortdate, podcast_title):
         dirname = os.path.dirname(current_filename)

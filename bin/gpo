@@ -630,6 +630,7 @@ class gPodderCli(object):
         common.find_partial_downloads(self._model.get_podcasts(),
                                       noop,
                                       noop,
+                                      noop,
                                       on_finish)
         return True
 
@@ -687,6 +688,7 @@ class gPodderCli(object):
             self._download_episodes(episodes)
 
         common.find_partial_downloads(self._model.get_podcasts(),
+                                      noop,
                                       noop,
                                       noop,
                                       on_finish)

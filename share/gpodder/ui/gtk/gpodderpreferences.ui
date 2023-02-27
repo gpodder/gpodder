@@ -512,7 +512,7 @@
                                 <child>
                                   <object class="GtkFlowBoxChild">
                                     <property name="visible">True</property>
-                                    <property name="can-focus">True</property>
+                                    <property name="can-focus">False</property>
                                     <child>
                                       <object class="GtkLabel" id="label_episode_limit">
                                         <property name="visible">True</property>
@@ -527,7 +527,7 @@
                                 <child>
                                   <object class="GtkFlowBoxChild">
                                     <property name="visible">True</property>
-                                    <property name="can-focus">True</property>
+                                    <property name="can-focus">False</property>
                                     <child>
                                       <object class="GtkSpinButton" id="spinbutton_episode_limit">
                                         <property name="visible">True</property>
@@ -559,6 +559,21 @@
                               </packing>
                             </child>
                             <child>
+                              <object class="GtkCheckButton" id="checkbutton_only_added_are_new">
+                                <property name="label" translatable="yes">Consider only episodes added in the update as new</property>
+                                <property name="visible">True</property>
+                                <property name="can-focus">True</property>
+                                <property name="receives-default">False</property>
+                                <property name="margin-bottom">5</property>
+                                <property name="draw-indicator">True</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">4</property>
+                              </packing>
+                            </child>
+                            <child>
                               <object class="GtkFlowBox">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
@@ -568,7 +583,7 @@
                                 <child>
                                   <object class="GtkFlowBoxChild">
                                     <property name="visible">True</property>
-                                    <property name="can-focus">True</property>
+                                    <property name="can-focus">False</property>
                                     <child>
                                       <object class="GtkLabel" id="label_auto_download">
                                         <property name="visible">True</property>
@@ -583,7 +598,7 @@
                                 <child>
                                   <object class="GtkFlowBoxChild">
                                     <property name="visible">True</property>
-                                    <property name="can-focus">True</property>
+                                    <property name="can-focus">False</property>
                                     <child>
                                       <object class="GtkComboBox" id="combo_auto_download">
                                         <property name="visible">True</property>
@@ -597,7 +612,7 @@
                               <packing>
                                 <property name="expand">False</property>
                                 <property name="fill">True</property>
-                                <property name="position">4</property>
+                                <property name="position">5</property>
                               </packing>
                             </child>
                             <child>
@@ -739,7 +754,7 @@
                                 <child>
                                   <object class="GtkFlowBoxChild">
                                     <property name="visible">True</property>
-                                    <property name="can-focus">True</property>
+                                    <property name="can-focus">False</property>
                                     <child>
                                       <object class="GtkLabel" id="label_device_type">
                                         <property name="visible">True</property>
@@ -753,7 +768,7 @@
                                 <child>
                                   <object class="GtkFlowBoxChild">
                                     <property name="visible">True</property>
-                                    <property name="can-focus">True</property>
+                                    <property name="can-focus">False</property>
                                     <child>
                                       <object class="GtkComboBox" id="combobox_device_type">
                                         <property name="visible">True</property>
@@ -781,7 +796,7 @@
                                 <child>
                                   <object class="GtkFlowBoxChild">
                                     <property name="visible">True</property>
-                                    <property name="can-focus">True</property>
+                                    <property name="can-focus">False</property>
                                     <child>
                                       <object class="GtkLabel" id="label_device_mount">
                                         <property name="visible">True</property>
@@ -795,7 +810,7 @@
                                 <child>
                                   <object class="GtkFlowBoxChild">
                                     <property name="visible">True</property>
-                                    <property name="can-focus">True</property>
+                                    <property name="can-focus">False</property>
                                     <child>
                                       <object class="GtkButton" id="btn_filesystemMountpoint">
                                         <property name="visible">True</property>
@@ -851,7 +866,7 @@
                                 <child>
                                   <object class="GtkFlowBoxChild">
                                     <property name="visible">True</property>
-                                    <property name="can-focus">True</property>
+                                    <property name="can-focus">False</property>
                                     <child>
                                       <object class="GtkLabel" id="label_device_playlists">
                                         <property name="visible">True</property>
@@ -865,7 +880,7 @@
                                 <child>
                                   <object class="GtkFlowBoxChild">
                                     <property name="visible">True</property>
-                                    <property name="can-focus">True</property>
+                                    <property name="can-focus">False</property>
                                     <child>
                                       <object class="GtkButton" id="btn_playlistfolder">
                                         <property name="visible">True</property>
@@ -920,7 +935,7 @@
                                 <child>
                                   <object class="GtkFlowBoxChild">
                                     <property name="visible">True</property>
-                                    <property name="can-focus">True</property>
+                                    <property name="can-focus">False</property>
                                     <child>
                                       <object class="GtkLabel" id="label_on_sync">
                                         <property name="visible">True</property>
@@ -934,7 +949,7 @@
                                 <child>
                                   <object class="GtkFlowBoxChild">
                                     <property name="visible">True</property>
-                                    <property name="can-focus">True</property>
+                                    <property name="can-focus">False</property>
                                     <child>
                                       <object class="GtkComboBox" id="combobox_on_sync">
                                         <property name="visible">True</property>

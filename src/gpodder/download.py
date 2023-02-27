@@ -412,7 +412,7 @@ class DownloadQueueWorker(object):
             if not self.continue_check_callback(self):
                 return
 
-            task = self.queue.get_next()
+            task = self.queue.get_next() if self.queue.enabled else None
             if not task:
                 logger.info('No more tasks for %s to carry out.', self)
                 break
@@ -445,6 +445,13 @@ class DownloadQueueManager(object):
         self.worker_threads_access = threading.RLock()
         self.worker_threads = []
 
+    def disable(self):
+        self.tasks.enabled = False
+
+    def enable(self):
+        self.tasks.enabled = True
+        self.__spawn_threads()
+
     def __exit_callback(self, worker_thread):
         with self.worker_threads_access:
             self.worker_threads.remove(worker_thread)
@@ -461,6 +468,9 @@ class DownloadQueueManager(object):
     def __spawn_threads(self):
         """Spawn new worker threads if necessary
         """
+        if not self.tasks.enabled:
+            return
+
         with self.worker_threads_access:
             work_count = self.tasks.available_work_count()
             if self._config.limit.downloads.enabled:
@@ -974,7 +984,7 @@ class DownloadTask(object):
         except ConnectionError as ce:
             # special case request exception
             result = DownloadTask.FAILED
-            logger.error('Download failed: %s', str(ce), exc_info=True)
+            logger.error('Download failed: %s', str(ce))
             d = {'host': ce.args[0].pool.host, 'port': ce.args[0].pool.port}
             self.error_message = _("Couldn't connect to server %(host)s:%(port)s" % d)
         except RequestException as re:
@@ -982,20 +992,19 @@ class DownloadTask(object):
             if isinstance(re.args[0], MaxRetryError):
                 re = re.args[0]
             logger.error('%s while downloading "%s"', str(re),
-                    self.__episode.title, exc_info=True)
+                    self.__episode.title)
             result = DownloadTask.FAILED
             d = {'error': str(re)}
             self.error_message = _('Request Error: %(error)s') % d
         except IOError as ioe:
             logger.error('%s while downloading "%s": %s', ioe.strerror,
-                    self.__episode.title, ioe.filename, exc_info=True)
+                    self.__episode.title, ioe.filename)
             result = DownloadTask.FAILED
             d = {'error': ioe.strerror, 'filename': ioe.filename}
             self.error_message = _('I/O Error: %(error)s: %(filename)s') % d
         except gPodderDownloadHTTPError as gdhe:
             logger.error('HTTP %s while downloading "%s": %s',
-                    gdhe.error_code, self.__episode.title, gdhe.error_message,
-                    exc_info=True)
+                    gdhe.error_code, self.__episode.title, gdhe.error_message)
             result = DownloadTask.FAILED
             d = {'code': gdhe.error_code, 'message': gdhe.error_message}
             self.error_message = _('HTTP Error %(code)s: %(message)s') % d

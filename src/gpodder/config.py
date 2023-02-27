@@ -154,6 +154,7 @@ defaults = {
 
             'toolbar': False,
             'new_episodes': 'show',  # ignore, show, queue, download
+            'only_added_are_new': False,  # Only just added episodes are considered new after an update
             'live_search_delay': 200,
             'search_always_visible': False,
             'find_as_you_type': True,
@@ -168,6 +169,7 @@ defaults = {
             'episode_list': {
                 'view_mode': 1,
                 'always_show_new': True,
+                'trim_title_prefix': True,
                 'descriptions': True,
                 'ctrl_click_to_sort': False,
                 'columns': int('110', 2),  # bitfield of visible columns
@@ -206,6 +208,7 @@ defaults = {
             'two_way_sync': False,
             'use_absolute_path': True,
             'folder': 'Playlists',
+            'extension': 'm3u',
         }
 
     },
