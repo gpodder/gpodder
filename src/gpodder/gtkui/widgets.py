@@ -28,6 +28,7 @@ import gi  # isort:skip
 gi.require_version('Gtk', '3.0')  # isort:skip
 from gi.repository import Gtk
 
+
 class SpinningProgressIndicator(Gtk.Image):
     # Progress indicator loading inspired by glchess from gnome-games-clutter
     def __init__(self, size=32):
