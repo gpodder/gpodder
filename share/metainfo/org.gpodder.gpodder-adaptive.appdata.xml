@@ -13,8 +13,8 @@
   <launchable type="desktop-id">org.gpodder.gpodder-adaptive.desktop</launchable>
   <url type="homepage">https://www.gpodder.org</url>
   <provides>
-    <id>gpodder.desktop</id>
     <binary>gpodder</binary>
+    <id>gpodder.desktop</id>
   </provides>
   <content_rating type="oars-1.1">
     <content_attribute id="violence-cartoon">none</content_attribute>
@@ -64,6 +64,17 @@
     </screenshot>
   </screenshots>
   <releases>
+    <release version="3.11.1+1" date="2023-02-28">
+      <description>
+        <p>Major changes:</p>
+        <ul>
+          <li>new yt-dlp to fix the recent YouTube change</li>
+          <li>fix multiple bugs that caused gPodder to freeze or appear frozen</li>
+          <li>embed subtitles in videos with youtube-dl extension</li>
+          <li>performance improvements</li>
+        </ul>
+      </description>
+    </release>
     <release version="3.11.0+1" date="2022-08-30">
       <description>
         <p>This release contains a year's worth of improvements. Major changes:</p>
