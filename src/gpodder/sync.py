@@ -745,6 +745,7 @@ class SyncTask(download.DownloadTask):
         self.speed = 0.0
         self.progress = 0.0
         self.error_message = None
+        self.custom_downloader = None
 
         # Have we already shown this task in a notification?
         self._notification_shown = False
