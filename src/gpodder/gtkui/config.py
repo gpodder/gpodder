@@ -186,14 +186,16 @@ class UIConfig(config.Config):
         # https://github.com/gpodder/gpodder/pull/933#issuecomment-818039693
         if cfg.x == -1 or cfg.y == -1:
             window.set_position(Gtk.WindowPosition.CENTER_ON_PARENT)
-        elif not cfg.maximized:
+        else:
             window.move(cfg.x, cfg.y)
             # From Gtk docs: most window managers ignore requests for initial window
             # positions (instead using a user-defined placement algorithm) and honor
             # requests after the window has already been shown.
             # Move it a second time after the window has been shown.
-            # The first move reduces chance of window jumping.
-            util.idle_add(window.move, cfg.x, cfg.y)
+            # The first move reduces chance of window jumping,
+            # and gives the window manager a position to unmaximize to.
+            if not cfg.maximized:
+                util.idle_add(window.move, cfg.x, cfg.y)
 
         # Ignore events while we're connecting to the window
         self.__ignore_window_events = True
