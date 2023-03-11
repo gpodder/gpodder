@@ -186,7 +186,7 @@ class UIConfig(config.Config):
         # https://github.com/gpodder/gpodder/pull/933#issuecomment-818039693
         if cfg.x == -1 or cfg.y == -1:
             window.set_position(Gtk.WindowPosition.CENTER_ON_PARENT)
-        else:
+        elif not cfg.maximized:
             window.move(cfg.x, cfg.y)
             # From Gtk docs: most window managers ignore requests for initial window
             # positions (instead using a user-defined placement algorithm) and honor
