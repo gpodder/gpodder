@@ -203,14 +203,18 @@ class UIConfig(config.Config):
         # Get window state, correct size comes from window.get_size(),
         # see https://developer.gnome.org/SaveWindowState/
         def _receive_configure_event(widget, event):
-            x_pos, y_pos = widget.get_position()
-            width_size, height_size = widget.get_size()
-            maximized = bool(event.window.get_state() & Gdk.WindowState.MAXIMIZED)
-            if not self.__ignore_window_events and not maximized:
-                cfg.x = x_pos
-                cfg.y = y_pos
-                cfg.width = width_size
-                cfg.height = height_size
+            if not self.__ignore_window_events:
+                # TODO: The maximize event might arrive after the configure event.
+                # This causes the maximized size to be saved, and restoring the
+                # window will not save its smaller size. Delaying the save with
+                # idle_add() is not enough time for the state event to arrive.
+                if not bool(event.window.get_state() & Gdk.WindowState.MAXIMIZED):
+                    x_pos, y_pos = widget.get_position()
+                    width_size, height_size = widget.get_size()
+                    cfg.x = x_pos
+                    cfg.y = y_pos
+                    cfg.width = width_size
+                    cfg.height = height_size
 
         window.connect('configure-event', _receive_configure_event)
 
