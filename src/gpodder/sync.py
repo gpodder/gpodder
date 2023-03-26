@@ -536,9 +536,9 @@ class MP3PlayerDevice(Device):
                 # Assume same size and don't sync again
                 pass
         if not to_file_exists or from_size != to_size:
-            logger.info('Copying %s => %s',
-                    os.path.basename(from_file),
-                    to_file.get_uri())
+            logger.info('Copying %s (%d bytes) => %s (%d bytes)',
+                    os.path.basename(from_file), from_size,
+                    to_file.get_uri(), to_size)
             from_file = Gio.File.new_for_path(from_file)
             try:
                 def hookconvert(current_bytes, total_bytes, user_data):
