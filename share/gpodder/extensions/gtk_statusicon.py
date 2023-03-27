@@ -5,7 +5,7 @@
 #
 
 import logging
-import os.path
+from pathlib import Path
 
 from gi.repository import GdkPixbuf, Gtk
 
@@ -37,8 +37,8 @@ class gPodderExtension:
         self.last_progress = 1
 
     def set_icon(self, use_pixbuf=False):
-        path = os.path.join(os.path.dirname(__file__), '..', '..', 'icons')
-        icon_path = os.path.abspath(path)
+        path = Path(__file__).parent / ".." / ".." / "icons"
+        icon_path = path.absolute()
 
         theme = Gtk.IconTheme.get_default()
         theme.append_search_path(icon_path)

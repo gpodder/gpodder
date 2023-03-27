@@ -40,6 +40,7 @@ import logging
 import mimetypes
 import os
 import os.path
+from pathlib import Path
 import platform
 import re
 import shlex
@@ -1758,7 +1759,7 @@ def find_mount_point(directory):
         # os.path work with unicode str in Python 3, but not in Python 2.
         raise ValueError('Directory names should be of type str.')
 
-    directory = os.path.abspath(directory)
+    directory = Path(directory).absolute()
 
     while directory != '/':
         if os.path.ismount(directory):

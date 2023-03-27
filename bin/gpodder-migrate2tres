@@ -26,13 +26,14 @@
 
 import configparser
 import os
+from pathlib import Path
 import shutil
 import sys
 
 gpodder_script = sys.argv[0]
 gpodder_script = os.path.realpath(gpodder_script)
 gpodder_dir = os.path.join(os.path.dirname(gpodder_script), '..')
-prefix = os.path.abspath(os.path.normpath(gpodder_dir))
+prefix = Path(gpodder_dir).resolve()
 
 src_dir = os.path.join(prefix, 'src')
 
@@ -42,7 +43,7 @@ if os.path.exists(os.path.join(src_dir, 'gpodder', '__init__.py')):
 
 import gpodder  # isort:skip
 
-gpodder.prefix = prefix
+gpodder.prefix = str(prefix)
 
 from gpodder import schema, util  # isort:skip
 

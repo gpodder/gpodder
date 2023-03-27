@@ -34,6 +34,7 @@ __version_info__ = tuple(int(x) for x in __public_version__.split('.'))
 import gettext
 import locale
 import os
+from pathlib import Path
 import platform
 import socket
 import sys
@@ -166,7 +167,7 @@ no_update_check_file = None
 # Function to set a new gPodder home folder
 def set_home(new_home):
     global home, config_file, database_file, downloads
-    home = os.path.abspath(new_home)
+    home = Path(new_home).absolute()
 
     config_file = os.path.join(home, 'Settings.json')
     database_file = os.path.join(home, 'Database')

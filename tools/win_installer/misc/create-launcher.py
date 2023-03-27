@@ -13,6 +13,7 @@
 """
 
 import os
+from pathlib import Path
 import shlex
 import shutil
 import struct
@@ -180,8 +181,8 @@ END
 def build_launcher(out_path, icon_path, file_desc, product_name, product_version,
                    company_name, entry_point, is_gui):
 
-    src_ico = os.path.abspath(icon_path)
-    target = os.path.abspath(out_path)
+    src_ico = Path(icon_path).absolute()
+    target = Path(out_path).absolute()
 
     file_version = product_version
 

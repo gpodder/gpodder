@@ -3,11 +3,12 @@
 # 2016-12-22 Thomas Perl <m@thp.io>
 
 import os
+from pathlib import Path
 import sys
 
 from gi.repository import GLib
 
-BASE = os.path.normpath(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+BASE = (Path(__file__).parent / '..').resolve()
 
 TEMPLATE = """# Created by %(__file__)s
 [Desktop Entry]
