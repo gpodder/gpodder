@@ -35,6 +35,7 @@ import threading
 import time
 import urllib.error
 from abc import ABC, abstractmethod
+from pathlib import Path
 
 import requests
 from requests.adapters import HTTPAdapter
@@ -961,7 +962,7 @@ class DownloadTask(object):
             # Re-evaluate filename and tempname to take care of podcast renames
             # while downloads are running (which will change both file names)
             self.filename = self.__episode.local_filename(create=False)
-            self.tempname = os.path.join(os.path.dirname(self.filename),
+            self.tempname = os.path.join(Path(self.filename).parent,
                     os.path.basename(self.tempname))
             shutil.move(self.tempname, self.filename)
 

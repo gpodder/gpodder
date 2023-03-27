@@ -122,7 +122,7 @@ for flag in ('-q', '--quiet'):
 
 gpodder_script = sys.argv[0]
 gpodder_script = os.path.realpath(gpodder_script)
-gpodder_dir = os.path.join(os.path.dirname(gpodder_script), '..')
+gpodder_dir = os.path.join(Path(gpodder_script).parent, '..')
 # TODO: Read parent directory links as well (/bin -> /usr/bin, like on Fedora, see Bug #1618)
 # This would allow /usr/share/gpodder/ (not /share/gpodder/) to be found from /bin/gpodder
 prefix = Path(gpodder_dir).resolve()

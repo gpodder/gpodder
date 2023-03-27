@@ -387,7 +387,7 @@ def calculate_size(path):
     if path is None:
         return 0
 
-    if os.path.dirname(path) == '/':
+    if Path(path).parent == '/':
         return 0
 
     if os.path.isfile(path):
@@ -1857,8 +1857,8 @@ def write_m3u_playlist(m3u_filename, episodes, extm3u=True):
             filename = episode.local_filename(create=False)
             assert filename is not None
 
-            if os.path.dirname(filename).startswith(os.path.dirname(m3u_filename)):
-                filename = filename[len(os.path.dirname(m3u_filename) + os.sep):]
+            if Path(filename).parent.startswith(Path(m3u_filename).parent):
+                filename = filename[len(Path(m3u_filename).parent + os.sep):]
             f.write('#EXTINF:0,' + episode.playlist_title() + '\n')
             f.write(filename + '\n')
 

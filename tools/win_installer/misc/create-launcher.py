@@ -37,7 +37,7 @@ def build_resource(rc_path, out_path):
 def get_build_args():
     python_name = os.path.splitext(os.path.basename(sys.executable))[0]
     python_config = os.path.join(
-        os.path.dirname(sys.executable), python_name + "-config")
+        Path(sys.executable).parent, python_name + "-config")
 
     cflags = subprocess.check_output(
         ["sh", python_config, "--cflags"]).strip()
@@ -212,7 +212,7 @@ def main():
     target = argv[2]
 
     company_name = "The gPodder Team"
-    misc = os.path.dirname(os.path.realpath(__file__))
+    misc = Path(__file__).resolve().parent
 
     build_launcher(
         os.path.join(target, "gpodder.exe"),

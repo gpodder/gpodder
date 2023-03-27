@@ -7,6 +7,7 @@
 import logging
 import os
 import shutil
+from pathlib import Path
 
 import gpodder
 
@@ -35,7 +36,7 @@ class gPodderExtension:
         # check that we have the functions we need
         if hasattr(device, 'get_episode_folder_on_device'):
             # get the file and folder names we need
-            episode_folder = os.path.dirname(episode.local_filename(False))
+            episode_folder = Path(episode.local_filename(False)).parent
             device_folder = device.get_episode_folder_on_device(episode)
             episode_art = os.path.join(episode_folder, "folder.jpg")
             device_art = os.path.join(device_folder, self.config.art_name_on_device)

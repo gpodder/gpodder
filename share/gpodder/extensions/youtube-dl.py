@@ -9,6 +9,7 @@ import os
 import re
 import sys
 import time
+from pathlib import Path
 
 try:
     import yt_dlp as youtube_dl
@@ -334,7 +335,7 @@ class gPodderYoutubeDL(download.CustomDownloader):
     def fetch_info(self, url, tempname, reporthook):
         subs = self.my_config.embed_subtitles
         opts = {
-            'paths': {'home': os.path.dirname(tempname)},
+            'paths': {'home': Path(tempname).parent},
             # Postprocessing in yt-dlp breaks without ext
             'outtmpl': (os.path.basename(tempname) if program_name == 'yt-dlp'
                         else tempname) + '.%(ext)s',

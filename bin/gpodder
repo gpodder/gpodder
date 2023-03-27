@@ -52,7 +52,7 @@ def main():
     # Paths to important files
     gpodder_script = sys.argv[0]
     gpodder_script = os.path.realpath(gpodder_script)
-    gpodder_dir = os.path.join(os.path.dirname(gpodder_script), '..')
+    gpodder_dir = os.path.join(Path(gpodder_script).parent, '..')
     prefix = Path(gpodder_dir).resolve()
 
     src_dir = os.path.join(prefix, 'src')

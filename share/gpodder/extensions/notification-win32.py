@@ -41,6 +41,7 @@ import os.path
 import subprocess
 import sys
 import tempfile
+from pathlib import Path
 
 import gpodder
 
@@ -59,7 +60,7 @@ class gPodderExtension(object):
     def __init__(self, *args):
         gpodder_script = sys.argv[0]
         gpodder_script = os.path.realpath(gpodder_script)
-        self._icon = os.path.join(os.path.dirname(gpodder_script), "gpodder.ico")
+        self._icon = os.path.join(Path(gpodder_script).parent, "gpodder.ico")
 
     def on_notification_show(self, title, message):
         script = """

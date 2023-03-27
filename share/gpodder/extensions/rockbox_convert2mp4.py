@@ -13,6 +13,7 @@ import logging
 import os
 import shlex
 import subprocess
+from pathlib import Path
 
 import kaa.metadata
 
@@ -69,9 +70,10 @@ class gPodderExtension:
             logger.info("File '%s' don't exists." % origin_filename)
             return None
 
-        dirname = os.path.dirname(origin_filename)
-        filename = os.path.basename(origin_filename)
-        basename, ext = os.path.splitext(filename)
+        dirname = Path(origin_filename).parent
+        filename = Path(origin_filename).name
+        basename, ext = filename.stem
+        ext = filename.suffix
 
         if ext not in EXTENTIONS_TO_CONVERT:
             logger.info("Ignore file with file-extension %s." % ext)

@@ -5,6 +5,7 @@
 
 import logging
 import os
+from pathlib import Path
 
 from gi.repository import Gtk
 
@@ -56,7 +57,7 @@ class gPodderExtension:
         if out_filename is None:
             return
 
-        list_filename = os.path.join(os.path.dirname(out_filename),
+        list_filename = os.path.join(Path(out_filename).parent,
                 '.' + os.path.splitext(os.path.basename(out_filename))[0] + '.txt')
 
         with open(list_filename, 'w') as fp:

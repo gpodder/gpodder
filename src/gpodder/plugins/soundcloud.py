@@ -28,6 +28,7 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
+from pathlib import Path
 
 import gpodder
 from gpodder import feedcore, model, registry, util
@@ -64,7 +65,7 @@ def get_metadata(url):
     filetype = track_response.headers['content-type'] or 'application/octet-stream'
     headers_s = '\n'.join('%s:%s' % (k, v) for k, v in list(track_response.headers.items()))
     filename = util.get_header_param(track_response.headers, 'filename', 'content-disposition') \
-        or os.path.basename(os.path.dirname(url))
+        or os.path.basename(Path(url).parent)
     track_response.close()
     return filesize, filetype, filename
 

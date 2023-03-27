@@ -22,13 +22,14 @@ import os
 import re
 import sys
 from distutils.core import setup
+from pathlib import Path
 
 installing = ('install' in sys.argv and '--help' not in sys.argv)
 
 # distutils depends on setup.py beeing executed from the same dir.
 # Most of our custom commands work either way, but this makes
 # it work in all cases.
-os.chdir(os.path.dirname(os.path.realpath(__file__)))
+os.chdir(Path(__file__).resolve().parent)
 
 
 # Read the metadata from gPodder's __init__ module (doesn't need importing)
