@@ -40,7 +40,6 @@ import logging
 import mimetypes
 import os
 import os.path
-from pathlib import Path
 import platform
 import re
 import shlex
@@ -57,6 +56,7 @@ import urllib.parse
 import webbrowser
 from html.entities import entitydefs, name2codepoint
 from html.parser import HTMLParser
+from pathlib import Path
 
 import requests
 import requests.exceptions

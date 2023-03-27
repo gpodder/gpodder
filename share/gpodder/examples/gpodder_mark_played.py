@@ -12,8 +12,8 @@
 #
 # Thomas Perl <thp@gpodder.org>; 2009-09-09
 
-from pathlib import Path
 import sys
+from pathlib import Path
 
 import dbus
 

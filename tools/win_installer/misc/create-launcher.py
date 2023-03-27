@@ -13,13 +13,13 @@
 """
 
 import os
-from pathlib import Path
 import shlex
 import shutil
 import struct
 import subprocess
 import sys
 import tempfile
+from pathlib import Path
 
 
 def build_resource(rc_path, out_path):

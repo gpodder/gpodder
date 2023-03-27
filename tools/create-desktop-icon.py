@@ -3,8 +3,8 @@
 # 2016-12-22 Thomas Perl <m@thp.io>
 
 import os
-from pathlib import Path
 import sys
+from pathlib import Path
 
 from gi.repository import GLib
 

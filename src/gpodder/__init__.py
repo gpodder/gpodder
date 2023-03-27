@@ -34,10 +34,10 @@ __version_info__ = tuple(int(x) for x in __public_version__.split('.'))
 import gettext
 import locale
 import os
-from pathlib import Path
 import platform
 import socket
 import sys
+from pathlib import Path
 
 from gpodder.build_info import BUILD_TYPE
 
