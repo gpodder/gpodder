@@ -86,8 +86,12 @@ def directory_entry_from_opml(url):
 
 
 def directory_entry_from_mygpo_json(url):
+    r = util.urlopen(url)
+    if not r.ok:
+        raise Exception('%s: %d %s' % (url, r.status_code, r.reason))
+
     return [DirectoryEntry(d['title'], d['url'], d['logo_url'], d['subscribers'], d['description'])
-            for d in util.urlopen(url).json()]
+            for d in r.json()]
 
 
 class GPodderNetSearchProvider(Provider):
@@ -150,7 +154,13 @@ class GPodderNetTagsProvider(Provider):
         return directory_entry_from_mygpo_json('http://gpodder.net/api/2/tag/%s/50.json' % urllib.parse.quote(tag))
 
     def get_tags(self):
-        return [DirectoryTag(d['tag'], d['usage']) for d in util.urlopen('http://gpodder.net/api/2/tags/40.json').json()]
+        url = 'http://gpodder.net/api/2/tags/40.json'
+
+        r = util.urlopen(url)
+        if not r.ok:
+            raise Exception('%s: %d %s' % (url, r.status_code, r.reason))
+
+        return [DirectoryTag(d['tag'], d['usage']) for d in r.json()]
 
 
 class SoundcloudSearchProvider(Provider):
