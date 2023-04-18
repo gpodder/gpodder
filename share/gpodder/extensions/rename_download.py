@@ -82,7 +82,7 @@ class gPodderExtension:
 
     def make_filename(self, current_filename, title, sortdate, podcast_title):
         dirname = Path(current_filename).parent
-        filename = os.path.basename(current_filename)
+        filename = Path(current_filename).name
         ext = Path(filename).suffix
 
         new_basename = []

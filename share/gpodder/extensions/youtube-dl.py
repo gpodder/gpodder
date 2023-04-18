@@ -122,8 +122,8 @@ class YoutubeCustomDownload(download.CustomDownload):
                 raise Exception("Could not determine youtube-dl output file")
             if filepath != tempname:
                 logger.debug('yt-dlp downloaded to "%s" instead of "%s", moving',
-                             os.path.basename(filepath),
-                             os.path.basename(tempname))
+                             Path(filepath).name,
+                             Path(tempname).name)
                 os.remove(tempname)
                 os.rename(filepath, tempname)
 
@@ -141,8 +141,8 @@ class YoutubeCustomDownload(download.CustomDownload):
                     tempname_with_ext = tempname + try_ext
                     if os.path.isfile(tempname_with_ext):
                         logger.debug('youtube-dl downloaded to "%s" instead of "%s", moving',
-                                     os.path.basename(tempname_with_ext),
-                                     os.path.basename(tempname))
+                                     Path(tempname_with_ext).name,
+                                     Path(tempname).name)
                         os.remove(tempname)
                         os.rename(tempname_with_ext, tempname)
                         dot_ext = try_ext
@@ -337,7 +337,7 @@ class gPodderYoutubeDL(download.CustomDownloader):
         opts = {
             'paths': {'home': Path(tempname).parent},
             # Postprocessing in yt-dlp breaks without ext
-            'outtmpl': (os.path.basename(tempname) if program_name == 'yt-dlp'
+            'outtmpl': (Path(tempname).name if program_name == 'yt-dlp'
                         else tempname) + '.%(ext)s',
             'nopart': True,  # don't append .part (already .partial)
             'retries': 3,  # retry a few times

@@ -195,7 +195,7 @@ def build_launcher(out_path, icon_path, file_desc, product_name, product_version
         shutil.copyfile(src_ico, "launcher.ico")
         with open("launcher.rc", "w") as h:
             h.write(get_resource_code(
-                os.path.basename(target), file_version, file_desc,
+                Path(target).name, file_version, file_desc,
                 "launcher.ico", product_name, product_version, company_name))
 
         build_resource("launcher.rc", "launcher.res")

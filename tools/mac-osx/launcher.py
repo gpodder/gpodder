@@ -8,6 +8,7 @@ import sys
 import time
 import traceback
 from os.path import join
+from pathlib import Path
 from subprocess import PIPE, CalledProcessError, Popen
 
 
@@ -71,7 +72,7 @@ class MakeCertPem:
 
 # print("launcher.py sys.argv=", sys.argv)
 bundlepath = sys.argv.pop(0)
-app = os.path.basename(sys.argv[0])
+app = Path(sys.argv[0]).name
 
 bundle_contents = join(bundlepath, 'Contents')
 bundle_res = join(bundle_contents, 'Resources')
@@ -160,7 +161,7 @@ else:
 # and link to it by default. Users may want to point cert.pem to MacPorts
 # /opt/local/etc/openssl/cert.pem, for instance.
 if not os.path.exists(cert_pem):
-    os.symlink(os.path.basename(cert_gen), cert_pem)
+    os.symlink(Path(cert_gen).name, cert_pem)
 # Set path to CA files
 os.environ['SSL_CERT_FILE'] = cert_pem
 

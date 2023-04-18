@@ -66,7 +66,7 @@ class gPodderExtension:
 
         indicator = ProgressIndicator(_('Concatenating video files'),
                                       _('Writing %(filename)s') % {
-                                          'filename': os.path.basename(out_filename)},
+                                          'filename': Path(out_filename).name},
                                       False, self.gpodder.get_dialog_parent())
 
         def convert():

@@ -7,6 +7,7 @@ import hashlib
 import os
 import re
 import sys
+from pathlib import Path
 
 import magic  # use python-magic (not compatible with filemagic)
 import requests
@@ -88,7 +89,7 @@ def checksums():
                 m.update(bloc)
                 s.update(bloc)
                 bloc = f.read(4096)
-        ret[os.path.basename(archive)] = dict(md5=m.hexdigest(), sha256=s.hexdigest())
+        ret[Path(archive).name] = dict(md5=m.hexdigest(), sha256=s.hexdigest())
     return ret
 
 
