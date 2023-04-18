@@ -41,7 +41,7 @@ COUNTS_RE = '((\d+) translated message[s]?)?(, (\d+) fuzzy translation[s]?)?(, (
 
 po_folder = os.path.join(Path(__file__).parent, '..', '..', 'po')
 for filename in glob.glob(os.path.join(po_folder, '*.po')):
-    language, _ = os.path.splitext(os.path.basename(filename))
+    language = Path(filename).stem
     msgfmt = subprocess.Popen(['msgfmt', '--statistics', filename],
                               stderr=subprocess.PIPE)
     _, stderr = msgfmt.communicate()

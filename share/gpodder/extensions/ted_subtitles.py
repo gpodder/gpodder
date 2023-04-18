@@ -5,6 +5,7 @@ import logging
 import os
 import re
 from datetime import timedelta
+from pathlib import Path
 
 import gpodder
 from gpodder import util
@@ -65,7 +66,7 @@ class gPodderExtension(object):
         return response
 
     def get_srt_filename(self, audio_filename):
-        basename, _ = os.path.splitext(audio_filename)
+        basename = Path(audio_filename).stem
         return basename + '.srt'
 
     def on_episode_downloaded(self, episode):

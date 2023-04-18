@@ -31,6 +31,7 @@ import os.path
 import re
 import threading
 from configparser import RawConfigParser
+from pathlib import Path
 
 from gi.repository import GdkPixbuf, GObject, Gtk
 
@@ -98,7 +99,7 @@ class UserApplication(object):
                     pass
 
             # Load it from the current icon theme
-            (icon_name, extension) = os.path.splitext(os.path.basename(self.icon))
+            icon_name = Path(self.icon).stem
             theme = Gtk.IconTheme()
             if theme.has_icon(icon_name):
                 return theme.load_icon(icon_name, 24, Gtk.IconLookupFlags.FORCE_SIZE)

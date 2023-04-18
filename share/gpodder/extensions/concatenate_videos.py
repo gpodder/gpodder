@@ -58,7 +58,7 @@ class gPodderExtension:
             return
 
         list_filename = os.path.join(Path(out_filename).parent,
-                '.' + os.path.splitext(os.path.basename(out_filename))[0] + '.txt')
+                '.' + Path(out_filename).stem + '.txt')
 
         with open(list_filename, 'w') as fp:
             fp.write('\n'.join("file '%s'\n" % episode.local_filename(create=False)

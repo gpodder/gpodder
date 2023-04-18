@@ -912,7 +912,7 @@ class DownloadTask(object):
 
             new_mimetype = headers.get('content-type', self.__episode.mime_type)
             old_mimetype = self.__episode.mime_type
-            _basename, ext = os.path.splitext(self.filename)
+            ext = Path(self.filename).suffix
             if new_mimetype != old_mimetype or util.wrong_extension(ext):
                 logger.info('Updating mime type: %s => %s', old_mimetype, new_mimetype)
                 old_extension = self.__episode.extension()
@@ -938,7 +938,7 @@ class DownloadTask(object):
                     self.filename = self.__episode.local_filename(create=True,
                             force_update=True, template=real_filename)
                     logger.info('Download was redirected (%s). New filename: %s',
-                            real_url, os.path.basename(self.filename))
+                            real_url, Path(self.filename).name)
 
             # Look at the Content-disposition header; use if if available
             disposition_filename = util.get_header_param(headers, 'filename', 'content-disposition')
@@ -963,7 +963,7 @@ class DownloadTask(object):
             # while downloads are running (which will change both file names)
             self.filename = self.__episode.local_filename(create=False)
             self.tempname = os.path.join(Path(self.filename).parent,
-                    os.path.basename(self.tempname))
+                    Path(self.tempname).name)
             shutil.move(self.tempname, self.filename)
 
             # Model- and database-related updates after a download has finished

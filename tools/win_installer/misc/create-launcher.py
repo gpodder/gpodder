@@ -35,7 +35,7 @@ def build_resource(rc_path, out_path):
 
 
 def get_build_args():
-    python_name = os.path.splitext(os.path.basename(sys.executable))[0]
+    python_name = Path(sys.executable).stem
     python_config = os.path.join(
         Path(sys.executable).parent, python_name + "-config")
 
@@ -173,7 +173,7 @@ END
         "product_version_list": product_version_list,
         "file_version": file_version, "product_version": product_version,
         "company_name": company_name, "filename": filename,
-        "internal_name": os.path.splitext(filename)[0],
+        "internal_name": Path(filename).stem,
         "product_name": product_name, "file_desc": file_desc,
     }
 

@@ -19,6 +19,7 @@
 
 import logging
 import os
+from pathlib import Path
 
 import gpodder
 from gpodder import util
@@ -67,7 +68,7 @@ class gPodderDevicePlaylist(object):
         #            absfile = util.rel2abs(filename, Path(self.playlist_file).parent)
 
         # fallback: use the basename of the file
-        (title, extension) = os.path.splitext(os.path.basename(filename))
+        title = Path(filename).stem
 
         return "#EXTINF:0,%s%s" % (title.strip(), self.linebreak)
 

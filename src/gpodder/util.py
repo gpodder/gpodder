@@ -1004,8 +1004,9 @@ def filename_from_url(url):
     http://s/redirect.mp4?http://serv2/test.mp4 => ("test", ".mp4")
     """
     (scheme, netloc, path, para, query, fragid) = urllib.parse.urlparse(url)
-    (filename, extension) = os.path.splitext(
-        os.path.basename(urllib.parse.unquote(path)))
+    path = Path(urllib.parse.unquote(path))
+    filename = path.stem
+    extension = path.suffix
 
     if file_type_by_extension(extension) is not None and not \
             query.startswith(scheme + '://'):
@@ -1019,7 +1020,9 @@ def filename_from_url(url):
         (query_filename, query_extension) = filename_from_url(query_url)
 
         if file_type_by_extension(query_extension) is not None:
-            return os.path.splitext(os.path.basename(query_url))
+            basename = Path(query_url).stem
+            ext = Path(query_url).suffix
+            return (basename, ext)
 
     # No exact match found, simply return the original filename & extension
     return (filename, extension.lower())
@@ -1866,7 +1869,8 @@ def write_m3u_playlist(m3u_filename, episodes, extm3u=True):
 
 
 def generate_names(filename):
-    basename, ext = os.path.splitext(filename)
+    basename = Path(filename).stem
+    ext = Path(filename).suffix
     for i in itertools.count():
         if i:
             yield '%s (%d)%s' % (basename, i + 1, ext)
@@ -1923,9 +1927,9 @@ def rename_episode_file(episode, filename):
     if not os.path.exists(filename):
         raise ValueError('Target filename does not exist.')
 
-    basename, extension = os.path.splitext(filename)
+    extension = Path(filename).suffix
 
-    episode.download_filename = os.path.basename(filename)
+    episode.download_filename = Path(filename).name
     episode.file_size = os.path.getsize(filename)
     episode.mime_type = mimetype_from_extension(extension)
     episode.save()

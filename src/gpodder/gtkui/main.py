@@ -28,6 +28,7 @@ import tempfile
 import threading
 import time
 import urllib.parse
+from pathlib import Path
 
 import dbus.service
 import requests.exceptions
@@ -1953,7 +1954,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 logger.warning(copy_from)
                 logger.warning(copy_to)
                 title = _('File already exists')
-                d = {'filename': os.path.basename(copy_to)}
+                d = {'filename': Path(copy_to).name}
                 message = _('A file named "%(filename)s" already exists. Do you want to replace it?') % d
                 if not self.show_confirmation(message, title):
                     return
@@ -1982,7 +1983,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 copy_from = episode.local_filename(create=False)
                 assert copy_from is not None
 
-                base, extension = os.path.splitext(copy_from)
+                extension = Path(copy_from).suffix
                 filename = self.build_filename(episode.sync_filename(), extension)
 
                 try:
@@ -2014,7 +2015,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             for episode in episodes:
                 filename = episode.local_filename(create=False)
                 assert filename is not None
-                (base, ext) = os.path.splitext(filename)
+                ext = Path(filename).suffix
                 destfile = self.build_filename(episode.sync_filename(), ext)
                 destfile = os.path.join(tempfile.gettempdir(), destfile)
 

@@ -96,8 +96,8 @@ def find_data_files(uis, scripts):
                 if not filename.endswith('.1'):
                     return True
 
-                basename, _ = os.path.splitext(filename)
-                result = any(os.path.basename(s) == basename for s in scripts)
+                basename = Path(filename).stem
+                result = any(Path(s).name == basename for s in scripts)
                 if not result:
                     info('Skipping manpage without script:', filename)
                 return result

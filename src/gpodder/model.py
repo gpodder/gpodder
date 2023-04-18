@@ -34,6 +34,7 @@ import re
 import shutil
 import string
 import time
+from pathlib import Path
 
 import podcastparser
 
@@ -706,8 +707,9 @@ class PodcastEpisode(PodcastModelObject):
 
             # Try to find a new filename for the current file
             if template is not None:
+                episode_filename = Path(template).stem
                 # If template is specified, trust the template's extension
-                episode_filename, ext = os.path.splitext(template)
+                ext = Path(template).suffix
             else:
                 episode_filename, _ = util.filename_from_url(self.url)
 
@@ -773,7 +775,7 @@ class PodcastEpisode(PodcastModelObject):
         if may_call_local_filename:
             filename = self.local_filename(create=False)
             if filename is not None:
-                filename, ext = os.path.splitext(filename)
+                ext = Path(filename).suffix
         # if we can't detect the extension from the url fallback on the mimetype
         if ext == '' or util.file_type_by_extension(ext) is None:
             ext = util.extension_from_mimetype(self.mime_type)
@@ -817,7 +819,7 @@ class PodcastEpisode(PodcastModelObject):
 
     @property
     def basename(self):
-        return os.path.splitext(os.path.basename(self.url))[0]
+        return Path(self.url).stem
 
     @property
     def pubtime(self):
@@ -1044,7 +1046,7 @@ class PodcastChannel(PodcastModelObject):
         for filename in external_files:
             found = False
 
-            basename = os.path.basename(filename)
+            basename = Path(filename).name
             existing = [e for e in all_episodes if e.download_filename == basename]
             if existing:
                 existing = existing[0]
@@ -1062,8 +1064,10 @@ class PodcastChannel(PodcastModelObject):
                     found = True
                     break
 
-                wanted_base, wanted_ext = os.path.splitext(wanted_filename)
-                target_base, target_ext = os.path.splitext(basename)
+                wanted_base = Path(wanted_filename).stem
+                wanted_ext = Path(wanted_filename).suffix
+                target_base = Path(basename).stem
+                target_ext = Path(basename).suffix
                 if wanted_base == target_base:
                     # Filenames only differ by the extension
                     wanted_type = util.file_type_by_extension(wanted_ext)
