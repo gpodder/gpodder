@@ -37,7 +37,7 @@ prefix = Path(gpodder_dir).resolve()
 
 src_dir = os.path.join(prefix, 'src')
 
-if os.path.exists(os.path.join(src_dir, 'gpodder', '__init__.py')):
+if Path(src_dir / 'gpodder' / '__init__.py').exists():
     # Run gPodder from local source folder (not installed)
     sys.path.insert(0, src_dir)
 
@@ -53,7 +53,7 @@ new_database = gpodder.database_file
 old_config = os.path.expanduser('~/.config/gpodder/gpodder.conf')
 new_config = gpodder.config_file
 
-if not os.path.exists(old_database):
+if not Path(old_database).exists():
     print("""
     Turns out that you never ran gPodder 2.
     Can't find this required file:
@@ -64,7 +64,7 @@ if not os.path.exists(old_database):
 
 old_downloads = None
 
-if os.path.exists(old_config):
+if Path(old_config).exists():
     parser = configparser.RawConfigParser()
     parser.read(old_config)
     try:
@@ -84,13 +84,13 @@ if old_downloads is None:
 
 new_downloads = gpodder.downloads
 
-if not os.path.exists(old_downloads):
+if not Path(old_downloads).exists():
     print("""
     Old download directory does not exist. Creating empty one.
     """, file=sys.stderr)
     os.makedirs(old_downloads)
 
-if any(os.path.exists(x) for x in (new_database, new_downloads)):
+if any(Path(x).exists() for x in (new_database, new_downloads)):
     print("""
     Existing gPodder 3 user data found.
     To continue, please remove:
@@ -116,12 +116,12 @@ result = input('Continue? (Y/n) ')
 if result in 'Yy':
     util.make_directory(gpodder.home)
     schema.convert_gpodder2_db(old_database, new_database)
-    if not os.path.exists(new_database):
+    if not Path(new_database).exists():
         print('Could not convert database.', file=sys.stderr)
         sys.exit(1)
 
     shutil.move(old_downloads, new_downloads)
-    if not os.path.exists(new_downloads):
+    if not Path(new_downloads).exists():
         print('Could not move downloads.', file=sys.stderr)
         sys.exit(1)
 

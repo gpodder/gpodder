@@ -113,5 +113,5 @@ class gPodderExtension:
 
         for filename in util.generate_names(new_filename):
             # Avoid filename collisions
-            if not os.path.exists(filename):
+            if not Path(filename).exists():
                 return filename

@@ -134,7 +134,7 @@ def gpodder_home():
         join(os.environ['HOME'], 'gPodder'),
     ]
     for cand in cands:
-        if cand and os.path.exists(cand):
+        if cand and Path(cand).exists():
             return cand
     return default_path
 
@@ -160,7 +160,7 @@ else:
 
 # and link to it by default. Users may want to point cert.pem to MacPorts
 # /opt/local/etc/openssl/cert.pem, for instance.
-if not os.path.exists(cert_pem):
+if not Path(cert_pem).exists():
     os.symlink(Path(cert_gen).name, cert_pem)
 # Set path to CA files
 os.environ['SSL_CERT_FILE'] = cert_pem

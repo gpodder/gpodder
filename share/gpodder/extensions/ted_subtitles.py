@@ -110,5 +110,5 @@ class gPodderExtension(object):
 
     def on_episode_delete(self, episode, filename):
         srt_filename = self.get_srt_filename(filename)
-        if os.path.exists(srt_filename):
+        if Path(srt_filename).exists():
             os.remove(srt_filename)

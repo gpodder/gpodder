@@ -139,7 +139,7 @@ try {{
             # to run 64bit powershell on Win10 64bit when running from 32bit gPodder
             # (we need 64bit powershell on Win10 otherwise Get-StartApps is not available)
             powershell = r"{}\sysnative\WindowsPowerShell\v1.0\powershell.exe".format(os.environ["SystemRoot"])
-            if not os.path.exists(powershell):
+            if not Path(powershell).exists():
                 powershell = "powershell.exe"
             subprocess.Popen([powershell,
                            "-ExecutionPolicy", "Bypass", "-File", path],

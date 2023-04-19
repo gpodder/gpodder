@@ -24,6 +24,7 @@
 import glob
 import logging
 import os
+from pathlib import Path
 
 import gpodder
 from gpodder import util
@@ -73,7 +74,7 @@ def find_partial_downloads(channels, start_progress_callback, progress_callback,
                     candidates.remove(filename)
                     partial_files.remove(filename + '.partial')
 
-                    if os.path.exists(filename):
+                    if Path(filename).exists():
                         # The file has already been downloaded;
                         # remove the leftover partial file
                         util.delete_file(filename + '.partial')

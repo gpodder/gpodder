@@ -207,7 +207,7 @@ def fixup_home(old_home):
         # have the new home directory (to cater to situations where the user
         # might for some reason or the other have a ~/gPodder/ directory) get
         # to use the new, more OS X-ish home.
-        if not os.path.exists(old_home) or os.path.exists(new_home):
+        if not Path(old_home).exists() or Path(new_home).exists():
             return new_home
 
     return old_home

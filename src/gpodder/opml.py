@@ -67,7 +67,7 @@ class Importer(object):
         """
         self.items = []
         try:
-            if os.path.exists(url):
+            if Path(url).exists():
                 doc = xml.dom.minidom.parse(url)
             else:
                 doc = xml.dom.minidom.parse(io.BytesIO(util.urlopen(url).content))

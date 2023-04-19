@@ -514,7 +514,7 @@ def get_free_disk_space(path):
     function returns zero.
     """
 
-    if not os.path.exists(path):
+    if not Path(path).exists():
         return -1
 
     if gpodder.ui.win32:
@@ -1295,7 +1295,7 @@ def find_command(command):
 
     for path in os.environ['PATH'].split(os.pathsep):
         command_file = os.path.join(path, command)
-        if gpodder.ui.win32 and not os.path.exists(command_file):
+        if gpodder.ui.win32 and not Path(command_file).exists():
             for extension in ('.bat', '.exe'):
                 cmd = command_file + extension
                 if os.path.isfile(cmd):
@@ -1924,7 +1924,7 @@ def rename_episode_file(episode, filename):
 
     Useful after renaming/converting its download file.
     """
-    if not os.path.exists(filename):
+    if not Path(filename).exists():
         raise ValueError('Target filename does not exist.')
 
     extension = Path(filename).suffix
@@ -2101,7 +2101,7 @@ def guess_encoding(filename):
         else:
             return None
 
-    if not filename or not os.path.exists(filename):
+    if not filename or not Path(filename).exists():
         return None
 
     with open(filename, "rb") as f:

@@ -233,7 +233,7 @@ class ExtensionContainer(object):
         raise MissingCommand(msg, ', '.join(command_list))
 
     def _load_metadata(self, filename):
-        if not filename or not os.path.exists(filename):
+        if not filename or not Path(filename).exists():
             return {}
 
         encoding = util.guess_encoding(filename)
@@ -380,7 +380,7 @@ class ExtensionManager(object):
 
         # Let user extensions override built-in extensions of the same name
         for filename in self.filenames:
-            if not filename or not os.path.exists(filename):
+            if not filename or not Path(filename).exists():
                 logger.info('Skipping non-existing file: %s', filename)
                 continue
 

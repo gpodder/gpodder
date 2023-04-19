@@ -76,7 +76,7 @@ def find_lib(root, name):
     system_search_path = os.path.join("C:", os.sep, "Windows", "System32")
     if get_lib_path(root, name):
         return True
-    elif os.path.exists(os.path.join(system_search_path, name)):
+    elif Path(os.path.join(system_search_path, name)).exists():
         return True
     elif name in ["gdiplus.dll"]:
         return True
@@ -87,7 +87,7 @@ def find_lib(root, name):
 
 def get_lib_path(root, name):
     search_path = os.path.join(root, "bin")
-    if os.path.exists(os.path.join(search_path, name)):
+    if Path(search_path / name).exists():
         return os.path.join(search_path, name)
 
 

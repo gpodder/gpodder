@@ -61,7 +61,7 @@ def main():
     images_folder = os.path.join(prefix, 'share', 'gpodder', 'images')
     icon_file = os.path.join(prefix, 'share', 'icons', 'hicolor', 'scalable', 'apps', 'gpodder.svg')
 
-    if os.path.exists(os.path.join(src_dir, 'gpodder', '__init__.py')):
+    if Path(src_dir / 'gpodder' / '__init__.py').exists():
         # Run gPodder from local source folder (not installed)
         sys.path.insert(0, src_dir)
 

@@ -255,7 +255,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             diff = time.time() - self.config.software_update.last_check
             if diff > (60 * 60 * 24) * self.config.software_update.interval:
                 self.config.software_update.last_check = int(time.time())
-                if not os.path.exists(gpodder.no_update_check_file):
+                if not Path(gpodder.no_update_check_file).exists():
                     self.check_for_updates(silent=True)
 
         if self.options.close_after_startup:
@@ -1950,7 +1950,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def save_episodes_as_file(self, episodes):
         def do_save_episode(copy_from, copy_to):
-            if os.path.exists(copy_to):
+            if Path(copy_to).exists():
                 logger.warning(copy_from)
                 logger.warning(copy_to)
                 title = _('File already exists')

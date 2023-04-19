@@ -21,13 +21,13 @@ Type=Application
 
 DESKTOP = GLib.get_user_special_dir(GLib.UserDirectory.DIRECTORY_DESKTOP)
 
-if not os.path.exists(DESKTOP):
+if not Path(DESKTOP).exists():
     print("{} desktop folder doesn't exists, exiting".format(DESKTOP))
     sys.exit(1)
 
 DESTINATION = os.path.join(DESKTOP, 'gpodder-git.desktop')
 
-if os.path.exists(DESTINATION):
+if Path(DESTINATION).exists():
     print('{} already exists, not overwriting'.format(DESTINATION))
     sys.exit(1)
 

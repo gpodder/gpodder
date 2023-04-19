@@ -129,7 +129,7 @@ prefix = Path(gpodder_dir).resolve()
 
 src_dir = os.path.join(prefix, 'src')
 
-if os.path.exists(os.path.join(src_dir, 'gpodder', '__init__.py')):
+if Path(src_dir, 'gpodder', '__init__.py').exists():
     # Run gPodder from local source folder (not installed)
     sys.path.insert(0, src_dir)
 

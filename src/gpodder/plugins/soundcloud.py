@@ -74,7 +74,7 @@ class SoundcloudUser(object):
     def __init__(self, username):
         self.username = username
         self.cache_file = os.path.join(gpodder.home, 'Soundcloud')
-        if os.path.exists(self.cache_file):
+        if Path(self.cache_file).exists():
             try:
                 self.cache = json.load(open(self.cache_file, 'r'))
             except:

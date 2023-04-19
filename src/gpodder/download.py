@@ -265,7 +265,7 @@ class DownloadURLOpener:
         else:
             auth = None
 
-        if os.path.exists(filename):
+        if Path(filename).exists():
             try:
                 current_size = os.path.getsize(filename)
                 tfp = open(filename, 'ab')
@@ -741,7 +741,7 @@ class DownloadTask(object):
         self._last_progress_updated = 0.
 
         # If the tempname already exists, set progress accordingly
-        if os.path.exists(self.tempname):
+        if Path(self.tempname).exists():
             try:
                 already_downloaded = os.path.getsize(self.tempname)
                 if self.total_size > 0:
@@ -757,7 +757,7 @@ class DownloadTask(object):
         episode.download_task = self
 
     def reuse(self):
-        if not os.path.exists(self.tempname):
+        if not Path(self.tempname).exists():
             # partial file was deleted when cancelled, recreate it
             open(self.tempname, 'w').close()
 

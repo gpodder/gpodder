@@ -218,7 +218,7 @@ if __name__ == "__main__":
         download_appveyor(args.appveyor, "windows")
         print("I: download success.")
     else:
-        if not os.path.exists("_build"):
+        if not Path("_build").exists():
             error_exit("E: _build directory doesn't exist. You need to download build artifacts (see Usage)", -1)
 
     previous_tag = get_previous_tag()

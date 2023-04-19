@@ -23,6 +23,7 @@ Based on SimpleGladeApp.py Copyright (C) 2004 Sandino Flores Moreno
 import os
 import re
 import tokenize
+from pathlib import Path
 
 from gi.repository import Gtk
 
@@ -57,7 +58,7 @@ class GtkBuilderWidget(object):
         # Search for the UI file in the UI folders, stop after first match
         for ui_folder in ui_folders:
             filename = os.path.join(ui_folder, ui_file)
-            if os.path.exists(filename):
+            if Path(filename).exists():
                 self.builder.add_from_file(filename)
                 break
 

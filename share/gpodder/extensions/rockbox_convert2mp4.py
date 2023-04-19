@@ -66,7 +66,7 @@ class gPodderExtension:
             gpodder.user_extensions.on_notification_show(_('File converted'), episode.title)
 
     def _get_rockbox_filename(self, origin_filename):
-        if not os.path.exists(origin_filename):
+        if not Path(origin_filename).exists():
             logger.info("File '%s' don't exists." % origin_filename)
             return None
 

@@ -113,7 +113,7 @@ def find_data_files(uis, scripts):
             # Skip .in files, but check if their target exist
             if filename.endswith('.in'):
                 filename = filename[:-3]
-                if installing and not os.path.exists(filename):
+                if installing and not Path(filename).exists():
                     raise MissingFile(filename)
                 return None
 
