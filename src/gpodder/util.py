@@ -1720,33 +1720,33 @@ def find_mount_point(directory):
     >>> os.getcwd = lambda: '/home/thp'
     >>>
     >>> find_mount_point('.')
-    Called os.path.ismount('/home/thp')
-    Called os.path.ismount('/home')
+    Called Path('/home/thp').is_mount()
+    Called Path('/home').is_mount()
     '/home'
     >>> find_mount_point('relativity')
-    Called os.path.ismount('/home/thp/relativity')
-    Called os.path.ismount('/home/thp')
-    Called os.path.ismount('/home')
+    Called Path('/home/thp/relativity').is_mount()
+    Called Path('/home/thp').is_mount()
+    Called Path('/home').is_mount()
     '/home'
     >>> find_mount_point('/media/usbdisk/')
-    Called os.path.ismount('/media/usbdisk')
+    Called Path('/media/usbdisk').is_mount()
     '/media/usbdisk'
     >>> find_mount_point('/home/thp/Desktop')
-    Called os.path.ismount('/home/thp/Desktop')
-    Called os.path.ismount('/home/thp')
-    Called os.path.ismount('/home')
+    Called Path('/home/thp/Desktop').is_mount()
+    Called Path('/home/thp').is_mount()
+    Called Path('/home').is_mount()
     '/home'
     >>> find_mount_point('/media/usbdisk/Podcasts/With Spaces')
-    Called os.path.ismount('/media/usbdisk/Podcasts/With Spaces')
-    Called os.path.ismount('/media/usbdisk/Podcasts')
-    Called os.path.ismount('/media/usbdisk')
+    Called Path('/media/usbdisk/Podcasts/With Spaces').is_mount()
+    Called Path('/media/usbdisk/Podcasts').is_mount()
+    Called Path('/media/usbdisk').is_mount()
     '/media/usbdisk'
     >>> find_mount_point('/home/')
-    Called os.path.ismount('/home')
+    Called Path('/home').is_mount()
     '/home'
     >>> find_mount_point('/media/cdrom/../usbdisk/blubb//')
-    Called os.path.ismount('/media/usbdisk/blubb')
-    Called os.path.ismount('/media/usbdisk')
+    Called Path('/media/usbdisk/blubb').is_mount()
+    Called Path('/media/usbdisk').is_mount()
     '/media/usbdisk'
     >>> restore()
     """
