@@ -1785,7 +1785,7 @@ def isabs(string):
     Source: http://code.activestate.com/recipes/208993/
     """
     if protocolPattern.match(string): return 1
-    return os.path.isabs(string)
+    return Path(string).is_absolute()
 
 
 def relpath(p1, p2):
