@@ -1765,7 +1765,7 @@ def find_mount_point(directory):
     directory = Path(directory).absolute()
 
     while directory != '/':
-        if os.path.ismount(directory):
+        if Path(directory).is_mount():
             return directory
         else:
             (directory, tail_data) = os.path.split(directory)
