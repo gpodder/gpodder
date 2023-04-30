@@ -842,11 +842,18 @@ class PodcastEpisode(PodcastModelObject):
                 self.title,
                 self.cute_pubdate())
 
-    def cute_pubdate(self):
+    def cute_pubdate(self, show_time=False):
         result = util.format_date(self.published)
         if result is None:
             return '(%s)' % _('unknown')
-        else:
+
+        try:
+            if show_time:
+                timestamp = datetime.datetime.fromtimestamp(self.published)
+                return '<small>{}</small>\n{}'.format(timestamp.strftime('%H:%M'), result)
+            else:
+                return result
+        except:
             return result
 
     pubdate_prop = property(fget=cute_pubdate)

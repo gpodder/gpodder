@@ -320,6 +320,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
         g.add_action(action)
 
         action = Gio.SimpleAction.new_stateful(
+            'viewShowEpisodeReleasedTime', None, GLib.Variant.new_boolean(self.config.ui.gtk.episode_list.show_released_time))
+        action.connect('activate', self.on_item_view_show_episode_released_time_toggled)
+        g.add_action(action)
+
+        action = Gio.SimpleAction.new_stateful(
             'viewCtrlClickToSortEpisodes', None, GLib.Variant.new_boolean(self.config.ui.gtk.episode_list.ctrl_click_to_sort))
         action.connect('activate', self.on_item_view_ctrl_click_to_sort_episodes_toggled)
         g.add_action(action)
@@ -926,7 +931,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         timecolumn.set_sort_column_id(EpisodeListModel.C_TOTAL_TIME)
 
         releasecell = Gtk.CellRendererText()
-        releasecolumn = Gtk.TreeViewColumn(_('Released'), releasecell, text=EpisodeListModel.C_PUBLISHED_TEXT)
+        releasecolumn = Gtk.TreeViewColumn(_('Released'))
+        releasecolumn.pack_start(releasecell, True)
+        releasecolumn.add_attribute(releasecell, 'markup', EpisodeListModel.C_PUBLISHED_TEXT)
         releasecolumn.set_sort_column_id(EpisodeListModel.C_PUBLISHED)
 
         sizetimecell = Gtk.CellRendererText()
@@ -1365,7 +1372,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def _on_config_changed(self, name, old_value, new_value):
         if name == 'ui.gtk.toolbar':
             self.toolbar.set_property('visible', new_value)
-        elif name in ('ui.gtk.episode_list.descriptions',
+        elif name in ('ui.gtk.episode_list.show_released_time',
+                'ui.gtk.episode_list.descriptions',
                 'ui.gtk.episode_list.trim_title_prefix',
                 'ui.gtk.episode_list.always_show_new'):
             self.update_episode_list_model()
@@ -3505,6 +3513,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_item_view_show_episode_description_toggled(self, action, param):
         state = action.get_state()
         self.config.ui.gtk.episode_list.descriptions = not state
+        action.set_state(GLib.Variant.new_boolean(not state))
+
+    def on_item_view_show_episode_released_time_toggled(self, action, param):
+        state = action.get_state()
+        self.config.ui.gtk.episode_list.show_released_time = not state
         action.set_state(GLib.Variant.new_boolean(not state))
 
     def on_item_view_ctrl_click_to_sort_episodes_toggled(self, action, param):
