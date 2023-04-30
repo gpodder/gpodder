@@ -194,6 +194,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.create_actions()
 
+        self.releasecell = None
+
         # Init the treeviews that we use
         self.init_podcast_list_treeview()
         self.init_episode_list_treeview()
@@ -322,6 +324,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
         action = Gio.SimpleAction.new_stateful(
             'viewShowEpisodeReleasedTime', None, GLib.Variant.new_boolean(self.config.ui.gtk.episode_list.show_released_time))
         action.connect('activate', self.on_item_view_show_episode_released_time_toggled)
+        g.add_action(action)
+
+        action = Gio.SimpleAction.new_stateful(
+            'viewRightAlignEpisodeReleasedColumn', None,
+            GLib.Variant.new_boolean(self.config.ui.gtk.episode_list.right_align_released_column))
+        action.connect('activate', self.on_item_view_right_align_episode_released_column_toggled)
         g.add_action(action)
 
         action = Gio.SimpleAction.new_stateful(
@@ -879,6 +887,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         return False
 
+    def align_releasecell(self):
+        if self.config.ui.gtk.episode_list.right_align_released_column:
+            self.releasecell.set_property('xalign', 1)
+            self.releasecell.set_property('alignment', Pango.Alignment.RIGHT)
+        else:
+            self.releasecell.set_property('xalign', 0)
+            self.releasecell.set_property('alignment', Pango.Alignment.LEFT)
+
     def init_episode_list_treeview(self):
         self.episode_list_model.set_view_mode(self.config.ui.gtk.episode_list.view_mode)
 
@@ -930,10 +946,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
         timecolumn = Gtk.TreeViewColumn(_('Duration'), timecell, text=EpisodeListModel.C_TIME)
         timecolumn.set_sort_column_id(EpisodeListModel.C_TOTAL_TIME)
 
-        releasecell = Gtk.CellRendererText()
+        self.releasecell = Gtk.CellRendererText()
+        self.align_releasecell()
         releasecolumn = Gtk.TreeViewColumn(_('Released'))
-        releasecolumn.pack_start(releasecell, True)
-        releasecolumn.add_attribute(releasecell, 'markup', EpisodeListModel.C_PUBLISHED_TEXT)
+        releasecolumn.pack_start(self.releasecell, True)
+        releasecolumn.add_attribute(self.releasecell, 'markup', EpisodeListModel.C_PUBLISHED_TEXT)
         releasecolumn.set_sort_column_id(EpisodeListModel.C_PUBLISHED)
 
         sizetimecell = Gtk.CellRendererText()
@@ -3519,6 +3536,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
         state = action.get_state()
         self.config.ui.gtk.episode_list.show_released_time = not state
         action.set_state(GLib.Variant.new_boolean(not state))
+
+    def on_item_view_right_align_episode_released_column_toggled(self, action, param):
+        state = action.get_state()
+        self.config.ui.gtk.episode_list.right_align_released_column = not state
+        action.set_state(GLib.Variant.new_boolean(not state))
+        self.align_releasecell()
+        self.treeAvailable.queue_draw()
 
     def on_item_view_ctrl_click_to_sort_episodes_toggled(self, action, param):
         state = action.get_state()
