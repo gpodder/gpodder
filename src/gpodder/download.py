@@ -267,7 +267,7 @@ class DownloadURLOpener:
 
         if Path(filename).exists():
             try:
-                current_size = os.path.getsize(filename)
+                current_size = Path(filename).stat().st_size
                 tfp = open(filename, 'ab')
                 # If the file exists, then only download the remainder
                 if current_size > 0:
@@ -743,7 +743,7 @@ class DownloadTask(object):
         # If the tempname already exists, set progress accordingly
         if Path(self.tempname).exists():
             try:
-                already_downloaded = os.path.getsize(self.tempname)
+                already_downloaded = Path(self.tempname).stat().st_size
                 if self.total_size > 0:
                     self.progress = max(0.0, min(1.0, already_downloaded / self.total_size))
             except OSError as os_error:

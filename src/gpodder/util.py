@@ -391,10 +391,10 @@ def calculate_size(path):
         return 0
 
     if os.path.isfile(path):
-        return os.path.getsize(path)
+        return Path(path).stat().st_size
 
     if os.path.isdir(path) and not os.path.islink(path):
-        sum = os.path.getsize(path)
+        sum = Path(path).stat().st_size
 
         try:
             for item in os.listdir(path):
@@ -1930,7 +1930,7 @@ def rename_episode_file(episode, filename):
     extension = Path(filename).suffix
 
     episode.download_filename = Path(filename).name
-    episode.file_size = os.path.getsize(filename)
+    episode.file_size = Path(filename).stat().st_size
     episode.mime_type = mimetype_from_extension(extension)
     episode.save()
     episode.db.commit()

@@ -559,7 +559,7 @@ class PodcastEpisode(PodcastModelObject):
     def on_downloaded(self, filename):
         self.state = gpodder.STATE_DOWNLOADED
         self.is_new = True
-        self.file_size = os.path.getsize(filename)
+        self.file_size = Path(filename).stat().st_size
         self.save()
 
     def set_state(self, state):

@@ -365,7 +365,7 @@ class iPodDatabase(object):
         track[0].podcasturl = libglib.g_strdup(podcast_url.encode())
         track[0].podcastrss = libglib.g_strdup(podcast_rss.encode())
         track[0].tracklen = track_length
-        track[0].size = os.path.getsize(filename)
+        track[0].size = Path(filename).stat().st_size
         track[0].time_released = libgpod.itdb_time_host_to_mac(published_timestamp)
 
         if is_audio:
