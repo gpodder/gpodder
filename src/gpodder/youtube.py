@@ -440,7 +440,7 @@ def get_channel_id_url(url, feed_data=None):
             else:
                 r = feed_data
             # video page may contain corrupt HTML/XML, search for tag to avoid exception
-            m = re.search(r'<meta itemprop="channelId" content="([^"]+)">', r.text)
+            m = re.search(r'channel_id=([^"]+)">', r.text)
             if m:
                 channel_id = m.group(1)
             else:
