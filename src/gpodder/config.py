@@ -171,6 +171,8 @@ defaults = {
                 'always_show_new': True,
                 'trim_title_prefix': True,
                 'descriptions': True,
+                'show_released_time': False,
+                'right_align_released_column': False,
                 'ctrl_click_to_sort': False,
                 'columns': int('110', 2),  # bitfield of visible columns
             },

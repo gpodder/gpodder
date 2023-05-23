@@ -128,7 +128,7 @@ class BackgroundUpdate(object):
                 model.C_URL, episode.url,
                 model.C_TITLE, episode.title,
                 model.C_EPISODE, episode,
-                model.C_PUBLISHED_TEXT, episode.cute_pubdate(),
+                model.C_PUBLISHED_TEXT, episode.cute_pubdate(show_time=self.model._config_ui_gtk_episode_list_show_released_time),
                 model.C_PUBLISHED, episode.published,
             )
             update_fields = model.get_update_fields(episode)
@@ -215,11 +215,13 @@ class EpisodeListModel(Gtk.ListStore):
         self._config_ui_gtk_episode_list_always_show_new = False
         self._config_ui_gtk_episode_list_trim_title_prefix = False
         self._config_ui_gtk_episode_list_descriptions = False
+        self._config_ui_gtk_episode_list_show_released_time = False
 
     def cache_config(self, config):
         self._config_ui_gtk_episode_list_always_show_new = config.ui.gtk.episode_list.always_show_new
         self._config_ui_gtk_episode_list_trim_title_prefix = config.ui.gtk.episode_list.trim_title_prefix
         self._config_ui_gtk_episode_list_descriptions = config.ui.gtk.episode_list.descriptions
+        self._config_ui_gtk_episode_list_show_released_time = config.ui.gtk.episode_list.show_released_time
 
     def _format_filesize(self, episode):
         if episode.file_size > 0:
