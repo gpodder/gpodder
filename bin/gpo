@@ -121,7 +121,7 @@ for flag in ('-q', '--quiet'):
         break
 
 gpodder_script = sys.argv[0]
-gpodder_script = os.path.realpath(gpodder_script)
+gpodder_script = Path(gpodder_script).resolve()
 gpodder_dir = os.path.join(Path(gpodder_script).parent, '..')
 # TODO: Read parent directory links as well (/bin -> /usr/bin, like on Fedora, see Bug #1618)
 # This would allow /usr/share/gpodder/ (not /share/gpodder/) to be found from /bin/gpodder

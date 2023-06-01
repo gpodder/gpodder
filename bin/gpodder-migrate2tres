@@ -31,7 +31,7 @@ import sys
 from pathlib import Path
 
 gpodder_script = sys.argv[0]
-gpodder_script = os.path.realpath(gpodder_script)
+gpodder_script = Path(gpodder_script).resolve()
 gpodder_dir = os.path.join(Path(gpodder_script).parent, '..')
 prefix = Path(gpodder_dir).resolve()
 

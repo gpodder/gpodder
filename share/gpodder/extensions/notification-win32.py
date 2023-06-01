@@ -59,7 +59,7 @@ __only_for__ = 'win32'
 class gPodderExtension(object):
     def __init__(self, *args):
         gpodder_script = sys.argv[0]
-        gpodder_script = os.path.realpath(gpodder_script)
+        gpodder_script = Path(gpodder_script).resolve()
         self._icon = os.path.join(Path(gpodder_script).parent, "gpodder.ico")
 
     def on_notification_show(self, title, message):
