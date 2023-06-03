@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-import os
+from pathlib import Path
 
 import gpodder
 from gpodder.gtkui.interface.common import BuilderWidget
@@ -53,7 +53,7 @@ class gPodderExportToLocalFolder(BuilderWidget):
         else:
             self.allsamefolder.hide()
         if initial_directory is None:
-            initial_directory = os.path.expanduser('~')
+            initial_directory = Path('~').expanduser()
         self.gPodderExportToLocalFolder.set_current_folder(initial_directory)
         self.gPodderExportToLocalFolder.set_current_name(filename)
         res = self.gPodderExportToLocalFolder.run()

@@ -47,10 +47,10 @@ gpodder.prefix = str(prefix)
 
 from gpodder import schema, util  # isort:skip
 
-old_database = os.path.expanduser('~/.config/gpodder/database.sqlite')
+old_database = Path('~/.config/gpodder/database.sqlite').expanduser()
 new_database = gpodder.database_file
 
-old_config = os.path.expanduser('~/.config/gpodder/gpodder.conf')
+old_config = Path('~/.config/gpodder/gpodder.conf').expanduser()
 new_config = gpodder.config_file
 
 if not Path(old_database).exists():
@@ -80,7 +80,7 @@ if old_downloads is None:
     # The user has no configuration. This usually happens when
     # only the CLI version of gPodder is used. In this case, the
     # download directory is most likely the default (bug 1434)
-    old_downloads = os.path.expanduser('~/gpodder-downloads')
+    old_downloads = Path('~/gpodder-downloads').expanduser()
 
 new_downloads = gpodder.downloads
 

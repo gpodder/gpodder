@@ -17,7 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import os
+from pathlib import Path
 
 from gi.repository import Gdk, Gtk
 
@@ -263,7 +263,7 @@ class BuilderWidget(GtkBuilderWidget):
 
     def show_folder_select_dialog(self, initial_directory=None, title=_('Select destination')):
         if initial_directory is None:
-            initial_directory = os.path.expanduser('~')
+            initial_directory = Path('~').expanduser()
 
         dlg = Gtk.FileChooserDialog(title=title, parent=self.main_window, action=Gtk.FileChooserAction.SELECT_FOLDER)
         dlg.add_button(_('_Cancel'), Gtk.ResponseType.CANCEL)

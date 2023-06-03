@@ -178,8 +178,7 @@ def set_home(new_home):
 def fixup_home(old_home):
     if ui.osx or ui.win32:
         if ui.osx:
-            new_home = os.path.expanduser(os.path.join('~', 'Library',
-                'Application Support', 'gPodder'))
+            new_home = Path('~/Library/Application Support/gPodder').expanduser()
         elif BUILD_TYPE == 'windows-portable':
             new_home = os.path.normpath(os.path.join(Path(sys.executable).parent, "..", "..", "config"))
             old_home = new_home  # force to config directory
@@ -214,7 +213,7 @@ def fixup_home(old_home):
 
 
 # Default locations for configuration and data files
-default_home = os.path.expanduser(os.path.join('~', 'gPodder'))
+default_home = Path('~/gPodder').expanduser()
 default_home = fixup_home(default_home)
 set_home(os.environ.get(ENV_HOME, default_home))
 
