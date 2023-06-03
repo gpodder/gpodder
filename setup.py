@@ -22,13 +22,14 @@ import os
 import re
 import sys
 from distutils.core import setup
+from pathlib import Path
 
 installing = ('install' in sys.argv and '--help' not in sys.argv)
 
 # distutils depends on setup.py beeing executed from the same dir.
 # Most of our custom commands work either way, but this makes
 # it work in all cases.
-os.chdir(os.path.dirname(os.path.realpath(__file__)))
+os.chdir(Path(__file__).resolve().parent)
 
 
 # Read the metadata from gPodder's __init__ module (doesn't need importing)
@@ -95,8 +96,8 @@ def find_data_files(uis, scripts):
                 if not filename.endswith('.1'):
                     return True
 
-                basename, _ = os.path.splitext(filename)
-                result = any(os.path.basename(s) == basename for s in scripts)
+                basename = Path(filename).stem
+                result = any(Path(s).name == basename for s in scripts)
                 if not result:
                     info('Skipping manpage without script:', filename)
                 return result
@@ -112,7 +113,7 @@ def find_data_files(uis, scripts):
             # Skip .in files, but check if their target exist
             if filename.endswith('.in'):
                 filename = filename[:-3]
-                if installing and not os.path.exists(filename):
+                if installing and not Path(filename).exists():
                     raise MissingFile(filename)
                 return None
 

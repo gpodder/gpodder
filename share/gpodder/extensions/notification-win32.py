@@ -41,6 +41,7 @@ import os.path
 import subprocess
 import sys
 import tempfile
+from pathlib import Path
 
 import gpodder
 
@@ -58,8 +59,8 @@ __only_for__ = 'win32'
 class gPodderExtension(object):
     def __init__(self, *args):
         gpodder_script = sys.argv[0]
-        gpodder_script = os.path.realpath(gpodder_script)
-        self._icon = os.path.join(os.path.dirname(gpodder_script), "gpodder.ico")
+        gpodder_script = Path(gpodder_script).resolve()
+        self._icon = os.path.join(Path(gpodder_script).parent, "gpodder.ico")
 
     def on_notification_show(self, title, message):
         script = """
@@ -138,7 +139,7 @@ try {{
             # to run 64bit powershell on Win10 64bit when running from 32bit gPodder
             # (we need 64bit powershell on Win10 otherwise Get-StartApps is not available)
             powershell = r"{}\sysnative\WindowsPowerShell\v1.0\powershell.exe".format(os.environ["SystemRoot"])
-            if not os.path.exists(powershell):
+            if not Path(powershell).exists():
                 powershell = "powershell.exe"
             subprocess.Popen([powershell,
                            "-ExecutionPolicy", "Bypass", "-File", path],

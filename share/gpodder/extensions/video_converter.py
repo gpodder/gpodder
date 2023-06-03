@@ -9,6 +9,7 @@
 import logging
 import os
 import subprocess
+from pathlib import Path
 
 import gpodder
 from gpodder import util
@@ -45,7 +46,7 @@ class gPodderExtension:
         self.command = self.container.require_any_command(['avconv', 'ffmpeg'])
 
         # extract command without extension (.exe on Windows) from command-string
-        command_without_ext = os.path.basename(os.path.splitext(self.command)[0])
+        command_without_ext = Path(self.command).stem
         self.command_param = self.CMD[command_without_ext]
 
     def on_episode_downloaded(self, episode):
@@ -91,7 +92,8 @@ class gPodderExtension:
 
         new_extension = self._get_new_extension()
         old_filename = episode.local_filename(create=False)
-        filename, old_extension = os.path.splitext(old_filename)
+        old_filename = Path(old_filename)
+        filename = old_filename.stem
         new_filename = filename + new_extension
 
         cmd = [self.command] + \

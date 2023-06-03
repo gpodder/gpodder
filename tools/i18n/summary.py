@@ -10,6 +10,7 @@ import math
 import os
 import re
 import subprocess
+from pathlib import Path
 
 width = 40
 
@@ -38,9 +39,9 @@ languages = []
 
 COUNTS_RE = '((\d+) translated message[s]?)?(, (\d+) fuzzy translation[s]?)?(, (\d+) untranslated message[s]?)?\.'
 
-po_folder = os.path.join(os.path.dirname(__file__), '..', '..', 'po')
+po_folder = os.path.join(Path(__file__).parent, '..', '..', 'po')
 for filename in glob.glob(os.path.join(po_folder, '*.po')):
-    language, _ = os.path.splitext(os.path.basename(filename))
+    language = Path(filename).stem
     msgfmt = subprocess.Popen(['msgfmt', '--statistics', filename],
                               stderr=subprocess.PIPE)
     _, stderr = msgfmt.communicate()

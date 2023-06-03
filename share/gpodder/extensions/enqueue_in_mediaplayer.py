@@ -5,6 +5,7 @@
 # Released under the same license terms as gPodder itself.
 import functools
 import logging
+from pathlib import Path
 
 import gpodder
 from gpodder import util

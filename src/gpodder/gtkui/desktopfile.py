@@ -31,6 +31,7 @@ import os.path
 import re
 import threading
 from configparser import RawConfigParser
+from pathlib import Path
 
 from gi.repository import GdkPixbuf, GObject, Gtk
 
@@ -91,14 +92,14 @@ class UserApplication(object):
     def get_icon(self):
         if self.icon is not None:
             # Load it from an absolute filename
-            if os.path.exists(self.icon):
+            if Path(self.icon).exists():
                 try:
                     return GdkPixbuf.Pixbuf.new_from_file_at_size(self.icon, 24, 24)
                 except GObject.GError as ge:
                     pass
 
             # Load it from the current icon theme
-            (icon_name, extension) = os.path.splitext(os.path.basename(self.icon))
+            icon_name = Path(self.icon).stem
             theme = Gtk.IconTheme()
             if theme.has_icon(icon_name):
                 return theme.load_icon(icon_name, 24, Gtk.IconLookupFlags.FORCE_SIZE)
@@ -179,7 +180,7 @@ class UserAppsReader(object):
                     logger.warning('Parse HKEY error: %s (%s)', hkey, e)
 
         for dir in userappsdirs:
-            if os.path.exists(dir):
+            if Path(dir).exists():
                 for file in glob.glob(os.path.join(dir, '*.desktop')):
                     self.parse_and_append(file)
         self.__finished.set()

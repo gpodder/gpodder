@@ -34,6 +34,7 @@ import platform
 import subprocess
 import sys
 from optparse import OptionGroup, OptionParser
+from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
@@ -50,9 +51,9 @@ except ImportError:
 def main():
     # Paths to important files
     gpodder_script = sys.argv[0]
-    gpodder_script = os.path.realpath(gpodder_script)
-    gpodder_dir = os.path.join(os.path.dirname(gpodder_script), '..')
-    prefix = os.path.abspath(os.path.normpath(gpodder_dir))
+    gpodder_script = Path(gpodder_script).resolve()
+    gpodder_dir = os.path.join(Path(gpodder_script).parent, '..')
+    prefix = Path(gpodder_dir).resolve()
 
     src_dir = os.path.join(prefix, 'src')
     locale_dir = os.path.join(prefix, 'share', 'locale')
@@ -60,7 +61,7 @@ def main():
     images_folder = os.path.join(prefix, 'share', 'gpodder', 'images')
     icon_file = os.path.join(prefix, 'share', 'icons', 'hicolor', 'scalable', 'apps', 'gpodder.svg')
 
-    if os.path.exists(os.path.join(src_dir, 'gpodder', '__init__.py')):
+    if Path(src_dir / 'gpodder' / '__init__.py').exists():
         # Run gPodder from local source folder (not installed)
         sys.path.insert(0, src_dir)
 
@@ -79,7 +80,7 @@ def main():
 
     import gpodder  # isort:skip
 
-    gpodder.prefix = prefix
+    gpodder.prefix = str(prefix)
 
     # Package managers can install the empty file {prefix}/share/gpodder/no-update-check to disable update checks
     gpodder.no_update_check_file = os.path.join(prefix, 'share', 'gpodder', 'no-update-check')

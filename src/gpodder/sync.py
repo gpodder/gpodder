@@ -27,6 +27,7 @@ import logging
 import os.path
 import threading
 import time
+from pathlib import Path
 
 import gpodder
 from gpodder import download, services, util
@@ -119,13 +120,13 @@ def episode_filename_on_device(config, episode):
         config.device_sync.custom_sync_name),
         config.device_sync.max_filename_length)
     # add the file extension
-    to_file = filename_base + os.path.splitext(from_file)[1].lower()
+    to_file = filename_base + Path(from_file).suffix.lower()
 
     # dirty workaround: on bad (empty) episode titles,
     # we simply use the from_file basename
     # (please, podcast authors, FIX YOUR RSS FEEDS!)
-    if os.path.splitext(to_file)[0] == '':
-        to_file = os.path.basename(from_file)
+    if Path(to_file).stem == '':
+        to_file = Path(from_file).name
     return to_file
 
 
@@ -384,7 +385,7 @@ class iPodDevice(Device):
             self.cancelled = True
             return False
 
-        (fn, extension) = os.path.splitext(local_filename)
+        extension = Path(local_filename).suffix
         if extension.lower().endswith('ogg'):
             # XXX: Proper file extension/format support check for iPod
             logger.error('Cannot copy .ogg files to iPod.')
@@ -537,7 +538,7 @@ class MP3PlayerDevice(Device):
                 pass
         if not to_file_exists or from_size != to_size:
             logger.info('Copying %s (%d bytes) => %s (%d bytes)',
-                    os.path.basename(from_file), from_size,
+                    Path(from_file).name, from_size,
                     to_file.get_uri(), to_size)
             from_file = Gio.File.new_for_path(from_file)
             try:
@@ -555,7 +556,7 @@ class MP3PlayerDevice(Device):
         return True
 
     def add_sync_track(self, tracks, file, info, podcast_name):
-        (title, extension) = os.path.splitext(info.get_name())
+        title = Path(info.get_name()).stem
         timestamp = info.get_modification_time()
         modified = util.format_date(timestamp.tv_sec)
 

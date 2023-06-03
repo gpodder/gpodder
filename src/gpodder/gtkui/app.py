@@ -22,6 +22,7 @@ import logging
 import os
 import sys
 import xml.etree.ElementTree as ET
+from pathlib import Path
 
 import dbus
 import dbus.service
@@ -126,7 +127,7 @@ class gPodderApplication(Gtk.Application):
         menu_filename = None
         for ui_folder in gpodder.ui_folders:
             filename = os.path.join(ui_folder, 'gtk/menus.ui')
-            if os.path.exists(filename):
+            if Path(filename).exists():
                 builder.add_from_file(filename)
                 menu_filename = filename
                 break
@@ -270,7 +271,7 @@ class gPodderApplication(Gtk.Application):
         self.window.mygpo_client.open_website()
 
     def on_check_for_updates_activate(self, action, param):
-        if os.path.exists(gpodder.no_update_check_file):
+        if Path(gpodder.no_update_check_file).exists():
             self.window.check_for_distro_updates()
         else:
             self.window.check_for_updates(silent=False)

@@ -19,6 +19,7 @@
 
 import logging
 import os
+from pathlib import Path
 
 import gpodder
 from gpodder import util
@@ -64,10 +65,10 @@ class gPodderDevicePlaylist(object):
         #        if self._config.device_sync.playlist_absolute_path:
         #            absfile = os.path.join(self.mountpoint,filename)
         #        else: #TODO: Test rel filenames
-        #            absfile = util.rel2abs(filename, os.path.dirname(self.playlist_file))
+        #            absfile = util.rel2abs(filename, Path(self.playlist_file).parent)
 
         # fallback: use the basename of the file
-        (title, extension) = os.path.splitext(os.path.basename(filename))
+        title = Path(filename).stem
 
         return "#EXTINF:0,%s%s" % (title.strip(), self.linebreak)
 

@@ -6,6 +6,7 @@
 import logging
 import os
 import time
+from pathlib import Path
 
 import gpodder
 from gpodder import util
@@ -80,9 +81,9 @@ class gPodderExtension:
                 _('Rename all downloaded episodes'), important=True)
 
     def make_filename(self, current_filename, title, sortdate, podcast_title):
-        dirname = os.path.dirname(current_filename)
-        filename = os.path.basename(current_filename)
-        basename, ext = os.path.splitext(filename)
+        dirname = Path(current_filename).parent
+        filename = Path(current_filename).name
+        ext = Path(filename).suffix
 
         new_basename = []
         new_basename.append(title)
@@ -112,5 +113,5 @@ class gPodderExtension:
 
         for filename in util.generate_names(new_filename):
             # Avoid filename collisions
-            if not os.path.exists(filename):
+            if not Path(filename).exists():
                 return filename

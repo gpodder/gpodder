@@ -12,8 +12,8 @@
 #
 # Thomas Perl <thp@gpodder.org>; 2009-09-09
 
-import os
 import sys
+from pathlib import Path
 
 import dbus
 
@@ -25,7 +25,7 @@ if len(sys.argv) != 2:
     """ % (sys.argv[0],), file=sys.stderr)
     sys.exit(1)
 
-filename = os.path.abspath(sys.argv[1])
+filename = Path(sys.argv[1]).absolute()
 
 
 session_bus = dbus.SessionBus()

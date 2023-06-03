@@ -56,6 +56,7 @@ import urllib.parse
 import webbrowser
 from html.entities import entitydefs, name2codepoint
 from html.parser import HTMLParser
+from pathlib import Path
 
 import requests
 import requests.exceptions
@@ -386,14 +387,14 @@ def calculate_size(path):
     if path is None:
         return 0
 
-    if os.path.dirname(path) == '/':
+    if Path(path).parent == '/':
         return 0
 
     if os.path.isfile(path):
-        return os.path.getsize(path)
+        return Path(path).stat().st_size
 
     if os.path.isdir(path) and not os.path.islink(path):
-        sum = os.path.getsize(path)
+        sum = Path(path).stat().st_size
 
         try:
             for item in os.listdir(path):
@@ -513,7 +514,7 @@ def get_free_disk_space(path):
     function returns zero.
     """
 
-    if not os.path.exists(path):
+    if not Path(path).exists():
         return -1
 
     if gpodder.ui.win32:
@@ -1003,8 +1004,9 @@ def filename_from_url(url):
     http://s/redirect.mp4?http://serv2/test.mp4 => ("test", ".mp4")
     """
     (scheme, netloc, path, para, query, fragid) = urllib.parse.urlparse(url)
-    (filename, extension) = os.path.splitext(
-        os.path.basename(urllib.parse.unquote(path)))
+    path = Path(urllib.parse.unquote(path))
+    filename = path.stem
+    extension = path.suffix
 
     if file_type_by_extension(extension) is not None and not \
             query.startswith(scheme + '://'):
@@ -1018,7 +1020,9 @@ def filename_from_url(url):
         (query_filename, query_extension) = filename_from_url(query_url)
 
         if file_type_by_extension(query_extension) is not None:
-            return os.path.splitext(os.path.basename(query_url))
+            basename = Path(query_url).stem
+            ext = Path(query_url).suffix
+            return (basename, ext)
 
     # No exact match found, simply return the original filename & extension
     return (filename, extension.lower())
@@ -1291,7 +1295,7 @@ def find_command(command):
 
     for path in os.environ['PATH'].split(os.pathsep):
         command_file = os.path.join(path, command)
-        if gpodder.ui.win32 and not os.path.exists(command_file):
+        if gpodder.ui.win32 and not Path(command_file).exists():
             for extension in ('.bat', '.exe'):
                 cmd = command_file + extension
                 if os.path.isfile(cmd):
@@ -1716,33 +1720,33 @@ def find_mount_point(directory):
     >>> os.getcwd = lambda: '/home/thp'
     >>>
     >>> find_mount_point('.')
-    Called os.path.ismount('/home/thp')
-    Called os.path.ismount('/home')
+    Called Path('/home/thp').is_mount()
+    Called Path('/home').is_mount()
     '/home'
     >>> find_mount_point('relativity')
-    Called os.path.ismount('/home/thp/relativity')
-    Called os.path.ismount('/home/thp')
-    Called os.path.ismount('/home')
+    Called Path('/home/thp/relativity').is_mount()
+    Called Path('/home/thp').is_mount()
+    Called Path('/home').is_mount()
     '/home'
     >>> find_mount_point('/media/usbdisk/')
-    Called os.path.ismount('/media/usbdisk')
+    Called Path('/media/usbdisk').is_mount()
     '/media/usbdisk'
     >>> find_mount_point('/home/thp/Desktop')
-    Called os.path.ismount('/home/thp/Desktop')
-    Called os.path.ismount('/home/thp')
-    Called os.path.ismount('/home')
+    Called Path('/home/thp/Desktop').is_mount()
+    Called Path('/home/thp').is_mount()
+    Called Path('/home').is_mount()
     '/home'
     >>> find_mount_point('/media/usbdisk/Podcasts/With Spaces')
-    Called os.path.ismount('/media/usbdisk/Podcasts/With Spaces')
-    Called os.path.ismount('/media/usbdisk/Podcasts')
-    Called os.path.ismount('/media/usbdisk')
+    Called Path('/media/usbdisk/Podcasts/With Spaces').is_mount()
+    Called Path('/media/usbdisk/Podcasts').is_mount()
+    Called Path('/media/usbdisk').is_mount()
     '/media/usbdisk'
     >>> find_mount_point('/home/')
-    Called os.path.ismount('/home')
+    Called Path('/home').is_mount()
     '/home'
     >>> find_mount_point('/media/cdrom/../usbdisk/blubb//')
-    Called os.path.ismount('/media/usbdisk/blubb')
-    Called os.path.ismount('/media/usbdisk')
+    Called Path('/media/usbdisk/blubb').is_mount()
+    Called Path('/media/usbdisk').is_mount()
     '/media/usbdisk'
     >>> restore()
     """
@@ -1758,10 +1762,10 @@ def find_mount_point(directory):
         # os.path work with unicode str in Python 3, but not in Python 2.
         raise ValueError('Directory names should be of type str.')
 
-    directory = os.path.abspath(directory)
+    directory = Path(directory).absolute()
 
     while directory != '/':
-        if os.path.ismount(directory):
+        if Path(directory).is_mount():
             return directory
         else:
             (directory, tail_data) = os.path.split(directory)
@@ -1781,7 +1785,7 @@ def isabs(string):
     Source: http://code.activestate.com/recipes/208993/
     """
     if protocolPattern.match(string): return 1
-    return os.path.isabs(string)
+    return Path(string).is_absolute()
 
 
 def relpath(p1, p2):
@@ -1856,8 +1860,8 @@ def write_m3u_playlist(m3u_filename, episodes, extm3u=True):
             filename = episode.local_filename(create=False)
             assert filename is not None
 
-            if os.path.dirname(filename).startswith(os.path.dirname(m3u_filename)):
-                filename = filename[len(os.path.dirname(m3u_filename) + os.sep):]
+            if Path(filename).parent.startswith(Path(m3u_filename).parent):
+                filename = filename[len(Path(m3u_filename).parent + os.sep):]
             f.write('#EXTINF:0,' + episode.playlist_title() + '\n')
             f.write(filename + '\n')
 
@@ -1865,7 +1869,8 @@ def write_m3u_playlist(m3u_filename, episodes, extm3u=True):
 
 
 def generate_names(filename):
-    basename, ext = os.path.splitext(filename)
+    basename = Path(filename).stem
+    ext = Path(filename).suffix
     for i in itertools.count():
         if i:
             yield '%s (%d)%s' % (basename, i + 1, ext)
@@ -1919,13 +1924,13 @@ def rename_episode_file(episode, filename):
 
     Useful after renaming/converting its download file.
     """
-    if not os.path.exists(filename):
+    if not Path(filename).exists():
         raise ValueError('Target filename does not exist.')
 
-    basename, extension = os.path.splitext(filename)
+    extension = Path(filename).suffix
 
-    episode.download_filename = os.path.basename(filename)
-    episode.file_size = os.path.getsize(filename)
+    episode.download_filename = Path(filename).name
+    episode.file_size = Path(filename).stat().st_size
     episode.mime_type = mimetype_from_extension(extension)
     episode.save()
     episode.db.commit()
@@ -2096,7 +2101,7 @@ def guess_encoding(filename):
         else:
             return None
 
-    if not filename or not os.path.exists(filename):
+    if not filename or not Path(filename).exists():
         return None
 
     with open(filename, "rb") as f:

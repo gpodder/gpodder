@@ -16,6 +16,7 @@ import os
 import subprocess
 import sys
 from multiprocessing import Process, Queue
+from pathlib import Path
 
 import gi  # isort:skip
 gi.require_version("GIRepository", "2.0")  # isort:skip
@@ -44,7 +45,7 @@ def get_required_by_typelibs():
     deps = set()
     repo = GIRepository.Repository()
     for tl in os.listdir(repo.get_search_path()[0]):
-        namespace, version = os.path.splitext(tl)[0].split("-", 1)
+        namespace, version = Path(tl).stem.split("-", 1)
         lib = get_shared_libraries(namespace, version)
         if lib:
             libs = lib.lower().split(",")
@@ -75,7 +76,7 @@ def find_lib(root, name):
     system_search_path = os.path.join("C:", os.sep, "Windows", "System32")
     if get_lib_path(root, name):
         return True
-    elif os.path.exists(os.path.join(system_search_path, name)):
+    elif Path(os.path.join(system_search_path, name)).exists():
         return True
     elif name in ["gdiplus.dll"]:
         return True
@@ -86,7 +87,7 @@ def find_lib(root, name):
 
 def get_lib_path(root, name):
     search_path = os.path.join(root, "bin")
-    if os.path.exists(os.path.join(search_path, name)):
+    if Path(search_path / name).exists():
         return os.path.join(search_path, name)
 
 
@@ -99,7 +100,7 @@ def get_things_to_delete(root):
         for f in files:
             lib = f.lower()
             path = os.path.join(base, f)
-            ext_lower = os.path.splitext(f)[-1].lower()
+            ext_lower = Path(f).suffix.lower()
             if ext_lower in extensions:
                 if ext_lower == ".exe":
                     # we use .exe as dependency root

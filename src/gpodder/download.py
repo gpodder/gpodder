@@ -35,6 +35,7 @@ import threading
 import time
 import urllib.error
 from abc import ABC, abstractmethod
+from pathlib import Path
 
 import requests
 from requests.adapters import HTTPAdapter
@@ -264,9 +265,9 @@ class DownloadURLOpener:
         else:
             auth = None
 
-        if os.path.exists(filename):
+        if Path(filename).exists():
             try:
-                current_size = os.path.getsize(filename)
+                current_size = Path(filename).stat().st_size
                 tfp = open(filename, 'ab')
                 # If the file exists, then only download the remainder
                 if current_size > 0:
@@ -740,9 +741,9 @@ class DownloadTask(object):
         self._last_progress_updated = 0.
 
         # If the tempname already exists, set progress accordingly
-        if os.path.exists(self.tempname):
+        if Path(self.tempname).exists():
             try:
-                already_downloaded = os.path.getsize(self.tempname)
+                already_downloaded = Path(self.tempname).stat().st_size
                 if self.total_size > 0:
                     self.progress = max(0.0, min(1.0, already_downloaded / self.total_size))
             except OSError as os_error:
@@ -756,7 +757,7 @@ class DownloadTask(object):
         episode.download_task = self
 
     def reuse(self):
-        if not os.path.exists(self.tempname):
+        if not Path(self.tempname).exists():
             # partial file was deleted when cancelled, recreate it
             open(self.tempname, 'w').close()
 
@@ -911,7 +912,7 @@ class DownloadTask(object):
 
             new_mimetype = headers.get('content-type', self.__episode.mime_type)
             old_mimetype = self.__episode.mime_type
-            _basename, ext = os.path.splitext(self.filename)
+            ext = Path(self.filename).suffix
             if new_mimetype != old_mimetype or util.wrong_extension(ext):
                 logger.info('Updating mime type: %s => %s', old_mimetype, new_mimetype)
                 old_extension = self.__episode.extension()
@@ -937,7 +938,7 @@ class DownloadTask(object):
                     self.filename = self.__episode.local_filename(create=True,
                             force_update=True, template=real_filename)
                     logger.info('Download was redirected (%s). New filename: %s',
-                            real_url, os.path.basename(self.filename))
+                            real_url, Path(self.filename).name)
 
             # Look at the Content-disposition header; use if if available
             disposition_filename = util.get_header_param(headers, 'filename', 'content-disposition')
@@ -961,8 +962,8 @@ class DownloadTask(object):
             # Re-evaluate filename and tempname to take care of podcast renames
             # while downloads are running (which will change both file names)
             self.filename = self.__episode.local_filename(create=False)
-            self.tempname = os.path.join(os.path.dirname(self.filename),
-                    os.path.basename(self.tempname))
+            self.tempname = os.path.join(Path(self.filename).parent,
+                    Path(self.tempname).name)
             shutil.move(self.tempname, self.filename)
 
             # Model- and database-related updates after a download has finished

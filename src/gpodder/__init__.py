@@ -37,6 +37,7 @@ import os
 import platform
 import socket
 import sys
+from pathlib import Path
 
 from gpodder.build_info import BUILD_TYPE
 
@@ -166,7 +167,7 @@ no_update_check_file = None
 # Function to set a new gPodder home folder
 def set_home(new_home):
     global home, config_file, database_file, downloads
-    home = os.path.abspath(new_home)
+    home = Path(new_home).absolute()
 
     config_file = os.path.join(home, 'Settings.json')
     database_file = os.path.join(home, 'Database')
@@ -177,10 +178,9 @@ def set_home(new_home):
 def fixup_home(old_home):
     if ui.osx or ui.win32:
         if ui.osx:
-            new_home = os.path.expanduser(os.path.join('~', 'Library',
-                'Application Support', 'gPodder'))
+            new_home = Path('~/Library/Application Support/gPodder').expanduser()
         elif BUILD_TYPE == 'windows-portable':
-            new_home = os.path.normpath(os.path.join(os.path.dirname(sys.executable), "..", "..", "config"))
+            new_home = os.path.normpath(os.path.join(Path(sys.executable).parent, "..", "..", "config"))
             old_home = new_home  # force to config directory
             print("D: windows-portable build; forcing home to config directory %s" % new_home, file=sys.stderr)
         else:  # ui.win32, not portable build
@@ -206,14 +206,14 @@ def fixup_home(old_home):
         # have the new home directory (to cater to situations where the user
         # might for some reason or the other have a ~/gPodder/ directory) get
         # to use the new, more OS X-ish home.
-        if not os.path.exists(old_home) or os.path.exists(new_home):
+        if not Path(old_home).exists() or Path(new_home).exists():
             return new_home
 
     return old_home
 
 
 # Default locations for configuration and data files
-default_home = os.path.expanduser(os.path.join('~', 'gPodder'))
+default_home = Path('~/gPodder').expanduser()
 default_home = fixup_home(default_home)
 set_home(os.environ.get(ENV_HOME, default_home))
 

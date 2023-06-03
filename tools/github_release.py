@@ -7,6 +7,7 @@ import hashlib
 import os
 import re
 import sys
+from pathlib import Path
 
 import magic  # use python-magic (not compatible with filemagic)
 import requests
@@ -88,7 +89,7 @@ def checksums():
                 m.update(bloc)
                 s.update(bloc)
                 bloc = f.read(4096)
-        ret[os.path.basename(archive)] = dict(md5=m.hexdigest(), sha256=s.hexdigest())
+        ret[Path(archive).name] = dict(md5=m.hexdigest(), sha256=s.hexdigest())
     return ret
 
 
@@ -217,7 +218,7 @@ if __name__ == "__main__":
         download_appveyor(args.appveyor, "windows")
         print("I: download success.")
     else:
-        if not os.path.exists("_build"):
+        if not Path("_build").exists():
             error_exit("E: _build directory doesn't exist. You need to download build artifacts (see Usage)", -1)
 
     previous_tag = get_previous_tag()

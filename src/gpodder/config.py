@@ -28,6 +28,7 @@ import atexit
 import logging
 import os
 import time
+from pathlib import Path
 
 import gpodder
 from gpodder import jsonconfig, util
@@ -271,7 +272,7 @@ class Config(object):
         self.migrate_defaults()
 
         # If there is no configuration file, we create one here (bug 1511)
-        if not os.path.exists(self.__filename):
+        if not Path(self.__filename).exists():
             self.save()
 
         atexit.register(self.__atexit)
@@ -352,7 +353,7 @@ class Config(object):
         if filename is not None:
             self.__filename = filename
 
-        if os.path.exists(self.__filename):
+        if Path(self.__filename).exists():
             try:
                 with open(self.__filename, 'rt') as f:
                     data = f.read()

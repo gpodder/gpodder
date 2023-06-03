@@ -34,6 +34,7 @@ import re
 import shutil
 import string
 import time
+from pathlib import Path
 
 import podcastparser
 
@@ -500,7 +501,7 @@ class PodcastEpisode(PodcastModelObject):
         return (self.downloading
                 and self.download_task.custom_downloader is not None
                 and self.download_task.custom_downloader.partial_filename is not None
-                and os.path.exists(self.download_task.custom_downloader.partial_filename))
+                and Path(self.download_task.custom_downloader.partial_filename).exists())
 
     def can_stream(self, config):
         """
@@ -558,7 +559,7 @@ class PodcastEpisode(PodcastModelObject):
     def on_downloaded(self, filename):
         self.state = gpodder.STATE_DOWNLOADED
         self.is_new = True
-        self.file_size = os.path.getsize(filename)
+        self.file_size = Path(filename).stat().st_size
         self.save()
 
     def set_state(self, state):
@@ -645,7 +646,7 @@ class PodcastEpisode(PodcastModelObject):
 
         url = self.local_filename(create=False)
 
-        if url is None or not os.path.exists(url):
+        if url is None or not Path(url).exists():
             # FIXME: may custom downloaders provide the real url ?
             url = registry.download_url.resolve(config, self.url, self, allow_partial)
         return url
@@ -706,8 +707,9 @@ class PodcastEpisode(PodcastModelObject):
 
             # Try to find a new filename for the current file
             if template is not None:
+                episode_filename = Path(template).stem
                 # If template is specified, trust the template's extension
-                episode_filename, ext = os.path.splitext(template)
+                ext = Path(template).suffix
             else:
                 episode_filename, _ = util.filename_from_url(self.url)
 
@@ -748,10 +750,10 @@ class PodcastEpisode(PodcastModelObject):
                 # there might be an old download folder crawling around - move it!
                 new_file_name = os.path.join(self.channel.save_dir, wanted_filename)
                 old_file_name = os.path.join(self.channel.save_dir, self.download_filename)
-                if os.path.exists(old_file_name) and not os.path.exists(new_file_name):
+                if Path(old_file_name).exists() and not Path(new_file_name).exists():
                     logger.info('Renaming %s => %s', old_file_name, new_file_name)
                     os.rename(old_file_name, new_file_name)
-                elif force_update and not os.path.exists(old_file_name):
+                elif force_update and not Path(old_file_name).exists():
                     # When we call force_update, the file might not yet exist when we
                     # call it from the downloading code before saving the file
                     logger.info('Choosing new filename: %s', new_file_name)
@@ -773,7 +775,7 @@ class PodcastEpisode(PodcastModelObject):
         if may_call_local_filename:
             filename = self.local_filename(create=False)
             if filename is not None:
-                filename, ext = os.path.splitext(filename)
+                ext = Path(filename).suffix
         # if we can't detect the extension from the url fallback on the mimetype
         if ext == '' or util.file_type_by_extension(ext) is None:
             ext = util.extension_from_mimetype(self.mime_type)
@@ -792,7 +794,7 @@ class PodcastEpisode(PodcastModelObject):
         if filename is None:
             return False
         else:
-            return os.path.exists(filename)
+            return Path(filename).exists()
 
     def was_downloaded(self, and_exists=False):
         if self.state != gpodder.STATE_DOWNLOADED:
@@ -817,7 +819,7 @@ class PodcastEpisode(PodcastModelObject):
 
     @property
     def basename(self):
-        return os.path.splitext(os.path.basename(self.url))[0]
+        return Path(self.url).stem
 
     @property
     def pubtime(self):
@@ -1021,7 +1023,7 @@ class PodcastChannel(PodcastModelObject):
                     # No filename has been determined for this episode
                     continue
 
-                if not os.path.exists(filename):
+                if not Path(filename).exists():
                     # File has been deleted by the user - simulate a
                     # delete event (also marks the episode as deleted)
                     logger.debug('Episode deleted: %s', filename)
@@ -1051,7 +1053,7 @@ class PodcastChannel(PodcastModelObject):
         for filename in external_files:
             found = False
 
-            basename = os.path.basename(filename)
+            basename = Path(filename).name
             existing = [e for e in all_episodes if e.download_filename == basename]
             if existing:
                 existing = existing[0]
@@ -1069,8 +1071,10 @@ class PodcastChannel(PodcastModelObject):
                     found = True
                     break
 
-                wanted_base, wanted_ext = os.path.splitext(wanted_filename)
-                target_base, target_ext = os.path.splitext(basename)
+                wanted_base = Path(wanted_filename).stem
+                wanted_ext = Path(wanted_filename).suffix
+                target_base = Path(basename).stem
+                target_ext = Path(basename).suffix
                 if wanted_base == target_base:
                     # Filenames only differ by the extension
                     wanted_type = util.file_type_by_extension(wanted_ext)
@@ -1398,8 +1402,8 @@ class PodcastChannel(PodcastModelObject):
         if new_folder_name and new_folder_name != self.download_folder:
             new_folder = os.path.join(gpodder.downloads, new_folder_name)
             old_folder = os.path.join(gpodder.downloads, self.download_folder)
-            if os.path.exists(old_folder):
-                if not os.path.exists(new_folder):
+            if Path(old_folder).exists():
+                if not Path(new_folder).exists():
                     # Old folder exists, new folder does not -> simply rename
                     logger.info('Renaming %s => %s', old_folder, new_folder)
                     os.rename(old_folder, new_folder)

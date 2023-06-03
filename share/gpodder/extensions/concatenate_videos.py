@@ -5,6 +5,7 @@
 
 import logging
 import os
+from pathlib import Path
 
 from gi.repository import Gtk
 
@@ -56,8 +57,8 @@ class gPodderExtension:
         if out_filename is None:
             return
 
-        list_filename = os.path.join(os.path.dirname(out_filename),
-                '.' + os.path.splitext(os.path.basename(out_filename))[0] + '.txt')
+        list_filename = os.path.join(Path(out_filename).parent,
+                '.' + Path(out_filename).stem + '.txt')
 
         with open(list_filename, 'w') as fp:
             fp.write('\n'.join("file '%s'\n" % episode.local_filename(create=False)
@@ -65,7 +66,7 @@ class gPodderExtension:
 
         indicator = ProgressIndicator(_('Concatenating video files'),
                                       _('Writing %(filename)s') % {
-                                          'filename': os.path.basename(out_filename)},
+                                          'filename': Path(out_filename).name},
                                       False, self.gpodder.get_dialog_parent())
 
         def convert():

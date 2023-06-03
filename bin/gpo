@@ -90,6 +90,7 @@ import shlex
 import sys
 import textwrap
 import threading
+from pathlib import Path
 
 try:
     import readline
@@ -120,15 +121,15 @@ for flag in ('-q', '--quiet'):
         break
 
 gpodder_script = sys.argv[0]
-gpodder_script = os.path.realpath(gpodder_script)
-gpodder_dir = os.path.join(os.path.dirname(gpodder_script), '..')
+gpodder_script = Path(gpodder_script).resolve()
+gpodder_dir = os.path.join(Path(gpodder_script).parent, '..')
 # TODO: Read parent directory links as well (/bin -> /usr/bin, like on Fedora, see Bug #1618)
 # This would allow /usr/share/gpodder/ (not /share/gpodder/) to be found from /bin/gpodder
-prefix = os.path.abspath(os.path.normpath(gpodder_dir))
+prefix = Path(gpodder_dir).resolve()
 
 src_dir = os.path.join(prefix, 'src')
 
-if os.path.exists(os.path.join(src_dir, 'gpodder', '__init__.py')):
+if Path(src_dir, 'gpodder', '__init__.py').exists():
     # Run gPodder from local source folder (not installed)
     sys.path.insert(0, src_dir)
 
@@ -145,7 +146,7 @@ _ = gpodder.gettext
 N_ = gpodder.ngettext
 
 gpodder.images_folder = os.path.join(prefix, 'share', 'gpodder', 'images')
-gpodder.prefix = prefix
+gpodder.prefix = str(prefix)
 
 # This is the command-line UI variant
 gpodder.ui.cli = True

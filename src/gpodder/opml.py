@@ -40,6 +40,7 @@ import os
 import os.path
 import xml.dom.minidom
 from email.utils import formatdate
+from pathlib import Path
 
 import gpodder
 from gpodder import util
@@ -66,7 +67,7 @@ class Importer(object):
         """
         self.items = []
         try:
-            if os.path.exists(url):
+            if Path(url).exists():
                 doc = xml.dom.minidom.parse(url)
             else:
                 doc = xml.dom.minidom.parse(io.BytesIO(util.urlopen(url).content))
@@ -183,7 +184,7 @@ class Exporter(object):
             # try to save the new file, but keep the old one so we
             # don't end up with a clobbed, empty opml file.
             FREE_DISK_SPACE_AFTER = 1024 * 512
-            path = os.path.dirname(self.filename) or os.path.curdir
+            path = Path(self.filename).parent or os.path.curdir
             available = util.get_free_disk_space(path)
             if available != -1 and available < 2 * len(data) + FREE_DISK_SPACE_AFTER:
                 # On Windows, if we have zero bytes available, assume that we have

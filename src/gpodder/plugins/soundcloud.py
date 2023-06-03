@@ -28,6 +28,7 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
+from pathlib import Path
 
 import gpodder
 from gpodder import feedcore, model, registry, util
@@ -64,7 +65,7 @@ def get_metadata(url):
     filetype = track_response.headers['content-type'] or 'application/octet-stream'
     headers_s = '\n'.join('%s:%s' % (k, v) for k, v in list(track_response.headers.items()))
     filename = util.get_header_param(track_response.headers, 'filename', 'content-disposition') \
-        or os.path.basename(os.path.dirname(url))
+        or Path(url).parent.name
     track_response.close()
     return filesize, filetype, filename
 
@@ -73,7 +74,7 @@ class SoundcloudUser(object):
     def __init__(self, username):
         self.username = username
         self.cache_file = os.path.join(gpodder.home, 'Soundcloud')
-        if os.path.exists(self.cache_file):
+        if Path(self.cache_file).exists():
             try:
                 self.cache = json.load(open(self.cache_file, 'r'))
             except:

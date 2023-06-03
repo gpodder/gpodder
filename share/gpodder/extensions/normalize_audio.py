@@ -10,6 +10,7 @@
 import logging
 import os
 import subprocess
+from pathlib import Path
 
 import gpodder
 from gpodder import util
@@ -87,7 +88,7 @@ class gPodderExtension:
         if filename is None:
             return
 
-        basename, extension = os.path.splitext(filename)
+        extension = Path(filename).suffix
 
         cmd = [CONVERT_COMMANDS.get(extension, 'normalize-audio'), filename]
 

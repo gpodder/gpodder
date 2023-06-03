@@ -23,7 +23,7 @@
 # couldn't handle ogg files with included coverart
 
 import logging
-import os
+from pathlib import Path
 
 from mutagen.oggvorbis import OggVorbis
 
@@ -75,7 +75,7 @@ class gPodderExtension:
         if filename is None:
             return
 
-        basename, extension = os.path.splitext(filename)
+        extension = Path(filename).suffix
 
         if episode.file_type() != 'audio':
             return

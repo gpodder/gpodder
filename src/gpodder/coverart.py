@@ -27,6 +27,7 @@ import logging
 import os
 import shutil
 import urllib.parse
+from pathlib import Path
 
 import gpodder
 from gpodder import util, youtube
@@ -67,14 +68,14 @@ class CoverDownloader(object):
 
         # Return already existing files
         for extension in self.EXTENSIONS:
-            if os.path.exists(filename + extension):
+            if Path(filename + extension).exists():
                 return filename + extension
 
         # Handle local files
         if cover_url is not None and cover_url.startswith('file://'):
             try:
                 path = urllib.parse.unquote(cover_url).replace('file://', '')
-                if not os.path.exists(path):
+                if not Path(path).exists():
                     raise ValueError('Cover file not found: %s' % (path))
 
                 extension = None

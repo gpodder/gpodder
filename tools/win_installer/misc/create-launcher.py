@@ -19,6 +19,7 @@ import struct
 import subprocess
 import sys
 import tempfile
+from pathlib import Path
 
 
 def build_resource(rc_path, out_path):
@@ -34,9 +35,9 @@ def build_resource(rc_path, out_path):
 
 
 def get_build_args():
-    python_name = os.path.splitext(os.path.basename(sys.executable))[0]
+    python_name = Path(sys.executable).stem
     python_config = os.path.join(
-        os.path.dirname(sys.executable), python_name + "-config")
+        Path(sys.executable).parent, python_name + "-config")
 
     cflags = subprocess.check_output(
         ["sh", python_config, "--cflags"]).strip()
@@ -172,7 +173,7 @@ END
         "product_version_list": product_version_list,
         "file_version": file_version, "product_version": product_version,
         "company_name": company_name, "filename": filename,
-        "internal_name": os.path.splitext(filename)[0],
+        "internal_name": Path(filename).stem,
         "product_name": product_name, "file_desc": file_desc,
     }
 
@@ -180,8 +181,8 @@ END
 def build_launcher(out_path, icon_path, file_desc, product_name, product_version,
                    company_name, entry_point, is_gui):
 
-    src_ico = os.path.abspath(icon_path)
-    target = os.path.abspath(out_path)
+    src_ico = Path(icon_path).absolute()
+    target = Path(out_path).absolute()
 
     file_version = product_version
 
@@ -194,7 +195,7 @@ def build_launcher(out_path, icon_path, file_desc, product_name, product_version
         shutil.copyfile(src_ico, "launcher.ico")
         with open("launcher.rc", "w") as h:
             h.write(get_resource_code(
-                os.path.basename(target), file_version, file_desc,
+                Path(target).name, file_version, file_desc,
                 "launcher.ico", product_name, product_version, company_name))
 
         build_resource("launcher.rc", "launcher.res")
@@ -211,7 +212,7 @@ def main():
     target = argv[2]
 
     company_name = "The gPodder Team"
-    misc = os.path.dirname(os.path.realpath(__file__))
+    misc = Path(__file__).resolve().parent
 
     build_launcher(
         os.path.join(target, "gpodder.exe"),

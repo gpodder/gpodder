@@ -35,6 +35,7 @@ import imp
 import logging
 import os
 import re
+from pathlib import Path
 
 import gpodder
 from gpodder import util
@@ -232,7 +233,7 @@ class ExtensionContainer(object):
         raise MissingCommand(msg, ', '.join(command_list))
 
     def _load_metadata(self, filename):
-        if not filename or not os.path.exists(filename):
+        if not filename or not Path(filename).exists():
             return {}
 
         encoding = util.guess_encoding(filename)
@@ -291,7 +292,8 @@ class ExtensionContainer(object):
                     self.name, self.metadata.only_for)
             return
 
-        basename, extension = os.path.splitext(os.path.basename(self.filename))
+        basename = Path(self.filename).stem
+        extension = Path(self.filename).suffix
         fp = open(self.filename, 'r')
         try:
             module_file = imp.load_module(basename, fp, self.filename,
@@ -378,11 +380,11 @@ class ExtensionManager(object):
 
         # Let user extensions override built-in extensions of the same name
         for filename in self.filenames:
-            if not filename or not os.path.exists(filename):
+            if not filename or not Path(filename).exists():
                 logger.info('Skipping non-existing file: %s', filename)
                 continue
 
-            name, _ = os.path.splitext(os.path.basename(filename))
+            name = Path(filename).stem
             extensions[name] = filename
 
         return sorted(extensions.items())
