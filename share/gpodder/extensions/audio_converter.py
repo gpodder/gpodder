@@ -33,7 +33,7 @@ DefaultConfig = {
 
 
 class gPodderExtension:
-    MIME_TYPES = ('audio/x-m4a', 'audio/mp4', 'audio/mp4a-latm', 'audio/mpeg', 'audio/ogg', 'audio/opus')
+    MIME_TYPES = ('video/mp4', 'audio/x-m4a', 'audio/mp4', 'audio/mp4a-latm', 'audio/mpeg', 'audio/ogg', 'audio/opus')
     EXT = ('.m4a', '.ogg', '.opus', '.mp3')
     CMD = {'avconv': {'.mp3': ['-n', '-i', '%(old_file)s', '-q:a', '2', '-id3v2_version', '3', '-write_id3v1', '1', '%(new_file)s'],
                       '.ogg': ['-n', '-i', '%(old_file)s', '-q:a', '2', '%(new_file)s'],
