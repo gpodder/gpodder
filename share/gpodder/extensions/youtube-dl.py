@@ -296,9 +296,14 @@ class gPodderYoutubeDL(download.CustomDownloader):
         os.makedirs(cachedir, exist_ok=True)
         self._ydl_opts = {
             'cachedir': cachedir,
-            'no_color': True,  # prevent escape codes in desktop notifications on errors
             'noprogress': True,  # prevent progress bar from appearing in console
         }
+        # prevent escape codes in desktop notifications on errors
+        if program_name == 'yt-dlp':
+            self._ydl_opts['color'] = 'no_color'
+        else:
+            self._ydl_opts['no_color'] = True
+
         if gpodder.verbose:
             self._ydl_opts['verbose'] = True
         else:
