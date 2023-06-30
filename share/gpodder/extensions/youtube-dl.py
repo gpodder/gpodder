@@ -14,7 +14,7 @@ from collections.abc import Iterable
 try:
     import yt_dlp as youtube_dl
     program_name = 'yt-dlp'
-    want_ytdl_version = '2023.02.17'
+    want_ytdl_version = '2023.06.22'
 except:
     import youtube_dl
     program_name = 'youtube-dl'
