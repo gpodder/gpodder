@@ -830,7 +830,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         menu = self.application.builder.get_object('channels-context')
         # Extensions section, updated in signal handler
         extmenu = Gio.Menu()
-        menu.insert_section(3, _('Extensions'), extmenu)
+        menu.insert_section(4, _('Extensions'), extmenu)
         self.channel_context_menu_helper = ExtensionMenuHelper(
             self.gPodder, extmenu, 'channel_context_action_')
         self.channels_popover = Gtk.Popover.new_from_model(self.treeChannels, menu)
@@ -972,7 +972,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         menu = self.application.builder.get_object('episodes-context')
         # Extensions section, updated dynamically
         extmenu = Gio.Menu()
-        menu.insert_section(1, _('Extensions'), extmenu)
+        menu.insert_section(2, _('Extensions'), extmenu)
         self.episode_context_menu_helper = ExtensionMenuHelper(
             self.gPodder, extmenu, 'episode_context_action_')
         # Send To submenu section, shown only for downloaded episodes
@@ -1885,15 +1885,21 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     self.downloads_list_get_selection(model, paths)
 
             menu = self.application.builder.get_object('downloads-context')
-            dsec = menu.get_item_link(0, Gio.MENU_LINK_SECTION)
+            vsec = menu.get_item_link(0, Gio.MENU_LINK_SECTION)
+            dsec = menu.get_item_link(1, Gio.MENU_LINK_SECTION)
 
+            def insert_menuitem(position, label, action, icon):
+                dsec.insert(position, label, action)
+                menuitem = Gio.MenuItem.new(label, action)
+                menuitem.set_attribute_value('verb-icon', GLib.Variant.new_string(icon))
+                vsec.insert_item(position, menuitem)
+
+            vsec.remove(0)
             dsec.remove(0)
             if can_force:
-                dsec.insert(0, _('Start download now'), 'win.download')
-                self.download_action.set_enabled(True)
+                insert_menuitem(0, _('Start download now'), 'win.download', 'document-save-symbolic')
             else:
-                dsec.insert(0, _('Download'), 'win.download')
-                self.download_action.set_enabled(can_queue)
+                insert_menuitem(0, _('Download'), 'win.download', 'document-save-symbolic')
 
             self.gPodder.lookup_action('remove').set_enabled(can_remove)
 
@@ -2088,34 +2094,44 @@ class gPodder(BuilderWidget, dbus.service.Object):
              can_cancel, can_delete, can_lock) = self.play_or_download()
 
             menu = self.application.builder.get_object('episodes-context')
-            psec = menu.get_item_link(0, Gio.MENU_LINK_SECTION)
+            vsec = menu.get_item_link(0, Gio.MENU_LINK_SECTION)
+            psec = menu.get_item_link(1, Gio.MENU_LINK_SECTION)
+
+            def insert_menuitem(position, label, action, icon):
+                psec.insert(position, label, action)
+                menuitem = Gio.MenuItem.new(label, action)
+                menuitem.set_attribute_value('verb-icon', GLib.Variant.new_string(icon))
+                vsec.insert_item(position, menuitem)
 
             # Play / Stream / Preview / Open
+            vsec.remove(0)
             psec.remove(0)
             if open_instead_of_play:
-                psec.insert(0, _('Open'), 'win.play')
+                insert_menuitem(0, _('Open'), 'win.open', 'document-open-symbolic')
             else:
                 if downloaded:
-                    psec.insert(0, _('Play'), 'win.play')
+                    insert_menuitem(0, _('Play'), 'win.play', 'media-playback-start-symbolic')
                 elif can_preview:
-                    psec.insert(0, _('Preview'), 'win.play')
+                    insert_menuitem(0, _('Preview'), 'win.play', 'media-playback-start-symbolic')
                 else:
-                    psec.insert(0, _('Stream'), 'win.play')
+                    insert_menuitem(0, _('Stream'), 'win.play', 'media-playback-start-symbolic')
 
             # Download / Pause
+            vsec.remove(1)
             psec.remove(1)
             if can_pause:
-                psec.insert(1, _('Pause'), 'win.pause')
+                insert_menuitem(1, _('Pause'), 'win.pause', 'media-playback-pause-symbolic')
             else:
-                psec.insert(1, _('Download'), 'win.download')
+                insert_menuitem(1, _('Download'), 'win.download', 'document-save-symbolic')
 
             # Cancel
             have_cancel = (psec.get_item_attribute_value(
                 2, "action", GLib.VariantType("s")).get_string() == 'win.cancel')
             if not can_cancel and have_cancel:
+                vsec.remove(2)
                 psec.remove(2)
             elif can_cancel and not have_cancel:
-                psec.insert(2, _('_Cancel'), 'win.cancel')
+                insert_menuitem(2, _('Cancel'), 'win.cancel', 'process-stop-symbolic')
 
             # Extensions section
             self.episode_context_menu_helper.replace_entries([
