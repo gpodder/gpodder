@@ -2363,6 +2363,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     can_pause, can_cancel, can_delete, can_lock)
         else:
             (can_queue, can_pause, can_cancel, can_remove) = (False,) * 4
+            can_force = True
 
             selection = self.treeDownloads.get_selection()
             if selection.count_selected_rows() > 0:
@@ -2378,14 +2379,19 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         logger.error('Invalid task at path %s', str(path))
                         continue
 
+                    if task.status != download.DownloadTask.QUEUED:
+                        can_force = False
+
                     # These values should only ever be set, never unset them once set.
                     # Actions filter tasks using these methods.
                     can_queue = can_queue or task.can_queue()
                     can_pause = can_pause or task.can_pause()
                     can_cancel = can_cancel or task.can_cancel()
                     can_remove = can_remove or task.can_remove()
+            else:
+                can_force = False
 
-            self.set_episode_actions(False, False, can_queue, can_pause, can_cancel, can_remove, False, False)
+            self.set_episode_actions(False, False, can_queue or can_force, can_pause, can_cancel, can_remove, False, False)
 
             return (False, False, False, can_queue, can_pause, can_cancel,
                     can_remove, False)
