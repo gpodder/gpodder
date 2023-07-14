@@ -77,7 +77,7 @@ def draw_rounded_rectangle(ctx, x, y, w, h, r=10, left_side_width=None,
 
 
 def rounded_rectangle(ctx, x, y, width, height, radius=4.):
-    """Simple rounded rectangle algorithmn
+    """Simple rounded rectangle algorithm
 
     http://www.cairographics.org/samples/rounded_rectangle/
     """
@@ -126,7 +126,7 @@ def draw_text_box_centered(ctx, widget, w_width, w_height, text, font_desc=None,
 
 def draw_cake(percentage, text=None, emblem=None, size=None):
     # Download percentage bar icon - it turns out the cake is a lie (d'oh!)
-    # ..but the inital idea was to have a cake-style indicator, but that
+    # ..but the initial idea was to have a cake-style indicator, but that
     # didn't work as well as the progress bar, but the name stuck..
 
     if size is None:

@@ -398,7 +398,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def inject_extensions_menu(self):
         """
         Update Extras/Extensions menu.
-        Called at startup and when en/dis-abling extenstions.
+        Called at startup and when en/dis-abling extensions.
         """
         def gen_callback(label, callback):
             return lambda action, param: callback()

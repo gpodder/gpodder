@@ -131,7 +131,7 @@ class AudioFile(object):
 
     def get_cover_picture(self, cover):
         """ Returns mutagen Picture class for the cover image
-        Usefull for OGG and FLAC format
+        Useful for OGG and FLAC format
 
         Picture type = cover image
         see http://flac.sourceforge.net/documentation_tools_flac.html#encoding_options

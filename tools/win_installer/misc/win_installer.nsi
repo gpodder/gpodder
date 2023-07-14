@@ -199,7 +199,7 @@ Function custom_gui_init
             ; uninstall failed
             Abort
         rm_instdir:
-            ; either the uninstaller was successfull or
+            ; either the uninstaller was successful or
             ; the uninstaller.exe wasn't found
             RMDir /r "$INSTDIR"
     do_continue:

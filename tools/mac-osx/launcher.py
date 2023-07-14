@@ -110,7 +110,7 @@ print('System Path:\n', '\n'.join(sys.path))
 
 # see https://gpodder.github.io/docs/user-manual.html#gpodder-home-folder-and-download-location
 # To override gPodder home and/or download directory:
-# 1. uncomment (remove the pound sign and space) at the begining of the relevant line
+# 1. uncomment (remove the pound sign and space) at the beginning of the relevant line
 # 2. replace ~/gPodderData or ~/gPodderDownloads with the path you want for your gPodder home
 #    (you can move the original folder in the Finder first,
 #     then drag and drop to the launcher.py in TextEdit to ensure the correct path is set)
@@ -125,7 +125,7 @@ for k, v in os.environ.items():
 
 def gpodder_home():
     # don't inadvertently create the new gPodder home,
-    # it would be prefered to the old one
+    # it would be preferred to the old one
     default_path = join(os.environ['HOME'], 'Library', 'Application Support', 'gPodder')
     cands = [
         os.environ.get('GPODDER_HOME'),
