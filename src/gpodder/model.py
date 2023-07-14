@@ -68,6 +68,18 @@ class Feed:
         """ :return str: optional -- feed's payment url """
         return None
 
+    def get_author(self):
+        """ :return str: optional -- feed's author """
+        return None
+
+    def get_keywords(self):
+        """ :return str: optional -- feed's keywords """
+        return None
+
+    def get_categories(self):
+        """ :return str: optional -- feed's categories """
+        return None
+
     def get_http_etag(self):
         """ :return str: optional -- last HTTP etag header, for conditional request next time """
         return None
@@ -124,6 +136,33 @@ class PodcastParserFeed(Feed):
 
     def get_payment_url(self):
         return self.feed.get('payment_url')
+
+    def get_author(self):
+        return self.feed.get('itunes_author')
+
+    def get_keywords(self):
+        # convert all commas into " / "
+        keywords = self.feed.get('itunes_keywords')
+        if keywords is not None:
+            keywords = keywords.replace(", ", " / ")
+        return keywords
+
+    def get_categories(self):
+        # its coming in as a list like this
+        # 'itunes_categories': [['Fiction', 'Comedy Fiction'], ['Leisure', 'Games']],
+        # however this doesnt work with the database as it expects a string
+        # convert it to a string, deliminated by " / "
+        categories = self.feed.get('itunes_categories')
+
+        # flatten the list
+        new_list = []
+        for item in categories:
+            new_list.extend(item)
+        categories = new_list
+
+        if categories is not None:
+            categories = " / ".join(categories)
+        return categories
 
     def get_http_etag(self):
         return self.feed.get('headers', {}).get('etag')
@@ -311,6 +350,13 @@ class PodcastEpisode(PodcastModelObject):
         if entry.get("chapters"):
             episode.chapters = json.dumps(entry["chapters"])
 
+        episode.episode_num = entry.get('number', 0)
+
+        episode.season = entry.get('season', 0)
+
+        if entry.get('itunes_author'):
+            episode.author = entry['itunes_author']
+
         audio_available = any(enclosure['mime_type'].startswith('audio/') for enclosure in entry['enclosures'])
         video_available = any(enclosure['mime_type'].startswith('video/') for enclosure in entry['enclosures'])
         link_has_media = False
@@ -390,10 +436,13 @@ class PodcastEpisode(PodcastModelObject):
         self.description = ''
         self.description_html = ''
         self.chapters = None
+        self.episode_num = 0
+        self.season = 0
         self.link = ''
         self.published = 0
         self.download_filename = None
         self.payment_url = None
+        self.author = ''
 
         self.state = gpodder.STATE_NORMAL
         self.is_new = True
@@ -907,12 +956,24 @@ class PodcastEpisode(PodcastModelObject):
 
     def update_from(self, episode):
         for k in ('title', 'url', 'episode_art_url', 'description', 'description_html', 'chapters', 'link',
-                  'published', 'guid', 'payment_url'):
+                  'published', 'guid', 'payment_url', 'episode_num', 'season', 'author'):
             setattr(self, k, getattr(episode, k))
         # Don't overwrite file size on downloaded episodes
         # See #648 refreshing a youtube podcast clears downloaded file size
         if self.state != gpodder.STATE_DOWNLOADED:
             setattr(self, 'file_size', getattr(episode, 'file_size'))
+
+    @property
+    def cover_file(self):
+        # check if there is an episode cover in the first place
+        if self.episode_art_url is None:
+            return None
+        # create a cover file name from the episode_art_url
+        cover_name = self.episode_art_url.split('/')[-1]
+        cover_name = cover_name.split('?')[0]
+        # remove .jpg or .png
+        cover_name = cover_name.split('.')[0]
+        return os.path.join(self.channel.save_dir, cover_name)
 
 
 class PodcastChannel(PodcastModelObject):
@@ -947,6 +1008,9 @@ class PodcastChannel(PodcastModelObject):
         self.description = ''
         self.cover_url = None
         self.payment_url = None
+        self.author = None
+        self.keywords = None
+        self.categories = None
 
         self.auth_username = ''
         self.auth_password = ''
@@ -1037,12 +1101,21 @@ class PodcastChannel(PodcastModelObject):
                 glob.glob(os.path.join(self.save_dir, '*'))
                 if not filename.endswith('.partial'))
 
-        ignore_files = ['folder' + ext for ext in
+        ignore_files = ['' + ext for ext in
                 coverart.CoverDownloader.EXTENSIONS]
 
         external_files = existing_files.difference(list(known_files)
                 + [os.path.join(self.save_dir, ignore_file)
                  for ignore_file in ignore_files])
+
+        # remove any existing files with .jpg or .png
+        to_keep = []
+        for filename in external_files:
+            if not filename.endswith('.jpg') and not filename.endswith('.png'):
+                to_keep.append(filename)
+
+        external_files = to_keep
+
         if not external_files:
             return
 
@@ -1171,12 +1244,15 @@ class PodcastChannel(PodcastModelObject):
             # End YouTube- and Vimeo-specific title FIX
 
     def _consume_metadata(self, title, link, description, cover_url,
-            payment_url):
+            payment_url, author, keywords, categories):
         self._consume_updated_title(title)
         self.link = link
         self.description = description
         self.cover_url = cover_url
         self.payment_url = payment_url
+        self.author = author
+        self.keywords = keywords
+        self.categories = categories
         self.save()
 
     def _consume_updated_feed(self, feed, max_episodes=0):
@@ -1184,7 +1260,10 @@ class PodcastChannel(PodcastModelObject):
                                feed.get_link() or self.link,
                                feed.get_description() or '',
                                feed.get_cover_url() or None,
-                               feed.get_payment_url() or None)
+                               feed.get_payment_url() or None,
+                               feed.get_author() or None,
+                               feed.get_keywords() or None,
+                               feed.get_categories() or None)
 
         # Update values for HTTP conditional requests
         self.http_etag = feed.get_http_etag() or self.http_etag
