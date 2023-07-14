@@ -170,7 +170,7 @@ class ContentRange(object):
             return None
         value = value.strip()
         if not value.startswith('bytes '):
-            # Unparseable
+            # Unparsable
             return None
         value = value[len('bytes '):].strip()
         if '/' not in value:
@@ -588,7 +588,7 @@ class DownloadTask(object):
             _('Finished'), _('Failed'), _('Cancelling'), _('Cancelled'), _('Pausing'), _('Paused'))
     (NEW, QUEUED, DOWNLOADING, DONE, FAILED, CANCELLING, CANCELLED, PAUSING, PAUSED) = list(range(9))
 
-    # Wheter this task represents a file download or a device sync operation
+    # Whether this task represents a file download or a device sync operation
     ACTIVITY_DOWNLOAD, ACTIVITY_SYNCHRONIZE = list(range(2))
 
     # Minimum time between progress updates (in seconds)

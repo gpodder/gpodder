@@ -42,7 +42,7 @@ __doc__ = 'https://gpodder.github.io/docs/extensions/youtubedl.html'
 want_ytdl_version_msg = _('Your version of youtube-dl/yt-dlp %(have_version)s has known issues, please upgrade to %(want_version)s or newer.')
 
 DefaultConfig = {
-    # youtube-dl downloads and parses each video page to get informations about it, which is very slow.
+    # youtube-dl downloads and parses each video page to get information about it, which is very slow.
     # Set to False to fall back to the fast but limited (only 15 episodes) gpodder code
     'manage_channel': True,
     # If for some reason youtube-dl download doesn't work for you, you can fallback to gpodder code.
@@ -390,7 +390,7 @@ class gPodderYoutubeDL(download.CustomDownloader):
         """
         Fetch a channel or playlist contents.
 
-        Doesn't yet fetch video entry informations, so we only get the video id and title.
+        Doesn't yet fetch video entry information, so we only get the video id and title.
         """
         # Duplicate a bit of the YoutubeDL machinery here because we only
         # want to parse the channel/playlist first, not to fetch video entries.

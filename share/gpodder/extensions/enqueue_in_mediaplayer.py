@@ -242,7 +242,7 @@ RESUMERS = [
     # with https://github.com/Serranya/deadbeef-mpris2-plugin
     MPRISResumer('resume in deadbeef', 'DeaDBeeF', ['deadbeef'], 'org.mpris.MediaPlayer2.DeaDBeeF'),
 
-    # the gPodder Dowloads directory must be in gmusicbrowser's library
+    # the gPodder Downloads directory must be in gmusicbrowser's library
     MPRISResumer('resume in gmusicbrowser', 'gmusicbrowser', ['gmusicbrowser'], 'org.mpris.MediaPlayer2.gmusicbrowser'),
 
     # Audacious doesn't implement MPRIS2.OpenUri

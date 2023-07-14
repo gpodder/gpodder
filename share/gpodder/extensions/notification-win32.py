@@ -100,7 +100,7 @@ try {{
         [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier($APP_ID).Show($toast)
         Remove-Item -LiteralPath $MyInvocation.MyCommand.Path -Force    # Delete this script temp file.
     }} else {{
-        # use older Baloon notification when not on Windows 10
+        # use older Balloon notification when not on Windows 10
         [System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms")
         $o = New-Object System.Windows.Forms.NotifyIcon
 

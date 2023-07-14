@@ -74,7 +74,7 @@ class GtkBuilderWidget(object):
         Convert widget names to attributes of this object.
 
         It means a widget named vbox-dialog in GtkBuilder
-        is refered using self.vbox_dialog in the code.
+        is referred using self.vbox_dialog in the code.
         """
         for widget in self.builder.get_objects():
             # Just to be safe - every widget from the builder is buildable
@@ -100,7 +100,7 @@ class GtkBuilderWidget(object):
     def new(self):
         """
         Method called when the user interface is loaded and ready to be used.
-        At this moment, the widgets are loaded and can be refered as self.widget_name
+        At this moment, the widgets are loaded and can be referred as self.widget_name
         """
 
     def main(self):
@@ -132,7 +132,7 @@ class GtkBuilderWidget(object):
         """
         Starts the main loop of processing events checking for Control-C.
 
-        The default implementation checks wheter a Control-C is pressed,
+        The default implementation checks whether a Control-C is pressed,
         then calls on_keyboard_interrupt().
 
         Use this method for starting programs.

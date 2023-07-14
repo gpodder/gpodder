@@ -294,7 +294,7 @@ def normalize_feed_url(url):
     if scheme not in ('http', 'https', 'ftp', 'file'):
         return None
 
-    # urlunsplit might return "a slighty different, but equivalent URL"
+    # urlunsplit might return "a slightly different, but equivalent URL"
     return urllib.parse.urlunsplit((scheme, netloc, path, query, fragment))
 
 
@@ -842,7 +842,7 @@ def extract_hyperlinked_text(html):
 
 def nice_html_description(img, description):
     """
-    basic html formating + hyperlink highlighting + video thumbnail
+    basic html formatting + hyperlink highlighting + video thumbnail
     """
     description = re.sub(r'''https?://[^\s]+''',
                          r'''<a href="\g<0>">\g<0></a>''',
@@ -1278,7 +1278,7 @@ def get_real_url(url):
 def find_command(command):
     """
     Searches the system's PATH for a specific command that is
-    executable by the user. Returns the first occurence of an
+    executable by the user. Returns the first occurrence of an
     executable binary in the PATH, or None if the command is
     not available.
 
@@ -2229,7 +2229,7 @@ class Popen(subprocess.Popen):
 
 
 def _parse_mimetype_sorted_dictitems(mimetype):
-    """ python 3.5 unorderd dict compat for doctest. don't use! """
+    """ python 3.5 unordered dict compat for doctest. don't use! """
     r = parse_mimetype(mimetype)
     return r[0], r[1], sorted(r[2].items())
 
