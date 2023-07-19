@@ -70,6 +70,7 @@ ISORTOPTS := -c share src/gpodder tools bin/* *.py
 lint:
 	pycodestyle share src/gpodder tools bin/* *.py
 	isort -q $(ISORTOPTS) || isort --df $(ISORTOPTS)
+	codespell --quiet-level 3 --skip "./.git,*.po,./share/applications/gpodder.desktop"
 
 release: distclean
 	$(PYTHON) setup.py sdist
