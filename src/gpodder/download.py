@@ -539,7 +539,7 @@ class DownloadTask(object):
     of downloading data, this can take a while when the Internet is
     busy).
 
-    The "status_changed" attribute gets set to True everytime the
+    The "status_changed" attribute gets set to True every time the
     "status" attribute changes its value. After you get the value of
     the "status_changed" attribute, it is always reset to False:
 

@@ -2414,7 +2414,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         if episode is None:
                             logger.info('Invalid episode at path %s', str(path))
                             continue
-                    except TypeError as te:
+                    except TypeError as e:
                         logger.error('Invalid episode at path %s', str(path))
                         continue
 
@@ -2447,7 +2447,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         if task is None:
                             logger.info('Invalid task at path %s', str(path))
                             continue
-                    except TypeError as te:
+                    except TypeError as e:
                         logger.error('Invalid task at path %s', str(path))
                         continue
 
