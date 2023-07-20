@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gPodder\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-07-19 00:52-0600\n"
-"PO-Revision-Date: 2022-10-11 17:59+0200\n"
+"POT-Creation-Date: 2023-07-20 21:10+0200\n"
+"PO-Revision-Date: 2023-07-20 21:28+0200\n"
 "Last-Translator: Irénée Thirion <irenee.thirion@e.email>\n"
 "Language-Team: French (http://www.transifex.com/projects/p/gpodder/language/"
 "fr/)\n"
@@ -19,7 +19,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Poedit 3.1.1\n"
+"X-Generator: Poedit 3.3.2\n"
 
 #: src/gpodder/config.py:53
 #, python-format
@@ -486,10 +486,8 @@ msgstr[0] "%(count)d fichier partiel"
 msgstr[1] "%(count)d fichiers partiels"
 
 #: src/gpodder/gtkui/main.py:457
-#, fuzzy
-#| msgid "Clean-up"
 msgid "Cleaning up..."
-msgstr "Nettoyage"
+msgstr "Nettoyage en cours..."
 
 #: src/gpodder/gtkui/main.py:572
 msgid "Action"
@@ -704,10 +702,8 @@ msgstr "Suppression"
 
 #: src/gpodder/gtkui/main.py:1750 src/gpodder/gtkui/main.py:3335
 #: src/gpodder/gtkui/main.py:3416
-#, fuzzy
-#| msgid "Updating"
 msgid "Updating..."
-msgstr "Mise à jour"
+msgstr "Mise à jour..."
 
 #: src/gpodder/gtkui/main.py:1812
 msgid "Start download now"
@@ -869,8 +865,6 @@ msgid "Episode details"
 msgstr "Détails de l'épisode"
 
 #: src/gpodder/gtkui/main.py:2205 share/gpodder/ui/gtk/menus.ui.h:31
-#, fuzzy
-#| msgid "Select _none"
 msgid "Select channel"
 msgstr "Sélectionner le Podcast de cet épisode"
 
@@ -1975,29 +1969,21 @@ msgstr ""
 #: share/gpodder/extensions/rename_download.py:54
 #: share/gpodder/extensions/rename_download.py:61
 #: share/gpodder/extensions/rename_download.py:80
-#, fuzzy
-#| msgid "Downloaded episodes"
 msgid "Rename all downloaded episodes"
-msgstr "Épisodes téléchargés"
+msgstr "Renommer tous les épisodes téléchargés"
 
 #: share/gpodder/extensions/rename_download.py:60
-#, fuzzy
-#| msgid "Downloaded episodes"
 msgid "No downloaded episodes to rename"
-msgstr "Épisodes téléchargés"
+msgstr "Aucun épisodes téléchargé à renommer"
 
 #: share/gpodder/extensions/rename_download.py:66
-#, fuzzy
-#| msgid "Downloaded episodes"
 msgid "Renaming all downloaded episodes"
-msgstr "Épisodes téléchargés"
+msgstr "Renommage de tous les épisodes téléchargés en cours"
 
 #: share/gpodder/extensions/rename_download.py:79
-#, fuzzy, python-format
-#| msgid "%(count)d new episode"
-#| msgid_plural "%(count)d new episodes"
+#, python-format
 msgid "Renamed %(count)d downloaded episodes"
-msgstr "%(count)d nouvel épisode"
+msgstr "%(count)d épisodes ont été renommés"
 
 #: share/gpodder/extensions/rm_ogg_cover.py:37
 msgid "Remove cover art from OGG files"
@@ -2157,56 +2143,19 @@ msgstr ""
 
 #: share/gpodder/extensions/youtube-dl.py:593
 msgid "Embed all available subtitles in downloaded video"
-msgstr ""
+msgstr "Intégrer tous les sous-titres disponibles dans la vidéo"
 
 #: share/gpodder/extensions/youtube-dl.py:600
 msgid ""
 "The \"ffmpeg\" command was not found. FFmpeg is required for embedding "
 "subtitles."
 msgstr ""
+"Le programme \"ffmpeg\" n'est pas disponible. FFmpeg est nécessaire pour "
+"intégrer les sous-titres à la vidéo"
 
 #: share/gpodder/extensions/youtube-dl.py:609
 msgid "youtube-dl"
 msgstr "youtube-dl"
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:5
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:1
-#: share/gpodder/ui/gtk/menus.ui.h:1
-msgid "Preferences"
-msgstr "Préférences"
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:7 share/gpodder/ui/gtk/menus.ui.h:9
-msgid "Check for new episodes"
-msgstr "Vérifier la présence de nouveaux épisodes"
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:8
-msgid "Filter:"
-msgstr "Filtre :"
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:9
-msgid "Podcasts"
-msgstr "Podcasts"
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:10
-msgid "Resume all"
-msgstr "Reprendre tout"
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:11
-msgid "Incomplete downloads from a previous session were found."
-msgstr ""
-"Des téléchargements incomplets d'une session précédente ont été trouvés."
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:12
-msgid "Limit rate to"
-msgstr "Limiter le débit à"
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:13
-msgid "KiB/s"
-msgstr "KiB/s"
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:14
-msgid "Limit downloads to"
-msgstr "Limiter le nombre de téléchargements à"
 
 #: share/gpodder/ui/gtk/gpodderaddpodcast.ui.h:1
 msgid "Add a new podcast"
@@ -2302,6 +2251,11 @@ msgstr "..."
 msgid "Add"
 msgstr "Ajouter"
 
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:1
+#: share/gpodder/ui/gtk/gpodder.ui.h:5 share/gpodder/ui/gtk/menus.ui.h:1
+msgid "Preferences"
+msgstr "Préférences"
+
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:2
 msgid "_Edit config"
 msgstr "Édit_er la configuration"
@@ -2316,7 +2270,7 @@ msgstr "Lecteur audio :"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:6
 msgid "Find as you type"
-msgstr ""
+msgstr "Recherche progressive"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:7
 msgid "General"
@@ -2358,6 +2312,8 @@ msgstr "Nombre maximum d’épisodes par podcast :"
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:18
 msgid "Consider only episodes added in the update as new"
 msgstr ""
+"Ne marquer comme nouveaux que les épisodes ajoutés lors de la dernière mise "
+"à jour"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:19
 msgid "When new episodes are found:"
@@ -2434,6 +2390,39 @@ msgstr "Format YouTube privilégié (HLS) :"
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:37
 msgid "Preferred Vimeo format:"
 msgstr "Format Vimeo privilégié :"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:7 share/gpodder/ui/gtk/menus.ui.h:9
+msgid "Check for new episodes"
+msgstr "Vérifier la présence de nouveaux épisodes"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:8
+msgid "Filter:"
+msgstr "Filtre :"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:9
+msgid "Podcasts"
+msgstr "Podcasts"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:10
+msgid "Resume all"
+msgstr "Reprendre tout"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:11
+msgid "Incomplete downloads from a previous session were found."
+msgstr ""
+"Des téléchargements incomplets d'une session précédente ont été trouvés."
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:12
+msgid "Limit rate to"
+msgstr "Limiter le débit à"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:13
+msgid "KiB/s"
+msgstr "KiB/s"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:14
+msgid "Limit downloads to"
+msgstr "Limiter le nombre de téléchargements à"
 
 #: share/gpodder/ui/gtk/gpodderwelcome.ui.h:3
 msgid "<big>Welcome to gPodder</big>"
@@ -2577,21 +2566,19 @@ msgstr "Toujours afficher les nouveaux épisodes"
 
 #: share/gpodder/ui/gtk/menus.ui.h:47
 msgid "Trim episode title prefix"
-msgstr ""
+msgstr "Raccourcir les titres d'épisodes"
 
 #: share/gpodder/ui/gtk/menus.ui.h:48
 msgid "Episode descriptions"
 msgstr "Description de l'épisode"
 
 #: share/gpodder/ui/gtk/menus.ui.h:49
-#, fuzzy
-#| msgid "Show episode list"
 msgid "Show episode released time"
-msgstr "Afficher la liste des épisodes"
+msgstr "Inclure l'heure dans la date de sortie"
 
 #: share/gpodder/ui/gtk/menus.ui.h:50
 msgid "Right align episode released column"
-msgstr ""
+msgstr "Aligner à droite la colonne \"Publié le\""
 
 #: share/gpodder/ui/gtk/menus.ui.h:51
 msgid "Require control click to sort episodes"
@@ -2864,10 +2851,6 @@ msgstr "quitter après le démarrage (pour le profilage)"
 msgid "Mac OS X application process number"
 msgstr "Numéro de processus de l'application Mac OS X"
 
-#: share/applications/gpodder-url-handler.desktop.in.h:1
-msgid "gPodder (subscribe to feed)"
-msgstr "s'abonner à l'URL donnée avec gPodder"
-
 #: share/applications/gpodder.desktop.in.h:2
 msgid "gPodder Podcast Client"
 msgstr "client de podcasts gPodder"
@@ -2879,3 +2862,7 @@ msgstr "Client de podcasts"
 #: share/applications/gpodder.desktop.in.h:4
 msgid "Subscribe to audio and video content from the web"
 msgstr "S'abonner à du contenu audio et vidéo depuis le web"
+
+#: share/applications/gpodder-url-handler.desktop.in.h:1
+msgid "gPodder (subscribe to feed)"
+msgstr "s'abonner à l'URL donnée avec gPodder"
