@@ -94,7 +94,7 @@ mutagen==1.46.0
 mygpoclient==1.9
 podcastparser==0.6.9
 PySocks==1.7.1
-requests==2.28.1
+requests==2.31.0
 urllib3==1.26.13
 webencodings==0.5.1
 yt-dlp
