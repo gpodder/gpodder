@@ -109,7 +109,7 @@ class YoutubeCustomDownload(download.CustomDownload):
         outtmpl = tempname.replace('%', '%%')
         info, opts = self._ytdl.fetch_info(self._url, outtmpl, self._my_hook)
         if program_name == 'yt-dlp':
-            default = opts['outtmpl']['default'] if type(opts['outtmpl']) == dict else opts['outtmpl']
+            default = opts['outtmpl']['default'] if isinstance(opts['outtmpl'], dict) else opts['outtmpl']
             self.partial_filename = os.path.join(opts['paths']['home'], default) % info
         elif program_name == 'youtube-dl':
             self.partial_filename = opts['outtmpl'] % info
@@ -463,7 +463,7 @@ class gPodderYoutubeDL(download.CustomDownloader):
         with youtube_dl.YoutubeDL(self._ydl_opts) as ydl:
             # youtube-dl returns a list, yt-dlp returns a dict
             ies = ydl._ies
-            if type(ydl._ies) == dict:
+            if isinstance(ydl._ies, dict):
                 ies = ydl._ies.values()
             for ie in ies:
                 if ie.suitable(url) and ie.ie_key() not in self.ie_blacklist:

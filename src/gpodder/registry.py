@@ -66,7 +66,7 @@ class Resolver(object):
 
     def unregister_instance(self, klass):
         logger.debug('Unregistering {} resolver instance: {}'.format(self._name, klass))
-        self._resolvers = [r for r in self._resolvers if type(r) != klass]
+        self._resolvers = [r for r in self._resolvers if not isinstance(r, klass)]
 
     def _info(self, resolver):
         return '%s from %s' % (resolver.__name__ if hasattr(resolver, '__name__')
