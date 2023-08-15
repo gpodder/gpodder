@@ -347,13 +347,11 @@ def install(domain, localedir):
 
     # initialize Python's gettext interface
     gettext.bindtextdomain(domain, localedir)
-    gettext.bind_textdomain_codeset(domain, 'UTF-8')
 
     # on windows systems, initialize libintl
     if sys.platform == 'win32' or sys.platform == 'nt':
         from ctypes import cdll
         libintl = cdll.LoadLibrary('libintl-8.dll')
         libintl.bindtextdomain(domain.encode('mbcs'), localedir.encode('mbcs'))
-        libintl.bind_textdomain_codeset(domain.encode('mbcs'), 'UTF-8'.encode('mbcs'))
 
         del libintl

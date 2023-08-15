@@ -101,6 +101,11 @@ class Matcher(object):
             return episode.file_type() == k
         elif k == 'torrent':
             return episode.url.endswith('.torrent') or 'torrent' in episode.mime_type
+        elif k == 'paused':
+            return (episode.download_task is not None
+                and episode.download_task.status in (episode.download_task.PAUSED, episode.download_task.PAUSING))
+        elif k == 'failed':
+            return (episode.download_task is not None and episode.download_task.status == episode.download_task.FAILED)
 
         # Nouns (for comparisons)
         if k in ('megabytes', 'mb'):

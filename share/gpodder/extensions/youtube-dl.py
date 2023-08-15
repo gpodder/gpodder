@@ -9,11 +9,12 @@ import os
 import re
 import sys
 import time
+from collections.abc import Iterable
 
 try:
     import yt_dlp as youtube_dl
     program_name = 'yt-dlp'
-    want_ytdl_version = '2023.02.17'
+    want_ytdl_version = '2023.06.22'
 except:
     import youtube_dl
     program_name = 'youtube-dl'
@@ -41,7 +42,7 @@ __doc__ = 'https://gpodder.github.io/docs/extensions/youtubedl.html'
 want_ytdl_version_msg = _('Your version of youtube-dl/yt-dlp %(have_version)s has known issues, please upgrade to %(want_version)s or newer.')
 
 DefaultConfig = {
-    # youtube-dl downloads and parses each video page to get informations about it, which is very slow.
+    # youtube-dl downloads and parses each video page to get information about it, which is very slow.
     # Set to False to fall back to the fast but limited (only 15 episodes) gpodder code
     'manage_channel': True,
     # If for some reason youtube-dl download doesn't work for you, you can fallback to gpodder code.
@@ -108,7 +109,7 @@ class YoutubeCustomDownload(download.CustomDownload):
         outtmpl = tempname.replace('%', '%%')
         info, opts = self._ytdl.fetch_info(self._url, outtmpl, self._my_hook)
         if program_name == 'yt-dlp':
-            default = opts['outtmpl']['default'] if type(opts['outtmpl']) == dict else opts['outtmpl']
+            default = opts['outtmpl']['default'] if isinstance(opts['outtmpl'], dict) else opts['outtmpl']
             self.partial_filename = os.path.join(opts['paths']['home'], default) % info
         elif program_name == 'youtube-dl':
             self.partial_filename = opts['outtmpl'] % info
@@ -296,9 +297,14 @@ class gPodderYoutubeDL(download.CustomDownloader):
         os.makedirs(cachedir, exist_ok=True)
         self._ydl_opts = {
             'cachedir': cachedir,
-            'no_color': True,  # prevent escape codes in desktop notifications on errors
             'noprogress': True,  # prevent progress bar from appearing in console
         }
+        # prevent escape codes in desktop notifications on errors
+        if program_name == 'yt-dlp':
+            self._ydl_opts['color'] = 'no_color'
+        else:
+            self._ydl_opts['no_color'] = True
+
         if gpodder.verbose:
             self._ydl_opts['verbose'] = True
         else:
@@ -306,7 +312,7 @@ class gPodderYoutubeDL(download.CustomDownloader):
         # Don't create downloaders for URLs supported by these youtube-dl extractors
         self.ie_blacklist = ["Generic"]
         # Cache URL regexes from youtube-dl matches here, seed with youtube regex
-        self.regex_cache = [re.compile(r'https://www.youtube.com/watch\?v=.+')]
+        self.regex_cache = [(re.compile(r'https://www.youtube.com/watch\?v=.+'),)]
         # #686 on windows without a console, sys.stdout is None, causing exceptions
         # when adding podcasts.
         # See https://docs.python.org/3/library/sys.html#sys.__stderr__ Note
@@ -384,7 +390,7 @@ class gPodderYoutubeDL(download.CustomDownloader):
         """
         Fetch a channel or playlist contents.
 
-        Doesn't yet fetch video entry informations, so we only get the video id and title.
+        Doesn't yet fetch video entry information, so we only get the video id and title.
         """
         # Duplicate a bit of the YoutubeDL machinery here because we only
         # want to parse the channel/playlist first, not to fetch video entries.
@@ -448,21 +454,22 @@ class gPodderYoutubeDL(download.CustomDownloader):
     def is_supported_url(self, url):
         if url is None:
             return False
-        if self.regex_cache[0].match(url) is not None:
-            return True
-        for r in self.regex_cache[1:]:
-            if r.match(url) is not None:
-                self.regex_cache.remove(r)
-                self.regex_cache.insert(0, r)
+        for i, res in enumerate(self.regex_cache):
+            if next(filter(None, (r.match(url) for r in res)), None) is not None:
+                if i > 0:
+                    self.regex_cache.remove(res)
+                    self.regex_cache.insert(0, res)
                 return True
         with youtube_dl.YoutubeDL(self._ydl_opts) as ydl:
             # youtube-dl returns a list, yt-dlp returns a dict
             ies = ydl._ies
-            if type(ydl._ies) == dict:
+            if isinstance(ydl._ies, dict):
                 ies = ydl._ies.values()
             for ie in ies:
                 if ie.suitable(url) and ie.ie_key() not in self.ie_blacklist:
-                    self.regex_cache.insert(0, ie._VALID_URL_RE)
+                    self.regex_cache.insert(
+                        0, (ie._VALID_URL_RE if isinstance(ie._VALID_URL_RE, Iterable)
+                            else (ie._VALID_URL_RE,)))
                     return True
         return False
 
@@ -583,7 +590,7 @@ class gPodderExtension:
 
         box.pack_start(Gtk.HSeparator(), False, False, 0)
 
-        checkbox = Gtk.CheckButton(_('Embed all available subtitles to downloaded video'))
+        checkbox = Gtk.CheckButton(_('Embed all available subtitles in downloaded video'))
         checkbox.set_active(self.container.config.embed_subtitles)
         checkbox.connect('toggled', self.toggle_embed_subtitles)
         box.pack_start(checkbox, False, False, 0)

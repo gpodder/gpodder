@@ -154,7 +154,7 @@ class ProgressIndicator(object):
             self.tick_counter += 1
 
         if time.time() >= self.next_update or (final and self.dialog):
-            if type(final) == str:
+            if isinstance(final, str):
                 self.on_message(final)
                 self.on_progress(1.0)
             elif self.max_ticks is not None:

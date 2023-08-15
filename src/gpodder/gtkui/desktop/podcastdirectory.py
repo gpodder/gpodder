@@ -291,12 +291,15 @@ class gPodderPodcastDirectory(BuilderWidget):
 
         @self.obtain_podcasts_with
         def load_data():
-            if self.current_provider.kind == directory.Provider.PROVIDER_SEARCH:
-                return self.current_provider.on_search(query)
-            elif self.current_provider.kind == directory.Provider.PROVIDER_URL:
-                return self.current_provider.on_url(query)
-            elif self.current_provider.kind == directory.Provider.PROVIDER_FILE:
-                return self.current_provider.on_file(query)
+            try:
+                if self.current_provider.kind == directory.Provider.PROVIDER_SEARCH:
+                    return self.current_provider.on_search(query)
+                elif self.current_provider.kind == directory.Provider.PROVIDER_URL:
+                    return self.current_provider.on_url(query)
+                elif self.current_provider.kind == directory.Provider.PROVIDER_FILE:
+                    return self.current_provider.on_file(query)
+            except Exception as e:
+                logger.warning('Got exception while loading podcasts: %s', e)
 
     def on_can_subscribe_changed(self, can_subscribe):
         self.btnOK.set_sensitive(can_subscribe)

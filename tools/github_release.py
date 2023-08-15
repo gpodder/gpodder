@@ -83,11 +83,11 @@ def checksums():
         m = hashlib.md5()
         s = hashlib.sha256()
         with open(archive, "rb") as f:
-            bloc = f.read(4096)
-            while bloc:
-                m.update(bloc)
-                s.update(bloc)
-                bloc = f.read(4096)
+            block = f.read(4096)
+            while block:
+                m.update(block)
+                s.update(block)
+                block = f.read(4096)
         ret[os.path.basename(archive)] = dict(md5=m.hexdigest(), sha256=s.hexdigest())
     return ret
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<!-- this stylesheet ajusts menu item accelerators:
+<!-- this stylesheet adjusts menu item accelerators:
      - Command-, for preferences
      - Command-? for user manual
 

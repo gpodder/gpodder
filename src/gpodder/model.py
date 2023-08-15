@@ -842,11 +842,18 @@ class PodcastEpisode(PodcastModelObject):
                 self.title,
                 self.cute_pubdate())
 
-    def cute_pubdate(self):
+    def cute_pubdate(self, show_time=False):
         result = util.format_date(self.published)
         if result is None:
             return '(%s)' % _('unknown')
-        else:
+
+        try:
+            if show_time:
+                timestamp = datetime.datetime.fromtimestamp(self.published)
+                return '<small>{}</small>\n{}'.format(timestamp.strftime('%H:%M'), result)
+            else:
+                return result
+        except:
             return result
 
     pubdate_prop = property(fget=cute_pubdate)
@@ -1276,7 +1283,7 @@ class PodcastChannel(PodcastModelObject):
 
         # This *might* cause episodes to be skipped if there were more than
         # limit.episodes items added to the feed between updates.
-        # The benefit is that it prevents old episodes from apearing as new
+        # The benefit is that it prevents old episodes from appearing as new
         # in certain situations (see bug #340).
         self.db.purge(max_episodes, self.id)  # TODO: Remove from self.children!
 

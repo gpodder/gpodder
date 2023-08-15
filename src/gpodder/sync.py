@@ -113,7 +113,7 @@ def episode_filename_on_device(config, episode):
     """
     # get the local file
     from_file = episode.local_filename(create=False)
-    # get the formated base name
+    # get the formatted base name
     filename_base = util.sanitize_filename(episode.sync_filename(
         config.device_sync.custom_sync_name_enabled,
         config.device_sync.custom_sync_name),
@@ -536,9 +536,9 @@ class MP3PlayerDevice(Device):
                 # Assume same size and don't sync again
                 pass
         if not to_file_exists or from_size != to_size:
-            logger.info('Copying %s => %s',
-                    os.path.basename(from_file),
-                    to_file.get_uri())
+            logger.info('Copying %s (%d bytes) => %s (%d bytes)',
+                    os.path.basename(from_file), from_size,
+                    to_file.get_uri(), to_size)
             from_file = Gio.File.new_for_path(from_file)
             try:
                 def hookconvert(current_bytes, total_bytes, user_data):
@@ -745,6 +745,7 @@ class SyncTask(download.DownloadTask):
         self.speed = 0.0
         self.progress = 0.0
         self.error_message = None
+        self.custom_downloader = None
 
         # Have we already shown this task in a notification?
         self._notification_shown = False
@@ -828,7 +829,7 @@ class SyncTask(download.DownloadTask):
             if self.status != SyncTask.DOWNLOADING:
                 return False
 
-            # We are synching this file right now
+            # We are syncing this file right now
             self._notification_shown = False
 
         sync_result = SyncTask.DOWNLOADING

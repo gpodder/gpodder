@@ -67,7 +67,7 @@ cp -a "$checkout"/tools/mac-osx/make_cert_pem.py "$resources"/bin
 
 # install gPodder hard dependencies
 $run_pip install setuptools==64.0.3 wheel || exit 1
-$run_pip install mygpoclient==1.9 podcastparser==0.6.9 requests[socks]==2.28.1 || exit 1
+$run_pip install mygpoclient==1.9 podcastparser==0.6.10 requests[socks]==2.31.0 || exit 1
 # install brotli and pycryptodomex (build from source)
 $run_pip debug -v
 $run_pip install -v brotli || exit 1

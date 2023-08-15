@@ -170,7 +170,7 @@ class ContentRange(object):
             return None
         value = value.strip()
         if not value.startswith('bytes '):
-            # Unparseable
+            # Unparsable
             return None
         value = value[len('bytes '):].strip()
         if '/' not in value:
@@ -539,7 +539,7 @@ class DownloadTask(object):
     of downloading data, this can take a while when the Internet is
     busy).
 
-    The "status_changed" attribute gets set to True everytime the
+    The "status_changed" attribute gets set to True every time the
     "status" attribute changes its value. After you get the value of
     the "status_changed" attribute, it is always reset to False:
 
@@ -588,7 +588,7 @@ class DownloadTask(object):
             _('Finished'), _('Failed'), _('Cancelling'), _('Cancelled'), _('Pausing'), _('Paused'))
     (NEW, QUEUED, DOWNLOADING, DONE, FAILED, CANCELLING, CANCELLED, PAUSING, PAUSED) = list(range(9))
 
-    # Wheter this task represents a file download or a device sync operation
+    # Whether this task represents a file download or a device sync operation
     ACTIVITY_DOWNLOAD, ACTIVITY_SYNCHRONIZE = list(range(2))
 
     # Minimum time between progress updates (in seconds)

@@ -60,7 +60,7 @@ class gPodderExtension:
 #
 # https://docs.python.org/3/library/subprocess.html#subprocess.Popen
 #
-# This is expecially important for extensions responding to
+# This is especially important for extensions responding to
 # on_episode_downloaded(), which runs whenever a download finishes.
 #
 # Otherwise that process will inherit ALL file descriptors gPodder
