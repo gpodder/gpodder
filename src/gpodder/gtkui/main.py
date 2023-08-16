@@ -376,6 +376,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             # Episodes
             ('play', self.on_playback_selected_episodes),
             ('open', self.on_playback_selected_episodes),
+            ('forceDownload', self.on_force_download_selected_episodes),
             ('download', self.on_download_selected_episodes),
             ('pause', self.on_pause_selected_episodes),
             ('cancel', self.on_item_cancel_download_activate),
@@ -410,6 +411,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # Episodes
         self.play_action = g.lookup_action('play')
         self.open_action = g.lookup_action('open')
+        self.force_download_action = g.lookup_action('forceDownload')
         self.download_action = g.lookup_action('download')
         self.pause_action = g.lookup_action('pause')
         self.cancel_action = g.lookup_action('cancel')
@@ -1897,7 +1899,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             vsec.remove(0)
             dsec.remove(0)
             if can_force:
-                insert_menuitem(0, _('Start download now'), 'win.download', 'document-save-symbolic')
+                insert_menuitem(0, _('Start download now'), 'win.forceDownload', 'document-save-symbolic')
             else:
                 insert_menuitem(0, _('Download'), 'win.download', 'document-save-symbolic')
 
@@ -3867,6 +3869,15 @@ class gPodder(BuilderWidget, dbus.service.Object):
                                model.get_value(model.get_iter(path),
                                DownloadStatusModel.C_TASK)) for path in paths]
             self._for_each_task_set_status(selected_tasks, download.DownloadTask.QUEUED)
+
+    def on_force_download_selected_episodes(self, action_or_widget, param=None):
+        if self.wNotebook.get_current_page() == 1:
+            selection = self.treeDownloads.get_selection()
+            (model, paths) = selection.get_selected_rows()
+            selected_tasks = [(Gtk.TreeRowReference.new(model, path),
+                               model.get_value(model.get_iter(path),
+                               DownloadStatusModel.C_TASK)) for path in paths]
+            self._for_each_task_set_status(selected_tasks, download.DownloadTask.QUEUED, True)
 
     def on_pause_selected_episodes(self, action_or_widget, param=None):
         if self.wNotebook.get_current_page() == 0:
