@@ -353,5 +353,7 @@ def install(domain, localedir):
         from ctypes import cdll
         libintl = cdll.LoadLibrary('libintl-8.dll')
         libintl.bindtextdomain(domain.encode('mbcs'), localedir.encode('mbcs'))
+        # See #1538 not calling bind_textdomain_codeset results in garbled menus
+        libintl.bind_textdomain_codeset(domain.encode('mbcs'), 'UTF-8'.encode('mbcs'))
 
         del libintl
