@@ -73,6 +73,7 @@ def get_launcher_code(entry_point):
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                     PWSTR lpCmdLine, int nCmdShow)
 {
+    int result;
     DWORD retval = 0;
     BOOL success;
     WCHAR buffer[BUFSIZE] = {0};
@@ -131,19 +132,19 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
         goto exception;
     }
 
-    /* set our launcher code */
-    status = PyConfig_SetBytesString(&config, &config.run_command, "%s");
-    if (PyStatus_Exception(status)) {
-        goto exception;
-    }
-
     status = Py_InitializeFromConfig(&config);
     if (PyStatus_Exception(status)) {
         goto exception;
     }
     PyConfig_Clear(&config);
 
-    return Py_RunMain();
+    result = PyRun_SimpleString("%s");
+
+    int finalizeResult = Py_FinalizeEx();
+    if (finalizeResult != 0) {
+        printf("E: Py_FinalizeEx() returned %%d\\n", finalizeResult);
+    }
+    return result;
 
 exception:
     PyConfig_Clear(&config);
