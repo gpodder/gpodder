@@ -78,20 +78,20 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     DWORD retval = 0;
     BOOL success;
     WCHAR buffer[BUFSIZE] = {0};
-    WCHAR* lppPart[1] = {NULL};
+    WCHAR* lppPart = NULL;
 
-    retval = GetFullPathNameW(__wargv[0], BUFSIZE, buffer, lppPart);
+    retval = GetFullPathNameW(__wargv[0], BUFSIZE, buffer, &lppPart);
 
     if (retval == 0)
     {
         // It's bad, but can be ignored
-        printf ("GetFullPathName failed (%%d)\\n", GetLastError());
+        printf ("GetFullPathName failed (%%ld)\\n", GetLastError());
     }
     else if (retval < BUFSIZE)
     {
         if (lppPart != NULL && *lppPart != 0)
         {
-            lppPart[0][-1] = 0;
+            lppPart[-1] = 0;
             printf("Calling SetDllDirectoryW(%%ls)\\n", buffer);
             success = SetDllDirectoryW(buffer);
             if (success)
@@ -100,7 +100,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
             }
             else
             {
-                printf ("SetDllDirectoryW failed (%%d)\\n", GetLastError());
+                printf ("SetDllDirectoryW failed (%%ld)\\n", GetLastError());
             }
         }
         else
@@ -110,7 +110,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     }
     else
     {
-        printf ("GetFullPathName buffer too small (required %%d)\\n", retval);
+        printf ("GetFullPathName buffer too small (required %%ld)\\n", retval);
         return -1; // this shouldn't happen
     }
 
