@@ -2161,8 +2161,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.episodes_popover.show()
             return True
 
-    def set_episode_actions(self, open_instead_of_play=False, can_play=False, can_download=False, can_pause=False, can_cancel=False,
-                            can_delete=False, can_lock=False, is_episode_selected=False):
+    def set_episode_actions(self, open_instead_of_play=False, can_play=False, can_force=False, can_download=False,
+                            can_pause=False, can_cancel=False, can_delete=False, can_lock=False, is_episode_selected=False):
         episodes = self.get_selected_episodes() if is_episode_selected else []
 
         # play icon and label
@@ -2184,6 +2184,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         # toolbar
         self.toolPlay.set_sensitive(can_play)
+        self.toolForceDownload.set_visible(can_force)
+        self.toolForceDownload.set_sensitive(can_force)
+        self.toolDownload.set_visible(not can_force)
         self.toolDownload.set_sensitive(can_download)
         self.toolPause.set_sensitive(can_pause)
         self.toolCancel.set_sensitive(can_cancel)
@@ -2191,7 +2194,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # Episodes menu
         self.play_action.set_enabled(can_play and not open_instead_of_play)
         self.open_action.set_enabled(can_play and open_instead_of_play)
-        self.download_action.set_enabled(can_download)
+        self.download_action.set_enabled(can_force or can_download)
         self.pause_action.set_enabled(can_pause)
         self.cancel_action.set_enabled(can_cancel)
         self.delete_action.set_enabled(can_delete)
@@ -2374,7 +2377,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     can_delete = can_delete or episode.can_delete()
                     can_lock = can_lock or episode.can_lock()
 
-            self.set_episode_actions(open_instead_of_play, can_play, can_download, can_pause, can_cancel, can_delete, can_lock,
+            self.set_episode_actions(open_instead_of_play, can_play, False, can_download, can_pause, can_cancel, can_delete, can_lock,
                                     selection.count_selected_rows() > 0)
 
             return (open_instead_of_play, can_play, can_preview, can_download,
@@ -2409,7 +2412,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             else:
                 can_force = False
 
-            self.set_episode_actions(False, False, can_queue or can_force, can_pause, can_cancel, can_remove, False, False)
+            self.set_episode_actions(False, False, can_force, can_queue, can_pause, can_cancel, can_remove, False, False)
 
             return (False, False, False, can_queue, can_pause, can_cancel,
                     can_remove, False)
