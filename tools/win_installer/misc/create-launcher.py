@@ -73,8 +73,6 @@ def get_launcher_code(entry_point):
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                     PWSTR lpCmdLine, int nCmdShow)
 {
-    int result;
-
     DWORD retval = 0;
     BOOL success;
     WCHAR buffer[BUFSIZE] = {0};
@@ -114,14 +112,47 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
         return -1; // this shouldn't happen
     }
 
-    Py_NoUserSiteDirectory = 1;
-    Py_IgnoreEnvironmentFlag = 1;
-    Py_DontWriteBytecodeFlag = 1;
-    Py_Initialize();
-    PySys_SetArgvEx(__argc, __wargv, 0);
-    result = PyRun_SimpleString("%s");
-    Py_Finalize();
-    return result;
+
+
+    PyStatus status;
+
+    PyConfig config;
+    PyConfig_InitPythonConfig(&config);
+
+    config.parse_argv = 1;
+    config.isolated = 1;
+    config.use_environment = 0;
+    config.write_bytecode = 0;
+
+    /* Decode command line arguments.
+       Implicitly preinitialize Python (in isolated mode). */
+    status = PyConfig_SetArgv(&config, __argc, __wargv);
+    if (PyStatus_Exception(status)) {
+        goto exception;
+    }
+
+    /* set our launcher code */
+    status = PyConfig_SetBytesString(&config, &config.run_command, "%s");
+    if (PyStatus_Exception(status)) {
+        goto exception;
+    }
+
+    status = Py_InitializeFromConfig(&config);
+    if (PyStatus_Exception(status)) {
+        goto exception;
+    }
+    PyConfig_Clear(&config);
+
+    return Py_RunMain();
+
+exception:
+    PyConfig_Clear(&config);
+    if (PyStatus_IsExit(status)) {
+        return status.exitcode;
+    }
+    /* Display the error message and exit the process with
+       non-zero exit code */
+    Py_ExitStatusException(status);
 }
     """
 
