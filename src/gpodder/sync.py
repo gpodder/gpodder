@@ -532,16 +532,14 @@ class MP3PlayerDevice(Device):
         # Comparing file size would detect such files and finish uploading.
         # However, some devices add metadata to files, increasing their size, and forcing an upload on every sync.
         # File size and checksum can not be used.
-        # TODO: see https://github.com/gpodder/gpodder/issues/1416
-#        if to_file_exists:
-#            try:
-#                info = to_file.query_info(Gio.FILE_ATTRIBUTE_STANDARD_SIZE, Gio.FileQueryInfoFlags.NONE)
-#                to_size = info.get_attribute_uint64(Gio.FILE_ATTRIBUTE_STANDARD_SIZE)
-#            except GLib.Error:
-#                # Assume same size and don't sync again
-#                pass
-#        if not to_file_exists or from_size != to_size:
-        if not to_file_exists:
+        if to_file_exists and self._config.device_sync.compare_episode_filesize:
+            try:
+                info = to_file.query_info(Gio.FILE_ATTRIBUTE_STANDARD_SIZE, Gio.FileQueryInfoFlags.NONE)
+                to_size = info.get_attribute_uint64(Gio.FILE_ATTRIBUTE_STANDARD_SIZE)
+            except GLib.Error:
+                # Assume same size and don't sync again
+                pass
+        if not to_file_exists or from_size != to_size:
             logger.info('Copying %s (%d bytes) => %s (%d bytes)',
                     os.path.basename(from_file), from_size,
                     to_file.get_uri(), to_size)

@@ -300,6 +300,8 @@ class gPodderPreferences(BuilderWidget):
                                               self.checkbutton_delete_using_playlists)
         self._config.connect_gtk_togglebutton('device_sync.delete_deleted_episodes',
                                               self.checkbutton_delete_deleted_episodes)
+        self._config.connect_gtk_togglebutton('device_sync.compare_episode_filesize',
+                                              self.checkbutton_compare_episode_filesize)
 
         # Have to do this before calling set_active on checkbutton_enable
         self._enable_mygpo = self._config.mygpo.enabled
@@ -688,6 +690,7 @@ class gPodderPreferences(BuilderWidget):
             self.combobox_on_sync.set_sensitive(False)
             self.checkbutton_skip_played_episodes.set_sensitive(True)
             self.checkbutton_delete_deleted_episodes.set_sensitive(True)
+        self.checkbutton_compare_episode_filesize.set_sensitive(True)
 
         children = self.btn_filesystemMountpoint.get_children()
         if children:

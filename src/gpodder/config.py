@@ -197,6 +197,8 @@ defaults = {
 
         'max_filename_length': 120,
 
+        'compare_episode_filesize': True,
+
         'custom_sync_name': '{episode.sortdate}_{episode.title}',
         'custom_sync_name_enabled': False,
 
