@@ -120,7 +120,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     PyConfig config;
     PyConfig_InitPythonConfig(&config);
 
-    config.parse_argv = 1;
+    config.parse_argv = 0; // don't parse argv as python arguments (to keep them for gpodder)
     config.isolated = 1;
     config.use_environment = 0;
     config.write_bytecode = 0;
