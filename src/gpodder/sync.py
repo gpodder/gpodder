@@ -584,10 +584,13 @@ class MP3PlayerDevice(Device):
             if self._config.one_folder_per_podcast:
                 if path_info.get_file_type() == Gio.FileType.DIRECTORY:
                     path_file = root_path.get_child(path_info.get_name())
-                    for child_info in path_file.enumerate_children(attributes, Gio.FileQueryInfoFlags.NONE, None):
-                        if child_info.get_file_type() == Gio.FileType.REGULAR:
-                            child_file = path_file.get_child(child_info.get_name())
-                            self.add_sync_track(tracks, child_file, child_info, path_info.get_name())
+                    try:
+                        for child_info in path_file.enumerate_children(attributes, Gio.FileQueryInfoFlags.NONE, None):
+                            if child_info.get_file_type() == Gio.FileType.REGULAR:
+                                child_file = path_file.get_child(child_info.get_name())
+                                self.add_sync_track(tracks, child_file, child_info, path_info.get_name())
+                    except GLib.Error as err:
+                        logger.error('get all tracks for %s failed: %s', path_file.get_uri(), err.message)
 
             else:
                 if path_info.get_file_type() == Gio.FileTypeFlags.REGULAR:
