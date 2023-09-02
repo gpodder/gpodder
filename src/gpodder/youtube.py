@@ -440,9 +440,9 @@ def get_channel_id_url(url, feed_data=None):
             else:
                 r = feed_data
             # video page may contain corrupt HTML/XML, search for tag to avoid exception
-            m = re.search(r'channel_id=([^"]+)">', r.text)
+            m = re.search(r'(channel_id=([^"]+)">|"channelId":"([^"]+)")', r.text)
             if m:
-                channel_id = m.group(1)
+                channel_id = m.group(2) or m.group(3)
             else:
                 raw_xml_data = io.BytesIO(r.content)
                 xml_data = xml.etree.ElementTree.parse(raw_xml_data)
