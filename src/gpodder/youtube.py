@@ -434,7 +434,7 @@ def get_channel_id_url(url, feed_data=None):
     if 'youtube.com' in url:
         try:
             if feed_data is None:
-                r = util.urlopen(url)
+                r = util.urlopen(url, cookies={'SOCS': 'CAI'})
                 if not r.ok:
                     raise YouTubeError('Youtube "%s": %d %s' % (url, r.status_code, r.reason))
             else:
@@ -632,10 +632,11 @@ def parse_youtube_url(url):
             return new_url
 
         # look for channel URL in page
+        logger.debug("Unknown Youtube URL, trying to extract channel ID...")
         new_url = get_channel_id_url(url)
         if new_url:
             logger.debug("New Youtube URL: {}".format(new_url))
-            return new_url
+            return parse_youtube_url(new_url)
 
     logger.debug("Not a valid Youtube URL: {}".format(url))
     return url
