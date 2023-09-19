@@ -2634,6 +2634,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         for input_title, input_url in podcasts:
             url = util.normalize_feed_url(input_url)
 
+            # Check if it's an Apple Podcasts url, resolves to the podcast rss feed if that's the case
+            url = util.parse_apple_podcasts_url(url)
+
             # Check if it's a YouTube channel, user, or playlist and resolves it to its feed if that's the case
             url = youtube.parse_youtube_url(url)
 
