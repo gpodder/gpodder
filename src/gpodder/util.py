@@ -312,9 +312,13 @@ def parse_apple_podcasts_url(url):
 
     m = re_apple_podcasts.match(url)
     if m is not None:
+        apple_url = url
         try:
             lookup = urlopen('https://itunes.apple.com/lookup?id=%s' % m.group(1)).json()
             url = normalize_feed_url(lookup['results'][0]['feedUrl'])
+            if url is None:
+                url = apple_url
+                raise ValueError('Invalid feed url')
         except:
             logger.warning('Could not look up feed url for %s.' % url, exc_info=True)
 
