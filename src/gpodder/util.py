@@ -308,7 +308,7 @@ def parse_apple_podcasts_url(url):
     if url is None:
         return url
 
-    re_apple_podcasts = re.compile(r'http[s]?://podcasts\.apple\.com(?:/[a-z]{2})?/podcast(?:/[^/]+)?/id[=]?([\d]+)')
+    re_apple_podcasts = re.compile(r'http[s]?://podcasts\.apple\.com(?:/[a-z]{2})?/podcast(?:/[^/]+)?/id[=]?([\d]+)', re.I)
 
     m = re_apple_podcasts.match(url)
     if m is not None:
