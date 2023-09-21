@@ -582,15 +582,15 @@ def format_filesize(bytesize, use_si_units=False, digits=2):
     has a negative value.
     """
     si_units = (
-            ('kB', 10**3),
-            ('MB', 10**6),
-            ('GB', 10**9),
+            (_('kB'), 10**3),
+            (_('MB'), 10**6),
+            (_('GB'), 10**9),
     )
 
     binary_units = (
-            ('KiB', 2**10),
-            ('MiB', 2**20),
-            ('GiB', 2**30),
+            (_('KiB'), 2**10),
+            (_('MiB'), 2**20),
+            (_('GiB'), 2**30),
     )
 
     try:
@@ -606,7 +606,7 @@ def format_filesize(bytesize, use_si_units=False, digits=2):
     else:
         units = binary_units
 
-    (used_unit, used_value) = ('B', bytesize)
+    (used_unit, used_value) = (_('B'), bytesize)
 
     for (unit, value) in units:
         if bytesize >= value:

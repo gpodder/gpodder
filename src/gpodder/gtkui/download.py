@@ -95,10 +95,12 @@ class DownloadStatusModel(Gtk.ListStore):
                     task.STATUS_MESSAGE[task.status],
                     task.error_message)
         elif task.status == task.DOWNLOADING:
-            status_message = '%s (%.0f%%, %s/s)' % (
-                    task.STATUS_MESSAGE[task.status],
-                    task.progress * 100,
-                    util.format_filesize(task.speed))
+            status_message = _('%(status)s (%(progress).0f%%, %(rate)s/s, %(remaining)s)') % {
+                    'status': task.STATUS_MESSAGE[task.status],
+                    'progress': task.progress * 100,
+                    'rate': util.format_filesize(task.speed),
+                    'remaining': util.format_time(round((task.total_size * (1 - task.progress)) / task.speed)) if task.speed > 0 else '--:--'
+            }
         else:
             status_message = task.STATUS_MESSAGE[task.status]
 
