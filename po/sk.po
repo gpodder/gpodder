@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: gPodder\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2023-08-13 22:27-0600\n"
-"PO-Revision-Date: 2022-10-10 13:37+0200\n"
+"PO-Revision-Date: 2023-09-14 13:37+0200\n"
 "Last-Translator: Thomas Perl <m@thp.io>\n"
 "Language-Team: Slovak (http://www.transifex.com/projects/p/gpodder/language/"
 "sk/)\n"
@@ -479,10 +479,8 @@ msgstr[1] "%(count)d neúplné súbory"
 msgstr[2] "%(count)d neúplných súborov"
 
 #: src/gpodder/gtkui/main.py:457
-#, fuzzy
-#| msgid "Clean-up"
 msgid "Cleaning up..."
-msgstr "Čistenie"
+msgstr "Čistenie..."
 
 #: src/gpodder/gtkui/main.py:572
 msgid "Action"
@@ -494,7 +492,7 @@ msgstr "Potvrdiť zmeny z gpodder.net"
 
 #: src/gpodder/gtkui/main.py:620
 msgid "Select the actions you want to carry out."
-msgstr "Vyberte akciu, kterou chcete vykonať."
+msgstr "Vyberte akcie, ktoré chcete vykonať."
 
 #: src/gpodder/gtkui/main.py:624
 msgid "A_pply"
@@ -502,7 +500,7 @@ msgstr "_Použiť"
 
 #: src/gpodder/gtkui/main.py:660
 msgid "Uploading subscriptions"
-msgstr "Nahrávánie odberov"
+msgstr "Nahrávanie odberov"
 
 #: src/gpodder/gtkui/main.py:661
 msgid "Your subscriptions are being uploaded to the server."
@@ -706,10 +704,8 @@ msgstr "Odstránenie"
 
 #: src/gpodder/gtkui/main.py:1750 src/gpodder/gtkui/main.py:3335
 #: src/gpodder/gtkui/main.py:3416
-#, fuzzy
-#| msgid "Updating"
 msgid "Updating..."
-msgstr "Aktualizácia"
+msgstr "Aktualizácia..."
 
 #: src/gpodder/gtkui/main.py:1812
 msgid "Start download now"
@@ -870,10 +866,8 @@ msgid "Episode details"
 msgstr "Detaily epizódy"
 
 #: src/gpodder/gtkui/main.py:2205 share/gpodder/ui/gtk/menus.ui.h:31
-#, fuzzy
-#| msgid "Select _none"
 msgid "Select channel"
-msgstr "_Nevybrať žiadne"
+msgstr "Vybrať zdroj"
 
 #: src/gpodder/gtkui/main.py:2395
 msgid "Please check your media player settings in the preferences dialog."
@@ -901,7 +895,7 @@ msgstr "Tieto podcasty už odoberáte:"
 
 #: src/gpodder/gtkui/main.py:2676 bin/gpo:345
 msgid "Podcast requires authentication"
-msgstr "Podcast požaduje overenie"
+msgstr "Podcast vyžaduje overenie"
 
 #: src/gpodder/gtkui/main.py:2677 bin/gpo:346
 #, python-format
@@ -1048,7 +1042,7 @@ msgid ""
 "The selected episodes are locked. Please unlock the episodes that you want "
 "to delete before trying to delete them."
 msgstr ""
-"Označené epizódy sú uzamknuté. Pre ich vymazanie je tieto najprv epizódy "
+"Označené epizódy sú uzamknuté. Pre ich vymazanie je tieto epizódy najprv "
 "potrebné odomknúť."
 
 #: src/gpodder/gtkui/main.py:3106 bin/gpo:874
@@ -1466,7 +1460,7 @@ msgstr "Prihlásiť"
 
 #: src/gpodder/gtkui/interface/common.py:188
 msgid "Authentication required"
-msgstr "Požadované overenie"
+msgstr "Vyžadované overenie"
 
 #: src/gpodder/gtkui/interface/common.py:197
 msgid "hostname or root URL (e.g. https://gpodder.net)"
@@ -1501,7 +1495,7 @@ msgstr "Nastaviť na"
 #, python-format
 msgid "Cannot set %(field)s to %(value)s. Needed data type: %(datatype)s"
 msgstr ""
-"%(field)s nemohlo byť nastavené na %(value)s. Požadovaný typ: %(datatype)s"
+"Nie je možné nastaviť %(field)s na %(value)s. Potrebný typ: %(datatype)s"
 
 #: src/gpodder/gtkui/interface/configeditor.py:91
 msgid "Error setting option"
@@ -1967,29 +1961,21 @@ msgstr "Premenovať epizódy po stiahnutí na \"<Názov epizódy>.<prípona>\""
 #: share/gpodder/extensions/rename_download.py:54
 #: share/gpodder/extensions/rename_download.py:61
 #: share/gpodder/extensions/rename_download.py:80
-#, fuzzy
-#| msgid "Downloaded episodes"
 msgid "Rename all downloaded episodes"
-msgstr "Stiahnuté epizódy"
+msgstr "Premenovať všetky stiahnuté epizódy"
 
 #: share/gpodder/extensions/rename_download.py:60
-#, fuzzy
-#| msgid "Downloaded episodes"
 msgid "No downloaded episodes to rename"
-msgstr "Stiahnuté epizódy"
+msgstr "Žiadne stiahnuté epizódy na premenovanie"
 
 #: share/gpodder/extensions/rename_download.py:66
-#, fuzzy
-#| msgid "Downloaded episodes"
 msgid "Renaming all downloaded episodes"
-msgstr "Stiahnuté epizódy"
+msgstr "Premenovanie všetkých stiahnutých epizód"
 
 #: share/gpodder/extensions/rename_download.py:79
-#, fuzzy, python-format
-#| msgid "%(count)d new episode"
-#| msgid_plural "%(count)d new episodes"
+#, python-format
 msgid "Renamed %(count)d downloaded episodes"
-msgstr "%(count)d nová epizóda"
+msgstr "Premenovaných %(count)d stiahnutých epizód"
 
 #: share/gpodder/extensions/rm_ogg_cover.py:37
 msgid "Remove cover art from OGG files"
@@ -2146,13 +2132,14 @@ msgstr ""
 
 #: share/gpodder/extensions/youtube-dl.py:593
 msgid "Embed all available subtitles in downloaded video"
-msgstr ""
+msgstr "Vložiť všetky dostupné titulky do stiahnutých videí"
 
 #: share/gpodder/extensions/youtube-dl.py:600
 msgid ""
 "The \"ffmpeg\" command was not found. FFmpeg is required for embedding "
 "subtitles."
 msgstr ""
+"Príkaz \"ffmpeg\" nebol nájdený. FFmpeg je potrebný na vloženie titulkov."
 
 #: share/gpodder/extensions/youtube-dl.py:609
 msgid "youtube-dl"
@@ -2304,7 +2291,7 @@ msgstr "Prehrávač audia:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:6
 msgid "Find as you type"
-msgstr ""
+msgstr "Hľadať počas písania"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:7
 msgid "General"
@@ -2344,7 +2331,7 @@ msgstr "Maximálny počet epizód podcastu:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:18
 msgid "Consider only episodes added in the update as new"
-msgstr ""
+msgstr "Považovať iba epizódy pridané počas aktualizácie za nové"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:19
 msgid "When new episodes are found:"
@@ -2564,21 +2551,19 @@ msgstr "Vždy zobraziť nové epizódy"
 
 #: share/gpodder/ui/gtk/menus.ui.h:47
 msgid "Trim episode title prefix"
-msgstr ""
+msgstr "Skrátiť názvy epizód"
 
 #: share/gpodder/ui/gtk/menus.ui.h:48
 msgid "Episode descriptions"
 msgstr "Popis epizód"
 
 #: share/gpodder/ui/gtk/menus.ui.h:49
-#, fuzzy
-#| msgid "Show episode list"
 msgid "Show episode released time"
-msgstr "Zobraziť zoznam epizód"
+msgstr "Zobraziť čas vydania epizód"
 
 #: share/gpodder/ui/gtk/menus.ui.h:50
 msgid "Right align episode released column"
-msgstr ""
+msgstr "Zarovnať čas vydania epizód vpravo"
 
 #: share/gpodder/ui/gtk/menus.ui.h:51
 msgid "Require control click to sort episodes"
