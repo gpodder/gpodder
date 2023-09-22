@@ -162,13 +162,14 @@ class UIConfig(config.Config):
 
         if -1 not in (cfg.x, cfg.y, cfg.width, cfg.height):
             # get screen resolution
-            screen = Gdk.Screen.get_default()
-            screen_width = 0
-            screen_height = 0
-            for i in range(0, screen.get_n_monitors()):
-                monitor = screen.get_monitor_geometry(i)
-                screen_width += monitor.width
-                screen_height += monitor.height
+            def get_screen_size(display):
+                monitor_geometries = [display.get_monitor(i).get_geometry() for i in range(display.get_n_monitors())]
+                x0 = min(r.x for r in monitor_geometries)
+                y0 = min(r.y for r in monitor_geometries)
+                x1 = max(r.x + r.width for r in monitor_geometries)
+                y1 = max(r.y + r.height for r in monitor_geometries)
+                return x1 - x0, y1 - y0
+            screen_width, screen_height = get_screen_size(Gdk.Display.get_default())
             logger.debug('Screen %d x %d' % (screen_width, screen_height))
             # reset window position if more than 50% is off-screen
             half_width = cfg.width / 2
