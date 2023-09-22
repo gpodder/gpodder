@@ -301,26 +301,34 @@ def parse_apple_podcasts_url(url):
     """
     Parses and resolves Apple Podcast links to podcast feed urls using the
     iTunes Search API.
-    @param url: apple podcasts url
-    @return: the feed url if successful or the given url if not
+    @return: the given url if not an apple podcasts url, or the feed url if
+    successfully parsed, or none if not.
     Source: https://developer.apple.com/library/archive/documentation/AudioVideo/Conceptual/iTuneSearchAPI/LookupExamples.html
     """
     if url is None:
         return url
 
-    re_apple_podcasts = re.compile(r'http[s]?://podcasts\.apple\.com(?:/[a-z]{2})?/podcast(?:/[^/]+)?/id[=]?([\d]+)', re.I)
+    re_apple_podcasts = re.compile(r'http[s]?://podcasts\.apple\.com(?:/[a-z]{2})?/podcast(?:/[^/]+)?/id([\d]+)', re.I)
 
     m = re_apple_podcasts.match(url)
     if m is not None:
         apple_url = url
         try:
             lookup = urlopen('https://itunes.apple.com/lookup?id=%s' % m.group(1)).json()
-            url = normalize_feed_url(lookup['results'][0]['feedUrl'])
-            if url is None:
-                url = apple_url
-                raise ValueError('Invalid feed url')
         except:
-            logger.warning('Could not look up feed url for %s.' % url, exc_info=True)
+            logger.warning('Could not parse %s.' % apple_url)
+            return None
+
+        if 'results' not in lookup or len(lookup['results']) == 0:
+            logger.warning('Could not parse %s: lookup returned no results.' % apple_url)
+            return None
+        elif 'feedUrl' not in lookup['results'][0]:
+            logger.warning('Could not parse %s: lookup doesn\'t contain feed URL.' % apple_url)
+            return None
+
+        url = normalize_feed_url(lookup['results'][0]['feedUrl'])
+        if url is None:
+            logger.warning('Could not parse %s: lookup contains invalid feed URL.' % apple_url)
 
     return url
 
