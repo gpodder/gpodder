@@ -10,10 +10,10 @@
 # Thomas Perl <thp@perli.net>, 2006.
 msgid ""
 msgstr ""
-"Project-Id-Version: gPodder -Translation v. 14.08.2023\n"
+"Project-Id-Version: gPodder -Translation v. 21.09.2023\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2023-09-21 04:10-0600\n"
-"PO-Revision-Date: 2023-08-14 14:50+0200\n"
+"PO-Revision-Date: 2023-09-21 16:51+0200\n"
 "Last-Translator: bovirus <bovirus@gmail.com>\n"
 "Language-Team: Italian (https://github.com/gpodder/gpodder/tree/master/po)\n"
 "Language: it\n"
@@ -76,7 +76,7 @@ msgstr "In coda"
 
 #: src/gpodder/download.py:587 src/gpodder/gtkui/model.py:398
 msgid "Downloading"
-msgstr "Download..."
+msgstr "Download"
 
 #: src/gpodder/download.py:588 src/gpodder/model.py:898 src/gpodder/sync.py:651
 msgid "Finished"
@@ -353,29 +353,27 @@ msgstr "Ieri"
 
 #: src/gpodder/util.py:585
 msgid "kB"
-msgstr ""
+msgstr "kB"
 
 #: src/gpodder/util.py:586
 msgid "MB"
-msgstr ""
+msgstr "MB"
 
 #: src/gpodder/util.py:587
 msgid "GB"
-msgstr ""
+msgstr "GB"
 
 #: src/gpodder/util.py:591
-#, fuzzy
-#| msgid "KiB/s"
 msgid "KiB"
-msgstr "KiB/s"
+msgstr "KiB"
 
 #: src/gpodder/util.py:592
 msgid "MiB"
-msgstr ""
+msgstr "MiB"
 
 #: src/gpodder/util.py:593
 msgid "GiB"
-msgstr ""
+msgstr "GiB"
 
 #: src/gpodder/util.py:599 src/gpodder/util.py:602
 msgid "(unknown)"
@@ -383,7 +381,7 @@ msgstr "(sconosciuto)"
 
 #: src/gpodder/util.py:609
 msgid "B"
-msgstr ""
+msgstr "B"
 
 #: src/gpodder/util.py:1507 src/gpodder/util.py:1529
 #, python-format
@@ -491,7 +489,7 @@ msgstr "Applicazione predefinita"
 #: src/gpodder/gtkui/download.py:98
 #, python-format
 msgid "%(status)s (%(progress).0f%%, %(rate)s/s, %(remaining)s)"
-msgstr ""
+msgstr "%(status)s (%(progress).0f%%, %(rate)s/s, %(remaining)s)"
 
 #: src/gpodder/gtkui/main.py:174 share/applications/gpodder.desktop.in.h:1
 msgid "gPodder"
@@ -2004,11 +2002,10 @@ msgid "Renaming all downloaded episodes"
 msgstr "Rinomina tutti gli episodi scaricati"
 
 #: share/gpodder/extensions/rename_download.py:81
-#, fuzzy, python-format
-#| msgid "Renamed %(count)d downloaded episodes"
+#, python-format
 msgid "Renamed %(count)d downloaded episode"
 msgid_plural "Renamed %(count)d downloaded episodes"
-msgstr[0] "%(count)d episodi scaricati e rinominati"
+msgstr[0] "%(count)d episodio scaricato e rinominato"
 msgstr[1] "%(count)d episodi scaricati e rinominati"
 
 #: share/gpodder/extensions/rm_ogg_cover.py:37
@@ -2376,7 +2373,7 @@ msgstr "Quando vengono trovati nuovi episodi:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:20
 msgid "Check connection before updating (if supported)"
-msgstr "Prima di aggiornare (se supportato) controlla la connessione "
+msgstr "Prima di aggiornare (se supportato) controlla la connessione"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:21
 msgid "Updating"
@@ -2435,6 +2432,8 @@ msgid ""
 "Sync existing episodes on device when file size differs from gPodder "
 "(disable if device modifies files)"
 msgstr ""
+"Quando la dimensione del file è diversa da gPodder sincronizza gli episodi "
+"esistenti nel dispositivo (disabilita se il dispositivo modifica i file)"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:35
 msgid "Devices"
