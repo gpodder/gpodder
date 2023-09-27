@@ -215,14 +215,14 @@ def fixup_home(old_home):
 # Default locations for configuration and data files
 default_home = os.path.expanduser(os.path.join('~', 'gPodder'))
 default_home = fixup_home(default_home)
-set_home(os.environ.get(ENV_HOME, default_home))
+set_home(os.path.expanduser(os.environ.get(ENV_HOME, default_home)))
 
 if home != default_home:
     print('Storing data in', home, '(GPODDER_HOME is set)', file=sys.stderr)
 
 if ENV_DOWNLOADS in os.environ:
     # Allow to relocate the downloads folder (pull request 4, bug 466)
-    downloads = os.environ[ENV_DOWNLOADS]
+    downloads = os.path.expanduser(os.environ[ENV_DOWNLOADS])
     print('Storing downloads in %s (%s is set)' % (downloads,
             ENV_DOWNLOADS), file=sys.stderr)
 
