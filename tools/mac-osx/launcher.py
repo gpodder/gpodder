@@ -128,7 +128,7 @@ def gpodder_home():
     # it would be preferred to the old one
     default_path = join(os.environ['HOME'], 'Library', 'Application Support', 'gPodder')
     cands = [
-        os.path.expanduser(os.environ.get('GPODDER_HOME')),
+        os.path.expanduser(os.environ.get('GPODDER_HOME')) if 'GPODDER_HOME' in os.environ else None,
         default_path,
         join(os.environ['HOME'], 'gPodder'),
     ]
