@@ -176,6 +176,9 @@ class gPodderShownotes:
                 self.text_buffer.create_tag('hyperlink',
                     foreground=self.link_color.to_string(),
                     underline=Pango.Underline.SINGLE)
+                self.text_buffer.create_tag('timestamp',
+                    foreground=self.link_color.to_string(),
+                    underline=Pango.Underline.SINGLE)
 
 
 class gPodderShownotesText(gPodderShownotes):
@@ -194,6 +197,7 @@ class gPodderShownotesText(gPodderShownotes):
         self.text_view.connect('key-press-event', self.on_key_press)
         self.text_view.connect('motion-notify-event', self.on_hover_hyperlink)
         self.populate_popup_id = None
+        self.episode = None
         return self.text_view
 
     def update(self, episode):
@@ -228,6 +232,21 @@ class gPodderShownotesText(gPodderShownotes):
             else:
                 self.text_buffer.insert(
                     self.text_buffer.get_end_iter(), text)
+        if episode.chapters:
+            chapters = episode.parsed_chapters
+            if chapters:
+                self.text_buffer.insert_at_cursor("\n\n")
+                self.text_buffer.insert_with_tags_by_name(self.text_buffer.get_end_iter(), "Chapters", 'heading')
+                last_chapter = None
+                # to display chapter duration:
+                # for c, nc in zip(chapters, chapters[1:] + [{"start": episode.total_time}]):
+                for c in chapters:
+                    self.text_buffer.insert_at_cursor('\n')
+                    hyperlinks.append((self.text_buffer.get_char_count(), c["start"]))
+                    self.text_buffer.insert_with_tags_by_name(self.text_buffer.get_end_iter(), util.format_time(c["start"]), 'timestamp')
+                    hyperlinks.append((self.text_buffer.get_char_count(), None))
+                    line = "  %s" % c["title"]
+                    self.text_buffer.insert_at_cursor(line)
         hyperlinks.append((self.text_buffer.get_char_count(), None))
         self.hyperlinks = [(start, end, url) for (start, url), (end, _) in zip(hyperlinks, hyperlinks[1:]) if url]
         self.text_buffer.place_cursor(self.text_buffer.get_start_iter())
@@ -283,7 +302,10 @@ class gPodderShownotesText(gPodderShownotes):
             pos = self.text_buffer.props.cursor_position
             target = self.hyperlink_at_pos(pos)
             if target is not None:
-                util.open_website(target)
+                if isinstance(target, int):
+                    logger.warning("TODO Jump to %s", target)
+                else:
+                    util.open_website(target)
 
     def on_hover_hyperlink(self, textview, e):
         x, y = textview.window_to_buffer_coords(Gtk.TextWindowType.TEXT, e.x, e.y)
@@ -292,8 +314,11 @@ class gPodderShownotesText(gPodderShownotes):
         if success:
             pos = it.get_offset()
             target = self.hyperlink_at_pos(pos)
-            if target:
-                self.set_status(target)
+            if target is not None:
+                if isinstance(target, int):
+                    self.set_status(_("Jump to %s") % util.format_time(target))
+                else:
+                    self.set_status(target)
                 w.set_cursor(Gdk.Cursor.new_from_name(w.get_display(), 'pointer'))
                 return
         self.set_status('')

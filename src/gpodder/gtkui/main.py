@@ -2140,18 +2140,23 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 menu.append(Gtk.SeparatorMenuItem())
                 submenus = {}
                 for label, callback in result:
-                    key, sep, title = label.rpartition('/')
+                    parts = label.split('/')
+                    title = parts[-1]
                     item = Gtk.ImageMenuItem(title)
                     if callback:
                         self._submenu_item_activate_hack(item, callback, episodes)
                     else:
                         item.set_sensitive(False)
-                    if key:
-                        if key not in submenus:
-                            sub_menu = self._add_sub_menu(menu, key)
-                            submenus[key] = sub_menu
-                        else:
-                            sub_menu = submenus[key]
+                    if len(parts) > 1:
+                        sub_menu = menu
+                        submenu = submenus
+                        for key in parts[:-1]:
+                            if key not in submenu:
+                                sub_menu = self._add_sub_menu(sub_menu, key)
+                                submenu[key] = {"": sub_menu}
+                            else:
+                                sub_menu = submenu[key][""]
+                            submenu = submenu[key]
                         sub_menu.append(item)
                     else:
                         menu.append(item)
