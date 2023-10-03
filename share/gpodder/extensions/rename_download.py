@@ -14,6 +14,7 @@ from gpodder.model import PodcastEpisode
 logger = logging.getLogger(__name__)
 
 _ = gpodder.gettext
+N_ = gpodder.ngettext
 
 __title__ = _('Rename episodes after download')
 __description__ = _('Rename episodes to "<Episode Title>.<ext>" on download')
@@ -76,7 +77,10 @@ class gPodderExtension:
         progress_indicator.on_finished()
 
         if renamed_count > 0:
-            self.gpodder.show_message(_('Renamed %(count)d downloaded episodes') % {'count': renamed_count},
+            self.gpodder.show_message(
+                N_('Renamed %(count)d downloaded episode',
+                   'Renamed %(count)d downloaded episodes',
+                   renamed_count) % {'count': renamed_count},
                 _('Rename all downloaded episodes'), important=True)
 
     def make_filename(self, current_filename, title, sortdate, podcast_title):

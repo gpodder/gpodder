@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gPodder\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-08-13 22:27-0600\n"
+"POT-Creation-Date: 2023-09-30 04:14-0600\n"
 "PO-Revision-Date: 2013-01-23 00:23+0000\n"
 "Last-Translator: Asier Iturralde Sarasola <asier.iturralde@gmail.com>\n"
 "Language-Team: Basque (http://www.transifex.com/projects/p/gpodder/language/"
@@ -73,7 +73,7 @@ msgstr "%s Soundcloud-en"
 msgid "Imported OPML file"
 msgstr "Inportatu OPML fitxategitik"
 
-#: src/gpodder/download.py:587 src/gpodder/sync.py:643
+#: src/gpodder/download.py:587 src/gpodder/sync.py:650
 msgid "Queued"
 msgstr "Ilaran"
 
@@ -81,31 +81,31 @@ msgstr "Ilaran"
 msgid "Downloading"
 msgstr "Deskargatzen"
 
-#: src/gpodder/download.py:588 src/gpodder/model.py:898 src/gpodder/sync.py:644
+#: src/gpodder/download.py:588 src/gpodder/model.py:898 src/gpodder/sync.py:651
 msgid "Finished"
 msgstr "Amaituta"
 
-#: src/gpodder/download.py:588 src/gpodder/sync.py:644
+#: src/gpodder/download.py:588 src/gpodder/sync.py:651
 msgid "Failed"
 msgstr "Huts egin du"
 
-#: src/gpodder/download.py:588 src/gpodder/sync.py:644
+#: src/gpodder/download.py:588 src/gpodder/sync.py:651
 #, fuzzy
 #| msgid "Cancelling..."
 msgid "Cancelling"
 msgstr "Bertan behera uzten..."
 
-#: src/gpodder/download.py:588 src/gpodder/sync.py:644
+#: src/gpodder/download.py:588 src/gpodder/sync.py:651
 msgid "Cancelled"
 msgstr "Bertan behera utzita"
 
-#: src/gpodder/download.py:588 src/gpodder/sync.py:644
+#: src/gpodder/download.py:588 src/gpodder/sync.py:651
 #, fuzzy
 #| msgid "Pause"
 msgid "Pausing"
 msgstr "Pausarazi"
 
-#: src/gpodder/download.py:588 src/gpodder/sync.py:644
+#: src/gpodder/download.py:588 src/gpodder/sync.py:651
 #: src/gpodder/gtkui/model.py:394
 msgid "Paused"
 msgstr "Pausarazita"
@@ -141,7 +141,7 @@ msgstr "I/O Errorea: %(error)s: %(filename)s"
 msgid "HTTP Error %(code)s: %(message)s"
 msgstr "HTTP Errorea %(code)s: %(message)s"
 
-#: src/gpodder/download.py:1014 src/gpodder/sync.py:844
+#: src/gpodder/download.py:1014 src/gpodder/sync.py:851
 #, python-format
 msgid "Error: %s"
 msgstr "Errorea: %s"
@@ -201,7 +201,7 @@ msgid "Only keep latest"
 msgstr "Mantendu azkena soilik"
 
 #: src/gpodder/model.py:1368 src/gpodder/model.py:1383
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:38
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:39
 msgid "Video"
 msgstr "Bideoa"
 
@@ -250,7 +250,7 @@ msgstr "iPod irekita"
 msgid "Saving iPod database"
 msgstr "iPod datu-basea gordetzen"
 
-#: src/gpodder/sync.py:354 src/gpodder/sync.py:621
+#: src/gpodder/sync.py:354 src/gpodder/sync.py:628
 #, python-format
 msgid "Removing %s"
 msgstr "%s kentzen"
@@ -281,13 +281,13 @@ msgid ""
 "Not enough space in %(path)s: %(free)s available, but need at least %(need)s"
 msgstr ""
 
-#: src/gpodder/sync.py:552
+#: src/gpodder/sync.py:556
 #, fuzzy, python-format
 #| msgid "Error opening %(filename)s: %(message)s"
 msgid "Error copying %(from_file)s to %(to_file)s: %(message)s"
 msgstr "Errorea %(filename)s irekitzean: %(message)s"
 
-#: src/gpodder/sync.py:643
+#: src/gpodder/sync.py:650
 #, fuzzy
 msgid "Syncing"
 msgstr "%s gehitzen"
@@ -363,9 +363,39 @@ msgstr "Gaur"
 msgid "Yesterday"
 msgstr "Atzo"
 
+#: src/gpodder/util.py:585
+msgid "kB"
+msgstr ""
+
+#: src/gpodder/util.py:586
+msgid "MB"
+msgstr ""
+
+#: src/gpodder/util.py:587
+msgid "GB"
+msgstr ""
+
+#: src/gpodder/util.py:591
+#, fuzzy
+#| msgid "KiB/s"
+msgid "KiB"
+msgstr "KiB/s"
+
+#: src/gpodder/util.py:592
+msgid "MiB"
+msgstr ""
+
+#: src/gpodder/util.py:593
+msgid "GiB"
+msgstr ""
+
 #: src/gpodder/util.py:599 src/gpodder/util.py:602
 msgid "(unknown)"
 msgstr "(ezezaguna)"
+
+#: src/gpodder/util.py:609
+msgid "B"
+msgstr ""
 
 #: src/gpodder/util.py:1507 src/gpodder/util.py:1529
 #, python-format
@@ -471,12 +501,17 @@ msgstr "Komandoa: %s"
 msgid "Default application"
 msgstr "Aplikazio lehenetsia"
 
+#: src/gpodder/gtkui/download.py:98
+#, python-format
+msgid "%(status)s (%(progress).0f%%, %(rate)s/s, %(remaining)s)"
+msgstr ""
+
 #: src/gpodder/gtkui/main.py:174 share/applications/gpodder.desktop.in.h:1
 msgid "gPodder"
 msgstr "gPodder"
 
 #: src/gpodder/gtkui/main.py:413
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:39
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:40
 msgid "Extensions"
 msgstr "Hedapenak"
 
@@ -850,8 +885,8 @@ msgstr "Korrontea"
 #: src/gpodder/gtkui/interface/common.py:269
 #: src/gpodder/gtkui/desktop/channel.py:145
 #: src/gpodder/gtkui/desktop/episodeselector.py:327
-#: src/gpodder/gtkui/desktop/preferences.py:702
-#: src/gpodder/gtkui/desktop/preferences.py:720
+#: src/gpodder/gtkui/desktop/preferences.py:705
+#: src/gpodder/gtkui/desktop/preferences.py:723
 #: share/gpodder/extensions/concatenate_videos.py:40
 #: share/gpodder/ui/gtk/gpodderaddpodcast.ui.h:2
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:2
@@ -1229,8 +1264,8 @@ msgid "Import from OPML"
 msgstr "Inportatu OPML-tik"
 
 #: src/gpodder/gtkui/main.py:3726 src/gpodder/gtkui/desktop/channel.py:146
-#: src/gpodder/gtkui/desktop/preferences.py:703
-#: src/gpodder/gtkui/desktop/preferences.py:721
+#: src/gpodder/gtkui/desktop/preferences.py:706
+#: src/gpodder/gtkui/desktop/preferences.py:724
 #, fuzzy
 msgid "_Open"
 msgstr "Ireki"
@@ -1687,73 +1722,73 @@ msgstr "Ezabatu gPodder-etik"
 msgid "Custom (%(format_ids)s)"
 msgstr "Pertsonalizatua  (%(format_ids)s)"
 
-#: src/gpodder/gtkui/desktop/preferences.py:383
+#: src/gpodder/gtkui/desktop/preferences.py:385
 msgid "Name"
 msgstr "Izena"
 
-#: src/gpodder/gtkui/desktop/preferences.py:435
+#: src/gpodder/gtkui/desktop/preferences.py:437
 #, fuzzy
 msgid "Documentation"
 msgstr "Iraupena"
 
-#: src/gpodder/gtkui/desktop/preferences.py:440
+#: src/gpodder/gtkui/desktop/preferences.py:442
 #, fuzzy
 msgid "Extension info"
 msgstr "Hedapen moduluaren informazioa"
 
-#: src/gpodder/gtkui/desktop/preferences.py:445
+#: src/gpodder/gtkui/desktop/preferences.py:447
 msgid "Support the author"
 msgstr ""
 
-#: src/gpodder/gtkui/desktop/preferences.py:488 bin/gpo:1078
+#: src/gpodder/gtkui/desktop/preferences.py:490 bin/gpo:1078
 msgid "Extension cannot be activated"
 msgstr "Ezin da hedapena aktibatu"
 
-#: src/gpodder/gtkui/desktop/preferences.py:540
+#: src/gpodder/gtkui/desktop/preferences.py:542
 msgid "Configure audio player"
 msgstr "Konfiguratu audio erreproduzitzailea"
 
-#: src/gpodder/gtkui/desktop/preferences.py:541
-#: src/gpodder/gtkui/desktop/preferences.py:551
+#: src/gpodder/gtkui/desktop/preferences.py:543
+#: src/gpodder/gtkui/desktop/preferences.py:553
 msgid "Command:"
 msgstr "Komandoa:"
 
-#: src/gpodder/gtkui/desktop/preferences.py:550
+#: src/gpodder/gtkui/desktop/preferences.py:552
 msgid "Configure video player"
 msgstr "Konfiguratu bideo erreproduzitzailea"
 
-#: src/gpodder/gtkui/desktop/preferences.py:563
-#: src/gpodder/gtkui/desktop/preferences.py:587
+#: src/gpodder/gtkui/desktop/preferences.py:565
+#: src/gpodder/gtkui/desktop/preferences.py:589
 msgid "manually"
 msgstr "eskuz"
 
-#: src/gpodder/gtkui/desktop/preferences.py:589
+#: src/gpodder/gtkui/desktop/preferences.py:591
 #, python-format
 msgid "after %(count)d day"
 msgid_plural "after %(count)d days"
 msgstr[0] "egun %(count)d geroago"
 msgstr[1] "%(count)d egun geroago"
 
-#: src/gpodder/gtkui/desktop/preferences.py:623
+#: src/gpodder/gtkui/desktop/preferences.py:625
 msgid "Replace subscription list on server"
 msgstr "Ordezkatu zerbitzariko harpidetza zerrenda"
 
-#: src/gpodder/gtkui/desktop/preferences.py:624
+#: src/gpodder/gtkui/desktop/preferences.py:626
 msgid ""
 "Remote podcasts that have not been added locally will be removed on the "
 "server. Continue?"
 msgstr "Lokalean gehitu ez diren urruneko podcast-ak ezabatuko dira. Jarraitu?"
 
-#: src/gpodder/gtkui/desktop/preferences.py:699
+#: src/gpodder/gtkui/desktop/preferences.py:702
 msgid "Select folder for mount point"
 msgstr "Hautatu karpeta muntaketa-punturako"
 
-#: src/gpodder/gtkui/desktop/preferences.py:717
+#: src/gpodder/gtkui/desktop/preferences.py:720
 #, fuzzy
 msgid "Select folder for playlists"
 msgstr "Hautatu karpeta muntaketa-punturako"
 
-#: src/gpodder/gtkui/desktop/preferences.py:731
+#: src/gpodder/gtkui/desktop/preferences.py:734
 #, fuzzy
 msgid "The playlists folder must be on the device"
 msgstr "Ordezkatu zerbitzariko zerrenda"
@@ -1989,41 +2024,43 @@ msgstr ""
 msgid "Display notification bubbles for different events."
 msgstr ""
 
-#: share/gpodder/extensions/rename_download.py:18
+#: share/gpodder/extensions/rename_download.py:19
 msgid "Rename episodes after download"
 msgstr "Berrizendatu atalak deskargatu ondoren"
 
-#: share/gpodder/extensions/rename_download.py:19
+#: share/gpodder/extensions/rename_download.py:20
 msgid "Rename episodes to \"<Episode Title>.<ext>\" on download"
 msgstr ""
 "Berrizendatu atalak deskargatzean honela: \"<Atalaren izenburua>.<luzapena>\""
 
-#: share/gpodder/extensions/rename_download.py:54
-#: share/gpodder/extensions/rename_download.py:61
-#: share/gpodder/extensions/rename_download.py:80
+#: share/gpodder/extensions/rename_download.py:55
+#: share/gpodder/extensions/rename_download.py:62
+#: share/gpodder/extensions/rename_download.py:84
 #, fuzzy
 #| msgid "Downloaded episodes"
 msgid "Rename all downloaded episodes"
 msgstr "Deskargatutako atalak"
 
-#: share/gpodder/extensions/rename_download.py:60
+#: share/gpodder/extensions/rename_download.py:61
 #, fuzzy
 #| msgid "Downloaded episodes"
 msgid "No downloaded episodes to rename"
 msgstr "Deskargatutako atalak"
 
-#: share/gpodder/extensions/rename_download.py:66
+#: share/gpodder/extensions/rename_download.py:67
 #, fuzzy
 #| msgid "Downloaded episodes"
 msgid "Renaming all downloaded episodes"
 msgstr "Deskargatutako atalak"
 
-#: share/gpodder/extensions/rename_download.py:79
+#: share/gpodder/extensions/rename_download.py:81
 #, fuzzy, python-format
 #| msgid "%(count)d new episode"
 #| msgid_plural "%(count)d new episodes"
-msgid "Renamed %(count)d downloaded episodes"
-msgstr "Atal berri %(count)d"
+msgid "Renamed %(count)d downloaded episode"
+msgid_plural "Renamed %(count)d downloaded episodes"
+msgstr[0] "Atal berri %(count)d"
+msgstr[1] "Atal berri %(count)d"
 
 #: share/gpodder/extensions/rm_ogg_cover.py:37
 msgid "Remove cover art from OGG files"
@@ -2462,20 +2499,26 @@ msgid "Remove episodes deleted in gPodder from device"
 msgstr ""
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:34
+msgid ""
+"Sync existing episodes on device when file size differs from gPodder "
+"(disable if device modifies files)"
+msgstr ""
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:35
 msgid "Devices"
 msgstr "Gailuak"
 
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:35
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:36
 #, fuzzy
 msgid "Preferred YouTube format:"
 msgstr "Bideo-formatu hobetsia:"
 
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:36
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:37
 #, fuzzy
 msgid "Preferred YouTube HLS format:"
 msgstr "Bideo-formatu hobetsia:"
 
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:37
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:38
 #, fuzzy
 msgid "Preferred Vimeo format:"
 msgstr "Bideo-formatu hobetsia:"

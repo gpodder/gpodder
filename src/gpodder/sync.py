@@ -528,7 +528,11 @@ class MP3PlayerDevice(Device):
         to_file_exists = to_file.query_exists()
         from_size = episode.file_size
         to_size = episode.file_size
-        if to_file_exists:
+        # An interrupted sync results in a partial file on the device that must be removed to fully sync it.
+        # Comparing file size would detect such files and finish uploading.
+        # However, some devices add metadata to files, increasing their size, and forcing an upload on every sync.
+        # File size and checksum can not be used.
+        if to_file_exists and self._config.device_sync.compare_episode_filesize:
             try:
                 info = to_file.query_info(Gio.FILE_ATTRIBUTE_STANDARD_SIZE, Gio.FileQueryInfoFlags.NONE)
                 to_size = info.get_attribute_uint64(Gio.FILE_ATTRIBUTE_STANDARD_SIZE)
@@ -578,10 +582,13 @@ class MP3PlayerDevice(Device):
             if self._config.one_folder_per_podcast:
                 if path_info.get_file_type() == Gio.FileType.DIRECTORY:
                     path_file = root_path.get_child(path_info.get_name())
-                    for child_info in path_file.enumerate_children(attributes, Gio.FileQueryInfoFlags.NONE, None):
-                        if child_info.get_file_type() == Gio.FileType.REGULAR:
-                            child_file = path_file.get_child(child_info.get_name())
-                            self.add_sync_track(tracks, child_file, child_info, path_info.get_name())
+                    try:
+                        for child_info in path_file.enumerate_children(attributes, Gio.FileQueryInfoFlags.NONE, None):
+                            if child_info.get_file_type() == Gio.FileType.REGULAR:
+                                child_file = path_file.get_child(child_info.get_name())
+                                self.add_sync_track(tracks, child_file, child_info, path_info.get_name())
+                    except GLib.Error as err:
+                        logger.error('get all tracks for %s failed: %s', path_file.get_uri(), err.message)
 
             else:
                 if path_info.get_file_type() == Gio.FileTypeFlags.REGULAR:

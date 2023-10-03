@@ -20,8 +20,8 @@
 # This metadata block gets parsed by setup.py - use single quotes only
 __tagline__ = 'Media aggregator and podcast client'
 __author__ = 'Thomas Perl <thp@gpodder.org>'
-__version__ = '3.11.2+1'
-__date__ = '2023-08-18'
+__version__ = '3.11.3'
+__date__ = '2023-09-30'
 __copyright__ = '© 2005-2023 The gPodder Team'
 __license__ = 'GNU General Public License, version 3 or later'
 __url__ = 'http://gpodder.org/'
@@ -215,14 +215,14 @@ def fixup_home(old_home):
 # Default locations for configuration and data files
 default_home = os.path.expanduser(os.path.join('~', 'gPodder'))
 default_home = fixup_home(default_home)
-set_home(os.environ.get(ENV_HOME, default_home))
+set_home(os.path.expanduser(os.environ.get(ENV_HOME, default_home)))
 
 if home != default_home:
     print('Storing data in', home, '(GPODDER_HOME is set)', file=sys.stderr)
 
 if ENV_DOWNLOADS in os.environ:
     # Allow to relocate the downloads folder (pull request 4, bug 466)
-    downloads = os.environ[ENV_DOWNLOADS]
+    downloads = os.path.expanduser(os.environ[ENV_DOWNLOADS])
     print('Storing downloads in %s (%s is set)' % (downloads,
             ENV_DOWNLOADS), file=sys.stderr)
 

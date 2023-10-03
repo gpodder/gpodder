@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gPodder\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-08-13 22:27-0600\n"
+"POT-Creation-Date: 2023-09-30 04:14-0600\n"
 "PO-Revision-Date: 2013-01-19 12:30+0000\n"
 "Last-Translator: Thomas Perl <m@thp.io>\n"
 "Language-Team: Danish (http://www.transifex.com/projects/p/gpodder/language/"
@@ -76,7 +76,7 @@ msgstr "%s på Soundcloud"
 msgid "Imported OPML file"
 msgstr "Importér fra OPML-fil"
 
-#: src/gpodder/download.py:587 src/gpodder/sync.py:643
+#: src/gpodder/download.py:587 src/gpodder/sync.py:650
 msgid "Queued"
 msgstr "Sat i kø"
 
@@ -84,31 +84,31 @@ msgstr "Sat i kø"
 msgid "Downloading"
 msgstr "Downloader"
 
-#: src/gpodder/download.py:588 src/gpodder/model.py:898 src/gpodder/sync.py:644
+#: src/gpodder/download.py:588 src/gpodder/model.py:898 src/gpodder/sync.py:651
 msgid "Finished"
 msgstr "Afsluttet"
 
-#: src/gpodder/download.py:588 src/gpodder/sync.py:644
+#: src/gpodder/download.py:588 src/gpodder/sync.py:651
 msgid "Failed"
 msgstr "Fejlet"
 
-#: src/gpodder/download.py:588 src/gpodder/sync.py:644
+#: src/gpodder/download.py:588 src/gpodder/sync.py:651
 #, fuzzy
 #| msgid "Cancelling..."
 msgid "Cancelling"
 msgstr "Annullerer..."
 
-#: src/gpodder/download.py:588 src/gpodder/sync.py:644
+#: src/gpodder/download.py:588 src/gpodder/sync.py:651
 msgid "Cancelled"
 msgstr "Annulleret"
 
-#: src/gpodder/download.py:588 src/gpodder/sync.py:644
+#: src/gpodder/download.py:588 src/gpodder/sync.py:651
 #, fuzzy
 #| msgid "Pause"
 msgid "Pausing"
 msgstr "Sæt på pause"
 
-#: src/gpodder/download.py:588 src/gpodder/sync.py:644
+#: src/gpodder/download.py:588 src/gpodder/sync.py:651
 #: src/gpodder/gtkui/model.py:394
 msgid "Paused"
 msgstr "Sat på pause"
@@ -143,7 +143,7 @@ msgstr "I/O-fejl: %(error)s: %(filename)s"
 msgid "HTTP Error %(code)s: %(message)s"
 msgstr "HTTP-fejl: %(code)s: %(message)s"
 
-#: src/gpodder/download.py:1014 src/gpodder/sync.py:844
+#: src/gpodder/download.py:1014 src/gpodder/sync.py:851
 #, python-format
 msgid "Error: %s"
 msgstr "Fejl: %s"
@@ -204,7 +204,7 @@ msgid "Only keep latest"
 msgstr ""
 
 #: src/gpodder/model.py:1368 src/gpodder/model.py:1383
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:38
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:39
 msgid "Video"
 msgstr "Video"
 
@@ -253,7 +253,7 @@ msgstr "iPod åbnet"
 msgid "Saving iPod database"
 msgstr "Gemmer iPod-database"
 
-#: src/gpodder/sync.py:354 src/gpodder/sync.py:621
+#: src/gpodder/sync.py:354 src/gpodder/sync.py:628
 #, python-format
 msgid "Removing %s"
 msgstr "Fjerner %s"
@@ -282,13 +282,13 @@ msgid ""
 "Not enough space in %(path)s: %(free)s available, but need at least %(need)s"
 msgstr ""
 
-#: src/gpodder/sync.py:552
+#: src/gpodder/sync.py:556
 #, fuzzy, python-format
 #| msgid "Error opening %(filename)s: %(message)s"
 msgid "Error copying %(from_file)s to %(to_file)s: %(message)s"
 msgstr "Fejl ved åbning af %(filename)s: %(message)s"
 
-#: src/gpodder/sync.py:643
+#: src/gpodder/sync.py:650
 #, fuzzy
 msgid "Syncing"
 msgstr "Tilføjer %s"
@@ -364,9 +364,39 @@ msgstr "I dag"
 msgid "Yesterday"
 msgstr "I går"
 
+#: src/gpodder/util.py:585
+msgid "kB"
+msgstr ""
+
+#: src/gpodder/util.py:586
+msgid "MB"
+msgstr ""
+
+#: src/gpodder/util.py:587
+msgid "GB"
+msgstr ""
+
+#: src/gpodder/util.py:591
+#, fuzzy
+#| msgid "KiB/s"
+msgid "KiB"
+msgstr "KiB/s"
+
+#: src/gpodder/util.py:592
+msgid "MiB"
+msgstr ""
+
+#: src/gpodder/util.py:593
+msgid "GiB"
+msgstr ""
+
 #: src/gpodder/util.py:599 src/gpodder/util.py:602
 msgid "(unknown)"
 msgstr "(ukendt)"
+
+#: src/gpodder/util.py:609
+msgid "B"
+msgstr ""
 
 #: src/gpodder/util.py:1507 src/gpodder/util.py:1529
 #, python-format
@@ -472,12 +502,17 @@ msgstr "Kommando: %s"
 msgid "Default application"
 msgstr "Standardprogram"
 
+#: src/gpodder/gtkui/download.py:98
+#, python-format
+msgid "%(status)s (%(progress).0f%%, %(rate)s/s, %(remaining)s)"
+msgstr ""
+
 #: src/gpodder/gtkui/main.py:174 share/applications/gpodder.desktop.in.h:1
 msgid "gPodder"
 msgstr "gPodder"
 
 #: src/gpodder/gtkui/main.py:413
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:39
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:40
 msgid "Extensions"
 msgstr ""
 
@@ -858,8 +893,8 @@ msgstr "Stream"
 #: src/gpodder/gtkui/interface/common.py:269
 #: src/gpodder/gtkui/desktop/channel.py:145
 #: src/gpodder/gtkui/desktop/episodeselector.py:327
-#: src/gpodder/gtkui/desktop/preferences.py:702
-#: src/gpodder/gtkui/desktop/preferences.py:720
+#: src/gpodder/gtkui/desktop/preferences.py:705
+#: src/gpodder/gtkui/desktop/preferences.py:723
 #: share/gpodder/extensions/concatenate_videos.py:40
 #: share/gpodder/ui/gtk/gpodderaddpodcast.ui.h:2
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:2
@@ -1236,8 +1271,8 @@ msgid "Import from OPML"
 msgstr "Importér fra OPML"
 
 #: src/gpodder/gtkui/main.py:3726 src/gpodder/gtkui/desktop/channel.py:146
-#: src/gpodder/gtkui/desktop/preferences.py:703
-#: src/gpodder/gtkui/desktop/preferences.py:721
+#: src/gpodder/gtkui/desktop/preferences.py:706
+#: src/gpodder/gtkui/desktop/preferences.py:724
 #, fuzzy
 msgid "_Open"
 msgstr "Åbn"
@@ -1700,73 +1735,73 @@ msgstr "Slet fra gPodder"
 msgid "Custom (%(format_ids)s)"
 msgstr "Særlige format-tekststrenge"
 
-#: src/gpodder/gtkui/desktop/preferences.py:383
+#: src/gpodder/gtkui/desktop/preferences.py:385
 msgid "Name"
 msgstr ""
 
-#: src/gpodder/gtkui/desktop/preferences.py:435
+#: src/gpodder/gtkui/desktop/preferences.py:437
 #, fuzzy
 msgid "Documentation"
 msgstr "Varighed"
 
-#: src/gpodder/gtkui/desktop/preferences.py:440
+#: src/gpodder/gtkui/desktop/preferences.py:442
 msgid "Extension info"
 msgstr ""
 
-#: src/gpodder/gtkui/desktop/preferences.py:445
+#: src/gpodder/gtkui/desktop/preferences.py:447
 msgid "Support the author"
 msgstr ""
 
-#: src/gpodder/gtkui/desktop/preferences.py:488 bin/gpo:1078
+#: src/gpodder/gtkui/desktop/preferences.py:490 bin/gpo:1078
 msgid "Extension cannot be activated"
 msgstr ""
 
-#: src/gpodder/gtkui/desktop/preferences.py:540
+#: src/gpodder/gtkui/desktop/preferences.py:542
 msgid "Configure audio player"
 msgstr "Konfigurér lydafspiller"
 
-#: src/gpodder/gtkui/desktop/preferences.py:541
-#: src/gpodder/gtkui/desktop/preferences.py:551
+#: src/gpodder/gtkui/desktop/preferences.py:543
+#: src/gpodder/gtkui/desktop/preferences.py:553
 msgid "Command:"
 msgstr "Kommando:"
 
-#: src/gpodder/gtkui/desktop/preferences.py:550
+#: src/gpodder/gtkui/desktop/preferences.py:552
 msgid "Configure video player"
 msgstr "Konfigurér videoafspiller:"
 
-#: src/gpodder/gtkui/desktop/preferences.py:563
-#: src/gpodder/gtkui/desktop/preferences.py:587
+#: src/gpodder/gtkui/desktop/preferences.py:565
+#: src/gpodder/gtkui/desktop/preferences.py:589
 msgid "manually"
 msgstr "manuelt"
 
-#: src/gpodder/gtkui/desktop/preferences.py:589
+#: src/gpodder/gtkui/desktop/preferences.py:591
 #, python-format
 msgid "after %(count)d day"
 msgid_plural "after %(count)d days"
 msgstr[0] "efter %(count)d dag"
 msgstr[1] "efter %(count)d dage"
 
-#: src/gpodder/gtkui/desktop/preferences.py:623
+#: src/gpodder/gtkui/desktop/preferences.py:625
 msgid "Replace subscription list on server"
 msgstr "Erstat abonnementsliste på server"
 
-#: src/gpodder/gtkui/desktop/preferences.py:624
+#: src/gpodder/gtkui/desktop/preferences.py:626
 msgid ""
 "Remote podcasts that have not been added locally will be removed on the "
 "server. Continue?"
 msgstr ""
 "Server-podcasts, der ikke er tilføjet lokalt, fjernes fra serveren. Fortsæt?"
 
-#: src/gpodder/gtkui/desktop/preferences.py:699
+#: src/gpodder/gtkui/desktop/preferences.py:702
 msgid "Select folder for mount point"
 msgstr "Vælg mappe som indlæsningspunkt"
 
-#: src/gpodder/gtkui/desktop/preferences.py:717
+#: src/gpodder/gtkui/desktop/preferences.py:720
 #, fuzzy
 msgid "Select folder for playlists"
 msgstr "Vælg mappe som indlæsningspunkt"
 
-#: src/gpodder/gtkui/desktop/preferences.py:731
+#: src/gpodder/gtkui/desktop/preferences.py:734
 #, fuzzy
 msgid "The playlists folder must be on the device"
 msgstr "Erstat abonnementsliste på server"
@@ -2005,42 +2040,44 @@ msgstr ""
 msgid "Display notification bubbles for different events."
 msgstr ""
 
-#: share/gpodder/extensions/rename_download.py:18
+#: share/gpodder/extensions/rename_download.py:19
 #, fuzzy
 msgid "Rename episodes after download"
 msgstr "én episode downloadet:"
 
-#: share/gpodder/extensions/rename_download.py:19
+#: share/gpodder/extensions/rename_download.py:20
 #, fuzzy
 msgid "Rename episodes to \"<Episode Title>.<ext>\" on download"
 msgstr "Der er ingen nye episoder til download"
 
-#: share/gpodder/extensions/rename_download.py:54
-#: share/gpodder/extensions/rename_download.py:61
-#: share/gpodder/extensions/rename_download.py:80
+#: share/gpodder/extensions/rename_download.py:55
+#: share/gpodder/extensions/rename_download.py:62
+#: share/gpodder/extensions/rename_download.py:84
 #, fuzzy
 #| msgid "Downloaded episodes"
 msgid "Rename all downloaded episodes"
 msgstr "Downloadede episoder"
 
-#: share/gpodder/extensions/rename_download.py:60
+#: share/gpodder/extensions/rename_download.py:61
 #, fuzzy
 #| msgid "Downloaded episodes"
 msgid "No downloaded episodes to rename"
 msgstr "Downloadede episoder"
 
-#: share/gpodder/extensions/rename_download.py:66
+#: share/gpodder/extensions/rename_download.py:67
 #, fuzzy
 #| msgid "Downloaded episodes"
 msgid "Renaming all downloaded episodes"
 msgstr "Downloadede episoder"
 
-#: share/gpodder/extensions/rename_download.py:79
+#: share/gpodder/extensions/rename_download.py:81
 #, fuzzy, python-format
 #| msgid "%(count)d new episode"
 #| msgid_plural "%(count)d new episodes"
-msgid "Renamed %(count)d downloaded episodes"
-msgstr "%(count)d ny episode"
+msgid "Renamed %(count)d downloaded episode"
+msgid_plural "Renamed %(count)d downloaded episodes"
+msgstr[0] "%(count)d ny episode"
+msgstr[1] "%(count)d ny episode"
 
 #: share/gpodder/extensions/rm_ogg_cover.py:37
 #, fuzzy
@@ -2482,18 +2519,24 @@ msgid "Remove episodes deleted in gPodder from device"
 msgstr ""
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:34
+msgid ""
+"Sync existing episodes on device when file size differs from gPodder "
+"(disable if device modifies files)"
+msgstr ""
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:35
 msgid "Devices"
 msgstr "Enheder"
 
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:35
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:36
 msgid "Preferred YouTube format:"
 msgstr ""
 
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:36
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:37
 msgid "Preferred YouTube HLS format:"
 msgstr ""
 
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:37
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:38
 msgid "Preferred Vimeo format:"
 msgstr ""
 
