@@ -70,16 +70,12 @@ class gPodderShownotes:
         self.status.set_property('ellipsize', Pango.EllipsizeMode.END)
         self.set_status(None)
         self.status_bg = None
-        self.color_set = False
-        self.background_color = None
-        self.foreground_color = None
-        self.link_color = None
-        self.visited_color = None
 
         self.overlay = Gtk.Overlay()
         self.overlay.add(self.scrolled_window)
         # need an EventBox for an opaque background behind the label
         box = Gtk.EventBox()
+        box.get_style_context().add_class("view")
         self.status_bg = box
         box.add(self.status)
         box.set_hexpand(False)
@@ -135,9 +131,7 @@ class gPodderShownotes:
             self.show_pane(selected_episodes)
 
     def on_shownotes_message_expose_event(self, drawingarea, ctx):
-        background = get_background_color()
-        if background is None:
-            background = Gdk.RGBA(1, 1, 1, 1)
+        background = self.background_color
         ctx.set_source_rgba(background.red, background.green, background.blue, 1)
         x1, y1, x2, y2 = ctx.clip_extents()
         ctx.rectangle(x1, y1, x2 - x1, y2 - y1)
@@ -152,41 +146,38 @@ class gPodderShownotes:
         self.status.set_label(text or " ")
 
     def define_colors(self):
-        if not self.color_set:
-            self.color_set = True
-            # investigate_widget_colors([
-            #     ([(Gtk.Window, 'background', '')], self.status.get_toplevel()),
-            #     ([(Gtk.Window, 'background', ''), (Gtk.Label, '', '')], self.status),
-            #     ([(Gtk.Window, 'background', ''), (Gtk.TextView, 'view', '')], self.text_view),
-            #     ([(Gtk.Window, 'background', ''), (Gtk.TextView, 'view', 'text')], self.text_view),
-            # ])
-            dummy_tv = Gtk.TextView()
-            self.background_color = get_background_color(Gtk.StateFlags.NORMAL,
-                widget=dummy_tv) or Gdk.RGBA()
-            self.foreground_color = get_foreground_color(Gtk.StateFlags.NORMAL,
-                widget=dummy_tv) or Gdk.RGBA(0, 0, 0)
-            self.link_color = get_foreground_color(state=Gtk.StateFlags.LINK,
-                widget=dummy_tv) or Gdk.RGBA(0, 0, 0)
-            self.visited_color = get_foreground_color(state=Gtk.StateFlags.VISITED,
-                widget=dummy_tv) or self.link_color
-            del dummy_tv
+        """Get colors needed for HTML style from a widget with CSS definitions."""
+        # investigate_widget_colors([
+        #     ([(Gtk.Window, 'background', '')], self.status.get_toplevel()),
+        #     ([(Gtk.Window, 'background', ''), (Gtk.Label, '', '')], self.status),
+        #     ([(Gtk.Window, 'background', ''), (Gtk.TextView, 'view', '')], self.text_view),
+        #     ([(Gtk.Window, 'background', ''), (Gtk.TextView, 'view', 'text')], self.text_view),
+        # ])
+        dummy_tv = Gtk.TextView()
+        self.background_color = (get_background_color(Gtk.StateFlags.NORMAL, dummy_tv)
+                                 or Gdk.RGBA())
+        self.foreground_color = (get_foreground_color(Gtk.StateFlags.NORMAL, dummy_tv)
+                                 or Gdk.RGBA(0, 0, 0))
+        fc = self.foreground_color
+        self.foreground_color_text = "#%X%X%X" % (
+            int(255 * fc.red), int(255 * fc.green), int(255 * fc.blue))
 
-            self.status_bg.override_background_color(Gtk.StateFlags.NORMAL, self.background_color)
-            if hasattr(self, "text_buffer"):
-                self.text_buffer.create_tag('hyperlink',
-                    foreground=self.link_color.to_string(),
-                    underline=Pango.Underline.SINGLE)
-            elif hasattr(self, "label"):
-                fc = self.foreground_color
-                self.foreground_color_text = "#%02X%02X%02X" % (
-                    int(255 * fc.red), int(255 * fc.green), int(255 * fc.blue))
-                self.label.override_color(Gtk.StateFlags.NORMAL, self.foreground_color)
-                self.label.override_color(Gtk.StateFlags.LINK, self.link_color)
-                self.label.override_color(Gtk.StateFlags.VISITED, self.visited_color)
+        # Getting the link and visited colours usually fails, use defaults in that case
+        default = Gdk.RGBA()
+        default.parse('#1b6acb')
+        link = get_foreground_color(Gtk.StateFlags.LINK, dummy_tv) or default
+        self.link_color = (
+            link if link.to_string() != self.foreground_color.to_string() else default)
+
+        default.parse('#15539e')
+        vis = get_foreground_color(Gtk.StateFlags.VISITED, dummy_tv) or default
+        self.visited_color = (
+            vis if vis.to_string() != self.foreground_color.to_string() else default)
 
 
 class gPodderShownotesText(gPodderShownotes):
     def init(self):
+        self.define_colors()
         self.text_view = Gtk.TextView()
         self.text_view.set_wrap_mode(Gtk.WrapMode.WORD_CHAR)
         self.text_view.set_border_width(10)
@@ -195,6 +186,9 @@ class gPodderShownotesText(gPodderShownotes):
         self.text_buffer.create_tag('heading', scale=1.2, weight=Pango.Weight.BOLD)
         self.text_buffer.create_tag('subheading', scale=1.0)
         self.text_buffer.create_tag('details', scale=0.9)
+        self.text_buffer.create_tag(
+            'hyperlink', foreground=self.link_color.to_string(),
+            underline=Pango.Underline.SINGLE)
         self.text_view.set_buffer(self.text_buffer)
         self.text_view.set_property('expand', True)
         self.text_view.connect('button-release-event', self.on_button_release)
@@ -214,7 +208,6 @@ class gPodderShownotesText(gPodderShownotes):
             'size': util.format_filesize(episode.file_size, digits=1)
             if episode.file_size > 0 else "-",
             'duration': episode.get_play_info_string()}
-        self.define_colors()
         hyperlinks = [(0, None)]
         self.text_buffer.set_text('')
         if episode.link:
@@ -309,6 +302,7 @@ class gPodderShownotesText(gPodderShownotes):
 
 class gPodderShownotesHTML(gPodderShownotes):
     def init(self):
+        self.define_colors()
         self.episode = None
         self._base_uri = None
         # basic restrictions
@@ -331,8 +325,6 @@ class gPodderShownotesHTML(gPodderShownotes):
 
     def update(self, episode):
         self.scrolled_window.get_vadjustment().set_value(0)
-
-        self.define_colors()
 
         if episode.has_website_link():
             self._base_uri = episode.link
@@ -476,7 +468,9 @@ class gPodderShownotesHTML(gPodderShownotes):
 
 class gPodderShownotesLabel(gPodderShownotes):
     def init(self):
+        self.define_colors()
         self.label = Gtk.Label()
+        self.label.get_style_context().add_class("view")
         self.label.set_line_wrap(True)
         self.label.set_property('margin', 10)
         self.label.set_property('xalign', 0.0)
@@ -486,9 +480,9 @@ class gPodderShownotesLabel(gPodderShownotes):
         self.label.set_selectable(True)
         self.label.connect('activate-link', self.on_activate_link)
         # need a Box for an opaque background behind the label
-        box = Gtk.Box()
-        self.label_bg = box
-        box.add(self.label)
+        self.label_bg = Gtk.Box()
+        self.label_bg.get_style_context().add_class("view")
+        self.label_bg.add(self.label)
         return self.label_bg
 
     def update(self, episode):
@@ -496,11 +490,13 @@ class gPodderShownotesLabel(gPodderShownotes):
         self.scrolled_window.get_vadjustment().set_value(0)
         heading = html.escape(episode.title)
         subheading = _('from %s') % (html.escape(episode.channel.title))
-        self.define_colors()
         ltext = ''
         if episode.link:
+            fc = self.foreground_color
+            foreground_color_text = "#%02X%02X%02X" % (
+                int(255 * fc.red), int(255 * fc.green), int(255 * fc.blue))
             ltext += '<big><b><span underline="none" foreground="%s"><a href="%s" title="%s">%s</a></span></b></big>\n' % (
-                self.foreground_color_text, episode.link, episode.link, heading)
+                foreground_color_text, episode.link, episode.link, heading)
         else:
             ltext += '<big><b>' + heading + '</b></big>\n'
         ltext += subheading + '\n'
