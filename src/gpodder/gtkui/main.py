@@ -174,6 +174,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
 #        self.shownotes_pane = Gtk.Box()
         self.shownotes_object = shownotes.get_shownotes(self.config.ui.gtk.html_shownotes, self.shownotes_box)
+        if not have_touchscreen():
+            self.shownotes_object.label.set_selectable(True)
 
         self.detailsbox.connect('key-press-event', on_key_press_shownotes)
 

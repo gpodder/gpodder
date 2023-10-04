@@ -26,7 +26,8 @@ from gi.repository import Gdk, Gtk, Handy, Pango
 
 import gpodder
 from gpodder import util
-from gpodder.gtkui.interface.common import BuilderWidget, TreeViewHelper
+from gpodder.gtkui.interface.common import (BuilderWidget, TreeViewHelper,
+                                            have_touchscreen)
 from gpodder.gtkui.model import GEpisode
 
 from .. import shownotes
@@ -300,6 +301,8 @@ class gPodderEpisodeSelector(BuilderWidget):
         # self.shownotes_object = shownotes.get_shownotes(self._config.ui.gtk.html_shownotes, self.shownotes_box)
         # Hardcode non-HTML shownotes because of webkit2gtk crashing with multiple instances
         self.shownotes_object = shownotes.get_shownotes(False, self.shownotes_box)
+        if not have_touchscreen():
+            self.shownotes_object.label.set_selectable(True)
 
         self.activated_episode = None
 
