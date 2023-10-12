@@ -259,5 +259,182 @@
       </submenu>
     </submenu>
   </menu>
+  <menu id="channels-context">
+    <section>
+      <attribute name="display-hint">horizontal-buttons</attribute>
+      <item>
+        <attribute name="action">win.updateChannel</attribute>
+        <attribute name="label" translatable="yes">Update channel</attribute>
+        <attribute name="verb-icon">view-refresh-symbolic</attribute>
+      </item>
+      <item>
+        <attribute name="action">win.editChannel</attribute>
+        <attribute name="label" translatable="yes">Channel settings</attribute>
+        <attribute name="verb-icon">preferences-other-symbolic</attribute>
+      </item>
+      <item>
+        <attribute name="action">win.removeChannel</attribute>
+        <attribute name="label" translatable="yes">Delete channel</attribute>
+        <attribute name="verb-icon">edit-delete-symbolic</attribute>
+      </item>
+    </section>
+    <section>
+      <item>
+        <attribute name="action">win.updateChannel</attribute>
+        <attribute name="label" translatable="yes">Update channel</attribute>
+      </item>
+      <item>
+        <attribute name="action">win.editChannel</attribute>
+        <attribute name="label" translatable="yes">Channel settings</attribute>
+      </item>
+      <item>
+        <attribute name="action">win.removeChannel</attribute>
+        <attribute name="label" translatable="yes">Delete channel</attribute>
+      </item>
+    </section>
+    <section>
+      <item>
+        <attribute name="action">win.openChannelDownloadFolder</attribute>
+        <attribute name="label" translatable="yes">Open download folder</attribute>
+      </item>
+    </section>
+    <section>
+      <item>
+        <attribute name="action">win.markEpisodesAsOld</attribute>
+        <attribute name="label" translatable="yes">Mark episodes as old</attribute>
+      </item>
+      <item>
+        <attribute name="action">win.channelAutoArchive</attribute>
+        <attribute name="label" translatable="yes">Archive all episodes</attribute>
+      </item>
+      <item>
+        <attribute name="action">win.refreshImage</attribute>
+        <attribute name="label" translatable="yes">Refresh image</attribute>
+      </item>
+    </section>
+    <!-- Extensions -->
+  </menu>
+  <menu id="episodes-context">
+    <section>
+      <attribute name="display-hint">horizontal-buttons</attribute>
+      <item>
+        <attribute name="action">win.play</attribute>
+        <attribute name="label" translatable="yes">Play</attribute>
+        <attribute name="verb-icon">media-playback-start-symbolic</attribute>
+      </item>
+      <item>
+        <attribute name="action">win.download</attribute>
+        <attribute name="label" translatable="yes">Download</attribute>
+        <attribute name="verb-icon">document-save-symbolic</attribute>
+      </item>
+      <!-- Cancel -->
+      <item>
+        <attribute name="action">win.delete</attribute>
+        <attribute name="label" translatable="yes">Delete</attribute>
+        <attribute name="verb-icon">edit-delete-symbolic</attribute>
+      </item>
+    </section>
+    <section>
+      <item>
+        <attribute name="action">win.play</attribute>
+        <attribute name="label" translatable="yes">Play</attribute>
+      </item>
+      <item>
+        <attribute name="action">win.download</attribute>
+        <attribute name="label" translatable="yes">Download</attribute>
+      </item>
+      <!-- Cancel -->
+      <item>
+        <attribute name="action">win.delete</attribute>
+        <attribute name="label" translatable="yes">Delete</attribute>
+      </item>
+    </section>
+    <!-- Extensions -->
+    <!-- Send To -->
+    <section>
+      <item>
+        <attribute name="action">win.episodeNew</attribute>
+        <attribute name="label" translatable="yes">New</attribute>
+      </item>
+      <item>
+        <attribute name="action">win.episodeLock</attribute>
+        <attribute name="label" translatable="yes">Archive</attribute>
+      </item>
+    </section>
+    <section>
+      <item>
+        <attribute name="action">win.toggleShownotes</attribute>
+        <attribute name="label" translatable="yes">Episode details</attribute>
+      </item>
+      <item>
+        <attribute name="action">win.openEpisodeDownloadFolder</attribute>
+        <attribute name="label" translatable="yes">Open download folder</attribute>
+      </item>
+      <item>
+        <attribute name="action">win.selectChannel</attribute>
+        <attribute name="label" translatable="yes">Select channel</attribute>
+      </item>
+    </section>
+  </menu>
+  <menu id="episodes-context-sendto">
+    <item>
+      <attribute name="action">win.saveEpisodes</attribute>
+      <attribute name="label" translatable="yes">Local folder</attribute>
+    </item>
+    <item>
+      <attribute name="action">win.bluetoothEpisodes</attribute>
+      <attribute name="label" translatable="yes">Bluetooth device</attribute>
+    </item>
+  </menu>
+  <menu id="downloads-context">
+    <section>
+      <attribute name="display-hint">horizontal-buttons</attribute>
+      <item>
+        <attribute name="action">win.forceDownload</attribute>
+        <attribute name="label" translatable="yes">Start download now</attribute>
+        <attribute name="verb-icon">document-save-symbolic</attribute>
+      </item>
+      <item>
+        <attribute name="action">win.pause</attribute>
+        <attribute name="label" translatable="yes">Pause</attribute>
+        <attribute name="verb-icon">media-playback-pause-symbolic</attribute>
+      </item>
+      <item>
+        <attribute name="action">win.cancel</attribute>
+        <attribute name="label" translatable="yes">Cancel</attribute>
+        <attribute name="verb-icon">process-stop-symbolic</attribute>
+      </item>
+    </section>
+    <section>
+      <item>
+        <attribute name="action">win.download</attribute>
+        <attribute name="label" translatable="yes">Start download now</attribute>
+      </item>
+      <item>
+        <attribute name="action">win.pause</attribute>
+        <attribute name="label" translatable="yes">Pause</attribute>
+      </item>
+      <item>
+        <attribute name="action">win.cancel</attribute>
+        <attribute name="label" translatable="yes">Cancel</attribute>
+      </item>
+    </section>
+    <section>
+      <item>
+        <attribute name="action">win.moveUp</attribute>
+        <attribute name="label" translatable="yes">Move up</attribute>
+      </item>
+      <item>
+        <attribute name="action">win.moveDown</attribute>
+        <attribute name="label" translatable="yes">Move down</attribute>
+      </item>
+    </section>
+    <section>
+      <item>
+        <attribute name="action">win.remove</attribute>
+        <attribute name="label" translatable="yes">Remove from list</attribute>
+      </item>
+    </section>
+  </menu>
 </interface>
 <!-- :noTabs=true:tabSize=2:indentSize=2: -->

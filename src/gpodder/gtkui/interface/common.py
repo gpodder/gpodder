@@ -19,7 +19,7 @@
 
 import os
 
-from gi.repository import Gdk, Gtk
+from gi.repository import Gdk, Gio, Gtk
 
 import gpodder
 from gpodder import util
@@ -345,3 +345,74 @@ class TreeViewHelper(object):
 
             return (x, y, True)
         return position_func
+
+    @staticmethod
+    def get_popup_rectangle(treeview, event, column=0):
+        """
+        :return: Gdk.Rectangle to pass to Gtk.Popover.set_pointing_to()
+
+        If event is given, return a zero-width and height rectangle with the
+        event coordinates. If event is None, get the area of the column in the
+        first selected treeview row.
+
+        Used for instance when the popup trigger is the Menu key: It will
+        position the popover on top of the column on the selected row, even if
+        the mouse is elsewhere
+        """
+        if event is not None:
+            area = Gdk.Rectangle()
+            area.x, area.y = treeview.convert_bin_window_to_widget_coords(event.x, event.y)
+            return area
+
+        # If there's a selection, place the popup menu on top of
+        # the first-selected row and given column (otherwise in the top left corner)
+        selection = treeview.get_selection()
+        model, paths = selection.get_selected_rows()
+        if paths:
+            path = paths[0]
+            area = treeview.get_cell_area(path, treeview.get_column(column))
+        else:
+            area = Gdk.Rectangle()  # x, y, width, height are all 0
+
+        area.x, area.y = treeview.convert_bin_window_to_widget_coords(area.x, area.y)
+
+        return area
+
+
+class ExtensionMenuHelper(object):
+    """A helper class to handle extension submenus"""
+
+    def __init__(self, gpodder, menu, action_prefix, gen_callback_func=None):
+        self.gPodder = gpodder
+        self.menu = menu
+        self.action_prefix = action_prefix
+        self.gen_callback_func = gen_callback_func
+        self.actions = []
+
+    def replace_entries(self, new_entries):
+        # remove previous menu entries
+        for a in self.actions:
+            self.gPodder.remove_action(a.get_property('name'))
+        self.actions = []
+        self.menu.remove_all()
+        # create new ones
+        new_entries = list(new_entries or [])
+        for i, (label, callback) in enumerate(new_entries):
+            action_id = self.action_prefix + str(i)
+            action = Gio.SimpleAction.new(action_id)
+            action.set_enabled(callback is not None)
+            if callback is not None:
+                if self.gen_callback_func is None:
+                    action.connect('activate', callback)
+                else:
+                    action.connect('activate', self.gen_callback_func(callback))
+            self.actions.append(action)
+            self.gPodder.add_action(action)
+            itm = Gio.MenuItem.new(label, 'win.' + action_id)
+            self.menu.append_item(itm)
+
+
+class Dummy:
+    """A class for objects with arbitrary attributes (for imitating Gtk Events etc.)"""
+    def __init__(self, **kwds):
+        self.__dict__.update(kwds)

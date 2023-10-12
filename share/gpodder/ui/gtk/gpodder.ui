@@ -45,6 +45,21 @@
               </packing>
             </child>
             <child>
+              <object class="GtkToolButton" id="toolForceDownload">
+                <property name="visible">False</property>
+                <property name="sensitive">False</property>
+                <property name="can-focus">False</property>
+                <property name="is-important">True</property>
+                <property name="label" translatable="yes">Start download now</property>
+                <property name="icon-name">document-save-symbolic</property>
+                <signal name="clicked" handler="on_force_download_selected_episodes" swapped="no"/>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
+            <child>
               <object class="GtkToolButton" id="toolDownload">
                 <property name="visible">True</property>
                 <property name="sensitive">False</property>
@@ -180,7 +195,7 @@
                                 <property name="has-tooltip">True</property>
                                 <property name="headers-visible">False</property>
                                 <signal name="button-press-event" handler="on_treeview_button_pressed" swapped="no"/>
-                                <signal name="button-release-event" handler="on_treeview_podcasts_button_released" swapped="no"/>
+                                <signal name="button-release-event" handler="on_treeview_channels_button_released" swapped="no"/>
                                 <signal name="cursor-changed" handler="on_treeChannels_cursor_changed" swapped="no"/>
                                 <signal name="draw" handler="on_treeview_expose_event" swapped="no"/>
                                 <signal name="query-tooltip" handler="on_treeview_query_tooltip" swapped="no"/>
