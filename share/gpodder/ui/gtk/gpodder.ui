@@ -45,6 +45,21 @@
               </packing>
             </child>
             <child>
+              <object class="GtkToolButton" id="toolForceDownload">
+                <property name="visible">False</property>
+                <property name="sensitive">False</property>
+                <property name="can-focus">False</property>
+                <property name="is-important">True</property>
+                <property name="label" translatable="yes">Start download now</property>
+                <property name="icon-name">document-save-symbolic</property>
+                <signal name="clicked" handler="on_force_download_selected_episodes" swapped="no"/>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
+            <child>
               <object class="GtkToolButton" id="toolDownload">
                 <property name="visible">True</property>
                 <property name="sensitive">False</property>

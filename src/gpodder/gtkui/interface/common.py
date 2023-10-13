@@ -359,35 +359,6 @@ class TreeViewHelper(object):
             return (x, y, True)
         return position_func
 
-    @classmethod
-    def set_cursor_to_first(cls, treeview):
-        """Set cursor on treeview to the first item of model.
-
-        Skips the non-valid section headers in the channel list.
-        Returns False if treeview has no valid items."""
-        role = getattr(treeview, TreeViewHelper.ROLE, None)
-        model = treeview.get_model()
-        it = model.get_iter_first()
-        if it is None:
-            return False
-        path = model.get_path(it)
-        while True:
-            if path[0] < 0:
-                # Valid paths must have a value >= 0
-                return False
-            try:
-                it = model.get_iter(path)
-            except ValueError:
-                # Already at the end of the list
-                return False
-            if role == cls.ROLE_PODCASTS and model.get_value(it, PodcastListModel.C_URL) == '-':
-                path = (path[0] + 1,)
-            else:
-                break
-
-        treeview.set_cursor(path)
-        return True
-
     @staticmethod
     def get_popup_rectangle(treeview, event, column=0):
         """
@@ -418,6 +389,36 @@ class TreeViewHelper(object):
 
         area.x, area.y = treeview.convert_bin_window_to_widget_coords(area.x, area.y)
 
+        return area
+
+    @classmethod
+    def set_cursor_to_first(cls, treeview):
+        """Set cursor on treeview to the first item of model.
+
+        Skips the non-valid section headers in the channel list.
+        Returns False if treeview has no valid items."""
+        role = getattr(treeview, TreeViewHelper.ROLE, None)
+        model = treeview.get_model()
+        it = model.get_iter_first()
+        if it is None:
+            return False
+        path = model.get_path(it)
+        while True:
+            if path[0] < 0:
+                # Valid paths must have a value >= 0
+                return False
+            try:
+                it = model.get_iter(path)
+            except ValueError:
+                # Already at the end of the list
+                return False
+            if role == cls.ROLE_PODCASTS and model.get_value(it, PodcastListModel.C_URL) == '-':
+                path = (path[0] + 1,)
+            else:
+                break
+
+        treeview.set_cursor(path)
+        return True
 
 class ExtensionMenuHelper(object):
     """A helper class to handle extension submenus"""
