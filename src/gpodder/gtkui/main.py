@@ -557,6 +557,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         return None
 
+    def in_downloads_list(self):
+        return self.wNotebook.get_current_page() == 1
+
     def on_played(self, start, end, total, file_uri):
         """Handle the "played" signal from a media player"""
         if start == 0 and end == 0 and total == 0:
@@ -1197,7 +1200,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.shownotes_object.set_episodes(self.get_selected_episodes())
 
     def on_download_list_selection_changed(self, selection):
-        if self.wNotebook.get_current_page() > 0:
+        if self.in_downloads_list():
             # Update the toolbar buttons
             self.play_or_download()
 
@@ -2340,10 +2343,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.episode_list_status_changed(episodes)
 
-    def play_or_download(self, current_page=None):
-        if current_page is None:
-            current_page = self.wNotebook.get_current_page()
-        if current_page == 0:
+    def play_or_download(self):
+        if not self.in_downloads_list():
             (open_instead_of_play, can_play, can_preview, can_download,
              can_pause, can_cancel, can_delete, can_lock) = (False,) * 8
 
@@ -3028,7 +3029,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         return '\n'.join(titles) + '\n\n' + message
 
     def delete_episode_list(self, episodes, confirm=True, callback=None):
-        if self.wNotebook.get_current_page() > 0:
+        if self.in_downloads_list():
             selection = self.treeDownloads.get_selection()
             (model, paths) = selection.get_selected_rows()
             selected_tasks = [(Gtk.TreeRowReference.new(model, path),
@@ -3781,7 +3782,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 util.open_website('http://gpodder.org/downloads')
 
     def on_wNotebook_switch_page(self, notebook, page, page_num):
-        self.play_or_download(current_page=page_num)
+        self.play_or_download()
 
     def on_treeChannels_row_activated(self, widget, path, *args):
         # double-click action of the podcast list or enter
@@ -3854,7 +3855,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.shownotes_object.toggle_pane_visibility(episodes)
 
     def on_download_selected_episodes(self, action_or_widget, param=None):
-        if self.wNotebook.get_current_page() == 0:
+        if not self.in_downloads_list():
             episodes = [e for e in self.get_selected_episodes() if e.can_download()]
             self.download_episode_list(episodes)
         else:
@@ -3866,7 +3867,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self._for_each_task_set_status(selected_tasks, download.DownloadTask.QUEUED)
 
     def on_force_download_selected_episodes(self, action_or_widget, param=None):
-        if self.wNotebook.get_current_page() == 1:
+        if self.in_downloads_list():
             selection = self.treeDownloads.get_selection()
             (model, paths) = selection.get_selected_rows()
             selected_tasks = [(Gtk.TreeRowReference.new(model, path),
@@ -3875,7 +3876,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self._for_each_task_set_status(selected_tasks, download.DownloadTask.QUEUED, True)
 
     def on_pause_selected_episodes(self, action_or_widget, param=None):
-        if self.wNotebook.get_current_page() == 0:
+        if not self.in_downloads_list():
             selection = self.get_selected_episodes()
             selected_tasks = [(None, e.download_task) for e in selection if e.download_task is not None and e.can_pause()]
             self._for_each_task_set_status(selected_tasks, download.DownloadTask.PAUSING)
@@ -3975,7 +3976,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.update_downloads_list()
 
     def on_item_cancel_download_activate(self, *params, force=False):
-        if self.wNotebook.get_current_page() == 0:
+        if not self.in_downloads_list():
             selection = self.treeAvailable.get_selection()
             (model, paths) = selection.get_selected_rows()
             urls = [model.get_value(model.get_iter(path),
