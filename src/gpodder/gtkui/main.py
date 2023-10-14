@@ -4165,9 +4165,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.treeAvailable.grab_focus()
         return True
 
-    def on_btnEditChannel_clicked(self, widget, *args):
-        self.on_itemEditChannel_activate(widget, args)
-
     def get_podcast_urls_from_selected_episodes(self):
         """Get a set of podcast URLs based on the selected episodes"""
         return set(episode.channel.url for episode in
