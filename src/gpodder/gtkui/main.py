@@ -4378,18 +4378,18 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.update_downloads_list()
 
     def on_item_cancel_download_activate(self, *params, force=False):
-        if self.in_downloads():
-            selection = self.treeDownloads.get_selection()
-            (model, paths) = selection.get_selected_rows()
-            selected_tasks = [model.get_value(model.get_iter(path),
-                    self.download_status_model.C_TASK) for path in paths]
-        else:
+        if not self.in_downloads():
             selection = self.treeAvailable.get_selection()
             (model, paths) = selection.get_selected_rows()
             urls = [model.get_value(model.get_iter(path),
                     self.episode_list_model.C_URL) for path in paths]
             selected_tasks = [task for task in self.download_tasks_seen
                     if task.url in urls]
+        else:
+            selection = self.treeDownloads.get_selection()
+            (model, paths) = selection.get_selected_rows()
+            selected_tasks = [model.get_value(model.get_iter(path),
+                    self.download_status_model.C_TASK) for path in paths]
         self.cancel_task_list(selected_tasks, force=force)
 
     def on_btnCancelAll_clicked(self, widget, *args):
