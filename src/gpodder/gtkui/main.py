@@ -461,16 +461,17 @@ class gPodder(BuilderWidget, dbus.service.Object):
             # Episodes
             ('play', self.on_playback_selected_episodes),
             ('open', self.on_playback_selected_episodes),
-            ('forceDownload', self.on_force_download_selected_episodes),
-            ('download', self.on_download_selected_episodes),
-            ('pause', self.on_pause_selected_episodes),
-            ('cancel', self.on_item_cancel_download_activate),
-            ('moveUp', self.on_move_selected_items_up),
-            ('moveDown', self.on_move_selected_items_down),
-            ('remove', self.on_remove_from_download_list),
+            # Download list actions are moved to 'app' actions in adaptive
+            # ('forceDownload', self.on_force_download_selected_episodes),
+            # ('download', self.on_download_selected_episodes),
+            # ('pause', self.on_pause_selected_episodes),
+            # ('cancel', self.on_item_cancel_download_activate),
+            # ('moveUp', self.on_move_selected_items_up),
+            # ('moveDown', self.on_move_selected_items_down),
+            # ('remove', self.on_remove_from_download_list),
             ('delete', self.on_btnDownloadedDelete_clicked),
-            ('toggleEpisodeNew', self.on_item_toggle_played_activate),
-            ('toggleEpisodeLock', self.on_item_toggle_lock_activate),
+#            ('toggleEpisodeNew', self.on_item_toggle_played_activate),
+#            ('toggleEpisodeLock', self.on_item_toggle_lock_activate),
             ('openEpisodeDownloadFolder', self.on_open_episode_download_folder),
             ('openChannelDownloadFolder', self.on_open_download_folder),
             ('selectChannel', self.on_select_channel_of_episode),
@@ -480,12 +481,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             ('bluetoothEpisodes', self.on_bluetooth_episodes_activate),
             # Extras
             ('sync', self.on_sync_to_device_activate),
-            ('findPodcast', self.on_find_podcast_activate),
-            ('markEpisodesAsOld', self.on_mark_episodes_as_old),
-            ('refreshImage', self.on_itemRefreshCover_activate),
+            # Adaptive
             ('showProgress', self.on_show_progress_activate),
-            ('saveEpisodes', self.on_save_episodes_activate),
-            ('bluetoothEpisodes', self.on_bluetooth_episodes_activate),
         ]
 
         for name, callback in action_defs:
@@ -502,13 +499,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # Episodes
         self.play_action = g.lookup_action('play')
         self.open_action = g.lookup_action('open')
-        self.force_download_action = g.lookup_action('forceDownload')
-        self.download_action = g.lookup_action('download')
-        self.pause_action = g.lookup_action('pause')
-        self.cancel_action = g.lookup_action('cancel')
+        # Moved to app_actions in adaptive
+        # self.force_download_action = g.lookup_action('forceDownload')
+        # self.download_action = g.lookup_action('download')
+        # self.pause_action = g.lookup_action('pause')
+        # self.cancel_action = g.lookup_action('cancel')
         self.delete_action = g.lookup_action('delete')
-        self.toggle_episode_new_action = g.lookup_action('toggleEpisodeNew')
-        self.toggle_episode_lock_action = g.lookup_action('toggleEpisodeLock')
+#        self.toggle_episode_new_action = g.lookup_action('toggleEpisodeNew')
+#        self.toggle_episode_lock_action = g.lookup_action('toggleEpisodeLock')
         self.open_episode_download_folder_action = g.lookup_action('openEpisodeDownloadFolder')
         self.select_channel_of_episode_action = g.lookup_action('selectChannel')
         self.auto_archive_action = g.lookup_action('channelAutoArchive')
@@ -522,6 +520,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         app = self.application
 
         app_action_defs = [
+            ('forceDownload', self.on_force_download_selected_episodes),
             ('download', self.on_download_selected_episodes),
             ('pause', self.on_pause_selected_episodes),
             ('cancel', self.on_item_cancel_download_activate),
@@ -2457,8 +2456,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.pause_action.set_enabled(can_pause)
         self.cancel_action.set_enabled(can_cancel)
         self.delete_action.set_enabled(can_delete)
-        self.toggle_episode_new_action.set_enabled(is_episode_selected)
-        self.toggle_episode_lock_action.set_enabled(can_lock)
+#        self.toggle_episode_new_action.set_enabled(is_episode_selected)
+#        self.toggle_episode_lock_action.set_enabled(can_lock)
         self.open_episode_download_folder_action.set_enabled(len(episodes) == 1)
         self.select_channel_of_episode_action.set_enabled(len(episodes) == 1)
 
@@ -4251,17 +4250,25 @@ class gPodder(BuilderWidget, dbus.service.Object):
         return True
 
     def on_download_selected_episodes(self, action_or_widget, param=None):
-        if self.in_downloads():
+        if not self.in_downloads():
+            episodes = [e for e in self.get_selected_episodes() if e.can_download()]
+            self.download_episode_list(episodes)
+        else:
             selection = self.treeDownloads.get_selection()
             (model, paths) = selection.get_selected_rows()
             selected_tasks = [(Gtk.TreeRowReference.new(model, path),
                                model.get_value(model.get_iter(path),
                                DownloadStatusModel.C_TASK)) for path in paths]
             self._for_each_task_set_status(selected_tasks, download.DownloadTask.QUEUED)
-        else:
-            episodes = [e for e in self.get_selected_episodes() if e.can_download()]
-            self.download_episode_list(episodes)
-            self.update_downloads_list()
+
+    def on_force_download_selected_episodes(self, action_or_widget, param=None):
+        if self.in_downloads():
+            selection = self.treeDownloads.get_selection()
+            (model, paths) = selection.get_selected_rows()
+            selected_tasks = [(Gtk.TreeRowReference.new(model, path),
+                               model.get_value(model.get_iter(path),
+                               DownloadStatusModel.C_TASK)) for path in paths]
+            self._for_each_task_set_status(selected_tasks, download.DownloadTask.QUEUED, True)
 
     def on_pause_selected_episodes(self, action_or_widget, param=None):
         if self.in_downloads():
