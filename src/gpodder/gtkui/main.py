@@ -415,6 +415,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.download_action = g.lookup_action('download')
         self.pause_action = g.lookup_action('pause')
         self.cancel_action = g.lookup_action('cancel')
+        self.remove_action = g.lookup_action('remove')
         self.delete_action = g.lookup_action('delete')
         self.toggle_episode_new_action = g.lookup_action('toggleEpisodeNew')
         self.toggle_episode_lock_action = g.lookup_action('toggleEpisodeLock')
@@ -1901,7 +1902,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             else:
                 insert_menuitem(0, _('Download'), 'win.download', 'document-save-symbolic')
 
-            self.gPodder.lookup_action('remove').set_enabled(can_remove)
+            self.remove_action.set_enabled(can_remove)
 
             area = TreeViewHelper.get_popup_rectangle(treeview, event)
             self.downloads_popover.set_pointing_to(area)
