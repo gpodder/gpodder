@@ -4268,18 +4268,17 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self._for_each_task_set_status(selected_tasks, download.DownloadTask.QUEUED, True)
 
     def on_pause_selected_episodes(self, action_or_widget, param=None):
-        if self.in_downloads():
+        if not self.in_downloads():
+            selection = self.get_selected_episodes()
+            selected_tasks = [(None, e.download_task) for e in selection if e.download_task is not None and e.can_pause()]
+            self._for_each_task_set_status(selected_tasks, download.DownloadTask.PAUSING)
+        else:
             selection = self.treeDownloads.get_selection()
             (model, paths) = selection.get_selected_rows()
             selected_tasks = [(Gtk.TreeRowReference.new(model, path),
                                model.get_value(model.get_iter(path),
                                DownloadStatusModel.C_TASK)) for path in paths]
             self._for_each_task_set_status(selected_tasks, download.DownloadTask.PAUSING)
-        else:
-            for episode in self.get_selected_episodes():
-                if episode.can_pause():
-                    episode.download_task.pause()
-            self.update_downloads_list()
 
     def on_episode_download_clicked(self, button):
         self.dl_del_label.set_text("Downloading")
