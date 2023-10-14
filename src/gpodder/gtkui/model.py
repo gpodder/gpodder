@@ -491,6 +491,7 @@ class EpisodeListModel(Gtk.ListStore):
                 self.C_LOCKED, episode.archive,
                 self.C_FILESIZE_TEXT, filesize,
                 self.C_FILESIZE, episode.file_size,
+
                 self.C_TIME_AND_SIZE, "%s\n<small>%s</small>" % (time, filesize if episode.file_size > 0 else ""),
                 self.C_TOTAL_TIME_AND_SIZE, episode.total_time,
                 self.C_FILESIZE_AND_TIME_TEXT, "%s\n<small>%s</small>" % (filesize if episode.file_size > 0 else "", time),

@@ -376,6 +376,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         action = Gio.SimpleAction.new_stateful(
             'episodeNew', None, GLib.Variant.new_boolean(False))
         action.connect('activate', self.on_episode_new_activate)
+        action.connect("notify::state", self.on_new_state_changed)
         g.add_action(action)
 
         action = Gio.SimpleAction.new_stateful(
@@ -388,16 +389,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         action.connect('activate', self.on_channel_toggle_lock_activate)
         g.add_action(action)
 
-        action = Gio.SimpleAction.new_stateful(
-            'episodeNew', None, GLib.Variant.new_boolean(False))
-        action.connect('activate', self.on_new_action)
-        action.connect("notify::state", self.on_new_state_changed)
-        g.add_action(action)
-
-        action = Gio.SimpleAction.new_stateful(
-            'episodeLock', None, GLib.Variant.new_boolean(False))
-        action.connect('activate', self.on_episode_lock_action)
-        g.add_action(action)
+        # View Episode List
 
         value = EpisodeListModel.VIEWS[
             self.config.ui.gtk.episode_list.view_mode or EpisodeListModel.VIEW_ALL]
@@ -413,11 +405,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             GLib.Variant.new_string(value))
         action.connect('activate', self.on_episode_list_sort_changed)
         action.connect('activate', self.relabel_sort_menubutton)
-        g.add_action(action)
-
-        action = Gio.SimpleAction.new_stateful(
-            'showToolbar', None, GLib.Variant.new_boolean(self.config.show_toolbar))
-        action.connect('activate', self.on_itemShowToolbar_activate)
         g.add_action(action)
 
         action = Gio.SimpleAction.new_stateful(
@@ -1352,13 +1339,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         lp.connect("pressed", self.on_treeview_episodes_long_press, self.treeAvailable)
         setattr(self.treeAvailable, "long-press-gesture", lp)
 
-        # Long press gesture
-        lp = Gtk.GestureLongPress.new(self.treeAvailable)
-        lp.set_touch_only(True)
-        lp.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
-        lp.connect("pressed", self.on_treeview_episodes_long_press, self.treeAvailable)
-        setattr(self.treeAvailable, "long-press-gesture", lp)
-
         # Set up type-ahead find for the episode list
         def on_key_press(treeview, event):
             if event.get_state() & Gdk.ModifierType.CONTROL_MASK:
@@ -2178,11 +2158,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
             vsec.remove(0)
             dsec.remove(0)
             if can_force:
-                insert_menuitem(0, _('Start download now'), 'win.forceDownload', 'document-save-symbolic')
+                insert_menuitem(0, _('Start download now'), 'app.forceDownload', 'document-save-symbolic')
             else:
-                insert_menuitem(0, _('Download'), 'win.download', 'document-save-symbolic')
+                insert_menuitem(0, _('Download'), 'app.download', 'document-save-symbolic')
 
-            self.gPodder.lookup_action('remove').set_enabled(can_remove)
+            self.remove_action.set_enabled(can_remove)
 
             area = TreeViewHelper.get_popup_rectangle(treeview, event)
             self.downloads_popover.set_pointing_to(area)
@@ -2401,9 +2381,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
             vsec.remove(1)
             psec.remove(1)
             if can_pause:
-                insert_menuitem(1, _('Pause'), 'win.pause', 'media-playback-pause-symbolic')
+                insert_menuitem(1, _('Pause'), 'app.pause', 'media-playback-pause-symbolic')
             else:
-                insert_menuitem(1, _('Download'), 'win.download', 'document-save-symbolic')
+                insert_menuitem(1, _('Download'), 'app.download', 'document-save-symbolic')
 
             # Cancel
             have_cancel = (psec.get_item_attribute_value(
@@ -3487,22 +3467,16 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def on_item_toggle_lock_activate(self, unused, toggle=True, new_value=False):
         for episode in self.get_selected_episodes():
-            # Gio.SimpleAction activate signal passes None (see #681)
-            if toggle or toggle is None:
+            if episode.state == gpodder.STATE_DELETED:
+                # Always unlock deleted episodes
+                episode.mark(is_locked=False)
+            elif toggle or toggle is None:
+                # Gio.SimpleAction activate signal passes None (see #681)
                 episode.mark(is_locked=not episode.archive)
             else:
                 episode.mark(is_locked=new_value)
         self.on_selected_episodes_status_changed()
-
-    def on_episode_lock_action(self, action, *params):
-        new_state = not action.get_state().get_boolean()
-        for episode in self.get_selected_episodes():
-            episode.mark(is_locked=new_state)
-        self.on_selected_episodes_status_changed()
         self.play_or_download()
-        action.change_state(GLib.Variant.new_boolean(new_state))
-        self.episodes_popover.popdown()
-        return True
 
     def on_episode_lock_activate(self, action, *params):
         new_value = not action.get_state().get_boolean()
@@ -4128,7 +4102,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 #        # The cursor is already set on button press, so no need to repeat
 #        # double-click action of the podcast list or enter
 #        self.treeChannels.set_cursor(path)
-#
+
 #        # open channel settings
 #        channel = self.get_selected_channels()[0]
 #        if channel and not isinstance(channel, PodcastChannelProxy):
@@ -4237,16 +4211,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.new_toggle.set_active(state)
         self.new_toggle.handler_unblock_by_func(self.on_new_toggled)
 
-    def on_new_action(self, action, *params):
-        state = not action.get_state().get_boolean()
-        if state:
-            self.mark_selected_episodes_new()
-        else:
-            self.mark_selected_episodes_old()
-        action.change_state(GLib.Variant.new_boolean(state))
-        self.episodes_popover.popdown()
-        return True
-
     def on_shownotes_selected_episodes(self, *params):
         episodes = self.get_selected_episodes()
         assert episodes
@@ -4298,16 +4262,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             episodes = [e for e in self.get_selected_episodes() if e.can_download()]
             self.download_episode_list(episodes)
             self.update_downloads_list()
-
-    def on_force_download_selected_episodes(self, action_or_widget, param=None):
-#        if self.wNotebook.get_current_page() == 1:
-        if self.in_downloads():
-            selection = self.treeDownloads.get_selection()
-            (model, paths) = selection.get_selected_rows()
-            selected_tasks = [(Gtk.TreeRowReference.new(model, path),
-                               model.get_value(model.get_iter(path),
-                               DownloadStatusModel.C_TASK)) for path in paths]
-            self._for_each_task_set_status(selected_tasks, download.DownloadTask.QUEUED, True)
 
     def on_pause_selected_episodes(self, action_or_widget, param=None):
         if self.in_downloads():
@@ -4364,7 +4318,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     model.get_iter((index_below,)))
 
     def on_remove_from_download_list(self, action, *args):
-        selected_tasks, x, x, x, x, x = self.downloads_list_get_selection()
+        selected_tasks = self.downloads_list_get_selection()[0]
         self._for_each_task_set_status(selected_tasks, None, False)
 
     def on_treeAvailable_row_activated(self, widget, path, view_column):
