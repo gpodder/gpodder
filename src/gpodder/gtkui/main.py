@@ -4154,10 +4154,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.deck.set_can_swipe_forward(False)
         self.update_episode_list_model()
 
-    def on_treeChannels_unselect_all(self, widget, *params):
-        self.leaflet.set_can_swipe_forward(False)
-        return True
-
     def on_channel_list_go_forward(self):
         path, column = self.treeChannels.get_cursor()
         self.on_treeChannels_row_activated(self.treeChannels, path)
