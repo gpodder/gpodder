@@ -4326,10 +4326,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.deck.set_can_swipe_forward(True)
         return True
 
-    def on_treeAvailable_unselect_all(self, widget, *params):
-        self.deck.set_can_swipe_forward(False)
-        return True
-
     def restart_auto_update_timer(self):
         if self._auto_update_timer_source_id is not None:
             logger.debug('Removing existing auto update timer.')
