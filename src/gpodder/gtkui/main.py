@@ -469,7 +469,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             # ('moveUp', self.on_move_selected_items_up),
             # ('moveDown', self.on_move_selected_items_down),
             # ('remove', self.on_remove_from_download_list),
-            ('delete', self.on_btnDownloadedDelete_clicked),
+            ('delete', self.on_delete_activate),
 #            ('toggleEpisodeNew', self.on_item_toggle_played_activate),
 #            ('toggleEpisodeLock', self.on_item_toggle_lock_activate),
             ('openEpisodeDownloadFolder', self.on_open_episode_download_folder),
@@ -4292,7 +4292,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         return True
 
     def on_episode_delete_clicked(self, button, *args):
-        self.on_btnDownloadedDelete_clicked(button, *args)
+        self.on_delete_activate(button, *args)
         self.navigate_from_shownotes()
         return True
 
@@ -4407,7 +4407,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_btnCancelAll_clicked(self, widget, *args):
         self.cancel_task_list(self.download_tasks_seen)
 
-    def on_btnDownloadedDelete_clicked(self, widget, *args):
+    def on_delete_activate(self, widget, *args):
         episodes = self.get_selected_episodes()
         self.delete_episode_list(episodes)
 
