@@ -881,8 +881,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_treeview_channels_button_released(self, treeview, event):
         if event.window != treeview.get_bin_window():
             return False
-
-        return self.treeview_channels_show_context_menu(event)
+        if event.button == 3:
+            return self.treeview_channels_show_context_menu(event)
+        else:
+            return False
 
     def on_treeview_channels_long_press(self, gesture, x, y, treeview):
         ev = Dummy(x=x, y=y, button=3)
@@ -895,8 +897,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_treeview_episodes_button_released(self, treeview, event):
         if event.window != treeview.get_bin_window():
             return False
-
-        return self.treeview_available_show_context_menu(event)
+        if event.button == 3:
+            return self.treeview_available_show_context_menu(event)
+        else:
+            return False
 
     def on_treeview_episodes_long_press(self, gesture, x, y, treeview):
         ev = Dummy(x=x, y=y, button=3)
