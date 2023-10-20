@@ -31,7 +31,7 @@ For an example extension see share/gpodder/examples/extensions.py
 
 import functools
 import glob
-import imp
+import importlib
 import logging
 import os
 import re
@@ -291,15 +291,16 @@ class ExtensionContainer(object):
                     self.name, self.metadata.only_for)
             return
 
-        basename, extension = os.path.splitext(os.path.basename(self.filename))
-        fp = open(self.filename, 'r')
+        basename, _ = os.path.splitext(os.path.basename(self.filename))
         try:
-            module_file = imp.load_module(basename, fp, self.filename,
-                    (extension, 'r', imp.PY_SOURCE))
+            # from load_source() on https://docs.python.org/dev/whatsnew/3.12.html
+            loader = importlib.machinery.SourceFileLoader(basename, self.filename)
+            spec = importlib.util.spec_from_file_location(basename, self.filename, loader=loader)
+            module_file = importlib.util.module_from_spec(spec)
+            loader.exec_module(module_file)
         finally:
             # Remove the .pyc file if it was created during import
             util.delete_file(self.filename + 'c')
-        fp.close()
 
         self.default_config = getattr(module_file, 'DefaultConfig', {})
         if self.default_config:
