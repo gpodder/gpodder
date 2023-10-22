@@ -84,7 +84,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.db = self.core.db
         self.model = self.core.model
         self.options = options
-        self.extensions_menu = None
         self.extensions_actions = []
         self._search_podcasts = None
         self._search_episodes = None
@@ -210,7 +209,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # Set up the first instance of MygPoClient
         self.mygpo_client = my.MygPoClient(self.config)
 
-        self.inject_extensions_menu()
+        # Extensions section in app menu and menubar Extras menu
+        extensions_menu = Gio.Menu()
+        self.application.menu_extras.append_section(_('Extensions'), extensions_menu)
+        self.extensions_menu_helper = ExtensionMenuHelper(self.gPodder,
+            extensions_menu, 'extensions.action_',
+            lambda fun: lambda action, param: fun())
+        self.extensions_menu_helper.replace_entries(
+            gpodder.user_extensions.on_create_menu())
 
         gpodder.user_extensions.on_ui_initialized(self.model,
                 self.extensions_podcast_update_cb,
@@ -427,37 +433,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.episode_lock_action = g.lookup_action('episodeLock')
 
         self.bluetooth_episodes_action.set_enabled(self.bluetooth_available)
-
-    def inject_extensions_menu(self):
-        """
-        Update Extras/Extensions menu.
-        Called at startup and when en/dis-abling extensions.
-        """
-        def gen_callback(label, callback):
-            return lambda action, param: callback()
-
-        for a in self.extensions_actions:
-            self.gPodder.remove_action(a.get_property('name'))
-        self.extensions_actions = []
-
-        if self.extensions_menu is None:
-            # insert menu section at startup (hides when empty)
-            self.extensions_menu = Gio.Menu.new()
-            self.application.menu_extras.append_section(_('Extensions'), self.extensions_menu)
-        else:
-            self.extensions_menu.remove_all()
-
-        extension_entries = gpodder.user_extensions.on_create_menu()
-        if extension_entries:
-            # populate menu
-            for i, (label, callback) in enumerate(extension_entries):
-                action_id = 'extensions.action_%d' % i
-                action = Gio.SimpleAction.new(action_id)
-                action.connect('activate', gen_callback(label, callback))
-                self.extensions_actions.append(action)
-                self.gPodder.add_action(action)
-                itm = Gio.MenuItem.new(label, 'win.' + action_id)
-                self.extensions_menu.append_item(itm)
 
     def on_resume_all_infobar_response(self, infobar, response_id):
         if response_id == Gtk.ResponseType.OK:
@@ -4122,7 +4097,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
             extension.on_ui_initialized(self.model,
                     self.extensions_podcast_update_cb,
                     self.extensions_episode_download_cb)
-        self.inject_extensions_menu()
+        self.extensions_menu_helper.replace_entries(
+            gpodder.user_extensions.on_create_menu())
 
     def on_extension_disabled(self, extension):
-        self.inject_extensions_menu()
+        self.extensions_menu_helper.replace_entries(
+            gpodder.user_extensions.on_create_menu())
