@@ -45,7 +45,8 @@ FILEFORMAT_RANKING = ['270p', '360p', '720p', '1080p']
 FORMATS = tuple((x, x) for x in FILEFORMAT_RANKING)
 
 
-class VimeoError(BaseException): pass
+class VimeoError(BaseException):
+    pass
 
 
 @registry.download_url.register

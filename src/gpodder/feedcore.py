@@ -43,26 +43,33 @@ class ExceptionWithData(Exception):
 
 
 # Temporary errors
-class BadRequest(Exception): pass
+class BadRequest(Exception):
+    pass
 
 
-class InternalServerError(Exception): pass
+class InternalServerError(Exception):
+    pass
 
 
-class WifiLogin(ExceptionWithData): pass
+class WifiLogin(ExceptionWithData):
+    pass
 
 
 # Fatal errors
-class Unsubscribe(Exception): pass
+class Unsubscribe(Exception):
+    pass
 
 
-class NotFound(Exception): pass
+class NotFound(Exception):
+    pass
 
 
-class InvalidFeed(Exception): pass
+class InvalidFeed(Exception):
+    pass
 
 
-class UnknownStatusCode(ExceptionWithData): pass
+class UnknownStatusCode(ExceptionWithData):
+    pass
 
 
 # Authentication error

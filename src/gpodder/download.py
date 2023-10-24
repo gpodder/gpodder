@@ -200,10 +200,12 @@ class ContentRange(object):
             return cls(start, end - 1, length)
 
 
-class DownloadCancelledException(Exception): pass
+class DownloadCancelledException(Exception):
+    pass
 
 
-class DownloadNoURLException(Exception): pass
+class DownloadNoURLException(Exception):
+    pass
 
 
 class gPodderDownloadHTTPError(Exception):

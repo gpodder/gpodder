@@ -179,10 +179,12 @@ class MissingDependency(Exception):
         self.cause = cause
 
 
-class MissingModule(MissingDependency): pass
+class MissingModule(MissingDependency):
+    pass
 
 
-class MissingCommand(MissingDependency): pass
+class MissingCommand(MissingDependency):
+    pass
 
 
 class ExtensionContainer(object):

@@ -109,7 +109,8 @@ class Model(model.Model):
 
 
 # Singleton indicator if a row is a section
-class SeparatorMarker(object): pass
+class SeparatorMarker(object):
+    pass
 
 
 class BackgroundUpdate(object):

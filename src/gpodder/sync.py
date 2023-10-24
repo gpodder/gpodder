@@ -637,10 +637,12 @@ class MP3PlayerDevice(Device):
         return True
 
 
-class SyncCancelledException(Exception): pass
+class SyncCancelledException(Exception):
+    pass
 
 
-class SyncFailedException(Exception): pass
+class SyncFailedException(Exception):
+    pass
 
 
 class SyncTask(download.DownloadTask):

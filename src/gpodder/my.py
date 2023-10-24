@@ -124,7 +124,8 @@ class SubscribeAction(object):
 
 
 # New entity name for "received" actions
-class ReceivedSubscribeAction(SubscribeAction): pass
+class ReceivedSubscribeAction(SubscribeAction):
+    pass
 
 
 class UpdateDeviceAction(object):
@@ -154,7 +155,8 @@ class EpisodeAction(object):
 
 
 # New entity name for "received" actions
-class ReceivedEpisodeAction(EpisodeAction): pass
+class ReceivedEpisodeAction(EpisodeAction):
+    pass
 
 
 class RewrittenUrl(object):

@@ -1780,7 +1780,8 @@ def isabs(string):
     they are considered "absolute" paths.
     Source: http://code.activestate.com/recipes/208993/
     """
-    if protocolPattern.match(string): return 1
+    if protocolPattern.match(string):
+        return 1
     return os.path.isabs(string)
 
 
