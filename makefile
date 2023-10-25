@@ -53,7 +53,7 @@ PREFIX ?= /usr
 PYTHON ?= python3
 HELP2MAN ?= help2man
 
-PYTEST ?= $(shell which pytest || which pytest-3)
+PYTEST ?= $(shell command -v pytest || command -v pytest-3)
 
 ##########################################################################
 

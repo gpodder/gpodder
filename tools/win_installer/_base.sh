@@ -155,7 +155,7 @@ function install_gpodder {
     fi
 
     # Create launchers
-    echo "python3 is $(which python3) version is $(python3 --version)"
+    echo "python3 is $(command -v python3) version is $(python3 --version)"
     python3 "${MISC}"/create-launcher.py \
         "${GPO_VERSION}" "${MINGW_ROOT}"/bin
 
