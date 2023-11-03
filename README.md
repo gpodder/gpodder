@@ -30,7 +30,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 - [Podcastparser](http://gpodder.org/podcastparser/) 0.6.0 or newer
 - [mygpoclient](http://gpodder.org/mygpoclient/) 1.7 or newer
 - [requests](https://requests.readthedocs.io) 2.24.0 or newer
-- Python D-Bus bindings
+- [dbus-python](http://dbus.freedesktop.org/doc/dbus-python/)
 
 As an alternative to python-dbus on Mac OS X and Windows, you can use
 the dummy (no-op) D-Bus module provided in "tools/fake-dbus-module/".
