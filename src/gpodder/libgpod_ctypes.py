@@ -433,7 +433,7 @@ if __name__ == '__main__':
         Episode URL: {track.podcast_url}
         Podcast URL: {track.podcast_rss}
         Play count:  {track.playcount}
-        Bookmark:    {track.bookmark_time / 1000:.0f} seconds
+        Bookmark:    {track.bookmark_time/1000:.0f} seconds
         Filename:    {track.filename_on_ipod}
         """).rstrip())
 
