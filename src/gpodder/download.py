@@ -220,7 +220,7 @@ class DownloadURLOpener:
     # Sometimes URLs are not escaped correctly - try to fix them
     # (see RFC2396; Section 2.4.3. Excluded US-ASCII Characters)
     # FYI: The omission of "%" in the list is to avoid double escaping!
-    ESCAPE_CHARS = dict((ord(c), '%%%x' % ord(c)) for c in ' <>#"{}|\\^[]`')
+    ESCAPE_CHARS = {ord(c): '%%%x' % ord(c) for c in ' <>#"{}|\\^[]`'}
 
     def __init__(self, channel, max_retries=3):
         super().__init__()

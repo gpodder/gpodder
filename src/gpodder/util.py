@@ -147,7 +147,7 @@ _MIME_TYPE_LIST = [
     ('.webm', 'audio/webm'),
 ]
 
-_MIME_TYPES = dict((k, v) for v, k in _MIME_TYPE_LIST)
+_MIME_TYPES = {k: v for v, k in _MIME_TYPE_LIST}
 _MIME_TYPES_EXT = dict(_MIME_TYPE_LIST)
 
 
