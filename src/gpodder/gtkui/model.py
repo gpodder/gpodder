@@ -41,15 +41,6 @@ _ = gpodder.gettext
 logger = logging.getLogger(__name__)
 
 
-try:
-    from gi.repository import Gio
-    have_gio = True
-except ImportError:
-    have_gio = False
-
-# ----------------------------------------------------------
-
-
 class GEpisode(model.PodcastEpisode):
     __slots__ = ()
 
