@@ -130,8 +130,8 @@ class DownloadStatusModel(Gtk.ListStore):
                 self.C_ICON_NAME, self._status_ids[task.status])
 
     def __add_new_task(self, task):
-        iter = self.append()
-        self.request_update(iter, task)
+        it = self.append()
+        self.request_update(it, task)
 
     def register_task(self, task, background=True):
         if background:

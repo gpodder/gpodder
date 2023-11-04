@@ -178,9 +178,9 @@ class UserAppsReader(object):
                 except Exception as e:
                     logger.warning('Parse HKEY error: %s (%s)', hkey, e)
 
-        for dir in userappsdirs:
-            if os.path.exists(dir):
-                for file in glob.glob(os.path.join(dir, '*.desktop')):
+        for appdir in userappsdirs:
+            if os.path.exists(appdir):
+                for file in glob.glob(os.path.join(appdir, '*.desktop')):
                     self.parse_and_append(file)
         self.__finished.set()
 

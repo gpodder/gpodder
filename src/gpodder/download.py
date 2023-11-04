@@ -176,11 +176,11 @@ class ContentRange(object):
         if '/' not in value:
             # Invalid, no length given
             return None
-        range, length = value.split('/', 1)
-        if '-' not in range:
+        startstop, length = value.split('/', 1)
+        if '-' not in startstop:
             # Invalid, no range
             return None
-        start, end = range.split('-', 1)
+        start, end = startstop.split('-', 1)
         try:
             start = int(start)
             if end == '*':
@@ -305,8 +305,8 @@ class DownloadURLOpener:
                 # We told the server to resume - see if she agrees
                 # See RFC2616 (206 Partial Content + Section 14.16)
                 # XXX check status code here, too...
-                range = ContentRange.parse(headers.get('content-range', ''))
-                if range is None or range.start != current_size:
+                conrange = ContentRange.parse(headers.get('content-range', ''))
+                if conrange is None or conrange.start != current_size:
                     # Ok, that did not work. Reset the download
                     # TODO: seek and truncate if content-range differs from request
                     tfp.close()

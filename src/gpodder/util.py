@@ -393,18 +393,18 @@ def calculate_size(path):
         return os.path.getsize(path)
 
     if os.path.isdir(path) and not os.path.islink(path):
-        sum = os.path.getsize(path)
+        size = os.path.getsize(path)
 
         try:
             for item in os.listdir(path):
                 try:
-                    sum += calculate_size(os.path.join(path, item))
+                    size += calculate_size(os.path.join(path, item))
                 except:
                     logger.warning('Cannot get size for %s', path, exc_info=True)
         except:
             logger.warning('Cannot access %s', path, exc_info=True)
 
-        return sum
+        return size
 
     return 0
 
@@ -943,9 +943,9 @@ def mimetype_from_extension(extension):
         return _MIME_TYPES_EXT[extension]
 
     # Need to prepend something to the extension, so guess_type works
-    type, encoding = mimetypes.guess_type('file' + extension)
+    mimetype, encoding = mimetypes.guess_type('file' + extension)
 
-    return type or ''
+    return mimetype or ''
 
 
 def extension_correct_for_mimetype(extension, mimetype):
@@ -1057,10 +1057,10 @@ def file_type_by_extension(extension):
         return _MIME_TYPES_EXT[extension].split('/')[0]
 
     # Need to prepend something to the extension, so guess_type works
-    type, encoding = mimetypes.guess_type('file' + extension)
+    mimetype, encoding = mimetypes.guess_type('file' + extension)
 
-    if type is not None and '/' in type:
-        filetype, rest = type.split('/', 1)
+    if mimetype is not None and '/' in mimetype:
+        filetype, rest = mimetype.split('/', 1)
         if filetype in ('audio', 'video', 'image'):
             return filetype
 

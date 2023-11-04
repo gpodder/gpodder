@@ -119,8 +119,8 @@ class YouTubeVideoFormatListModel(Gtk.ListStore):
             }
             self.append((caption, 0))
 
-        for id, (fmt_id, path, description) in youtube.formats:
-            self.append((description, id))
+        for fmt, (fmt_id, path, description) in youtube.formats:
+            self.append((description, fmt))
 
     def get_index(self):
         for index, row in enumerate(self):
@@ -145,8 +145,8 @@ class YouTubeVideoHLSFormatListModel(Gtk.ListStore):
             }
             self.append((caption, 0))
 
-        for id, (fmt_id, path, description) in youtube.hls_formats:
-            self.append((description, id))
+        for fmt, (fmt_id, path, description) in youtube.hls_formats:
+            self.append((description, fmt))
 
     def get_index(self):
         for index, row in enumerate(self):

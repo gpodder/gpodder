@@ -1543,34 +1543,34 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         if path is not None:
             model = treeview.get_model()
-            iter = model.get_iter(path)
+            iterator = model.get_iter(path)
             role = getattr(treeview, TreeViewHelper.ROLE)
 
             if role == TreeViewHelper.ROLE_EPISODES:
-                id = model.get_value(iter, EpisodeListModel.C_URL)
+                url = model.get_value(iterator, EpisodeListModel.C_URL)
             elif role == TreeViewHelper.ROLE_PODCASTS:
-                id = model.get_value(iter, PodcastListModel.C_URL)
-                if id == '-':
+                url = model.get_value(iterator, PodcastListModel.C_URL)
+                if url == '-':
                     # Section header - no tooltip here (for now at least)
                     return False
 
             last_tooltip = getattr(treeview, TreeViewHelper.LAST_TOOLTIP)
-            if last_tooltip is not None and last_tooltip != id:
+            if last_tooltip is not None and last_tooltip != url:
                 setattr(treeview, TreeViewHelper.LAST_TOOLTIP, None)
                 return False
-            setattr(treeview, TreeViewHelper.LAST_TOOLTIP, id)
+            setattr(treeview, TreeViewHelper.LAST_TOOLTIP, url)
 
             if role == TreeViewHelper.ROLE_EPISODES:
-                description = model.get_value(iter, EpisodeListModel.C_TOOLTIP)
+                description = model.get_value(iterator, EpisodeListModel.C_TOOLTIP)
                 if description:
                     tooltip.set_text(description)
                 else:
                     return False
             elif role == TreeViewHelper.ROLE_PODCASTS:
-                channel = model.get_value(iter, PodcastListModel.C_CHANNEL)
+                channel = model.get_value(iterator, PodcastListModel.C_CHANNEL)
                 if channel is None or not hasattr(channel, 'title'):
                     return False
-                error_str = model.get_value(iter, PodcastListModel.C_ERROR)
+                error_str = model.get_value(iterator, PodcastListModel.C_ERROR)
                 if error_str:
                     error_str = _('Feedparser error: %s') % html.escape(error_str.strip())
                     error_str = '<span foreground="#ff0000">%s</span>' % error_str
@@ -2218,8 +2218,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             selection = self.treeAvailable.get_selection()
             model, paths = selection.get_selected_rows()
             for path in reversed(paths):
-                iter = model.get_iter(path)
-                self.episode_list_model.update_by_filter_iter(iter)
+                iterator = model.get_iter(path)
+                self.episode_list_model.update_by_filter_iter(iterator)
         elif all and not selected:
             # We update all (even the filter-hidden) episodes
             self.episode_list_model.update_all()
@@ -2447,7 +2447,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         since the last update of the podcast list).
         """
         selection = self.treeChannels.get_selection()
-        model, iter = selection.get_selected()
+        model, iterator = selection.get_selected()
 
         def is_section(r):
             return r[PodcastListModel.C_URL] == '-'
@@ -2478,16 +2478,16 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         if selected and not force_update:
             # very cheap! only update selected channel
-            if iter is not None:
+            if iterator is not None:
                 # If we have selected the "all episodes" view, we have
                 # to update all channels for selected episodes:
                 if self.config.ui.gtk.podcast_list.all_episodes and \
-                        self.podcast_list_model.iter_is_first_row(iter):
+                        self.podcast_list_model.iter_is_first_row(iterator):
                     urls = self.get_podcast_urls_from_selected_episodes()
                     self.podcast_list_model.update_by_urls(urls)
                 else:
                     # Otherwise just update the selected row (a podcast)
-                    self.podcast_list_model.update_by_filter_iter(iter)
+                    self.podcast_list_model.update_by_filter_iter(iterator)
 
                 if self.config.ui.gtk.podcast_list.sections:
                     self.podcast_list_model.update_sections()
@@ -2502,9 +2502,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 if self.config.ui.gtk.podcast_list.sections:
                     self.podcast_list_model.update_sections()
         else:
-            if model and iter and select_url is None:
+            if model and iterator and select_url is None:
                 # Get the URL of the currently-selected podcast
-                select_url = model.get_value(iter, PodcastListModel.C_URL)
+                select_url = model.get_value(iterator, PodcastListModel.C_URL)
 
             # Update the podcast list model with new channels
             self.podcast_list_model.set_channels(self.db, self.config, self.channels)
@@ -3509,14 +3509,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
         def after_login():
             title = _('Subscriptions on %(server)s') \
                     % {'server': self.config.mygpo.server}
-            dir = gPodderPodcastDirectory(self.gPodder,
+            gpd = gPodderPodcastDirectory(self.gPodder,
                                           _config=self.config,
                                           custom_title=title,
                                           add_podcast_list=self.add_podcast_list,
                                           hide_url_entry=True)
 
             url = self.mygpo_client.get_download_user_subscriptions_url()
-            dir.download_opml_file(url)
+            gpd.download_opml_file(url)
 
         title = _('Login to gpodder.net')
         message = _('Please login to download your subscriptions.')
@@ -3661,11 +3661,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.remove_podcast_list([self.active_channel])
 
     def get_opml_filter(self):
-        filter = Gtk.FileFilter()
-        filter.add_pattern('*.opml')
-        filter.add_pattern('*.xml')
-        filter.set_name(_('OPML files') + ' (*.opml, *.xml)')
-        return filter
+        flt = Gtk.FileFilter()
+        flt.add_pattern('*.opml')
+        flt.add_pattern('*.xml')
+        flt.set_name(_('OPML files') + ' (*.opml, *.xml)')
+        return flt
 
     def on_item_import_from_file_activate(self, action, filename=None):
         if filename is None:
@@ -3682,11 +3682,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
             dlg.destroy()
 
         if filename is not None:
-            dir = gPodderPodcastDirectory(self.gPodder, _config=self.config,
+            gpd = gPodderPodcastDirectory(self.gPodder, _config=self.config,
                     custom_title=_('Import podcasts from OPML file'),
                     add_podcast_list=self.add_podcast_list,
                     hide_url_entry=True)
-            dir.download_opml_file(filename)
+            gpd.download_opml_file(filename)
 
     def on_itemExportChannels_activate(self, widget, *args):
         if not self.channels:
@@ -3793,11 +3793,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
         return channels
 
     def on_treeChannels_cursor_changed(self, widget, *args):
-        (model, iter) = self.treeChannels.get_selection().get_selected()
+        model, iterator = self.treeChannels.get_selection().get_selected()
 
-        if model is not None and iter is not None:
+        if model is not None and iterator is not None:
             old_active_channel = self.active_channel
-            self.active_channel = model.get_value(iter, PodcastListModel.C_CHANNEL)
+            self.active_channel = model.get_value(iterator, PodcastListModel.C_CHANNEL)
 
             if self.active_channel == old_active_channel:
                 return

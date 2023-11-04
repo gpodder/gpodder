@@ -174,21 +174,21 @@ def get_fmt_ids(youtube_config, allow_partial):
         if youtube_config.preferred_hls_fmt_id == 0:
             hls_fmt_ids = (youtube_config.preferred_hls_fmt_ids if youtube_config.preferred_hls_fmt_ids else [])
         else:
-            format = hls_formats_dict.get(youtube_config.preferred_hls_fmt_id)
-            if format is None:
+            fmt = hls_formats_dict.get(youtube_config.preferred_hls_fmt_id)
+            if fmt is None:
                 hls_fmt_ids = []
             else:
-                hls_fmt_ids, path, description = format
+                hls_fmt_ids, path, description = fmt
     else:
         hls_fmt_ids = []
 
     if youtube_config.preferred_fmt_id == 0:
         return (youtube_config.preferred_fmt_ids + hls_fmt_ids if youtube_config.preferred_fmt_ids else hls_fmt_ids)
 
-    format = formats_dict.get(youtube_config.preferred_fmt_id)
-    if format is None:
+    fmt = formats_dict.get(youtube_config.preferred_fmt_id)
+    if fmt is None:
         return hls_fmt_ids
-    fmt_ids, path, description = format
+    fmt_ids, path, description = fmt
     return fmt_ids + hls_fmt_ids
 
 
@@ -345,21 +345,21 @@ def get_real_download_url(url, allow_partial, preferred_fmt_ids=None):
         formats_available = {fmt_id for fmt_id, url in fmt_id_url_map}
         fmt_id_url_map = dict(fmt_id_url_map)
 
-        for id in preferred_fmt_ids:
-            if not re.search(r'^[0-9]+$', str(id)):
+        for fmt_id in preferred_fmt_ids:
+            if not re.search(r'^[0-9]+$', str(fmt_id)):
                 # skip non-integer formats 'best', '136+140' or twitch '720p'
                 continue
-            id = int(id)
-            if id in formats_available:
-                format = formats_dict.get(id) or hls_formats_dict.get(id)
-                if format is not None:
-                    _, _, description = format
+            fmt_id = int(fmt_id)
+            if fmt_id in formats_available:
+                fmt = formats_dict.get(fmt_id) or hls_formats_dict.get(fmt_id)
+                if fmt is not None:
+                    _, _, description = fmt
                 else:
                     description = 'Unknown'
 
                 logger.info('Found YouTube format: %s (fmt_id=%d)',
-                        description, id)
-                url, duration = fmt_id_url_map[id]
+                        description, fmt_id)
+                url, duration = fmt_id_url_map[fmt_id]
                 break
         else:
             raise YouTubeError('No preferred formats found')

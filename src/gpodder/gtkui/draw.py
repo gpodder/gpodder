@@ -37,8 +37,8 @@ from gi.repository import Gdk, GdkPixbuf, Gtk, Pango, PangoCairo  # isort:skip
 
 class TextExtents(object):
     def __init__(self, ctx, text):
-        tuple = ctx.text_extents(text)
-        (self.x_bearing, self.y_bearing, self.width, self.height, self.x_advance, self.y_advance) = tuple
+        extents = ctx.text_extents(text)
+        (self.x_bearing, self.y_bearing, self.width, self.height, self.x_advance, self.y_advance) = extents
 
 
 EPISODE_LIST_ICON_SIZE = 16

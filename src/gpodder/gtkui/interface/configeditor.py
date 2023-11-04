@@ -79,9 +79,9 @@ class gPodderConfigEditor(BuilderWidget):
 
     def value_edited(self, renderer, path, new_text):
         model = self.configeditor.get_model()
-        iter = model.get_iter(path)
-        name = model.get_value(iter, 0)
-        type_cute = model.get_value(iter, 1)
+        iterator = model.get_iter(path)
+        name = model.get_value(iterator, 0)
+        type_cute = model.get_value(iterator, 1)
 
         if not self._config.update_field(name, new_text):
             message = _('Cannot set %(field)s to %(value)s. Needed data type: %(datatype)s')
@@ -92,9 +92,9 @@ class gPodderConfigEditor(BuilderWidget):
 
     def value_toggled(self, renderer, path):
         model = self.configeditor.get_model()
-        iter = model.get_iter(path)
-        field_name = model.get_value(iter, 0)
-        field_type = model.get_value(iter, 3)
+        iterator = model.get_iter(path)
+        field_name = model.get_value(iterator, 0)
+        field_type = model.get_value(iterator, 3)
 
         # Flip the boolean config flag
         if field_type == bool:

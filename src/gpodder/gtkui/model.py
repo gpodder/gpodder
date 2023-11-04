@@ -367,11 +367,11 @@ class EpisodeListModel(Gtk.ListStore):
             if row[self.C_URL] in urls:
                 self.update_by_iter(row.iter)
 
-    def update_by_filter_iter(self, iter):
+    def update_by_filter_iter(self, iterator):
         # Convenience function for use by "outside" methods that use iters
         # from the filtered episode list model (i.e. all UI things normally)
-        iter = self._sorter.convert_iter_to_child_iter(iter)
-        self.update_by_iter(self._filter.convert_iter_to_child_iter(iter))
+        iterator = self._sorter.convert_iter_to_child_iter(iterator)
+        self.update_by_iter(self._filter.convert_iter_to_child_iter(iterator))
 
     def get_update_fields(self, episode):
         tooltip = []
@@ -838,8 +838,8 @@ class PodcastListModel(Gtk.ListStore):
 
         if config.ui.gtk.podcast_list.all_episodes and channels:
             all_episodes = PodcastChannelProxy(db, config, channels, '', self)
-            iter = self.append(channel_to_row(all_episodes))
-            self.update_by_iter(iter)
+            iterator = self.append(channel_to_row(all_episodes))
+            self.update_by_iter(iterator)
 
             # Separator item
             if not config.ui.gtk.podcast_list.sections:
@@ -861,11 +861,11 @@ class PodcastListModel(Gtk.ListStore):
             if config.ui.gtk.podcast_list.sections and section is not None:
                 section_channels = list(section_channels)
                 section_obj = PodcastChannelProxy(db, config, section_channels, section, self)
-                iter = self.append(section_to_row(section_obj))
-                self.update_by_iter(iter)
+                iterator = self.append(section_to_row(section_obj))
+                self.update_by_iter(iterator)
             for channel in section_channels:
-                iter = self.append(channel_to_row(channel, True))
-                self.update_by_iter(iter)
+                iterator = self.append(channel_to_row(channel, True))
+                self.update_by_iter(iterator)
 
     def get_filter_path_from_url(self, url):
         # Return the path of the filtered model for a given URL
@@ -895,9 +895,9 @@ class PodcastListModel(Gtk.ListStore):
             if row[self.C_URL] in urls:
                 self.update_by_iter(row.iter)
 
-    def iter_is_first_row(self, iter):
-        iter = self._filter.convert_iter_to_child_iter(iter)
-        path = self.get_path(iter)
+    def iter_is_first_row(self, iterator):
+        iterator = self._filter.convert_iter_to_child_iter(iterator)
+        path = self.get_path(iterator)
         return (path == Gtk.TreePath.new_first())
 
     def update_by_filter_iter(self, iter):
