@@ -236,7 +236,7 @@ class YoutubeFeed(model.Feed):
         # trim guids to max episodes
         entries = [e for i, e in enumerate(self._ie_result['entries'])
                    if not self._max_episodes or i < self._max_episodes]
-        all_seen_guids = set(e['guid'] for e in entries)
+        all_seen_guids = {e['guid'] for e in entries}
         # only fetch new ones from youtube since they are so slow to get
         new_entries = [e for e in entries if e['guid'] not in existing_guids]
         logger.debug('%i/%i new entries', len(new_entries), len(all_seen_guids))

@@ -98,7 +98,7 @@ def get_contributors(tag, previous_tag):
     """
     cmp = repo.compare_commits(previous_tag, tag)
     logins = [c.author.login for c in cmp.commits() if c.author] + [c.committer.login for c in cmp.commits()]
-    return sorted(set("@{}".format(n) for n in logins))
+    return sorted({"@{}".format(n) for n in logins})
 
 
 def get_previous_tag():

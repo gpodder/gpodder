@@ -1033,9 +1033,9 @@ class PodcastChannel(PodcastModelObject):
         # youtube-dl and yt-dlp create <name>.partial and <name>.partial.<ext> files while downloading.
         # On startup, the latter is reported as an unknown external file.
         # Both files are properly removed when the download completes.
-        existing_files = set(filename for filename in
-                glob.glob(os.path.join(self.save_dir, '*'))
-                if not filename.endswith('.partial'))
+        existing_files = {filename
+                for filename in glob.glob(os.path.join(self.save_dir, '*'))
+                if not filename.endswith('.partial')}
 
         ignore_files = ['folder' + ext for ext in
                 coverart.CoverDownloader.EXTENSIONS]
@@ -1302,7 +1302,7 @@ class PodcastChannel(PodcastModelObject):
                 # FIXME: could return the feed because in autodiscovery it is parsed already
                 url = result.feed
                 logger.info('New feed location: %s => %s', self.url, url)
-                if url in set(x.url for x in self.model.get_podcasts()):
+                if url in {x.url for x in self.model.get_podcasts()}:
                     raise Exception('Already subscribed to ' + url)
                 self.url = url
                 # With the updated URL, fetch the feed again

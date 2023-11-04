@@ -239,7 +239,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         old_episodes = list(common.get_expired_episodes(self.channels, self.config))
         if len(old_episodes) > 0:
             self.delete_episode_list(old_episodes, confirm=False)
-            updated_urls = set(e.channel.url for e in old_episodes)
+            updated_urls = {e.channel.url for e in old_episodes}
             self.update_podcast_list_model(updated_urls)
 
         # Do the initial sync with the web service
@@ -2236,8 +2236,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             raise ValueError('Invalid call to update_episode_list_icons')
 
     def episode_list_status_changed(self, episodes):
-        self.update_episode_list_icons(set(e.url for e in episodes))
-        self.update_podcast_list_model(set(e.channel.url for e in episodes))
+        self.update_episode_list_icons({e.url for e in episodes})
+        self.update_podcast_list_model({e.channel.url for e in episodes})
         self.db.commit()
 
     def playback_episodes_for_real(self, episodes):
@@ -2572,7 +2572,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if auth_tokens is None:
             auth_tokens = {}
 
-        existing_urls = set(podcast.url for podcast in self.channels)
+        existing_urls = {podcast.url for podcast in self.channels}
 
         # For a given URL, the desired title (or None)
         title_for_url = {}
@@ -3561,7 +3561,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 channel=self.active_channel,
                 update_podcast_list_model=self.update_podcast_list_model,
                 cover_downloader=self.cover_downloader,
-                sections=set(c.section for c in self.channels),
+                sections={c.section for c in self.channels},
                 clear_cover_cache=self.podcast_list_model.clear_cover_cache,
                 _config=self.config)
 
@@ -3826,8 +3826,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def get_podcast_urls_from_selected_episodes(self):
         """Get a set of podcast URLs based on the selected episodes"""
-        return set(episode.channel.url for episode in
-                self.get_selected_episodes())
+        return {episode.channel.url for episode in self.get_selected_episodes()}
 
     def get_selected_episodes(self):
         """Get a list of selected episodes from treeAvailable"""

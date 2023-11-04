@@ -222,7 +222,7 @@ class SoundcloudFeed(model.Feed):
         if self.max_episodes > 0:
             tracks = tracks[:self.max_episodes]
 
-        seen_guids = set(track['guid'] for track in tracks)
+        seen_guids = {track['guid'] for track in tracks}
         episodes = []
 
         for track in tracks:

@@ -342,7 +342,7 @@ def get_real_download_url(url, allow_partial, preferred_fmt_ids=None):
                 raise YouTubeError('Unsupported DRM content')
             raise YouTubeError('No formats found')
 
-        formats_available = set(fmt_id for fmt_id, url in fmt_id_url_map)
+        formats_available = {fmt_id for fmt_id, url in fmt_id_url_map}
         fmt_id_url_map = dict(fmt_id_url_map)
 
         for id in preferred_fmt_ids:
