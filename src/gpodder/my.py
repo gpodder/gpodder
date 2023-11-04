@@ -512,7 +512,7 @@ class MygPoClient(object):
                 # handle outside
                 raise
 
-            except Exception as e:
+            except Exception:
                 logger.warning('Exception while polling for episodes.', exc_info=True)
 
             # Step 2: Upload Episode actions

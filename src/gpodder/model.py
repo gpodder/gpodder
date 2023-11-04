@@ -1115,7 +1115,7 @@ class PodcastChannel(PodcastModelObject):
 
             try:
                 tmp.update(max_episodes)
-            except Exception as e:
+            except Exception:
                 logger.debug('Fetch failed. Removing buggy feed.')
                 tmp.remove_downloaded()
                 tmp.delete()

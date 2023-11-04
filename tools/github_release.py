@@ -172,7 +172,7 @@ def upload(repo, tag, previous_tag, circleci, appveyor):
         print("I: uploading %s..." % itm)
         with open(filename, "rb") as f:
             try:
-                asset = release.upload_asset(content_type, itm, f)
+                _ = release.upload_asset(content_type, itm, f)
             except Exception as e:
                 error_exit("Error uploading asset '%s' (%r)" % (itm, e))
     print("I: upload success")

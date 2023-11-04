@@ -188,7 +188,7 @@ class DownloadStatusModel(Gtk.ListStore):
             # this is the only thread accessing the list store, so it's safe
             # to assume a) the task is still queued and b) we can transition to downloading
             task.status = task.DOWNLOADING
-        except StopIteration as e:
+        except StopIteration:
             task = None
         # hand the task off to the worker thread
         dqr.resolve(task)

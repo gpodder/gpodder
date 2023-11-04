@@ -845,7 +845,7 @@ class SyncTask(download.DownloadTask):
         try:
             logger.info('Starting SyncTask')
             self.device.add_track(self, reporthook=self.status_updated)
-        except SyncCancelledException as e:
+        except SyncCancelledException:
             sync_result = SyncTask.CANCELLED
         except Exception as e:
             sync_result = SyncTask.FAILED

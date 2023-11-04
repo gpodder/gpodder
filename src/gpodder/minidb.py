@@ -139,7 +139,7 @@ class Store(object):
             try:
                 self.db.execute(sql, list(kwargs.values()))
                 return True
-            except Exception as e:
+            except Exception:
                 return False
 
     def remove(self, o):
@@ -168,7 +168,7 @@ class Store(object):
                 sql += ' WHERE %s' % (' AND '.join('%s=?' % k for k in kwargs))
             try:
                 cur = self.db.execute(sql, list(kwargs.values()))
-            except Exception as e:
+            except Exception:
                 raise
 
             def apply(row):
@@ -176,7 +176,7 @@ class Store(object):
                 for attr, value in zip(slots, row):
                     try:
                         self._set(o, attr, value)
-                    except ValueError as ve:
+                    except ValueError:
                         return None
                 return o
             return [x for x in [apply(row) for row in cur] if x is not None]

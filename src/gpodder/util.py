@@ -543,10 +543,10 @@ def format_date(timestamp):
     yesterday = time.localtime(time.time() - seconds_in_a_day)[:3]
     try:
         timestamp_date = time.localtime(timestamp)[:3]
-    except ValueError as e:
+    except ValueError:
         logger.warning('Cannot convert timestamp', exc_info=True)
         return None
-    except TypeError as e:
+    except TypeError:
         logger.warning('Cannot convert timestamp', exc_info=True)
         return None
 
@@ -2343,7 +2343,7 @@ def get_header_param(headers, param, header_name):
             raw_value = msg.get_param(param, header=header_name)
             if raw_value is not None:
                 value = email.utils.collapse_rfc2231_value(raw_value)
-    except Exception as e:
+    except Exception:
         logger.error('Cannot get %s from %s', param, header_name, exc_info=True)
 
     return value

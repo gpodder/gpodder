@@ -570,8 +570,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         episode = self.episode_object_by_uri(file_uri)
 
         if episode is not None:
-            file_type = episode.file_type()
-
             now = time.time()
             if total > 0:
                 episode.total_time = total
@@ -818,9 +816,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.treeChannels.set_model(self.podcast_list_model.get_filtered_model())
         self.podcast_list_model.widget = self.treeChannels
-
-        # When no podcast is selected, clear the episode list model
-        selection = self.treeChannels.get_selection()
 
         # Set up channels context menu
         menu = self.application.builder.get_object('channels-context')
@@ -1326,7 +1321,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     # this is needed, so update_episode_list_icons()
                     # below gets the correct list of "seen" tasks
                     self.download_tasks_seen.remove(task)
-                except KeyError as key_error:
+                except KeyError:
                     pass
                 changed_episode_urls.add(task.url)
                 # Tell the task that it has been removed (so it can clean up)
@@ -1845,7 +1840,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                             # this is needed, so update_episode_list_icons()
                             # below gets the correct list of "seen" tasks
                             self.download_tasks_seen.remove(task)
-                        except KeyError as key_error:
+                        except KeyError:
                             pass
                         episode_urls.add(task.url)
                         # Tell the task that it has been removed (so it can clean up)
@@ -2083,7 +2078,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             any_locked = any(e.archive for e in episodes)
             any_new = any(e.is_new and e.state != gpodder.STATE_DELETED for e in episodes)
             downloaded = all(e.was_downloaded(and_exists=True) for e in episodes)
-            downloading = any(e.downloading for e in episodes)
             (open_instead_of_play, can_play, can_preview, can_download, can_pause,
              can_cancel, can_delete, can_lock) = self.play_or_download()
 
@@ -2299,7 +2293,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                             reply_handler=on_reply, error_handler=on_error)
 
                     continue  # This file was handled by the D-Bus call
-                except Exception as e:
+                except Exception:
                     logger.error('Calling Panucci using D-Bus', exc_info=True)
 
             groups[player].append(filename)
@@ -2330,7 +2324,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         try:
             self.playback_episodes_for_real(episodes)
-        except Exception as e:
+        except Exception:
             logger.error('Error in playback!', exc_info=True)
             self.show_message(_('Please check your media player settings in the preferences dialog.'),
                     _('Error opening player'))
@@ -2354,7 +2348,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         if episode is None:
                             logger.info('Invalid episode at path %s', str(path))
                             continue
-                    except TypeError as e:
+                    except TypeError:
                         logger.error('Invalid episode at path %s', str(path))
                         continue
 
@@ -2388,7 +2382,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         if task is None:
                             logger.info('Invalid task at path %s', str(path))
                             continue
-                    except TypeError as e:
+                    except TypeError:
                         logger.error('Invalid task at path %s', str(path))
                         continue
 
@@ -2704,7 +2698,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
                     try:
                         username, password = util.username_password_from_url(url)
-                    except ValueError as ve:
+                    except ValueError:
                         username, password = (None, None)
 
                     if title is not None:
@@ -3750,7 +3744,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         """
         try:
             up_to_date, version, released, days = util.get_update_info()
-        except Exception as e:
+        except Exception:
             if silent:
                 logger.warning('Could not check for updates.', exc_info=True)
             else:
@@ -3893,9 +3887,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             index_above = path[0] - 1
             if index_above < 0:
                 return
-            task = model.get_value(
-                    model.get_iter(path),
-                    DownloadStatusModel.C_TASK)
             model.move_before(
                     model.get_iter(path),
                     model.get_iter((index_above,)))
@@ -3907,9 +3898,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
             index_below = path[0] + 1
             if index_below >= len(model):
                 return
-            task = model.get_value(
-                    model.get_iter(path),
-                    DownloadStatusModel.C_TASK)
             model.move_after(
                     model.get_iter(path),
                     model.get_iter((index_below,)))

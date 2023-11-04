@@ -230,7 +230,7 @@ class EpisodeListModel(Gtk.ListStore):
 
             try:
                 return self._search_term_eql.match(episode)
-            except Exception as e:
+            except Exception:
                 return True
 
         if self._view_mode == self.VIEW_ALL:
@@ -722,7 +722,7 @@ class PodcastListModel(Gtk.ListStore):
                 logger.debug("cached thumb wrong size: %r != %i", (pixbuf.get_width(), pixbuf.get_height()), self._max_image_side)
                 return None
             return pixbuf
-        except Exception as e:
+        except Exception:
             logger.warning('Could not load cached cover art for %s', channel.url, exc_info=True)
             channel.cover_thumb = None
             channel.save()

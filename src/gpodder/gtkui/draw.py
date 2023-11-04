@@ -137,7 +137,7 @@ def draw_cake(percentage, text=None, emblem=None, size=None):
     ctx = cairo.Context(surface)
 
     bgc = get_background_color(Gtk.StateFlags.ACTIVE)
-    fgc = get_background_color(Gtk.StateFlags.SELECTED)
+    # fgc = get_background_color(Gtk.StateFlags.SELECTED)
     txc = get_foreground_color(Gtk.StateFlags.NORMAL)
 
     border = 1.5

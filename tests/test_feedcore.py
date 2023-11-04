@@ -55,7 +55,6 @@ SIMPLE_RSS = """
 """
 
 def test_easy(httpserver):
-    res_data = SIMPLE_RSS
     httpserver.expect_request('/feed').respond_with_data(SIMPLE_RSS, content_type='text/xml')
     res = MyFetcher().fetch(httpserver.url_for('/feed'), custom_key='value')
     assert res.status == UPDATED_FEED
@@ -67,7 +66,6 @@ def test_easy(httpserver):
     assert args['extra_args']['custom_key'] == 'value'
 
 def test_redirect(httpserver):
-    res_data = SIMPLE_RSS
     httpserver.expect_request('/endfeed').respond_with_data(SIMPLE_RSS, content_type='text/xml')
     redir_headers = {
         'Location': '/endfeed',
@@ -107,7 +105,6 @@ def test_redirect_loop(httpserver):
 
 def test_temporary_error_retry(httpserver):
     httpserver.expect_ordered_request('/feed').respond_with_data(status=503)
-    res_data = SIMPLE_RSS
     httpserver.expect_ordered_request('/feed').respond_with_data(SIMPLE_RSS, content_type='text/xml')
     res = MyFetcher().fetch(httpserver.url_for('/feed'))
     assert res.status == UPDATED_FEED

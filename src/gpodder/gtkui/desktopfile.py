@@ -94,7 +94,7 @@ class UserApplication(object):
             if os.path.exists(self.icon):
                 try:
                     return GdkPixbuf.Pixbuf.new_from_file_at_size(self.icon, 24, 24)
-                except GObject.GError as ge:
+                except GObject.GError:
                     pass
 
             # Load it from the current icon theme

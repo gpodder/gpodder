@@ -375,7 +375,7 @@ class DefaultDownload(CustomDownload):
                     tempname, reporthook=reporthook)
                 # If we arrive here, the download was successful
                 break
-            except urllib.error.ContentTooShortError as ctse:
+            except urllib.error.ContentTooShortError:
                 if retry < max_retries:
                     logger.info('Content too short: %s - will retry.',
                             url)
@@ -980,7 +980,7 @@ class DownloadTask(object):
         except DownloadNoURLException:
             result = DownloadTask.FAILED
             self.error_message = _('Episode has no URL to download')
-        except urllib.error.ContentTooShortError as ctse:
+        except urllib.error.ContentTooShortError:
             result = DownloadTask.FAILED
             self.error_message = _('Missing content from server')
         except ConnectionError as ce:
