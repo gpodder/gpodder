@@ -49,7 +49,7 @@ class Store(object):
         self.lock = threading.RLock()
 
     def _schema(self, class_):
-        return class_.__name__, list(sorted(class_.__slots__))
+        return class_.__name__, sorted(class_.__slots__)
 
     def _set(self, o, slot, value):
         # Set a slot on the given object to value, doing a cast if

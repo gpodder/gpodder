@@ -185,9 +185,9 @@ if uis is not None:
 
 
 try:
-    packages = list(sorted(find_packages(uis)))
-    scripts = list(sorted(find_scripts(uis)))
-    data_files = list(sorted(find_data_files(uis, scripts)))
+    packages = sorted(find_packages(uis))
+    scripts = sorted(find_scripts(uis))
+    data_files = sorted(find_data_files(uis, scripts))
 except MissingFile as mf:
     print("""
     Missing file: %s
