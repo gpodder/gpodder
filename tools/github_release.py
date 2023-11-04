@@ -88,7 +88,7 @@ def checksums():
                 m.update(block)
                 s.update(block)
                 block = f.read(4096)
-        ret[os.path.basename(archive)] = dict(md5=m.hexdigest(), sha256=s.hexdigest())
+        ret[os.path.basename(archive)] = {'md5': m.hexdigest(), 'sha256': s.hexdigest()}
     return ret
 
 

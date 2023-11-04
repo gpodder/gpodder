@@ -2037,12 +2037,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 except (OSError, IOError) as e:
                     if remaining:
                         msg = _('Error saving to local folder: %(error)r.\n'
-                                'Would you like to continue?') % dict(error=e)
+                                'Would you like to continue?') % {'error': e}
                         if not self.show_confirmation(msg, _('Error saving to local folder')):
                             logger.warning("Save to Local Folder cancelled following error")
                             break
                     else:
-                        self.notification(_('Error saving to local folder: %(error)r') % dict(error=e),
+                        self.notification(_('Error saving to local folder: %(error)r') % {'error': e},
                                           _('Error saving to local folder'), important=True)
 
         setattr(self, PRIVATE_FOLDER_ATTRIBUTE, folder)
