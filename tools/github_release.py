@@ -53,7 +53,7 @@ def download_circleci(circleci, prefix):
     """ download build artifacts from circleCI and exit """
     print("I: downloading release artifacts from Circle.ci")
     artifacts = requests.get("https://circleci.com/api/v1.1/project/github/gpodder/gpodder/%s/artifacts" % circleci).json()
-    items = {u["url"] for u in artifacts if re.match(".+/gPodder-.+\.zip$", u["path"])}
+    items = {u["url"] for u in artifacts if re.match(r".+/gPodder-.+\.zip$", u["path"])}
     if len(items) == 0:
         error_exit("Nothing found to download")
     download_items(items, prefix)
