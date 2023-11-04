@@ -2911,7 +2911,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 # so take only episodes marked as new.
                 episodes = ((e for e in new_episodes if e.check_is_new())
                             if self.config.ui.gtk.only_added_are_new
-                            else self.get_new_episodes([c for c in updated_channels]))
+                            else self.get_new_episodes(list(updated_channels)))
 
                 if self.config.downloads.chronological_order:
                     # download older episodes first
