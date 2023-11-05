@@ -193,9 +193,9 @@ if __name__ == '__main__':
     class Person(object):
         __slots__ = {'username': str, 'id': int}
 
-        def __init__(self, username, id):
+        def __init__(self, username, uid):
             self.username = username
-            self.id = id
+            self.id = uid
 
         def __repr__(self):
             return '<Person "%s" (%d)>' % (self.username, self.id)
@@ -214,9 +214,9 @@ if __name__ == '__main__':
     class Person(object):
         __slots__ = {'username': str, 'id': int, 'mail': str}
 
-        def __init__(self, username, id, mail):
+        def __init__(self, username, uid, mail):
             self.username = username
-            self.id = id
+            self.id = uid
             self.mail = mail
 
         def __repr__(self):

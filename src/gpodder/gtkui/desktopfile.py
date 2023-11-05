@@ -77,8 +77,8 @@ class PlayerListModel(Gtk.ListStore):
         return len(self) - 1
 
     @classmethod
-    def is_separator(cls, model, iter):
-        return model.get_value(iter, cls.C_COMMAND) == ''
+    def is_separator(cls, model, iterator):
+        return model.get_value(iterator, cls.C_COMMAND) == ''
 
 
 class UserApplication(object):

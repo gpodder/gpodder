@@ -221,10 +221,10 @@ class EpisodeListModel(Gtk.ListStore):
         else:
             return None
 
-    def _filter_visible_func(self, model, iter, misc):
+    def _filter_visible_func(self, model, iterator, misc):
         # If searching is active, set visibility based on search text
         if self._search_term is not None and self._search_term != '':
-            episode = model.get_value(iter, self.C_EPISODE)
+            episode = model.get_value(iterator, self.C_EPISODE)
             if episode is None:
                 return False
 
@@ -236,11 +236,11 @@ class EpisodeListModel(Gtk.ListStore):
         if self._view_mode == self.VIEW_ALL:
             return True
         elif self._view_mode == self.VIEW_UNDELETED:
-            return model.get_value(iter, self.C_VIEW_SHOW_UNDELETED)
+            return model.get_value(iterator, self.C_VIEW_SHOW_UNDELETED)
         elif self._view_mode == self.VIEW_DOWNLOADED:
-            return model.get_value(iter, self.C_VIEW_SHOW_DOWNLOADED)
+            return model.get_value(iterator, self.C_VIEW_SHOW_DOWNLOADED)
         elif self._view_mode == self.VIEW_UNPLAYED:
-            return model.get_value(iter, self.C_VIEW_SHOW_UNPLAYED)
+            return model.get_value(iterator, self.C_VIEW_SHOW_UNPLAYED)
 
         return True
 
@@ -488,10 +488,10 @@ class EpisodeListModel(Gtk.ListStore):
                 self.C_FILESIZE_AND_TIME, episode.file_size,
         )
 
-    def update_by_iter(self, iter):
-        episode = self.get_value(iter, self.C_EPISODE)
+    def update_by_iter(self, iterator):
+        episode = self.get_value(iterator, self.C_EPISODE)
         if episode is not None:
-            self.set(iter, *self.get_update_fields(episode))
+            self.set(iterator, *self.get_update_fields(episode))
 
 
 class PodcastChannelProxy:
@@ -566,8 +566,8 @@ class PodcastListModel(Gtk.ListStore):
     SEARCH_ATTRS = ('title', 'description', 'group_by')
 
     @classmethod
-    def row_separator_func(cls, model, iter):
-        return model.get_value(iter, cls.C_SEPARATOR)
+    def row_separator_func(cls, model, iterator):
+        return model.get_value(iterator, cls.C_SEPARATOR)
 
     def __init__(self, cover_downloader):
         Gtk.ListStore.__init__(self, str, str, str, GdkPixbuf.Pixbuf,
@@ -589,8 +589,8 @@ class PodcastListModel(Gtk.ListStore):
         self.ICON_DISABLED = 'media-playback-pause'
         self.ICON_ERROR = 'dialog-warning'
 
-    def _filter_visible_func(self, model, iter, misc):
-        channel = model.get_value(iter, self.C_CHANNEL)
+    def _filter_visible_func(self, model, iterator, misc):
+        channel = model.get_value(iterator, self.C_CHANNEL)
 
         # If searching is active, set visibility based on search text
         if self._search_term is not None and self._search_term != '':
@@ -599,7 +599,7 @@ class PodcastListModel(Gtk.ListStore):
                 if channel.ALL_EPISODES_PROXY:
                     return False
                 return any(key in getattr(ch, c).lower() for c in PodcastListModel.SEARCH_ATTRS for ch in channel.channels)
-            columns = (model.get_value(iter, c) for c in self.SEARCH_COLUMNS)
+            columns = (model.get_value(iterator, c) for c in self.SEARCH_COLUMNS)
             return any((key in c.lower() for c in columns if c is not None))
 
         # Show section if any of its channels have an update error
@@ -607,18 +607,18 @@ class PodcastListModel(Gtk.ListStore):
             if any(c._update_error is not None for c in channel.channels):
                 return True
 
-        if model.get_value(iter, self.C_SEPARATOR):
+        if model.get_value(iterator, self.C_SEPARATOR):
             return True
         elif getattr(channel, '_update_error', None) is not None:
             return True
         elif self._view_mode == EpisodeListModel.VIEW_ALL:
-            return model.get_value(iter, self.C_HAS_EPISODES)
+            return model.get_value(iterator, self.C_HAS_EPISODES)
         elif self._view_mode == EpisodeListModel.VIEW_UNDELETED:
-            return model.get_value(iter, self.C_VIEW_SHOW_UNDELETED)
+            return model.get_value(iterator, self.C_VIEW_SHOW_UNDELETED)
         elif self._view_mode == EpisodeListModel.VIEW_DOWNLOADED:
-            return model.get_value(iter, self.C_VIEW_SHOW_DOWNLOADED)
+            return model.get_value(iterator, self.C_VIEW_SHOW_DOWNLOADED)
         elif self._view_mode == EpisodeListModel.VIEW_UNPLAYED:
-            return model.get_value(iter, self.C_VIEW_SHOW_UNPLAYED)
+            return model.get_value(iterator, self.C_VIEW_SHOW_UNPLAYED)
 
         return True
 
@@ -900,8 +900,8 @@ class PodcastListModel(Gtk.ListStore):
         path = self.get_path(iterator)
         return (path == Gtk.TreePath.new_first())
 
-    def update_by_filter_iter(self, iter):
-        self.update_by_iter(self._filter.convert_iter_to_child_iter(iter))
+    def update_by_filter_iter(self, iterator):
+        self.update_by_iter(self._filter.convert_iter_to_child_iter(iterator))
 
     def update_all(self):
         for row in self:
@@ -912,12 +912,12 @@ class PodcastListModel(Gtk.ListStore):
             if isinstance(row[self.C_CHANNEL], PodcastChannelProxy) and not row[self.C_CHANNEL].ALL_EPISODES_PROXY:
                 self.update_by_iter(row.iter)
 
-    def update_by_iter(self, iter):
-        if iter is None:
+    def update_by_iter(self, iterator):
+        if iterator is None:
             return
 
         # Given a GtkTreeIter, update volatile information
-        channel = self.get_value(iter, self.C_CHANNEL)
+        channel = self.get_value(iterator, self.C_CHANNEL)
 
         if channel is SeparatorMarker:
             return
@@ -940,7 +940,7 @@ class PodcastListModel(Gtk.ListStore):
             pill_image = self._get_pill_image(channel, downloaded, unplayed)
             cover_image = self._get_cover_image(channel, True)
 
-        self.set(iter,
+        self.set(iterator,
                 self.C_TITLE, channel.title,
                 self.C_DESCRIPTION, description,
                 self.C_COVER, cover_image,

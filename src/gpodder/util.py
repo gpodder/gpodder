@@ -1353,8 +1353,8 @@ class IdleTimeout(object):
         from gi.repository import GLib
         self.id = GLib.timeout_add(milliseconds, self._callback, *args, priority=GLib.PRIORITY_DEFAULT_IDLE)
 
-    def set_max_milliseconds(self, max):
-        self.max_milliseconds = max
+    def set_max_milliseconds(self, max_milliseconds):
+        self.max_milliseconds = max_milliseconds
         return self
 
     def _callback(self, *args):
@@ -2405,16 +2405,16 @@ def mount_volume_for_file(file, op=None):
     return result, message
 
 
-def scale_pixbuf(pixbuf, max):
+def scale_pixbuf(pixbuf, max_size):
     from gi.repository import GdkPixbuf
 
     w_cur = pixbuf.get_width()
     h_cur = pixbuf.get_height()
 
-    if w_cur <= max and h_cur <= max:
+    if w_cur <= max_size and h_cur <= max_size:
         return pixbuf
 
-    f = max / (w_cur if w_cur >= h_cur else h_cur)
+    f = max_size / (w_cur if w_cur >= h_cur else h_cur)
     w_new = int(w_cur * f)
     h_new = int(h_cur * f)
 

@@ -300,12 +300,12 @@ class TreeViewHelper(object):
 
     @staticmethod
     def make_search_equal_func(gpodder_model):
-        def func(model, column, key, iter):
+        def func(model, column, key, iterator):
             if model is None:
                 return True
             key = key.lower()
             for column in gpodder_model.SEARCH_COLUMNS:
-                if key in model.get_value(iter, column).lower():
+                if key in model.get_value(iterator, column).lower():
                     return False
             return True
         return func

@@ -771,7 +771,7 @@ class SyncTask(download.DownloadTask):
     def __enter__(self):
         return self.__lock.acquire()
 
-    def __exit__(self, type, value, traceback):
+    def __exit__(self, exception_type, value, traceback):
         self.__lock.release()
 
     def notify_as_finished(self):

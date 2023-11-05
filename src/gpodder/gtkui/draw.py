@@ -483,7 +483,7 @@ def investigate_widget_colors(type_classes_and_widgets):
         f.write("</table></html>\n")
 
 
-def draw_iconcell_scale(column, cell, model, iter, scale):
+def draw_iconcell_scale(column, cell, model, iterator, scale):
     """
     Draw cell's pixbuf to a surface with proper scaling for high resolution
     displays. To be used as gtk.TreeViewColumn.set_cell_data_func.

@@ -80,13 +80,13 @@ class DownloadStatusModel(Gtk.ListStore):
         message = html.escape(message)
         return '%s\n<small>%s - %s</small>' % (episode, message, podcast)
 
-    def request_update(self, iter, task=None):
+    def request_update(self, iterator, task=None):
         if task is None:
             # Ongoing update request from UI - get task from model
-            task = self.get_value(iter, self.C_TASK)
+            task = self.get_value(iterator, self.C_TASK)
         else:
             # Initial update request - update non-changing fields
-            self.set(iter,
+            self.set(iterator,
                     self.C_TASK, task,
                     self.C_URL, task.url)
 
@@ -122,7 +122,7 @@ class DownloadStatusModel(Gtk.ListStore):
         else:
             progress_message = ('unknown size')
 
-        self.set(iter,
+        self.set(iterator,
                 self.C_NAME, self._format_message(task.episode.title,
                     status_message, task.episode.channel.title),
                 self.C_PROGRESS, 100. * task.progress,

@@ -936,11 +936,11 @@ class PodcastChannel(PodcastModelObject):
 
     feed_fetcher = gPodderFetcher()
 
-    def __init__(self, model, id=None):
+    def __init__(self, model, channel_id=None):
         self.parent = model
         self.children = []
 
-        self.id = id
+        self.id = channel_id
         self.url = None
         self.title = ''
         self.link = ''

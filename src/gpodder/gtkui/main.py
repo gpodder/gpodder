@@ -1739,7 +1739,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.sync_ui.device.close()
 
         # Update icon list to show changes, if any
-        self.update_episode_list_icons(all=True)
+        self.update_episode_list_icons(update_all=True)
         self.update_podcast_list_model()
 
     def format_episode_list(self, episode_list, max_episodes=10):
@@ -1905,7 +1905,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 episode.mark(is_played=True)
 
         self.update_podcast_list_model(selected=True)
-        self.update_episode_list_icons(all=True)
+        self.update_episode_list_icons(update_all=True)
 
     def on_open_download_folder(self, item, *args):
         assert self.active_channel is not None
@@ -2197,7 +2197,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.default_title = new_title
         self.gPodder.set_title(new_title)
 
-    def update_episode_list_icons(self, urls=None, selected=False, all=False):
+    def update_episode_list_icons(self, urls=None, selected=False, update_all=False):
         """
         Updates the status icons in the episode list.
 
@@ -2213,14 +2213,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if urls is not None:
             # We have a list of URLs to walk through
             self.episode_list_model.update_by_urls(urls)
-        elif selected and not all:
+        elif selected and not update_all:
             # We should update all selected episodes
             selection = self.treeAvailable.get_selection()
             model, paths = selection.get_selected_rows()
             for path in reversed(paths):
                 iterator = model.get_iter(path)
                 self.episode_list_model.update_by_filter_iter(iterator)
-        elif all and not selected:
+        elif update_all and not selected:
             # We update all (even the filter-hidden) episodes
             self.episode_list_model.update_all()
         else:
@@ -3196,7 +3196,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             episode.mark(is_locked=self.active_channel.auto_archive_episodes)
 
         self.update_podcast_list_model(selected=True)
-        self.update_episode_list_icons(all=True)
+        self.update_episode_list_icons(update_all=True)
         action.change_state(
             GLib.Variant.new_boolean(self.active_channel.auto_archive_episodes))
         self.channels_popover.popdown()
