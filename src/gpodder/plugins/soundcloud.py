@@ -240,7 +240,7 @@ class SoundcloudFavFeed(SoundcloudFeed):
         super(SoundcloudFavFeed, self).__init__(username)
 
     def get_title(self):
-        return _('%s\'s favorites on Soundcloud') % self.username
+        return _("%s's favorites on Soundcloud") % self.username
 
     def get_link(self):
         return 'https://soundcloud.com/%s/favorites' % self.username

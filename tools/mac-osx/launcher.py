@@ -155,7 +155,7 @@ if regen:
     openssl = join(bundle_bin, 'openssl')
     MakeCertPem(openssl).regen(cert_gen)
 else:
-    print('No regenerating', cert_gen, 'it\'s fresh enough')
+    print("No regenerating", cert_gen, "it's fresh enough")
 
 # and link to it by default. Users may want to point cert.pem to MacPorts
 # /opt/local/etc/openssl/cert.pem, for instance.

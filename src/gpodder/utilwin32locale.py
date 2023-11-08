@@ -321,14 +321,14 @@ def _getscreenlanguage():
             from ctypes import windll
             lcid = windll.kernel32.GetUserDefaultUILanguage()
         except:
-            logger.warning('Failed to get current screen language with \'GetUserDefaultUILanguage\'')
+            logger.warning("Failed to get current screen language with 'GetUserDefaultUILanguage'")
         finally:
             if lcid is None:
                 lang = 'C'
             else:
                 lang = _localefromlcid(lcid)
 
-            logger.info('Windows screen language is \'%s\' (lcid %s)', lang, lcid)
+            logger.info("Windows screen language is '%s' (lcid %s)", lang, lcid)
 
     return lang
 
