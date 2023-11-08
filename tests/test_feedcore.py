@@ -73,7 +73,7 @@ def test_redirect(httpserver):
     # temporary redirect
     httpserver.expect_request('/feed').respond_with_data(status=302, headers=redir_headers)
     httpserver.expect_request('/permanentfeed').respond_with_data(status=301, headers=redir_headers)
-    
+
     res = MyFetcher().fetch(httpserver.url_for('/feed'))
     assert res.status == UPDATED_FEED
     args = res.feed['parse_feed']
