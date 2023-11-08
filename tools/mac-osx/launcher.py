@@ -180,5 +180,4 @@ elif app == 'run-pip':
     # print("running", args)
     os.execv(python_exe, args)
 else:
-    import runpy
     runpy.run_path(join(bundle_bin, app), run_name='__main__')

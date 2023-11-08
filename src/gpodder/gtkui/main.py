@@ -521,15 +521,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         prefix = 'file://' + urllib.parse.quote(gpodder.downloads)
 
-        # By default, assume we can't pre-select any channel
-        # but can match episodes simply via the download URL
-
-        def is_channel(c):
-            return True
-
-        def is_episode(e):
-            return e.url == uri
-
         if uri.startswith(prefix):
             # File is on the local filesystem in the download folder
             # Try to reduce search space by pre-selecting the channel
@@ -548,6 +539,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             def is_episode(e):
                 return e.download_filename == filename
+        else:
+            # By default, assume we can't pre-select any channel
+            # but can match episodes simply via the download URL
+            def is_channel(c):
+                return True
+
+            def is_episode(e):
+                return e.url == uri
 
         # Deep search through channels and episodes for a match
         for channel in filter(is_channel, self.channels):
