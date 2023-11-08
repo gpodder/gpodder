@@ -520,15 +520,17 @@ class gPodderShownotesLabel(gPodderShownotes):
         self.scrolled_window.get_vadjustment().set_value(0)
         heading = html.escape(episode.title)
         subheading = _('from %s') % (html.escape(episode.channel.title))
-        ltext = ''
         if episode.link:
             fc = self.foreground_color
-            foreground_color_text = "#%02X%02X%02X" % (
+            fg_col = "#%02X%02X%02X" % (
                 int(255 * fc.red), int(255 * fc.green), int(255 * fc.blue))
-            ltext += '<big><b><span underline="none" foreground="%s"><a href="%s" title="%s">%s</a></span></b></big>\n' % (
-                foreground_color_text, episode.link, episode.link, heading)
+            linkesc = html.escape(episode.link)
+            ltext = f'<big><b><span underline="none" foreground="{fg_col}">'
+            # link title needs a double escape
+            ltext += '<a href="%s" title="%s">%s</a></span></b></big>\n' % (
+                linkesc, html.escape(linkesc), heading)
         else:
-            ltext += '<big><b>' + heading + '</b></big>\n'
+            ltext = '<big><b>' + heading + '</b></big>\n'
         ltext += subheading + '\n'
         ltext += '<small>%s</small>\n\n' % html.escape(self.details_fmt % {
             'date': util.format_date(episode.published),
