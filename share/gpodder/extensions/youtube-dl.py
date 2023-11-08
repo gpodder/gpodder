@@ -286,7 +286,8 @@ class YoutubeFeed(model.Feed):
 
 class gPodderYoutubeDL(download.CustomDownloader):
     def __init__(self, gpodder_config, my_config, force=False):
-        """
+        """Instance of CustomDownloader using youtube-dl or yt-dlp.
+
         :param force: force using this downloader even if config says don't manage downloads
         """
         self.gpodder_config = gpodder_config
