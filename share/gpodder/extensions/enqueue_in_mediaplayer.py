@@ -37,10 +37,10 @@ class Player(object):
         self.gpodder = None
 
     def is_installed(self):
-        raise NotImplemented('Must be implemented by subclass')
+        raise NotImplementedError('Must be implemented by subclass')
 
     def open_files(self, filenames):
-        raise NotImplemented('Must be implemented by subclass')
+        raise NotImplementedError('Must be implemented by subclass')
 
     def enqueue_episodes(self, episodes, config=None):
         filenames = [episode.get_playback_url(config=config) for episode in episodes]
