@@ -54,9 +54,9 @@ DefaultConfig = {
 
 
 # youtube feed still preprocessed by youtube.py (compat)
-CHANNEL_RE = re.compile(r'''https://www.youtube.com/feeds/videos.xml\?channel_id=(.+)''')
-USER_RE = re.compile(r'''https://www.youtube.com/feeds/videos.xml\?user=(.+)''')
-PLAYLIST_RE = re.compile(r'''https://www.youtube.com/feeds/videos.xml\?playlist_id=(.+)''')
+CHANNEL_RE = re.compile(r'https://www.youtube.com/feeds/videos.xml\?channel_id=(.+)')
+USER_RE = re.compile(r'https://www.youtube.com/feeds/videos.xml\?user=(.+)')
+PLAYLIST_RE = re.compile(r'https://www.youtube.com/feeds/videos.xml\?playlist_id=(.+)')
 
 
 def youtube_parsedate(s):

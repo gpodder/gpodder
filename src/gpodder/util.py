@@ -844,9 +844,7 @@ def nice_html_description(img, description):
     """
     basic html formatting + hyperlink highlighting + video thumbnail
     """
-    description = re.sub(r'''https?://[^\s]+''',
-                         r'''<a href="\g<0>">\g<0></a>''',
-                         description)
+    description = re.sub(r'https?://[^\s]+', r'<a href="\g<0>">\g<0></a>', description)
     description = description.replace('\n', '<br>')
     html = """<style type="text/css">
     body > img { float: left; max-width: 30vw; margin: 0 1em 1em 0; }
