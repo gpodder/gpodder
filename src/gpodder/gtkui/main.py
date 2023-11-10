@@ -427,11 +427,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.bluetooth_episodes_action.set_enabled(self.bluetooth_available)
 
-        action = Gio.SimpleAction.new_stateful(
-            'showToolbar', None, GLib.Variant.new_boolean(self.config.show_toolbar))
-        action.connect('activate', self.on_itemShowToolbar_activate)
-        g.add_action(action)
-
     def inject_extensions_menu(self):
         """
         Update Extras/Extensions menu.
