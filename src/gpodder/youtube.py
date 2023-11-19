@@ -454,6 +454,10 @@ def get_channel_id_url(url, feed_data=None):
                         channel_id = m.group(1)
                     if channel_id is None:
                         raise Exception('Could not retrieve YouTube channel ID for URL %s.' % url)
+
+                # feeds no longer contain the required "UC" prefix on channel ID
+                if len(channel_id) == 22:
+                    channel_id = "UC" + channel_id
             channel_url = 'https://www.youtube.com/channel/{}'.format(channel_id)
             return channel_url
 
