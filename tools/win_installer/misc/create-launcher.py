@@ -89,7 +89,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     }
     else if (retval < BUFSIZE)
     {
-        if (lppPart != NULL && *lppPart != 0)
+        if (*lppPart != NULL)
         {
             lppPart[0][-1] = 0;
             printf("Calling SetDllDirectoryW(%%ls)\\n", buffer);
