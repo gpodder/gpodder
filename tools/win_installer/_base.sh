@@ -95,7 +95,7 @@ mygpoclient==1.9
 podcastparser==0.6.10
 PySocks==1.7.1
 requests==2.31.0
-urllib3==2.0.6
+urllib3==2.0.7
 webencodings==0.5.1
 yt-dlp
 "
