@@ -439,7 +439,7 @@ function dump_packages {
 }
 
 function build_installer {
-    BUILDPY=$(echo "${MINGW_ROOT}"/lib/python3.*/site-packages/gpodder)/build_info.py
+    BUILDPY="${REPO_CLONE}"/build/lib/gpodder/build_info.py
     cp "${REPO_CLONE}"/src/gpodder/build_info.py "$BUILDPY"
     echo 'BUILD_TYPE = u"windows"' >> "$BUILDPY"
     echo "BUILD_VERSION = $BUILD_VERSION" >> "$BUILDPY"
@@ -454,7 +454,7 @@ function build_installer {
 }
 
 function build_portable_installer {
-    BUILDPY=$(echo "${MINGW_ROOT}"/lib/python3.*/site-packages/gpodder)/build_info.py
+    BUILDPY="${REPO_CLONE}"/build/lib/gpodder/build_info.py
     cp "${REPO_CLONE}"/src/gpodder/build_info.py "$BUILDPY"
     echo 'BUILD_TYPE = u"windows-portable"' >> "$BUILDPY"
     echo "BUILD_VERSION = $BUILD_VERSION" >> "$BUILDPY"
