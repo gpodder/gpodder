@@ -85,7 +85,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     if (retval == 0)
     {
         // It's bad, but can be ignored
-        printf ("GetFullPathName failed (%%d)\\n", GetLastError());
+        printf ("GetFullPathName failed (%%ld)\\n", GetLastError());
     }
     else if (retval < BUFSIZE)
     {
@@ -100,7 +100,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
             }
             else
             {
-                printf ("SetDllDirectoryW failed (%%d)\\n", GetLastError());
+                printf ("SetDllDirectoryW failed (%%ld)\\n", GetLastError());
             }
         }
         else
@@ -110,7 +110,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     }
     else
     {
-        printf ("GetFullPathName buffer too small (required %%d)\\n", retval);
+        printf ("GetFullPathName buffer too small (required %%ld)\\n", retval);
         return -1; // this shouldn't happen
     }
 
