@@ -84,7 +84,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.db = self.core.db
         self.model = self.core.model
         self.options = options
-        self.extensions_menu = None
         self.extensions_actions = []
         self._search_podcasts = None
         self._search_episodes = None
@@ -210,7 +209,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # Set up the first instance of MygPoClient
         self.mygpo_client = my.MygPoClient(self.config)
 
-        self.inject_extensions_menu()
+        # Extensions section in app menu and menubar Extras menu
+        extensions_menu = Gio.Menu()
+        self.application.menu_extras.append_section(_('Extensions'), extensions_menu)
+        self.extensions_menu_helper = ExtensionMenuHelper(self.gPodder,
+            extensions_menu, 'extensions.action_',
+            lambda fun: lambda action, param: fun())
+        self.extensions_menu_helper.replace_entries(
+            gpodder.user_extensions.on_create_menu())
 
         gpodder.user_extensions.on_ui_initialized(self.model,
                 self.extensions_podcast_update_cb,
@@ -383,7 +389,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             ('moveUp', self.on_move_selected_items_up),
             ('moveDown', self.on_move_selected_items_down),
             ('remove', self.on_remove_from_download_list),
-            ('delete', self.on_btnDownloadedDelete_clicked),
+            ('delete', self.on_delete_activate),
             ('toggleEpisodeNew', self.on_item_toggle_played_activate),
             ('toggleEpisodeLock', self.on_item_toggle_lock_activate),
             ('openEpisodeDownloadFolder', self.on_open_episode_download_folder),
@@ -415,6 +421,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.download_action = g.lookup_action('download')
         self.pause_action = g.lookup_action('pause')
         self.cancel_action = g.lookup_action('cancel')
+        self.remove_action = g.lookup_action('remove')
         self.delete_action = g.lookup_action('delete')
         self.toggle_episode_new_action = g.lookup_action('toggleEpisodeNew')
         self.toggle_episode_lock_action = g.lookup_action('toggleEpisodeLock')
@@ -426,37 +433,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.episode_lock_action = g.lookup_action('episodeLock')
 
         self.bluetooth_episodes_action.set_enabled(self.bluetooth_available)
-
-    def inject_extensions_menu(self):
-        """
-        Update Extras/Extensions menu.
-        Called at startup and when en/dis-abling extensions.
-        """
-        def gen_callback(label, callback):
-            return lambda action, param: callback()
-
-        for a in self.extensions_actions:
-            self.gPodder.remove_action(a.get_property('name'))
-        self.extensions_actions = []
-
-        if self.extensions_menu is None:
-            # insert menu section at startup (hides when empty)
-            self.extensions_menu = Gio.Menu.new()
-            self.application.menu_extras.append_section(_('Extensions'), self.extensions_menu)
-        else:
-            self.extensions_menu.remove_all()
-
-        extension_entries = gpodder.user_extensions.on_create_menu()
-        if extension_entries:
-            # populate menu
-            for i, (label, callback) in enumerate(extension_entries):
-                action_id = 'extensions.action_%d' % i
-                action = Gio.SimpleAction.new(action_id)
-                action.connect('activate', gen_callback(label, callback))
-                self.extensions_actions.append(action)
-                self.gPodder.add_action(action)
-                itm = Gio.MenuItem.new(label, 'win.' + action_id)
-                self.extensions_menu.append_item(itm)
 
     def on_resume_all_infobar_response(self, infobar, response_id):
         if response_id == Gtk.ResponseType.OK:
@@ -556,6 +532,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 return episode
 
         return None
+
+    def in_downloads_list(self):
+        return self.wNotebook.get_current_page() == 1
 
     def on_played(self, start, end, total, file_uri):
         """Handle the "played" signal from a media player"""
@@ -1197,7 +1176,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.shownotes_object.set_episodes(self.get_selected_episodes())
 
     def on_download_list_selection_changed(self, selection):
-        if self.wNotebook.get_current_page() > 0:
+        if self.in_downloads_list():
             # Update the toolbar buttons
             self.play_or_download()
 
@@ -1898,7 +1877,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             else:
                 insert_menuitem(0, _('Download'), 'win.download', 'document-save-symbolic')
 
-            self.gPodder.lookup_action('remove').set_enabled(can_remove)
+            self.remove_action.set_enabled(can_remove)
 
             area = TreeViewHelper.get_popup_rectangle(treeview, event)
             self.downloads_popover.set_pointing_to(area)
@@ -2340,10 +2319,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.episode_list_status_changed(episodes)
 
-    def play_or_download(self, current_page=None):
-        if current_page is None:
-            current_page = self.wNotebook.get_current_page()
-        if current_page == 0:
+    def play_or_download(self):
+        if not self.in_downloads_list():
             (open_instead_of_play, can_play, can_preview, can_download,
              can_pause, can_cancel, can_delete, can_lock) = (False,) * 8
 
@@ -3028,7 +3005,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         return '\n'.join(titles) + '\n\n' + message
 
     def delete_episode_list(self, episodes, confirm=True, callback=None):
-        if self.wNotebook.get_current_page() > 0:
+        if self.in_downloads_list():
             selection = self.treeDownloads.get_selection()
             (model, paths) = selection.get_selected_rows()
             selected_tasks = [(Gtk.TreeRowReference.new(model, path),
@@ -3781,7 +3758,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 util.open_website('http://gpodder.org/downloads')
 
     def on_wNotebook_switch_page(self, notebook, page, page_num):
-        self.play_or_download(current_page=page_num)
+        self.play_or_download()
 
     def on_treeChannels_row_activated(self, widget, path, *args):
         # double-click action of the podcast list or enter
@@ -3822,9 +3799,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.update_episode_list_model()
 
-    def on_btnEditChannel_clicked(self, widget, *args):
-        self.on_itemEditChannel_activate(widget, args)
-
     def get_podcast_urls_from_selected_episodes(self):
         """Get a set of podcast URLs based on the selected episodes"""
         return set(episode.channel.url for episode in
@@ -3857,7 +3831,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.shownotes_object.toggle_pane_visibility(episodes)
 
     def on_download_selected_episodes(self, action_or_widget, param=None):
-        if self.wNotebook.get_current_page() == 0:
+        if not self.in_downloads_list():
             episodes = [e for e in self.get_selected_episodes() if e.can_download()]
             self.download_episode_list(episodes)
         else:
@@ -3869,7 +3843,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self._for_each_task_set_status(selected_tasks, download.DownloadTask.QUEUED)
 
     def on_force_download_selected_episodes(self, action_or_widget, param=None):
-        if self.wNotebook.get_current_page() == 1:
+        if self.in_downloads_list():
             selection = self.treeDownloads.get_selection()
             (model, paths) = selection.get_selected_rows()
             selected_tasks = [(Gtk.TreeRowReference.new(model, path),
@@ -3878,7 +3852,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self._for_each_task_set_status(selected_tasks, download.DownloadTask.QUEUED, True)
 
     def on_pause_selected_episodes(self, action_or_widget, param=None):
-        if self.wNotebook.get_current_page() == 0:
+        if not self.in_downloads_list():
             selection = self.get_selected_episodes()
             selected_tasks = [(None, e.download_task) for e in selection if e.download_task is not None and e.can_pause()]
             self._for_each_task_set_status(selected_tasks, download.DownloadTask.PAUSING)
@@ -3978,7 +3952,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.update_downloads_list()
 
     def on_item_cancel_download_activate(self, *params, force=False):
-        if self.wNotebook.get_current_page() == 0:
+        if not self.in_downloads_list():
             selection = self.treeAvailable.get_selection()
             (model, paths) = selection.get_selected_rows()
             urls = [model.get_value(model.get_iter(path),
@@ -3995,7 +3969,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_btnCancelAll_clicked(self, widget, *args):
         self.cancel_task_list(self.download_tasks_seen)
 
-    def on_btnDownloadedDelete_clicked(self, widget, *args):
+    def on_delete_activate(self, widget, *args):
         episodes = self.get_selected_episodes()
         self.delete_episode_list(episodes)
 
@@ -4123,7 +4097,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
             extension.on_ui_initialized(self.model,
                     self.extensions_podcast_update_cb,
                     self.extensions_episode_download_cb)
-        self.inject_extensions_menu()
+        self.extensions_menu_helper.replace_entries(
+            gpodder.user_extensions.on_create_menu())
 
     def on_extension_disabled(self, extension):
-        self.inject_extensions_menu()
+        self.extensions_menu_helper.replace_entries(
+            gpodder.user_extensions.on_create_menu())

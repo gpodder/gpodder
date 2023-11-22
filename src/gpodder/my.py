@@ -444,7 +444,7 @@ class MygPoClient(object):
 
     def flush(self, now=False):
         if not self.can_access_webservice():
-            logger.warning('Flush requested, but sync disabled.')
+            logger.debug('Flush requested, but sync disabled.')
             return
 
         if self._worker_thread is None or now:
