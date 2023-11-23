@@ -3758,7 +3758,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 util.open_website('http://gpodder.org/downloads')
 
     def on_wNotebook_switch_page(self, notebook, page, page_num):
-        self.play_or_download()
+        # wNotebook.get_current_page() (called in in_downloads_list() via
+        # play_or_download()) returns the previous notebook page number
+        # when called during the handling of 'switch-page' signal.
+        # Call play_or_download() in the main loop after the signal
+        # handling has completed, so it sees the correct page number.
+        util.idle_add(self.play_or_download)
 
     def on_treeChannels_row_activated(self, widget, path, *args):
         # double-click action of the podcast list or enter
