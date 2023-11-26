@@ -21,11 +21,12 @@
 import os
 import re
 import sys
-from distutils.core import setup
+
+from setuptools import setup
 
 installing = ('install' in sys.argv and '--help' not in sys.argv)
 
-# distutils depends on setup.py being executed from the same dir.
+# setuptools depends on setup.py being executed from the same dir.
 # Most of our custom commands work either way, but this makes
 # it work in all cases.
 os.chdir(os.path.dirname(os.path.realpath(__file__)))
@@ -211,4 +212,11 @@ setup(
     packages=packages,
     scripts=scripts,
     data_files=data_files,
+
+    install_requires=[
+        "podcastparser>=0.6.0",
+        "mygpoclient>=1.7",
+        "dbus-python;platform_system=='Linux'",
+        "PyGObject",
+    ]
 )

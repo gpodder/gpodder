@@ -28,7 +28,7 @@ appname=$(basename "$app")
 zip="${appname%.app}-$version.zip"
 contents="${appname%.app}.contents"
 
-if (which md5 >& /dev/null) ; then
+if command -v md5 2>/dev/null; then
 	MD5=md5
 else
 	MD5=md5sum

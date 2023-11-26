@@ -94,7 +94,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.db = self.core.db
         self.model = self.core.model
         self.options = options
-        self.extensions_menu = None
         self.extensions_actions = []
         self._search_podcasts = None
         self._search_episodes = None
@@ -271,7 +270,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.extensions_menu_helper = ExtensionMenuHelper(self.gPodder,
             extensions_menu, 'extensions.action_',
             lambda fun: lambda action, param: fun())
-        self.extensions_menu_helper.replace_entries(gpodder.user_extensions.on_create_menu())
+        self.extensions_menu_helper.replace_entries(
+            gpodder.user_extensions.on_create_menu())
 
         gpodder.user_extensions.on_ui_initialized(self.model,
                 self.extensions_podcast_update_cb,
@@ -504,6 +504,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # self.download_action = g.lookup_action('download')
         # self.pause_action = g.lookup_action('pause')
         # self.cancel_action = g.lookup_action('cancel')
+        # self.remove_action = g.lookup_action('remove')
         self.delete_action = g.lookup_action('delete')
 #        self.toggle_episode_new_action = g.lookup_action('toggleEpisodeNew')
 #        self.toggle_episode_lock_action = g.lookup_action('toggleEpisodeLock')
@@ -549,38 +550,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.header_bar.set_subtitle("%s channels, %s episodes" % (chs, eps))
             else:
                 self.header_bar.set_subtitle(text)
-
-    def inject_extensions_menu(self):
-        """
-        Update Extras/Extensions menu.
-        Called at startup and when en/dis-abling extensions.
-        """
-        def gen_callback(label, callback):
-            return lambda action, param: callback()
-
-        for a in self.extensions_actions:
-            self.gPodder.remove_action(a.get_property('name'))
-        self.extensions_actions = []
-
-        if self.extensions_menu is None:
-            # insert menu section at startup (hides when empty)
-            self.extensions_menu = Gio.Menu.new()
-            self.application.menu_extras.append_section(_('Extensions'), self.extensions_menu)
-        else:
-            self.extensions_menu.remove_all()
-
-        extension_entries = gpodder.user_extensions.on_create_menu()
-        if extension_entries:
-            # populate menu
-            for i, (label, callback) in enumerate(extension_entries):
-                action_id = 'extensions.action_%d' % i
-                action = Gio.SimpleAction.new(action_id)
-                action.connect('activate', gen_callback(label, callback))
-                self.extensions_actions.append(action)
-                self.gPodder.add_action(action)
-                itm = Gio.MenuItem.new(label, 'win.' + action_id)
-                self.extensions_menu.append_item(itm)
-
     def on_resume_all_infobar_response(self, infobar, response_id):
         if response_id == Gtk.ResponseType.OK:
             selection = self.treeDownloads.get_selection()
@@ -677,7 +646,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         return None
 
-    def in_downloads(self):
+    def in_downloads_list(self):
         return self.application.get_active_window() == self.progress_window
 
     def on_played(self, start, end, total, file_uri):
@@ -1445,7 +1414,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.shownotes_object.set_episodes(eps)
 
     def on_download_list_selection_changed(self, selection):
-        if self.in_downloads():
+        if self.in_downloads_list():
             # Update the toolbar buttons
             self.play_or_download()
 
@@ -2607,10 +2576,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.episode_list_status_changed(episodes)
 
-    def play_or_download(self, in_downloads=None):
-        if in_downloads is None:
-            in_downloads = self.in_downloads()
-        if not in_downloads:
+    def play_or_download(self):
+        if not self.in_downloads_list():
             (open_instead_of_play, can_play, can_preview, can_download,
              can_pause, can_cancel, can_delete, can_lock) = (False,) * 8
 
@@ -3319,7 +3286,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         return '\n'.join(titles) + '\n\n' + message
 
     def delete_episode_list(self, episodes, confirm=True, callback=None):
-        if self.in_downloads():
+        if self.in_downloads_list():
             selection = self.treeDownloads.get_selection()
             (model, paths) = selection.get_selected_rows()
             selected_tasks = [(Gtk.TreeRowReference.new(model, path),
@@ -4094,7 +4061,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 util.open_website('http://gpodder.org/downloads')
 
     def on_wNotebook_switch_page(self, notebook, page, page_num):
-        self.play_or_download(in_downloads=page_num > 0)
+        # wNotebook.get_current_page() (called in in_downloads_list() via
+        # play_or_download()) returns the previous notebook page number
+        # when called during the handling of 'switch-page' signal.
+        # Call play_or_download() in the main loop after the signal
+        # handling has completed, so it sees the correct page number.
+        util.idle_add(self.play_or_download)
 
     def on_treeChannels_row_activated(self, widget, path, *args):
         self.navigate_from_shownotes()
@@ -4247,7 +4219,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         return True
 
     def on_download_selected_episodes(self, action_or_widget, param=None):
-        if not self.in_downloads():
+        if not self.in_downloads_list():
             episodes = [e for e in self.get_selected_episodes() if e.can_download()]
             self.download_episode_list(episodes)
         else:
@@ -4259,7 +4231,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self._for_each_task_set_status(selected_tasks, download.DownloadTask.QUEUED)
 
     def on_force_download_selected_episodes(self, action_or_widget, param=None):
-        if self.in_downloads():
+        if self.in_downloads_list():
             selection = self.treeDownloads.get_selection()
             (model, paths) = selection.get_selected_rows()
             selected_tasks = [(Gtk.TreeRowReference.new(model, path),
@@ -4268,7 +4240,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self._for_each_task_set_status(selected_tasks, download.DownloadTask.QUEUED, True)
 
     def on_pause_selected_episodes(self, action_or_widget, param=None):
-        if not self.in_downloads():
+        if not self.in_downloads_list():
             selection = self.get_selected_episodes()
             selected_tasks = [(None, e.download_task) for e in selection if e.download_task is not None and e.can_pause()]
             self._for_each_task_set_status(selected_tasks, download.DownloadTask.PAUSING)
@@ -4382,7 +4354,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.update_downloads_list()
 
     def on_item_cancel_download_activate(self, *params, force=False):
-        if not self.in_downloads():
+        if not self.in_downloads_list():
             selection = self.treeAvailable.get_selection()
             (model, paths) = selection.get_selected_rows()
             urls = [model.get_value(model.get_iter(path),
@@ -4561,7 +4533,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
             extension.on_ui_initialized(self.model,
                     self.extensions_podcast_update_cb,
                     self.extensions_episode_download_cb)
-        self.extensions_menu_helper.replace_entries(gpodder.user_extensions.on_create_menu())
+        self.extensions_menu_helper.replace_entries(
+            gpodder.user_extensions.on_create_menu())
 
     def on_extension_disabled(self, extension):
-        self.extensions_menu_helper.replace_entries(gpodder.user_extensions.on_create_menu())
+        self.extensions_menu_helper.replace_entries(
+            gpodder.user_extensions.on_create_menu())

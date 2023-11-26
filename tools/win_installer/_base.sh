@@ -95,7 +95,7 @@ mygpoclient==1.9
 podcastparser==0.6.10
 PySocks==1.7.1
 requests==2.31.0
-urllib3==2.0.6
+urllib3==2.0.7
 webencodings==0.5.1
 yt-dlp
 "
@@ -155,7 +155,7 @@ function install_gpodder {
     fi
 
     # Create launchers
-    echo "python3 is $(which python3) version is $(python3 --version)"
+    echo "python3 is $(command -v python3) version is $(python3 --version)"
     python3 "${MISC}"/create-launcher.py \
         "${GPO_VERSION}" "${MINGW_ROOT}"/bin
 
@@ -439,7 +439,7 @@ function dump_packages {
 }
 
 function build_installer {
-    BUILDPY=$(echo "${MINGW_ROOT}"/lib/python3.*/site-packages/gpodder)/build_info.py
+    BUILDPY="${REPO_CLONE}"/build/lib/gpodder/build_info.py
     cp "${REPO_CLONE}"/src/gpodder/build_info.py "$BUILDPY"
     echo 'BUILD_TYPE = u"windows"' >> "$BUILDPY"
     echo "BUILD_VERSION = $BUILD_VERSION" >> "$BUILDPY"
@@ -454,7 +454,7 @@ function build_installer {
 }
 
 function build_portable_installer {
-    BUILDPY=$(echo "${MINGW_ROOT}"/lib/python3.*/site-packages/gpodder)/build_info.py
+    BUILDPY="${REPO_CLONE}"/build/lib/gpodder/build_info.py
     cp "${REPO_CLONE}"/src/gpodder/build_info.py "$BUILDPY"
     echo 'BUILD_TYPE = u"windows-portable"' >> "$BUILDPY"
     echo "BUILD_VERSION = $BUILD_VERSION" >> "$BUILDPY"
