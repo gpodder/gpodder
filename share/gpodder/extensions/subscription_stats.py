@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 # Show publishing statistics for subscriptions.
 # Released under the same license terms as gPodder itself.
-# 2023/11/24 - Nuno Dias <Nuno.Dias+gpodder@gmail.com>
-# Add Last Fedd and Episode updates
+# version 0.2 - 2023/11/27 - Nuno Dias <Nuno.Dias+gpodder@gmail.com>
+# Add Last Episode updates
 
 import time
 from time import strftime, localtime
@@ -36,15 +36,15 @@ class gPodderExtension:
         # extras menu
         return [(_("Subscription Statistics"), self.open_dialog)]
 
-    def add_page(self, notebook, type, channels):
+    def add_page(self, notebook, category, channels):
         scrolled = Gtk.ScrolledWindow()
         scrolled.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
 
-        store = Gtk.ListStore(str, str, str, str)
-        for average, name, last, feed_last, paused in channels:
+        store = Gtk.ListStore(str, str, str)
+        for average, name, last, paused in channels:
             store.append([
-                ('%.1f' % round(average, 1)) if average > 0 else '?', 
-                name if not paused else (_('%s (paused)') % name), last, feed_last
+                ('%.1f' % round(average, 1)) if average > 0 else '?',
+                name if not paused else (_('%s (paused)') % name), last,
             ])
 
         tree = Gtk.TreeView(model=store)
@@ -67,22 +67,14 @@ class gPodderExtension:
         tree.append_column(channelcolumn)
 
         lastcell = Gtk.CellRendererText()
-        lastcell.set_property('xalign', 1)
+        lastcell.set_property('xalign', 0)
         lastcell.set_property('alignment', Pango.Alignment.LEFT)
         lastcolumn = Gtk.TreeViewColumn(_('Last Updated'))
         lastcolumn.pack_start(lastcell, True)
         lastcolumn.add_attribute(lastcell, 'text', 2)
         tree.append_column(lastcolumn)
 
-        channellastcell = Gtk.CellRendererText()
-        channellastcell.set_property('xalign', 0)
-        channellastcell.set_property('alignment', Pango.Alignment.LEFT)
-        channellastcolumn = Gtk.TreeViewColumn(_('Last Feed Updated'))
-        channellastcolumn.pack_start(channellastcell, True)
-        channellastcolumn.add_attribute(channellastcell, 'text', 3)
-        tree.append_column(channellastcolumn)
-
-        notebook.append_page(scrolled, Gtk.Label('%d %s %s' % (len(channels), type, type)))
+        notebook.append_page(scrolled, Gtk.Label('%d %s' % (len(channels), category)))
 
     def open_dialog(self):
         db = self.gpodder.db
@@ -91,7 +83,7 @@ class gPodderExtension:
         channels = []
         with db.lock:
             cur = db.cursor()
-            cur.execute('SELECT id, http_last_modified, title, pause_subscription FROM %s' % db.TABLE_PODCAST)
+            cur.execute('SELECT id, title, pause_subscription FROM %s' % db.TABLE_PODCAST)
             while True:
                 row = cur.fetchone()
                 if row is None:
@@ -106,7 +98,7 @@ class gPodderExtension:
         weekly = []
         monthly = []
         yearly = []
-        for channel_id, channel_last, channel_name, paused in channels:
+        for channel_id, channel_name, paused in channels:
             if paused:
                 nr_paused += 1
 
@@ -128,23 +120,19 @@ class gPodderExtension:
                     prev = row[0]
                 cur.close()
 
-            average = (total / nr_episodes) / 86400 if nr_episodes > 0 else 0
-            last = strftime('%Y/%m/%d', localtime(edate))
-            if channel_last: 
-                last_feed = datetime.strptime(channel_last, '%a, %d %b %Y %H:%M:%S %Z').strftime('%Y/%m/%d')
-            else:
-                last_feed = ""
+            average = (total / nr_episodes) / (24 * 60 * 60) if nr_episodes > 0 else 0
+            last = strftime('%Y-%m-%d', localtime(edate))
 
             if average == 0:
-                yearly.append([average, channel_name, last, last_feed, paused])
+                yearly.append([average, channel_name, last, paused])
             elif average <= 2:
-                daily.append([average, channel_name, last, last_feed, paused])
+                daily.append([average, channel_name, last, paused])
             elif average <= 14:
-                weekly.append([average, channel_name, last, last_feed, paused])
+                weekly.append([average, channel_name, last, paused])
             elif average <= 61:
-                monthly.append([average, channel_name, last, last_feed, paused])
+                monthly.append([average, channel_name, last, paused])
             else:
-                yearly.append([average, channel_name, last, last_feed, paused])
+                yearly.append([average, channel_name, last, paused])
 
         # sort by averages
         daily.sort(key=lambda e: e[0])
@@ -175,11 +163,8 @@ class gPodderExtension:
         label.set_line_wrap(True)
         box.add(label)
 
-        hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=0)
-        button = Gtk.Button(stock=Gtk.STOCK_CLOSE)
-        button.connect('clicked', lambda w: dlg.destroy())
-        hbox.pack_end(button, False, False, 0)
-        box.add(hbox)
+        dlg.add_button(_('_Close'), Gtk.ResponseType.OK)
+        dlg.connect("response", lambda w, r: dlg.destroy())
 
         dlg.vbox.pack_start(box, True, True, 0)
         dlg.vbox.show_all()
