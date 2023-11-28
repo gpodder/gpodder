@@ -329,7 +329,7 @@ class iPodTrack(object):
         if self.filename_on_ipod is not None:
             try:
                 os.unlink(self.filename_on_ipod)
-            except Exception as e:
+            except Exception:
                 logger.info('Could not delete podcast file from iPod', exc_info=True)
 
 

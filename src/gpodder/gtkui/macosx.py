@@ -31,7 +31,7 @@ def aeKeyword(fourCharCode):
 # for the kCoreEventClass, kAEOpenDocuments, ... constants
 # comes with macpython
 try:
-    from Carbon.AppleEvents import *
+    from Carbon.AppleEvents import *  # noqa: F403
 except ImportError:
     ...
 
@@ -62,18 +62,18 @@ try:
             self.gp = gp
             aem = NSAppleEventManager.sharedAppleEventManager()
             aem.setEventHandler_andSelector_forEventClass_andEventID_(
-                self, 'openFileEvent:reply:', aeKeyword(kCoreEventClass), aeKeyword(kAEOpenDocuments))
+                self, 'openFileEvent:reply:', aeKeyword(kCoreEventClass), aeKeyword(kAEOpenDocuments))  # noqa: F405
             aem.setEventHandler_andSelector_forEventClass_andEventID_(
                 self, 'subscribeEvent:reply:', aeKeyword('GURL'), aeKeyword('GURL'))
 
         def openFileEvent_reply_(self, event, reply):
             """ handles an 'Open With...' event"""
             urls = []
-            filelist = event.paramDescriptorForKeyword_(aeKeyword(keyDirectObject))
+            filelist = event.paramDescriptorForKeyword_(aeKeyword(keyDirectObject))  # noqa: F405
             numberOfItems = filelist.numberOfItems()
             for i in range(1, numberOfItems + 1):
                 fileAliasDesc = filelist.descriptorAtIndex_(i)
-                fileURLDesc = fileAliasDesc.coerceToDescriptorType_(aeKeyword(typeFileURL))
+                fileURLDesc = fileAliasDesc.coerceToDescriptorType_(aeKeyword(typeFileURL))  # noqa: F405
                 fileURLData = fileURLDesc.data()
                 url = memoryview(fileURLData.bytes(), 0, fileURLData.length())
                 url = str(url)
@@ -86,7 +86,7 @@ try:
 
         def subscribeEvent_reply_(self, event, reply):
             """ handles a 'Subscribe to...' event"""
-            filelist = event.paramDescriptorForKeyword_(aeKeyword(keyDirectObject))
+            filelist = event.paramDescriptorForKeyword_(aeKeyword(keyDirectObject))  # noqa: F405
             fileURLData = filelist.data()
             url = memoryview(fileURLData.bytes(), 0, fileURLData.length())
             url = str(url)

@@ -49,12 +49,12 @@ class ConfigModel(Gtk.ListStore):
 
         self._config.add_observer(self._on_update)
 
-    def _type_as_string(self, type):
-        if type == int:
+    def _type_as_string(self, datatype):
+        if datatype == int:
             return _('Integer')
-        elif type == float:
+        elif datatype == float:
             return _('Float')
-        elif type == bool:
+        elif datatype == bool:
             return _('Boolean')
         else:
             return _('String')

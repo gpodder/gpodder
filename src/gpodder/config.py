@@ -408,12 +408,12 @@ class Config(object):
                          " (999 is bad for NTFS and ext{2-4})")
             self.device_sync.max_filename_length = 120
 
-    def clamp_range(self, name, min, max):
+    def clamp_range(self, name, minval, maxval):
         value = getattr(self, name)
-        if value < min:
-            setattr(self, name, min)
+        if value < minval:
+            setattr(self, name, minval)
             return True
-        if value > max:
-            setattr(self, name, max)
+        if value > maxval:
+            setattr(self, name, maxval)
             return True
         return False

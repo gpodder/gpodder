@@ -245,9 +245,9 @@ class gPodderEpisodeSelector(BuilderWidget):
 
         if path is not None:
             model = treeview.get_model()
-            iter = model.get_iter(path)
-            index = model.get_value(iter, self.COLUMN_INDEX)
-            description = model.get_value(iter, self.COLUMN_TOOLTIP)
+            iterator = model.get_iter(path)
+            index = model.get_value(iterator, self.COLUMN_INDEX)
+            description = model.get_value(iterator, self.COLUMN_TOOLTIP)
             if self.last_tooltip_episode is not None and self.last_tooltip_episode != index:
                 self.last_tooltip_episode = None
                 return False
@@ -383,9 +383,9 @@ class gPodderEpisodeSelector(BuilderWidget):
 
     def on_row_activated(self, treeview, path, view_column):
         model = treeview.get_model()
-        iter = model.get_iter(path)
-        value = model.get_value(iter, self.COLUMN_TOGGLE)
-        model.set_value(iter, self.COLUMN_TOGGLE, not value)
+        iterator = model.get_iter(path)
+        value = model.get_value(iterator, self.COLUMN_TOGGLE)
+        model.set_value(iterator, self.COLUMN_TOGGLE, not value)
 
         self.calculate_total_size()
 
@@ -400,12 +400,12 @@ class gPodderEpisodeSelector(BuilderWidget):
         if remove_episodes:
             for episode in selected_episodes:
                 index = self.episodes.index(episode)
-                iter = self.model.get_iter_first()
-                while iter is not None:
-                    if self.model.get_value(iter, self.COLUMN_INDEX) == index:
-                        self.model.remove(iter)
+                iterator = self.model.get_iter_first()
+                while iterator is not None:
+                    if self.model.get_value(iterator, self.COLUMN_INDEX) == index:
+                        self.model.remove(iterator)
                         break
-                    iter = self.model.iter_next(iter)
+                    iterator = self.model.iter_next(iterator)
 
         return selected_episodes
 

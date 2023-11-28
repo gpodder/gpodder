@@ -5,7 +5,6 @@
 
 import logging
 import os
-import time
 
 import gpodder
 from gpodder import util

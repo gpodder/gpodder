@@ -37,8 +37,8 @@ from gi.repository import Gdk, GdkPixbuf, Gtk, Pango, PangoCairo  # isort:skip
 
 class TextExtents(object):
     def __init__(self, ctx, text):
-        tuple = ctx.text_extents(text)
-        (self.x_bearing, self.y_bearing, self.width, self.height, self.x_advance, self.y_advance) = tuple
+        extents = ctx.text_extents(text)
+        (self.x_bearing, self.y_bearing, self.width, self.height, self.x_advance, self.y_advance) = extents
 
 
 EPISODE_LIST_ICON_SIZE = 16
@@ -53,7 +53,8 @@ def draw_rounded_rectangle(ctx, x, y, w, h, r=10, left_side_width=None,
 
     x = int(x)
     offset = 0
-    if close: offset = 0.5
+    if close:
+        offset = 0.5
 
     if sides_to_draw & RRECT_LEFT_SIDE:
         ctx.move_to(x + int(left_side_width) - offset, y + h)
@@ -136,7 +137,7 @@ def draw_cake(percentage, text=None, emblem=None, size=None):
     ctx = cairo.Context(surface)
 
     bgc = get_background_color(Gtk.StateFlags.ACTIVE)
-    fgc = get_background_color(Gtk.StateFlags.SELECTED)
+    # fgc = get_background_color(Gtk.StateFlags.SELECTED)
     txc = get_foreground_color(Gtk.StateFlags.NORMAL)
 
     border = 1.5
@@ -482,7 +483,7 @@ def investigate_widget_colors(type_classes_and_widgets):
         f.write("</table></html>\n")
 
 
-def draw_iconcell_scale(column, cell, model, iter, scale):
+def draw_iconcell_scale(column, cell, model, iterator, scale):
     """
     Draw cell's pixbuf to a surface with proper scaling for high resolution
     displays. To be used as gtk.TreeViewColumn.set_cell_data_func.

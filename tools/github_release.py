@@ -53,7 +53,7 @@ def download_circleci(circleci, prefix):
     """ download build artifacts from circleCI and exit """
     print("I: downloading release artifacts from Circle.ci")
     artifacts = requests.get("https://circleci.com/api/v1.1/project/github/gpodder/gpodder/%s/artifacts" % circleci).json()
-    items = set([u["url"] for u in artifacts if re.match(".+/gPodder-.+\.zip$", u["path"])])
+    items = {u["url"] for u in artifacts if re.match(r".+/gPodder-.+\.zip$", u["path"])}
     if len(items) == 0:
         error_exit("Nothing found to download")
     download_items(items, prefix)
@@ -88,7 +88,7 @@ def checksums():
                 m.update(block)
                 s.update(block)
                 block = f.read(4096)
-        ret[os.path.basename(archive)] = dict(md5=m.hexdigest(), sha256=s.hexdigest())
+        ret[os.path.basename(archive)] = {'md5': m.hexdigest(), 'sha256': s.hexdigest()}
     return ret
 
 
@@ -98,7 +98,7 @@ def get_contributors(tag, previous_tag):
     """
     cmp = repo.compare_commits(previous_tag, tag)
     logins = [c.author.login for c in cmp.commits() if c.author] + [c.committer.login for c in cmp.commits()]
-    return sorted(set("@{}".format(n) for n in logins))
+    return sorted({"@{}".format(n) for n in logins})
 
 
 def get_previous_tag():
@@ -172,7 +172,7 @@ def upload(repo, tag, previous_tag, circleci, appveyor):
         print("I: uploading %s..." % itm)
         with open(filename, "rb") as f:
             try:
-                asset = release.upload_asset(content_type, itm, f)
+                _ = release.upload_asset(content_type, itm, f)
             except Exception as e:
                 error_exit("Error uploading asset '%s' (%r)" % (itm, e))
     print("I: upload success")

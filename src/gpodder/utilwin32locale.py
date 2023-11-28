@@ -18,7 +18,7 @@
 # along with elib.intl. If not, see <http://www.gnu.org/licenses/>.
 
 
-'''
+"""
 This code is adapted from the elib.intl module available on GitHub at
 https://github.com/dieterv/elib.intl, commit 49d5797 on 1 Sep 2017.
 
@@ -38,7 +38,7 @@ This module adds the following on Microsoft Windows systems:
 
 See http://www.gnu.org/software/gettext/FAQ.html#windows_setenv for more
 information.
-'''
+"""
 
 
 __version__ = '0.0.3'
@@ -55,7 +55,7 @@ logger = getLogger(__name__)
 
 
 def _localefromlcid(lcid):
-    '''
+    """
     :param lcid: Microsoft Windows LCID
     :returns: name of the supported gPodder locale or ISO 639-1 language code for a given lcid. If there is no
               ISO 639-1 language code assigned to the language specified by lcid,
@@ -65,7 +65,7 @@ def _localefromlcid(lcid):
     More information can be found on the following websites:
         - List of ISO 639-1 and ISO 639-2 language codes: http://www.loc.gov/standards/iso639-2/
         - List of language identifiers: https://msdn.microsoft.com/library/windows/desktop/dd318693(v=vs.85).aspx
-    '''
+    """
     mapping = {1078: 'af',  # Afrikaans - South Africa
                1052: 'sq',  # Albanian - Albania
                1118: 'am',  # Amharic - Ethiopia
@@ -297,7 +297,7 @@ def _localefromlcid(lcid):
 
 
 def _getscreenlanguage():
-    '''
+    """
     :returns: the locale for this session.
 
     If the LANGUAGE environment variable is set, it's value overrides the
@@ -306,7 +306,7 @@ def _getscreenlanguage():
     Windows installation language.
 
     Works on Microsoft Windows 2000 and up.
-    '''
+    """
     # Start with nothing
     lang = None
 
@@ -321,23 +321,23 @@ def _getscreenlanguage():
             from ctypes import windll
             lcid = windll.kernel32.GetUserDefaultUILanguage()
         except:
-            logger.warning('Failed to get current screen language with \'GetUserDefaultUILanguage\'')
+            logger.warning("Failed to get current screen language with 'GetUserDefaultUILanguage'")
         finally:
             if lcid is None:
                 lang = 'C'
             else:
                 lang = _localefromlcid(lcid)
 
-            logger.info('Windows screen language is \'%s\' (lcid %s)', lang, lcid)
+            logger.info("Windows screen language is '%s' (lcid %s)", lang, lcid)
 
     return lang
 
 
 def install(domain, localedir):
-    '''
+    """
     :param domain: translation domain
     :param localedir: locale directory
-    '''
+    """
     # prep locale system
     locale.setlocale(locale.LC_ALL, '')
 

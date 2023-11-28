@@ -49,7 +49,7 @@ class Store(object):
         self.lock = threading.RLock()
 
     def _schema(self, class_):
-        return class_.__name__, list(sorted(class_.__slots__))
+        return class_.__name__, sorted(class_.__slots__)
 
     def _set(self, o, slot, value):
         # Set a slot on the given object to value, doing a cast if
@@ -139,7 +139,7 @@ class Store(object):
             try:
                 self.db.execute(sql, list(kwargs.values()))
                 return True
-            except Exception as e:
+            except Exception:
                 return False
 
     def remove(self, o):
@@ -168,7 +168,7 @@ class Store(object):
                 sql += ' WHERE %s' % (' AND '.join('%s=?' % k for k in kwargs))
             try:
                 cur = self.db.execute(sql, list(kwargs.values()))
-            except Exception as e:
+            except Exception:
                 raise
 
             def apply(row):
@@ -176,7 +176,7 @@ class Store(object):
                 for attr, value in zip(slots, row):
                     try:
                         self._set(o, attr, value)
-                    except ValueError as ve:
+                    except ValueError:
                         return None
                 return o
             return [x for x in [apply(row) for row in cur] if x is not None]
@@ -193,9 +193,9 @@ if __name__ == '__main__':
     class Person(object):
         __slots__ = {'username': str, 'id': int}
 
-        def __init__(self, username, id):
+        def __init__(self, username, uid):
             self.username = username
-            self.id = id
+            self.id = uid
 
         def __repr__(self):
             return '<Person "%s" (%d)>' % (self.username, self.id)
@@ -214,9 +214,9 @@ if __name__ == '__main__':
     class Person(object):
         __slots__ = {'username': str, 'id': int, 'mail': str}
 
-        def __init__(self, username, id, mail):
+        def __init__(self, username, uid, mail):
             self.username = username
-            self.id = id
+            self.id = uid
             self.mail = mail
 
         def __repr__(self):
