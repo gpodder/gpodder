@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 # Show publishing statistics for subscriptions.
 # Released under the same license terms as gPodder itself.
-# version 0.2 - 2023/11/27 - Nuno Dias <Nuno.Dias+gpodder@gmail.com>
-# Add Last Episode updates
+# version 0.3 - 2023/11/29 - Nuno Dias <Nuno.Dias+gpodder@gmail.com>
+# Add Last Episode updates, sort columns and other minor changes.
 
 import time
 from time import strftime, localtime
@@ -21,6 +21,7 @@ _ = gpodder.gettext
 __title__ = _('Subscription Statistics')
 __description__ = _('Show publishing statistics for subscriptions.')
 __only_for__ = 'gtk'
+__doc__ = 'https://gpodder.github.io/docs/extensions/subscription_stats.html'
 __authors__ = 'Brand Huntsman <http://qzx.com/mail/>'
 
 
@@ -54,6 +55,7 @@ class gPodderExtension:
         dayscell.set_property('xalign', 1)
         dayscell.set_property('alignment', Pango.Alignment.RIGHT)
         dayscolumn = Gtk.TreeViewColumn(_('Days'))
+        dayscolumn.set_sort_column_id(0)
         dayscolumn.pack_start(dayscell, True)
         dayscolumn.add_attribute(dayscell, 'text', 0)
         tree.append_column(dayscolumn)
@@ -62,6 +64,7 @@ class gPodderExtension:
         channelcell.set_property('xalign', 0)
         channelcell.set_property('alignment', Pango.Alignment.LEFT)
         channelcolumn = Gtk.TreeViewColumn(_('Podcast'))
+        channelcolumn.set_sort_column_id(1)
         channelcolumn.pack_start(channelcell, True)
         channelcolumn.add_attribute(channelcell, 'text', 1)
         tree.append_column(channelcolumn)
@@ -70,6 +73,7 @@ class gPodderExtension:
         lastcell.set_property('xalign', 0)
         lastcell.set_property('alignment', Pango.Alignment.LEFT)
         lastcolumn = Gtk.TreeViewColumn(_('Last Updated'))
+        lastcolumn.set_sort_column_id(2)
         lastcolumn.pack_start(lastcell, True)
         lastcolumn.add_attribute(lastcell, 'text', 2)
         tree.append_column(lastcolumn)
@@ -121,7 +125,7 @@ class gPodderExtension:
                 cur.close()
 
             average = (total / nr_episodes) / (24 * 60 * 60) if nr_episodes > 0 else 0
-            last = strftime('%Y-%m-%d', localtime(edate))
+            last = strftime('%x', localtime(edate))
 
             if average == 0:
                 yearly.append([average, channel_name, last, paused])
@@ -148,7 +152,7 @@ class gPodderExtension:
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
         box.set_border_width(10)
 
-        label = Gtk.Label(_('%s subscriptions (%d paused)') % (len(channels), nr_paused))
+        label = Gtk.Label(_('%d subscriptions (%d paused)') % (len(channels), nr_paused))
         box.add(label)
 
         notebook = Gtk.Notebook()
