@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 # Show publishing statistics for subscriptions.
 # Released under the same license terms as gPodder itself.
-# version 0.4 - 2023/12/06 - Nuno Dias <Nuno.Dias+gpodder@gmail.com>
+# version 0.5 - 2023/12/06 - Nuno Dias <Nuno.Dias+gpodder@gmail.com>
 # Add Last Episode updates, sort columns and other minor changes.
 
+import datetime
 import time
 from time import strftime, localtime
-
-import datetime
 from datetime import datetime
 
 import gpodder
