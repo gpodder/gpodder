@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Show publishing statistics for subscriptions.
 # Released under the same license terms as gPodder itself.
-# version 0.3 - 2023/11/29 - Nuno Dias <Nuno.Dias+gpodder@gmail.com>
+# version 0.4 - 2023/12/06 - Nuno Dias <Nuno.Dias+gpodder@gmail.com>
 # Add Last Episode updates, sort columns and other minor changes.
 
 import time
@@ -41,11 +41,12 @@ class gPodderExtension:
         scrolled = Gtk.ScrolledWindow()
         scrolled.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
 
-        store = Gtk.ListStore(str, str, str)
-        for average, name, last, paused in channels:
+        store = Gtk.ListStore(str, str, str, int)
+        for average, name, edate, paused in channels:
+            last = strftime('%x', localtime(edate))
             store.append([
                 ('%.1f' % round(average, 1)) if average > 0 else '?',
-                name if not paused else (_('%s (paused)') % name), last,
+                ('‖ ' if paused else '') + name, last, edate,
             ])
 
         tree = Gtk.TreeView(model=store)
@@ -63,20 +64,28 @@ class gPodderExtension:
         channelcell = Gtk.CellRendererText()
         channelcell.set_property('xalign', 0)
         channelcell.set_property('alignment', Pango.Alignment.LEFT)
+        channelcell.set_property('ellipsize', Pango.EllipsizeMode.END)
         channelcolumn = Gtk.TreeViewColumn(_('Podcast'))
         channelcolumn.set_sort_column_id(1)
         channelcolumn.pack_start(channelcell, True)
         channelcolumn.add_attribute(channelcell, 'text', 1)
+        channelcolumn.set_expand(True)
         tree.append_column(channelcolumn)
 
         lastcell = Gtk.CellRendererText()
         lastcell.set_property('xalign', 0)
         lastcell.set_property('alignment', Pango.Alignment.LEFT)
         lastcolumn = Gtk.TreeViewColumn(_('Last Updated'))
-        lastcolumn.set_sort_column_id(2)
+        lastcolumn.set_sort_column_id(3)
         lastcolumn.pack_start(lastcell, True)
         lastcolumn.add_attribute(lastcell, 'text', 2)
         tree.append_column(lastcolumn)
+
+        edatecell = Gtk.CellRendererText()
+        edatecolumn = Gtk.TreeViewColumn()
+        edatecolumn.add_attribute(edatecell, 'text', 2)
+        edatecolumn.set_visible(False)
+        tree.append_column(edatecolumn)
 
         notebook.append_page(scrolled, Gtk.Label('%d %s' % (len(channels), category)))
 
@@ -125,18 +134,17 @@ class gPodderExtension:
                 cur.close()
 
             average = (total / nr_episodes) / (24 * 60 * 60) if nr_episodes > 0 else 0
-            last = strftime('%x', localtime(edate))
 
             if average == 0:
-                yearly.append([average, channel_name, last, paused])
+                yearly.append([average, channel_name, edate, paused])
             elif average <= 2:
-                daily.append([average, channel_name, last, paused])
+                daily.append([average, channel_name, edate, paused])
             elif average <= 14:
-                weekly.append([average, channel_name, last, paused])
+                weekly.append([average, channel_name, edate, paused])
             elif average <= 61:
-                monthly.append([average, channel_name, last, paused])
+                monthly.append([average, channel_name, edate, paused])
             else:
-                yearly.append([average, channel_name, last, paused])
+                yearly.append([average, channel_name, edate, paused])
 
         # sort by averages
         daily.sort(key=lambda e: e[0])
@@ -150,20 +158,21 @@ class gPodderExtension:
         dlg.set_resizable(True)
 
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
-        box.set_border_width(10)
+        box.set_border_width(0)
 
         label = Gtk.Label(_('%d subscriptions (%d paused)') % (len(channels), nr_paused))
         box.add(label)
 
         notebook = Gtk.Notebook()
         notebook.set_vexpand(True)
+        notebook.set_scrollable(True)
         self.add_page(notebook, _('daily'), daily)
         self.add_page(notebook, _('weekly'), weekly)
         self.add_page(notebook, _('monthly'), monthly)
         self.add_page(notebook, _('yearly'), yearly)
         box.add(notebook)
 
-        label = Gtk.Label(_('Average days between the last 25 episodes.'))
+        label = Gtk.Label(_('Average days between the last %d episodes.') % (episode.limit if episode.limit < 25 else 25))
         label.set_line_wrap(True)
         box.add(label)
 
