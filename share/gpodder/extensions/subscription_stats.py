@@ -1,15 +1,16 @@
 # -*- coding: utf-8 -*-
 # Show publishing statistics for subscriptions.
 # Released under the same license terms as gPodder itself.
-# version 0.5 - 2023/12/06 - Nuno Dias <Nuno.Dias+gpodder@gmail.com>
+# version 0.6 - 2023/12/07 - Nuno Dias <Nuno.Dias+gpodder@gmail.com>
 # Add Last Episode updates, sort columns and other minor changes.
 
 import datetime
 import time
-from time import strftime, localtime
 from datetime import datetime
+from time import strftime, localtime
 
 import gpodder
+from gpodder import common, download, feedcore, my, opml, player, util, youtube, config
 
 import gi  # isort:skip
 gi.require_version('Gtk', '3.0')  # isort:skip
@@ -171,7 +172,8 @@ class gPodderExtension:
         self.add_page(notebook, _('yearly'), yearly)
         box.add(notebook)
 
-        label = Gtk.Label(_('Average days between the last %d episodes.') % (episode.limit if episode.limit < 25 else 25))
+        conf = config.Config(gpodder.config_file)
+        label = Gtk.Label(_('Average days between the last %d episodes.') % (conf.limit.episodes if conf.limit.episodes < 25 else 25))
         label.set_line_wrap(True)
         box.add(label)
 
