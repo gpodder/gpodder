@@ -180,6 +180,25 @@ class VimeoVideoFormatListModel(Gtk.ListStore):
             self._config.vimeo.fileformat = value
 
 
+class ProxyTypeActionList(Gtk.ListStore):
+    C_CAPTION, C_PROXY_TYPE = list(range(2))
+
+    def __init__(self, config):
+        Gtk.ListStore.__init__(self, str, str)
+        self._config = config
+        self.append((_('SOCKS5'), 'socks5'))
+        self.append((_('HTTP'), 'http'))
+
+    def get_index(self):
+        for index, row in enumerate(self):
+            if self._config.network.proxy_type == row[self.C_PROXY_TYPE]:
+                return index
+            return 0
+
+    def set_index(self, index):
+        self._config.network.proxy_type = self[index][self.C_PROXY_TYPE]
+
+
 class gPodderPreferences(BuilderWidget):
     C_TOGGLE, C_LABEL, C_EXTENSION, C_SHOW_TOGGLE = list(range(4))
 
@@ -317,6 +336,8 @@ class gPodderPreferences(BuilderWidget):
                                               self.checkbutton_delete_deleted_episodes)
         self._config.connect_gtk_togglebutton('device_sync.compare_episode_filesize',
                                               self.checkbutton_compare_episode_filesize)
+        self._config.connect_gtk_togglebutton('network.use_proxy',
+                                              self.checkbutton_use_proxy)
 
         # Have to do this before calling set_active on checkbutton_enable
         self._enable_mygpo = self._config.mygpo.enabled
@@ -328,8 +349,18 @@ class gPodderPreferences(BuilderWidget):
         self.entry_password.set_text(self._config.mygpo.password)
         self.entry_caption.set_text(self._config.mygpo.device.caption)
 
+        self.entry_proxy_hostname.set_text(self._config.network.proxy_hostname)
+        self.entry_proxy_port.set_text(self._config.network.proxy_port)
+
         # Disable mygpo sync while the dialog is open
         self._config.mygpo.enabled = False
+
+        self.proxy_type_model = ProxyTypeActionList(self._config)
+        self.combobox_proxy_type.set_model(self.proxy_type_model)
+        self.combobox_proxy_type.pack_start(cellrenderer, True)
+        self.combobox_proxy_type.add_attribute(cellrenderer, 'text',
+                                               ProxyTypeActionList.C_CAPTION)
+        self.combobox_proxy_type.set_active(self.device_type_model.get_index())
 
         # Configure the extensions manager GUI
         self.set_extension_preferences()
@@ -760,3 +791,16 @@ class gPodderPreferences(BuilderWidget):
             break
 
         fs.destroy()
+
+    def on_checkbutton_use_proxy_toggled(self, widget):
+        pass #TODO disable other fields when use proxy is false.
+
+    def on_combobox_proxy_type_changed(self, widget):
+        index = self.combobox_proxy_type.get_active()
+        self.proxy_type_model.set_index(index)
+
+    def on_proxy_hostname_changed(self, widget):
+        self._config.network.proxy_hostname = widget.get_text()
+
+    def on_proxy_port_changed(self, widget):
+        self._config.network.proxy_port = widget.get_text()
