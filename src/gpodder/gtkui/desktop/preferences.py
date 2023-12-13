@@ -351,6 +351,9 @@ class gPodderPreferences(BuilderWidget):
 
         self.entry_proxy_hostname.set_text(self._config.network.proxy_hostname)
         self.entry_proxy_port.set_text(self._config.network.proxy_port)
+        # This will disable the proxy input details on creation if checkbutton
+        # is unticked (value from _config) on each preferences menu creation
+        self.on_checkbutton_use_proxy_toggled(self.checkbutton_use_proxy)
 
         # Disable mygpo sync while the dialog is open
         self._config.mygpo.enabled = False
@@ -793,7 +796,10 @@ class gPodderPreferences(BuilderWidget):
         fs.destroy()
 
     def on_checkbutton_use_proxy_toggled(self, widget):
-        pass #TODO disable other fields when use proxy is false.
+        if widget.get_active(): # Enable the proxy input details
+            self.grid_network_proxy_details.set_sensitive(True)
+        else: # Disable
+            self.grid_network_proxy_details.set_sensitive(False)
 
     def on_combobox_proxy_type_changed(self, widget):
         index = self.combobox_proxy_type.get_active()
