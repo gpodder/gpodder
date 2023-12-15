@@ -193,7 +193,7 @@ class ProxyTypeActionList(Gtk.ListStore):
         for index, row in enumerate(self):
             if self._config.network.proxy_type == row[self.C_PROXY_TYPE]:
                 return index
-            return 0
+        return 0
 
     def set_index(self, index):
         self._config.network.proxy_type = self[index][self.C_PROXY_TYPE]
@@ -363,7 +363,7 @@ class gPodderPreferences(BuilderWidget):
         self.combobox_proxy_type.pack_start(cellrenderer, True)
         self.combobox_proxy_type.add_attribute(cellrenderer, 'text',
                                                ProxyTypeActionList.C_CAPTION)
-        self.combobox_proxy_type.set_active(self.device_type_model.get_index())
+        self.combobox_proxy_type.set_active(self.proxy_type_model.get_index())
 
         # Configure the extensions manager GUI
         self.set_extension_preferences()
