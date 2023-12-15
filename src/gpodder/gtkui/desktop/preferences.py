@@ -186,6 +186,7 @@ class ProxyTypeActionList(Gtk.ListStore):
     def __init__(self, config):
         Gtk.ListStore.__init__(self, str, str)
         self._config = config
+        self.append((_('SOCKS5 (Remote DNS)'), 'socks5h'))
         self.append((_('SOCKS5'), 'socks5'))
         self.append((_('HTTP'), 'http'))
 
