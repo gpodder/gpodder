@@ -51,6 +51,16 @@ _ = gpodder.gettext
 
 REDIRECT_RETRIES = 3
 
+def get_proxies_from_config(config): #TODO: add username and password support for proxy
+    proxies = None
+    if config.network.use_proxy:
+        protocol = config.network.proxy_type
+        if protocol == "socks5": # See https://requests.readthedocs.io/en/latest/user/advanced/#socks
+            protocol = "socks5h" # I can't imagine why you wouldn't want to use remote dns
+        proxy_url = f"{protocol}://{config.network.proxy_hostname}:{config.network.proxy_port}"
+        proxies = {"http": proxy_url, "https": proxy_url}
+    return proxies
+
 
 class CustomDownload(ABC):
     """ abstract class for custom downloads. DownloadTask call retrieve_resume() on it """
@@ -222,8 +232,9 @@ class DownloadURLOpener:
     # FYI: The omission of "%" in the list is to avoid double escaping!
     ESCAPE_CHARS = {ord(c): '%%%x' % ord(c) for c in ' <>#"{}|\\^[]`'}
 
-    def __init__(self, channel, max_retries=3):
+    def __init__(self, config, channel, max_retries=3):
         super().__init__()
+        self._config = config
         self.channel = channel
         self.max_retries = max_retries
 
@@ -284,11 +295,13 @@ class DownloadURLOpener:
         # Fix a problem with bad URLs that are not encoded correctly (bug 549)
         url = url.translate(self.ESCAPE_CHARS)
 
+        proxies = get_proxies_from_config(self._config)
         session = self.init_session()
         with session.get(url,
                          headers=headers,
                          stream=True,
                          auth=auth,
+                         proxies=proxies,
                          timeout=gpodder.SOCKET_TIMEOUT) as resp:
             try:
                 resp.raise_for_status()
@@ -361,7 +374,7 @@ class DefaultDownload(CustomDownload):
         url = self._url
         logger.info("Downloading %s", url)
         max_retries = max(0, self._config.auto.retries)
-        downloader = DownloadURLOpener(self.__episode.channel, max_retries=max_retries)
+        downloader = DownloadURLOpener(self._config, self.__episode.channel, max_retries=max_retries)
         self.partial_filename = tempname
 
         # Retry the download on incomplete download (other retries are done by the Retry strategy)
