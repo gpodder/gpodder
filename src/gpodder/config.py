@@ -231,7 +231,7 @@ defaults = {
 
     'network': {
         'use_proxy': False,
-        'proxy_type': 'socks5', # Possible values: socks5, http
+        'proxy_type': 'socks5',  # Possible values: socks5, http
         'proxy_hostname': '127.0.0.1',
         'proxy_port': '8123',
     },

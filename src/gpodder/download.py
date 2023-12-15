@@ -51,12 +51,13 @@ _ = gpodder.gettext
 
 REDIRECT_RETRIES = 3
 
-def get_proxies_from_config(config): #TODO: add username and password support for proxy
+
+def get_proxies_from_config(config):  # TODO: add username and password support for proxy
     proxies = None
     if config.network.use_proxy:
         protocol = config.network.proxy_type
-        if protocol == "socks5": # See https://requests.readthedocs.io/en/latest/user/advanced/#socks
-            protocol = "socks5h" # I can't imagine why you wouldn't want to use remote dns
+        if protocol == "socks5":  # See https://requests.readthedocs.io/en/latest/user/advanced/#socks
+            protocol = "socks5h"  # I can't imagine why you wouldn't want to use remote dns
         proxy_url = f"{protocol}://{config.network.proxy_hostname}:{config.network.proxy_port}"
         proxies = {"http": proxy_url, "https": proxy_url}
     return proxies

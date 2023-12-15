@@ -796,9 +796,9 @@ class gPodderPreferences(BuilderWidget):
         fs.destroy()
 
     def on_checkbutton_use_proxy_toggled(self, widget):
-        if widget.get_active(): # Enable the proxy input details
+        if widget.get_active():  # Enable the proxy input details
             self.grid_network_proxy_details.set_sensitive(True)
-        else: # Disable
+        else:  # Disable
             self.grid_network_proxy_details.set_sensitive(False)
 
     def on_combobox_proxy_type_changed(self, widget):
