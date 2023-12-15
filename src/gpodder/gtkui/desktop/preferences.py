@@ -19,6 +19,7 @@
 
 import html
 import logging
+from urllib.request import getproxies
 
 from gi.repository import Gdk, Gtk, Pango
 
@@ -365,6 +366,13 @@ class gPodderPreferences(BuilderWidget):
         self.combobox_proxy_type.add_attribute(cellrenderer, 'text',
                                                ProxyTypeActionList.C_CAPTION)
         self.combobox_proxy_type.set_active(self.proxy_type_model.get_index())
+        env_proxies = getproxies()
+        env_proxies_str = 'None'
+        if env_proxies:
+            env_proxies_str = ''
+            for var, url in env_proxies.items():
+                env_proxies_str += f"{var}_proxy={url}\n"
+        self.label_env_proxy.set_text(env_proxies_str)
 
         # Configure the extensions manager GUI
         self.set_extension_preferences()
