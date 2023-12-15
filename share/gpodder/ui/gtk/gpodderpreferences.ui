@@ -1204,11 +1204,10 @@
                             <property name="spacing">12</property>
                             <child>
                               <object class="GtkCheckButton" id="checkbutton_use_proxy">
-                                <property name="label" translatable="yes">Use proxy</property>
+                                <property name="label" translatable="yes">Use proxy (Overrides environment variables)</property>
                                 <property name="visible">True</property>
                                 <property name="can-focus">True</property>
                                 <property name="receives-default">False</property>
-                                <property name="tooltip-text" translatable="yes">Overrides the proxies given in environment variables</property>
                                 <property name="draw-indicator">True</property>
                                 <signal name="toggled" handler="on_checkbutton_use_proxy_toggled" swapped="no"/>
                               </object>
@@ -1279,7 +1278,7 @@
                                     <property name="visible">True</property>
                                     <property name="can-focus">True</property>
                                     <property name="hexpand">True</property>
-                                    <property name="placeholder-text" translatable="yes">127.0.0.1</property>
+                                    <property name="placeholder-text">127.0.0.1</property>
                                     <signal name="changed" handler="on_proxy_hostname_changed" swapped="no"/>
                                   </object>
                                   <packing>
@@ -1292,7 +1291,7 @@
                                     <property name="visible">True</property>
                                     <property name="can-focus">True</property>
                                     <property name="hexpand">True</property>
-                                    <property name="placeholder-text" translatable="yes">8123</property>
+                                    <property name="placeholder-text">8123</property>
                                     <property name="input-purpose">number</property>
                                     <signal name="changed" handler="on_proxy_port_changed" swapped="no"/>
                                   </object>
