@@ -154,6 +154,13 @@ class UIConfig(config.Config):
             setattr(self, name, togglebutton.get_active())
         togglebutton.connect('toggled', _togglebutton_toggled)
 
+    def connect_gtk_combo_box_text(self, name, combo_text):
+        combo_text.set_active_id(getattr(self, name))
+
+        def _combo_box_text_changed(combo):
+            setattr(self, name, combo.get_active_id())
+        combo_text.connect('changed', _combo_box_text_changed)
+
     def connect_gtk_window(self, window, config_prefix, show_window=False):
         cfg = getattr(self.ui.gtk.state, config_prefix)
 

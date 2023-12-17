@@ -200,7 +200,66 @@ class gPodderApplication(Gtk.Application):
                 # Handle "subscribe to podcast" events from firefox
                 macosx.register_handlers(self.window)
 
+            # Set dark mode from color_scheme config key, or from Settings portal
+            # if it exists and color_scheme is 'system'.
+            if getattr(gpodder.dbus_session_bus, 'fake', False):
+                self.have_settings_portal = False
+                self._set_default_color_scheme('light')
+                self.set_dark_mode(self.window.config.ui.gtk.color_scheme == 'dark')
+            else:
+                self.read_portal_color_scheme()
+                gpodder.dbus_session_bus.add_signal_receiver(
+                    self.on_portal_setting_changed, "SettingChanged", None,
+                    "org.freedesktop.portal.Desktop", "/org/freedesktop/portal/desktop")
+
         self.window.gPodder.present()
+
+    def _set_default_color_scheme(self, default):
+        """Set the default value for color_scheme based on GTK settings.
+
+        If gtk_application_prefer_dark_theme is set to 1 (a non-default value),
+        the user has set it in GTK settings.ini and we set color_scheme to match
+        this preference. Otherwise we set the key to the given default, which
+        should be 'system' in case Settings portal is found, or 'light' if it's not.
+        """
+        if self.window.config.ui.gtk.color_scheme is None:
+            settings = Gtk.Settings.get_default()
+            self.window.config.ui.gtk.color_scheme = (
+                'dark' if settings.props.gtk_application_prefer_dark_theme == 1
+                else default)
+
+    def set_dark_mode(self, dark):
+        settings = Gtk.Settings.get_default()
+        settings.props.gtk_application_prefer_dark_theme = 1 if dark else 0
+
+    def read_portal_color_scheme(self):
+        gpodder.dbus_session_bus.call_async(
+            "org.freedesktop.portal.Desktop", "/org/freedesktop/portal/desktop",
+            "org.freedesktop.portal.Settings", "ReadOne", "ss",
+            ("org.freedesktop.appearance", "color-scheme"),
+            self.on_portal_settings_read, self.on_portal_settings_read_error)
+
+    def on_portal_settings_read(self, value):
+        self.have_settings_portal = True
+        self._set_default_color_scheme('system')
+        if self.window.config.ui.gtk.color_scheme == 'system':
+            self.set_dark_mode(value == 1)
+        else:
+            self.set_dark_mode(self.window.config.ui.gtk.color_scheme == 'dark')
+
+    def on_portal_settings_read_error(self, value):
+        self.have_settings_portal = False
+        self._set_default_color_scheme('light')
+        self.set_dark_mode(self.window.config.ui.gtk.color_scheme == 'dark')
+
+    def on_portal_setting_changed(self, namespace, key, value):
+        if (namespace == 'org.freedesktop.appearance'
+                and key == 'color-scheme'):
+            dark = (value == 1)
+            if self.window.config.ui.gtk.color_scheme == 'system':
+                logger.debug(
+                    f"'color-scheme' changed to {value}, setting dark mode to {dark}")
+                self.set_dark_mode(dark)
 
     def on_menu(self, action, param):
         self.menu_popover.popup()
@@ -265,7 +324,8 @@ class gPodderApplication(Gtk.Application):
                 on_send_full_subscriptions=self.window.on_send_full_subscriptions,
                 on_itemExportChannels_activate=self.window.on_itemExportChannels_activate,
                 on_extension_enabled=self.on_extension_enabled,
-                on_extension_disabled=self.on_extension_disabled)
+                on_extension_disabled=self.on_extension_disabled,
+                have_settings_portal=self.have_settings_portal)
 
     def on_goto_mygpo(self, action, param):
         self.window.mygpo_client.open_website()
