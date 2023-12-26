@@ -637,10 +637,12 @@ class MP3PlayerDevice(Device):
         return True
 
 
-class SyncCancelledException(Exception): pass
+class SyncCancelledException(Exception):
+    pass
 
 
-class SyncFailedException(Exception): pass
+class SyncFailedException(Exception):
+    pass
 
 
 class SyncTask(download.DownloadTask):
@@ -769,7 +771,7 @@ class SyncTask(download.DownloadTask):
     def __enter__(self):
         return self.__lock.acquire()
 
-    def __exit__(self, type, value, traceback):
+    def __exit__(self, exception_type, value, traceback):
         self.__lock.release()
 
     def notify_as_finished(self):
@@ -843,7 +845,7 @@ class SyncTask(download.DownloadTask):
         try:
             logger.info('Starting SyncTask')
             self.device.add_track(self, reporthook=self.status_updated)
-        except SyncCancelledException as e:
+        except SyncCancelledException:
             sync_result = SyncTask.CANCELLED
         except Exception as e:
             sync_result = SyncTask.FAILED

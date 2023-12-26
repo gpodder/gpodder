@@ -372,7 +372,7 @@ class gPodderShownotesHTML(gPodderShownotes):
             if episode.file_size > 0 else "-",
             'duration': episode.get_play_info_string()})
         header_html = _('<div id="gpodder-title">\n%(heading)s\n<p>%(subheading)s</p>\n<p>%(details)s</p></div>\n') \
-            % dict(heading=heading, subheading=subheading, details=details)
+            % {'heading': heading, 'subheading': subheading, 'details': details}
         # uncomment to prevent background override in html shownotes
         # self.manager.remove_all_style_sheets ()
         logger.debug("base uri: %s (chan:%s)", self._base_uri, episode.channel.url)

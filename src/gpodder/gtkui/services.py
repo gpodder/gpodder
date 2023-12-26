@@ -117,7 +117,7 @@ class CoverDownloader(ObservableService):
 
         try:
             pixbuf = GdkPixbuf.Pixbuf.new_from_file(filename)
-        except Exception as e:
+        except Exception:
             logger.warning('Cannot load cover art', exc_info=True)
         if pixbuf is None and filename.startswith(channel.cover_file):
             logger.info('Deleting broken cover: %s', filename)
@@ -125,7 +125,7 @@ class CoverDownloader(ObservableService):
             filename = get_filename()
             try:
                 pixbuf = GdkPixbuf.Pixbuf.new_from_file(filename)
-            except Exception as e:
+            except Exception:
                 logger.warning('Corrupt cover art on server, deleting', exc_info=True)
                 util.delete_file(filename)
 

@@ -147,7 +147,7 @@ _MIME_TYPE_LIST = [
     ('.webm', 'audio/webm'),
 ]
 
-_MIME_TYPES = dict((k, v) for v, k in _MIME_TYPE_LIST)
+_MIME_TYPES = {k: v for v, k in _MIME_TYPE_LIST}
 _MIME_TYPES_EXT = dict(_MIME_TYPE_LIST)
 
 
@@ -393,18 +393,18 @@ def calculate_size(path):
         return os.path.getsize(path)
 
     if os.path.isdir(path) and not os.path.islink(path):
-        sum = os.path.getsize(path)
+        size = os.path.getsize(path)
 
         try:
             for item in os.listdir(path):
                 try:
-                    sum += calculate_size(os.path.join(path, item))
+                    size += calculate_size(os.path.join(path, item))
                 except:
                     logger.warning('Cannot get size for %s', path, exc_info=True)
         except:
             logger.warning('Cannot access %s', path, exc_info=True)
 
-        return sum
+        return size
 
     return 0
 
@@ -543,10 +543,10 @@ def format_date(timestamp):
     yesterday = time.localtime(time.time() - seconds_in_a_day)[:3]
     try:
         timestamp_date = time.localtime(timestamp)[:3]
-    except ValueError as e:
+    except ValueError:
         logger.warning('Cannot convert timestamp', exc_info=True)
         return None
-    except TypeError as e:
+    except TypeError:
         logger.warning('Cannot convert timestamp', exc_info=True)
         return None
 
@@ -844,9 +844,7 @@ def nice_html_description(img, description):
     """
     basic html formatting + hyperlink highlighting + video thumbnail
     """
-    description = re.sub(r'''https?://[^\s]+''',
-                         r'''<a href="\g<0>">\g<0></a>''',
-                         description)
+    description = re.sub(r'https?://[^\s]+', r'<a href="\g<0>">\g<0></a>', description)
     description = description.replace('\n', '<br>')
     html = """<style type="text/css">
     body > img { float: left; max-width: 30vw; margin: 0 1em 1em 0; }
@@ -943,9 +941,9 @@ def mimetype_from_extension(extension):
         return _MIME_TYPES_EXT[extension]
 
     # Need to prepend something to the extension, so guess_type works
-    type, encoding = mimetypes.guess_type('file' + extension)
+    mimetype, encoding = mimetypes.guess_type('file' + extension)
 
-    return type or ''
+    return mimetype or ''
 
 
 def extension_correct_for_mimetype(extension, mimetype):
@@ -1057,10 +1055,10 @@ def file_type_by_extension(extension):
         return _MIME_TYPES_EXT[extension].split('/')[0]
 
     # Need to prepend something to the extension, so guess_type works
-    type, encoding = mimetypes.guess_type('file' + extension)
+    mimetype, encoding = mimetypes.guess_type('file' + extension)
 
-    if type is not None and '/' in type:
-        filetype, rest = type.split('/', 1)
+    if mimetype is not None and '/' in mimetype:
+        filetype, rest = mimetype.split('/', 1)
         if filetype in ('audio', 'video', 'image'):
             return filetype
 
@@ -1353,8 +1351,8 @@ class IdleTimeout(object):
         from gi.repository import GLib
         self.id = GLib.timeout_add(milliseconds, self._callback, *args, priority=GLib.PRIORITY_DEFAULT_IDLE)
 
-    def set_max_milliseconds(self, max):
-        self.max_milliseconds = max
+    def set_max_milliseconds(self, max_milliseconds):
+        self.max_milliseconds = max_milliseconds
         return self
 
     def _callback(self, *args):
@@ -1780,7 +1778,8 @@ def isabs(string):
     they are considered "absolute" paths.
     Source: http://code.activestate.com/recipes/208993/
     """
-    if protocolPattern.match(string): return 1
+    if protocolPattern.match(string):
+        return 1
     return os.path.isabs(string)
 
 
@@ -2342,7 +2341,7 @@ def get_header_param(headers, param, header_name):
             raw_value = msg.get_param(param, header=header_name)
             if raw_value is not None:
                 value = email.utils.collapse_rfc2231_value(raw_value)
-    except Exception as e:
+    except Exception:
         logger.error('Cannot get %s from %s', param, header_name, exc_info=True)
 
     return value
@@ -2404,16 +2403,16 @@ def mount_volume_for_file(file, op=None):
     return result, message
 
 
-def scale_pixbuf(pixbuf, max):
+def scale_pixbuf(pixbuf, max_size):
     from gi.repository import GdkPixbuf
 
     w_cur = pixbuf.get_width()
     h_cur = pixbuf.get_height()
 
-    if w_cur <= max and h_cur <= max:
+    if w_cur <= max_size and h_cur <= max_size:
         return pixbuf
 
-    f = max / (w_cur if w_cur >= h_cur else h_cur)
+    f = max_size / (w_cur if w_cur >= h_cur else h_cur)
     w_new = int(w_cur * f)
     h_new = int(h_cur * f)
 

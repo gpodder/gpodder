@@ -51,9 +51,9 @@ def subsecond_difference(usec1, usec2):
 
 
 class CurrentTrackTracker(object):
-    '''An instance of this class is responsible for tracking the state of the
+    """An instance of this class is responsible for tracking the state of the
     currently playing track -- it's playback status, playing position, etc.
-    '''
+    """
     def __init__(self, notifier):
         self.uri = None
         self.length = None

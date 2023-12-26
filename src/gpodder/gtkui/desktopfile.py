@@ -77,8 +77,8 @@ class PlayerListModel(Gtk.ListStore):
         return len(self) - 1
 
     @classmethod
-    def is_separator(cls, model, iter):
-        return model.get_value(iter, cls.C_COMMAND) == ''
+    def is_separator(cls, model, iterator):
+        return model.get_value(iterator, cls.C_COMMAND) == ''
 
 
 class UserApplication(object):
@@ -94,7 +94,7 @@ class UserApplication(object):
             if os.path.exists(self.icon):
                 try:
                     return GdkPixbuf.Pixbuf.new_from_file_at_size(self.icon, 24, 24)
-                except GObject.GError as ge:
+                except GObject.GError:
                     pass
 
             # Load it from the current icon theme
@@ -178,9 +178,9 @@ class UserAppsReader(object):
                 except Exception as e:
                     logger.warning('Parse HKEY error: %s (%s)', hkey, e)
 
-        for dir in userappsdirs:
-            if os.path.exists(dir):
-                for file in glob.glob(os.path.join(dir, '*.desktop')):
+        for appdir in userappsdirs:
+            if os.path.exists(appdir):
+                for file in glob.glob(os.path.join(appdir, '*.desktop')):
                     self.parse_and_append(file)
         self.__finished.set()
 

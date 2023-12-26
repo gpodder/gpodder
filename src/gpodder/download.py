@@ -176,11 +176,11 @@ class ContentRange(object):
         if '/' not in value:
             # Invalid, no length given
             return None
-        range, length = value.split('/', 1)
-        if '-' not in range:
+        startstop, length = value.split('/', 1)
+        if '-' not in startstop:
             # Invalid, no range
             return None
-        start, end = range.split('-', 1)
+        start, end = startstop.split('-', 1)
         try:
             start = int(start)
             if end == '*':
@@ -200,10 +200,12 @@ class ContentRange(object):
             return cls(start, end - 1, length)
 
 
-class DownloadCancelledException(Exception): pass
+class DownloadCancelledException(Exception):
+    pass
 
 
-class DownloadNoURLException(Exception): pass
+class DownloadNoURLException(Exception):
+    pass
 
 
 class gPodderDownloadHTTPError(Exception):
@@ -218,7 +220,7 @@ class DownloadURLOpener:
     # Sometimes URLs are not escaped correctly - try to fix them
     # (see RFC2396; Section 2.4.3. Excluded US-ASCII Characters)
     # FYI: The omission of "%" in the list is to avoid double escaping!
-    ESCAPE_CHARS = dict((ord(c), '%%%x' % ord(c)) for c in ' <>#"{}|\\^[]`')
+    ESCAPE_CHARS = {ord(c): '%%%x' % ord(c) for c in ' <>#"{}|\\^[]`'}
 
     def __init__(self, channel, max_retries=3):
         super().__init__()
@@ -303,8 +305,8 @@ class DownloadURLOpener:
                 # We told the server to resume - see if she agrees
                 # See RFC2616 (206 Partial Content + Section 14.16)
                 # XXX check status code here, too...
-                range = ContentRange.parse(headers.get('content-range', ''))
-                if range is None or range.start != current_size:
+                conrange = ContentRange.parse(headers.get('content-range', ''))
+                if conrange is None or conrange.start != current_size:
                     # Ok, that did not work. Reset the download
                     # TODO: seek and truncate if content-range differs from request
                     tfp.close()
@@ -373,7 +375,7 @@ class DefaultDownload(CustomDownload):
                     tempname, reporthook=reporthook)
                 # If we arrive here, the download was successful
                 break
-            except urllib.error.ContentTooShortError as ctse:
+            except urllib.error.ContentTooShortError:
                 if retry < max_retries:
                     logger.info('Content too short: %s - will retry.',
                             url)
@@ -600,7 +602,7 @@ class DownloadTask(object):
     def __enter__(self):
         return self.__lock.acquire()
 
-    def __exit__(self, type, value, traceback):
+    def __exit__(self, exception_type, value, traceback):
         self.__lock.release()
 
     def __get_status(self):
@@ -978,7 +980,7 @@ class DownloadTask(object):
         except DownloadNoURLException:
             result = DownloadTask.FAILED
             self.error_message = _('Episode has no URL to download')
-        except urllib.error.ContentTooShortError as ctse:
+        except urllib.error.ContentTooShortError:
             result = DownloadTask.FAILED
             self.error_message = _('Missing content from server')
         except ConnectionError as ce:

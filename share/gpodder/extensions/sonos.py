@@ -38,7 +38,7 @@ class gPodderExtension:
             try:
                 info = speaker.get_speaker_info()
 
-            except requests.ConnectionError as ce:
+            except requests.ConnectionError:
                 # ignore speakers we can't connect to
                 continue
 

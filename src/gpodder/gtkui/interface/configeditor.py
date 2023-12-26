@@ -69,20 +69,20 @@ class gPodderConfigEditor(BuilderWidget):
 
         self._config.connect_gtk_window(self.main_window, 'config_editor', True)
 
-    def visible_func(self, model, iter, user_data=None):
+    def visible_func(self, model, iterator, user_data=None):
         text = self.entryFilter.get_text().lower()
         if text == '':
             return True
         else:
             # either the variable name or its value
-            return (text in model.get_value(iter, 0).lower()
-                    or text in model.get_value(iter, 2).lower())
+            return (text in model.get_value(iterator, 0).lower()
+                    or text in model.get_value(iterator, 2).lower())
 
     def value_edited(self, renderer, path, new_text):
         model = self.configeditor.get_model()
-        iter = model.get_iter(path)
-        name = model.get_value(iter, 0)
-        type_cute = model.get_value(iter, 1)
+        iterator = model.get_iter(path)
+        name = model.get_value(iterator, 0)
+        type_cute = model.get_value(iterator, 1)
 
         if not self._config.update_field(name, new_text):
             message = _('Cannot set %(field)s to %(value)s. Needed data type: %(datatype)s')
@@ -93,9 +93,9 @@ class gPodderConfigEditor(BuilderWidget):
 
     def value_toggled(self, renderer, path):
         model = self.configeditor.get_model()
-        iter = model.get_iter(path)
-        field_name = model.get_value(iter, 0)
-        field_type = model.get_value(iter, 3)
+        iterator = model.get_iter(path)
+        field_name = model.get_value(iterator, 0)
+        field_type = model.get_value(iterator, 3)
 
         # Flip the boolean config flag
         if field_type == bool:

@@ -140,7 +140,7 @@ class CoverDownloader(object):
                 fp.close()
 
                 return filename + extension
-            except Exception as e:
+            except Exception:
                 logger.warning('Cannot save cover art', exc_info=True)
 
         # Fallback to cover art based on the podcast title

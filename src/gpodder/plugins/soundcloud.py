@@ -62,7 +62,6 @@ def get_metadata(url):
     track_response = util.urlopen(url)
     filesize = track_response.headers['content-length'] or '0'
     filetype = track_response.headers['content-type'] or 'application/octet-stream'
-    headers_s = '\n'.join('%s:%s' % (k, v) for k, v in list(track_response.headers.items()))
     filename = util.get_header_param(track_response.headers, 'filename', 'content-disposition') \
         or os.path.basename(os.path.dirname(url))
     track_response.close()
@@ -222,7 +221,7 @@ class SoundcloudFeed(model.Feed):
         if self.max_episodes > 0:
             tracks = tracks[:self.max_episodes]
 
-        seen_guids = set(track['guid'] for track in tracks)
+        seen_guids = {track['guid'] for track in tracks}
         episodes = []
 
         for track in tracks:
@@ -241,7 +240,7 @@ class SoundcloudFavFeed(SoundcloudFeed):
         super(SoundcloudFavFeed, self).__init__(username)
 
     def get_title(self):
-        return _('%s\'s favorites on Soundcloud') % self.username
+        return _("%s's favorites on Soundcloud") % self.username
 
     def get_link(self):
         return 'https://soundcloud.com/%s/favorites' % self.username

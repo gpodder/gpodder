@@ -122,8 +122,8 @@ class YouTubeVideoFormatListModel(Gtk.ListStore):
             }
             self.append((caption, 0))
 
-        for id, (fmt_id, path, description) in youtube.formats:
-            self.append((description, id))
+        for fmt, (fmt_id, path, description) in youtube.formats:
+            self.append((description, fmt))
 
     def get_index(self):
         for index, row in enumerate(self):
@@ -148,8 +148,8 @@ class YouTubeVideoHLSFormatListModel(Gtk.ListStore):
             }
             self.append((caption, 0))
 
-        for id, (fmt_id, path, description) in youtube.hls_formats:
-            self.append((description, id))
+        for fmt, (fmt_id, path, description) in youtube.hls_formats:
+            self.append((description, fmt))
 
     def get_index(self):
         for index, row in enumerate(self):
@@ -590,8 +590,8 @@ class gPodderPreferences(BuilderWidget):
         ret = ret.replace(' ', '\xa0')
         return ret
 
-    def on_update_interval_value_changed(self, range):
-        value = int(range.get_value())
+    def on_update_interval_value_changed(self, gtk_range):
+        value = int(gtk_range.get_value())
         self._config.auto.update.enabled = (value > 0)
         self._config.auto.update.frequency = self.update_interval_presets[value]
 
@@ -607,8 +607,8 @@ class gPodderPreferences(BuilderWidget):
             return N_('after %(count)d day', 'after %(count)d days',
                       value) % {'count': value}
 
-    def on_expiration_value_changed(self, range):
-        value = int(range.get_value())
+    def on_expiration_value_changed(self, gtk_range):
+        value = int(gtk_range.get_value())
 
         if value == 0:
             self.checkbutton_expiration_unplayed.set_active(False)
