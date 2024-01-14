@@ -113,6 +113,7 @@ WIN32_APP_REG_KEYS = [
     ('Windows Media Player 11', ('audio', 'video'), r'HKEY_CLASSES_ROOT\WMP11.AssocFile.MP3\shell\open\command'),
     ('QuickTime Player', ('audio', 'video'), r'HKEY_CLASSES_ROOT\QuickTime.mp3\shell\open\command'),
     ('VLC', ('audio', 'video'), r'HKEY_CLASSES_ROOT\VLC.mp3\shell\open\command'),
+    ('PotPlayer', ('audio', 'video'), r'HKEY_CLASSES_ROOT\potrun\shell\open\command'),
 ]
 
 
