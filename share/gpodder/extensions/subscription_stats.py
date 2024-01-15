@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Show publishing statistics for subscriptions.
 # Released under the same license terms as gPodder itself.
-# version 0.6 - 2023/12/07 - Nuno Dias <Nuno.Dias+gpodder@gmail.com>
+# version 0.7 - 2024/01/15 - Nuno Dias <Nuno.Dias+gpodder@gmail.com>
 # Add Last Episode updates, sort columns and other minor changes.
 
 import datetime
@@ -41,12 +41,13 @@ class gPodderExtension:
         scrolled = Gtk.ScrolledWindow()
         scrolled.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
 
-        store = Gtk.ListStore(str, str, str, int)
+        store = Gtk.ListStore(str, float, str, str, int)
         for average, name, edate, paused in channels:
+            average_flot = float(average)
             last = strftime('%x', localtime(edate))
             store.append([
                 ('%.1f' % round(average, 1)) if average > 0 else '?',
-                ('‖ ' if paused else '') + name, last, edate,
+                average_flot, ('‖ ' if paused else '') + name, last, edate,
             ])
 
         tree = Gtk.TreeView(model=store)
@@ -56,7 +57,7 @@ class gPodderExtension:
         dayscell.set_property('xalign', 1)
         dayscell.set_property('alignment', Pango.Alignment.RIGHT)
         dayscolumn = Gtk.TreeViewColumn(_('Days'))
-        dayscolumn.set_sort_column_id(0)
+        dayscolumn.set_sort_column_id(1)
         dayscolumn.pack_start(dayscell, True)
         dayscolumn.add_attribute(dayscell, 'text', 0)
         tree.append_column(dayscolumn)
@@ -66,9 +67,9 @@ class gPodderExtension:
         channelcell.set_property('alignment', Pango.Alignment.LEFT)
         channelcell.set_property('ellipsize', Pango.EllipsizeMode.END)
         channelcolumn = Gtk.TreeViewColumn(_('Podcast'))
-        channelcolumn.set_sort_column_id(1)
+        channelcolumn.set_sort_column_id(2)
         channelcolumn.pack_start(channelcell, True)
-        channelcolumn.add_attribute(channelcell, 'text', 1)
+        channelcolumn.add_attribute(channelcell, 'text', 2)
         channelcolumn.set_expand(True)
         tree.append_column(channelcolumn)
 
@@ -76,16 +77,10 @@ class gPodderExtension:
         lastcell.set_property('xalign', 0)
         lastcell.set_property('alignment', Pango.Alignment.LEFT)
         lastcolumn = Gtk.TreeViewColumn(_('Last Updated'))
-        lastcolumn.set_sort_column_id(3)
+        lastcolumn.set_sort_column_id(4)
         lastcolumn.pack_start(lastcell, True)
-        lastcolumn.add_attribute(lastcell, 'text', 2)
+        lastcolumn.add_attribute(lastcell, 'text', 3)
         tree.append_column(lastcolumn)
-
-        edatecell = Gtk.CellRendererText()
-        edatecolumn = Gtk.TreeViewColumn()
-        edatecolumn.add_attribute(edatecell, 'text', 2)
-        edatecolumn.set_visible(False)
-        tree.append_column(edatecolumn)
 
         notebook.append_page(scrolled, Gtk.Label('%d %s' % (len(channels), category)))
 
@@ -157,10 +152,11 @@ class gPodderExtension:
         dlg.set_size_request(400, 400)
         dlg.set_resizable(True)
 
-        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         box.set_border_width(0)
 
         label = Gtk.Label(_('%d subscriptions (%d paused)') % (len(channels), nr_paused))
+        label.set_padding(0, 10)
         box.add(label)
 
         notebook = Gtk.Notebook()
@@ -175,9 +171,12 @@ class gPodderExtension:
         conf = config.Config(gpodder.config_file)
         label = Gtk.Label(_('Average days between the last %d episodes.') % (conf.limit.episodes if conf.limit.episodes < 25 else 25))
         label.set_line_wrap(True)
+        label.set_padding(0, 5)
         box.add(label)
 
-        dlg.add_button(_('_Close'), Gtk.ResponseType.OK)
+        button=dlg.add_button(_('_Close'), Gtk.ResponseType.OK)
+        button.set_margin_right(5)
+        button.set_margin_bottom(5)
         dlg.connect("response", lambda w, r: dlg.destroy())
 
         dlg.vbox.pack_start(box, True, True, 0)
