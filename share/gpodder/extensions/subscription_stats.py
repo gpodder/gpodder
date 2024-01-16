@@ -174,7 +174,7 @@ class gPodderExtension:
         label.set_padding(0, 5)
         box.add(label)
 
-        button=dlg.add_button(_('_Close'), Gtk.ResponseType.OK)
+        button = dlg.add_button(_('_Close'), Gtk.ResponseType.OK)
         button.set_margin_right(5)
         button.set_margin_bottom(5)
         dlg.connect("response", lambda w, r: dlg.destroy())
