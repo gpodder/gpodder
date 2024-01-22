@@ -43,22 +43,13 @@ from requests.packages.urllib3.exceptions import MaxRetryError
 from requests.packages.urllib3.util.retry import Retry
 
 import gpodder
-from gpodder import registry, util
+from gpodder import registry, util, config
 
 logger = logging.getLogger(__name__)
 
 _ = gpodder.gettext
 
 REDIRECT_RETRIES = 3
-
-
-def get_proxies_from_config(config):  # TODO: add username and password support for proxy
-    proxies = None
-    if config.network.use_proxy:
-        protocol = config.network.proxy_type
-        proxy_url = f"{protocol}://{config.network.proxy_hostname}:{config.network.proxy_port}"
-        proxies = {"http": proxy_url, "https": proxy_url}
-    return proxies
 
 
 class CustomDownload(ABC):
@@ -231,9 +222,8 @@ class DownloadURLOpener:
     # FYI: The omission of "%" in the list is to avoid double escaping!
     ESCAPE_CHARS = {ord(c): '%%%x' % ord(c) for c in ' <>#"{}|\\^[]`'}
 
-    def __init__(self, config, channel, max_retries=3):
+    def __init__(self, channel, max_retries=3):
         super().__init__()
-        self._config = config
         self.channel = channel
         self.max_retries = max_retries
 
@@ -294,8 +284,9 @@ class DownloadURLOpener:
         # Fix a problem with bad URLs that are not encoded correctly (bug 549)
         url = url.translate(self.ESCAPE_CHARS)
 
-        proxies = get_proxies_from_config(self._config)
+        proxies = config._proxies
         session = self.init_session()
+        logger.debug(f"DownloadURLOpener.retrieve_resume(): url: {url}, proxies: {proxies}")
         with session.get(url,
                          headers=headers,
                          stream=True,
@@ -373,7 +364,7 @@ class DefaultDownload(CustomDownload):
         url = self._url
         logger.info("Downloading %s", url)
         max_retries = max(0, self._config.auto.retries)
-        downloader = DownloadURLOpener(self._config, self.__episode.channel, max_retries=max_retries)
+        downloader = DownloadURLOpener(self.__episode.channel, max_retries=max_retries)
         self.partial_filename = tempname
 
         # Retry the download on incomplete download (other retries are done by the Retry strategy)

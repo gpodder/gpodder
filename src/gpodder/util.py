@@ -62,6 +62,7 @@ import requests.exceptions
 from requests.packages.urllib3.util.retry import Retry
 
 import gpodder
+from gpodder import config
 
 logger = logging.getLogger(__name__)
 
@@ -1259,7 +1260,9 @@ def urlopen(url, headers=None, data=None, timeout=None, **kwargs):
     s.mount('http://', a)
     s.mount('https://', a)
     headers.update({'User-agent': gpodder.user_agent})
-    return s.get(url, headers=headers, data=data, timeout=timeout, **kwargs)
+    proxies = config._proxies
+    logger.debug(f"urlopen: url: {url}, proxies:{proxies}")
+    return s.get(url, headers=headers, data=data, proxies=proxies, timeout=timeout, **kwargs)
 
 
 def get_real_url(url):

@@ -243,6 +243,28 @@ defaults = {
 
 logger = logging.getLogger(__name__)
 
+# Global variable for network proxies. Updated when the network proxy in the config changes
+_proxies = None
+
+
+def get_network_proxy_observer(config):
+    """Return an observer function inside a closure containing given config instance."""
+
+    def get_proxies_from_config(config):  # TODO: add username and password support for proxy
+        proxies = None
+        if config.network.use_proxy:
+            protocol = config.network.proxy_type
+            proxy_url = f"{protocol}://{config.network.proxy_hostname}:{config.network.proxy_port}"
+            proxies = {"http": proxy_url, "https": proxy_url}
+        return proxies
+
+    def network_proxy_observer(name, old_value, new_value):
+        global _proxies
+        if name.startswith("network."):
+            _proxies = get_proxies_from_config(config)
+
+    return network_proxy_observer
+
 
 def config_value_to_string(config_value):
     config_type = type(config_value)
