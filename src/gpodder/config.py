@@ -182,6 +182,7 @@ defaults = {
             },
 
             'html_shownotes': True,  # enable webkit renderer
+            'color_scheme': None,  # system, light or dark. Initialized in app.py
         },
     },
 
