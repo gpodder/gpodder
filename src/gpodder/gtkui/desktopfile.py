@@ -41,9 +41,14 @@ _ = gpodder.gettext
 logger = logging.getLogger(__name__)
 
 # where are the .desktop files located?
-userappsdirs = ['/usr/share/applications/',
-                '/usr/local/share/applications/',
-                '/usr/share/applications/kde/']
+userappsdirs = [os.path.expanduser(p) for p in (
+    '/usr/share/applications/',
+    '/usr/local/share/applications/',
+    '/usr/share/applications/kde/',
+    '~/.local/share/applications',
+    '/var/lib/flatpak/exports/share/applications/',
+    '~/.local/share/flatpak/exports/share/applications/',
+)]
 
 # the name of the section in the .desktop files
 sect = 'Desktop Entry'
