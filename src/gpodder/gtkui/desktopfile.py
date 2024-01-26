@@ -44,7 +44,6 @@ logger = logging.getLogger(__name__)
 userappsdirs = [os.path.expanduser(p) for p in (
     '/usr/share/applications/',
     '/usr/local/share/applications/',
-    '/usr/share/applications/kde/',
     '~/.local/share/applications',
     '/var/lib/flatpak/exports/share/applications/',
     '~/.local/share/flatpak/exports/share/applications/',
