@@ -469,8 +469,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             # ('moveDown', self.on_move_selected_items_down),
             # ('remove', self.on_remove_from_download_list),
             ('delete', self.on_delete_activate),
-#            ('toggleEpisodeNew', self.on_item_toggle_played_activate),
-#            ('toggleEpisodeLock', self.on_item_toggle_lock_activate),
+            # ('toggleEpisodeNew', self.on_item_toggle_played_activate),
+            # ('toggleEpisodeLock', self.on_item_toggle_lock_activate),
             ('openEpisodeDownloadFolder', self.on_open_episode_download_folder),
             ('openChannelDownloadFolder', self.on_open_download_folder),
             ('selectChannel', self.on_select_channel_of_episode),
@@ -549,6 +549,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 self.header_bar.set_subtitle("%s channels, %s episodes" % (chs, eps))
             else:
                 self.header_bar.set_subtitle(text)
+
     def on_resume_all_infobar_response(self, infobar, response_id):
         if response_id == Gtk.ResponseType.OK:
             selection = self.treeDownloads.get_selection()
