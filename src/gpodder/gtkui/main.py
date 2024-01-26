@@ -1737,6 +1737,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
         elif name == 'ui.gtk.episode_list.columns':
             # self.update_episode_list_columns_visibility()
             pass
+        elif name == 'ui.gtk.color_scheme':
+            if new_value == 'system':
+                self.application.read_portal_color_scheme()
+            else:
+                self.application.set_dark_mode(new_value == 'dark')
         elif name == 'limit.downloads.concurrent_max':
             # Do not allow value to be set below 1
             if new_value < 1:

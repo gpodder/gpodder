@@ -210,6 +210,21 @@ class gPodderPreferences(BuilderWidget):
         index = self.video_player_model.get_index(self._config.player.video)
         self.combo_video_player_app.set_active(index)
 
+        self.combo_color_scheme.remove_all()
+        self.combo_color_scheme.prepend('dark', 'Dark')
+        self.combo_color_scheme.prepend('light', 'Light')
+        cs = self._config.ui.gtk.color_scheme
+        if self.have_settings_portal:
+            self.combo_color_scheme.prepend('system', 'System')
+            self.combo_color_scheme.set_active_id(cs)
+        else:
+            if cs == 'system':
+                self.combo_color_scheme.set_active_id('light')
+                self._config.ui.gtk.color_scheme = 'light'
+            else:
+                self.combo_color_scheme.set_active_id(cs)
+        self._config.connect_gtk_combo_box_text('ui.gtk.color_scheme', self.combo_color_scheme)
+
         self.preferred_youtube_format_model = YouTubeVideoFormatListModel(self._config)
         self.combobox_preferred_youtube_format.set_model(self.preferred_youtube_format_model)
         cellrenderer = Gtk.CellRendererText()
