@@ -3,14 +3,14 @@
 # Released under the same license terms as gPodder itself.
 
 import time
-from time import strftime, localtime
+from time import localtime, strftime
 
 import gpodder
-from gpodder import common, download, feedcore, my, opml, player, util, youtube, config
+from gpodder import config
 
 import gi  # isort:skip
-gi.require_version('Gtk', '3.0')  # isort:skip
 from gi.repository import Gtk, Pango  # isort:skip
+gi.require_version('Gtk', '3.0')  # isort:skip
 
 _ = gpodder.gettext
 
@@ -18,7 +18,8 @@ __title__ = _('Subscription Statistics')
 __description__ = _('Show publishing statistics for subscriptions.')
 __only_for__ = 'gtk'
 __doc__ = 'https://gpodder.github.io/docs/extensions/subscription_stats.html'
-__authors__ = 'Brand Huntsman <http://qzx.com/mail/> and Nuno Dias <Nuno.Dias+gpodder@gmail.com>'
+__authors__ = 'Brand Huntsman <http://qzx.com/mail/> and \
+               Nuno Dias <Nuno.Dias+gpodder@gmail.com>'
 
 
 class gPodderExtension:
@@ -36,7 +37,6 @@ class gPodderExtension:
     def add_page(self, notebook, category, channels):
         scrolled = Gtk.ScrolledWindow()
         scrolled.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
-        
 
         store = Gtk.ListStore(str, float, str, str, int)
         for average, name, edate, paused in channels:
@@ -71,10 +71,11 @@ class gPodderExtension:
         lastcolumn.set_sort_column_id(4)
         lastcolumn.pack_end(lastcell, True)
         lastcolumn.add_attribute(lastcell, 'text', 3)
-        channelcolumn.set_expand(True)
+        lastcolumn.set_expand(True)
         tree.append_column(lastcolumn)
 
-        notebook.append_page(scrolled, Gtk.Label('%d %s' % (len(channels), category)))
+        notebook.append_page(scrolled,
+                             Gtk.Label('%d %s' % (len(channels), category)))
 
     def open_dialog(self):
         db = self.gpodder.db
@@ -83,7 +84,9 @@ class gPodderExtension:
         channels = []
         with db.lock:
             cur = db.cursor()
-            cur.execute('SELECT id, title, pause_subscription FROM %s' % db.TABLE_PODCAST)
+            cur.execute(
+                        'SELECT id, title, pause_subscription FROM %s'
+                        % db.TABLE_PODCAST)
             while True:
                 row = cur.fetchone()
                 if row is None:
@@ -107,8 +110,9 @@ class gPodderExtension:
             prev = now
             with db.lock:
                 cur = db.cursor()
-                cur.execute('SELECT published FROM %s WHERE podcast_id = %d ORDER BY published DESC LIMIT 25'
-                    % (db.TABLE_EPISODE, channel_id))
+                cur.execute('SELECT published FROM %s WHERE podcast_id = %d \
+                            ORDER BY published DESC LIMIT 25'
+                            % (db.TABLE_EPISODE, channel_id))
                 while True:
                     row = cur.fetchone()
                     if row is None:
@@ -120,7 +124,8 @@ class gPodderExtension:
                     prev = row[0]
                 cur.close()
 
-            average = (total / nr_episodes) / (24 * 60 * 60) if nr_episodes > 0 else 0
+            average = (total / nr_episodes) / (24 * 60 * 60) \
+                if nr_episodes > 0 else 0
 
             if average == 0:
                 yearly.append([average, channel_name, edate, paused])
@@ -140,14 +145,16 @@ class gPodderExtension:
         yearly.sort(key=lambda e: e[0])
 
         # open dialog
-        dlg = Gtk.Dialog(_('Subscription Statistics'), self.gpodder.main_window)
+        dlg = Gtk.Dialog(_('Subscription Statistics'),
+                         self.gpodder.main_window)
         dlg.set_size_request(400, 400)
         dlg.set_resizable(True)
 
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         box.set_border_width(0)
 
-        label = Gtk.Label(_('%d subscriptions (%d paused)') % (len(channels), nr_paused))
+        label = Gtk.Label(_('%d subscriptions (%d paused)') % (len(channels),
+                          nr_paused))
         label.set_padding(0, 10)
         box.add(label)
 
@@ -161,7 +168,9 @@ class gPodderExtension:
         box.add(notebook)
 
         conf = config.Config(gpodder.config_file)
-        label = Gtk.Label(_('Average days between the last %d episodes.') % (conf.limit.episodes if conf.limit.episodes < 25 else 25))
+        label = Gtk.Label(_('Average days between the last %d episodes.') %
+                          (conf.limit.episodes if conf.limit.episodes < 25
+                           else 25))
         label.set_line_wrap(True)
         label.set_padding(0, 5)
         box.add(label)
