@@ -57,6 +57,13 @@ class gPodderExtension:
         dayscolumn.add_attribute(dayscell, 'text', 0)
         tree.append_column(dayscolumn)
 
+        lastcell = Gtk.CellRendererText()
+        lastcolumn = Gtk.TreeViewColumn(_('Updated'))
+        lastcolumn.set_sort_column_id(4)
+        lastcolumn.pack_end(lastcell, True)
+        lastcolumn.add_attribute(lastcell, 'text', 3)
+        tree.append_column(lastcolumn)
+
         channelcell = Gtk.CellRendererText()
         channelcell.set_property('ellipsize', Pango.EllipsizeMode.END)
         channelcolumn = Gtk.TreeViewColumn(_('Channel'))
@@ -65,14 +72,6 @@ class gPodderExtension:
         channelcolumn.add_attribute(channelcell, 'text', 2)
         channelcolumn.set_expand(True)
         tree.append_column(channelcolumn)
-
-        lastcell = Gtk.CellRendererText()
-        lastcolumn = Gtk.TreeViewColumn(_('Last Updated'))
-        lastcolumn.set_sort_column_id(4)
-        lastcolumn.pack_end(lastcell, True)
-        lastcolumn.add_attribute(lastcell, 'text', 3)
-        lastcolumn.set_expand(True)
-        tree.append_column(lastcolumn)
 
         notebook.append_page(scrolled,
                              Gtk.Label('%d %s' % (len(channels), category)))
@@ -147,7 +146,7 @@ class gPodderExtension:
         # open dialog
         dlg = Gtk.Dialog(_('Subscription Statistics'),
                          self.gpodder.main_window)
-        dlg.set_size_request(400, 400)
+        dlg.set_default_size(420, 600)
         dlg.set_resizable(True)
 
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
@@ -161,6 +160,7 @@ class gPodderExtension:
         notebook = Gtk.Notebook()
         notebook.set_vexpand(True)
         notebook.set_scrollable(True)
+        notebook.set_show_border(False)
         self.add_page(notebook, _('daily'), daily)
         self.add_page(notebook, _('weekly'), weekly)
         self.add_page(notebook, _('monthly'), monthly)
