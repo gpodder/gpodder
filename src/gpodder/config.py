@@ -234,6 +234,9 @@ defaults = {
         'proxy_type': 'socks5h',  # Possible values: socks5h (routes dns through the proxy), socks5, http
         'proxy_hostname': '127.0.0.1',
         'proxy_port': '8123',
+        'proxy_use_username_password': False,
+        'proxy_username': '',
+        'proxy_password': '',
     },
 
     'extensions': {
@@ -250,12 +253,16 @@ _proxies = None
 def get_network_proxy_observer(config):
     """Return an observer function inside a closure containing given config instance."""
 
-    def get_proxies_from_config(config):  # TODO: add username and password support for proxy
+    def get_proxies_from_config(config):
         proxies = None
         if config.network.use_proxy:
             protocol = config.network.proxy_type
-            proxy_url = f"{protocol}://{config.network.proxy_hostname}:{config.network.proxy_port}"
+            user_pass = ""
+            if config.network.proxy_use_username_password:
+                user_pass = f"{config.network.proxy_username}:{config.network.proxy_password}@"
+            proxy_url = f"{protocol}://{user_pass}{config.network.proxy_hostname}:{config.network.proxy_port}"
             proxies = {"http": proxy_url, "https": proxy_url}
+        logger.debug(f"config observer returning proxies: {proxies}")
         return proxies
 
     def network_proxy_observer(name, old_value, new_value):

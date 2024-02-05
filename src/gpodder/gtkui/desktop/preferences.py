@@ -340,6 +340,8 @@ class gPodderPreferences(BuilderWidget):
                                               self.checkbutton_compare_episode_filesize)
         self._config.connect_gtk_togglebutton('network.use_proxy',
                                               self.checkbutton_use_proxy)
+        self._config.connect_gtk_togglebutton('network.proxy_use_username_password',
+                                              self.checkbutton_proxy_use_username_password)
 
         # Have to do this before calling set_active on checkbutton_enable
         self._enable_mygpo = self._config.mygpo.enabled
@@ -356,6 +358,7 @@ class gPodderPreferences(BuilderWidget):
         # This will disable the proxy input details on creation if checkbutton
         # is unticked (value from _config) on each preferences menu creation
         self.on_checkbutton_use_proxy_toggled(self.checkbutton_use_proxy)
+        self.on_checkbutton_proxy_use_username_password_toggled(self.checkbutton_proxy_use_username_password)
 
         # Disable mygpo sync while the dialog is open
         self._config.mygpo.enabled = False
@@ -805,10 +808,20 @@ class gPodderPreferences(BuilderWidget):
         fs.destroy()
 
     def on_checkbutton_use_proxy_toggled(self, widget):
+        widgets = (self.grid_network_proxy_details,
+                   self.vbox_network_proxy_username_password)
         if widget.get_active():  # Enable the proxy input details
-            self.grid_network_proxy_details.set_sensitive(True)
+            for w in widgets:
+                w.set_sensitive(True)
         else:  # Disable
-            self.grid_network_proxy_details.set_sensitive(False)
+            for w in widgets:
+                w.set_sensitive(False)
+
+    def on_checkbutton_proxy_use_username_password_toggled(self, widget):
+        if widget.get_active():
+            self.grid_network_proxy_username_password.set_sensitive(True)
+        else:
+            self.grid_network_proxy_username_password.set_sensitive(False)
 
     def on_combobox_proxy_type_changed(self, widget):
         index = self.combobox_proxy_type.get_active()
@@ -819,3 +832,9 @@ class gPodderPreferences(BuilderWidget):
 
     def on_proxy_port_changed(self, widget):
         self._config.network.proxy_port = widget.get_text()
+
+    def on_proxy_username_changed(self, widget):
+        self._config.network.proxy_username = widget.get_text()
+
+    def on_proxy_password_changed(self, widget):
+        self._config.network.proxy_password = widget.get_text()
