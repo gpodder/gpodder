@@ -43,7 +43,7 @@ from requests.packages.urllib3.exceptions import MaxRetryError
 from requests.packages.urllib3.util.retry import Retry
 
 import gpodder
-from gpodder import registry, util, config
+from gpodder import config, registry, util
 
 logger = logging.getLogger(__name__)
 
