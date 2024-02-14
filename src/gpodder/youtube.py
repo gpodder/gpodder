@@ -432,6 +432,14 @@ def get_real_channel_url(url):
 @lru_cache(1)
 def get_channel_id_url(url, feed_data=None):
     if 'youtube.com' in url:
+        # URL may contain channel ID, avoid a network request
+        m = re.search(r'channel_id=([^"]+)', url)
+        if m:
+            # old versions of gpodder allowed newlines and whitespace in feed URLs, strip here to avoid a 404
+            channel_id = m.group(1).strip()
+            channel_url = 'https://www.youtube.com/channel/{}'.format(channel_id)
+            return channel_url
+
         try:
             if feed_data is None:
                 r = util.urlopen(url, cookies={'SOCS': 'CAI'})
