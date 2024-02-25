@@ -1261,7 +1261,7 @@ def urlopen(url, headers=None, data=None, timeout=None, **kwargs):
     s.mount('https://', a)
     headers.update({'User-agent': gpodder.user_agent})
     proxies = config._proxies
-    logger.debug(f"urlopen: url: {url}, proxies:{proxies}")
+    logger.debug(f"urlopen: url: {url}, proxies: {proxies}")
     return s.get(url, headers=headers, data=data, proxies=proxies, timeout=timeout, **kwargs)
 
 

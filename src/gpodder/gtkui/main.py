@@ -93,6 +93,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.refresh_episode_dates()
 
         self.on_episode_list_selection_changed_id = None
+
         observer = gpodder.config.get_network_proxy_observer(self.config)
         self.config.add_observer(observer)
         # Trigger the global gpodder.config._proxies observer contraption to initialize it.
