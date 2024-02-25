@@ -62,7 +62,6 @@ import requests.exceptions
 from requests.packages.urllib3.util.retry import Retry
 
 import gpodder
-from gpodder import config
 
 logger = logging.getLogger(__name__)
 
@@ -1244,6 +1243,7 @@ def urlopen(url, headers=None, data=None, timeout=None, **kwargs):
     """
     An URL opener with the User-agent set to gPodder (with version)
     """
+    from gpodder import config
     if headers is None:
         headers = {}
     else:
