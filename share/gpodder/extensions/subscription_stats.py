@@ -9,7 +9,7 @@ import gpodder
 from gpodder import config
 
 import gi  # isort:skip
-from gi.repository import Gtk, Pango  # isort:skip
+from gi.repository import Gtk  # isort:skip
 gi.require_version('Gtk', '3.0')  # isort:skip
 
 _ = gpodder.gettext
@@ -36,7 +36,6 @@ class gPodderExtension:
 
     def add_page(self, notebook, category, channels):
         scrolled = Gtk.ScrolledWindow()
-        scrolled.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
 
         store = Gtk.ListStore(str, float, str, str, int)
         for average, name, edate, paused in channels:
@@ -49,14 +48,6 @@ class gPodderExtension:
         tree = Gtk.TreeView(model=store)
         scrolled.add(tree)
 
-        dayscell = Gtk.CellRendererText()
-        dayscell.set_property('xalign', 0.5)
-        dayscolumn = Gtk.TreeViewColumn(_('Days'))
-        dayscolumn.set_sort_column_id(1)
-        dayscolumn.pack_start(dayscell, True)
-        dayscolumn.add_attribute(dayscell, 'text', 0)
-        tree.append_column(dayscolumn)
-
         lastcell = Gtk.CellRendererText()
         lastcolumn = Gtk.TreeViewColumn(_('Updated'))
         lastcolumn.set_sort_column_id(4)
@@ -64,8 +55,15 @@ class gPodderExtension:
         lastcolumn.add_attribute(lastcell, 'text', 3)
         tree.append_column(lastcolumn)
 
+        dayscell = Gtk.CellRendererText()
+        dayscell.set_property('xalign', 1)
+        dayscolumn = Gtk.TreeViewColumn(_('Days'))
+        dayscolumn.set_sort_column_id(1)
+        dayscolumn.pack_start(dayscell, True)
+        dayscolumn.add_attribute(dayscell, 'text', 0)
+        tree.append_column(dayscolumn)
+
         channelcell = Gtk.CellRendererText()
-        channelcell.set_property('ellipsize', Pango.EllipsizeMode.END)
         channelcolumn = Gtk.TreeViewColumn(_('Channel'))
         channelcolumn.set_sort_column_id(2)
         channelcolumn.pack_start(channelcell, True)
