@@ -257,14 +257,14 @@ class gPodderSyncUI(object):
                                 if episodes_in_playlists:
                                     for episode_filename in episodes_in_playlists:
                                         if ((not self._config.device_sync.playlists.use_absolute_path
-                                        and not playlist.playlist_folder.resolve_relative_path(episode_filename).query_exists()) or
-                                        (self._config.device_sync.playlists.use_absolute_path
+                                        and not playlist.playlist_folder.resolve_relative_path(episode_filename).query_exists())
+                                        or (self._config.device_sync.playlists.use_absolute_path
                                         and not playlist.mountpoint.resolve_relative_path(episode_filename).query_exists())):
                                             # episode was synced but no longer on device
                                             # i.e. must have been deleted by user, so delete from gpodder
                                             try:
                                                 episodes_to_delete.append(episode_dict[episode_filename])
-                                            except KeyError as ioe:
+                                            except KeyError:
                                                 logger.warning('Episode %s, removed from device has already been deleted from gpodder',
                                                             episode_filename)
                     # delete all episodes from gpodder (will prompt user)

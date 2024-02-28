@@ -41,9 +41,13 @@ _ = gpodder.gettext
 logger = logging.getLogger(__name__)
 
 # where are the .desktop files located?
-userappsdirs = ['/usr/share/applications/',
-                '/usr/local/share/applications/',
-                '/usr/share/applications/kde/']
+userappsdirs = [os.path.expanduser(p) for p in (
+    '/usr/share/applications/',
+    '/usr/local/share/applications/',
+    '~/.local/share/applications',
+    '/var/lib/flatpak/exports/share/applications/',
+    '~/.local/share/flatpak/exports/share/applications/',
+)]
 
 # the name of the section in the .desktop files
 sect = 'Desktop Entry'
@@ -77,8 +81,8 @@ class PlayerListModel(Gtk.ListStore):
         return len(self) - 1
 
     @classmethod
-    def is_separator(cls, model, iter):
-        return model.get_value(iter, cls.C_COMMAND) == ''
+    def is_separator(cls, model, iterator):
+        return model.get_value(iterator, cls.C_COMMAND) == ''
 
 
 class UserApplication(object):
@@ -94,7 +98,7 @@ class UserApplication(object):
             if os.path.exists(self.icon):
                 try:
                     return GdkPixbuf.Pixbuf.new_from_file_at_size(self.icon, 24, 24)
-                except GObject.GError as ge:
+                except GObject.GError:
                     pass
 
             # Load it from the current icon theme
@@ -113,6 +117,7 @@ WIN32_APP_REG_KEYS = [
     ('Windows Media Player 11', ('audio', 'video'), r'HKEY_CLASSES_ROOT\WMP11.AssocFile.MP3\shell\open\command'),
     ('QuickTime Player', ('audio', 'video'), r'HKEY_CLASSES_ROOT\QuickTime.mp3\shell\open\command'),
     ('VLC', ('audio', 'video'), r'HKEY_CLASSES_ROOT\VLC.mp3\shell\open\command'),
+    ('PotPlayer', ('audio', 'video'), r'HKEY_CLASSES_ROOT\potrun\shell\open\command'),
 ]
 
 
@@ -178,9 +183,9 @@ class UserAppsReader(object):
                 except Exception as e:
                     logger.warning('Parse HKEY error: %s (%s)', hkey, e)
 
-        for dir in userappsdirs:
-            if os.path.exists(dir):
-                for file in glob.glob(os.path.join(dir, '*.desktop')):
+        for appdir in userappsdirs:
+            if os.path.exists(appdir):
+                for file in glob.glob(os.path.join(appdir, '*.desktop')):
                     self.parse_and_append(file)
         self.__finished.set()
 

@@ -73,7 +73,7 @@ lint:
 
 	isort --version
 	isort -q $(ISORTOPTS) || isort --df $(ISORTOPTS)
-	codespell --quiet-level 3 --skip "./.git,*.po,./share/applications/gpodder.desktop"
+	codespell --quiet-level 3 --skip "./.git,*.po,.mypy_cache,./share/applications/gpodder.desktop"
 
 release: distclean
 	$(PYTHON) setup.py sdist

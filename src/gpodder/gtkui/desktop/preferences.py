@@ -119,8 +119,8 @@ class YouTubeVideoFormatListModel(Gtk.ListStore):
             }
             self.append((caption, 0))
 
-        for id, (fmt_id, path, description) in youtube.formats:
-            self.append((description, id))
+        for fmt, (fmt_id, path, description) in youtube.formats:
+            self.append((description, fmt))
 
     def get_index(self):
         for index, row in enumerate(self):
@@ -145,8 +145,8 @@ class YouTubeVideoHLSFormatListModel(Gtk.ListStore):
             }
             self.append((caption, 0))
 
-        for id, (fmt_id, path, description) in youtube.hls_formats:
-            self.append((description, id))
+        for fmt, (fmt_id, path, description) in youtube.hls_formats:
+            self.append((description, fmt))
 
     def get_index(self):
         for index, row in enumerate(self):
@@ -204,6 +204,21 @@ class gPodderPreferences(BuilderWidget):
         self.combo_video_player_app.set_model(self.video_player_model)
         index = self.video_player_model.get_index(self._config.player.video)
         self.combo_video_player_app.set_active(index)
+
+        self.combo_color_scheme.remove_all()
+        self.combo_color_scheme.prepend('dark', 'Dark')
+        self.combo_color_scheme.prepend('light', 'Light')
+        cs = self._config.ui.gtk.color_scheme
+        if self.have_settings_portal:
+            self.combo_color_scheme.prepend('system', 'System')
+            self.combo_color_scheme.set_active_id(cs)
+        else:
+            if cs == 'system':
+                self.combo_color_scheme.set_active_id('light')
+                self._config.ui.gtk.color_scheme = 'light'
+            else:
+                self.combo_color_scheme.set_active_id(cs)
+        self._config.connect_gtk_combo_box_text('ui.gtk.color_scheme', self.combo_color_scheme)
 
         self.preferred_youtube_format_model = YouTubeVideoFormatListModel(self._config)
         self.combobox_preferred_youtube_format.set_model(self.preferred_youtube_format_model)
@@ -574,8 +589,8 @@ class gPodderPreferences(BuilderWidget):
         ret = ret.replace(' ', '\xa0')
         return ret
 
-    def on_update_interval_value_changed(self, range):
-        value = int(range.get_value())
+    def on_update_interval_value_changed(self, gtk_range):
+        value = int(gtk_range.get_value())
         self._config.auto.update.enabled = (value > 0)
         self._config.auto.update.frequency = self.update_interval_presets[value]
 
@@ -591,8 +606,8 @@ class gPodderPreferences(BuilderWidget):
             return N_('after %(count)d day', 'after %(count)d days',
                       value) % {'count': value}
 
-    def on_expiration_value_changed(self, range):
-        value = int(range.get_value())
+    def on_expiration_value_changed(self, gtk_range):
+        value = int(gtk_range.get_value())
 
         if value == 0:
             self.checkbutton_expiration_unplayed.set_active(False)

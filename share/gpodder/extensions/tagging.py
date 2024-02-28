@@ -136,7 +136,7 @@ class AudioFile(object):
         Picture type = cover image
         see http://flac.sourceforge.net/documentation_tools_flac.html#encoding_options
         """
-        f = file(cover)
+        f = open(cover, mode='rb')
         p = Picture()
         p.type = 3
         p.data = f.read()

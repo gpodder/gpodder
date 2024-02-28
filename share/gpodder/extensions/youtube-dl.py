@@ -54,9 +54,9 @@ DefaultConfig = {
 
 
 # youtube feed still preprocessed by youtube.py (compat)
-CHANNEL_RE = re.compile(r'''https://www.youtube.com/feeds/videos.xml\?channel_id=(.+)''')
-USER_RE = re.compile(r'''https://www.youtube.com/feeds/videos.xml\?user=(.+)''')
-PLAYLIST_RE = re.compile(r'''https://www.youtube.com/feeds/videos.xml\?playlist_id=(.+)''')
+CHANNEL_RE = re.compile(r'https://www.youtube.com/feeds/videos.xml\?channel_id=(.+)')
+USER_RE = re.compile(r'https://www.youtube.com/feeds/videos.xml\?user=(.+)')
+PLAYLIST_RE = re.compile(r'https://www.youtube.com/feeds/videos.xml\?playlist_id=(.+)')
 
 
 def youtube_parsedate(s):
@@ -236,7 +236,7 @@ class YoutubeFeed(model.Feed):
         # trim guids to max episodes
         entries = [e for i, e in enumerate(self._ie_result['entries'])
                    if not self._max_episodes or i < self._max_episodes]
-        all_seen_guids = set(e['guid'] for e in entries)
+        all_seen_guids = {e['guid'] for e in entries}
         # only fetch new ones from youtube since they are so slow to get
         new_entries = [e for e in entries if e['guid'] not in existing_guids]
         logger.debug('%i/%i new entries', len(new_entries), len(all_seen_guids))
@@ -286,7 +286,8 @@ class YoutubeFeed(model.Feed):
 
 class gPodderYoutubeDL(download.CustomDownloader):
     def __init__(self, gpodder_config, my_config, force=False):
-        """
+        """Instance of CustomDownloader using youtube-dl or yt-dlp.
+
         :param force: force using this downloader even if config says don't manage downloads
         """
         self.gpodder_config = gpodder_config

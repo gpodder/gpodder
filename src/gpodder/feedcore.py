@@ -43,26 +43,33 @@ class ExceptionWithData(Exception):
 
 
 # Temporary errors
-class BadRequest(Exception): pass
+class BadRequest(Exception):
+    pass
 
 
-class InternalServerError(Exception): pass
+class InternalServerError(Exception):
+    pass
 
 
-class WifiLogin(ExceptionWithData): pass
+class WifiLogin(ExceptionWithData):
+    pass
 
 
 # Fatal errors
-class Unsubscribe(Exception): pass
+class Unsubscribe(Exception):
+    pass
 
 
-class NotFound(Exception): pass
+class NotFound(Exception):
+    pass
 
 
-class InvalidFeed(Exception): pass
+class InvalidFeed(Exception):
+    pass
 
 
-class UnknownStatusCode(ExceptionWithData): pass
+class UnknownStatusCode(ExceptionWithData):
+    pass
 
 
 # Authentication error
@@ -203,7 +210,7 @@ class Fetcher(object):
                 try:
                     self.fetch(ad._resolved_url, etag=None, modified=None, autodiscovery=False, **kwargs)
                     return Result(NEW_LOCATION, ad._resolved_url)
-                except Exception as e:
+                except Exception:
                     logger.warning('Feed autodiscovery failed', exc_info=True)
 
             # Second, try to resolve the URL

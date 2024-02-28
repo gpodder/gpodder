@@ -153,6 +153,6 @@ def get_reg_current_user_string_value(subkey, value_name):
         if type_ == winreg.REG_SZ:
             return value
         else:
-            raise WindowsError("Unexpected type for value %s in registry: %i" % (valueName, type_))
+            raise WindowsError("Unexpected type for value %s in registry: %i" % (value_name, type_))
     except FileNotFoundError:
         return None

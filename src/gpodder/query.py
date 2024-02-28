@@ -76,7 +76,7 @@ class Matcher(object):
                 return regexp.search(self._episode._text_description)
 
             return bool(eval(term, {'__builtins__': None, 'S': S, 's': s, 'R': R, 'r': r}, self))
-        except Exception as e:
+        except Exception:
             return False
 
     def __getitem__(self, k):
@@ -216,7 +216,7 @@ class EQL(object):
         if not self._regex and not self._string:
             try:
                 self._query = compile(query, '<eql-string>', 'eval')
-            except Exception as e:
+            except Exception:
                 self._query = None
 
     def match(self, episode):

@@ -58,27 +58,27 @@ class Provider(object):
 
     def on_search(self, query):
         # Should return a list of DirectoryEntry objects
-        raise NotImplemented()
+        raise NotImplementedError()
 
     def on_url(self, url):
         # Should return a list of DirectoryEntry objects
-        raise NotImplemented()
+        raise NotImplementedError()
 
     def on_file(self, filename):
         # Should return a list of DirectoryEntry objects
-        raise NotImplemented()
+        raise NotImplementedError()
 
     def on_tag(self, tag):
         # Should return a list of DirectoryEntry objects
-        raise NotImplemented()
+        raise NotImplementedError()
 
     def on_static(self):
         # Should return a list of DirectoryEntry objects
-        raise NotImplemented()
+        raise NotImplementedError()
 
     def get_tags(self):
         # Should return a list of DirectoryTag objects
-        raise NotImplemented()
+        raise NotImplementedError()
 
 
 def directory_entry_from_opml(url):

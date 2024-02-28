@@ -49,12 +49,12 @@ class ConfigModel(Gtk.ListStore):
 
         self._config.add_observer(self._on_update)
 
-    def _type_as_string(self, type):
-        if type == int:
+    def _type_as_string(self, datatype):
+        if datatype == int:
             return _('Integer')
-        elif type == float:
+        elif datatype == float:
             return _('Float')
-        elif type == bool:
+        elif datatype == bool:
             return _('Boolean')
         else:
             return _('String')
@@ -153,6 +153,13 @@ class UIConfig(config.Config):
         def _togglebutton_toggled(togglebutton):
             setattr(self, name, togglebutton.get_active())
         togglebutton.connect('toggled', _togglebutton_toggled)
+
+    def connect_gtk_combo_box_text(self, name, combo_text):
+        combo_text.set_active_id(getattr(self, name))
+
+        def _combo_box_text_changed(combo):
+            setattr(self, name, combo.get_active_id())
+        combo_text.connect('changed', _combo_box_text_changed)
 
     def connect_gtk_window(self, window, config_prefix, show_window=False):
         cfg = getattr(self.ui.gtk.state, config_prefix)
