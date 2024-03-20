@@ -49,7 +49,7 @@ class gPodderExtension:
             if name:
                 self.speakers[uid] = speaker
 
-    def _stream_to_speaker(self, speaker_uid, episodes):
+    def _stream_to_speaker(self, speaker_uid, episodes, from_library=False):
         """ Play or enqueue selected episodes """
 
         urls = [episode.url for episode in episodes if SONOS_CAN_PLAY(episode)]
@@ -59,7 +59,13 @@ class gPodderExtension:
 
         # enqueue and play
         for episode in episodes:
-            controller.play_uri(episode.url)
+            if from_library:
+                tracks = controller.music_library.get_music_library_information('tracks', search_term=episode.title, max_items=1)
+                if tracks:
+                    uri = tracks[0].get_uri()
+                    controller.play_uri(uri)
+            else:
+                controller.play_uri(episode.url)
             episode.playback_mark()
 
         controller.play()
@@ -79,6 +85,11 @@ class gPodderExtension:
             is_grouped = ' (Grouped)' if len(controller.group.members) > 1 else ''
             name = controller.group.label + is_grouped
             item = ('/'.join((_('Stream to Sonos'), name)), callback)
+            menu_entries.append(item)
+
+            callback = partial(self._stream_to_speaker, uid, from_library=True)
+
+            item = ('/'.join((_('Stream to Sonos (from library)'), name)), callback)
             menu_entries.append(item)
 
         # Remove any duplicate group names. I doubt Sonos allows duplicate speaker names,
