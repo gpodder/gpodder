@@ -93,10 +93,12 @@ $(GPODDER_SERVICE_FILE): $(GPODDER_SERVICE_FILE_IN)
 %.desktop.in.h: %.desktop.in
 	intltool-extract --quiet --type=gettext/ini $<
 
-install: messages $(GPODDER_SERVICE_FILE) $(DESKTOP_FILES)
+build: messages $(GPODDER_SERVICE_FILE) $(DESKTOP_FILES)
+
+install: build
 	$(PYTHON) setup.py install --root=$(DESTDIR) --prefix=$(PREFIX) --optimize=1
 
-install-win: messages $(GPODDER_SERVICE_FILE) $(DESKTOP_FILES)
+install-win: build
 	$(PYTHON) setup.py install
 
 ##########################################################################
@@ -169,6 +171,6 @@ distclean: clean
 
 ##########################################################################
 
-.PHONY: help unittest release releasetest install manpages clean distclean messages headlink lint revbump
+.PHONY: help unittest release releasetest build install manpages clean distclean messages headlink lint revbump
 
 ##########################################################################
