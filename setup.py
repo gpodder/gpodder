@@ -21,8 +21,7 @@
 import os
 import re
 import sys
-
-from setuptools import setup
+from distutils.core import setup
 
 installing = ('install' in sys.argv and '--help' not in sys.argv)
 
