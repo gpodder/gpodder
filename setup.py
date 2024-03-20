@@ -212,11 +212,4 @@ setup(
     packages=packages,
     scripts=scripts,
     data_files=data_files,
-
-    install_requires=[
-        "podcastparser>=0.6.0",
-        "mygpoclient>=1.7",
-        "dbus-python;platform_system=='Linux'",
-        "PyGObject",
-    ]
 )
