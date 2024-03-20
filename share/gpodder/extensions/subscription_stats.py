@@ -42,7 +42,7 @@ class gPodderExtension:
             last = strftime('%x', localtime(edate))
             store.append([
                 ('%.1f' % round(average, 1)) if average > 0 else '?',
-                average, ('‖ ' if paused else '') + name, last, edate,
+                average, ('❚❚ ' if paused else '') + name, last, edate,
             ])
 
         tree = Gtk.TreeView(model=store)
@@ -64,7 +64,7 @@ class gPodderExtension:
         tree.append_column(dayscolumn)
 
         channelcell = Gtk.CellRendererText()
-        channelcolumn = Gtk.TreeViewColumn(_('Channel'))
+        channelcolumn = Gtk.TreeViewColumn(_('Podcast'))
         channelcolumn.set_sort_column_id(2)
         channelcolumn.pack_start(channelcell, True)
         channelcolumn.add_attribute(channelcell, 'text', 2)
