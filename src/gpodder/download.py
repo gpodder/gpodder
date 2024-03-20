@@ -43,7 +43,7 @@ from requests.packages.urllib3.exceptions import MaxRetryError
 from requests.packages.urllib3.util.retry import Retry
 
 import gpodder
-from gpodder import registry, util
+from gpodder import config, registry, util
 
 logger = logging.getLogger(__name__)
 
@@ -284,11 +284,14 @@ class DownloadURLOpener:
         # Fix a problem with bad URLs that are not encoded correctly (bug 549)
         url = url.translate(self.ESCAPE_CHARS)
 
+        proxies = config._proxies
         session = self.init_session()
+        logger.debug(f"DownloadURLOpener.retrieve_resume(): url: {url}, proxies: {proxies}")
         with session.get(url,
                          headers=headers,
                          stream=True,
                          auth=auth,
+                         proxies=proxies,
                          timeout=gpodder.SOCKET_TIMEOUT) as resp:
             try:
                 resp.raise_for_status()

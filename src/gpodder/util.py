@@ -1243,6 +1243,7 @@ def urlopen(url, headers=None, data=None, timeout=None, **kwargs):
     """
     An URL opener with the User-agent set to gPodder (with version)
     """
+    from gpodder import config
     if headers is None:
         headers = {}
     else:
@@ -1259,7 +1260,9 @@ def urlopen(url, headers=None, data=None, timeout=None, **kwargs):
     s.mount('http://', a)
     s.mount('https://', a)
     headers.update({'User-agent': gpodder.user_agent})
-    return s.get(url, headers=headers, data=data, timeout=timeout, **kwargs)
+    proxies = config._proxies
+    logger.debug(f"urlopen: url: {url}, proxies: {proxies}")
+    return s.get(url, headers=headers, data=data, proxies=proxies, timeout=timeout, **kwargs)
 
 
 def get_real_url(url):

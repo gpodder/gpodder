@@ -94,6 +94,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.on_episode_list_selection_changed_id = None
 
+        observer = gpodder.config.get_network_proxy_observer(self.config)
+        self.config.add_observer(observer)
+        # Trigger the global gpodder.config._proxies observer contraption to initialize it.
+        observer("network.", None, None)
+
     def new(self):
         if self.application.want_headerbar:
             self.header_bar = Gtk.HeaderBar()

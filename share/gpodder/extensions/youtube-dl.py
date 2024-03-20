@@ -352,6 +352,12 @@ class gPodderYoutubeDL(download.CustomDownloader):
             'subtitleslangs': ['all'] if subs else [],
             'postprocessors': [{'key': 'FFmpegEmbedSubtitle'}] if subs else [],
         }
+
+        # Need the proxy_url from src/gpodder/config.py:get_proxies_from_config()
+        if gpodder.config._proxies:
+            opts['proxy'] = gpodder.config._proxies['http']
+            logger.debug(f"Setting proxy from network setting proxy: {opts['proxy']}")
+
         opts.update(self._ydl_opts)
         self.add_format(self.gpodder_config, opts)
         with youtube_dl.YoutubeDL(opts) as ydl:
@@ -371,6 +377,12 @@ class gPodderYoutubeDL(download.CustomDownloader):
         self.add_format(self.gpodder_config, opts, fallback='18')
         opts.update(self._ydl_opts)
         new_entries = []
+
+        # Need the proxy_url from src/gpodder/config.py:get_proxies_from_config()
+        if gpodder.config._proxies:
+            opts['proxy'] = gpodder.config._proxies['http']
+            logger.debug(f"Setting proxy from network setting proxy: {opts['proxy']}")
+
         # refresh videos one by one to catch single videos blocked by youtube
         for e in ie_result.get('entries', []):
             tmp = {k: v for k, v in ie_result.items() if k != 'entries'}
@@ -408,6 +420,12 @@ class gPodderYoutubeDL(download.CustomDownloader):
             'youtube_include_dash_manifest': False,  # only interested in video title and id
         }
         opts.update(self._ydl_opts)
+
+        # Need the proxy_url from src/gpodder/config.py:get_proxies_from_config()
+        if gpodder.config._proxies:
+            opts['proxy'] = gpodder.config._proxies['http']
+            logger.debug(f"Setting proxy from network setting proxy: {opts['proxy']}")
+
         with youtube_dl.YoutubeDL(opts) as ydl:
             ie_result = ydl.extract_info(url, download=False, process=False)
             result_type, has_playlist = extract_type(ie_result)
