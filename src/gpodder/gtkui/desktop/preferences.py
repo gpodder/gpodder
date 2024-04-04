@@ -268,6 +268,20 @@ class gPodderPreferences(BuilderWidget):
         self._config.connect_gtk_togglebutton('ui.gtk.find_as_you_type',
                                               self.checkbutton_find_as_you_type)
 
+        self._config.connect_gtk_togglebutton('ui.gtk.podcast_list.hide_empty',
+                                              self.checkbutton_podcast_list_hide_empty)
+        self._config.connect_gtk_togglebutton('ui.gtk.podcast_list.all_episodes',
+                                              self.checkbutton_podcast_list_all_episodes)
+        self._config.connect_gtk_togglebutton('ui.gtk.podcast_list.sections',
+                                              self.checkbutton_podcast_list_sections)
+
+        self._config.connect_gtk_togglebutton('ui.gtk.episode_list.always_show_new',
+                                              self.checkbutton_episode_list_always_show_new)
+        self._config.connect_gtk_togglebutton('ui.gtk.episode_list.trim_title_prefix',
+                                              self.checkbutton_episode_list_trim_title_prefix)
+        self._config.connect_gtk_togglebutton('ui.gtk.episode_list.descriptions',
+                                              self.checkbutton_episode_list_descriptions)
+
         self.update_interval_presets = [0, 10, 30, 60, 2 * 60, 6 * 60, 12 * 60]
         adjustment_update_interval = self.hscale_update_interval.get_adjustment()
         adjustment_update_interval.set_upper(len(self.update_interval_presets) - 1)
