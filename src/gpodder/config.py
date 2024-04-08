@@ -242,6 +242,9 @@ defaults = {
     'extensions': {
         'enabled': [],
     },
+    'sendto': {
+        'file_format': 'episode.sortdate+" "+episode.title',
+    },
 }
 
 logger = logging.getLogger(__name__)
