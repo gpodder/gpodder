@@ -2005,11 +2005,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
                 base, extension = os.path.splitext(copy_from)
                 if len(self.config.sendto.file_format) > 0:
-                  fileformat = eval(self.config.sendto.file_format)
-                  sendfilename = self.build_filename(fileformat, extension)
-                  filename = util.sanitize_filename(sendfilename, 0)
+                    fileformat = eval(self.config.sendto.file_format)
+                    sendfilename = self.build_filename(fileformat, extension)
+                    filename = util.sanitize_filename(sendfilename, 0)
                 else:
-                  filename = episode.title
+                    filename = episode.title
 
                 try:
                     if allRemainingDefault:
