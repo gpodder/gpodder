@@ -243,7 +243,7 @@ defaults = {
         'enabled': [],
     },
     'sendto': {
-        'file_format': 'episode.sortdate+" "+episode.title',
+        'file_format': 'episode.title',
     },
 }
 
