@@ -2004,7 +2004,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 assert copy_from is not None
 
                 base, extension = os.path.splitext(copy_from)
-                if len(self.config.sendto.file_format) > 0 :
+                if len(self.config.sendto.file_format) > 0:
                   fileformat = eval(self.config.sendto.file_format)
                   sendfilename = self.build_filename(fileformat, extension)
                   filename = util.sanitize_filename(sendfilename,0)
