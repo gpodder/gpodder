@@ -2010,7 +2010,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                             self.config.sendto.custom_file_format), extension)
                 else:
                     filename = self.build_filename(episode.title, extension)
-                 
+
                 try:
                     if allRemainingDefault:
                         do_save_episode(copy_from, os.path.join(folder, filename))
