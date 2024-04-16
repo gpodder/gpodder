@@ -18,8 +18,6 @@ build_script:
   - set
   - set PATH=C:\msys64\%MSYSTEM%\bin;C:\msys64\usr\bin;%PATH%
   - set CHERE_INVOKING=yes
-  # remove precisely conflicting packages
-  - bash -lc "pacman --noconfirm --ask 20 --remove mingw-w64-x86_64-gcc-ada mingw-w64-x86_64-gcc-objc mingw-w64-i686-gcc-ada mingw-w64-i686-gcc-objc"
   # workaround updating msys2-runtime breaks all programs until last one exited
   - bash -lc "pacman -Syuu --noconfirm"
   - Powershell.exe "Stop-Process -name dirmngr -Erroraction silentlycontinue; echo killing_dirmng"
