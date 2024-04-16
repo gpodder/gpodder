@@ -243,7 +243,8 @@ defaults = {
         'enabled': [],
     },
     'sendto': {
-        'file_format': 'episode.title',
+        'custom_file_format': '{episode.title}',
+        'custom_file_format_enabled': False,
     },
 }
 
