@@ -2004,13 +2004,13 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 assert copy_from is not None
 
                 base, extension = os.path.splitext(copy_from)
-                if len(self.config.sendto.file_format) > 0:
-                    fileformat = eval(self.config.sendto.file_format)
-                    sendfilename = self.build_filename(fileformat, extension)
-                    filename = util.sanitize_filename(sendfilename, 0)
+                if len(self.config.sendto.custom_file_format) > 0:
+                    filename = self.build_filename(episode.sync_filename(
+                            self.config.sendto.custom_file_format_enabled,
+                            self.config.sendto.custom_file_format), extension)
                 else:
-                    filename = episode.title
-
+                    filename = self.build_filename(episode.title, extension)
+                  
                 try:
                     if allRemainingDefault:
                         do_save_episode(copy_from, os.path.join(folder, filename))
