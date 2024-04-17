@@ -1,0 +1,36 @@
+[build-system]
+requires = [
+    "setuptools",
+    "build",
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gpodder"
+version = "3.11.4"
+description = "Media aggregator and podcast client"
+authors = [
+    {name = "Thomas Perl", email = "thp@gpodder.org"},
+]
+readme = "README.md"
+classifiers = [
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+]
+requires-python = ">=3.7"
+dependencies = [
+    "podcastparser>=0.6.0",
+    "mygpoclient>=1.7",
+    "dbus-python;platform_system=='Linux'",
+    "PyGObject",
+]
+
+[project.urls]
+Homepage = "http://gpodder.org"
+Documentation = "https://gpodder.github.io/docs/"
+Repository = "https://github.com/gpodder/gpodder"
+Issues = "https://github.com/gpodder/gpodder/issues"
+"Mailing List" = "http://freelists.org/list/gpodder"
+"IRC Channel" = "irc://irc.libera.chat/#gpodder"
+
+[tool.setuptools]
+
