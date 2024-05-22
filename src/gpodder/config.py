@@ -242,6 +242,10 @@ defaults = {
     'extensions': {
         'enabled': [],
     },
+    'sendto': {
+        'custom_file_format': '{episode.title}',
+        'custom_file_format_enabled': False,
+    },
 }
 
 logger = logging.getLogger(__name__)
