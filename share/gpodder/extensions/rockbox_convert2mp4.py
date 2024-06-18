@@ -112,7 +112,7 @@ class gPodderExtension:
         logger.info("Converting: %s", from_file)
         gpodder.user_extensions.on_notification_show("Converting", episode.title)
 
-        # calculationg the new screen resolution
+        # calculate the new screen resolution
         info = kaa.metadata.parse(from_file)
         resolution = self._calc_resolution(
             info.video[0].width,

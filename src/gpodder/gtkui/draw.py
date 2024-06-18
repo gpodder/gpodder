@@ -412,7 +412,7 @@ def get_foreground_color(state=Gtk.StateFlags.NORMAL, widget=Gtk.TreeView()):
 def investigate_widget_colors(type_classes_and_widgets):
     """
     investigate using Gtk.StyleContext to get widget style properties
-    I tried to compare gettings values from static and live widgets.
+    I tried to compare values from static and live widgets.
     To sum up, better use the live widget, because you'll get the correct path, classes, regions automatically.
     See "CSS Nodes" in widget documentation for classes and sub-nodes (=regions).
     WidgetPath and Region are replaced by CSSNodes in gtk4.
