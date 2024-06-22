@@ -332,6 +332,7 @@ function cleanup_after {
     find "${MINGW_ROOT}"/bin -name "*.pyc" -exec rm -f {} \;
     find "${MINGW_ROOT}" -type d -name "__pycache__" -prune -exec rm -rf {} \;
 
+    export GI_TYPELIB_PATH="${MINGW_ROOT}"/lib/girepository-1.0
     build_python "${MISC}/depcheck.py" --delete
 
     find "${MINGW_ROOT}" -type d -empty -delete
