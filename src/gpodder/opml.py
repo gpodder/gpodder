@@ -65,45 +65,42 @@ class Importer(object):
         a local data structure containing channel metadata.
         """
         self.items = []
-        try:
-            if os.path.exists(url):
-                doc = xml.dom.minidom.parse(url)
-            else:
-                doc = xml.dom.minidom.parse(io.BytesIO(util.urlopen(url).content))
+        if os.path.exists(url):
+            doc = xml.dom.minidom.parse(url)
+        else:
+            doc = xml.dom.minidom.parse(io.BytesIO(util.urlopen(url).content))
 
-            for outline in doc.getElementsByTagName('outline'):
-                # Make sure we are dealing with a valid link type (ignore case)
-                otl_type = outline.getAttribute('type')
-                if otl_type is None or otl_type.lower() not in self.VALID_TYPES:
-                    continue
+        for outline in doc.getElementsByTagName('outline'):
+            # Make sure we are dealing with a valid link type (ignore case)
+            otl_type = outline.getAttribute('type')
+            if otl_type is None or otl_type.lower() not in self.VALID_TYPES:
+                continue
 
-                if outline.getAttribute('xmlUrl') or outline.getAttribute('url'):
-                    channel = {
-                        'url':
-                            outline.getAttribute('xmlUrl')
-                            or outline.getAttribute('url'),
-                        'title':
-                            outline.getAttribute('title')
-                            or outline.getAttribute('text')
-                            or outline.getAttribute('xmlUrl')
-                            or outline.getAttribute('url'),
-                        'description':
-                            outline.getAttribute('text')
-                            or outline.getAttribute('xmlUrl')
-                            or outline.getAttribute('url'),
-                    }
+            if outline.getAttribute('xmlUrl') or outline.getAttribute('url'):
+                channel = {
+                    'url':
+                        outline.getAttribute('xmlUrl')
+                        or outline.getAttribute('url'),
+                    'title':
+                        outline.getAttribute('title')
+                        or outline.getAttribute('text')
+                        or outline.getAttribute('xmlUrl')
+                        or outline.getAttribute('url'),
+                    'description':
+                        outline.getAttribute('text')
+                        or outline.getAttribute('xmlUrl')
+                        or outline.getAttribute('url'),
+                }
 
-                    if channel['description'] == channel['title']:
-                        channel['description'] = channel['url']
+                if channel['description'] == channel['title']:
+                    channel['description'] = channel['url']
 
-                    for attr in ('url', 'title', 'description'):
-                        channel[attr] = channel[attr].strip()
+                for attr in ('url', 'title', 'description'):
+                    channel[attr] = channel[attr].strip()
 
-                    self.items.append(channel)
-            if not len(self.items):
-                logger.info('OPML import finished, but no items found: %s', url)
-        except:
-            logger.error('Cannot import OPML from URL: %s', url, exc_info=True)
+                self.items.append(channel)
+        if not len(self.items):
+            logger.info('OPML import finished, but no items found: %s', url)
 
 
 class Exporter(object):

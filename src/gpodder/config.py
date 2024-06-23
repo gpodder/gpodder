@@ -120,6 +120,11 @@ defaults = {
                     'episode_column_sort_order': False,
                     'episode_column_order': [],
                 },
+                'podcastdirectory': {
+                    'width': -1,
+                    'height': -1,
+                    'x': -1, 'y': -1, 'maximized': False,
+                },
                 'preferences': {
                     'width': -1,
                     'height': -1,

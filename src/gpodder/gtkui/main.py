@@ -3500,11 +3500,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
         def after_login():
             title = _('Subscriptions on %(server)s') \
                     % {'server': self.config.mygpo.server}
-            gpd = gPodderPodcastDirectory(self.gPodder,
-                                          _config=self.config,
-                                          custom_title=title,
-                                          add_podcast_list=self.add_podcast_list,
-                                          hide_url_entry=True)
+            gpd = gPodderPodcastDirectory(
+                self.gPodder,
+                _config=self.config,
+                custom_title=title,
+                add_podcast_list=self.add_podcast_list)
 
             url = self.mygpo_client.get_download_user_subscriptions_url()
             gpd.download_opml_file(url)
@@ -3675,8 +3675,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if filename is not None:
             gpd = gPodderPodcastDirectory(self.gPodder, _config=self.config,
                     custom_title=_('Import podcasts from OPML file'),
-                    add_podcast_list=self.add_podcast_list,
-                    hide_url_entry=True)
+                    add_podcast_list=self.add_podcast_list)
             gpd.download_opml_file(filename)
 
     def on_itemExportChannels_activate(self, widget, *args):
