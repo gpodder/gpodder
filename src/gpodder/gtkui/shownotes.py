@@ -29,8 +29,8 @@ from gpodder.gtkui.draw import (draw_text_box_centered, get_background_color,
 # from gpodder.gtkui.draw import investigate_widget_colors
 
 import gi  # isort:skip
-gi.require_version('Gdk', '3.0')  # isort:skip
-gi.require_version('Gtk', '3.0')  # isort:skip
+gi.require_version('Gdk', '4.0')  # isort:skip
+gi.require_version('Gtk', '4.0')  # isort:skip
 from gi.repository import Gdk, Gio, GLib, Gtk, Pango  # isort:skip
 
 
@@ -60,9 +60,9 @@ class gPodderShownotes:
         self.details_fmt = _('%(date)s | %(size)s | %(duration)s')
 
         self.scrolled_window = Gtk.ScrolledWindow()
-        self.scrolled_window.set_shadow_type(Gtk.ShadowType.IN)
+        #self.scrolled_window.set_shadow_type(Gtk.ShadowType.IN)
         self.scrolled_window.set_policy(Gtk.PolicyType.AUTOMATIC, Gtk.PolicyType.AUTOMATIC)
-        self.scrolled_window.add(self.init())
+        self.scrolled_window.set_child(self.init())
 
         self.status = Gtk.Label.new()
         self.status.set_halign(Gtk.Align.START)
@@ -77,26 +77,27 @@ class gPodderShownotes:
         self.visited_color = None
 
         self.overlay = Gtk.Overlay()
-        self.overlay.add(self.scrolled_window)
+        self.overlay.set_child(self.scrolled_window)
         # need an EventBox for an opaque background behind the label
-        box = Gtk.EventBox()
-        self.status_bg = box
-        box.add(self.status)
-        box.set_hexpand(False)
-        box.set_vexpand(False)
-        box.set_valign(Gtk.Align.END)
-        box.set_halign(Gtk.Align.START)
-        self.overlay.add_overlay(box)
-        self.overlay.set_overlay_pass_through(box, True)
+        #box = Gtk.EventBox()
+        #self.status_bg = box
+        #box.add(self.status)
+        #box.set_hexpand(False)
+        #box.set_vexpand(False)
+        #box.set_valign(Gtk.Align.END)
+        #box.set_halign(Gtk.Align.START)
+        #self.overlay.add_overlay(box)
+        #self.overlay.set_overlay_pass_through(box, True)
 
         self.main_component = self.overlay
-        self.main_component.show_all()
+        self.main_component.show()
 
         self.da_message = Gtk.DrawingArea()
-        self.da_message.set_property('expand', True)
-        self.da_message.connect('draw', self.on_shownotes_message_expose_event)
-        self.shownotes_pane.add(self.da_message)
-        self.shownotes_pane.add(self.main_component)
+        self.da_message.set_property('hexpand', True)
+        self.da_message.set_property('vexpand', True)
+        #self.da_message.connect('draw', self.on_shownotes_message_expose_event)
+        self.shownotes_pane.append(self.da_message)
+        self.shownotes_pane.append(self.main_component)
 
         self.set_complain_about_selection(True)
         self.hide_pane()
@@ -182,17 +183,18 @@ class gPodderShownotesText(gPodderShownotes):
     def init(self):
         self.text_view = Gtk.TextView()
         self.text_view.set_wrap_mode(Gtk.WrapMode.WORD_CHAR)
-        self.text_view.set_border_width(10)
+        #self.text_view.set_border_width(10)
         self.text_view.set_editable(False)
         self.text_buffer = Gtk.TextBuffer()
         self.text_buffer.create_tag('heading', scale=1.2, weight=Pango.Weight.BOLD)
         self.text_buffer.create_tag('subheading', scale=1.0)
         self.text_buffer.create_tag('details', scale=0.9)
         self.text_view.set_buffer(self.text_buffer)
-        self.text_view.set_property('expand', True)
-        self.text_view.connect('button-release-event', self.on_button_release)
-        self.text_view.connect('key-press-event', self.on_key_press)
-        self.text_view.connect('motion-notify-event', self.on_hover_hyperlink)
+        self.text_view.set_property('hexpand', True)
+        self.text_view.set_property('vexpand', True)
+        #self.text_view.connect('button-release-event', self.on_button_release)
+        #self.text_view.connect('key-press-event', self.on_key_press)
+        #self.text_view.connect('motion-notify-event', self.on_hover_hyperlink)
         self.populate_popup_id = None
         return self.text_view
 

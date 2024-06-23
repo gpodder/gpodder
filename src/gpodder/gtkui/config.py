@@ -25,8 +25,8 @@
 import logging
 
 import gi  # isort:skip
-gi.require_version('Gdk', '3.0')  # isort:skip
-gi.require_version('Gtk', '3.0')  # isort:skip
+gi.require_version('Gdk', '4.0')  # isort:skip
+gi.require_version('Gtk', '4.0')  # isort:skip
 from gi.repository import Gdk, Gtk, Pango
 
 import gpodder
@@ -141,11 +141,11 @@ class UIConfig(config.Config):
 
     def connect_gtk_paned(self, name, paned):
         paned.set_position(getattr(self, name))
-        paned_child = paned.get_child1()
+        paned_child = paned.get_start_child()
 
         def _child_size_allocate(x, y):
             setattr(self, name, paned.get_position())
-        paned_child.connect('size-allocate', _child_size_allocate)
+        #paned_child.connect('size-allocate', _child_size_allocate)
 
     def connect_gtk_togglebutton(self, name, togglebutton):
         togglebutton.set_active(getattr(self, name))
@@ -170,7 +170,7 @@ class UIConfig(config.Config):
         if -1 not in (cfg.x, cfg.y, cfg.width, cfg.height):
             # get screen resolution
             def get_screen_size(display):
-                monitor_geometries = [display.get_monitor(i).get_geometry() for i in range(display.get_n_monitors())]
+                monitor_geometries = [m.get_geometry() for m in display.get_monitors()]
                 x0 = min(r.x for r in monitor_geometries)
                 y0 = min(r.y for r in monitor_geometries)
                 x1 = max(r.x + r.width for r in monitor_geometries)
@@ -188,14 +188,14 @@ class UIConfig(config.Config):
                 cfg.y = -1
 
         if cfg.width != -1 and cfg.height != -1:
-            window.resize(cfg.width, cfg.height)
+            """window.resize(cfg.width, cfg.height)"""
 
         # Not all platforms can natively restore position, gPodder must handle it.
         # https://github.com/gpodder/gpodder/pull/933#issuecomment-818039693
         if cfg.x == -1 or cfg.y == -1:
-            window.set_position(Gtk.WindowPosition.CENTER_ON_PARENT)
+            """window.set_position(Gtk.WindowPosition.CENTER_ON_PARENT)"""
         else:
-            window.move(cfg.x, cfg.y)
+            """window.move(cfg.x, cfg.y)"""
             # From Gtk docs: most window managers ignore requests for initial window
             # positions (instead using a user-defined placement algorithm) and honor
             # requests after the window has already been shown.
@@ -203,7 +203,7 @@ class UIConfig(config.Config):
             # The first move reduces chance of window jumping,
             # and gives the window manager a position to unmaximize to.
             if not cfg.maximized:
-                util.idle_add(window.move, cfg.x, cfg.y)
+                """util.idle_add(window.move, cfg.x, cfg.y)"""
 
         # Ignore events while we're connecting to the window
         self.__ignore_window_events = True
@@ -224,13 +224,13 @@ class UIConfig(config.Config):
                     cfg.width = width_size
                     cfg.height = height_size
 
-        window.connect('configure-event', _receive_configure_event)
+        #window.connect('configure-event', _receive_configure_event)
 
         def _receive_window_state(widget, event):
             new_value = bool(event.new_window_state & Gdk.WindowState.MAXIMIZED)
             cfg.maximized = new_value
 
-        window.connect('window-state-event', _receive_window_state)
+        #window.connect('window-state-event', _receive_window_state)
 
         # After the window has been set up, we enable events again
         def _enable_window_events():

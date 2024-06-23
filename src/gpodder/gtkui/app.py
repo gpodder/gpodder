@@ -37,7 +37,7 @@ from .main import gPodder
 from .model import Model
 
 import gi  # isort:skip
-gi.require_version('Gtk', '3.0')  # isort:skip
+gi.require_version('Gtk', '4.0')  # isort:skip
 from gi.repository import GdkPixbuf, Gio, GObject, Gtk  # isort:skip
 
 
@@ -116,6 +116,7 @@ class gPodderApplication(Gtk.Application):
         self.add_action(action)
 
     def do_startup(self):
+        print("STARTUP========================")
         Gtk.Application.do_startup(self)
 
         self.create_actions()
@@ -167,7 +168,7 @@ class gPodderApplication(Gtk.Application):
                 self.add_accelerator(accel, action, None)
 
         else:
-            self.set_app_menu(self.app_menu)
+            """self.set_app_menu(self.app_menu)"""
 
         Gtk.Window.set_default_icon_name('gpodder')
 
@@ -176,6 +177,7 @@ class gPodderApplication(Gtk.Application):
             gpodder.dbus_session_bus = dbus.SessionBus(dbus_main_loop)
 
             self.bus_name = dbus.service.BusName(gpodder.dbus_bus_name, bus=gpodder.dbus_session_bus)
+            print("BUS========================")
         except dbus.exceptions.DBusException as dbe:
             logger.warning('Cannot get "on the bus".', exc_info=True)
             dlg = Gtk.MessageDialog(None, Gtk.DialogFlags.MODAL, Gtk.MessageType.ERROR,
@@ -192,6 +194,7 @@ class gPodderApplication(Gtk.Application):
         if not self.window:
             # Windows are associated with the application
             # when the last one is closed the application shuts down
+            print("ACTIVATE========================")
             self.window = gPodder(self, self.bus_name, core.Core(UIConfig, model_class=Model), self.options)
 
             if gpodder.ui.osx:

@@ -9,8 +9,7 @@
     <property name="modal">True</property>
     <property name="default-width">340</property>
     <property name="default-height">230</property>
-    <property name="type-hint">dialog</property>
-    <child internal-child="vbox">
+    <child>
       <object class="GtkBox" id="dialog1-vbox">
         <property name="visible">True</property>
         <property name="can-focus">False</property>
@@ -20,14 +19,13 @@
         <property name="margin-bottom">2</property>
         <property name="orientation">vertical</property>
         <child internal-child="action_area">
-          <object class="GtkButtonBox" id="dialog1-action_area">
+          <object class="GtkBox" id="dialog1-action_area">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
             <property name="margin-start">5</property>
             <property name="margin-end">5</property>
             <property name="margin-top">5</property>
             <property name="margin-bottom">5</property>
-            <property name="layout-style">end</property>
             <child>
               <object class="GtkButton" id="btnCancel">
                 <property name="label" translatable="yes">_Cancel</property>
@@ -37,19 +35,11 @@
                 <property name="use-underline">True</property>
                 <signal name="clicked" handler="on_btnCancel_clicked" swapped="no"/>
               </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">0</property>
-              </packing>
             </child>
+		  <style>
+		  	<class name="toolbar"/>
+		  </style>
           </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">False</property>
-            <property name="pack-type">end</property>
-            <property name="position">0</property>
-          </packing>
         </child>
         <child>
           <object class="GtkBox" id="vbox1">
@@ -70,11 +60,6 @@
                 <property name="xalign">0</property>
                 <property name="yalign">1</property>
               </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">0</property>
-              </packing>
             </child>
             <child>
               <object class="GtkLabel" id="label2">
@@ -84,11 +69,6 @@
                 <property name="xalign">0</property>
                 <property name="yalign">0</property>
               </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">1</property>
-              </packing>
             </child>
             <child>
               <object class="GtkBox" id="vbox_buttons">
@@ -101,7 +81,6 @@
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="has-focus">True</property>
-                    <property name="is-focus">True</property>
                     <property name="receives-default">False</property>
                     <signal name="clicked" handler="on_show_example_podcasts" swapped="no"/>
                     <child>
@@ -116,17 +95,11 @@
                       </object>
                     </child>
                   </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">0</property>
-                  </packing>
                 </child>
                 <child>
                   <object class="GtkButton" id="btnAddURL">
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
-                    <property name="is-focus">True</property>
                     <property name="receives-default">False</property>
                     <signal name="clicked" handler="on_add_podcast_via_url" swapped="no"/>
                     <child>
@@ -141,17 +114,11 @@
                       </object>
                     </child>
                   </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">1</property>
-                  </packing>
                 </child>
                 <child>
                   <object class="GtkButton" id="btnMygPodder">
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
-                    <property name="is-focus">True</property>
                     <property name="receives-default">False</property>
                     <signal name="clicked" handler="on_setup_my_gpodder" swapped="no"/>
                     <child>
@@ -166,25 +133,10 @@
                       </object>
                     </child>
                   </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">2</property>
-                  </packing>
                 </child>
               </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">2</property>
-              </packing>
             </child>
           </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="position">2</property>
-          </packing>
         </child>
       </object>
     </child>

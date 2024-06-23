@@ -57,7 +57,7 @@ from .model import EpisodeListModel, PodcastChannelProxy, PodcastListModel
 from .services import CoverDownloader
 
 import gi  # isort:skip
-gi.require_version('Gtk', '3.0')  # isort:skip
+gi.require_version('Gtk', '4.0')  # isort:skip
 from gi.repository import Gdk, Gio, GLib, Gtk, Pango  # isort:skip
 
 
@@ -125,7 +125,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.player_receiver = player.MediaPlayerDBusReceiver(self.on_played)
 
-        self.gPodder.connect('key-press-event', self.on_key_press)
+        # self.gPodder.connect('key-press-event', self.on_key_press)
 
         self.episode_columns_menu = None
         self.config.add_observer(self.on_config_changed)
@@ -136,10 +136,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # Vertical paned for the episode list and shownotes
         self.vpaned = Gtk.Paned(orientation=Gtk.Orientation.VERTICAL)
         paned = self.vbox_episode_list.get_parent()
-        self.vbox_episode_list.reparent(self.vpaned)
-        self.vpaned.child_set_property(self.vbox_episode_list, 'resize', True)
-        self.vpaned.child_set_property(self.vbox_episode_list, 'shrink', False)
-        self.vpaned.pack2(self.shownotes_pane, resize=False, shrink=False)
+        paned.set_end_child(None)
+        self.vpaned.set_start_child(self.vbox_episode_list)
+        #self.vpaned.child_set_property(self.vbox_episode_list, 'resize', True)
+        #self.vpaned.child_set_property(self.vbox_episode_list, 'shrink', False)
+        self.vpaned.set_end_child(self.shownotes_pane)
         self.vpaned.show()
 
         # Minimum height for both episode list and shownotes
@@ -148,7 +149,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.config.connect_gtk_paned('ui.gtk.state.main_window.episode_list_size',
                 self.vpaned)
-        paned.add2(self.vpaned)
+        paned.set_end_child(self.vpaned)
 
         self.new_episodes_window = None
 
@@ -807,17 +808,18 @@ class gPodder(BuilderWidget, dbus.service.Object):
         menu.insert_section(4, _('Extensions'), extmenu)
         self.channel_context_menu_helper = ExtensionMenuHelper(
             self.gPodder, extmenu, 'channel_context_action_')
-        self.channels_popover = Gtk.Popover.new_from_model(self.treeChannels, menu)
+        # FIXME: broken, no api to add a popover to a treeview
+        self.channels_popover = Gtk.PopoverMenu.new_from_model(menu)
         self.channels_popover.set_position(Gtk.PositionType.BOTTOM)
         self.channels_popover.connect(
             'closed', lambda popover: self.allow_tooltips(True))
 
         # Long press gesture
-        lp = Gtk.GestureLongPress.new(self.treeChannels)
-        lp.set_touch_only(True)
-        lp.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
-        lp.connect("pressed", self.on_treeview_channels_long_press, self.treeChannels)
-        setattr(self.treeChannels, "long-press-gesture", lp)
+        #lp = Gtk.GestureLongPress.new(self.treeChannels)
+        #lp.set_touch_only(True)
+        #lp.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
+        #lp.connect("pressed", self.on_treeview_channels_long_press, self.treeChannels)
+        #setattr(self.treeChannels, "long-press-gesture", lp)
 
         # Set up type-ahead find for the podcast list
         def on_key_press(treeview, event):
@@ -874,9 +876,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     self._search_podcasts.show_search(input_char)
             return True
 
-        self.treeChannels.connect('key-press-event', on_key_press)
-        self.treeChannels.connect('popup-menu',
-            lambda _tv, *args: self.treeview_channels_show_context_menu)
+        #self.treeChannels.connect('key-press-event', on_key_press)
+        #self.treeChannels.connect('popup-menu',
+        #    lambda _tv, *args: self.treeview_channels_show_context_menu)
 
         # Enable separators to the podcast list to separate special podcasts
         # from others (this is used for the "all episodes" view)
@@ -952,7 +954,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # Send To submenu section, shown only for downloaded episodes
         self.sendto_menu = Gio.Menu()
         menu.insert_section(2, None, self.sendto_menu)
-        self.episodes_popover = Gtk.Popover.new_from_model(self.treeAvailable, menu)
+        # FIXME :no way to attach
+        self.episodes_popover = Gtk.PopoverMenu.new_from_model(menu)
         self.episodes_popover.set_position(Gtk.PositionType.BOTTOM)
         self.episodes_popover.connect(
             'closed', lambda popover: self.allow_tooltips(True))
@@ -963,16 +966,17 @@ class gPodder(BuilderWidget, dbus.service.Object):
             pixbuf = draw_cake_pixbuf(
                 i / EpisodeListModel.PROGRESS_STEPS, size=cake_size)
             icon_name = 'gpodder-progress-%d' % i
-            Gtk.IconTheme.add_builtin_icon(icon_name, cake_size, pixbuf)
+            # broken in gtk4
+            # Gtk.IconTheme.add_builtin_icon(icon_name, cake_size, pixbuf)
 
         self.treeAvailable.set_model(self.episode_list_model.get_filtered_model())
 
         TreeViewHelper.set(self.treeAvailable, TreeViewHelper.ROLE_EPISODES)
 
         iconcell = Gtk.CellRendererPixbuf()
-        episode_list_icon_size = Gtk.icon_size_register('episode-list',
-            cake_size, cake_size)
-        iconcell.set_property('stock-size', episode_list_icon_size)
+        #episode_list_icon_size = Gtk.icon_size_register('episode-list',
+        #    cake_size, cake_size)
+        #iconcell.set_property('stock-size', episode_list_icon_size)
         iconcell.set_fixed_size(cake_size + 20, -1)
         self.EPISODE_LIST_ICON_WIDTH = cake_size
 
@@ -990,7 +994,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         lockcell = Gtk.CellRendererPixbuf()
         lockcell.set_fixed_size(40, -1)
-        lockcell.set_property('stock-size', Gtk.IconSize.MENU)
+        #lockcell.set_property('stock-size', Gtk.IconSize.MENU)
         lockcell.set_property('icon-name', 'emblem-readonly')
         namecolumn.pack_start(lockcell, False)
         namecolumn.add_attribute(lockcell, 'visible', EpisodeListModel.C_LOCKED)
@@ -1043,14 +1047,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # Add context menu to all tree view column headers
         for column in self.treeAvailable.get_columns():
             label = Gtk.Label(label=column.get_title())
-            label.show_all()
+            label.show()
             column.set_widget(label)
 
             w = column.get_widget()
             while w is not None and not isinstance(w, Gtk.Button):
                 w = w.get_parent()
 
-            w.connect('button-release-event', self.on_episode_list_header_clicked)
+            #w.connect('button-release-event', self.on_episode_list_header_clicked)
 
             # Restore column sorting
             if column.get_sort_column_id() == self.config.ui.gtk.state.main_window.episode_column_sort_id:
@@ -1097,17 +1101,17 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.view_column_actions.append(action)
             self.application.menu_view_columns.insert(index, column.get_title(), 'win.' + name)
 
-        self.episode_columns_menu = Gtk.Menu.new_from_model(self.application.menu_view_columns)
-        self.episode_columns_menu.attach_to_widget(self.main_window)
+        #self.episode_columns_menu = Gtk.Menu.new_from_model(self.application.menu_view_columns)
+        #self.episode_columns_menu.attach_to_widget(self.main_window)
         # Update the visibility of the columns and the check menu items
         self.update_episode_list_columns_visibility()
 
         # Long press gesture
-        lp = Gtk.GestureLongPress.new(self.treeAvailable)
-        lp.set_touch_only(True)
-        lp.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
-        lp.connect("pressed", self.on_treeview_episodes_long_press, self.treeAvailable)
-        setattr(self.treeAvailable, "long-press-gesture", lp)
+        #lp = Gtk.GestureLongPress.new(self.treeAvailable)
+        #lp.set_touch_only(True)
+        #lp.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
+        #lp.connect("pressed", self.on_treeview_episodes_long_press, self.treeAvailable)
+        #setattr(self.treeAvailable, "long-press-gesture", lp)
 
         # Set up type-ahead find for the episode list
         def on_key_press(treeview, event):
@@ -1134,19 +1138,19 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     self._search_episodes.show_search(input_char)
             return True
 
-        self.treeAvailable.connect('key-press-event', on_key_press)
-        self.treeAvailable.connect('popup-menu',
-            lambda _tv, *args: self.treeview_available_show_context_menu)
+        #self.treeAvailable.connect('key-press-event', on_key_press)
+        #self.treeAvailable.connect('popup-menu',
+        #    lambda _tv, *args: self.treeview_available_show_context_menu)
 
-        self.treeAvailable.enable_model_drag_source(Gdk.ModifierType.BUTTON1_MASK,
-                (('text/uri-list', 0, 0),), Gdk.DragAction.COPY)
+        #self.treeAvailable.enable_model_drag_source(Gdk.ModifierType.BUTTON1_MASK,
+        #        (('text/uri-list', 0, 0),), Gdk.DragAction.COPY)
 
         def drag_data_get(tree, context, selection_data, info, timestamp):
             uris = ['file://' + urllib.parse.quote(e.local_filename(create=False))
                     for e in self.get_selected_episodes()
                     if e.was_downloaded(and_exists=True)]
             selection_data.set_uris(uris)
-        self.treeAvailable.connect('drag-data-get', drag_data_get)
+        #self.treeAvailable.connect('drag-data-get', drag_data_get)
 
         selection = self.treeAvailable.get_selection()
         selection.set_mode(Gtk.SelectionMode.MULTIPLE)
@@ -1184,7 +1188,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         column = Gtk.TreeViewColumn(_('Episode'))
 
         cell = Gtk.CellRendererPixbuf()
-        cell.set_property('stock-size', Gtk.IconSize.BUTTON)
+        #cell.set_property('stock-size', Gtk.IconSize.BUTTON)
         column.pack_start(cell, False)
         column.add_attribute(cell, 'icon-name',
                 DownloadStatusModel.C_ICON_NAME)
@@ -1220,16 +1224,16 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.treeDownloads.set_search_equal_func(TreeViewHelper.make_search_equal_func(DownloadStatusModel))
 
         # Set up downloads context menu
-        menu = self.application.builder.get_object('downloads-context')
-        self.downloads_popover = Gtk.Popover.new_from_model(self.treeDownloads, menu)
-        self.downloads_popover.set_position(Gtk.PositionType.BOTTOM)
+        #menu = self.application.builder.get_object('downloads-context')
+        #self.downloads_popover = Gtk.Popover.new_from_model(self.treeDownloads, menu)
+        #self.downloads_popover.set_position(Gtk.PositionType.BOTTOM)
 
         # Long press gesture
-        lp = Gtk.GestureLongPress.new(self.treeDownloads)
-        lp.set_touch_only(True)
-        lp.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
-        lp.connect("pressed", self.on_treeview_downloads_long_press, self.treeDownloads)
-        setattr(self.treeDownloads, "long-press-gesture", lp)
+        #lp = Gtk.GestureLongPress.new(self.treeDownloads)
+        #lp.set_touch_only(True)
+        #lp.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
+        #lp.connect("pressed", self.on_treeview_downloads_long_press, self.treeDownloads)
+        #setattr(self.treeDownloads, "long-press-gesture", lp)
 
         def on_key_press(treeview, event):
             if event.keyval == Gdk.KEY_Menu:
@@ -1237,9 +1241,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 return True
             return False
 
-        self.treeDownloads.connect('key-press-event', on_key_press)
-        self.treeDownloads.connect('popup-menu',
-            lambda _tv, *args: self.treeview_downloads_show_context_menu)
+        #self.treeDownloads.connect('key-press-event', on_key_press)
+        #self.treeDownloads.connect('popup-menu',
+        #    lambda _tv, *args: self.treeview_downloads_show_context_menu)
 
     def on_treeview_expose_event(self, treeview, ctx):
         model = treeview.get_model()
@@ -1520,6 +1524,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # the header. The Y coordinate of this window will be the height of the
         # treeview header. This is the amount we have to subtract from the
         # event's Y coordinate to get the coordinate to pass to get_path_at_pos
+        return
         (x_bin, y_bin) = treeview.get_bin_window().get_position()
         x -= x_bin
         y -= y_bin
@@ -3231,8 +3236,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                         on_add_podcast_via_url=on_add_podcast_via_url,
                         on_setup_my_gpodder=on_setup_my_gpodder)
 
-                welcome_window.main_window.run()
-                welcome_window.main_window.destroy()
+                welcome_window.main_window.show()
 
             util.idle_add(show_welcome_window)
 

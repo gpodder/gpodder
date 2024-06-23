@@ -1600,7 +1600,7 @@ def copy_text_to_clipboard(text):
     Copies the specified text to both clipboards.
     """
     import gi
-    gi.require_version('Gtk', '3.0')
+    gi.require_version('Gtk', '4.0')
     from gi.repository import Gdk, Gtk
 
     clipboard = Gtk.Clipboard.get(Gdk.SELECTION_PRIMARY)
@@ -2374,7 +2374,7 @@ def mount_volume_for_file(file, op=None):
     gi.require_version('Gio', '2.0')
     from gi.repository import Gio, GLib
     if gpodder.ui.gtk:
-        gi.require_version('Gtk', '3.0')
+        gi.require_version('Gtk', '4.0')
         from gi.repository import Gtk
     else:
         loop = GLib.MainLoop()

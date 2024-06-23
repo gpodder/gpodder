@@ -10,7 +10,7 @@ from gpodder import config
 
 import gi  # isort:skip
 from gi.repository import Gtk  # isort:skip
-gi.require_version('Gtk', '3.0')  # isort:skip
+gi.require_version('Gtk', '4.0')  # isort:skip
 
 _ = gpodder.gettext
 

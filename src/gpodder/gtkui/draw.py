@@ -29,8 +29,8 @@ import math
 import cairo
 
 import gi  # isort:skip
-gi.require_version('Gdk', '3.0')  # isort:skip
-gi.require_version('Gtk', '3.0')  # isort:skip
+gi.require_version('Gdk', '4.0')  # isort:skip
+gi.require_version('Gtk', '4.0')  # isort:skip
 gi.require_version('PangoCairo', '1.0')  # isort:skip
 from gi.repository import Gdk, GdkPixbuf, Gtk, Pango, PangoCairo  # isort:skip
 
@@ -136,7 +136,7 @@ def draw_cake(percentage, text=None, emblem=None, size=None):
     surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, size, size)
     ctx = cairo.Context(surface)
 
-    bgc = get_background_color(Gtk.StateFlags.ACTIVE)
+    bgc = Gdk.RGBA(0, 0, 0, 0) # get_background_color(Gtk.StateFlags.ACTIVE)
     # fgc = get_background_color(Gtk.StateFlags.SELECTED)
     txc = get_foreground_color(Gtk.StateFlags.NORMAL)
 
@@ -297,6 +297,7 @@ def draw_pill_pixbuf(left_text, right_text, widget=None, scale=1):
 
 
 def cake_size_from_widget(widget=None):
+    return 23
     if widget is None:
         # Use GTK+ style of a normal Button
         widget = Gtk.Label()
@@ -404,7 +405,7 @@ def get_foreground_color(state=Gtk.StateFlags.NORMAL, widget=Gtk.TreeView()):
     color = Gdk.RGBA(0, 0, 0, 0)
     while p is not None and color.alpha == 0:
         style_context = p.get_style_context()
-        color = style_context.get_color(state)
+        color = style_context.get_color()
         p = p.get_parent()
     return color
 

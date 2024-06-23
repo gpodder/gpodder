@@ -19,7 +19,6 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus.
   </object>
   <object class="GtkWindow" id="gPodderPodcastDirectory">
     <property name="can-focus">False</property>
-    <property name="type-hint">dialog</property>
     <child>
       <object class="GtkBox">
         <property name="can-focus">False</property>
@@ -27,11 +26,10 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus.
         <property name="spacing">2</property>
         <property name="visible">True</property>
         <child>
-          <object class="GtkButtonBox" id="flowbox">
+          <object class="GtkBox" id="flowbox">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
             <property name="hexpand">True</property>
-            <property name="layout-style">edge</property>
             <child>
               <object class="GtkFlowBoxChild">
                 <property name="visible">True</property>
@@ -42,7 +40,6 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus.
                     <property name="can-focus">True</property>
                     <property name="receives-default">True</property>
                     <property name="halign">start</property>
-                    <property name="relief">none</property>
                     <signal name="clicked" handler="on_btnBack_clicked" swapped="no"/>
                     <child>
                       <object class="GtkImage">
@@ -54,21 +51,14 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus.
                   </object>
                 </child>
               </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">0</property>
-                <property name="non-homogeneous">True</property>
-              </packing>
             </child>
             <child>
               <object class="GtkFlowBoxChild">
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <child>
-                  <object class="GtkButtonBox" id="selectbox">
+                  <object class="GtkBox" id="selectbox">
                     <property name="can-focus">False</property>
-                    <property name="layout-style">start</property>
                     <child>
                       <object class="GtkButton" id="btnSelectAll">
                         <property name="label" translatable="yes">Select _all</property>
@@ -78,11 +68,6 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus.
                         <property name="use-underline">True</property>
                         <signal name="clicked" handler="on_btnSelectAll_clicked" swapped="no"/>
                       </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">False</property>
-                        <property name="position">0</property>
-                      </packing>
                     </child>
                     <child>
                       <object class="GtkButton" id="btnSelectNone">
@@ -93,47 +78,31 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus.
                         <property name="use-underline">True</property>
                         <signal name="clicked" handler="on_btnSelectNone_clicked" swapped="no"/>
                       </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">False</property>
-                        <property name="position">1</property>
-                      </packing>
                     </child>
+                    <style>
+						<class name="toolbar"/>
+                    </style>
                   </object>
                 </child>
               </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">1</property>
-                <property name="non-homogeneous">True</property>
-              </packing>
             </child>
             <child>
               <object class="GtkFlowBoxChild">
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <child>
-                  <object class="GtkButtonBox" id="addbox">
+                  <object class="GtkBox" id="addbox">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
-                    <property name="layout-style">end</property>
                     <child>
                       <object class="GtkButton" id="btnCancel">
                         <property name="label" translatable="yes">_Cancel</property>
                         <property name="visible">True</property>
                         <property name="can-focus">True</property>
-                        <property name="can-default">True</property>
                         <property name="receives-default">False</property>
                         <property name="use-underline">True</property>
                         <signal name="clicked" handler="on_btnCancel_clicked" swapped="no"/>
                       </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">False</property>
-                        <property name="pack-type">end</property>
-                        <property name="position">0</property>
-                      </packing>
                     </child>
                     <child>
                       <object class="GtkButton" id="btnOK">
@@ -142,29 +111,15 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus.
                         <property name="receives-default">False</property>
                         <signal name="clicked" handler="on_btnOK_clicked" swapped="no"/>
                       </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">False</property>
-                        <property name="pack-type">end</property>
-                        <property name="position">1</property>
-                      </packing>
                     </child>
                   </object>
                 </child>
               </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">2</property>
-                <property name="non-homogeneous">True</property>
-              </packing>
             </child>
+            <style>
+            	<class name="toolbar"/>
+            </style>
           </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">False</property>
-            <property name="position">1</property>
-          </packing>
         </child>
         <child>
           <object class="GtkBox">
@@ -195,11 +150,6 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus.
                         <property name="xalign">0</property>
                         <property name="yalign">1</property>
                       </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
-                      </packing>
                     </child>
                     <child>
                       <object class="GtkLabel" id="label6">
@@ -212,11 +162,6 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus.
                         <property name="xalign">0</property>
                         <property name="yalign">0</property>
                       </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">1</property>
-                      </packing>
                     </child>
                     <child>
                       <object class="GtkTreeView" id="tv_providers">
@@ -233,17 +178,8 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus.
                           <object class="GtkTreeSelection"/>
                         </child>
                       </object>
-                      <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
-                        <property name="position">3</property>
-                      </packing>
                     </child>
                   </object>
-                  <packing>
-                    <property name="name">stackChildProviders</property>
-                    <property name="title" translatable="yes">Podcast Providers</property>
-                  </packing>
                 </child>
                 <child>
                   <object class="GtkBox" id="stPodcasts">
@@ -265,11 +201,6 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus.
                               <attribute name="weight" value="bold"/>
                             </attributes>
                           </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">True</property>
-                            <property name="position">1</property>
-                          </packing>
                         </child>
                         <child>
                           <object class="GtkEntry" id="en_query">
@@ -281,11 +212,6 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus.
                             <property name="secondary-icon-activatable">False</property>
                             <signal name="activate" handler="on_bt_search_clicked" swapped="no"/>
                           </object>
-                          <packing>
-                            <property name="expand">True</property>
-                            <property name="fill">True</property>
-                            <property name="position">2</property>
-                          </packing>
                         </child>
                         <child>
                           <object class="GtkButton" id="bt_search">
@@ -295,18 +221,8 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus.
                             <property name="receives-default">True</property>
                             <signal name="clicked" handler="on_bt_search_clicked" swapped="no"/>
                           </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">True</property>
-                            <property name="position">3</property>
-                          </packing>
                         </child>
                       </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">1</property>
-                      </packing>
                     </child>
                     <child>
                       <object class="GtkStack" id="stackProgressErrorPodcasts">
@@ -326,11 +242,6 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus.
                                 <property name="can-focus">False</property>
                                 <property name="fraction">0.10</property>
                               </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">True</property>
-                                <property name="position">0</property>
-                              </packing>
                             </child>
                             <child>
                               <object class="GtkLabel" id="progressLabel">
@@ -340,17 +251,11 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus.
                                 <property name="ellipsize">end</property>
                                 <property name="xalign">0</property>
                               </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">True</property>
-                                <property name="position">1</property>
-                              </packing>
                             </child>
                             <child>
                               <object class="GtkScrolledWindow">
                                 <property name="visible">True</property>
                                 <property name="can-focus">True</property>
-                                <property name="shadow-type">in</property>
                                 <child>
                                   <object class="GtkTextView" id="txtError">
                                     <property name="visible">True</property>
@@ -364,17 +269,8 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus.
                                   </object>
                                 </child>
                               </object>
-                              <packing>
-                                <property name="expand">True</property>
-                                <property name="fill">True</property>
-                                <property name="position">2</property>
-                              </packing>
                             </child>
                           </object>
-                          <packing>
-                            <property name="name">stackChildProgressErrors</property>
-                            <property name="title" translatable="yes">Podcast Retrieve Progress</property>
-                          </packing>
                         </child>
                         <child>
                           <object class="GtkScrolledWindow" id="sw_podcasts">
@@ -382,48 +278,21 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus.
                             <property name="can-focus">True</property>
                             <property name="hexpand">True</property>
                             <property name="vexpand">True</property>
-                            <property name="shadow-type">in</property>
                             <child>
-                              <object class="GtkTreeView" id="tv_podcasts">
+                              <object class="GtkListView" id="tv_podcasts">
                                 <property name="visible">True</property>
                                 <property name="can-focus">True</property>
-                                <property name="headers-visible">False</property>
                               </object>
                             </child>
                           </object>
-                          <packing>
-                            <property name="position">1</property>
-                            <property name="name">stackChildResults</property>
-                            <property name="title" translatable="yes">Podcast Results</property>
-                          </packing>
                         </child>
                       </object>
-                      <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
-                        <property name="position">2</property>
-                      </packing>
                     </child>
                   </object>
-                  <packing>
-                    <property name="name">stackChildPodcasts</property>
-                    <property name="title" translatable="yes">Podcast Selection</property>
-                    <property name="position">1</property>
-                  </packing>
                 </child>
               </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">1</property>
-              </packing>
             </child>
           </object>
-          <packing>
-            <property name="expand">True</property>
-            <property name="fill">True</property>
-            <property name="position">0</property>
-          </packing>
         </child>
       </object>
     </child>

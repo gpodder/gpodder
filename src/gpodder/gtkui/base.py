@@ -45,7 +45,7 @@ class GtkBuilderWidget(object):
         for key, value in list(kwargs.items()):
             setattr(self, key, value)
 
-        self.builder = Gtk.Builder()
+        self.builder = Gtk.Builder(self)
         if parent is not None:
             self.builder.expose_object('parent_widget', parent)
         self.builder.set_translation_domain(textdomain)
@@ -61,7 +61,6 @@ class GtkBuilderWidget(object):
                 self.builder.add_from_file(filename)
                 break
 
-        self.builder.connect_signals(self)
         self.set_attributes()
         if hasattr(self, '_gtk_properties'):
             for ((gobj, prop), val) in self._gtk_properties.items():
@@ -81,8 +80,7 @@ class GtkBuilderWidget(object):
             if not isinstance(widget, Gtk.Buildable):
                 continue
 
-            # The following call looks ugly, but see Gnome bug 591085
-            widget_name = Gtk.Buildable.get_name(widget)
+            widget_name = widget.get_buildable_id()
 
             widget_api_name = '_'.join(re.findall(tokenize.Name, widget_name))
             if hasattr(self, widget_api_name):

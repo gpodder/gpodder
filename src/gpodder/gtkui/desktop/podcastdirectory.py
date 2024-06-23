@@ -29,48 +29,69 @@ import logging
 import os
 import traceback
 
-from gi.repository import Gdk, GdkPixbuf, Gtk, Pango
+from gi.repository import Gdk, GdkPixbuf, Gio, GObject, Gtk, Pango
 
 import gpodder
 from gpodder import directory, util
 from gpodder.gtkui.interface.common import BuilderWidget
 from gpodder.gtkui.interface.progress import ProgressIndicator
-from gpodder.gtkui.interface.tagcloud import TagCloud
 
 _ = gpodder.gettext
 
 logger = logging.getLogger(__name__)
 
 
-class DirectoryPodcastsModel(Gtk.ListStore):
-    C_SELECTED, C_MARKUP, C_TITLE, C_URL = list(range(4))
+class DirectoryPodcastItem(GObject.GObject):
+
+    selected = GObject.Property(type=bool, default=False)
+    title = GObject.Property(type=str)
+    url = GObject.Property(type=str)
+    image = GObject.Property(type=str)
+    description = GObject.Property(type=str)
+
+    def __init__(self, title, url, selected=False, image=None, subscribers=-1, description=""):
+        GObject.GObject.__init__(self)
+        self.title = title
+        self.url = url
+        self.selected = selected
+        self.image = image
+        self.subscribers = subscribers
+        self.description = description
+
+    @classmethod
+    def from_directory_entry(cls, en):
+        return cls(en.title, en.url, image=en.image, subscribers=en.subscribers, description=en.description)
+
+
+class DirectoryPodcastsModel(Gio.ListStore):
 
     def __init__(self, callback_can_subscribe):
-        Gtk.ListStore.__init__(self, bool, str, str, str)
+        Gio.ListStore.__init__(self, item_type=DirectoryPodcastItem)
         self.callback_can_subscribe = callback_can_subscribe
 
     def load(self, directory_entries):
         self.clear()
         for entry in directory_entries:
-            if entry.subscribers != -1:
-                self.append((False, '%s (%d)\n<small>%s</small>' % (html.escape(entry.title),
-                    entry.subscribers, html.escape(entry.url)), entry.title, entry.url))
-            else:
-                self.append((False, '%s\n<small>%s</small>' % (html.escape(entry.title),
-                    html.escape(entry.url)), entry.title, entry.url))
-        self.callback_can_subscribe(len(self.get_selected_podcasts()) > 0)
+            self.append(DirectoryPodcastItem.from_directory_entry(entry))
+            #if entry.subscribers != -1:
+            #    self.append((False, '%s (%d)\n<small>%s</small>' % (html.escape(entry.title),
+            #        entry.subscribers, html.escape(entry.url)), entry.title, entry.url))
+            #else:
+            #    self.append((False, '%s\n<small>%s</small>' % (html.escape(entry.title),
+            #        html.escape(entry.url)), entry.title, entry.url))
+        #self.callback_can_subscribe(len(self.get_selected_podcasts()) > 0)
 
-    def toggle(self, path):
-        self[path][self.C_SELECTED] = not self[path][self.C_SELECTED]
-        self.callback_can_subscribe(len(self.get_selected_podcasts()) > 0)
+    #def toggle(self, path):
+    #    self[path][self.C_SELECTED] = not self[path][self.C_SELECTED]
+    #    self.callback_can_subscribe(len(self.get_selected_podcasts()) > 0)
 
-    def set_selection_to(self, selected):
-        for row in self:
-            row[self.C_SELECTED] = selected
-        self.callback_can_subscribe(len(self.get_selected_podcasts()) > 0)
+    #def set_selection_to(self, selected):
+    #    for row in self:
+    #        row[self.C_SELECTED] = selected
+    #    self.callback_can_subscribe(len(self.get_selected_podcasts()) > 0)
 
-    def get_selected_podcasts(self):
-        return [(row[self.C_TITLE], row[self.C_URL]) for row in self if row[self.C_SELECTED]]
+    #def get_selected_podcasts(self):
+    #    return [(row[self.C_TITLE], row[self.C_URL]) for row in self if row[self.C_SELECTED]]
 
 
 class DirectoryProvidersModel(Gtk.ListStore):
@@ -127,9 +148,9 @@ class gPodderPodcastDirectory(BuilderWidget):
         self.setup_providers_treeview()
         self.setup_podcasts_treeview()
 
-        accel = Gtk.AccelGroup()
-        accel.connect(Gdk.KEY_Escape, 0, Gtk.AccelFlags.VISIBLE, self.on_escape)
-        self.main_window.add_accel_group(accel)
+        #accel = Gtk.AccelGroup()
+        #accel.connect(Gdk.KEY_Escape, 0, Gtk.AccelFlags.VISIBLE, self.on_escape)
+        #self.main_window.add_accel_group(accel)
 
         self._config.connect_gtk_window(self.main_window, 'podcastdirectory', True)
 
@@ -143,23 +164,24 @@ class gPodderPodcastDirectory(BuilderWidget):
         self.use_provider(provider, allow_back=False)
 
     def setup_podcasts_treeview(self):
-        column = Gtk.TreeViewColumn('')
-        cell = Gtk.CellRendererToggle()
-        cell.set_fixed_size(48, -1)
-        column.pack_start(cell, False)
-        column.add_attribute(cell, 'active', DirectoryPodcastsModel.C_SELECTED)
-        cell.connect('toggled', lambda cell, path: self.podcasts_model.toggle(path))
-        self.tv_podcasts.append_column(column)
+        #column = Gtk.TreeViewColumn('')
+        #cell = Gtk.CellRendererToggle()
+        #cell.set_fixed_size(48, -1)
+        #column.pack_start(cell, False)
+        #column.add_attribute(cell, 'active', DirectoryPodcastsModel.C_SELECTED)
+        #cell.connect('toggled', lambda cell, path: self.podcasts_model.toggle(path))
+        #self.tv_podcasts.append_column(column)
 
-        column = Gtk.TreeViewColumn('')
-        cell = Gtk.CellRendererText()
-        cell.set_property('ellipsize', Pango.EllipsizeMode.END)
-        column.pack_start(cell, True)
-        column.add_attribute(cell, 'markup', DirectoryPodcastsModel.C_MARKUP)
-        self.tv_podcasts.append_column(column)
+        #column = Gtk.TreeViewColumn('')
+        #cell = Gtk.CellRendererText()
+        #cell.set_property('ellipsize', Pango.EllipsizeMode.END)
+        #column.pack_start(cell, True)
+        #column.add_attribute(cell, 'markup', DirectoryPodcastsModel.C_MARKUP)
+        #self.tv_podcasts.append_column(column)
 
-        self.tv_podcasts.set_model(self.podcasts_model)
-        self.podcasts_model.append((False, 'a', 'b', 'c'))
+        self.tv_podcasts.set_model(Gtk.NoSelection.new(self.podcasts_model))
+        #self.podcasts_model.append((False, 'a', 'b', 'c'))
+        
 
     def setup_providers_treeview(self):
         column = Gtk.TreeViewColumn('')
@@ -191,7 +213,7 @@ class gPodderPodcastDirectory(BuilderWidget):
             self.use_provider(provider)
 
     def use_provider(self, provider, allow_back=True):
-        self.podcasts_model.clear()
+        self.podcasts_model.remove_all()
         self.current_provider = provider
         self.main_window.set_title(provider.name)
 
@@ -233,7 +255,7 @@ class gPodderPodcastDirectory(BuilderWidget):
 
         self.en_query.set_sensitive(False)
         self.bt_search.set_sensitive(False)
-        self.podcasts_model.clear()
+        self.podcasts_model.remove_all()
 
         @util.run_in_background
         def download_data():

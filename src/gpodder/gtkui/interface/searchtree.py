@@ -18,7 +18,7 @@
 #
 
 import gi  # isort:skip
-gi.require_version('Gtk', '3.0')  # isort:skip
+gi.require_version('Gtk', '4.0')  # isort:skip
 from gi.repository import Gdk, GLib  # isort:skip
 
 
@@ -37,7 +37,7 @@ class SearchTree:
         self._search_timeout = None
         self.search_entry.connect('icon-press', self.hide_search)
         self.search_entry.connect('changed', self.on_entry_changed)
-        self.search_entry.connect('key-press-event', self.on_entry_key_press)
+        #self.search_entry.connect('key-press-event', self.on_entry_key_press)
 
     def set_search_term(self, text):
         self.model.set_search_term(text)

@@ -30,7 +30,7 @@ import re
 import time
 from itertools import groupby
 
-from gi.repository import GdkPixbuf, GLib, GObject, Gtk
+from gi.repository import Gdk, GdkPixbuf, GLib, GObject, Gtk
 
 import gpodder
 from gpodder import coverart, model, query, util
@@ -174,7 +174,7 @@ class EpisodeListModel(Gtk.ListStore):
 
         # Filter to allow hiding some episodes
         self._filter = self.filter_new()
-        self._sorter = Gtk.TreeModelSort(self._filter)
+        self._sorter = Gtk.TreeModelSort.new_with_model(self._filter)
         self._view_mode = self.VIEW_ALL
         self._search_term = None
         self._search_term_eql = None
@@ -183,7 +183,7 @@ class EpisodeListModel(Gtk.ListStore):
         # Are we currently showing "all episodes"/section or a single channel?
         self._section_view = False
 
-        self.icon_theme = Gtk.IconTheme.get_default()
+        self.icon_theme = Gtk.IconTheme.get_for_display(Gdk.Display.get_default())
         self.ICON_WEB_BROWSER = 'web-browser'
         self.ICON_AUDIO_FILE = 'audio-x-generic'
         self.ICON_VIDEO_FILE = 'video-x-generic'
@@ -585,7 +585,7 @@ class PodcastListModel(Gtk.ListStore):
         self._scale = 1
         self._cover_downloader = cover_downloader
 
-        self.icon_theme = Gtk.IconTheme.get_default()
+        self.icon_theme = Gtk.IconTheme.get_for_display(Gdk.Display.get_default())
         self.ICON_DISABLED = 'media-playback-pause'
         self.ICON_ERROR = 'dialog-warning'
 
