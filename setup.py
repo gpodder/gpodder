@@ -21,8 +21,7 @@
 import os
 import re
 import sys
-
-from setuptools import setup
+from distutils.core import setup
 
 installing = ('install' in sys.argv and '--help' not in sys.argv)
 
@@ -212,11 +211,4 @@ setup(
     packages=packages,
     scripts=scripts,
     data_files=data_files,
-
-    install_requires=[
-        "podcastparser>=0.6.0",
-        "mygpoclient>=1.7",
-        "dbus-python;platform_system=='Linux'",
-        "PyGObject",
-    ]
 )
