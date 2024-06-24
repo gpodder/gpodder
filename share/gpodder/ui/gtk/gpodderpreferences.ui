@@ -324,6 +324,115 @@
                           </packing>
                         </child>
                         <child>
+                          <object class="GtkBox" id="vbox_view">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="border-width">12</property>
+                            <property name="orientation">vertical</property>
+                            <property name="spacing">12</property>
+                            <child>
+                              <object class="GtkCheckButton" id="checkbutton_podcast_list_hide_empty">
+                                <property name="label" translatable="yes">Hide podcasts without episodes</property>
+                                <property name="visible">True</property>
+                                <property name="can-focus">True</property>
+                                <property name="receives-default">False</property>
+                                <property name="draw-indicator">True</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkCheckButton" id="checkbutton_podcast_list_all_episodes">
+                                <property name="label" translatable="yes">"All episodes" in podcast list</property>
+                                <property name="visible">True</property>
+                                <property name="can-focus">True</property>
+                                <property name="receives-default">False</property>
+                                <property name="draw-indicator">True</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkCheckButton" id="checkbutton_podcast_list_sections">
+                                <property name="label" translatable="yes">Use sections for podcast list</property>
+                                <property name="visible">True</property>
+                                <property name="can-focus">True</property>
+                                <property name="receives-default">False</property>
+                                <property name="draw-indicator">True</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">2</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkSeparator">
+                                <property name="visible">True</property>
+                                <property name="can-focus">False</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">3</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkCheckButton" id="checkbutton_episode_list_always_show_new">
+                                <property name="label" translatable="yes">Always show New Episodes</property>
+                                <property name="visible">True</property>
+                                <property name="can-focus">True</property>
+                                <property name="receives-default">False</property>
+                                <property name="draw-indicator">True</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">4</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkCheckButton" id="checkbutton_episode_list_trim_title_prefix">
+                                <property name="label" translatable="yes">Trim episode title prefix</property>
+                                <property name="visible">True</property>
+                                <property name="can-focus">True</property>
+                                <property name="receives-default">False</property>
+                                <property name="draw-indicator">True</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">5</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkCheckButton" id="checkbutton_episode_list_descriptions">
+                                <property name="label" translatable="yes">Episode descriptions</property>
+                                <property name="visible">True</property>
+                                <property name="can-focus">True</property>
+                                <property name="receives-default">False</property>
+                                <property name="draw-indicator">True</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">6</property>
+                              </packing>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="name">view</property>
+                            <property name="title" translatable="yes">View</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                        <child>
                           <object class="GtkBox" id="mygpo_config">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
@@ -488,7 +597,7 @@
                           <packing>
                             <property name="name">gpodder.net</property>
                             <property name="title" translatable="yes">gpodder.net</property>
-                            <property name="position">1</property>
+                            <property name="position">2</property>
                           </packing>
                         </child>
                         <child>
@@ -699,7 +808,7 @@
                           <packing>
                             <property name="name">updating</property>
                             <property name="title" translatable="yes">Updating</property>
-                            <property name="position">2</property>
+                            <property name="position">3</property>
                           </packing>
                         </child>
                         <child>
@@ -788,7 +897,7 @@
                           <packing>
                             <property name="name">cleanup</property>
                             <property name="title" translatable="yes">Clean-up</property>
-                            <property name="position">3</property>
+                            <property name="position">4</property>
                           </packing>
                         </child>
                         <child>
@@ -1083,7 +1192,7 @@
                           <packing>
                             <property name="name">devices</property>
                             <property name="title" translatable="yes">Devices</property>
-                            <property name="position">4</property>
+                            <property name="position">5</property>
                           </packing>
                         </child>
                         <child>
@@ -1192,7 +1301,7 @@
                           <packing>
                             <property name="name">video</property>
                             <property name="title" translatable="yes">Video</property>
-                            <property name="position">5</property>
+                            <property name="position">6</property>
                           </packing>
                         </child>
                         <child>
@@ -1439,7 +1548,7 @@
                           <packing>
                             <property name="name">network</property>
                             <property name="title" translatable="yes">Network</property>
-                            <property name="position">6</property>
+                            <property name="position">7</property>
                           </packing>
                         </child>
                         <child>
@@ -1470,7 +1579,7 @@
                           <packing>
                             <property name="name">extensions</property>
                             <property name="title" translatable="yes">Extensions</property>
-                            <property name="position">7</property>
+                            <property name="position">8</property>
                           </packing>
                         </child>
                       </object>
