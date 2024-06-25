@@ -240,10 +240,12 @@ class gPodderShownotesText(gPodderShownotes):
                 last_chapter = None
                 # to display chapter duration:
                 # for c, nc in zip(chapters, chapters[1:] + [{"start": episode.total_time}]):
+                align_hours = max(c["start"] for c in chapters) > 3600
                 for c in chapters:
                     self.text_buffer.insert_at_cursor('\n')
                     hyperlinks.append((self.text_buffer.get_char_count(), c["start"]))
-                    self.text_buffer.insert_with_tags_by_name(self.text_buffer.get_end_iter(), util.format_time(c["start"]), 'timestamp')
+                    start_str = util.format_time(c["start"], always_include_hours=align_hours)
+                    self.text_buffer.insert_with_tags_by_name(self.text_buffer.get_end_iter(), start_str, 'timestamp')
                     hyperlinks.append((self.text_buffer.get_char_count(), None))
                     line = "  %s" % c["title"]
                     self.text_buffer.insert_at_cursor(line)
