@@ -1419,8 +1419,8 @@ def bluetooth_send_file(filename):
         return False
 
 
-def format_time(seconds):
-    """Format a seconds value to a string
+def format_time(seconds, always_include_hours=False):
+    """Format a seconds value to a string, optionally with padding to reach pad_len
 
     >>> format_time(0)
     '00:00'
@@ -1432,6 +1432,8 @@ def format_time(seconds):
     '03:02:01'
     >>> format_time(86401)
     '24:00:01'
+    >>> format_time(0, always_include_hours=True)
+    '00:00:00'
     """
     hours = 0
     minutes = 0
@@ -1442,7 +1444,7 @@ def format_time(seconds):
         minutes = seconds // 60
         seconds -= minutes * 60
 
-    if hours == 0:
+    if hours == 0 and not always_include_hours:
         return '%02d:%02d' % (minutes, seconds)
     else:
         return '%02d:%02d:%02d' % (hours, minutes, seconds)

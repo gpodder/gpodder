@@ -394,9 +394,10 @@ class ExtensionMenuHelper(object):
         for a in self.actions:
             self.gPodder.remove_action(a.get_property('name'))
         self.actions = []
-        self.menu.remove_all()
+        self._cleanup_submenus(self.menu)
         # create new ones
         new_entries = list(new_entries or [])
+        submenus = {}
         for i, (label, callback) in enumerate(new_entries):
             action_id = self.action_prefix + str(i)
             action = Gio.SimpleAction.new(action_id)
@@ -408,9 +409,36 @@ class ExtensionMenuHelper(object):
                     action.connect('activate', self.gen_callback_func(callback))
             self.actions.append(action)
             self.gPodder.add_action(action)
-            itm = Gio.MenuItem.new(label, 'win.' + action_id)
-            self.menu.append_item(itm)
+            parts = label.split('/')
+            title = parts[-1]
+            itm = Gio.MenuItem.new()
+            if len(parts) > 1:
+                sub_menu = self.menu
+                submenu = submenus
+                for key in parts[:-1]:
+                    if key not in submenu:
+                        sub_menu = self._add_sub_menu(sub_menu, key)
+                        submenu[key] = {"": sub_menu}
+                    else:
+                        sub_menu = submenu[key][""]
+                    submenu = submenu[key]
+            else:
+                sub_menu = self.menu
+            sub_menu.append(title, 'win.' + action_id)
 
+    @classmethod
+    def _cleanup_submenus(cls, menu):
+        for i in range(0, menu.get_n_items()):
+            submenu = menu.get_item_link(i, "submenu")
+            if submenu:
+                cls._cleanup_submenus(submenu)
+        menu.remove_all()
+
+    @staticmethod
+    def _add_sub_menu(parent, label):
+        menu = Gio.Menu()
+        parent.append_submenu(label, menu)
+        return menu
 
 class Dummy:
     """A class for objects with arbitrary attributes (for imitating Gtk Events etc.)"""
