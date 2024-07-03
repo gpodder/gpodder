@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # Copyright 2016 Christoph Reiter
+#           2022 Nick Boultbee
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -12,17 +13,11 @@ cd "${DIR}"
 
 # CONFIG START
 
-ARCH="i686"
 BUILD_VERSION="0"
 
 # CONFIG END
 
 MISC="${DIR}"/misc
-if [ "${ARCH}" = "x86_64" ]; then
-    MINGW="mingw64"
-else
-    MINGW="mingw32"
-fi
 
 GPO_VERSION="0.0.0"
 GPO_VERSION_DESC="UNKNOWN"
@@ -30,7 +25,8 @@ GPO_VERSION_DESC="UNKNOWN"
 function set_build_root {
     BUILD_ROOT="$1"
     REPO_CLONE="${BUILD_ROOT}"/gpodder
-    MINGW_ROOT="${BUILD_ROOT}/${MINGW}"
+    MINGW_ROOT="${BUILD_ROOT}${MINGW_PREFIX}"
+    export PATH="${MINGW_ROOT}/bin:${PATH}"
 }
 
 if [ "$APPVEYOR" == "True" ]; then
@@ -42,7 +38,7 @@ else
 fi
 
 function build_pacman {
-    pacman --root "${BUILD_ROOT}" "$@"
+    pacman --cachedir "/var/cache/pacman/pkg" --root "${BUILD_ROOT}" "$@"
 }
 
 function build_pip {
@@ -53,15 +49,28 @@ function build_python {
     "${MINGW_ROOT}"/bin/python3.exe "$@"
 }
 
+function build_compileall_pyconly {
+    MSYSTEM="" build_python -m compileall --invalidation-mode unchecked-hash -b "$@"
+}
+
 function build_compileall {
-    MSYSTEM= build_python -m compileall -b "$@"
+    MSYSTEM="" build_python -m compileall --invalidation-mode unchecked-hash "$@"
 }
 
 function install_pre_deps {
-	# install python3 here to ensure same version
-    pacman -S --needed --noconfirm p7zip git dos2unix rsync \
-        mingw-w64-"${ARCH}"-nsis wget libidn2 libopenssl intltool mingw-w64-"${ARCH}"-toolchain \
-        mingw-w64-"${ARCH}"-python
+    # install python3 here to ensure same version
+    pacman -S --needed --noconfirm \
+        git \
+        dos2unix \
+        p7zip \
+        rsync \
+        wget \
+        libidn2 \
+        libopenssl \
+        intltool \
+        "${MINGW_PACKAGE_PREFIX}"-nsis \
+        "${MINGW_PACKAGE_PREFIX}"-toolchain \
+        "${MINGW_PACKAGE_PREFIX}"-python
 }
 
 function create_root {
@@ -72,6 +81,7 @@ function create_root {
     mkdir -p "${BUILD_ROOT}"/tmp
 
     build_pacman -Syu
+    build_pacman --noconfirm -S filesystem msys2-runtime
     build_pacman --noconfirm -S base
 }
 
@@ -79,8 +89,8 @@ function extract_installer {
     [ -z "$1" ] && (echo "Missing arg"; exit 1)
 
     mkdir -p "$BUILD_ROOT"
-    7z x -o"$BUILD_ROOT"/"$MINGW" "$1"
-    rm -rf "$MINGW_ROOT"/'$PLUGINSDIR' "$MINGW_ROOT"/*.txt "$MINGW_ROOT"/*.nsi
+    7z x -o"$MINGW_ROOT" "$1"
+    rm -rf "${MINGW_ROOT:?}/$PLUGINSDIR" "$MINGW_ROOT"/*.txt "$MINGW_ROOT"/*.nsi
 }
 
 PIP_REQUIREMENTS="\
@@ -100,37 +110,44 @@ webencodings==0.5.1
 yt-dlp
 "
 
-function install_deps {
+SEVENZINST='7z2301.exe' # http://www.7-zip.org/
 
+function install_deps {
     # We don't use the fontconfig backend, and this skips the lengthy
     # cache update step during package installation
     export MSYS2_FC_CACHE_SKIP=1
 
-    build_pacman --noconfirm -S git mingw-w64-"${ARCH}"-gdk-pixbuf2 \
-        mingw-w64-"${ARCH}"-librsvg \
-        mingw-w64-"${ARCH}"-gtk3 mingw-w64-"${ARCH}"-python \
-        mingw-w64-"${ARCH}"-python-gobject \
-        mingw-w64-"${ARCH}"-python-cairo \
-        mingw-w64-"${ARCH}"-python-pip \
-        mingw-w64-"${ARCH}"-python-six \
-		mingw-w64-"${ARCH}"-make
-
-    build_pacman -S --noconfirm \
-        mingw-w64-"${ARCH}"-python-setuptools \
-        mingw-w64-"${ARCH}"-python-build \
-        mingw-w64-"${ARCH}"-python-installer
+    build_pacman --noconfirm -S \
+        git \
+        "${MINGW_PACKAGE_PREFIX}"-gdk-pixbuf2 \
+        "${MINGW_PACKAGE_PREFIX}"-librsvg \
+        "${MINGW_PACKAGE_PREFIX}"-gtk3 \
+        "${MINGW_PACKAGE_PREFIX}"-python \
+        "${MINGW_PACKAGE_PREFIX}"-python-gobject \
+        "${MINGW_PACKAGE_PREFIX}"-python-cairo \
+        "${MINGW_PACKAGE_PREFIX}"-python-pip \
+        "${MINGW_PACKAGE_PREFIX}"-python-six \
+        "${MINGW_PACKAGE_PREFIX}"-make
 
     build_pip install --no-deps --no-binary ":all:" --upgrade \
-        --force-reinstall $(echo "$PIP_REQUIREMENTS" | tr ["\\n"] [" "])
+        --force-reinstall $(echo "$PIP_REQUIREMENTS" | tr "\\n" " ")
 
     # replace ca-certificates with certifi's
-    build_pacman --noconfirm -Rdds mingw-w64-"${ARCH}"-ca-certificates || true
+    build_pacman --noconfirm -Rdds "${MINGW_PACKAGE_PREFIX}"-ca-certificates || true
     mkdir -p ${MINGW_ROOT}/ssl
-    site_packages=$(build_python -c  'import sys;print(next(c for c in sys.path if "site-packages" in c and ".local" not in c))')
+    site_packages=$(build_python -c 'import sys;print(next(c for c in sys.path if "site-packages" in c and ".local" not in c))')
     cp -v ${site_packages}/certifi/cacert.pem ${MINGW_ROOT}/ssl/cert.pem
 
-    # This would remove setuptools also. We need it for building the wheel
-    #build_pacman --noconfirm -Rdds mingw-w64-"${ARCH}"-python-pip || true
+    # gpodder: Keep pip so users can potentially use it to upgrade yt-dlp
+    # transitive dependencies which we don't need
+    #build_pacman --noconfirm -Rdds \
+    #    "${MINGW_PACKAGE_PREFIX}"-python-pip \
+    #    || true
+
+    build_pacman --noconfirm -S \
+        "${MINGW_PACKAGE_PREFIX}"-python-setuptools \
+        "${MINGW_PACKAGE_PREFIX}"-python-build \
+        "${MINGW_PACKAGE_PREFIX}"-python-installer
 }
 
 function install_gpodder {
@@ -150,6 +167,12 @@ function install_gpodder {
 
     GPO_VERSION=$(MSYSTEM= build_python -c \
         "import gpodder; import sys; sys.stdout.write(gpodder.__version__)")
+
+    # Create launchers
+    echo "python3 is $(command -v python3) version is $(python3 --version)"
+    python3 "${MISC}"/create-launcher.py \
+        "${GPO_VERSION}" "${MINGW_ROOT}"/bin
+
     GPO_VERSION_DESC="$GPO_VERSION"
     if [ "$1" = "master" ]
     then
@@ -158,20 +181,15 @@ function install_gpodder {
         GPO_VERSION_DESC="$GPO_VERSION-rev$GIT_REV-$GIT_HASH"
     fi
 
-    # Create launchers
-    echo "python3 is $(command -v python3) version is $(python3 --version)"
-    python3 "${MISC}"/create-launcher.py \
-        "${GPO_VERSION}" "${MINGW_ROOT}"/bin
-
 	# install fake dbus
-    site_packages=$(build_python -c  'import sys;print(next(c for c in sys.path if "site-packages" in c and ".local" not in c))')
+    site_packages=$(build_python -c 'import sys;print(next(c for c in sys.path if "site-packages" in c and ".local" not in c))')
     site_packages_unix=$(echo "/$site_packages" | sed -e 's/\\/\//g' -e 's/://')
     rsync -arv --delete "${REPO_CLONE}"/tools/fake-dbus-module/dbus "${site_packages_unix}/"
-	
+
 	# install gtk3 settings for a proper font
 	mkdir -p "${MINGW_ROOT}"/etc/gtk-3.0
 	cp "${MISC}"/gtk3.0_settings.ini "${MINGW_ROOT}"/etc/gtk-3.0/settings.ini
-	
+
 	# install bin/gpodder bin/gpo to a separate package, to be run before gpodder/__init__.py
 	gpodder_launch_dir="${site_packages_unix}"/gpodder_launch
 	mkdir -p "${gpodder_launch_dir}"
@@ -212,7 +230,11 @@ function cleanup_before {
 
     find "${MINGW_ROOT}"/bin -name "*.pyo" -exec rm -f {} \;
     find "${MINGW_ROOT}"/bin -name "*.pyc" -exec rm -f {} \;
-    find "${MINGW_ROOT}" -type d -name "__pycache__" -prune -exec rm -rf {} \;
+
+    # gpodder: need site-packages/pip/__pip-runner__.py -- moved to cleanup_after()
+    #build_compileall_pyconly -d "" -f -q "$(cygpath -w "${MINGW_ROOT}")"
+    #find "${MINGW_ROOT}" -name "*.py" -exec rm -f {} \;
+    #find "${MINGW_ROOT}" -type d -name "__pycache__" -prune -exec rm -rf {} \;
 }
 
 function cleanup_after {
@@ -230,7 +252,7 @@ function cleanup_after {
     rm -Rf "${MINGW_ROOT}"/libexec
     rm -Rf "${MINGW_ROOT}"/share/gtk-doc
     rm -Rf "${MINGW_ROOT}"/include
-    rm -Rf "${MINGW_ROOT}"/var
+    rm -Rf "${MINGW_ROOT:?}"/var
     rm -Rf "${MINGW_ROOT}"/etc/fonts
     rm -Rf "${MINGW_ROOT}"/etc/pki
     rm -Rf "${MINGW_ROOT}"/share/zsh
@@ -331,19 +353,20 @@ function cleanup_after {
 
     find "${MINGW_ROOT}"/bin -name "*.pyo" -exec rm -f {} \;
     find "${MINGW_ROOT}"/bin -name "*.pyc" -exec rm -f {} \;
-    find "${MINGW_ROOT}" -type d -name "__pycache__" -prune -exec rm -rf {} \;
 
 # TODO: Commented out until we can make depcheck.py working again.
 #    build_python "${MISC}/depcheck.py" --delete
 
     find "${MINGW_ROOT}" -type d -empty -delete
 
-    build_compileall -d "" -f -q "$(cygpath -w "${MINGW_ROOT}")"
+    # gpodder: moved from cleanup_before()
+    build_compileall_pyconly -d "" -f -q "$(cygpath -w "${MINGW_ROOT}")"
     # Excluding gpodder/extensions directory so they can be found by gpodder extensions.py
     # Also excluding entire source of gpodder so it can be modified by end-user
     find "${MINGW_ROOT}" -path "**/share/gpodder/extensions" -prune -o \
                          -path "**/site-packages/gpodder" -prune -o \
                          -name "*.py" -exec rm -f {} \;
+    find "${MINGW_ROOT}" -type d -name "__pycache__" -prune -exec rm -rf {} \;
 }
 
 function dump_packages {
@@ -480,10 +503,10 @@ function build_portable_installer {
     mkdir "$PORTABLE"/config
     cp -RT "${MINGW_ROOT}" "$PORTABLE"/data
 
-    rm -Rf 7zout 7z2201.exe
+    rm -Rf 7zout "$SEVENZINST"
     7z a payload.7z "$PORTABLE"
-    wget -P "$DIR" -c http://www.7-zip.org/a/7z2201.exe
-    7z x -o7zout 7z2201.exe
+    wget -P "$DIR" -c "http://www.7-zip.org/a/$SEVENZINST"
+    7z x -o7zout "$SEVENZINST"
     cat 7zout/7z.sfx payload.7z > "$PORTABLE".exe
-    rm -Rf 7zout 7z2201.exe payload.7z "$PORTABLE"
+    rm -Rf 7zout "$SEVENZINST" payload.7z "$PORTABLE"
 }
