@@ -1997,6 +1997,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         remaining = len(episodes)
         dialog = gPodderExportToLocalFolder(self.main_window,
                                             _config=self.config)
+        episodes.sort(key=lambda episode: episode.published)
         for episode in episodes:
             remaining -= 1
             if episode.was_downloaded(and_exists=True):
