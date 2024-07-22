@@ -115,9 +115,9 @@ print('System Path:\n', '\n'.join(sys.path))
 #    (you can move the original folder in the Finder first,
 #     then drag and drop to the launcher.py in TextEdit to ensure the correct path is set)
 # uncomment the following line to override gPodder home
-# os.environ['GPODDER_HOME'] = expanduser('~/gPodderData')
+# os.environ['GPODDER_HOME'] = os.path.expanduser('~/gPodderData')
 # uncomment the following line to override gPodder download directory
-# os.environ['GPODDER_DOWNLOAD_DIR'] = expanduser('~/gPodderDownloads')
+# os.environ['GPODDER_DOWNLOAD_DIR'] = os.path.expanduser('~/gPodderDownloads')
 
 for k, v in os.environ.items():
     print("%s=%s" % (k, v))
