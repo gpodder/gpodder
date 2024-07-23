@@ -877,6 +877,16 @@ class PodcastEpisode(PodcastModelObject):
     def pubdate_year(self):
         return self.published_datetime().strftime('%y')
 
+    @property
+    def parsed_chapters(self):
+        if not self.chapters:
+            return []
+        try:
+            return json.loads(self.chapters)
+        except Exception as e:
+            logger.warning("invalid chapters in %s: %s", self.title, e)
+            return []
+
     def is_finished(self):
         """Return True if this episode is considered "finished playing"
 
