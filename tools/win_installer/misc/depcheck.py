@@ -15,6 +15,7 @@ Execute with the build python, will figure out the rest.
 import os
 import subprocess
 import sys
+from functools import cache
 from multiprocessing import Process, Queue
 
 import gi  # isort:skip
@@ -29,6 +30,7 @@ def _get_shared_libraries(q, namespace, version):
     q.put(lib)
 
 
+@cache
 def get_shared_libraries(namespace, version):
     # we have to start a new process because multiple versions can't be loaded
     # in the same process
@@ -55,6 +57,7 @@ def get_required_by_typelibs():
     return deps
 
 
+@cache
 def get_dependencies(filename):
     deps = []
     try:
@@ -80,6 +83,8 @@ def find_lib(root, name):
     elif name in ["gdiplus.dll"]:
         return True
     elif name.startswith("msvcr"):
+        return True
+    elif name.startswith("api-ms-win-"):
         return True
     return False
 

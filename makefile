@@ -101,7 +101,7 @@ install: build
 	$(PYTHON) setup.py install --root=$(DESTDIR) --prefix=$(PREFIX) --optimize=1
 
 install-win: build
-	$(PYTHON) setup.py install
+	$(PYTHON) setup.py install --old-and-unmanageable
 
 ##########################################################################
 ifdef VERSION
