@@ -1653,9 +1653,19 @@ def sanitize_filename(filename, max_length):
     >>> sanitize_filename('Cool feed (ogg)', 1)
     'C'
     """
-    if max_length > 0 and len(filename) > max_length:
+    if max_length > 0 and len(filename.encode('utf-8')) > max_length:
         logger.info('Limiting file/folder name "%s" to %d characters.', filename, max_length)
-        filename = filename[:max_length]
+        filename = filename.encode('utf-8')
+        length = len(filename)
+        while length > max_length:
+            # strip continuation bytes
+            while (filename[-1] & 0xC0) == 0x80:
+                filename = filename[:-1]
+                length -= 1
+            # strip leader byte
+            filename = filename[:-1]
+            length -= 1
+        filename = filename.decode('utf-8')
 
     # see #361 - at least slash must be removed
     filename = re.sub(r"[\"*/:<>?\\|]", "_", filename)
