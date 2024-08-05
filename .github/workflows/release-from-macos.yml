@@ -1,0 +1,31 @@
+name: release from macos
+
+on: [push, pull_request]
+
+jobs:
+  release-from-macos:
+    name: build
+    if: >-
+      github.event_name == 'push' ||
+      github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
+
+    runs-on: macos-12
+    env:
+      BUNDLE_TAG: 24.8.5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # fetch tags
+      - run: >
+             curl -L -o "pythonbase-$BUNDLE_TAG.zip" "https://github.com/gpodder/gpodder-osx-bundle/releases/download/$BUNDLE_TAG/pythonbase-$BUNDLE_TAG.zip";
+             curl -L -o "pythonbase-$BUNDLE_TAG.zip.sha256" "https://github.com/gpodder/gpodder-osx-bundle/releases/download/$BUNDLE_TAG/pythonbase-$BUNDLE_TAG.zip.sha256";
+             saved_hash=$(awk '{print $1;}' < "pythonbase-$BUNDLE_TAG.zip.sha256");
+             comp_hash=$(openssl sha256 "pythonbase-$BUNDLE_TAG.zip" | awk '{print $2;}');
+             if [ "$saved_hash" != "$comp_hash" ]; then echo "E: $saved_hash != $comp_hash"; exit 1; else echo "valid hash"; fi;
+             LC_CTYPE=C.UTF-8 LANG=C.UTF-8 tools/mac-osx/release_on_mac.sh "$(pwd)/pythonbase-$BUNDLE_TAG.zip" || exit 1;
+             rm -Rf tools/mac-osx/_build/{gPodder.app,*.deps.zip*,gPodder.contents,run-*,gpo,gpodder-migrate2tres}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release
+          path: /Users/runner/work/gpodder/gpodder/tools/mac-osx/_build/
+          retention-days: 30
