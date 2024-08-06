@@ -251,6 +251,9 @@ defaults = {
         'custom_file_format': '{episode.title}',
         'custom_file_format_enabled': False,
     },
+    'path': {
+        'alternate': '',
+    },
 }
 
 logger = logging.getLogger(__name__)
@@ -323,6 +326,10 @@ class Config(object):
             self.save()
 
         atexit.register(self.__atexit)
+
+        if self.path.alternate != '':
+            os.environ['PATH'] += os.pathsep + self.path.alternate
+            logger.info('Appending alternate PATH: %s' % self.path.alternate)
 
     def register_defaults(self, defaults):
         """
