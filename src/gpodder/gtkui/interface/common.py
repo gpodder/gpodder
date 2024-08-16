@@ -441,6 +441,7 @@ class ExtensionMenuHelper(object):
         parent.append_submenu(label, menu)
         return menu
 
+
 class Dummy:
     """Class with arbitrary attributes (for imitating e.g. Gtk Events)."""
 

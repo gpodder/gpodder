@@ -20,8 +20,8 @@
     <property name="window-position">center</property>
     <signal name="delete-event" handler="on_gPodder_delete_event" swapped="no"/>
     <child>
-      <!-- n-columns=1 n-rows=2 -->
-      <object class="GtkGrid" id="vMain">
+      <!-- n-columns=1 n-rows=3 -->
+      <object class="GtkBox" id="vMain">
         <property name="visible">True</property>
         <property name="can-focus">False</property>
         <property name="orientation">vertical</property>
@@ -151,11 +151,13 @@
               </packing>
             </child>
           </object>
-          <packing>
-            <property name="left-attach">0</property>
-            <property name="top-attach">0</property>
-          </packing>
         </child>
+        <child>
+          <object class="GtkBox" id="playbarContainer">
+            <property name="visible">True</property>
+            <property name="orientation">horizontal</property>
+		  </object>
+	    </child>
         <child>
           <!-- n-columns=1 n-rows=1 -->
           <object class="GtkGrid" id="hboxContainer">
@@ -647,10 +649,6 @@
               </packing>
             </child>
           </object>
-          <packing>
-            <property name="left-attach">0</property>
-            <property name="top-attach">1</property>
-          </packing>
         </child>
       </object>
     </child>

@@ -54,6 +54,7 @@ from .interface.common import (BuilderWidget, Dummy, ExtensionMenuHelper,
 from .interface.progress import ProgressIndicator
 from .interface.searchtree import SearchTree
 from .model import EpisodeListModel, PodcastChannelProxy, PodcastListModel
+from .playbar import Playbar
 from .services import CoverDownloader
 
 import gi  # isort:skip
@@ -113,6 +114,8 @@ class gPodder(BuilderWidget):
         self.config.connect_gtk_window(self.main_window, 'main_window')
 
         self.config.connect_gtk_paned('ui.gtk.state.main_window.paned_position', self.channelPaned)
+        self.playbar = Playbar(self.on_playbar_clicked)
+        self.playbarContainer.pack_start(self.playbar.box, True, True, 0)
 
         self.main_window.show()
 
@@ -532,9 +535,12 @@ class gPodder(BuilderWidget):
     def in_downloads_list(self):
         return self.wNotebook.get_current_page() == 1
 
-    def on_played(self, start, end, total, file_uri):
+    def on_played(self, start, end, total, file_uri, event):
         """Handle the "played" signal from a media player."""
-        if start == 0 and end == 0 and total == 0:
+        exited = event == player.MediaPlayerDBusReceiver.SIGNAL_EXITED
+        if exited:
+            pass
+        elif start == 0 and end == 0 and total == 0:
             # Ignore bogus play event
             return
         elif end < start + 5:
@@ -542,10 +548,15 @@ class gPodder(BuilderWidget):
             # as they can happen with seeking, etc...
             return
 
-        logger.debug('Received play action: %s (%d, %d, %d)', file_uri, start, end, total)
+        logger.debug('Received play action: %s (%d, %d, %d, %s)', file_uri, start, end, total, event)
         episode = self.episode_object_by_uri(file_uri)
 
         if episode is not None:
+            if exited:
+                # only playbar is interested, to clear itself and show "No Playback"
+                self.playbar.on_episode_playback(episode, start, end, total, file_uri, event)
+                # Especially don't update episode attributes: start, end, total are all 0
+                return
             now = time.time()
             if total > 0:
                 episode.total_time = total
@@ -562,8 +573,10 @@ class gPodder(BuilderWidget):
             episode.save()
             self.episode_list_status_changed([episode])
 
-            # Submit this action to the webservice
-            self.mygpo_client.on_playback_full(episode, start, end, total)
+            self.playbar.on_episode_playback(episode, start, end, total, file_uri, event)
+            if not exited and start >= 0:
+                # Submit this action to the webservice
+                self.mygpo_client.on_playback_full(episode, start, end, total)
 
     def on_add_remove_podcasts_mygpo(self):
         actions = self.mygpo_client.get_received_actions()
@@ -4121,3 +4134,6 @@ class gPodder(BuilderWidget):
                 self.subscribe_to_url,
                 self.mark_episode_played,
                 gdbus_conn)
+
+    def on_playbar_clicked(self, file_uri, position):
+        self.player_receiver.seek(file_uri, position)
