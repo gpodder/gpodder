@@ -207,17 +207,10 @@ class gPodderShownotesText(gPodderShownotes):
         self.text_view.connect('motion-notify-event', self.on_hover_hyperlink)
         self.populate_popup_id = None
         self.episode = None
-        self.chapters = Gtk.Scale(orientation=Gtk.Orientation.HORIZONTAL, draw_value=False)
-        vb = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        vb.add(self.text_view)
-        vb.add(self.chapters)
-        return vb
+        return self.text_view
 
     def update(self, episode):
         self.scrolled_window.get_vadjustment().set_value(0)
-        self.chapters.clear_marks()
-        self.chapters.set_range(0, episode.total_time)
-        self.chapters.set_value(episode.current_position or 0)
 
         heading = episode.title
         subheading = _('from %s') % (episode.channel.title)
@@ -258,7 +251,6 @@ class gPodderShownotesText(gPodderShownotes):
                 # for c, nc in zip(chapters, chapters[1:] + [{"start": episode.total_time}]):
                 align_hours = max(c["start"] for c in chapters) > 3600
                 for c in chapters:
-                    self.chapters.add_mark(c["start"], Gtk.PositionType.BOTTOM, None)
                     self.text_buffer.insert_at_cursor('\n')
                     hyperlinks.append((self.text_buffer.get_char_count(), c["start"]))
                     start_str = util.format_time(c["start"], always_include_hours=align_hours)
