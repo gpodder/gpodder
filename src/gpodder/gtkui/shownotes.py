@@ -56,17 +56,23 @@ except (ImportError, ValueError):
         has_webkit2 = False
 
 
-def get_shownotes(enable_html, pane):
+def get_shownotes(enable_html, pane, /, on_jump_to_position, on_show_chapters):
     if enable_html and has_webkit2:
-        return gPodderShownotesHTML(pane)
+        return gPodderShownotesHTML(pane,
+            on_jump_to_position=on_jump_to_position,
+            on_show_chapters=on_show_chapters)
     else:
-        return gPodderShownotesText(pane)
+        return gPodderShownotesText(pane,
+            on_jump_to_position=on_jump_to_position,
+            on_show_chapters=on_show_chapters)
 
 
 class gPodderShownotes:
-    def __init__(self, shownotes_pane):
+    def __init__(self, shownotes_pane, /, on_jump_to_position, on_show_chapters):
         self.shownotes_pane = shownotes_pane
-        self.details_fmt = _('%(date)s | %(size)s | %(duration)s')
+        self.on_jump_to_position = on_jump_to_position
+        self.on_show_chapters = on_show_chapters
+        self.details_fmt = _('%(date)s | %(size)s | %(duration)s | %(chapters)s')
 
         self.scrolled_window = Gtk.ScrolledWindow()
         self.scrolled_window.set_shadow_type(Gtk.ShadowType.IN)
@@ -219,7 +225,8 @@ class gPodderShownotesText(gPodderShownotes):
                 util.format_date(episode.published)),
             'size': util.format_filesize(episode.file_size, digits=1)
             if episode.file_size > 0 else "-",
-            'duration': episode.get_play_info_string()}
+            'duration': episode.get_play_info_string(),
+            'chapters': '-'}
         self.define_colors()
         hyperlinks = [(0, None)]
         self.text_buffer.set_text('')
@@ -231,7 +238,11 @@ class gPodderShownotesText(gPodderShownotes):
         self.text_buffer.insert_at_cursor('\n')
         self.text_buffer.insert_with_tags_by_name(self.text_buffer.get_end_iter(), subheading, 'subheading')
         self.text_buffer.insert_at_cursor('\n')
+        if episode.chapters:
+            hyperlinks.append((self.text_buffer.get_char_count(), "gpodder:show_chapters"))
         self.text_buffer.insert_with_tags_by_name(self.text_buffer.get_end_iter(), details, 'details')
+        if episode.chapters:
+            hyperlinks.append((self.text_buffer.get_char_count(), None))
         self.text_buffer.insert_at_cursor('\n\n')
         for target, text in util.extract_hyperlinked_text(episode.html_description()):
             hyperlinks.append((self.text_buffer.get_char_count(), target))
@@ -315,7 +326,13 @@ class gPodderShownotesText(gPodderShownotes):
             target = self.hyperlink_at_pos(pos)
             if target is not None:
                 if isinstance(target, int):
-                    logger.warning("TODO Jump to %s", target)
+                    if self.on_jump_to_position is not None:
+                        fn = self.episode.local_filename(create=False, check_only=True)
+                        if fn:
+                            self.on_jump_to_position(fn, target)
+                elif target == "gpodder:show_chapters":
+                    if self.on_show_chapters is not None:
+                        self.on_show_chapters(None)
                 else:
                     util.open_website(target)
 
@@ -380,12 +397,14 @@ class gPodderShownotesHTML(gPodderShownotes):
             self.manager.add_style_sheet(stylesheet)
         heading = '<h3>%s</h3>' % html.escape(episode.title)
         subheading = _('from %s') % html.escape(episode.channel.title)
-        details = '<small>%s</small>' % html.escape(self.details_fmt % {
-            'date': '{} {}'.format(episode.published_formatted('%H:%M', ''),
-                util.format_date(episode.published)),
-            'size': util.format_filesize(episode.file_size, digits=1)
-            if episode.file_size > 0 else "-",
-            'duration': episode.get_play_info_string()})
+        details = '<small>%s</small>' % self.details_fmt % {
+            'date': html.escape('{} {}'.format(episode.published_formatted('%H:%M', ''),
+                util.format_date(episode.published))),
+            'size': html.escape(util.format_filesize(episode.file_size, digits=1)
+            if episode.file_size > 0 else "-"),
+            'duration': html.escape(episode.get_play_info_string()),
+            'chapters': ('<a href="gpodder:show_chapters">Chapters</a>' if episode.chapters else '-')
+        }
         header_html = _('<div id="gpodder-title">\n%(heading)s\n<p>%(subheading)s</p>\n<p>%(details)s</p></div>\n') \
             % {'heading': heading, 'subheading': subheading, 'details': details}
         # uncomment to prevent background override in html shownotes
@@ -443,8 +462,13 @@ class gPodderShownotesHTML(gPodderShownotes):
             return False
         elif decision_type == WebKit2.PolicyDecisionType.NAVIGATION_ACTION:
             req = decision.get_request()
+            if req.get_uri() == "gpodder:show_chapters":
+                if self.on_show_chapters is not None:
+                    decision.ignore()
+                    self.on_show_chapters(None)
+                return False
             # about:blank is for plain text shownotes
-            if req.get_uri() in (self._base_uri, 'about:blank'):
+            elif req.get_uri() in (self._base_uri, 'about:blank'):
                 decision.use()
             else:
                 # Avoid opening the page inside the WebView and open in the browser instead

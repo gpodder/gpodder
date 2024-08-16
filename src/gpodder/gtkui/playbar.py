@@ -23,7 +23,7 @@
 #
 import logging
 
-from gi.repository import Gtk
+from gi.repository import Gtk, Pango
 
 import gpodder
 from gpodder.player import MediaPlayerDBusReceiver
@@ -51,7 +51,7 @@ class Playbar:
         self.playbar.set_range(0, 100)
         self.playbar.set_value(0)
         self.playbar.connect("change-value", self.on_change_value)
-        self.label = Gtk.Label(self.NO_PLAYBACK, visible=True)
+        self.label = Gtk.Label(self.NO_PLAYBACK, visible=True, ellipsize=Pango.EllipsizeMode.END)
         self.box.add(self.playbar)
         self.box.add(self.label)
         self.episode_id = None

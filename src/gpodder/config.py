@@ -154,6 +154,11 @@ defaults = {
                     'width': 500,
                     'height': 400,
                     'x': -1, 'y': -1, 'maximized': False,
+                },
+                'chapters': {
+                    'width': 500,
+                    'height': 400,
+                    'x': -1, 'y': -1, 'maximized': False,
                 }
             },
 

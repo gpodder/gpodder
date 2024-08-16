@@ -39,6 +39,7 @@ from gpodder.model import Model, PodcastEpisode
 from gpodder.syncui import gPodderSyncUI
 
 from . import shownotes
+from .chapters import Chapters
 from .desktop.channel import gPodderChannel
 from .desktop.episodeselector import gPodderEpisodeSelector
 from .desktop.exportlocal import gPodderExportToLocalFolder
@@ -114,9 +115,15 @@ class gPodder(BuilderWidget):
         self.config.connect_gtk_window(self.main_window, 'main_window')
 
         self.config.connect_gtk_paned('ui.gtk.state.main_window.paned_position', self.channelPaned)
-        self.playbar = Playbar(self.on_playbar_clicked)
+        self.playbar = Playbar(self.on_jump_player_to_position)
         self.playbarContainer.pack_start(self.playbar.box, True, True, 0)
-        self.playbar.box.set_property('visible', self.config.ui.gtk.playbar)
+
+        self.show_chapters = Gtk.Button.new_from_icon_name("view-list-symbolic", Gtk.IconSize.SMALL_TOOLBAR)
+        self.show_chapters.set_property('visible', True)
+        self.show_chapters.set_sensitive(False)
+        self.show_chapters.connect('clicked', self.on_show_chapters)
+        self.playbarContainer.pack_end(self.show_chapters, False, False, 10)
+        self.playbarContainer.set_property('visible', self.config.ui.gtk.playbar)
 
         self.main_window.show()
 
@@ -128,7 +135,11 @@ class gPodder(BuilderWidget):
         self.config.add_observer(self.on_config_changed)
 
         self.shownotes_pane = Gtk.Box()
-        self.shownotes_object = shownotes.get_shownotes(self.config.ui.gtk.html_shownotes, self.shownotes_pane)
+        self.shownotes_object = shownotes.get_shownotes(
+            self.config.ui.gtk.html_shownotes,
+            self.shownotes_pane,
+            self.on_jump_player_to_position,
+            self.on_show_chapters)
 
         # Vertical paned for the episode list and shownotes
         self.vpaned = Gtk.Paned(orientation=Gtk.Orientation.VERTICAL)
@@ -1184,7 +1195,9 @@ class gPodder(BuilderWidget):
         # Update the toolbar buttons
         self.play_or_download()
         # and the shownotes
-        self.shownotes_object.set_episodes(self.get_selected_episodes())
+        episodes = self.get_selected_episodes()
+        self.shownotes_object.set_episodes(episodes)
+        self.show_chapters.set_sensitive(bool(episodes and episodes[0].chapters))
 
     def on_download_list_selection_changed(self, selection):
         if self.in_downloads_list():
@@ -1491,7 +1504,7 @@ class gPodder(BuilderWidget):
 
     def _on_config_changed(self, name, old_value, new_value):
         if name == 'ui.gtk.playbar':
-            self.playbar.box.set_property('visible', self.config.ui.gtk.playbar)
+            self.playbarContainer.set_property('visible', self.config.ui.gtk.playbar)
         elif name == 'ui.gtk.toolbar':
             self.toolbar.set_property('visible', new_value)
         elif name in ('ui.gtk.episode_list.show_released_time',
@@ -4148,5 +4161,18 @@ class gPodder(BuilderWidget):
                 self.mark_episode_played,
                 gdbus_conn)
 
-    def on_playbar_clicked(self, file_uri, position):
+    def on_jump_player_to_position(self, file_uri, position):
+        logger.debug("on_jump_player_to_position(%s, %i)", file_uri, position)
         self.player_receiver.seek(file_uri, position)
+
+    def on_show_chapters(self, _btn):
+        episodes = self.get_selected_episodes()
+        if episodes and episodes[0].chapters:
+            episode = episodes[0]
+            d = Gtk.Window()
+            d.set_transient_for(self.gPodder)
+            self.config.connect_gtk_window(d, 'chapters')
+            d.set_title(_("Chapters for %(title)s" % {"title": episode.title}))
+            c = Chapters(episode, self.on_jump_player_to_position)
+            d.add(c.box)
+            d.set_visible(True)
