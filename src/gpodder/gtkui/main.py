@@ -116,6 +116,7 @@ class gPodder(BuilderWidget):
         self.config.connect_gtk_paned('ui.gtk.state.main_window.paned_position', self.channelPaned)
         self.playbar = Playbar(self.on_playbar_clicked)
         self.playbarContainer.pack_start(self.playbar.box, True, True, 0)
+        self.playbar.box.set_property('visible', self.config.ui.gtk.playbar)
 
         self.main_window.show()
 
@@ -275,6 +276,11 @@ class gPodder(BuilderWidget):
         g = self.gPodder
 
         # View
+
+        action = Gio.SimpleAction.new_stateful(
+            'showPlaybar', None, GLib.Variant.new_boolean(self.config.ui.gtk.playbar))
+        action.connect('activate', self.on_itemShowPlaybar_activate)
+        g.add_action(action)
 
         action = Gio.SimpleAction.new_stateful(
             'showToolbar', None, GLib.Variant.new_boolean(self.config.ui.gtk.toolbar))
@@ -1484,7 +1490,9 @@ class gPodder(BuilderWidget):
         util.idle_add(self._on_config_changed, *args)
 
     def _on_config_changed(self, name, old_value, new_value):
-        if name == 'ui.gtk.toolbar':
+        if name == 'ui.gtk.playbar':
+            self.playbar.box.set_property('visible', self.config.ui.gtk.playbar)
+        elif name == 'ui.gtk.toolbar':
             self.toolbar.set_property('visible', new_value)
         elif name in ('ui.gtk.episode_list.show_released_time',
                 'ui.gtk.episode_list.descriptions',
@@ -3444,6 +3452,11 @@ class gPodder(BuilderWidget):
     def commit_changes_to_database(self):
         """Called after the sync process is finished."""  # noqa: D401
         self.db.commit()
+
+    def on_itemShowPlaybar_activate(self, action, param):
+        state = action.get_state()
+        self.config.ui.gtk.playbar = not state
+        action.set_state(GLib.Variant.new_boolean(not state))
 
     def on_itemShowToolbar_activate(self, action, param):
         state = action.get_state()

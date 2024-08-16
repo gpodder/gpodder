@@ -157,6 +157,7 @@ defaults = {
                 }
             },
 
+            'playbar': True,
             'toolbar': False,
             'new_episodes': 'show',  # ignore, show, queue, download
             'only_added_are_new': False,  # Only just added episodes are considered new after an update
