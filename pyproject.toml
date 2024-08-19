@@ -1,13 +1,12 @@
 [build-system]
 requires = [
-    "setuptools",
+    "setuptools>=64",
     "build",
 ]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "gpodder"
-version = "3.11.4"
 description = "Media aggregator and podcast client"
 authors = [
     {name = "Thomas Perl", email = "thp@gpodder.org"},
@@ -23,6 +22,10 @@ dependencies = [
     "dbus-python;platform_system=='Linux'",
     "PyGObject",
 ]
+dynamic = ["version"]
+
+[project.optional-dependencies]
+gui = ["PySocks"]
 
 [project.urls]
 Homepage = "http://gpodder.org"
@@ -31,6 +34,9 @@ Repository = "https://github.com/gpodder/gpodder"
 Issues = "https://github.com/gpodder/gpodder/issues"
 "Mailing List" = "http://freelists.org/list/gpodder"
 "IRC Channel" = "irc://irc.libera.chat/#gpodder"
+
+[tool.setuptools.dynamic]
+version = {attr = "gpodder.__version__"}
 
 [tool.setuptools]
 

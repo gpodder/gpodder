@@ -18,6 +18,8 @@
 #
 
 # This metadata block gets parsed by setup.py - use single quotes only
+__tagline__ = 'Media aggregator and podcast client'
+__version__ = '3.11.4'
 __date__ = '2023-10-11'
 __copyright__ = '© 2005-2023 The gPodder Team'
 
