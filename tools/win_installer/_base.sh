@@ -210,8 +210,8 @@ function cleanup_before {
     find "${MINGW_ROOT}"/bin -name "*.pyc" -exec rm -f {} \;
     find "${MINGW_ROOT}" -type d -name "__pycache__" -prune -exec rm -rf {} \;
 
-    build_compileall -d "" -f -q "$(cygpath -w "${MINGW_ROOT}")"
-    find "${MINGW_ROOT}" -name "*.py" -exec rm -f {} \;
+#    build_compileall -d "" -f -q "$(cygpath -w "${MINGW_ROOT}")"
+#    find "${MINGW_ROOT}" -name "*.py" -exec rm -f {} \;
 }
 
 function cleanup_after {
@@ -332,9 +332,12 @@ function cleanup_after {
     find "${MINGW_ROOT}"/bin -name "*.pyc" -exec rm -f {} \;
     find "${MINGW_ROOT}" -type d -name "__pycache__" -prune -exec rm -rf {} \;
 
-    build_python "${MISC}/depcheck.py" --delete
+#    build_python "${MISC}/depcheck.py" --delete
 
     find "${MINGW_ROOT}" -type d -empty -delete
+
+    build_compileall -d "" -f -q "$(cygpath -w "${MINGW_ROOT}")"
+    find "${MINGW_ROOT}" -path "**/share/gpodder/extensions" -prune -o -name "*.py" -exec rm -f {} \;
 }
 
 function dump_packages {
