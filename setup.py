@@ -32,6 +32,14 @@ installing = ('install' in sys.argv and '--help' not in sys.argv)
 os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
 
+class MissingFile(BaseException):
+    pass
+
+
+def info(message, item=None):
+    print('=>', message, item if item is not None else '')
+
+
 def find_data_files(uis, scripts):
     # Support for installing only a subset of translations
     linguas = os.environ.get('LINGUAS', None)
