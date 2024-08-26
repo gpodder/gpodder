@@ -610,7 +610,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             # In the future, we might retrieve the title from gpodder.net here,
             # but for now, we just use "None" to use the feed-provided title
             title = None
-            add_list = [(title, c.action.url)
+            section = None
+            add_list = [(title, c.action.url, section)
                     for c in selected if c.action.is_add]
             remove_list = [c.podcast for c in selected if c.action.is_remove]
 
@@ -2561,9 +2562,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # For a given URL, the desired title (or None)
         title_for_url = {}
 
+        # For a given URL, the desired section (or None)
+        section_for_url = {}
+
         # Sort and split the URL list into five buckets
         queued, failed, existing, worked, authreq = [], [], [], [], []
-        for input_title, input_url in podcasts:
+        for input_title, input_url, input_section in podcasts:
             url = util.normalize_feed_url(input_url)
 
             # Check if it's a YouTube channel, user, or playlist and resolves it to its feed if that's the case
@@ -2580,6 +2584,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             else:
                 # This URL has survived the first round - queue for add
                 title_for_url[url] = input_title
+                section_for_url[url] = input_section
                 queued.append(url)
                 if url != input_url and input_url in auth_tokens:
                     auth_tokens[url] = auth_tokens[input_url]
@@ -2654,7 +2659,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             # If we have authentication data to retry, do so here
             if retry_podcasts:
-                podcasts = [(title_for_url.get(url), url)
+                podcasts = [(title_for_url.get(url), url, section_for_url.get(url))
                         for url in list(retry_podcasts.keys())]
                 self.add_podcast_list(podcasts, retry_podcasts)
                 # This will NOT show new episodes for podcasts that have
@@ -2680,6 +2685,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             length = len(queued)
             for index, url in enumerate(queued):
                 title = title_for_url.get(url)
+                section = section_for_url.get(url)
                 progress.on_progress(float(index) / float(length))
                 progress.on_message(title or url)
                 try:
@@ -2696,6 +2702,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     if title is not None:
                         # Prefer title from subscription source (bug 1711)
                         channel.title = title
+                    if section is not None:
+                        channel.section = section
 
                     if username is not None and channel.auth_username is None and \
                             password is not None and channel.auth_password is None:
