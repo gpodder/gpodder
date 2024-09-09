@@ -209,9 +209,6 @@ function cleanup_before {
     find "${MINGW_ROOT}"/bin -name "*.pyo" -exec rm -f {} \;
     find "${MINGW_ROOT}"/bin -name "*.pyc" -exec rm -f {} \;
     find "${MINGW_ROOT}" -type d -name "__pycache__" -prune -exec rm -rf {} \;
-
-#    build_compileall -d "" -f -q "$(cygpath -w "${MINGW_ROOT}")"
-#    find "${MINGW_ROOT}" -name "*.py" -exec rm -f {} \;
 }
 
 function cleanup_after {
@@ -332,11 +329,13 @@ function cleanup_after {
     find "${MINGW_ROOT}"/bin -name "*.pyc" -exec rm -f {} \;
     find "${MINGW_ROOT}" -type d -name "__pycache__" -prune -exec rm -rf {} \;
 
+# TODO: Commented out until we can make depcheck.py working again.
 #    build_python "${MISC}/depcheck.py" --delete
 
     find "${MINGW_ROOT}" -type d -empty -delete
 
     build_compileall -d "" -f -q "$(cygpath -w "${MINGW_ROOT}")"
+    # Excluding gpodder/extensions directory so they can be found by gpodder extensions.py
     find "${MINGW_ROOT}" -path "**/share/gpodder/extensions" -prune -o -name "*.py" -exec rm -f {} \;
 }
 
