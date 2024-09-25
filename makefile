@@ -96,12 +96,13 @@ $(GPODDER_SERVICE_FILE): $(GPODDER_SERVICE_FILE_IN)
 	intltool-extract --quiet --type=gettext/ini $<
 
 build: messages $(GPODDER_SERVICE_FILE) $(DESKTOP_FILES)
+	$(PYTHON) -m build --wheel --no-isolation
 
 install: build
-	$(PYTHON) -m pip install --root=$(DESTDIR) --prefix=$(PREFIX) --compile .
+	$(PYTHON) -m installer --destdir=$(DESTDIR) --prefix=$(PREFIX) dist/*.whl
 
 install-win: build
-	$(PYTHON) -m pip install .
+	$(PYTHON) -m installer dist/*.whl
 
 ##########################################################################
 ifdef VERSION
