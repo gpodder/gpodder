@@ -61,7 +61,7 @@ function install_pre_deps {
 	# install python3 here to ensure same version
     pacman -S --needed --noconfirm p7zip git dos2unix rsync \
         mingw-w64-"${ARCH}"-nsis wget libidn2 libopenssl intltool mingw-w64-"${ARCH}"-toolchain \
-        mingw-w64-"${ARCH}"-python3
+        mingw-w64-"${ARCH}"-python
 }
 
 function create_root {
@@ -108,14 +108,18 @@ function install_deps {
 
     build_pacman --noconfirm -S git mingw-w64-"${ARCH}"-gdk-pixbuf2 \
         mingw-w64-"${ARCH}"-librsvg \
-        mingw-w64-"${ARCH}"-gtk3 mingw-w64-"${ARCH}"-python3 \
-        mingw-w64-"${ARCH}"-python3-gobject \
-        mingw-w64-"${ARCH}"-python3-cairo \
-        mingw-w64-"${ARCH}"-python3-pip \
+        mingw-w64-"${ARCH}"-gtk3 mingw-w64-"${ARCH}"-python \
+        mingw-w64-"${ARCH}"-python-gobject \
+        mingw-w64-"${ARCH}"-python-cairo \
+        mingw-w64-"${ARCH}"-python-pip \
         mingw-w64-"${ARCH}"-python-six \
 		mingw-w64-"${ARCH}"-make
 
-    build_pacman -S --noconfirm mingw-w64-"${ARCH}"-python3-setuptools
+    build_pacman -S --noconfirm \
+        mingw-w64-"${ARCH}"-python-setuptools \
+        mingw-w64-"${ARCH}"-python-build \
+        mingw-w64-"${ARCH}"-python-installer
+
 
     build_pip install --no-deps --no-binary ":all:" --upgrade \
         --force-reinstall $(echo "$PIP_REQUIREMENTS" | tr ["\\n"] [" "])
@@ -126,7 +130,7 @@ function install_deps {
     site_packages=$(build_python -c  'import sys;print(next(c for c in sys.path if "site-packages" in c and ".local" not in c))')
     cp -v ${site_packages}/certifi/cacert.pem ${MINGW_ROOT}/ssl/cert.pem
 
-    build_pacman --noconfirm -Rdds mingw-w64-"${ARCH}"-python3-pip || true
+    build_pacman --noconfirm -Rdds mingw-w64-"${ARCH}"-python-pip || true
 }
 
 function install_gpodder {
