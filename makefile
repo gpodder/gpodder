@@ -168,6 +168,7 @@ clean:
 	rm -f $(GPODDER_SERVICE_FILE)
 	rm -f $(DESKTOP_FILES) $(DESKTOP_FILES_IN_H)
 	rm -rf build $(LOCALEDIR)
+	rm -rf src/gpodder.egg-info
 
 distclean: clean
 	rm -rf dist
