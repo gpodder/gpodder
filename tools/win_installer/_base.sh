@@ -336,7 +336,10 @@ function cleanup_after {
 
     build_compileall -d "" -f -q "$(cygpath -w "${MINGW_ROOT}")"
     # Excluding gpodder/extensions directory so they can be found by gpodder extensions.py
-    find "${MINGW_ROOT}" -path "**/share/gpodder/extensions" -prune -o -name "*.py" -exec rm -f {} \;
+    # Also excluding entire source of gpodder so it can be modified by end-user
+    find "${MINGW_ROOT}" -path "**/share/gpodder/extensions" -prune -o \
+                         -path "**/site-packages/gpodder" -prune -o \
+                         -name "*.py" -exec rm -f {} \;
 }
 
 function dump_packages {
