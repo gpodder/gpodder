@@ -130,7 +130,8 @@ function install_deps {
     site_packages=$(build_python -c  'import sys;print(next(c for c in sys.path if "site-packages" in c and ".local" not in c))')
     cp -v ${site_packages}/certifi/cacert.pem ${MINGW_ROOT}/ssl/cert.pem
 
-    build_pacman --noconfirm -Rdds mingw-w64-"${ARCH}"-python-pip || true
+    # This would remove setuptools also. We need it for building the wheel
+    #build_pacman --noconfirm -Rdds mingw-w64-"${ARCH}"-python-pip || true
 }
 
 function install_gpodder {
