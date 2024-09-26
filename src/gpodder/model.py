@@ -1377,7 +1377,7 @@ class PodcastChannel(PodcastModelObject):
             else:
                 other += 1
 
-        if audio >= video:
+        if audio and audio >= video:
             return _('Audio')
         elif video > other:
             return _('Video')
