@@ -454,7 +454,6 @@ function build_installer {
     echo "BUILD_VERSION = $BUILD_VERSION" >> "$BUILDPY"
     (cd "$REPO_CLONE" && echo "BUILD_INFO = u\"$(cd "${REPO_CLONE}" && git rev-parse --short HEAD)\"" >> "$BUILDPY")
     (cd $(dirname "$BUILDPY") && build_compileall -d "" -q -f -l .)
-    rm -f "$BUILDPY"
 
     cp "${MISC}"/gpodder.ico "${BUILD_ROOT}"
     (cd "$BUILD_ROOT" && makensis -V3 -NOCD -DVERSION="$GPO_VERSION_DESC" "${MISC}"/win_installer.nsi)
@@ -469,7 +468,6 @@ function build_portable_installer {
     echo "BUILD_VERSION = $BUILD_VERSION" >> "$BUILDPY"
     (cd "$REPO_CLONE" && echo "BUILD_INFO = u\"$(cd "${REPO_CLONE}" && git rev-parse --short HEAD)\"" >> "$BUILDPY")
     (cd $(dirname "$BUILDPY") && build_compileall -d "" -q -f -l .)
-    rm -f "$BUILDPY"
 
     local PORTABLE="$DIR/gpodder-${GPO_VERSION_DESC}-portable"
 
