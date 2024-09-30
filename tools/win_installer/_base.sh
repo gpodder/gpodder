@@ -120,7 +120,6 @@ function install_deps {
         mingw-w64-"${ARCH}"-python-build \
         mingw-w64-"${ARCH}"-python-installer
 
-
     build_pip install --no-deps --no-binary ":all:" --upgrade \
         --force-reinstall $(echo "$PIP_REQUIREMENTS" | tr ["\\n"] [" "])
 
