@@ -61,7 +61,7 @@ function install_pre_deps {
 	# install python3 here to ensure same version
     pacman -S --needed --noconfirm p7zip git dos2unix rsync \
         mingw-w64-"${ARCH}"-nsis wget libidn2 libopenssl intltool mingw-w64-"${ARCH}"-toolchain \
-        mingw-w64-"${ARCH}"-python3
+        mingw-w64-"${ARCH}"-python
 }
 
 function create_root {
@@ -108,14 +108,17 @@ function install_deps {
 
     build_pacman --noconfirm -S git mingw-w64-"${ARCH}"-gdk-pixbuf2 \
         mingw-w64-"${ARCH}"-librsvg \
-        mingw-w64-"${ARCH}"-gtk3 mingw-w64-"${ARCH}"-python3 \
-        mingw-w64-"${ARCH}"-python3-gobject \
-        mingw-w64-"${ARCH}"-python3-cairo \
-        mingw-w64-"${ARCH}"-python3-pip \
+        mingw-w64-"${ARCH}"-gtk3 mingw-w64-"${ARCH}"-python \
+        mingw-w64-"${ARCH}"-python-gobject \
+        mingw-w64-"${ARCH}"-python-cairo \
+        mingw-w64-"${ARCH}"-python-pip \
         mingw-w64-"${ARCH}"-python-six \
 		mingw-w64-"${ARCH}"-make
 
-    build_pacman -S --noconfirm mingw-w64-"${ARCH}"-python3-setuptools
+    build_pacman -S --noconfirm \
+        mingw-w64-"${ARCH}"-python-setuptools \
+        mingw-w64-"${ARCH}"-python-build \
+        mingw-w64-"${ARCH}"-python-installer
 
     build_pip install --no-deps --no-binary ":all:" --upgrade \
         --force-reinstall $(echo "$PIP_REQUIREMENTS" | tr ["\\n"] [" "])
@@ -126,7 +129,8 @@ function install_deps {
     site_packages=$(build_python -c  'import sys;print(next(c for c in sys.path if "site-packages" in c and ".local" not in c))')
     cp -v ${site_packages}/certifi/cacert.pem ${MINGW_ROOT}/ssl/cert.pem
 
-    build_pacman --noconfirm -Rdds mingw-w64-"${ARCH}"-python3-pip || true
+    # This would remove setuptools also. We need it for building the wheel
+    #build_pacman --noconfirm -Rdds mingw-w64-"${ARCH}"-python-pip || true
 }
 
 function install_gpodder {
@@ -209,9 +213,6 @@ function cleanup_before {
     find "${MINGW_ROOT}"/bin -name "*.pyo" -exec rm -f {} \;
     find "${MINGW_ROOT}"/bin -name "*.pyc" -exec rm -f {} \;
     find "${MINGW_ROOT}" -type d -name "__pycache__" -prune -exec rm -rf {} \;
-
-    build_compileall -d "" -f -q "$(cygpath -w "${MINGW_ROOT}")"
-    find "${MINGW_ROOT}" -name "*.py" -exec rm -f {} \;
 }
 
 function cleanup_after {
@@ -332,9 +333,17 @@ function cleanup_after {
     find "${MINGW_ROOT}"/bin -name "*.pyc" -exec rm -f {} \;
     find "${MINGW_ROOT}" -type d -name "__pycache__" -prune -exec rm -rf {} \;
 
-    build_python "${MISC}/depcheck.py" --delete
+# TODO: Commented out until we can make depcheck.py working again.
+#    build_python "${MISC}/depcheck.py" --delete
 
     find "${MINGW_ROOT}" -type d -empty -delete
+
+    build_compileall -d "" -f -q "$(cygpath -w "${MINGW_ROOT}")"
+    # Excluding gpodder/extensions directory so they can be found by gpodder extensions.py
+    # Also excluding entire source of gpodder so it can be modified by end-user
+    find "${MINGW_ROOT}" -path "**/share/gpodder/extensions" -prune -o \
+                         -path "**/site-packages/gpodder" -prune -o \
+                         -name "*.py" -exec rm -f {} \;
 }
 
 function dump_packages {
@@ -439,13 +448,12 @@ function dump_packages {
 }
 
 function build_installer {
-    BUILDPY="${REPO_CLONE}"/build/lib/gpodder/build_info.py
+    BUILDPY=$(echo "${MINGW_ROOT}"/lib/python3.*/site-packages/gpodder)/build_info.py
     cp "${REPO_CLONE}"/src/gpodder/build_info.py "$BUILDPY"
     echo 'BUILD_TYPE = u"windows"' >> "$BUILDPY"
     echo "BUILD_VERSION = $BUILD_VERSION" >> "$BUILDPY"
     (cd "$REPO_CLONE" && echo "BUILD_INFO = u\"$(cd "${REPO_CLONE}" && git rev-parse --short HEAD)\"" >> "$BUILDPY")
     (cd $(dirname "$BUILDPY") && build_compileall -d "" -q -f -l .)
-    rm -f "$BUILDPY"
 
     cp "${MISC}"/gpodder.ico "${BUILD_ROOT}"
     (cd "$BUILD_ROOT" && makensis -V3 -NOCD -DVERSION="$GPO_VERSION_DESC" "${MISC}"/win_installer.nsi)
@@ -454,13 +462,12 @@ function build_installer {
 }
 
 function build_portable_installer {
-    BUILDPY="${REPO_CLONE}"/build/lib/gpodder/build_info.py
+    BUILDPY=$(echo "${MINGW_ROOT}"/lib/python3.*/site-packages/gpodder)/build_info.py
     cp "${REPO_CLONE}"/src/gpodder/build_info.py "$BUILDPY"
     echo 'BUILD_TYPE = u"windows-portable"' >> "$BUILDPY"
     echo "BUILD_VERSION = $BUILD_VERSION" >> "$BUILDPY"
     (cd "$REPO_CLONE" && echo "BUILD_INFO = u\"$(cd "${REPO_CLONE}" && git rev-parse --short HEAD)\"" >> "$BUILDPY")
     (cd $(dirname "$BUILDPY") && build_compileall -d "" -q -f -l .)
-    rm -f "$BUILDPY"
 
     local PORTABLE="$DIR/gpodder-${GPO_VERSION_DESC}-portable"
 

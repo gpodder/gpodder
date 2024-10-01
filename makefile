@@ -78,7 +78,7 @@ lint:
 	codespell --quiet-level 3 --skip "./.git,*.po,.mypy_cache,./share/applications/gpodder.desktop"
 
 release: distclean
-	$(PYTHON) setup.py sdist
+	$(PYTHON) -m build --sdist
 
 releasetest: unittest $(DESKTOP_FILES) $(POFILES)
 	for f in $(DESKTOP_FILES); do desktop-file-validate $$f || exit 1; done
@@ -97,11 +97,14 @@ $(GPODDER_SERVICE_FILE): $(GPODDER_SERVICE_FILE_IN)
 
 build: messages $(GPODDER_SERVICE_FILE) $(DESKTOP_FILES)
 
-install: build
-	$(PYTHON) setup.py install --root=$(DESTDIR) --prefix=$(PREFIX) --optimize=1
+buildwheel: build
+	$(PYTHON) -m build --wheel --no-isolation
 
-install-win: build
-	$(PYTHON) setup.py install
+install: buildwheel
+	$(PYTHON) -m installer --destdir=$(DESTDIR) --prefix=$(PREFIX) dist/*.whl
+
+install-win: buildwheel
+	$(PYTHON) -m installer dist/*.whl
 
 ##########################################################################
 ifdef VERSION
@@ -119,10 +122,10 @@ endif
 manpages: $(MANPAGES)
 
 share/man/man1/gpodder.1: src/gpodder/__init__.py $(BINFILE)
-	LC_ALL=C $(HELP2MAN) --name="$(shell $(PYTHON) setup.py --description)" -N $(BINFILE) >$@
+	LC_ALL=C $(HELP2MAN) --name="$(shell $(PYTHON) -c 'import build.util; print(build.util.project_wheel_metadata(".")["Summary"])')" -N $(BINFILE) >$@
 
 share/man/man1/gpo.1: src/gpodder/__init__.py
-	sed -i 's/^\.TH.*/.TH GPO "1" "$(shell LANG=en date "+%B %Y")" "gpodder $(shell $(PYTHON) setup.py --version)" "User Commands"/' $@
+	sed -i 's/^\.TH.*/.TH GPO "1" "$(shell LANG=en date "+%B %Y")" "gpodder $(shell $(PYTHON) -c 'import build.util; print(build.util.project_wheel_metadata(".")["Version"])')" "User Commands"/' $@
 
 ##########################################################################
 
@@ -167,6 +170,7 @@ clean:
 	rm -f $(GPODDER_SERVICE_FILE)
 	rm -f $(DESKTOP_FILES) $(DESKTOP_FILES_IN_H)
 	rm -rf build $(LOCALEDIR)
+	rm -rf src/gpodder.egg-info
 
 distclean: clean
 	rm -rf dist
