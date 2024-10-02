@@ -70,10 +70,16 @@ class Importer(object):
         else:
             doc = xml.dom.minidom.parse(io.BytesIO(util.urlopen(url).content))
 
+        section = None
         for outline in doc.getElementsByTagName('outline'):
             # Make sure we are dealing with a valid link type (ignore case)
             otl_type = outline.getAttribute('type')
             if otl_type is None or otl_type.lower() not in self.VALID_TYPES:
+                otl_title = outline.getAttribute('title')
+                otl_text = outline.getAttribute('text')
+                # gPodder sections will have name == text, if OPML accepts it type=section
+                if otl_title is not None and otl_title == otl_text:
+                    section = otl_title
                 continue
 
             if outline.getAttribute('xmlUrl') or outline.getAttribute('url'):
@@ -90,6 +96,7 @@ class Importer(object):
                         outline.getAttribute('text')
                         or outline.getAttribute('xmlUrl')
                         or outline.getAttribute('url'),
+                    'section': section,
                 }
 
                 if channel['description'] == channel['title']:
@@ -143,6 +150,15 @@ class Exporter(object):
         outline.setAttribute('type', self.FEED_TYPE)
         return outline
 
+    def create_section(self, doc, name):
+        """
+        Creates an empty OPML outline element used to divide sections.
+        """
+        section = doc.createElement('outline')
+        section.setAttribute('title', name)
+        section.setAttribute('text', name)
+        return section
+
     def write(self, channels):
         """
         Creates a XML document containing metadata for each
@@ -169,8 +185,16 @@ class Exporter(object):
         opml.appendChild(head)
 
         body = doc.createElement('body')
+
+        sections = {}
         for channel in channels:
-            body.appendChild(self.create_outline(doc, channel))
+            if channel.section not in sections.keys():
+                sections[channel.section] = self.create_section(doc, channel.section)
+            sections[channel.section].appendChild(self.create_outline(doc, channel))
+
+        for section in sections.values():
+            body.appendChild(section)
+
         opml.appendChild(body)
 
         try:

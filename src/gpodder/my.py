@@ -657,11 +657,11 @@ class Directory(object):
         self.client = public.PublicClient()
 
     def toplist(self):
-        return [(p.title or p.url, p.url)
+        return [(p.title or p.url, p.url, None)
                 for p in self.client.get_toplist()
                 if p.url]
 
     def search(self, query):
-        return [(p.title or p.url, p.url)
+        return [(p.title or p.url, p.url, None)
                 for p in self.client.search_podcasts(query)
                 if p.url]
