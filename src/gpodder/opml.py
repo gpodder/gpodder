@@ -75,7 +75,6 @@ class Importer(object):
             # Make sure we are dealing with a valid link type (ignore case)
             otl_type = outline.getAttribute('type')
             if otl_type is None or otl_type.lower() not in self.VALID_TYPES:
-                breakpoint()
                 otl_title = outline.getAttribute('title')
                 otl_text = outline.getAttribute('text')
                 # gPodder sections will have name == text, if OPML accepts it type=section
@@ -97,7 +96,7 @@ class Importer(object):
                         outline.getAttribute('text')
                         or outline.getAttribute('xmlUrl')
                         or outline.getAttribute('url'),
-                    'section': section or 'audio',
+                    'section': section,
                 }
 
                 if channel['description'] == channel['title']:
