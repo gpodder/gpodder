@@ -53,11 +53,15 @@ class DirectoryPodcastsModel(Gtk.ListStore):
         self.clear()
         for entry in directory_entries:
             if entry.subscribers != -1:
-                self.append((False, '%s (%d)\n<small>%s</small>' % (html.escape(entry.title),
-                    entry.subscribers, html.escape(entry.url)), entry.title, entry.url, entry.section))
+                subscribers_part = '(%d)' % entry.subscribers
             else:
-                self.append((False, '%s\n<small>%s</small>' % (html.escape(entry.title),
-                    html.escape(entry.url)), entry.title, entry.url, entry.section))
+                subscribers_part = ''
+            if entry.section:
+                section_part = '%s\n' % (html.escape(entry.section))
+            else:
+                section_part = ''
+            self.append((False, '%s%s%s\n<small>%s</small>' % (section_part, html.escape(entry.title),
+                subscribers_part, html.escape(entry.url)), entry.title, entry.url, entry.section))
         self.callback_can_subscribe(len(self.get_selected_podcasts()) > 0)
 
     def toggle(self, path):
