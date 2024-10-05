@@ -426,7 +426,7 @@ function dump_packages {
 				done < <(find "${MINGW_ROOT}/ssl" -type f -path '*/ssl/cert.pem')
 			else
 				# other python deps provide an installed-files.txt, so simply go through them
-				egg="${MINGW_ROOT}/lib/python3.6/site-packages/${pkg}-${version}-py3.6.egg-info"
+				egg=$(echo "${MINGW_ROOT}"/lib/python3.*/site-packages/${pkg}-${version}-py3.*.egg-info)
 				if [ -f "$egg/installed-files.txt" ]; then
 					while read file; do
 						realfile=""
