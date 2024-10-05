@@ -104,9 +104,9 @@ class MPRISResumer(FreeDesktopPlayer):
             return False
         return util.find_command(self.command[0]) is not None
 
-    def enqueue_episodes(self, episodes, config=None):
+    def enqueue_episodes(self, episodes, config=None, position=None):
         self.do_enqueue(episodes[0].get_playback_url(config=config),
-                        episodes[0].current_position)
+                        position or episodes[0].current_position)
 
         for episode in episodes:
             episode.playback_mark()
@@ -281,12 +281,21 @@ class gPodderExtension:
                for p in self.players]
 
         # needs dbus, doesn't handle more than 1 episode
-        # and no point in using DBus when episode is not played.
-        if not hasattr(gpodder.dbus_session_bus, 'fake') and \
-                len(episodes) == 1 and episodes[0].current_position > 0:
-            ret.extend([(p.title, functools.partial(p.enqueue_episodes, config=self.gpodder_config))
-                        for p in self.resumers])
-
+        if not hasattr(gpodder.dbus_session_bus, 'fake') and len(episodes) == 1:
+            # no point in using DBus when episode is not played.
+            if episodes[0].current_position > 0:
+                ret.extend([(p.title, functools.partial(p.enqueue_episodes, config=self.gpodder_config))
+                            for p in self.resumers])
+            # construct chapters menu
+            if episodes[0].chapters:
+                chapters = episodes[0].parsed_chapters
+                for c in chapters:
+                    time_str = util.format_time(c["start"])
+                    # gPodder uses / to describe sub-menus. Replace it with a similar character
+                    title = c["title"].replace("/", "\u2215")
+                    for p in self.resumers:
+                        t = "%s/%s/%s" % (_("Chapters"), title, _("Jump to %s in %s") % (time_str, p.application))
+                        ret.append((t, functools.partial(p.enqueue_episodes, config=self.gpodder_config, position=c["start"])))
         return ret
 
     def on_episode_downloaded(self, episode):

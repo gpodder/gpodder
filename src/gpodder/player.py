@@ -49,18 +49,23 @@
 #   the position to which the seek jumps).
 #
 
-
+import logging
 import urllib.error
 import urllib.parse
 import urllib.request
 
+import dbus
+
 import gpodder
+
+logger = logging.getLogger(__name__)
 
 
 class MediaPlayerDBusReceiver(object):
     INTERFACE = 'org.gpodder.player'
     SIGNAL_STARTED = 'PlaybackStarted'
     SIGNAL_STOPPED = 'PlaybackStopped'
+    SIGNAL_EXITED = 'PlayerExited'
 
     def __init__(self, on_play_event):
         self.on_play_event = on_play_event
@@ -76,11 +81,39 @@ class MediaPlayerDBusReceiver(object):
                                      self.INTERFACE,
                                      None,
                                      None)
+        self.bus.add_signal_receiver(self.on_player_exited,
+                                     self.SIGNAL_EXITED,
+                                     self.INTERFACE,
+                                     None,
+                                     None)
 
-    def on_playback_started(self, position, file_uri):
-        pass
+    def on_playback_started(self, position, total, file_uri):
+        logger.debug("Player.on_playback_started(%s, %s, %s)", position, total, file_uri)
+        self.on_play_event(-1000, position, total, file_uri, event=self.SIGNAL_STARTED)
 
     def on_playback_stopped(self, start, end, total, file_uri):
+        logger.debug("Player.on_playback_stopped(%s, %s, %s, %s)", start, end, total, file_uri)
         if file_uri.startswith('/'):
             file_uri = 'file://' + urllib.parse.quote(file_uri)
-        self.on_play_event(start, end, total, file_uri)
+        self.on_play_event(start, end, total, file_uri, event=self.SIGNAL_STOPPED)
+
+    def on_player_exited(self, file_uri):
+        logger.debug("Player.on_player_exited(%s)", file_uri)
+        if file_uri.startswith('/'):
+            file_uri = 'file://' + urllib.parse.quote(file_uri)
+        self.on_play_event(0, 0, 0, file_uri, event=self.SIGNAL_EXITED)
+
+    def seek(self, file_uri, position):
+        # FIXME: panucci would have a different name
+        if file_uri.startswith('/'):
+            file_uri = 'file://' + urllib.parse.quote(file_uri)
+        logger.debug("seek(%s, %r", file_uri, position)
+        self.bus.call_async(
+            self.bus.get_unique_name(),
+            '/org/gpodder/player/notifier',
+            'org.gpodder.player',
+            'Seek',
+            'su',
+            (file_uri, position),
+            None,
+            None)
