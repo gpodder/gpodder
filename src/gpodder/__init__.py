@@ -17,7 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-# This metadata block gets parsed by setup.py - use single quotes only
+# This metadata block gets parsed by setup.py and pyproject.toml - use single quotes only
 __tagline__ = 'Media aggregator and podcast client'
 __author__ = 'Thomas Perl <thp@gpodder.org>'
 __version__ = '3.11.4'
