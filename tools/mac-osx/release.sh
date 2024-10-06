@@ -25,7 +25,7 @@ fi
 
 d=$(dirname "$app")
 appname=$(basename "$app")
-zip="${appname%.app}-$version.zip"
+zip="macOS-${appname%.app}-$version.zip"
 contents="${appname%.app}.contents"
 
 if command -v md5 2>/dev/null; then
