@@ -60,6 +60,8 @@ to install dependencies.
 
 ### Build Dependencies
 
+- [build](https://github.com/pypa/build/) only if using `make buildwheel` or `make install`
+- [installer](https://github.com/pypa/installer/) only if using `make install`
 - help2man
 - intltool
 
