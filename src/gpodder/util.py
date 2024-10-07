@@ -151,6 +151,43 @@ _MIME_TYPES = {k: v for v, k in _MIME_TYPE_LIST}
 _MIME_TYPES_EXT = dict(_MIME_TYPE_LIST)
 
 
+# FIXME: not sure we want to keep this global interruptor
+INTERRUPTOR = threading.Event()
+
+
+class InterruptedRetryException(Exception):
+    """ marks an interrupted/cancelled RetryAfter sleep """
+    pass
+
+
+class InterruptibleRetry(Retry):
+    """ customized Retry class with interruptible sleep on retry-after """
+
+    def __init__(self, interruptor: threading.Event=None, exception_on_interrupt=InterruptedRetryException, **kwargs):
+        super().__init__(**kwargs)
+        # don't forget to modify new() method if you add fields
+        self.interruptor = interruptor
+        self.exception_on_interrupt = exception_on_interrupt
+
+    def sleep_for_retry(self, response=None):
+        retry_after = self.get_retry_after(response)
+        if retry_after:
+            # FIXME: reject None interruptor in constructor or check for None here
+            interrupted = self.interruptor.wait(retry_after)
+            if interrupted:
+                # customizable exception subclass (see download.py where
+                # we use the existing DownloadCancelledException)
+                raise self.exception_on_interrupt()
+        return False
+
+    def new(self, **kwargs):
+        res = super().new(**kwargs)
+        res.interruptor = self.interruptor
+        res.exception_on_interrupt = self.exception_on_interrupt
+        res.interruptor.clear()
+        return res
+
+
 def is_absolute_url(url):
     """
     Check if url is an absolute url (i.e. has a scheme)
@@ -1251,8 +1288,8 @@ def urlopen(url, headers=None, data=None, timeout=None, **kwargs):
 
     if not timeout:
         timeout = gpodder.SOCKET_TIMEOUT
-
-    retry_strategy = Retry(
+    retry_strategy = InterruptibleRetry(
+        interruptor=INTERRUPTOR,
         total=3,
         status_forcelist=Retry.RETRY_AFTER_STATUS_CODES.union((408, 418, 504, 598, 599,)))
     s = requests.Session()
