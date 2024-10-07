@@ -25,6 +25,7 @@ URL = 'http://%(HOST)s:%(PORT)s' % locals()
 
 FEEDNAME = sys.argv[0]        # The title of the RSS feed
 REDIRECT = 'redirect.rss'     # The path for a redirection
+RETRY_AFTER = 'retry_after.rss'     # The path for a redirection
 REDIRECT_TO_BAD_HOST = 'redirect_bad'     # The path for a redirection
 FEEDFILE = 'feed.rss'         # The "filename" of the feed on the server
 EPISODES = 'episode'          # Base name for the episode files
@@ -97,6 +98,16 @@ def mkrss(items=EP_COUNT):
           type="%(EPISODES_MIME)s"
           length="%(SIZE)s"/>
     </item>""" % dict(list(locals().items()) + list(globals().items()))
+    ITEMS += """
+    <item>
+        <title>Retry-After episode</title>
+        <guid>tag:test.gpodder.org,2012:retry-after</guid>
+        <pubDate>Sun, 25 Nov 2018 17:28:03 +0000</pubDate>
+        <enclosure
+          url="%(URL)s/%(RETRY_AFTER)s"
+          type="%(EPISODES_MIME)s"
+          length="%(SIZE)s"/>
+    </item>""" % dict(list(locals().items()) + list(globals().items()))
 
     return """
     <rss>
@@ -118,6 +129,7 @@ class AuthRequestHandler(http.server.BaseHTTPRequestHandler):
     REDIRECT_PATH = '/%s' % REDIRECT
     REDIRECT_TO_BAD_HOST_PATH = '/%s' % REDIRECT_TO_BAD_HOST
     TIMEOUT_PATH = '/%s' % TIMEOUT
+    RETRY_AFTER_PATH = '/%s' % RETRY_AFTER
 
     def do_GET(self):
         authorized = False
@@ -158,6 +170,12 @@ class AuthRequestHandler(http.server.BaseHTTPRequestHandler):
             # will need to restart the server or wait 80s before next request
             time.sleep(80)
             return
+        elif self.path == self.RETRY_AFTER_PATH:
+            print("Retry-After request")
+            self.send_response(503)
+            self.send_header('Retry-After', '432000')
+            self.end_headers()
+            return
 
         if not authorized:
             print('Not authorized - sending WWW-Authenticate header.')
@@ -190,6 +208,7 @@ if __name__ == '__main__':
     Feed URL: %(URL)s/%(FEEDFILE)s
     Redirect URL: http://%(HOST)s:%(RPORT)d/%(REDIRECT)s
     Timeout URL: %(URL)s/%(TIMEOUT)s
+    RetryAfter URL: %(URL)s/%(RETRY_AFTER)s
     Username: %(USERNAME)s
     Password: %(PASSWORD)s
     """ % locals())
