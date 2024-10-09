@@ -181,7 +181,11 @@ def make_directory(path):
     Returns True if the directory exists after the function
     call, False otherwise.
     """
-    from gi.repository import Gio, GLib
+    try:
+        from gi.repository import Gio, GLib
+    except ImportError:
+        print('Error: Module "PyGObject" not found.')
+        return False
 
     if not isinstance(path, Gio.File):
         path = new_gio_file(path)
