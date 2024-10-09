@@ -31,9 +31,12 @@ import time
 import gpodder
 from gpodder import download, services, util
 
-import gi  # isort:skip
-gi.require_version('Gio', '2.0')  # isort:skip
-from gi.repository import GLib, Gio  # isort:skip
+try:
+    import gi  # isort:skip
+    gi.require_version('Gio', '2.0')  # isort:skip
+    from gi.repository import Gio, GLib  # isort:skip
+except ImportError:
+    print('Error: Module "PyGObject" not found.')
 
 
 logger = logging.getLogger(__name__)
