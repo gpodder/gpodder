@@ -33,7 +33,8 @@ logger = logging.getLogger(__name__)
 
 
 class ExceptionWithData(Exception):
-    """Base exception with additional payload"""
+    """Base exception with additional payload."""
+
     def __init__(self, data):
         Exception.__init__(self)
         self.data = data

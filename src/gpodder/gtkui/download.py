@@ -207,7 +207,8 @@ class DownloadStatusModel(Gtk.ListStore):
 
 
 class DownloadTaskMonitor(object):
-    """A helper class that abstracts download events"""
+    """A helper class that abstracts download events."""
+
     def __init__(self, episode, on_can_resume, on_can_pause, on_finished):
         self.episode = episode
         self._status = None

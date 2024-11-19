@@ -146,9 +146,9 @@ def episode_foldername_on_device(config, episode):
 
 
 class SyncTrack(object):
-    """
-    This represents a track that is on a device. You need
-    to specify at least the following keyword arguments,
+    """Class representing a track that is on a device.
+
+    You need to specify at least the following keyword arguments,
     because these will be used to display the track in the
     GUI. All other keyword arguments are optional and can
     be used to reference internal objects, etc... See the
@@ -162,6 +162,7 @@ class SyncTrack(object):
     passed to the function (the values will default to None
     for all required fields).
     """
+
     def __init__(self, title, length, modified, **kwargs):
         self.title = title
         self.length = length

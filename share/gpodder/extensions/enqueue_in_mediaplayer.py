@@ -82,6 +82,7 @@ class Win32Player(Player):
 
 class MPRISResumer(FreeDesktopPlayer):
     """Resume episode playback at saved time."""
+
     OBJECT_PLAYER = '/org/mpris/MediaPlayer2'
     OBJECT_DBUS = '/org/freedesktop/DBus'
     INTERFACE_PLAYER = 'org.mpris.MediaPlayer2.Player'

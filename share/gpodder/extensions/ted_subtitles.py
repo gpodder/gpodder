@@ -22,10 +22,11 @@ __only_for__ = 'gtk, cli'
 
 
 class gPodderExtension(object):
+    """TED Subtitle Download Extension.
+
+    Downloads ted subtitles.
     """
-    TED Subtitle Download Extension
-    Downloads ted subtitles
-    """
+
     def __init__(self, container):
         self.container = container
 

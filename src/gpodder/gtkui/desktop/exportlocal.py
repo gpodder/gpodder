@@ -26,7 +26,8 @@ N_ = gpodder.ngettext
 
 
 class gPodderExportToLocalFolder(BuilderWidget):
-    """ Export to Local Folder UI: file dialog + checkbox to save all to same folder """
+    """Export to Local Folder UI: file dialog + checkbox to save all to same folder."""
+
     def new(self):
         self.gPodderExportToLocalFolder.set_transient_for(self.parent_widget)
         self.RES_CANCEL = -6

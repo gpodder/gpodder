@@ -494,7 +494,8 @@ class EpisodeListModel(Gtk.ListStore):
 
 
 class PodcastChannelProxy:
-    """ a bag of podcasts: 'All Episodes' or each section """
+    """A bag of podcasts: 'All Episodes' or each section."""
+
     def __init__(self, db, config, channels, section, model):
         self.ALL_EPISODES_PROXY = not bool(section)
         self._db = db

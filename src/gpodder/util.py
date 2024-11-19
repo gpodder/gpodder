@@ -1324,12 +1324,13 @@ def idle_timeout_add(milliseconds, func, *args):
 
 
 class IdleTimeout(object):
-    """Run a function in the main GUI thread at regular intervals since the last run, at idle priority
+    """Run a function in the main GUI thread at regular intervals since the last run, at idle priority.
 
     A simple timeout_add() continuously calls the function if it exceeds the interval,
     which lags the UI and prevents idle_add() calls from happening. This class restarts
     the timer after the function finishes, allowing other callbacks to run.
     """
+
     def __init__(self, milliseconds, func, *args):
         if not gpodder.ui.gtk:
             raise Exception('util.IdleTimeout() is only supported by Gtk+')

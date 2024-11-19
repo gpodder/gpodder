@@ -197,10 +197,8 @@ class PodcastParserFeed(Feed):
 
 
 class gPodderFetcher(feedcore.Fetcher):
-    """
-    This class implements fetching a channel from custom feed handlers
-    or the default using podcastparser
-    """
+    """Implements fetching a channel from custom feed handlers or the default using podcastparser."""
+
     def fetch_channel(self, channel, max_episodes):
         custom_feed = registry.feed_handler.resolve(channel, None, max_episodes)
         if custom_feed is not None:
@@ -241,10 +239,8 @@ class gPodderFetcher(feedcore.Fetcher):
 
 
 class PodcastModelObject(object):
-    """
-    A generic base class for our podcast model providing common helper
-    and utility functions.
-    """
+    """A generic base class for our podcast model providing common helper and utility functions."""
+
     __slots__ = ('id', 'parent', 'children')
 
     @classmethod
@@ -263,7 +259,8 @@ class PodcastModelObject(object):
 
 
 class PodcastEpisode(PodcastModelObject):
-    """holds data for one object in a channel"""
+    """Holds data for one object in a channel."""
+
     # In theory, Linux can have 255 bytes (not characters!) in a filename, but
     # filesystems like eCryptFS store metadata in the filename, making the
     # effective number of characters less than that. eCryptFS recommends

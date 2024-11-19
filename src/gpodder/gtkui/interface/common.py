@@ -284,6 +284,7 @@ class BuilderWidget(GtkBuilderWidget):
 
 class TreeViewHelper(object):
     """Container for gPodder-specific TreeView attributes."""
+
     LAST_TOOLTIP = '_gpodder_last_tooltip'
     CAN_TOOLTIP = '_gpodder_can_tooltip'
     ROLE = '_gpodder_role'
@@ -413,6 +414,7 @@ class ExtensionMenuHelper(object):
 
 
 class Dummy:
-    """A class for objects with arbitrary attributes (for imitating Gtk Events etc.)"""
+    """Class with arbitrary attributes (for imitating e.g. Gtk Events)."""
+
     def __init__(self, **kwds):
         self.__dict__.update(kwds)

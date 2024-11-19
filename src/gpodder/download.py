@@ -510,7 +510,7 @@ class DownloadQueueManager(object):
 
 
 class DownloadTask(object):
-    """An object representing the download task of an episode
+    """An object representing the download task of an episode.
 
     You can create a new download task like this:
 
@@ -577,12 +577,13 @@ class DownloadTask(object):
 
     The UI can call the method "notify_as_finished()" to determine if
     this episode still has still to be shown as "finished" download
-    in a notification window. This will return True only the first time
+    in a notification window. This will return True only the first time.
     it is called when the status is DONE. After returning True once,
     it will always return False afterwards.
 
     The same thing works for failed downloads ("notify_as_failed()").
     """
+
     # Possible states this download task can be in
     STATUS_MESSAGE = (_('Queued'), _('Queued'), _('Downloading'),
             _('Finished'), _('Failed'), _('Cancelling'), _('Cancelled'), _('Pausing'), _('Paused'))

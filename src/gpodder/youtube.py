@@ -479,7 +479,8 @@ def get_cover(url, feed_data=None):
     if 'youtube.com' in url:
 
         class YouTubeHTMLCoverParser(HTMLParser):
-            """This custom html parser searches for the youtube channel thumbnail/avatar"""
+            """This custom html parser searches for the youtube channel thumbnail/avatar."""
+
             def __init__(self):
                 super().__init__()
                 self.url = []
@@ -560,6 +561,7 @@ def get_channel_desc(url, feed_data=None):
 
         class YouTubeHTMLDesc(HTMLParser):
             """This custom html parser searches for the YouTube channel description."""
+
             def __init__(self):
                 super().__init__()
                 self.description = ''

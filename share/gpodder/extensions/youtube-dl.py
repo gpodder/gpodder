@@ -76,11 +76,11 @@ def video_guid(video_id):
 
 
 class YoutubeCustomDownload(download.CustomDownload):
-    """
-    Represents the download of a single episode using youtube-dl.
+    """Represents the download of a single episode using youtube-dl.
 
     Actual youtube-dl interaction via gPodderYoutubeDL.
     """
+
     def __init__(self, ytdl, url, episode):
         self._ytdl = ytdl
         self._url = url
