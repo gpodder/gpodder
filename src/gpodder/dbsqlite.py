@@ -222,9 +222,7 @@ class Database(object):
             cur.close()
 
     def get(self, sql, params=None):
-        """
-        Returns the first cell of a query result, useful for COUNT()s.
-        """
+        """Return the first cell of a query result, useful for COUNT()s."""
         with self.lock:
             cur = self.cursor()
 
@@ -262,9 +260,7 @@ class Database(object):
                 self.TABLE_EPISODE, (podcast_id, filename,)) is not None
 
     def get_last_published(self, podcast):
-        """
-        Look up the most recent publish date of a podcast.
-        """
+        """Look up the most recent publish date of a podcast."""
         return self.get('SELECT MAX(published) FROM %s WHERE podcast_id = ?' % self.TABLE_EPISODE, (podcast.id,))
 
     def delete_episode_by_guid(self, guid, podcast_id):

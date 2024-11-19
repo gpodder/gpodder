@@ -40,9 +40,7 @@ class gPodderExtension:
         logger.info('Extension is being unloaded.')
 
     def on_ui_object_available(self, name, ui_object):
-        """
-        Called by gPodder when ui is ready.
-        """
+        """Called by gPodder when ui is ready."""
         if name == 'gpodder-gtk':
             self.gpodder = ui_object
 

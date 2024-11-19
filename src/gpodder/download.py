@@ -163,9 +163,7 @@ class ContentRange(object):
 
     @classmethod
     def parse(cls, value):
-        """
-        Parse the header.  May return None if it cannot parse.
-        """
+        """Parse the header.  May return None if it cannot parse."""
         if value is None:
             return None
         value = value.strip()
@@ -471,8 +469,7 @@ class DownloadQueueManager(object):
                 return True
 
     def __spawn_threads(self):
-        """Spawn new worker threads if necessary
-        """
+        """Spawn new worker threads if necessary."""
         if not self.tasks.enabled:
             return
 
@@ -505,8 +502,7 @@ class DownloadQueueManager(object):
                 util.run_in_background(worker.run)
 
     def queue_task(self, task):
-        """Marks a task as queued
-        """
+        """Marks a task as queued."""
         self.tasks.queue_task(task)
         self.__spawn_threads()
 

@@ -2993,8 +2993,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return True
 
     def close_gpodder(self):
-        """ clean everything and exit properly
-        """
+        """Clean everything and exit properly."""
         # Cancel any running background updates of the episode list model
         self.episode_list_model.background_update = None
 

@@ -489,9 +489,7 @@ class PodcastEpisode(PodcastModelObject):
         return player
 
     def can_play(self, config):
-        """
-        # gPodder.playback_episodes() filters selection with this method.
-        """
+        """# gPodder.playback_episodes() filters selection with this method."""
         return (self.was_downloaded(and_exists=True)
                 or self.can_preview()
                 or self.can_stream(config))
@@ -522,21 +520,15 @@ class PodcastEpisode(PodcastModelObject):
             or self.download_task.status == self.download_task.PAUSING)
 
     def can_pause(self):
-        """
-        gPodder.on_pause_selected_episodes() filters selection with this method.
-        """
+        """gPodder.on_pause_selected_episodes() filters selection with this method."""
         return self.download_task is not None and self.download_task.can_pause()
 
     def can_cancel(self):
-        """
-        DownloadTask.cancel() only cancels the following tasks.
-        """
+        """DownloadTask.cancel() only cancels the following tasks."""
         return self.download_task is not None and self.download_task.can_cancel()
 
     def can_delete(self):
-        """
-        gPodder.delete_episode_list() filters out locked episodes, and cancels all unlocked tasks in selection.
-        """
+        """gPodder.delete_episode_list() filters out locked episodes, and cancels all unlocked tasks in selection."""
         return self.state != gpodder.STATE_DELETED and not self.archive and (
             self.download_task is None or self.download_task.status == self.download_task.FAILED)
 
@@ -821,9 +813,7 @@ class PodcastEpisode(PodcastModelObject):
 
     @property
     def pubtime(self):
-        """
-        Returns published time as HHMM (or 0000 if not available)
-        """
+        """Return published time as HHMM (or 0000 if not available)."""
         try:
             return datetime.datetime.fromtimestamp(self.published).strftime('%H%M')
         except:

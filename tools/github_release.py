@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-"""
-Prepare release and upload Windows and macOS artifacts
-"""
+"""Prepare release and upload Windows and macOS artifacts."""
 import argparse
 import hashlib
 import os
@@ -15,7 +13,7 @@ from jinja2 import Template
 
 
 def debug_requests():
-    """ turn requests debug on """
+    """Turn requests debug on."""
     # These two lines enable debugging at httplib level (requests->urllib3->http.client)
     # You will see the REQUEST, including HEADERS and DATA, and RESPONSE with HEADERS but without DATA.
     # The only thing missing will be the response.body which is not logged.
@@ -115,9 +113,7 @@ def checksums():
 
 
 def get_contributors(tag, previous_tag):
-    """
-    list contributor logins '@...' for every commit in range
-    """
+    """List contributor logins '@...' for every commit in range."""
     cmp = repo.compare_commits(previous_tag, tag)
     logins = [c.author.login for c in cmp.commits() if c.author] + [c.committer.login for c in cmp.commits()]
     return sorted({"@{}".format(n) for n in logins})

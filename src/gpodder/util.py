@@ -152,9 +152,7 @@ _MIME_TYPES_EXT = dict(_MIME_TYPE_LIST)
 
 
 def is_absolute_url(url):
-    """
-    Check if url is an absolute url (i.e. has a scheme)
-    """
+    """Check if url is an absolute url (i.e. has a scheme)."""
     try:
         parsed = urllib.parse.urlparse(url)
         # fix #1190: when parsing a windows path, scheme=drive_letter, path=\rest_of_path
@@ -164,9 +162,7 @@ def is_absolute_url(url):
 
 
 def new_gio_file(path):
-    """
-    Create a new Gio.File given a path or uri
-    """
+    """Create a new Gio.File given a path or uri."""
     from gi.repository import Gio
 
     if is_absolute_url(path):
@@ -476,9 +472,7 @@ def file_age_to_string(days):
 
 
 def is_system_file(filename):
-    """
-    Checks to see if the given file is a system file.
-    """
+    """Check if the given file is a system file."""
     if gpodder.ui.win32 and win32file is not None:
         result = win32file.GetFileAttributes(filename)
         # -1 / 0xffffffff is returned by GetFileAttributes when an error occurs
@@ -841,9 +835,7 @@ def extract_hyperlinked_text(html):
 
 
 def nice_html_description(img, description):
-    """
-    basic html formatting + hyperlink highlighting + video thumbnail
-    """
+    """Basic html formatting + hyperlink highlighting + video thumbnail."""
     description = re.sub(r'https?://[^\s]+', r'<a href="\g<0>">\g<0></a>', description)
     description = description.replace('\n', '<br>')
     html = """<style type="text/css">
@@ -1240,9 +1232,7 @@ def url_add_authentication(url, username, password):
 
 
 def urlopen(url, headers=None, data=None, timeout=None, **kwargs):
-    """
-    An URL opener with the User-agent set to gPodder (with version)
-    """
+    """Open an URL with the User-agent set to gPodder (with version)."""
     from gpodder import config
     if headers is None:
         headers = {}
@@ -1266,9 +1256,7 @@ def urlopen(url, headers=None, data=None, timeout=None, **kwargs):
 
 
 def get_real_url(url):
-    """
-    Gets the real URL of a file and resolves all redirects.
-    """
+    """Get the real URL of a file and resolves all redirects."""
     try:
         return urlopen(url).url
     except:
@@ -1380,16 +1368,12 @@ class IdleTimeout(object):
 
 
 def lerp(a, b, f):
-    """Linear interpolation between 'a' and 'b', where 'f' is between 0.0 and 1.0
-    """
+    """Linear interpolation between 'a' and 'b', where 'f' is between 0.0 and 1.0."""
     return ((1.0 - f) * a) + (f * b)
 
 
 def bluetooth_available():
-    """
-    Returns True or False depending on the availability
-    of bluetooth functionality on the system.
-    """
+    """Return True or False depending on the availability of bluetooth functionality on the system."""
     if find_command('bluetooth-sendto') or \
             find_command('gnome-obex-send'):
         return True
@@ -1596,9 +1580,7 @@ def open_website(url):
 
 
 def copy_text_to_clipboard(text):
-    """
-    Copies the specified text to both clipboards.
-    """
+    """Copies the specified text to both clipboards."""
     import gi
     gi.require_version('Gtk', '3.0')
     from gi.repository import Gdk, Gtk
@@ -1610,8 +1592,7 @@ def copy_text_to_clipboard(text):
 
 
 def convert_bytes(d):
-    """
-    Convert byte strings to unicode strings
+    """Convert byte strings to unicode strings.
 
     This function will decode byte strings into unicode
     strings. Any other data types will be left alone.
@@ -2066,9 +2047,7 @@ def connection_available():
 
 
 def website_reachable(url):
-    """
-    Check if a specific website is available.
-    """
+    """Check if a specific website is available."""
     if not connection_available():
         # No network interfaces up - assume website not reachable
         return (False, None)

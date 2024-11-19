@@ -485,8 +485,7 @@ class ExtensionManager(object):
 
     @call_extensions
     def on_all_episodes_downloaded(self):
-        """Called when all episodes has been downloaded
-        """
+        """Called when all episodes has been downloaded."""
 
     @call_extensions
     def on_episode_synced(self, device, episode):

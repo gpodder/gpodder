@@ -71,9 +71,7 @@ def youtube_parsedate(s):
 
 
 def video_guid(video_id):
-    """
-    generate same guid as youtube
-    """
+    """Generate same guid as youtube."""
     return 'yt:video:{}'.format(video_id)
 
 
@@ -100,9 +98,7 @@ class YoutubeCustomDownload(download.CustomDownload):
         self._partial_filename = val
 
     def retrieve_resume(self, tempname, reporthook=None):
-        """
-        called by download.DownloadTask to perform the download.
-        """
+        """Called by download.DownloadTask to perform the download."""
         self._reporthook = reporthook
         # outtmpl: use given tempname by DownloadTask
         # (escape % because outtmpl used as a string template by youtube-dl)
@@ -177,9 +173,8 @@ class YoutubeCustomDownload(download.CustomDownload):
 
 
 class YoutubeFeed(model.Feed):
-    """
-    Represents the youtube feed for model.PodcastChannel
-    """
+    """Represents the youtube feed for model.PodcastChannel."""
+
     def __init__(self, url, cover_url, description, max_episodes, ie_result, downloader):
         self._url = url
         self._cover_url = cover_url
@@ -493,9 +488,7 @@ class gPodderYoutubeDL(download.CustomDownloader):
         return False
 
     def custom_downloader(self, unused_config, episode):
-        """
-        called from registry.custom_downloader.resolve
-        """
+        """Called from registry.custom_downloader.resolve."""
         if not self.force and not self.my_config.manage_downloads:
             return None
 

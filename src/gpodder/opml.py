@@ -151,9 +151,7 @@ class Exporter(object):
         return outline
 
     def create_section(self, doc, name):
-        """
-        Creates an empty OPML outline element used to divide sections.
-        """
+        """Create an empty OPML outline element used to divide sections."""
         section = doc.createElement('outline')
         section.setAttribute('title', name)
         section.setAttribute('text', name)

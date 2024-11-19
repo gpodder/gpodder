@@ -358,9 +358,7 @@ class Config(object):
             logger.warning('Observer already added: %s', repr(callback))
 
     def remove_observer(self, callback):
-        """
-        Remove an observer previously added to this object.
-        """
+        """Remove an observer previously added to this object."""
         if callback in self.__observers:
             self.__observers.remove(callback)
         else:
