@@ -251,7 +251,6 @@ class DownloadURLOpener:
         Resumes a download if the local filename exists and
         the server supports download resuming.
         """
-
         current_size = 0
         tfp = None
         headers = {

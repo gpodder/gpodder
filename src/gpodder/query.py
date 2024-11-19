@@ -235,13 +235,12 @@ class EQL(object):
 
 
 def UserEQL(query):
-    """EQL wrapper for user input
+    """EQL wrapper for user input.
 
     Automatically adds missing quotes around a
     non-EQL string for user-based input. In this
     case, EQL queries need to be enclosed in ().
     """
-
     if query is None:
         return None
 

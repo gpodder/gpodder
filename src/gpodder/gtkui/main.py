@@ -2549,11 +2549,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
         return False
 
     def add_podcast_list(self, podcasts, auth_tokens=None):
-        """Subscribe to a list of podcast given (title, url) pairs
+        """Subscribe to a list of podcast given (title, url) pairs.
 
         If auth_tokens is given, it should be a dictionary
-        mapping URLs to (username, password) tuples."""
-
+        mapping URLs to (username, password) tuples.
+        """
         if auth_tokens is None:
             auth_tokens = {}
 
@@ -2957,20 +2957,20 @@ class gPodder(BuilderWidget, dbus.service.Object):
             util.idle_add(update_feed_cache_finish_callback, new_episodes)
 
     def on_gPodder_delete_event(self, *args):
-        """Called when the GUI wants to close the window
-        Displays a confirmation dialog (and closes/hides gPodder)
-        """
+        """Called when the GUI wants to close the window.
 
+        Displays a confirmation dialog (and closes/hides gPodder).
+        """
         if self.confirm_quit():
             self.close_gpodder()
 
         return True
 
     def confirm_quit(self):
-        """Called when the GUI wants to close the window
-        Displays a confirmation dialog
-        """
+        """Called when the GUI wants to close the window.
 
+        Displays a confirmation dialog.
+        """
         downloading = self.download_status_model.are_downloads_in_progress()
 
         if downloading:

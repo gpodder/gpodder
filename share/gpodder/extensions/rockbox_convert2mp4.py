@@ -101,7 +101,6 @@ class gPodderExtension:
 
     def _convert_mp4(self, episode, from_file):
         """Convert MP4 file to rockbox mpg file"""
-
         # generate new filename and check if the file already exists
         to_file = self._get_rockbox_filename(from_file)
         if to_file is None:

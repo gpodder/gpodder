@@ -499,14 +499,12 @@ def get_free_disk_space_win32(path):
 
 
 def get_free_disk_space(path):
-    """
-    Calculates the free disk space available to the current user
+    """Calculates the free disk space available to the current user
     on the file system that contains the given path.
 
     If the path (or its parent folder) does not yet exist, this
     function returns zero.
     """
-
     if not os.path.exists(path):
         return -1
 
@@ -1265,16 +1263,15 @@ def get_real_url(url):
 
 
 def find_command(command):
-    """
-    Searches the system's PATH for a specific command that is
-    executable by the user. Returns the first occurrence of an
+    """Search the PATH for a specific command that is executable by the user.
+
+    Returns the first occurrence of an
     executable binary in the PATH, or None if the command is
     not available.
 
     On Windows, this also looks for "<command>.bat" and
     "<command>.exe" files if "<command>" itself doesn't exist.
     """
-
     if 'PATH' not in os.environ:
         return None
 
@@ -1476,9 +1473,7 @@ def parse_time(value):
 
 
 def format_seconds_to_hour_min_sec(seconds):
-    """
-    Take the number of seconds and format it into a
-    human-readable string (duration).
+    """Format the number of seconds into a human-readable string (duration).
 
     >>> format_seconds_to_hour_min_sec(3834)
     '1 hour, 3 minutes and 54 seconds'
@@ -1487,7 +1482,6 @@ def format_seconds_to_hour_min_sec(seconds):
     >>> format_seconds_to_hour_min_sec(62)
     '1 minute and 2 seconds'
     """
-
     if seconds < 1:
         return N_('%(count)d second', '%(count)d seconds',
                   seconds) % {'count': seconds}
@@ -1867,7 +1861,7 @@ def generate_names(filename):
 
 
 def is_known_redirecter(url):
-    """Check if a URL redirect is expected, and no filenames should be updated
+    """Check if a URL redirect is expected, and no filenames should be updated.
 
     We usually honor URL redirects, and update filenames accordingly.
     In some cases (e.g. Soundcloud) this results in a worse filename,
@@ -1878,7 +1872,6 @@ def is_known_redirecter(url):
     with the new filename determined by the URL, we cannot really determine
     which one is the "better" URL (e.g. "n5rMSpXrqmR9.128.mp3" for Soundcloud).
     """
-
     # Soundcloud-hosted media downloads (we take the track name as filename)
     if url.startswith('http://ak-media.soundcloud.com/'):
         return True

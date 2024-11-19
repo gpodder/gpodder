@@ -309,11 +309,10 @@ class EpisodeListModel(Gtk.ListStore):
         return ''.join(d)
 
     def replace_from_channel(self, channel):
-        """
-        Add episode from the given channel to this model.
+        """Add episode from the given channel to this model.
+
         Downloading should be a callback.
         """
-
         # Remove old episodes in the list store
         self.clear()
 
