@@ -1632,7 +1632,8 @@ def sanitize_filename(filename, max_length):
         filename = filename.decode('utf-8')
 
     # see #361 - at least slash must be removed
-    filename = re.sub(r"[\"\'&\[\]!@#$%^()+=,;\{\}*/:<>?\\|]", "_", filename)
+    # add additional common punctuation
+    filename = re.sub(r"[\"\'\‘\’\“\”&\[\]!@#$%^()+=,;\{\}*/:<>?\\|]", "_", filename)
 
     return filename.strip('.' + string.whitespace)
 
