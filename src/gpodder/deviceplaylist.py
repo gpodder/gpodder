@@ -44,6 +44,7 @@ class gPodderDevicePlaylist(object):
             + '.' + self._config.device_sync.playlists.extension)
         device_folder = util.new_gio_file(self._config.device_sync.device_folder)
         self.playlist_folder = device_folder.resolve_relative_path(self._config.device_sync.playlists.folder)
+        self.playlist_to_device_relpath = os.path.relpath(device_folder, self.playlist_folder)
 
         self.mountpoint = None
         try:
@@ -91,14 +92,18 @@ class gPodderDevicePlaylist(object):
         """Get the filename for the given episode for the playlist."""
         return episode_filename_on_device(self._config, episode)
 
-    def get_absolute_filename_for_playlist(self, episode):
-        """Get the filename including full path for the given episode for the playlist."""
+    def get_path_to_filename_for_playlist(self, episode):
+        """
+        get the filename including full path for the given episode for the playlist
+        """
         filename = self.get_filename_for_playlist(episode)
         foldername = episode_foldername_on_device(self._config, episode)
         if foldername:
             filename = os.path.join(foldername, filename)
         if self._config.device_sync.playlists.use_absolute_path:
             filename = os.path.join(util.relpath(self._config.device_sync.device_folder, self.mountpoint.get_uri()), filename)
+        else:
+            filename = os.path.join(self.playlist_to_device_relpath, filename)
         return filename
 
     def write_m3u(self, episodes):
@@ -121,7 +126,7 @@ class gPodderDevicePlaylist(object):
             for current_episode in episodes:
                 filename = self.get_filename_for_playlist(current_episode)
                 os.put_string(self.build_extinf(filename))
-                filename = self.get_absolute_filename_for_playlist(current_episode)
+                filename = self.get_path_to_filename_for_playlist(current_episode)
                 os.put_string(filename)
                 os.put_string(self.linebreak)
             os.close()
