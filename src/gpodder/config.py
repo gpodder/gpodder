@@ -216,7 +216,7 @@ defaults = {
         'playlists': {
             'create': True,
             'two_way_sync': False,
-            'use_absolute_path': True,
+            'use_absolute_path': False,
             'folder': 'Playlists',
             'extension': 'm3u',
         }
