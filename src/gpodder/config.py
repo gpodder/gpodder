@@ -211,7 +211,7 @@ defaults = {
         'after_sync': {
             'mark_episodes_played': False,
             'delete_episodes': False,
-            'sync_disks': False,
+            'sync_disks': True,
         },
         'playlists': {
             'create': True,
