@@ -60,10 +60,17 @@ DefaultConfig = {
     'genre_tag': 'Podcast',
     'always_remove_tags': False,
     'auto_embed_coverart': False,
-    'set_artist_to_album': False,
+    'set_artist_to_album': True,
     'set_version': 4,
     'modify_tags': True,
-    'remove_before_modify': False
+    'remove_before_modify': True,
+
+    'write_title': True,
+    'write_album': True,
+    'write_subtitle': False,
+    'write_comments': False,
+    'write_genre': True,
+    'write_pubdate': True,
 }
 
 
@@ -83,7 +90,8 @@ class AudioFile(object):
             audio.delete()
         audio.save()
 
-    def write_basic_tags(self, remove_before_modify, modify_tags, set_artist_to_album, set_version):
+    def write_basic_tags(self, remove_before_modify, modify_tags, set_artist_to_album, set_version,
+                         write_album, write_title, write_subtitle, write_comments,write_genre, write_pubdate):
         audio = File(self.filename, easy=True)
 
         if audio is None:
@@ -95,27 +103,35 @@ class AudioFile(object):
 
         if modify_tags:
             if remove_before_modify:
+                print("removing before writing")
                 audio.delete()
 
-            if self.album is not None:
+            if write_album is True and self.album is not None:
+                print("writing album")
                 audio.tags['album'] = self.album
 
-            if self.title is not None:
+            if write_title is True and self.title is not None:
+                print("writing title")
                 audio.tags['title'] = self.title
 
-            if self.subtitle is not None:
+            if write_subtitle is True and self.subtitle is not None:
+                print("writing subtitle")
                 audio.tags['subtitle'] = self.subtitle
 
-            if self.subtitle is not None:
+            if write_comments is True and self.subtitle is not None:
+                print("writing comments")
                 audio.tags['comments'] = self.subtitle
 
-            if self.genre is not None:
+            if write_genre is True and self.genre is not None:
+                print("writing genre")
                 audio.tags['genre'] = self.genre
 
-            if self.pubDate is not None:
+            if write_pubdate is True and self.pubDate is not None:
+                print("writing date")
                 audio.tags['date'] = self.pubDate
 
             if set_artist_to_album:
+                print("writing artist")
                 audio.tags['artist'] = self.album
 
         if type(audio) is EasyMP3:
@@ -291,7 +307,13 @@ class gPodderExtension:
             audio.write_basic_tags(self.container.config.remove_before_modify,
                                    self.container.config.modify_tags,
                                    self.container.config.set_artist_to_album,
-                                   self.container.config.set_version)
+                                   self.container.config.set_version,
+                                   self.container.config.write_album,
+                                   self.container.config.write_title,
+                                   self.container.config.write_subtitle,
+                                   self.container.config.write_comments,
+                                   self.container.config.write_genre,
+                                   self.container.config.write_pubdate)
 
             if self.container.config.auto_embed_coverart:
                 audio.insert_coverart()
