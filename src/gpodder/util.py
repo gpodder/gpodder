@@ -172,8 +172,8 @@ def new_gio_file(path):
 
 
 def make_directory(path):
-    """
-    Tries to create a directory if it does not exist already.
+    """Tries to create a directory if it does not exist already.
+
     Returns True if the directory exists after the function
     call, False otherwise.
     """
@@ -197,10 +197,9 @@ def make_directory(path):
 
 
 def normalize_feed_url(url):
-    """
-    Converts any URL to http:// or ftp:// so that it can be
-    used with "wget". If the URL cannot be converted (invalid
-    or unknown scheme), "None" is returned.
+    """Convert any URL to http:// or ftp:// so that it can be used with "wget".
+
+    If the URL cannot be converted (invalid or unknown scheme), "None" is returned.
 
     This will also normalize feed:// and itpc:// to http://.
 
@@ -295,10 +294,9 @@ def normalize_feed_url(url):
 
 
 def username_password_from_url(url):
-    r"""
-    Returns a tuple (username,password) containing authentication
-    data from the specified URL or (None,None) if no authentication
-    data can be found in the URL.
+    r"""Return (username,password) tuple from the specified URL.
+
+    Returns (None,None) if no authentication data can be found in the URL.
 
     See Section 3.1 of RFC 1738 (http://www.ietf.org/rfc/rfc1738.txt)
 
@@ -365,19 +363,15 @@ def username_password_from_url(url):
 
 
 def directory_is_writable(path):
-    """
-    Returns True if the specified directory exists and is writable
-    by the current user.
-    """
+    """Return True if the path exists and is writable by the current user."""
     return os.path.isdir(path) and os.access(path, os.W_OK)
 
 
 def calculate_size(path):
-    """
-    Tries to calculate the size of a directory, including any
-    subdirectories found. The returned value might not be
-    correct if the user doesn't have appropriate permissions
-    to list all subdirectories of the given path.
+    """Calculate the size of a directory, including any subdirectories found.
+
+    The returned value might not be correct if the user doesn't have appropriate
+    permissions to list all subdirectories of the given path.
     """
     if path is None:
         return 0
@@ -406,9 +400,9 @@ def calculate_size(path):
 
 
 def file_modification_datetime(filename):
-    """
-    Returns the modification date of the specified file
-    as a datetime.datetime object or None if the modification
+    """Return the modification date of the specified file.
+
+    Return value is a datetime.datetime object or None if the modification
     date cannot be determined.
     """
     if filename is None:
@@ -427,9 +421,9 @@ def file_modification_datetime(filename):
 
 
 def file_age_in_days(filename):
-    """
-    Returns the age of the specified filename in days or
-    zero if the modification date cannot be determined.
+    """Return the age of the specified filename in days.
+
+    Returns zero if the modification date cannot be determined.
     """
     dt = file_modification_datetime(filename)
     if dt is None:
@@ -439,9 +433,9 @@ def file_age_in_days(filename):
 
 
 def file_modification_timestamp(filename):
-    """
-    Returns the modification date of the specified file as a number
-    or -1 if the modification date cannot be determined.
+    """Return the modification date of the specified file as a number.
+
+    Return -1 if the modification date cannot be determined.
     """
     if filename is None:
         return -1
@@ -454,9 +448,9 @@ def file_modification_timestamp(filename):
 
 
 def file_age_to_string(days):
-    """
-    Converts a "number of days" value to a string that
-    can be used in the UI to display the file age.
+    """Convert a "number of days" value to a string.
+
+    The return value can be used in the UI to display the file age.
 
     >>> file_age_to_string(0)
     ''
@@ -483,10 +477,9 @@ def is_system_file(filename):
 
 
 def get_free_disk_space_win32(path):
-    """
-    Win32-specific code to determine the free disk space remaining
-    for a given path. Uses code from:
+    """Return the free disk space remaining for a given path on Win32.
 
+    Uses code from:
     http://mail.python.org/pipermail/python-list/2003-May/203223.html
     """
     if win32file is None:
@@ -499,8 +492,7 @@ def get_free_disk_space_win32(path):
 
 
 def get_free_disk_space(path):
-    """Calculates the free disk space available to the current user
-    on the file system that contains the given path.
+    """Return the free disk space remaining for a given path.
 
     If the path (or its parent folder) does not yet exist, this
     function returns zero.
@@ -517,9 +509,9 @@ def get_free_disk_space(path):
 
 
 def format_date(timestamp):
-    """
-    Converts a UNIX timestamp to a date representation. This
-    function returns "Today", "Yesterday", a weekday name or
+    """Convert a UNIX timestamp to a date representation.
+
+    This function returns "Today", "Yesterday", a weekday name or
     the date in %x format, which (according to the Python docs)
     is the "Locale's appropriate date representation".
 
@@ -567,8 +559,7 @@ def format_date(timestamp):
 
 
 def format_filesize(bytesize, use_si_units=False, digits=2):
-    """
-    Formats the given size in bytes to be human-readable,
+    """Format the given size in bytes to be human-readable,
 
     Returns a localized "(unknown)" string when the bytesize
     has a negative value.
@@ -609,7 +600,7 @@ def format_filesize(bytesize, use_si_units=False, digits=2):
 
 
 def delete_file(filename):
-    """Delete a file from the filesystem
+    """Delete a file from the filesystem.
 
     Errors (permissions errors or file not found)
     are silently ignored.
@@ -621,7 +612,7 @@ def delete_file(filename):
 
 
 def is_html(text):
-    """Heuristically tell if text is HTML
+    """Heuristically tell if text is HTML.
 
     By looking for an open tag (more or less:)
     >>> is_html('<h1>HELLO</h1>')
@@ -634,10 +625,9 @@ def is_html(text):
 
 
 def remove_html_tags(html):
-    """
-    Remove HTML tags from a string and replace numeric and
-    named entities with the corresponding character, so the
-    HTML text can be displayed in a simple text view.
+    """Remove HTML tags and replace numeric and named entities with characters.
+
+    Converts HTML text so that it can be displayed in a simple text view.
     """
     if html is None:
         return None
@@ -847,9 +837,7 @@ def nice_html_description(img, description):
 
 
 def wrong_extension(extension):
-    """
-    Determine if a given extension looks like it's
-    wrong (e.g. empty, extremely long or spaces)
+    """Determine if a file extension seems wrong (empty, extremely long or spaces).
 
     Returns True if the extension most likely is a
     wrong one and should be replaced.
@@ -938,9 +926,9 @@ def mimetype_from_extension(extension):
 
 def extension_correct_for_mimetype(extension, mimetype):
     """
-    Check if the given filename extension (e.g. ".ogg") is a possible
-    extension for a given mimetype (e.g. "application/ogg") and return
-    a boolean value (True if it's possible, False if not). Also do
+    Check if the filename extension is a possible extension for a mimetype.
+
+    Returns a boolean value (True if it's possible, False if not). Also do
 
     >>> extension_correct_for_mimetype('.ogg', 'application/ogg')
     True
@@ -975,9 +963,9 @@ def extension_correct_for_mimetype(extension, mimetype):
 
 
 def filename_from_url(url):
-    """
-    Extracts the filename and (lowercase) extension (with dot)
-    from a URL, e.g. http://server.com/file.MP3?download=yes
+    """Extract the filename and (lowercase) extension (with dot) from an URL.
+
+    E.g. http://server.com/file.MP3?download=yes
     will result in the string ("file", ".mp3") being returned.
 
     This function will also try to best-guess the "real"
@@ -1013,10 +1001,9 @@ def filename_from_url(url):
 
 
 def file_type_by_extension(extension):
-    """
-    Tries to guess the file type by looking up the filename
-    extension from a table of known file types. Will return
-    "audio", "video" or None.
+    """Guess the file type from the filename extension.
+
+    Uses a table of known file types. Will return "audio", "video" or None.
 
     >>> file_type_by_extension('.aif')
     'audio'
@@ -1056,9 +1043,9 @@ def file_type_by_extension(extension):
 
 
 def get_first_line(s):
-    """
-    Returns only the first line of a string, stripped so
-    that it doesn't have whitespace before or after.
+    """Return the first line of a string.
+
+    The line is stripped so that it doesn't have whitespace before or after.
     """
     if s:
         return s.strip().split('\n')[0].strip()
@@ -1066,7 +1053,8 @@ def get_first_line(s):
 
 
 def object_string_formatter(s, **kwargs):
-    """
+    """Format a string with object attributes.
+
     Makes attributes of object passed in as keyword
     arguments available as {OBJECTNAME.ATTRNAME} in
     the passed-in string and returns a string with
@@ -1101,9 +1089,9 @@ def object_string_formatter(s, **kwargs):
 
 
 def format_desktop_command(command, filenames, start_position=None):
-    """
-    Formats a command template from the "Exec=" line of a .desktop
-    file to a string that can be invoked in a shell.
+    """Format a command template from the "Exec=" line of a .desktop file.
+
+    The returned string can be invoked in a shell.
 
     Handled format strings: %U, %u, %F, %f and a fallback that
     appends the filename as first parameter of the command.
@@ -1147,9 +1135,9 @@ def format_desktop_command(command, filenames, start_position=None):
 
 
 def url_strip_authentication(url):
-    """
-    Strips authentication data from an URL. Returns the URL with
-    the authentication data removed from it.
+    """Strip authentication data from an URL.
+
+    Returns the URL with the authentication data removed from it.
 
     >>> url_strip_authentication('https://host.com/')
     'https://host.com/'
@@ -1181,9 +1169,9 @@ def url_strip_authentication(url):
 
 
 def url_add_authentication(url, username, password):
-    """
-    Adds authentication data (username, password) to a given
-    URL in order to construct an authenticated URL.
+    """Add authentication data (username, password) to a given URL.
+
+    The returned string is an authenticated URL.
 
     >>> url_add_authentication('https://host.com/', '', None)
     'https://host.com/'
@@ -1527,12 +1515,12 @@ def http_request(url, method='HEAD'):
 
 
 def gui_open(filename, gui=None):
-    """
-    Open a file or folder with the default application set
-    by the Desktop environment. This uses "xdg-open" on all
-    systems with a few exceptions:
+    """Open a file or folder with the default application from the Desktop environment.
+
+    Uses "xdg-open" on all systems with a few exceptions:
 
        on Win32, os.startfile() is used
+       on OSX, "open" is used
     """
     try:
         if gpodder.ui.win32:
@@ -1565,17 +1553,17 @@ def gui_open(filename, gui=None):
 
 
 def open_website(url):
-    """
-    Opens the specified URL using the default system web
-    browser. This uses Python's "webbrowser" module, so
-    make sure your system is set up correctly.
+    """Open the specified URL using the default system web browser.
+
+    Uses Python's "webbrowser" module, so make sure your system is set up
+    correctly.
     """
     run_in_background(lambda: webbrowser.open(url))
     return True
 
 
 def copy_text_to_clipboard(text):
-    """Copies the specified text to both clipboards."""
+    """Copy the specified text to both clipboards."""
     import gi
     gi.require_version('Gtk', '3.0')
     from gi.repository import Gdk, Gtk
@@ -1616,9 +1604,9 @@ def convert_bytes(d):
 
 
 def sanitize_filename(filename, max_length):
-    """
-    Generate a sanitized version of a filename; trim filename
-    if greater than max_length (0 = no limit).
+    """Generate a sanitized version of a filename.
+
+    Trim the filename if it is longer than max_length (0 = no limit).
 
     >>> sanitize_filename('https://www.host.name/feed', 0)
     'https___www.host.name_feed'
@@ -1650,8 +1638,8 @@ def sanitize_filename(filename, max_length):
 
 
 def sanitize_filename_ext(filename, ext, max_length, max_length_with_ext):
-    """
-    Generate a sanitized version of a filename and extension.
+    """Generate a sanitized version of a filename and extension.
+
     Truncate filename if greater than max_length.
     Truncate extension if filename.extension is greater than max_length_with_ext.
     :param str filename: filename without extension
@@ -1669,8 +1657,8 @@ def sanitize_filename_ext(filename, ext, max_length, max_length_with_ext):
 
 
 def find_mount_point(directory):
-    """
-    Try to find the mount point for a given directory.
+    """Try to find the mount point for a given directory.
+
     If the directory is itself a mount point, return
     it. If not, remove the last part of the path and
     re-check if it's a mount point. If the directory
@@ -1761,10 +1749,10 @@ protocolPattern = re.compile(r'^\w+://')
 
 
 def isabs(string):
-    """
-    @return true if string is an absolute path or protocoladdress
-    for addresses beginning in http:// or ftp:// or ldap:// -
-    they are considered "absolute" paths.
+    """Return true if string is an absolute path or protocol address.
+
+    Addresses beginning in http:// or ftp:// or ldap:// are considered
+    absolute paths.
     Source: http://code.activestate.com/recipes/208993/
     """
     if protocolPattern.match(string):
@@ -1773,10 +1761,12 @@ def isabs(string):
 
 
 def relpath(p1, p2):
-    """
-    Finds relative path from p2 to p1, like os.path.relpath but handles
-    uris. Returns None if no such path exists due to the paths being on
-    different devices.
+    """Find relative path from p2 to p1.
+
+    Like os.path.relpath but handles uris.
+
+    Returns None if no such path exists due to the paths being on different
+    devices.
     """
     u1 = urllib.parse.urlparse(p1)
     u2 = urllib.parse.urlparse(p2)
@@ -1786,7 +1776,7 @@ def relpath(p1, p2):
 
 
 def get_hostname():
-    """Return the hostname of this computer
+    """Return the hostname of this computer.
 
     This can be implemented in a different way on each
     platform and should yield a unique-per-user device ID.
@@ -2064,8 +2054,8 @@ def delete_empty_folders(top):
 
 
 def guess_encoding(filename):
-    """
-    read filename encoding as defined in PEP 263
+    """Read filename encoding as defined in PEP 263.
+
     - BOM marker => utf-8
     - coding: xxx comment in first 2 lines
     - else return None
@@ -2096,8 +2086,8 @@ def guess_encoding(filename):
 
 
 def iri_to_url(url):
-    """
-    Properly escapes Unicode characters in the URL path section
+    """Escape Unicode characters in the URL path section.
+
     TODO: Explore if this should also handle the domain
     Based on: http://stackoverflow.com/a/18269491/1072626
     In response to issue: https://github.com/gpodder/gpodder/issues/232
@@ -2220,9 +2210,9 @@ def _parse_mimetype_sorted_dictitems(mimetype):
 
 
 def parse_mimetype(mimetype):
-    """
-    parse mimetype into (type, subtype, parameters)
-    see RFC 2045 §5.1
+    """Parse mimetype into (type, subtype, parameters).
+
+    See RFC 2045 §5.1
     TODO: unhandled comments and continuations
 
     >>> _parse_mimetype_sorted_dictitems('application/atom+xml;profile=opds-catalog;type=feed;kind=acquisition')
@@ -2334,8 +2324,8 @@ def get_header_param(headers, param, header_name):
 
 
 def response_text(response, default_encoding='utf-8'):
-    """
-    Utility method to return urlopen response's text.
+    """Return text from urlopen response.
+
     Requests uses only the charset info in content-type, then defaults to ISO-8859-1
     when content-type=text/*.
     We could use chardet (via response.apparent_encoding) but it's slow so often it's
@@ -2349,10 +2339,7 @@ def response_text(response, default_encoding='utf-8'):
 
 
 def mount_volume_for_file(file, op=None):
-    """
-    Utility method to mount the enclosing volume for the given file in a blocking
-    fashion
-    """
+    """Mount the enclosing volume for the given file in a blocking fashion."""
     import gi
     gi.require_version('Gio', '2.0')
     from gi.repository import Gio, GLib

@@ -57,9 +57,9 @@ class Database(object):
         self._db = None
 
     def purge(self, max_episodes, podcast_id):
-        """
-        Deletes old episodes.  Should be called
-        before adding new episodes to a podcast.
+        """Delete old episodes.
+
+        Should be called before adding new episodes to a podcast.
         """
         if max_episodes == 0:
             return
@@ -240,8 +240,8 @@ class Database(object):
             return row[0]
 
     def podcast_download_folder_exists(self, foldername):
-        """
-        Returns True if a foldername for a channel exists.
+        """Return True if a foldername for a channel exists.
+
         False otherwise.
         """
         foldername = util.convert_bytes(foldername)
@@ -250,8 +250,8 @@ class Database(object):
                 self.TABLE_PODCAST, (foldername,)) is not None
 
     def episode_filename_exists(self, podcast_id, filename):
-        """
-        Returns True if a filename for an episode exists.
+        """Return True if a filename for an episode exists.
+
         False otherwise.
         """
         filename = util.convert_bytes(filename)
@@ -264,10 +264,9 @@ class Database(object):
         return self.get('SELECT MAX(published) FROM %s WHERE podcast_id = ?' % self.TABLE_EPISODE, (podcast.id,))
 
     def delete_episode_by_guid(self, guid, podcast_id):
-        """
-        Deletes episodes that have a specific GUID for
-        a given channel. Used after feed updates for
-        episodes that have disappeared from the feed.
+        """Delete the episode which has a specific GUID for a given channel.
+
+        Used after feed updates for episodes that have disappeared from the feed.
         """
         guid = util.convert_bytes(guid)
 

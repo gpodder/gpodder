@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
-""" A script to initialize our bundled openssl CA trust store
-    based on your System's keychain
+"""A script to initialize our bundled openssl CA trust store.
 
-    Released under the same licence as gPodder (GPL3 or later)
-    Copyright (c) 2016 Eric Le Lay
+Based on your System's keychain.
+
+Released under the same licence as gPodder (GPL3 or later)
+Copyright (c) 2016 Eric Le Lay
 """
 
 import argparse

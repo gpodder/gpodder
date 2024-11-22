@@ -27,8 +27,9 @@ class MakeCertPem:
         return proc.returncode == 0
 
     def get_certs(self):
-        """ extract System's certificates then filter them by validity
-            and return a list of text of valid certs
+        """Extract System's certificates and filter them by validity.
+
+        Return a list of texts of valid certs
         """
         cmd = ["security", "find-certificate", "-a", "-p",
                "/System/Library/Keychains/SystemRootCertificates.keychain"]

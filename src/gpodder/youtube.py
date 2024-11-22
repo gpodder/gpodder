@@ -393,8 +393,8 @@ def is_youtube_guid(guid):
 
 
 def for_each_feed_pattern(func, url, fallback_result):
-    """
-    Try to find the username for all possible YouTube feed/webpage URLs
+    """Try to find the username for all possible YouTube feed/webpage URLs.
+
     Will call func(url, channel) for each match, and if func() returns
     a result other than None, returns this. If no match is found or
     func() returns None, return fallback_result.
@@ -517,8 +517,8 @@ def get_cover(url, feed_data=None):
 
 
 def get_gdpr_consent_url(html_data):
-    """
-    Creates the URL for automatically accepting GDPR consents
+    """Create the URL for automatically accepting GDPR consents.
+
     EU GDPR redirects to a form that needs to be posted to be redirected to a get request
     with the form data as input to the youtube video URL. This extracts that form data from
     the GDPR form and builds up the URL the posted form results.
@@ -595,8 +595,8 @@ def get_channel_desc(url, feed_data=None):
 
 
 def parse_youtube_url(url):
-    """
-    Youtube Channel Links are parsed into youtube feed links
+    """Parse Youtube Channel Links into youtube feed links.
+
     >>> parse_youtube_url("https://www.youtube.com/channel/CHANNEL_ID")
     'https://www.youtube.com/feeds/videos.xml?channel_id=CHANNEL_ID'
 

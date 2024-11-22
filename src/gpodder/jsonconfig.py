@@ -168,7 +168,8 @@ class JsonConfig(object):
         return added_new_key
 
     def __repr__(self):
-        """
+        """Return a string representation of this config object.
+
         >>> c = JsonConfig('{"a": 1}')
         >>> print(c)
         {

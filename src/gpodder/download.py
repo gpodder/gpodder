@@ -58,9 +58,9 @@ class CustomDownload(ABC):
     @property
     @abstractmethod
     def partial_filename(self):
-        """
-        Full path to the temporary file actually being downloaded (downloaders
-        may not support setting a tempname).
+        """Full path to the temporary file actually being downloaded.
+
+        (downloaders may not support setting a tempname).
         """
         ...
 
@@ -71,7 +71,8 @@ class CustomDownload(ABC):
 
     @abstractmethod
     def retrieve_resume(self, tempname, reporthook):
-        """
+        """Download files, return (headers, real_url).
+
         :param str tempname: temporary filename for the download
         :param func(number, number, number) reporthook: callback for download progress (count, blockSize, totalSize)
         :return dict(str, str), str: (headers, real_url)
@@ -88,12 +89,11 @@ class CustomDownloader(ABC):
 
     @abstractmethod
     def custom_downloader(self, config, episode):
-        """
-        if this custom downloader has a custom download method (e.g. youtube-dl),
-        return a CustomDownload. Else return None
+        """Return a CustomDownload if this downloader has a custom download method.
+
         :param config: gpodder config (e.g. to get preferred video format)
         :param model.PodcastEpisode episode: episode to download
-        :return CustomDownload: object used to download the episode
+        :return CustomDownload: object used to download the episode or None
         """
         return None
 

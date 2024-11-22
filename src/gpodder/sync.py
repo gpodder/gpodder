@@ -106,7 +106,8 @@ def get_track_length(filename):
 
 
 def episode_filename_on_device(config, episode):
-    """
+    """Return the basename of the episode file to save on device.
+
     :param gpodder.config.Config config: configuration (for sync options)
     :param gpodder.model.PodcastEpisode episode: episode to get filename for
     :return str: basename minus extension to use to save episode on device
@@ -130,7 +131,8 @@ def episode_filename_on_device(config, episode):
 
 
 def episode_foldername_on_device(config, episode):
-    """
+    """Return the folder name to which the episode is saved on device.
+
     :param gpodder.config.Config config: configuration (for sync options)
     :param gpodder.model.PodcastEpisode episode: episode to get folder name for
     :return str: folder name to save episode to on device

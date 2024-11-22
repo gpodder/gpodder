@@ -165,7 +165,8 @@ class Fetcher(object):
             raise UnknownStatusCode(status)
 
     def parse_feed(self, url, feed_data, data_stream, headers, status, **kwargs):
-        """
+        """Parse feed.
+
         kwargs are passed from Fetcher.fetch
         :param str url: real url
         :param data_stream: file-like object to read from (bytes mode)

@@ -1946,10 +1946,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return True
 
     def cover_download_finished(self, channel, pixbuf):
-        """
-        The Cover Downloader calls this when it has finished
-        downloading (or registering, if already downloaded)
-        a new channel cover, which is ready for displaying.
+        """Called by Cover Downloader when it has finished downloading.
+
+        Also called after registering a new channel cover, which is ready
+        for displaying, if the cover is already downloaded.
         """
         util.idle_add(self.podcast_list_model.add_cover_by_channel,
                 channel, pixbuf)

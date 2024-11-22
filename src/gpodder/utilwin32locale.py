@@ -18,7 +18,8 @@
 # along with elib.intl. If not, see <http://www.gnu.org/licenses/>.
 
 
-"""
+"""Localization utilities for Win32.
+
 This code is adapted from the elib.intl module available on GitHub at
 https://github.com/dieterv/elib.intl, commit 49d5797 on 1 Sep 2017.
 
@@ -55,7 +56,8 @@ logger = getLogger(__name__)
 
 
 def _localefromlcid(lcid):
-    """
+    """Return locale from Windows LCID.
+
     :param lcid: Microsoft Windows LCID
     :returns: name of the supported gPodder locale or ISO 639-1 language code for a given lcid. If there is no
               ISO 639-1 language code assigned to the language specified by lcid,
@@ -334,7 +336,8 @@ def _getscreenlanguage():
 
 
 def install(domain, localedir):
-    """
+    """Install a translation domain from locale directory.
+
     :param domain: translation domain
     :param localedir: locale directory
     """

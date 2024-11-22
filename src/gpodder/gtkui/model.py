@@ -658,8 +658,8 @@ class PodcastListModel(Gtk.ListStore):
         self._cover_cache = {}
 
     def _resize_pixbuf_keep_ratio(self, url, pixbuf):
-        """
-        Resizes a GTK Pixbuf but keeps its aspect ratio.
+        """Resizes a GTK Pixbuf but keeps its aspect ratio.
+
         Returns None if the pixbuf does not need to be
         resized or the newly resized pixbuf if it does.
         """
@@ -739,11 +739,12 @@ class PodcastListModel(Gtk.ListStore):
         channel.save()
 
     def _get_cover_image(self, channel, add_overlay=False, pixbuf_overlay=None):
-        """ get channel's cover image. Callable from gtk thread.
-            :param channel: channel model
-            :param bool add_overlay: True to add a pause/error overlay
-            :param GdkPixbuf.Pixbux pixbuf_overlay: existing pixbuf if already loaded, as an optimization
-            :return GdkPixbuf.Pixbux: channel's cover image as pixbuf
+        """Get channel's cover image. Callable from gtk thread.
+
+        :param channel: channel model
+        :param bool add_overlay: True to add a pause/error overlay
+        :param GdkPixbuf.Pixbux pixbuf_overlay: existing pixbuf if already loaded, as an optimization
+        :return GdkPixbuf.Pixbux: channel's cover image as pixbuf
         """
         if self._cover_downloader is None:
             return pixbuf_overlay

@@ -269,8 +269,8 @@ class YoutubeFeed(model.Feed):
         return episodes, all_seen_guids
 
     def get_next_page(self, channel, max_episodes):
-        """
-        Paginated feed support (RFC 5005).
+        """Paginated feed support (RFC 5005).
+
         If the feed is paged, return the next feed page.
         Returned page will in turn be asked for the next page, until None is returned.
         :return feedcore.Result: the next feed's page,
@@ -442,9 +442,10 @@ class gPodderYoutubeDL(download.CustomDownloader):
             YoutubeFeed(url, cover_url, description, max_episodes, ie_result, self))
 
     def fetch_channel(self, channel, max_episodes=0):
-        """
-        called by model.gPodderFetcher to get a custom feed.
-        :returns feedcore.Result: a YoutubeFeed or None if channel is not a youtube channel or playlist
+        """Return a custom feed. Called by model.gPodderFetcher.
+
+        :returns feedcore.Result: A YoutubeFeed or None if channel is not
+                                  a youtube channel or playlist
         """
         if not self.my_config.manage_channel:
             return None

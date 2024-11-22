@@ -342,9 +342,9 @@ class Config(object):
         self.__json_config._merge_keys(defaults)
 
     def add_observer(self, callback):
-        """
-        Add a callback function as observer. This callback
-        will be called when a setting changes. It should
+        """Add a callback function as observer.
+
+        This callback will be called when a setting changes. It should
         have this signature:
 
             observer(name, old_value, new_value)

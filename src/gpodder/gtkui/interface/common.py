@@ -325,7 +325,8 @@ class TreeViewHelper(object):
 
     @staticmethod
     def make_popup_position_func(widget):
-        """
+        """Make a function suitable for Gtk.Menu.popup().
+
         :return: suitable function to pass to Gtk.Menu.popup()
         It's used for instance when the popup trigger is the Menu key:
         it will position the menu on top of the selected row even if the mouse is elsewhere

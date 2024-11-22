@@ -128,7 +128,9 @@ class ExtensionMetadata(object):
         return sorted([(k, v) for k, v in list(self.__dict__.items())], key=kf)
 
     def check_ui(self, target, default):
-        """Checks metadata information like
+        """Check metadata information.
+
+        Metadata information:
             __only_for__ = 'gtk'
             __mandatory_in__ = 'gtk'
             __disable_in__ = 'gtk'
@@ -547,14 +549,13 @@ class ExtensionManager(object):
 
     @call_extensions
     def on_episode_delete(self, episode, filename):
-        """Called just before the episode's disk file is about to be
-        deleted."""
+        """Called before the episode's disk file is about to be deleted."""
 
     @call_extensions
     def on_episode_removed_from_podcast(self, episode):
-        """Called just before the episode is about to be removed from
-        the podcast channel, e.g., when the episode has not been
-        downloaded and it disappears from the feed.
+        """Called before the episode is about to be removed from a channel.
+
+        E.g., when the episode has not been downloaded and it disappears from the feed.
 
         @param podcast: A gpodder.model.PodcastChannel instance
         """

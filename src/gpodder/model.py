@@ -77,8 +77,8 @@ class Feed:
         return None
 
     def get_new_episodes(self, channel, existing_guids):
-        """
-        Produce new episodes and update old ones.
+        """Produce new episodes and update old ones.
+
         Feed is a class to present results, so the feed shall have already been fetched.
         Existing episodes not in all_seen_guids will be purged from the database.
         :param PodcastChannel channel: the updated channel
@@ -88,8 +88,8 @@ class Feed:
         return ([], set())
 
     def get_next_page(self, channel, max_episodes):
-        """
-        Paginated feed support (RFC 5005).
+        """Paginated feed support (RFC 5005).
+
         If the feed is paged, return the next feed page.
         Returned page will in turn be asked for the next page, until None is returned.
         :return feedcore.Result: the next feed's page,
@@ -245,9 +245,10 @@ class PodcastModelObject(object):
 
     @classmethod
     def create_from_dict(cls, d, *args):
-        """
-        Create a new object, passing "args" to the constructor
-        and then updating the object with the values from "d".
+        """Create a podcast model from constructor args and dict.
+
+        Passes "args" to the constructor and then updates the object with
+        the values from "d".
         """
         o = cls(*args)
 
@@ -498,7 +499,8 @@ class PodcastEpisode(PodcastModelObject):
                 and os.path.exists(self.download_task.custom_downloader.partial_filename))
 
     def can_stream(self, config):
-        """
+        """Return True if episode can be streamed.
+
         Don't try streaming if the user has not defined a player
         or else we would probably open the browser when giving a URL to xdg-open.
         We look at the audio or video player depending on its file type.
@@ -507,7 +509,8 @@ class PodcastEpisode(PodcastModelObject):
         return player and player != 'default'
 
     def can_download(self):
-        """
+        """Return True if episode can be downloaded.
+
         gPodder.on_download_selected_episodes() filters selection with this method.
         PAUSING and PAUSED tasks can be resumed.
         """
@@ -525,12 +528,17 @@ class PodcastEpisode(PodcastModelObject):
         return self.download_task is not None and self.download_task.can_cancel()
 
     def can_delete(self):
-        """gPodder.delete_episode_list() filters out locked episodes, and cancels all unlocked tasks in selection."""
+        """Return True, if episode can be deleted.
+
+        gPodder.delete_episode_list() filters out locked episodes,
+        and cancels all unlocked tasks in selection.
+        """
         return self.state != gpodder.STATE_DELETED and not self.archive and (
             self.download_task is None or self.download_task.status == self.download_task.FAILED)
 
     def can_lock(self):
-        """
+        """Return True, if episode can be locked.
+
         gPodder.on_item_toggle_lock_activate() unlocks deleted episodes and toggles all others.
         Locked episodes can always be unlocked.
         """
@@ -1127,7 +1135,8 @@ class PodcastChannel(PodcastModelObject):
             return tmp
 
     def episode_factory(self, d):
-        """
+        """Create a PodcastEpisode from a dict.
+
         This function takes a dictionary containing key-value pairs for
         episodes and returns a new PodcastEpisode object that is connected
         to this object.

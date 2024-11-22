@@ -46,7 +46,9 @@ try:
     from AppKit import NSAppleEventDescriptor, NSAppleEventManager, NSObject
 
     class gPodderEventHandler(NSObject):
-        """ handles Apple Events for :
+        """Handle Apple Events.
+
+        Handles Apple Events for:
             - Open With... (and dropping a file on the icon)
             - "subscribe to podcast" from firefox
         The code was largely inspired by gedit-osx-delegate.m, from the
