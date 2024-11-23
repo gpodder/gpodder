@@ -2111,7 +2111,6 @@ def iri_to_url(url):
 
 
 class Popen(subprocess.Popen):
-
     """A Popen process that tries not to leak file descriptors.
 
     This is a drop-in replacement for subprocess.Popen(), which takes the same
