@@ -125,10 +125,11 @@ class SoundcloudUser(object):
         return user_info.get('id', None)
 
     def get_tracks(self, feed):
-        """Get a generator of tracks from a SC user
+        """Get a generator of tracks from a SC user.
 
         The generator will give you a dictionary for every
-        track it can find for its user."""
+        track it can find for its user.
+        """
         global CONSUMER_KEY
         try:
             json_url = ('https://api.soundcloud.com/users/%(user)s/%(feed)s.'

@@ -262,10 +262,11 @@ class EpisodeListModel(Gtk.ListStore):
         return bool(len(self._filter))
 
     def set_view_mode(self, new_mode):
-        """Sets a new view mode for this model
+        """Sets a new view mode for this model.
 
         After setting the view mode, the filtered model
-        might be updated to reflect the new mode."""
+        might be updated to reflect the new mode.
+        """
         if self._view_mode != new_mode:
             self._view_mode = new_mode
             self._filter.refilter()
@@ -632,10 +633,11 @@ class PodcastListModel(Gtk.ListStore):
         return self._filter
 
     def set_view_mode(self, new_mode):
-        """Sets a new view mode for this model
+        """Sets a new view mode for this model.
 
         After setting the view mode, the filtered model
-        might be updated to reflect the new mode."""
+        might be updated to reflect the new mode.
+        """
         if self._view_mode != new_mode:
             self._view_mode = new_mode
             self._filter.refilter()
