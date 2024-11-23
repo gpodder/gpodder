@@ -177,7 +177,7 @@ class Fetcher(object):
         raise NotImplementedError("Implement parse_feed()")
 
     def fetch(self, url, etag=None, modified=None, autodiscovery=True, **kwargs):
-        """ use kwargs to pass extra data to parse_feed in Fetcher subclasses """
+        """Use kwargs to pass extra data to parse_feed in Fetcher subclasses."""
         # handle local file first
         if url.startswith('file://'):
             url = url[len('file://'):]

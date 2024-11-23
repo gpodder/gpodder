@@ -453,7 +453,7 @@ class Config(object):
         setattr(self.__json_config, name, value)
 
     def migrate_defaults(self):
-        """ change default values in config """
+        """Change default values in config."""
         if self.device_sync.max_filename_length == 999:
             logger.debug("setting config.device_sync.max_filename_length=120"
                          " (999 is bad for NTFS and ext{2-4})")

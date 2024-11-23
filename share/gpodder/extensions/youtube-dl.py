@@ -217,12 +217,18 @@ class YoutubeFeed(model.Feed):
         return self._cover_url
 
     def get_http_etag(self):
-        """ :return str: optional -- last HTTP etag header, for conditional request next time """
+        """Return the last HTTP etag header, for conditional request next time.
+
+        :return str: optional.
+        """
         # youtube-dl doesn't provide it!
         return None
 
     def get_http_last_modified(self):
-        """ :return str: optional -- last HTTP Last-Modified header, for conditional request next time """
+        """Return the last HTTP Last-Modified header, for conditional request next time.
+
+        :return str: optional
+        """
         # youtube-dl doesn't provide it!
         return None
 
@@ -317,7 +323,7 @@ class gPodderYoutubeDL(download.CustomDownloader):
             self._ydl_opts['logger'] = logger
 
     def add_format(self, gpodder_config, opts, fallback=None):
-        """ construct youtube-dl -f argument from configured format. """
+        """Construct youtube-dl -f argument from configured format."""
         # You can set a custom format or custom formats by editing the config for key
         # `youtube.preferred_fmt_ids`
         #

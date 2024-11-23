@@ -45,7 +45,7 @@ def safe_first_line(txt):
 
 
 class DBusPodcastsProxy(dbus.service.Object):
-    """ Implements API accessible through D-Bus
+    """Implements API accessible through D-Bus.
 
     Methods on DBusPodcastsProxy can be called by D-Bus clients. They implement
     safe-guards to work safely over D-Bus while having type signatures applied

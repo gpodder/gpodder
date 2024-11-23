@@ -30,7 +30,7 @@ def debug_requests():
 
 
 def error_exit(msg, code=1):
-    """ print msg and exit with code """
+    """Print msg and exit with code."""
     print(msg, file=sys.stderr)
     sys.exit(code)
 
@@ -48,7 +48,7 @@ def download_items(urls, prefix):
 
 
 def download_mac_github(github_workflow, prefix, version):
-    """ download mac workflow artifacts from github and exit """
+    """Download mac workflow artifacts from github and exit."""
     headers = {'Accept': 'application/vnd.github+json', 'Authorization': 'token %s' % github_token}
 
     print("I: downloading release artifacts for workflow %d" % github_workflow)
@@ -80,7 +80,7 @@ def download_mac_github(github_workflow, prefix, version):
 
 
 def download_appveyor(appveyor_build, prefix):
-    """ download build artifacts from appveyor and exit """
+    """Download build artifacts from appveyor and exit."""
     print("I: downloading release artifacts from appveyor")
     build = requests.get("https://ci.appveyor.com/api/projects/elelay/gpodder/build/%s" % appveyor_build).json()
     job_id = build.get("build", {}).get("jobs", [{}])[0].get("jobId")
@@ -96,7 +96,7 @@ def download_appveyor(appveyor_build, prefix):
 
 
 def checksums():
-    """ compute artifact checksums """
+    """Compute artifact checksums."""
     ret = {}
     for f in os.listdir("_build"):
         archive = os.path.join("_build", f)
@@ -166,7 +166,7 @@ Thanks to {{contributors[0]}}{% for c in contributors[1:-1] %}, {{c}}{% endfor %
 
 
 def upload(repo, tag, previous_tag, mac_github, appveyor):
-    """ create github release (draft) and upload assets """
+    """Create github release (draft) and upload assets."""
     print("I: creating release %s" % tag)
     items = os.listdir('_build')
     if len(items) == 0:

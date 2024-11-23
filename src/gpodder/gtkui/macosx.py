@@ -60,7 +60,7 @@ try:
         gp = None
 
         def register(self, gp):
-            """ register all handlers with NSAppleEventManager """
+            """Register all handlers with NSAppleEventManager."""
             self.gp = gp
             aem = NSAppleEventManager.sharedAppleEventManager()
             aem.setEventHandler_andSelector_forEventClass_andEventID_(
@@ -69,7 +69,7 @@ try:
                 self, 'subscribeEvent:reply:', aeKeyword('GURL'), aeKeyword('GURL'))
 
         def openFileEvent_reply_(self, event, reply):
-            """ handles an 'Open With...' event"""
+            """Handle an 'Open With...' event."""
             urls = []
             filelist = event.paramDescriptorForKeyword_(aeKeyword(keyDirectObject))  # noqa: F405
             numberOfItems = filelist.numberOfItems()
@@ -87,7 +87,7 @@ try:
             reply.setParamDescriptor_forKeyword_(result, aeKeyword('----'))
 
         def subscribeEvent_reply_(self, event, reply):
-            """ handles a 'Subscribe to...' event"""
+            """Handle a 'Subscribe to...' event."""
             filelist = event.paramDescriptorForKeyword_(aeKeyword(keyDirectObject))  # noqa: F405
             fileURLData = filelist.data()
             url = memoryview(fileURLData.bytes(), 0, fileURLData.length())
@@ -108,6 +108,6 @@ except ImportError:
 
 
 def register_handlers(gp):
-    """ register the events handlers (and keep a reference to gPodder's instance)"""
+    """Register the events handlers (and keep a reference to gPodder's instance)."""
     if handler is not None:
         handler.register(gp)

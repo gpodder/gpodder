@@ -2204,7 +2204,7 @@ class Popen(subprocess.Popen):
 
 
 def _parse_mimetype_sorted_dictitems(mimetype):
-    """ python 3.5 unordered dict compat for doctest. don't use! """
+    """Python 3.5 unordered dict compat for doctest. Don't use."""
     r = parse_mimetype(mimetype)
     return r[0], r[1], sorted(r[2].items())
 
@@ -2227,7 +2227,7 @@ def parse_mimetype(mimetype):
     ('application', 'x-myapp', [('a', 'b'), ('quoted', 'a quoted string with ; etc.')])
     """
     class MIMETypeException(Exception):
-        """ when an exception is encountered parsing mime type """
+        """Raised when an exception is encountered parsing mime type."""
 
     if not mimetype or '/' not in mimetype:
         return (None, None, {})

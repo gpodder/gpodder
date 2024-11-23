@@ -46,34 +46,34 @@ _ = gpodder.gettext
 
 
 class Feed:
-    """ abstract class for presenting a parsed feed to PodcastChannel """
+    """Abstract class for presenting a parsed feed to PodcastChannel."""
 
     def get_title(self):
-        """ :return str: the feed's title """
+        """Return the feeds title or None."""
         return None
 
     def get_link(self):
-        """ :return str: link to the feed's website """
+        """Return the link to the feeds website or None."""
         return None
 
     def get_description(self):
-        """ :return str: feed's textual description """
+        """Return the feeds textual description or None."""
         return None
 
     def get_cover_url(self):
-        """ :return str: url of the feed's cover image """
+        """Return the URL of the feeds cover image or None."""
         return None
 
     def get_payment_url(self):
-        """ :return str: optional -- feed's payment url """
+        """Return the feeds payment url or None."""
         return None
 
     def get_http_etag(self):
-        """ :return str: optional -- last HTTP etag header, for conditional request next time """
+        """Return the last HTTP etag header, for conditional request next time, or None."""
         return None
 
     def get_http_last_modified(self):
-        """ :return str: optional -- last HTTP Last-Modified header, for conditional request next time """
+        """Return the last HTTP Last-Modified header, for conditional request next time, or None"""
         return None
 
     def get_new_episodes(self, channel, existing_guids):

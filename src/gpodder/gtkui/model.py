@@ -89,7 +89,7 @@ class GPodcast(model.PodcastChannel):
 
     @property
     def title_markup(self):
-        """ escaped title for the mass unsubscribe dialog """
+        """Escaped title for the mass unsubscribe dialog."""
         return html.escape(self.title)
 
 

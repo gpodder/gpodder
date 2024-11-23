@@ -53,7 +53,7 @@ REDIRECT_RETRIES = 3
 
 
 class CustomDownload(ABC):
-    """ abstract class for custom downloads. DownloadTask call retrieve_resume() on it """
+    """Abstract class for custom downloads. DownloadTask call retrieve_resume() on it."""
 
     @property
     @abstractmethod
@@ -226,7 +226,7 @@ class DownloadURLOpener:
         self.max_retries = max_retries
 
     def init_session(self):
-        """ init a session with our own retry codes + retry count """
+        """Init a session with our own retry codes + retry count."""
         # I add a few retries for redirects but it means that I will allow max_retries + REDIRECT_RETRIES
         # if encountering max_retries connect and REDIRECT_RETRIES read for instance
         retry_strategy = Retry(
