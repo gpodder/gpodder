@@ -43,21 +43,25 @@ logger = logging.getLogger(__name__)
 
 
 class DirectoryPodcastsModel(Gtk.ListStore):
-    C_SELECTED, C_MARKUP, C_TITLE, C_URL = list(range(4))
+    C_SELECTED, C_MARKUP, C_TITLE, C_URL, C_SECTION = list(range(5))
 
     def __init__(self, callback_can_subscribe):
-        Gtk.ListStore.__init__(self, bool, str, str, str)
+        Gtk.ListStore.__init__(self, bool, str, str, str, str)
         self.callback_can_subscribe = callback_can_subscribe
 
     def load(self, directory_entries):
         self.clear()
         for entry in directory_entries:
             if entry.subscribers != -1:
-                self.append((False, '%s (%d)\n<small>%s</small>' % (html.escape(entry.title),
-                    entry.subscribers, html.escape(entry.url)), entry.title, entry.url))
+                subscribers_part = '(%d)' % entry.subscribers
             else:
-                self.append((False, '%s\n<small>%s</small>' % (html.escape(entry.title),
-                    html.escape(entry.url)), entry.title, entry.url))
+                subscribers_part = ''
+            if entry.section:
+                section_part = '%s\n' % (html.escape(entry.section))
+            else:
+                section_part = ''
+            self.append((False, '%s%s%s\n<small>%s</small>' % (section_part, html.escape(entry.title),
+                subscribers_part, html.escape(entry.url)), entry.title, entry.url, entry.section))
         self.callback_can_subscribe(len(self.get_selected_podcasts()) > 0)
 
     def toggle(self, path):
@@ -70,7 +74,7 @@ class DirectoryPodcastsModel(Gtk.ListStore):
         self.callback_can_subscribe(len(self.get_selected_podcasts()) > 0)
 
     def get_selected_podcasts(self):
-        return [(row[self.C_TITLE], row[self.C_URL]) for row in self if row[self.C_SELECTED]]
+        return [(row[self.C_TITLE], row[self.C_URL], row[self.C_SECTION]) for row in self if row[self.C_SELECTED]]
 
 
 class DirectoryProvidersModel(Gtk.ListStore):
@@ -159,7 +163,7 @@ class gPodderPodcastDirectory(BuilderWidget):
         self.tv_podcasts.append_column(column)
 
         self.tv_podcasts.set_model(self.podcasts_model)
-        self.podcasts_model.append((False, 'a', 'b', 'c'))
+        self.podcasts_model.append((False, 'a', 'b', 'c', 'd'))
 
     def setup_providers_treeview(self):
         column = Gtk.TreeViewColumn('')
