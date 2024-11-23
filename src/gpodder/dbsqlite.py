@@ -105,7 +105,7 @@ class Database(object):
                 logger.error('Cannot commit: %s', e, exc_info=True)
 
     def get_content_types(self, pid):
-        """Given a podcast ID, returns the content types"""
+        """Given a podcast ID, returns the content types."""
         with self.lock:
             cur = self.cursor()
             cur.execute('SELECT mime_type FROM %s WHERE podcast_id = ?' % self.TABLE_EPISODE, (pid,))
@@ -114,7 +114,7 @@ class Database(object):
             cur.close()
 
     def get_podcast_statistics(self, podcast_id=None):
-        """Given a podcast ID, returns the statistics for it
+        """Given a podcast ID, returns the statistics for it.
 
         If the podcast_id is omitted (using the default value), the
         statistics will be calculated over all podcasts.

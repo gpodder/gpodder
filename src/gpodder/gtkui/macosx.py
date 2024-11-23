@@ -24,7 +24,7 @@ from gpodder import util
 
 
 def aeKeyword(fourCharCode):
-    """transform four character code into a long"""
+    """Transform four character code into a long."""
     return struct.unpack('I', fourCharCode)[0]
 
 

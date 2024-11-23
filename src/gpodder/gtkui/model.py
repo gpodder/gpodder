@@ -245,7 +245,7 @@ class EpisodeListModel(Gtk.ListStore):
         return True
 
     def get_filtered_model(self):
-        """Returns a filtered version of this episode model
+        """Return a filtered version of this episode model.
 
         The filtered version should be displayed in the UI,
         as this model can have some filters set that should
@@ -254,7 +254,7 @@ class EpisodeListModel(Gtk.ListStore):
         return self._sorter
 
     def has_episodes(self):
-        """Returns True if episodes are visible (filtered)
+        """Return True if episodes are visible (filtered).
 
         If episodes are visible with the current filter
         applied, return True (otherwise return False).
@@ -262,7 +262,7 @@ class EpisodeListModel(Gtk.ListStore):
         return bool(len(self._filter))
 
     def set_view_mode(self, new_mode):
-        """Sets a new view mode for this model.
+        """Set a new view mode for this model.
 
         After setting the view mode, the filtered model
         might be updated to reflect the new mode.
@@ -273,7 +273,7 @@ class EpisodeListModel(Gtk.ListStore):
             self._on_filter_changed(self.has_episodes())
 
     def get_view_mode(self):
-        """Returns the currently-set view mode"""
+        """Return the currently-set view mode."""
         return self._view_mode
 
     def set_search_term(self, new_term):
@@ -540,7 +540,7 @@ class PodcastChannelProxy:
             return total, deleted, new, downloaded, unplayed
 
     def get_all_episodes(self):
-        """Returns a generator that yields every episode"""
+        """Return a generator that yields every episode."""
         if self.model._search_term is not None:
             def matches(channel):
                 columns = (getattr(channel, c) for c in PodcastListModel.SEARCH_ATTRS)
@@ -624,7 +624,7 @@ class PodcastListModel(Gtk.ListStore):
         return True
 
     def get_filtered_model(self):
-        """Returns a filtered version of this episode model
+        """Return a filtered version of this episode model.
 
         The filtered version should be displayed in the UI,
         as this model can have some filters set that should
@@ -633,7 +633,7 @@ class PodcastListModel(Gtk.ListStore):
         return self._filter
 
     def set_view_mode(self, new_mode):
-        """Sets a new view mode for this model.
+        """Set a new view mode for this model.
 
         After setting the view mode, the filtered model
         might be updated to reflect the new mode.
@@ -643,7 +643,7 @@ class PodcastListModel(Gtk.ListStore):
             self._filter.refilter()
 
     def get_view_mode(self):
-        """Returns the currently-set view mode"""
+        """Return the currently-set view mode."""
         return self._view_mode
 
     def set_search_term(self, new_term):

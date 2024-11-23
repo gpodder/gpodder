@@ -73,7 +73,7 @@ class Feed:
         return None
 
     def get_http_last_modified(self):
-        """Return the last HTTP Last-Modified header, for conditional request next time, or None"""
+        """Return the last HTTP Last-Modified header, for conditional request next time, or None."""
         return None
 
     def get_new_episodes(self, channel, existing_guids):
@@ -418,7 +418,7 @@ class PodcastEpisode(PodcastModelObject):
 
     @property
     def trimmed_title(self):
-        """Return the title with the common prefix trimmed"""
+        """Return the title with the common prefix trimmed."""
         # Minimum amount of leftover characters after trimming. This
         # avoids things like "Common prefix 123" to become just "123".
         # If there are LEFTOVER_MIN or less characters after trimming,
@@ -629,7 +629,7 @@ class PodcastEpisode(PodcastModelObject):
         self.set_state(gpodder.STATE_DELETED)
 
     def get_playback_url(self, config=None, allow_partial=False):
-        """Local (or remote) playback/streaming filename/URL
+        """Local (or remote) playback/streaming filename/URL.
 
         Returns either the local filename or a streaming URL that
         can be used to playback this episode.
@@ -658,7 +658,7 @@ class PodcastEpisode(PodcastModelObject):
 
     def local_filename(self, create, force_update=False, check_only=False,
             template=None, return_wanted_filename=False):
-        """Get (and possibly generate) the local saving filename
+        """Get (and possibly generate) the local saving filename.
 
         Pass create=True if you want this function to generate a
         new filename if none exists. You only want to do this when
@@ -826,7 +826,7 @@ class PodcastEpisode(PodcastModelObject):
             return '0000'
 
     def playlist_title(self):
-        """Return a title for this episode in a playlist
+        """Return a title for this episode in a playlist.
 
         The title will be composed of the podcast name, the
         episode name and the publication date. The return
@@ -873,7 +873,7 @@ class PodcastEpisode(PodcastModelObject):
         return self.published_datetime().strftime('%y')
 
     def is_finished(self):
-        """Return True if this episode is considered "finished playing"
+        """Return True if this episode is considered "finished playing".
 
         An episode is considered "finished" when there is a
         current position mark on the track, and when the
@@ -1000,7 +1000,7 @@ class PodcastChannel(PodcastModelObject):
         return new_url
 
     def check_download_folder(self):
-        """Check the download folder for externally-downloaded files
+        """Check the download folder for externally-downloaded files.
 
         This will try to assign downloaded files with episodes in the
         database.
@@ -1540,9 +1540,9 @@ class Model(object):
 
     @classmethod
     def sort_episodes_by_pubdate(cls, episodes, reverse=False):
-        """Sort a list of PodcastEpisode objects chronologically
+        """Sort a list of PodcastEpisode objects chronologically.
 
-        Returns a iterable, sorted sequence of the episodes
+        Returns a iterable, sorted sequence of the episodes.
         """
         return sorted(episodes, key=cls.episode_sort_key, reverse=reverse)
 

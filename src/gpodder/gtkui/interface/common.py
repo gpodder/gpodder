@@ -74,7 +74,7 @@ class BuilderWidget(GtkBuilderWidget):
         util.idle_add(self.show_message, message, title, important, widget)
 
     def get_dialog_parent(self):
-        """Return a Gtk.Window that should be the parent of dialogs"""
+        """Return a Gtk.Window that should be the parent of dialogs."""
         return self.main_window
 
     def show_message_details(self, title, message, details):
@@ -350,8 +350,7 @@ class TreeViewHelper(object):
 
     @staticmethod
     def get_popup_rectangle(treeview, event, column=0):
-        """
-        :return: Gdk.Rectangle to pass to Gtk.Popover.set_pointing_to()
+        """Return a Gdk.Rectangle to pass to Gtk.Popover.set_pointing_to().
 
         If event is given, return a zero-width and height rectangle with the
         event coordinates. If event is None, get the area of the column in the
@@ -382,7 +381,7 @@ class TreeViewHelper(object):
 
 
 class ExtensionMenuHelper(object):
-    """A helper class to handle extension submenus"""
+    """A helper class to handle extension submenus."""
 
     def __init__(self, gpodder, menu, action_prefix, gen_callback_func=None):
         self.gPodder = gpodder

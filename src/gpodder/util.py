@@ -23,7 +23,7 @@
 #  Thomas Perl <thp@perli.net> 2007-08-04
 #
 
-"""Miscellaneous helper functions for gPodder
+"""Miscellaneous helper functions for gPodder.
 
 This module provides helper and utility functions for gPodder that
 are not tied to any specific part of gPodder.
@@ -559,7 +559,7 @@ def format_date(timestamp):
 
 
 def format_filesize(bytesize, use_si_units=False, digits=2):
-    """Format the given size in bytes to be human-readable,
+    """Format the given size in bytes to be human-readable.
 
     Returns a localized "(unknown)" string when the bytesize
     has a negative value.
@@ -881,8 +881,7 @@ def wrong_extension(extension):
 
 
 def extension_from_mimetype(mimetype):
-    """
-    Simply guesses what the file extension should be from the mimetype
+    """Simply guesses what the file extension should be from the mimetype.
 
     >>> extension_from_mimetype('audio/mp4')
     '.m4a'
@@ -902,7 +901,7 @@ def extension_from_mimetype(mimetype):
 
 def mimetype_from_extension(extension):
     """
-    Simply guesses what the mimetype should be from the file extension
+    Simply guesses what the mimetype should be from the file extension.
 
     >>> mimetype_from_extension('.m4a')
     'audio/mp4'
@@ -1278,7 +1277,7 @@ def find_command(command):
 
 
 def idle_add(func, *args):
-    """Run a function in the main GUI thread
+    """Run a function in the main GUI thread.
 
     This is a wrapper function that does the Right Thing depending on if we are
     running on Gtk+, Qt or CLI.
@@ -1295,7 +1294,7 @@ def idle_add(func, *args):
 
 
 def idle_timeout_add(milliseconds, func, *args):
-    """Run a function in the main GUI thread at regular intervals, at idle priority
+    """Run a function in the main GUI thread at regular intervals, at idle priority.
 
     PRIORITY_HIGH           -100
     PRIORITY_DEFAULT        0        timeout_add()
@@ -1390,7 +1389,7 @@ def bluetooth_send_file(filename):
 
 
 def format_time(seconds):
-    """Format a seconds value to a string
+    """Format a seconds value to a string.
 
     >>> format_time(0)
     '00:00'
@@ -1419,7 +1418,7 @@ def format_time(seconds):
 
 
 def parse_time(value):
-    """Parse a time string into seconds
+    """Parse a time string into seconds.
 
     >>> parse_time('00:00')
     0
@@ -1791,7 +1790,7 @@ def get_hostname():
 
 
 def detect_device_type():
-    """Device type detection for gpodder.net
+    """Device type detection for gpodder.net.
 
     This function tries to detect on which
     kind of device gPodder is running on.
@@ -1807,7 +1806,7 @@ def detect_device_type():
 
 
 def write_m3u_playlist(m3u_filename, episodes, extm3u=True):
-    """Create an M3U playlist from a episode list
+    """Create an M3U playlist from a episode list.
 
     If the parameter "extm3u" is False, the list of
     episodes should be a list of filenames, and no
@@ -1871,7 +1870,7 @@ def is_known_redirecter(url):
 
 
 def atomic_rename(old_name, new_name):
-    """Atomically rename/move a (temporary) file
+    """Atomically rename/move a (temporary) file.
 
     This is usually used when updating a file safely by writing
     the new contents into a temporary file and then moving the
@@ -1885,14 +1884,14 @@ def atomic_rename(old_name, new_name):
 
 
 def check_command(self, cmd):
-    """Check if a command line command/program exists"""
+    """Check if a command line command/program exists."""
     # Prior to Python 2.7.3, this module (shlex) did not support Unicode input.
     program = shlex.split(cmd)[0]
     return (find_command(program) is not None)
 
 
 def rename_episode_file(episode, filename):
-    """Helper method to update a PodcastEpisode object
+    """Helper method to update a PodcastEpisode object.
 
     Useful after renaming/converting its download file.
     """
@@ -1950,7 +1949,7 @@ def run_in_background(function, daemon=False):
 
 
 def linux_get_active_interfaces():
-    """Get active network interfaces using 'ip addr'
+    """Get active network interfaces using 'ip addr'.
 
     A generator function yielding network interface
     names with an inet (or inet6) and a broadcast
@@ -1969,7 +1968,7 @@ def linux_get_active_interfaces():
 
 
 def osx_get_active_interfaces():
-    """Get active network interfaces using 'ifconfig'
+    """Get active network interfaces using 'ifconfig'.
 
     Returns a list of active network interfaces or an
     empty list if the device is offline. The loopback
@@ -1984,7 +1983,7 @@ def osx_get_active_interfaces():
 
 
 def unix_get_active_interfaces():
-    """Get active network interfaces using 'ifconfig'
+    """Get active network interfaces using 'ifconfig'.
 
     Returns a list of active network interfaces or an
     empty list if the device is offline. The loopback
@@ -1999,7 +1998,7 @@ def unix_get_active_interfaces():
 
 
 def connection_available():
-    """Check if an Internet connection is available
+    """Check if an Internet connection is available.
 
     Returns True if a connection is available (or if there
     is no way to determine the connection). Returns False
@@ -2299,7 +2298,7 @@ def parse_mimetype(mimetype):
 
 
 def get_header_param(headers, param, header_name):
-    """Extract a HTTP header parameter from a dict
+    """Extract a HTTP header parameter from a dict.
 
     Uses the "email" module to retrieve parameters
     from HTTP headers. This can be used to get the

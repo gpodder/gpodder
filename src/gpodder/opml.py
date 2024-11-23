@@ -26,7 +26,7 @@
 #            libopmlwriter.py (2005-12-08)
 #
 
-"""OPML import and export functionality
+"""OPML import and export functionality.
 
 This module contains helper classes to import subscriptions
 from OPML files on the web and to export a list of channel

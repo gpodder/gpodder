@@ -36,7 +36,7 @@ SIZE = 500000                 # Size (in bytes) of the episode downloads)
 
 
 def mkpubdates(items):
-    """Generate fake pubDates (one each day, recently)"""
+    """Generate fake pubDates (one each day, recently)."""
     current = datetime.datetime.now() - datetime.timedelta(days=items + 3)
     for i in range(items):
         yield current.ctime()
@@ -44,7 +44,7 @@ def mkpubdates(items):
 
 
 def mkrss(items=EP_COUNT):
-    """Generate a dumm RSS feed with a given number of items"""
+    """Generate a dumm RSS feed with a given number of items."""
     ITEMS = '\n'.join("""
     <item>
         <title>Episode %(INDEX)s</title>
@@ -108,7 +108,7 @@ def mkrss(items=EP_COUNT):
 
 
 def mkdata(size=SIZE):
-    """Generate dummy data of a given size (in bytes)"""
+    """Generate dummy data of a given size (in bytes)."""
     return bytes([32 + (i % (127 - 32)) for i in range(size)])
 
 

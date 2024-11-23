@@ -332,8 +332,7 @@ class Config(object):
             logger.info('Appending alternate PATH: %s' % self.path.alternate)
 
     def register_defaults(self, defaults):
-        """
-        Register default configuration options (e.g. for extensions)
+        """Register default configuration options (e.g. for extensions).
 
         This function takes a dictionary that will be merged into the
         current configuration if the keys don't yet exist. This can
@@ -423,7 +422,7 @@ class Config(object):
         setattr(self, name, not getattr(self, name))
 
     def update_field(self, name, new_value):
-        """Update a config field, converting strings to the right types"""
+        """Update a config field, converting strings to the right types."""
         old_value = self._lookup(name)
         new_value = string_to_config_value(new_value, old_value)
         setattr(self, name, new_value)

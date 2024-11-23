@@ -66,7 +66,7 @@ class gPodderSyncUI(object):
         self.mount_volume_for_file = mount_volume_for_file
 
     def _filter_sync_episodes(self, channels, only_downloaded=False):
-        """Return a list of episodes for device synchronization
+        """Return a list of episodes for device synchronization.
 
         If only_downloaded is True, this will skip episodes that
         have not been downloaded yet and podcasts that are marked

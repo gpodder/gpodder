@@ -131,7 +131,7 @@ class Fetcher(object):
                   'text/xml')
 
     def _resolve_url(self, url):
-        """Provide additional ways of resolving an URL
+        """Provide additional ways of resolving an URL.
 
         Subclasses can override this method to provide more
         ways of resolving a given URL to a feed URL. If the

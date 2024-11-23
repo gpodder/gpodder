@@ -122,8 +122,7 @@ class ContentRange(object):
     # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
     # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
     # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-    """
-    Represents the Content-Range header
+    """Represents the Content-Range header.
 
     This header is ``start-stop/length``, where stop and length can be
     ``*`` (represented as None in the attributes).
@@ -154,7 +153,8 @@ class ContentRange(object):
         return 'bytes %s-%s/%s' % (self.start, stop, length)
 
     def __iter__(self):
-        """
+        """Iterate through a ContentRange.
+
         Mostly so you can unpack this, like:
 
             start, stop, length = res.content_range
@@ -246,7 +246,7 @@ class DownloadURLOpener:
 # Also based on http://mail.python.org/pipermail/python-list/2001-October/110069.html
 
     def retrieve_resume(self, url, filename, reporthook=None, data=None, disable_auth=False):
-        """Download files from an URL; return (headers, real_url)
+        """Download files from an URL; return (headers, real_url).
 
         Resumes a download if the local filename exists and
         the server supports download resuming.

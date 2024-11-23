@@ -67,7 +67,7 @@ class DBusPodcastsProxy(dbus.service.Object):
                 bus_name=bus_name)
 
     def _get_episode_refs(self, urls):
-        """Get Episode instances associated with URLs"""
+        """Get Episode instances associated with URLs."""
         episodes = []
         for p in self._get_podcasts():
             for e in p.get_all_episodes():
@@ -77,7 +77,7 @@ class DBusPodcastsProxy(dbus.service.Object):
 
     @dbus.service.method(dbus_interface=gpodder.dbus_podcasts, in_signature='', out_signature='a(ssss)')
     def get_podcasts(self):
-        """Get all podcasts in gPodder's subscription list"""
+        """Get all podcasts in gPodder's subscription list."""
         def podcast_to_tuple(podcast):
             title = safe_str(podcast.title)
             url = safe_str(podcast.url)
@@ -99,7 +99,7 @@ class DBusPodcastsProxy(dbus.service.Object):
 
     @dbus.service.method(dbus_interface=gpodder.dbus_podcasts, in_signature='s', out_signature='a(sssssbbb)')
     def get_episodes(self, url):
-        """Return all episodes of the podcast with the given URL"""
+        """Return all episodes of the podcast with the given URL."""
         podcast = None
         for channel in self._get_podcasts():
             if channel.url == url:
@@ -125,7 +125,7 @@ class DBusPodcastsProxy(dbus.service.Object):
 
     @dbus.service.method(dbus_interface=gpodder.dbus_podcasts, in_signature='as', out_signature='(bs)')
     def play_or_download_episode(self, urls):
-        """Play (or download) a list of episodes given by URL"""
+        """Play (or download) a list of episodes given by URL."""
         episodes = self._get_episode_refs(urls)
         if not episodes:
             return (0, 'No episodes found')
@@ -143,5 +143,5 @@ class DBusPodcastsProxy(dbus.service.Object):
 
     @dbus.service.method(dbus_interface=gpodder.dbus_podcasts, in_signature='', out_signature='')
     def check_for_updates(self):
-        """Check for new episodes or offer subscriptions"""
+        """Check for new episodes or offer subscriptions."""
         self._on_check_for_updates()

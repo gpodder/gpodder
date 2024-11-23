@@ -60,7 +60,7 @@ PLAYLIST_RE = re.compile(r'https://www.youtube.com/feeds/videos.xml\?playlist_id
 
 
 def youtube_parsedate(s):
-    """Parse a string into a unix timestamp
+    """Parse a string into a unix timestamp.
 
     Only strings provided by youtube-dl API are
     parsed with this function (20170920).

@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 
 
 def clean_up_downloads(delete_partial=False):
-    """Clean up temporary files left behind by old gPodder versions
+    """Clean up temporary files left behind by old gPodder versions.
 
     delete_partial - If True, also delete in-progress downloads
     """
@@ -48,7 +48,7 @@ def clean_up_downloads(delete_partial=False):
 
 
 def find_partial_downloads(channels, start_progress_callback, progress_callback, final_progress_callback, finish_progress_callback):
-    """Find partial downloads and match them with episodes
+    """Find partial downloads and match them with episodes.
 
     channels - A list of all model.PodcastChannel objects
     start_progress_callback - A callback(count) when partial files are searched

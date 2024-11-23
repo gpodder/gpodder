@@ -491,7 +491,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 finish_progress_callback)
 
     def episode_object_by_uri(self, uri):
-        """Get an episode object given a local or remote URI
+        """Get an episode object given a local or remote URI.
 
         This can be used to quickly access an episode object
         when all we have is its download filename or episode
@@ -540,7 +540,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         return self.wNotebook.get_current_page() == 1
 
     def on_played(self, start, end, total, file_uri):
-        """Handle the "played" signal from a media player"""
+        """Handle the "played" signal from a media player."""
         if start == 0 and end == 0 and total == 0:
             # Ignore bogus play event
             return
@@ -1732,8 +1732,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.update_podcast_list_model()
 
     def format_episode_list(self, episode_list, max_episodes=10):
-        """
-        Format a list of episode names for notifications
+        """Format a list of episode names for notifications.
 
         Will truncate long episode names and limit the amount of
         episodes displayed (max_episodes=10).
@@ -2424,7 +2423,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def update_podcast_list_model(self, urls=None, selected=False, select_url=None,
             sections_changed=False):
-        """Update the podcast list treeview model
+        """Update the podcast list treeview model.
 
         If urls is given, it should list the URLs of each
         podcast that has to be updated in the list.
@@ -2740,7 +2739,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             util.idle_add(on_after_update)
 
     def find_episode(self, podcast_url, episode_url):
-        """Find an episode given its podcast and episode URL
+        """Find an episode given its podcast and episode URL.
 
         The function will return a PodcastEpisode object if
         the episode is found, or None if it's not found.
@@ -2754,7 +2753,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         return None
 
     def process_received_episode_actions(self):
-        """Process/merge episode actions from gpodder.net
+        """Process/merge episode actions from gpodder.net.
 
         This function will merge all changes received from
         the server to the local database and update the
@@ -3098,7 +3097,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.show_delete_episodes_window()
 
     def show_delete_episodes_window(self, channel=None):
-        """Offer deletion of episodes
+        """Offer deletion of episodes.
 
         If channel is None, offer deletion of all episodes.
         Otherwise only offer deletion of episodes in the channel.
@@ -3424,7 +3423,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 [e for e in c.get_all_episodes() if e.check_is_new()]]
 
     def commit_changes_to_database(self):
-        """This will be called after the sync process is finished"""
+        """Called after the sync process is finished."""
         self.db.commit()
 
     def on_itemShowToolbar_activate(self, action, param):
@@ -3735,7 +3734,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.show_message(message, title, important=True)
 
     def check_for_updates(self, silent):
-        """Check for updates and (optionally) show a message
+        """Check for updates and (optionally) show a message.
 
         If silent=False, a message will be shown even if no updates are
         available (set silent=False when the check is manually triggered).
@@ -3787,7 +3786,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             self.on_itemEditChannel_activate(None)
 
     def get_selected_channels(self):
-        """Get a list of selected channels from treeChannels"""
+        """Get a list of selected channels from treeChannels."""
         selection = self.treeChannels.get_selection()
         model, paths = selection.get_selected_rows()
 
@@ -3817,11 +3816,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.update_episode_list_model()
 
     def get_podcast_urls_from_selected_episodes(self):
-        """Get a set of podcast URLs based on the selected episodes"""
+        """Get a set of podcast URLs based on the selected episodes."""
         return {episode.channel.url for episode in self.get_selected_episodes()}
 
     def get_selected_episodes(self):
-        """Get a list of selected episodes from treeAvailable"""
+        """Get a list of selected episodes from treeAvailable."""
         selection = self.treeAvailable.get_selection()
         model, paths = selection.get_selected_rows()
 
@@ -3907,7 +3906,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self._for_each_task_set_status(selected_tasks, None, False)
 
     def on_treeAvailable_row_activated(self, widget, path, view_column):
-        """Double-click/enter action handler for treeAvailable"""
+        """Double-click/enter action handler for treeAvailable."""
         self.on_shownotes_selected_episodes(widget)
 
     def restart_auto_update_timer(self):

@@ -66,8 +66,7 @@ class JsonConfig(object):
     _INDENT = 2
 
     def __init__(self, data=None, default=None, on_key_changed=None):
-        """
-        Create a new JsonConfig object
+        """Create a new JsonConfig object.
 
         data: A JSON string that contains the data to load (optional)
         default: A dict that contains default config values (optional)
@@ -111,8 +110,7 @@ class JsonConfig(object):
             self._restore(data)
 
     def _restore(self, backup):
-        """
-        Restore a previous state saved with repr()
+        """Restore a previous state saved with repr().
 
         This function allows you to "snapshot" the current values of
         the configuration and reload them later on. Any missing
@@ -142,7 +140,7 @@ class JsonConfig(object):
         return False
 
     def _merge_keys(self, merge_source):
-        """Merge keys from merge_source into this config object
+        """Merge keys from merge_source into this config object.
 
         Return True if new keys were merged, False otherwise
         """

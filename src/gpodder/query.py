@@ -29,7 +29,7 @@ import gpodder
 
 
 class Matcher(object):
-    """Match implementation for EQL
+    """Match implementation for EQL.
 
     This class implements the low-level matching of
     EQL statements against episode objects.
@@ -137,7 +137,7 @@ class Matcher(object):
 
 
 class EQL(object):
-    """A Query in EQL
+    """A Query in EQL.
 
     Objects of this class represent a query on episodes
     using EQL. Example usage:

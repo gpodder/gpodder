@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-UI Base Module for GtkBuilder
+"""UI Base Module for GtkBuilder.
 
 Based on SimpleGladeApp.py Copyright (C) 2004 Sandino Flores Moreno
 """
@@ -92,7 +91,7 @@ class GtkBuilderWidget(object):
 
     @property
     def main_window(self):
-        """Returns the main window of this GtkBuilderWidget"""
+        """Returns the main window of this GtkBuilderWidget."""
         return getattr(self, self.__class__.__name__)
 
     def new(self):
