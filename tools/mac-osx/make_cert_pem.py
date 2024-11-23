@@ -58,7 +58,6 @@ def write_certs(certs, dest):
 
 
 def main(openssl, dest):
-    """Main program."""
     print("I: make_cert_pem.py %s %s" % (openssl, dest))
     certs = get_certs(openssl)
     if certs is None:

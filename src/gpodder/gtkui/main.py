@@ -2192,8 +2192,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.gPodder.set_title(new_title)
 
     def update_episode_list_icons(self, urls=None, selected=False, update_all=False):
-        """
-        Updates the status icons in the episode list.
+        """Update the status icons in the episode list.
 
         If urls is given, it should be a list of URLs
         of episodes that should be updated.

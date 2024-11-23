@@ -299,8 +299,7 @@ def _localefromlcid(lcid):
 
 
 def _getscreenlanguage():
-    """
-    :returns: the locale for this session.
+    """Return the locale for this session.
 
     If the LANGUAGE environment variable is set, it's value overrides the
     screen language detection. Otherwise the screen language is determined by

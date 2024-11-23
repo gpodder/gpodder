@@ -31,7 +31,7 @@ class gPodderExtension(object):
         self.container = container
 
     def milli_to_srt(self, time):
-        """Converts milliseconds to srt time format."""
+        """Convert milliseconds to srt time format."""
         srt_time = timedelta(milliseconds=time)
         srt_time = str(srt_time)
         if '.' in srt_time:
@@ -43,7 +43,7 @@ class gPodderExtension(object):
         return srt_time
 
     def ted_to_srt(self, jsonstring, introduration):
-        """Converts the json object to srt format."""
+        """Convert the json object to srt format."""
         jsonobject = json.loads(jsonstring)
 
         srtContent = ''

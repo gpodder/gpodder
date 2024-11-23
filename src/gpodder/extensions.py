@@ -53,7 +53,7 @@ DEFAULT_CATEGORY = _('Other')
 
 
 def call_extensions(func):
-    """Decorator to create handler functions in ExtensionManager.
+    """Decorate a function to create handler in ExtensionManager.
 
     Calls the specified function in all user extensions that define it.
     """
@@ -206,7 +206,7 @@ class ExtensionContainer(object):
         self.metadata = ExtensionMetadata(self, self._load_metadata(filename))
 
     def require_command(self, command):
-        """Checks if the given command is installed on the system.
+        """Check if the given command is installed on the system.
 
         Returns the complete path of the command
 
@@ -219,7 +219,7 @@ class ExtensionContainer(object):
         return result
 
     def require_any_command(self, command_list):
-        """Checks if any of the given commands is installed on the system.
+        """Check if any of the given commands is installed on the system.
 
         Returns the complete path of first found command in the list
 

@@ -113,8 +113,7 @@ class UIConfig(config.Config):
         editable.connect('changed', _editable_changed)
 
     def connect_gtk_spinbutton(self, name, spinbutton, forced_upper=None):
-        """
-        bind a Gtk.SpinButton to a configuration entry.
+        """Bind a Gtk.SpinButton to a configuration entry.
 
         It's now possible to specify an upper value (forced_upper).
         It's not done automatically (always look for name + '_max') because it's

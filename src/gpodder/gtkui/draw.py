@@ -78,7 +78,7 @@ def draw_rounded_rectangle(ctx, x, y, w, h, r=10, left_side_width=None,
 
 
 def rounded_rectangle(ctx, x, y, width, height, radius=4.):
-    """Simple rounded rectangle algorithm.
+    """Return a rounded rectangle.
 
     http://www.cairographics.org/samples/rounded_rectangle/
     """

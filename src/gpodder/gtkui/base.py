@@ -91,7 +91,7 @@ class GtkBuilderWidget(object):
 
     @property
     def main_window(self):
-        """Returns the main window of this GtkBuilderWidget."""
+        """Return the main window of this GtkBuilderWidget."""
         return getattr(self, self.__class__.__name__)
 
     def new(self):

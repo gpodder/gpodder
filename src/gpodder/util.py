@@ -172,7 +172,7 @@ def new_gio_file(path):
 
 
 def make_directory(path):
-    """Tries to create a directory if it does not exist already.
+    """Create a directory if it does not exist already.
 
     Returns True if the directory exists after the function
     call, False otherwise.
@@ -805,8 +805,7 @@ class ExtractHyperlinkedTextHTMLParser(HTMLParser):
 
 
 def extract_hyperlinked_text(html):
-    """
-    Convert HTML to hyperlinked text.
+    """Convert HTML to hyperlinked text.
 
     The output is a list of (target, text) tuples, where target is either a URL
     or None, and text is a piece of plain text for rendering in a TextView.
@@ -823,7 +822,10 @@ def extract_hyperlinked_text(html):
 
 
 def nice_html_description(img, description):
-    """Basic html formatting + hyperlink highlighting + video thumbnail."""
+    """Create HTML from a text description.
+
+    Basic html formatting + hyperlink highlighting + video thumbnail.
+    """
     description = re.sub(r'https?://[^\s]+', r'<a href="\g<0>">\g<0></a>', description)
     description = description.replace('\n', '<br>')
     html = """<style type="text/css">
@@ -1367,8 +1369,7 @@ def bluetooth_available():
 
 
 def bluetooth_send_file(filename):
-    """
-    Sends a file via bluetooth.
+    """Send a file via bluetooth.
 
     This function tries to use "bluetooth-sendto", and if
     it is not available, it also tries "gnome-obex-send".
@@ -1891,7 +1892,7 @@ def check_command(self, cmd):
 
 
 def rename_episode_file(episode, filename):
-    """Helper method to update a PodcastEpisode object.
+    """Update a PodcastEpisode object after a file rename.
 
     Useful after renaming/converting its download file.
     """
@@ -1908,8 +1909,7 @@ def rename_episode_file(episode, filename):
 
 
 def get_update_info():
-    """
-    Get up to date release information from gpodder.org.
+    """Get up to date release information from gpodder.org.
 
     Returns a tuple: (up_to_date, latest_version, release_date, days_since)
 

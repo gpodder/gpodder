@@ -501,7 +501,7 @@ class DownloadQueueManager(object):
                 util.run_in_background(worker.run)
 
     def queue_task(self, task):
-        """Marks a task as queued."""
+        """Mark a task as queued."""
         self.tasks.queue_task(task)
         self.__spawn_threads()
 

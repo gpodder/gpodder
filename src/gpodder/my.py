@@ -203,7 +203,7 @@ class MygPoClient(object):
         atexit.register(self._at_exit)
 
     def create_device(self):
-        """Uploads the device changes to the server.
+        """Upload the device changes to the server.
 
         This should be called when device settings change
         or when the mygpo client functionality is enabled.
@@ -218,7 +218,7 @@ class MygPoClient(object):
         self._store.save(action)
 
     def get_rewritten_urls(self):
-        """Returns a list of rewritten URLs for uploads.
+        """Return a list of rewritten URLs for uploads.
 
         This should be called regularly. Every object returned
         should be merged into the database, and the old_url
@@ -284,7 +284,7 @@ class MygPoClient(object):
         logger.debug('Received episode actions processed.')
 
     def get_received_actions(self):
-        """Returns a list of ReceivedSubscribeAction objects.
+        """Return a list of ReceivedSubscribeAction objects.
 
         The list might be empty. All these actions have to
         be processed. The user should confirm which of these
