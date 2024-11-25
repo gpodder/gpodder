@@ -43,7 +43,7 @@ logger = logging.getLogger(__name__)
 
 
 def soundcloud_parsedate(s):
-    """Parse a string into a unix timestamp
+    """Parse a string into a unix timestamp.
 
     Only strings provided by Soundcloud's API are
     parsed with this function (2009/11/03 13:37:00).
@@ -53,7 +53,7 @@ def soundcloud_parsedate(s):
 
 
 def get_metadata(url):
-    """Get file download metadata
+    """Get file download metadata.
 
     Returns a (size, type, name) from the given download
     URL. Will use the network connection to determine the
@@ -125,10 +125,11 @@ class SoundcloudUser(object):
         return user_info.get('id', None)
 
     def get_tracks(self, feed):
-        """Get a generator of tracks from a SC user
+        """Get a generator of tracks from a SC user.
 
         The generator will give you a dictionary for every
-        track it can find for its user."""
+        track it can find for its user.
+        """
         global CONSUMER_KEY
         try:
             json_url = ('https://api.soundcloud.com/users/%(user)s/%(feed)s.'

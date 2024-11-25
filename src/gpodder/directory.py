@@ -34,10 +34,11 @@ _ = gpodder.gettext
 
 
 class JustAWarning(Exception):
-    """
-    Use this exception in providers to avoid a stack trace shown to the user.
+    """Use this exception in providers to avoid a stack trace shown to the user.
+
     Warning should be an already localized error message.
     """
+
     def __init__(self, warning):
         super().__init__(self, warning)
         self.warning = warning

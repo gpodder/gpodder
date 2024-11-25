@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
-""" A script to initialize our bundled openssl CA trust store
-    based on your System's keychain
+"""A script to initialize our bundled openssl CA trust store.
 
-    Released under the same licence as gPodder (GPL3 or later)
-    Copyright (c) 2016 Eric Le Lay
+Based on your System's keychain.
+
+Released under the same licence as gPodder (GPL3 or later)
+Copyright (c) 2016 Eric Le Lay
 """
 
 import argparse
@@ -15,8 +16,7 @@ from subprocess import PIPE, CalledProcessError, Popen
 
 
 def is_valid_cert(openssl, cert):
-    """ check if cert is valid according to openssl"""
-
+    """Check if cert is valid according to openssl."""
     cmd = [openssl, "x509", "-inform", "pem", "-checkend", "0", "-noout"]
     # print("D: is_valid_cert %r" % cmd)
     proc = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=PIPE)
@@ -26,10 +26,10 @@ def is_valid_cert(openssl, cert):
 
 
 def get_certs(openssl):
-    """ extract System's certificates then filter them by validity
-        and return a list of text of valid certs
-    """
+    """Extract System's certificates then filter them by validity.
 
+    Return a list of text of valid certs
+    """
     cmd = ["security", "find-certificate", "-a", "-p",
            "/System/Library/Keychains/SystemRootCertificates.keychain"]
     cert_re = re.compile(b"^-----BEGIN CERTIFICATE-----$"
@@ -52,15 +52,12 @@ def get_certs(openssl):
 
 
 def write_certs(certs, dest):
-    """ write concatenated certs to dest """
-
+    """Write concatenated certs to dest."""
     with open(dest, "wb") as output:
         output.write(b"\n".join(certs))
 
 
 def main(openssl, dest):
-    """ main program """
-
     print("I: make_cert_pem.py %s %s" % (openssl, dest))
     certs = get_certs(openssl)
     if certs is None:

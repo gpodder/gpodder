@@ -90,7 +90,7 @@ def test_redirect(httpserver):
 
 
 def test_redirect_loop(httpserver):
-    """ verify that feedcore fetching will not loop indefinitely on redirects """
+    """Verify that feedcore fetching will not loop indefinitely on redirects."""
     redir_headers = {
         'Location': '/feed',  # it loops
     }

@@ -22,15 +22,16 @@ __only_for__ = 'gtk, cli'
 
 
 class gPodderExtension(object):
+    """TED Subtitle Download Extension.
+
+    Downloads ted subtitles.
     """
-    TED Subtitle Download Extension
-    Downloads ted subtitles
-    """
+
     def __init__(self, container):
         self.container = container
 
     def milli_to_srt(self, time):
-        """Converts milliseconds to srt time format"""
+        """Convert milliseconds to srt time format."""
         srt_time = timedelta(milliseconds=time)
         srt_time = str(srt_time)
         if '.' in srt_time:
@@ -42,7 +43,7 @@ class gPodderExtension(object):
         return srt_time
 
     def ted_to_srt(self, jsonstring, introduration):
-        """Converts the json object to srt format"""
+        """Convert the json object to srt format."""
         jsonobject = json.loads(jsonstring)
 
         srtContent = ''

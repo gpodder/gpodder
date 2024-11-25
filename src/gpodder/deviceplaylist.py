@@ -73,9 +73,7 @@ class gPodderDevicePlaylist(object):
         return "#EXTINF:0,%s%s" % (title.strip(), self.linebreak)
 
     def read_m3u(self):
-        """
-        read all files from the existing playlist
-        """
+        """Read all files from the existing playlist."""
         tracks = []
         logger.info("Read data from the playlistfile %s" % self.playlist_absolute_filename.get_uri())
         if self.playlist_absolute_filename.query_exists():
@@ -90,15 +88,11 @@ class gPodderDevicePlaylist(object):
         return tracks
 
     def get_filename_for_playlist(self, episode):
-        """
-        get the filename for the given episode for the playlist
-        """
+        """Get the filename for the given episode for the playlist."""
         return episode_filename_on_device(self._config, episode)
 
     def get_absolute_filename_for_playlist(self, episode):
-        """
-        get the filename including full path for the given episode for the playlist
-        """
+        """Get the filename including full path for the given episode for the playlist."""
         filename = self.get_filename_for_playlist(episode)
         foldername = episode_foldername_on_device(self._config, episode)
         if foldername:
@@ -108,9 +102,7 @@ class gPodderDevicePlaylist(object):
         return filename
 
     def write_m3u(self, episodes):
-        """
-        write the list into the playlist on the device
-        """
+        """Write the list into the playlist on the device."""
         logger.info('Writing playlist file: %s', self.playlist_file)
         if not util.make_directory(self.playlist_folder):
             raise IOError(_('Folder %s could not be created.') % self.playlist_folder, _('Error writing playlist'))

@@ -125,12 +125,12 @@ class AudioFile(object):
             audio.save()
 
     def insert_coverart(self):
-        """ implement the cover art logic in the subclass
-        """
+        """Implement the cover art logic in the subclass."""
         None
 
     def get_cover_picture(self, cover):
-        """ Returns mutagen Picture class for the cover image
+        """Return mutagen Picture class for the cover image.
+
         Useful for OGG and FLAC format
 
         Picture type = cover image

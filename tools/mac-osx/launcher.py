@@ -12,13 +12,13 @@ from subprocess import PIPE, CalledProcessError, Popen
 
 
 class MakeCertPem:
-    """ create openssl cert bundle from system certificates """
+    """Create openssl cert bundle from system certificates."""
 
     def __init__(self, openssl):
         self.openssl = openssl
 
     def is_valid_cert(self, cert):
-        """ check if cert is valid according to openssl"""
+        """Check if cert is valid according to openssl."""
         cmd = [self.openssl, "x509", "-inform", "pem", "-checkend", "0", "-noout"]
         # print("D: is_valid_cert %r" % cmd)
         proc = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=PIPE)
@@ -27,8 +27,9 @@ class MakeCertPem:
         return proc.returncode == 0
 
     def get_certs(self):
-        """ extract System's certificates then filter them by validity
-            and return a list of text of valid certs
+        """Extract System's certificates and filter them by validity.
+
+        Return a list of texts of valid certs
         """
         cmd = ["security", "find-certificate", "-a", "-p",
                "/System/Library/Keychains/SystemRootCertificates.keychain"]
@@ -52,12 +53,12 @@ class MakeCertPem:
 
     @staticmethod
     def write_certs(certs, dest):
-        """ write concatenated certs to dest """
+        """Write concatenated certs to dest."""
         with open(dest, "wb") as output:
             output.write(b"\n".join(certs))
 
     def regen(self, dest):
-        """ main program """
+        """Regenerate the certificates."""
         print("I: make_cert_pem %s %s" % (self.openssl, dest))
         certs = self.get_certs()
         if certs is None:

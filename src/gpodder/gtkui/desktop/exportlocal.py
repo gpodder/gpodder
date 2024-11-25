@@ -26,7 +26,8 @@ N_ = gpodder.ngettext
 
 
 class gPodderExportToLocalFolder(BuilderWidget):
-    """ Export to Local Folder UI: file dialog + checkbox to save all to same folder """
+    """Export to Local Folder UI: file dialog + checkbox to save all to same folder."""
+
     def new(self):
         self.gPodderExportToLocalFolder.set_transient_for(self.parent_widget)
         self.RES_CANCEL = -6
@@ -37,8 +38,8 @@ class gPodderExportToLocalFolder(BuilderWidget):
                                         'export_to_local_folder', True)
 
     def save_as(self, initial_directory, filename, remaining=0):
-        """
-        blocking method: prompt for save to local folder
+        """Prompt for save to local folder, blocking method.
+
         :param str initial_directory: folder to show to user or None
         :param str filename: default export filename
         :param int remaining: remaining episodes (to show/hide and customize checkbox label)

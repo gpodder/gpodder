@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-"""
-Prepare release and upload Windows and macOS artifacts
-"""
+"""Prepare release and upload Windows and macOS artifacts."""
 import argparse
 import hashlib
 import os
@@ -15,7 +13,7 @@ from jinja2 import Template
 
 
 def debug_requests():
-    """ turn requests debug on """
+    """Turn requests debug on."""
     # These two lines enable debugging at httplib level (requests->urllib3->http.client)
     # You will see the REQUEST, including HEADERS and DATA, and RESPONSE with HEADERS but without DATA.
     # The only thing missing will be the response.body which is not logged.
@@ -32,7 +30,7 @@ def debug_requests():
 
 
 def error_exit(msg, code=1):
-    """ print msg and exit with code """
+    """Print msg and exit with code."""
     print(msg, file=sys.stderr)
     sys.exit(code)
 
@@ -50,7 +48,7 @@ def download_items(urls, prefix):
 
 
 def download_mac_github(github_workflow, prefix, version):
-    """ download mac workflow artifacts from github and exit """
+    """Download mac workflow artifacts from github and exit."""
     headers = {'Accept': 'application/vnd.github+json', 'Authorization': 'token %s' % github_token}
 
     print("I: downloading release artifacts for workflow %d" % github_workflow)
@@ -82,7 +80,7 @@ def download_mac_github(github_workflow, prefix, version):
 
 
 def download_appveyor(appveyor_build, prefix):
-    """ download build artifacts from appveyor and exit """
+    """Download build artifacts from appveyor and exit."""
     print("I: downloading release artifacts from appveyor")
     build = requests.get("https://ci.appveyor.com/api/projects/elelay/gpodder/build/%s" % appveyor_build).json()
     job_id = build.get("build", {}).get("jobs", [{}])[0].get("jobId")
@@ -98,7 +96,7 @@ def download_appveyor(appveyor_build, prefix):
 
 
 def checksums():
-    """ compute artifact checksums """
+    """Compute artifact checksums."""
     ret = {}
     for f in os.listdir("_build"):
         archive = os.path.join("_build", f)
@@ -115,9 +113,7 @@ def checksums():
 
 
 def get_contributors(tag, previous_tag):
-    """
-    list contributor logins '@...' for every commit in range
-    """
+    """List contributor logins '@...' for every commit in range."""
     cmp = repo.compare_commits(previous_tag, tag)
     logins = [c.author.login for c in cmp.commits() if c.author] + [c.committer.login for c in cmp.commits()]
     return sorted({"@{}".format(n) for n in logins})
@@ -170,7 +166,7 @@ Thanks to {{contributors[0]}}{% for c in contributors[1:-1] %}, {{c}}{% endfor %
 
 
 def upload(repo, tag, previous_tag, mac_github, appveyor):
-    """ create github release (draft) and upload assets """
+    """Create github release (draft) and upload assets."""
     print("I: creating release %s" % tag)
     items = os.listdir('_build')
     if len(items) == 0:
