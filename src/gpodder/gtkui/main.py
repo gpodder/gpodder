@@ -1949,7 +1949,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         Also called after registering a new channel cover, which is ready
         for displaying, if the cover is already downloaded.
-        """
+        """  # noqa: D401
         util.idle_add(self.podcast_list_model.add_cover_by_channel,
                 channel, pixbuf)
 
@@ -2958,7 +2958,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         """Called when the GUI wants to close the window.
 
         Displays a confirmation dialog (and closes/hides gPodder).
-        """
+        """  # noqa: D401
         if self.confirm_quit():
             self.close_gpodder()
 
@@ -2968,7 +2968,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         """Called when the GUI wants to close the window.
 
         Displays a confirmation dialog.
-        """
+        """  # noqa: D401
         downloading = self.download_status_model.are_downloads_in_progress()
 
         if downloading:
@@ -3422,7 +3422,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 [e for e in c.get_all_episodes() if e.check_is_new()]]
 
     def commit_changes_to_database(self):
-        """Called after the sync process is finished."""
+        """Called after the sync process is finished."""  # noqa: D401
         self.db.commit()
 
     def on_itemShowToolbar_activate(self, action, param):

@@ -411,14 +411,14 @@ class ExtensionManager(object):
         @param model: A gpodder.model.Model instance
         @param update_podcast_callback: Function to update a podcast feed
         @param download_episode_callback: Function to download an episode
-        """
+        """  # noqa: D401
 
     @call_extensions
     def on_podcast_subscribe(self, podcast):
         """Called when the user subscribes to a new podcast feed.
 
         @param podcast: A gpodder.model.PodcastChannel instance
-        """
+        """  # noqa: D401
 
     @call_extensions
     def on_podcast_updated(self, podcast):
@@ -427,7 +427,7 @@ class ExtensionManager(object):
         This extension will be called even if there were no new episodes.
 
         @param podcast: A gpodder.model.PodcastChannel instance
-        """
+        """  # noqa: D401
 
     @call_extensions
     def on_podcast_update_failed(self, podcast, exception):
@@ -436,7 +436,7 @@ class ExtensionManager(object):
         @param podcast: A gpodder.model.PodcastChannel instance
 
         @param exception: The reason.
-        """
+        """  # noqa: D401
 
     @call_extensions
     def on_podcast_save(self, podcast):
@@ -446,14 +446,14 @@ class ExtensionManager(object):
         the podcast or when the feed was updated.
 
         @param podcast: A gpodder.model.PodcastChannel instance
-        """
+        """  # noqa: D401
 
     @call_extensions
     def on_podcast_delete(self, podcast):
         """Called when a podcast is deleted from the database.
 
         @param podcast: A gpodder.model.PodcastChannel instance
-        """
+        """  # noqa: D401
 
     @call_extensions
     def on_episode_playback(self, episode):
@@ -463,7 +463,7 @@ class ExtensionManager(object):
         "Open" in the GUI to open an episode with the media player.
 
         @param episode: A gpodder.model.PodcastEpisode instance
-        """
+        """  # noqa: D401
 
     @call_extensions
     def on_episode_save(self, episode):
@@ -473,7 +473,7 @@ class ExtensionManager(object):
         database or when the state of an existing episode is changed.
 
         @param episode: A gpodder.model.PodcastEpisode instance
-        """
+        """  # noqa: D401
 
     @call_extensions
     def on_episode_downloaded(self, episode):
@@ -482,11 +482,11 @@ class ExtensionManager(object):
         You can retrieve the filename via episode.local_filename(False)
 
         @param episode: A gpodder.model.PodcastEpisode instance
-        """
+        """  # noqa: D401
 
     @call_extensions
     def on_all_episodes_downloaded(self):
-        """Called when all episodes has been downloaded."""
+        """Called when all episodes has been downloaded."""  # noqa: D401
 
     @call_extensions
     def on_episode_synced(self, device, episode):
@@ -501,7 +501,7 @@ class ExtensionManager(object):
 
         @param device: A gpodder.sync.Device instance
         @param episode: A gpodder.model.PodcastEpisode instance
-        """
+        """  # noqa: D401
 
     @call_extensions
     def on_create_menu(self):
@@ -514,7 +514,7 @@ class ExtensionManager(object):
         Example return value:
 
         [('Sync to Smartphone', lambda : ...)]
-        """
+        """  # noqa: D401
 
     @call_extensions
     def on_episodes_context_menu(self, episodes):
@@ -530,7 +530,7 @@ class ExtensionManager(object):
         [('Mark as new', lambda episodes: ...)]
 
         @param episodes: A list of gpodder.model.PodcastEpisode instances
-        """
+        """  # noqa: D401
 
     @call_extensions
     def on_channel_context_menu(self, channel):
@@ -544,11 +544,11 @@ class ExtensionManager(object):
 
         [('Update channel', lambda channel: ...)]
         @param channel: A gpodder.model.PodcastChannel instance
-        """
+        """  # noqa: D401
 
     @call_extensions
     def on_episode_delete(self, episode, filename):
-        """Called before the episode's disk file is about to be deleted."""
+        """Called before the episode's disk file is about to be deleted."""  # noqa: D401
 
     @call_extensions
     def on_episode_removed_from_podcast(self, episode):
@@ -557,7 +557,7 @@ class ExtensionManager(object):
         E.g., when the episode has not been downloaded and it disappears from the feed.
 
         @param podcast: A gpodder.model.PodcastChannel instance
-        """
+        """  # noqa: D401
 
     @call_extensions
     def on_notification_show(self, title, message):
@@ -565,14 +565,14 @@ class ExtensionManager(object):
 
         @param title: title of the notification
         @param message: message of the notification
-        """
+        """  # noqa: D401
 
     @call_extensions
     def on_download_progress(self, progress):
         """Called when the overall download progress changes.
 
         @param progress: The current progress value (0..1)
-        """
+        """  # noqa: D401
 
     @call_extensions
     def on_ui_object_available(self, name, ui_object):
@@ -583,7 +583,7 @@ class ExtensionManager(object):
 
         @param name: The name/ID of the object
         @param ui_object: The object itself
-        """
+        """  # noqa: D401
 
     @call_extensions
     def on_application_started(self):
@@ -595,7 +595,7 @@ class ExtensionManager(object):
         enabled but only on following startups.
 
         It is called after on_ui_object_available and on_ui_initialized.
-        """
+        """  # noqa: D401
 
     @call_extensions
     def on_find_partial_downloads_done(self):
@@ -605,7 +605,7 @@ class ExtensionManager(object):
         to prevent race conditions with the find_partial_downloads method.
 
         It is called after on_application_started.
-        """
+        """  # noqa: D401
 
     @call_extensions
     def on_preferences(self):
@@ -618,7 +618,7 @@ class ExtensionManager(object):
         Example return value:
 
         [('Tab name', lambda: ...)]
-        """
+        """  # noqa: D401
 
     @call_extensions
     def on_channel_settings(self, channel):
@@ -634,4 +634,4 @@ class ExtensionManager(object):
         [('Tab name', lambda channel: ...)]
 
         @param channel: A gpodder.model.PodcastChannel instance
-        """
+        """  # noqa: D401

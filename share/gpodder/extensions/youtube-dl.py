@@ -98,7 +98,7 @@ class YoutubeCustomDownload(download.CustomDownload):
         self._partial_filename = val
 
     def retrieve_resume(self, tempname, reporthook=None):
-        """Called by download.DownloadTask to perform the download."""
+        """Called by download.DownloadTask to perform the download."""  # noqa: D401
         self._reporthook = reporthook
         # outtmpl: use given tempname by DownloadTask
         # (escape % because outtmpl used as a string template by youtube-dl)
@@ -495,7 +495,7 @@ class gPodderYoutubeDL(download.CustomDownloader):
         return False
 
     def custom_downloader(self, unused_config, episode):
-        """Called from registry.custom_downloader.resolve."""
+        """Called from registry.custom_downloader.resolve."""  # noqa: D401
         if not self.force and not self.my_config.manage_downloads:
             return None
 

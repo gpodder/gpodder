@@ -98,7 +98,7 @@ class GtkBuilderWidget(object):
         """Called when the user interface is loaded and ready to be used.
 
         At this moment, the widgets are loaded and can be referred as self.widget_name
-        """
+        """  # noqa: D401
 
     def main(self):
         """Start the main loop of processing events.
@@ -139,4 +139,4 @@ class GtkBuilderWidget(object):
             self.on_keyboard_interrupt()
 
     def on_keyboard_interrupt(self):
-        """Called by the default implementation of run() after pressing Control-C."""
+        """Called by the default implementation of run() after pressing Control-C."""  # noqa: D401
