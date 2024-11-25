@@ -38,7 +38,7 @@ from .model import Model
 
 import gi  # isort:skip
 gi.require_version('Gtk', '3.0')  # isort:skip
-from gi.repository import GdkPixbuf, Gio, GObject, Gtk  # isort:skip
+from gi.repository import GdkPixbuf, Gio, GLib, Gtk  # isort:skip
 
 
 logger = logging.getLogger(__name__)
@@ -354,7 +354,7 @@ class gPodderApplication(Gtk.Application):
 
 
 def main(options=None):
-    GObject.set_application_name('gPodder')
+    GLib.set_application_name('gPodder')
 
     gp = gPodderApplication(options)
     gp.run()
