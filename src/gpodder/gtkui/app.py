@@ -23,9 +23,14 @@ import os
 import sys
 import xml.etree.ElementTree as ET
 
-import dbus
-import dbus.service
-from dbus.mainloop.glib import DBusGMainLoop
+try:
+    import dbus
+    import dbus.service
+    from dbus.mainloop.glib import DBusGMainLoop
+except ImportError:
+    print("Error: 'dbus' module not found. Either dbus-python or fake-dbus is required",
+          file=sys.stderr)
+    sys.exit(1)
 
 import gpodder
 from gpodder import core, util
@@ -81,6 +86,7 @@ class gPodderApplication(Gtk.Application):
         self.window = None
         self.options = options
         self.connect('window-removed', self.on_window_removed)
+        self.connect('notify::is-registered', self.on_notify_is_registered)
 
     def create_actions(self):
         action = Gio.SimpleAction.new('about', None)
@@ -264,6 +270,14 @@ class gPodderApplication(Gtk.Application):
                 logger.debug(
                     f"'color-scheme' changed to {value}, setting dark mode to {dark}")
                 self.set_dark_mode(dark)
+
+    def on_notify_is_registered(self, params, _data):
+        if self.get_is_registered() and self.get_is_remote():
+            logger.info('Activating existing instance via D-Bus.')
+            if self.options.subscribe:
+                logger.info("Subscribing to %s" % self.options.subscribe)
+                self.activate_action('subscribe_to_url', GLib.Variant('s', self.options.subscribe))
+                Gio.bus_get_sync(Gio.BusType.SESSION, None).flush_sync(None)
 
     def on_menu(self, action, param):
         self.menu_popover.popup()
