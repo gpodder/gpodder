@@ -103,35 +103,35 @@ class AudioFile(object):
 
         if modify_tags:
             if remove_before_modify:
-                print("removing before writing")
+                logger.info("removing before writing")
                 audio.delete()
 
             if write_album is True and self.album is not None:
-                print("writing album")
+                logger.info("writing album")
                 audio.tags['album'] = self.album
 
             if write_title is True and self.title is not None:
-                print("writing title")
+                logger.info("writing title")
                 audio.tags['title'] = self.title
 
             if write_subtitle is True and self.subtitle is not None:
-                print("writing subtitle")
+                logger.info("writing subtitle")
                 audio.tags['subtitle'] = self.subtitle
 
             if write_comments is True and self.subtitle is not None:
-                print("writing comments")
+                logger.info("writing comments")
                 audio.tags['comments'] = self.subtitle
 
             if write_genre is True and self.genre is not None:
-                print("writing genre")
+                logger.info("writing genre")
                 audio.tags['genre'] = self.genre
 
             if write_pubdate is True and self.pubDate is not None:
-                print("writing date")
+                logger.info("writing date")
                 audio.tags['date'] = self.pubDate
 
             if set_artist_to_album:
-                print("writing artist")
+                logger.info("writing artist")
                 audio.tags['artist'] = self.album
 
         if type(audio) is EasyMP3:
