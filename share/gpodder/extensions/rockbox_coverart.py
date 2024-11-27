@@ -26,10 +26,8 @@ __doc__ = 'https://gpodder.github.io/docs/extensions/rockbox_coverart.html'
 __category__ = 'post-download'
 
 DefaultConfig = {
-    "art_name_on_device": "cover.jpg",  # The original setting
-    "art_name_on_device_noext": "cover",
+    "art_name_on_device": "cover.jpg",
     "convert_and_resize_art": True,
-    "convert_filetype": "jpeg",  # plese use "jpeg", will autocorrect if "jpg"
     "convert_size": 500,
     "convert_allow_upscale_art": False,
 }
@@ -48,9 +46,20 @@ class gPodderExtension:
             episode_folder = os.path.dirname(episode.local_filename(False))
             device_folder = device.get_episode_folder_on_device(episode)
 
-            # sanitize filetype
-            if self.config.convert_filetype.lower() == "jpg":
-                self.config.convert_filetype = "jpeg"
+            # discover desired filetype
+            device_filetype = self.config.art_name_on_device.split(".")[-1]
+            device_filename = self.config.art_name_on_device.strip(".%s" % (device_filetype))
+
+            # only allow jpeg, jpg, and png - if invalid, default to jpg
+            if device_filetype.lower() != "jpeg" and device_filetype.lower() != "jpg"\
+            and device_filetype.lower() != "png":
+                device_filetype = "jpg"
+
+            # sanitize for filetype checking - "jpg" will not match "jpeg"
+            if device_filetype.upper() == "JPG":
+                device_match_filetype = "JPEG"
+            else:
+                device_match_filetype = device_filetype.upper()
 
             # barring any way for gpodder core to tell us the source cover art name,
             # let's try to find it...
@@ -69,7 +78,7 @@ class gPodderExtension:
                     episode_art = os.path.join(episode_folder, "cover.png")
 
                 device_art = os.path.join(device_folder, "%s.%s" %
-                    (self.config.art_name_on_device_noext, self.config.convert_filetype.lower()))
+                    (device_filename, device_filetype))
                 device_lockpath = "%s%s" % (device_art, ".lock")
                 device_lockfile = SoftFileLock(device_lockpath, blocking=False)
 
@@ -93,7 +102,7 @@ class gPodderExtension:
                                     elif img.height > int(self.config.convert_size) and\
                                         self.config.convert_allow_upscale_art is False:
                                         copyflag = True
-                                    elif img.format.lower() != self.config.convert_filetype.lower():
+                                    elif img.format.upper() != device_match_filetype:
                                         copyflag = True
                                     try:
                                         if img.info['progressive'] == 1:
