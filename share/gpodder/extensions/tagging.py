@@ -91,7 +91,7 @@ class AudioFile(object):
         audio.save()
 
     def write_basic_tags(self, remove_before_modify, modify_tags, set_artist_to_album, set_version,
-                         write_album, write_title, write_subtitle, write_comments,write_genre, write_pubdate):
+                         write_album, write_title, write_subtitle, write_comments, write_genre, write_pubdate):
         audio = File(self.filename, easy=True)
 
         if audio is None:

@@ -52,7 +52,7 @@ class gPodderExtension:
 
             # only allow jpeg, jpg, and png - if invalid, default to jpg
             if device_filetype.lower() != "jpeg" and device_filetype.lower() != "jpg"\
-            and device_filetype.lower() != "png":
+                    and device_filetype.lower() != "png":
                 device_filetype = "jpg"
 
             # sanitize for filetype checking - "jpg" will not match "jpeg"
@@ -97,10 +97,10 @@ class gPodderExtension:
                             try:
                                 with Image.open(device_art) as img:
                                     if img.height != int(self.config.convert_size) and\
-                                        self.config.convert_allow_upscale_art is True:
+                                            self.config.convert_allow_upscale_art is True:
                                         copyflag = True
                                     elif img.height > int(self.config.convert_size) and\
-                                        self.config.convert_allow_upscale_art is False:
+                                            self.config.convert_allow_upscale_art is False:
                                         copyflag = True
                                     elif img.format.upper() != device_match_filetype:
                                         copyflag = True
@@ -121,7 +121,7 @@ class gPodderExtension:
                                 # should we file lock the source file?
                                 with Image.open(episode_art) as img:
                                     if img.height > int(self.config.convert_size)\
-                                        or self.config.convert_allow_upscale_art is True:
+                                            or self.config.convert_allow_upscale_art is True:
                                         out = img.resize((int(self.config.convert_size), int(self.config.convert_size)))
                                     else:
                                         out = img.copy()
