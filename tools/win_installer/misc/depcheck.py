@@ -140,6 +140,8 @@ def main(argv):
                 print("DELETE:", lib)
                 os.unlink(lib)
             libs = get_things_to_delete(sys.prefix)
+    elif "--debug" in argv[1:]:
+        print(libs)
 
 
 if __name__ == "__main__":
