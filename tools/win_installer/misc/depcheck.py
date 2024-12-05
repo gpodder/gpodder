@@ -73,7 +73,6 @@ def get_dependencies(filename):
         # can happen with wrong arch binaries
         return []
     data = data.decode("utf-8")
-    
     for line in data.splitlines():
         line = line.strip()
         if line.startswith("DLL Name:"):
@@ -157,7 +156,6 @@ def main(argv):
                 print("DELETE:", lib)
                 os.unlink(lib)
             libs = get_things_to_delete(sys.prefix)
-
 
 
 if __name__ == "__main__":
