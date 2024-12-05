@@ -140,7 +140,7 @@ def get_things_to_delete(root):
         if path:
             to_delete.append(path)
 
-    logging.debug(f"returning to_delete: {to_delete")
+    logging.debug(f"returning to_delete: {to_delete}")
     return to_delete
 
 
