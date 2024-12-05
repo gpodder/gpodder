@@ -211,12 +211,12 @@ defaults = {
         'after_sync': {
             'mark_episodes_played': False,
             'delete_episodes': False,
-            'sync_disks': False,
+            'sync_disks': True,
         },
         'playlists': {
             'create': True,
             'two_way_sync': False,
-            'use_absolute_path': True,
+            'use_absolute_path': False,
             'folder': 'Playlists',
             'extension': 'm3u',
         }

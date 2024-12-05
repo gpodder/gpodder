@@ -246,7 +246,7 @@ class gPodderSyncUI(object):
                                 # get episodes to be written to playlist
                                 episodes_for_playlist = sorted(current_channel.get_episodes(gpodder.STATE_DOWNLOADED),
                                                                key=lambda ep: ep.published)
-                                episode_keys = list(map(playlist.get_absolute_filename_for_playlist,
+                                episode_keys = list(map(playlist.get_path_to_filename_for_playlist,
                                                         episodes_for_playlist))
 
                                 episode_dict = dict(list(zip(episode_keys, episodes_for_playlist)))
