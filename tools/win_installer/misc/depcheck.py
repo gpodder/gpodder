@@ -12,12 +12,12 @@ Deletes unneeded DLLs and checks DLL dependencies.
 Execute with the build python, will figure out the rest.
 """
 
+import logging
 import os
 import subprocess
 import sys
 from functools import cache
 from multiprocessing import Process, Queue
-import logging
 
 import gi  # isort:skip
 gi.require_version("GIRepository", "2.0")  # isort:skip
