@@ -101,7 +101,13 @@ class gPodderDevicePlaylist(object):
         if foldername:
             filename = os.path.join(foldername, filename)
         if self._config.device_sync.playlists.use_absolute_path:
-            filename = os.path.join(util.relpath(self._config.device_sync.device_folder, self.mountpoint.get_uri()), filename)
+            # find mount point, ensuring we don't end up locked up in the loop
+            drive_start = self._config.device_sync.device_folder
+            while os.path.ismount(drive_start) is not True and drive_start != os.path.dirname(drive_start):
+                drive_start = os.path.dirname(drive_start)
+            filename = os.path.join(util.relpath(self._config.device_sync.device_folder, drive_start), filename)
+            # distinguish this as an absolute path relative to the device
+            filename = "/" + filename
         else:
             filename = os.path.join(self.playlist_to_device_relpath, filename)
         return filename
