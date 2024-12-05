@@ -504,6 +504,11 @@ class ExtensionManager(object):
         """
 
     @call_extensions
+    def on_all_episodes_synced(self):
+        """Called when all episodes have been synchronized
+        """
+
+    @call_extensions
     def on_create_menu(self):
         """Called when the Extras menu is created
 
