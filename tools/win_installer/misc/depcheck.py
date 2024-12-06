@@ -12,6 +12,7 @@ Deletes unneeded DLLs and checks DLL dependencies.
 Execute with the build python, will figure out the rest.
 """
 
+import logging
 import os
 import subprocess
 import sys
@@ -25,9 +26,13 @@ from gi.repository import GIRepository  # isort:skip
 
 def _get_shared_libraries(q, namespace, version):
     repo = GIRepository.Repository()
-    repo.require(namespace, version, 0)
-    lib = repo.get_shared_library(namespace)
-    q.put(lib)
+    try:
+        repo.require(namespace, version, 0)
+        lib = repo.get_shared_library(namespace)
+        q.put(lib)
+    except Exception as e:
+        logging.exception(e)
+        q.put(None)
 
 
 @cache
@@ -47,6 +52,7 @@ def get_required_by_typelibs():
     repo = GIRepository.Repository()
     for tl in os.listdir(repo.get_search_path()[0]):
         namespace, version = os.path.splitext(tl)[0].split("-", 1)
+        logging.debug(f"get_require_by_typelibs(): calling get_shared_libraries({namespace}, {version})")
         lib = get_shared_libraries(namespace, version)
         if lib:
             libs = lib.lower().split(",")
@@ -71,6 +77,7 @@ def get_dependencies(filename):
         line = line.strip()
         if line.startswith("DLL Name:"):
             deps.append(line.split(":", 1)[-1].strip().lower())
+    logging.debug(f"get_dependencies({filename}): returning: {deps}")
     return deps
 
 
@@ -96,6 +103,7 @@ def get_lib_path(root, name):
 
 
 def get_things_to_delete(root):
+    logging.debug(f"get_things_to_delete(root):\n root: {root}")
     extensions = [".exe", ".pyd", ".dll"]
 
     all_libs = set()
@@ -109,10 +117,14 @@ def get_things_to_delete(root):
                 if ext_lower == ".exe":
                     # we use .exe as dependency root
                     needed.add(lib)
+                    logging.debug(f"{lib} added to needed set")
                 all_libs.add(f.lower())
+                logging.debug(f"{f.lower()} added to all_libs set")
                 for lib in get_dependencies(path):
                     all_libs.add(lib)
+                    logging.debug(f"{lib} added to all_libs set")
                     needed.add(lib)
+                    logging.debug(f"{lib} added to needed set")
                     if not find_lib(root, lib):
                         print("MISSING:", path, lib)
 
@@ -128,10 +140,14 @@ def get_things_to_delete(root):
         if path:
             to_delete.append(path)
 
+    logging.debug(f"returning to_delete: {to_delete}")
     return to_delete
 
 
 def main(argv):
+    if "--debug" in argv[1:]:
+        logging.getLogger().setLevel(logging.DEBUG)
+
     libs = get_things_to_delete(sys.prefix)
 
     if "--delete" in argv[1:]:

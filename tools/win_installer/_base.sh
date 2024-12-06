@@ -354,8 +354,7 @@ function cleanup_after {
     find "${MINGW_ROOT}"/bin -name "*.pyo" -exec rm -f {} \;
     find "${MINGW_ROOT}"/bin -name "*.pyc" -exec rm -f {} \;
 
-# TODO: Commented out until we can make depcheck.py working again.
-#    build_python "${MISC}/depcheck.py" --delete
+    build_python "${MISC}/depcheck.py" --delete
 
     find "${MINGW_ROOT}" -type d -empty -delete
 
