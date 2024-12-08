@@ -6,7 +6,7 @@
 # the Free Software Foundation; either version 3 of the License, or
 # (at your option) any later version.
 
-"""This file gets edited at build time to add build specific data"""
+"""This file gets edited at build time to add build specific data."""
 
 BUILD_TYPE = u"default"
 """Either 'windows', 'windows-portable', 'osx' or 'default'"""

@@ -332,8 +332,7 @@ class Config(object):
             logger.info('Appending alternate PATH: %s' % self.path.alternate)
 
     def register_defaults(self, defaults):
-        """
-        Register default configuration options (e.g. for extensions)
+        """Register default configuration options (e.g. for extensions).
 
         This function takes a dictionary that will be merged into the
         current configuration if the keys don't yet exist. This can
@@ -342,9 +341,9 @@ class Config(object):
         self.__json_config._merge_keys(defaults)
 
     def add_observer(self, callback):
-        """
-        Add a callback function as observer. This callback
-        will be called when a setting changes. It should
+        """Add a callback function as observer.
+
+        This callback will be called when a setting changes. It should
         have this signature:
 
             observer(name, old_value, new_value)
@@ -358,9 +357,7 @@ class Config(object):
             logger.warning('Observer already added: %s', repr(callback))
 
     def remove_observer(self, callback):
-        """
-        Remove an observer previously added to this object.
-        """
+        """Remove an observer previously added to this object."""
         if callback in self.__observers:
             self.__observers.remove(callback)
         else:
@@ -425,7 +422,7 @@ class Config(object):
         setattr(self, name, not getattr(self, name))
 
     def update_field(self, name, new_value):
-        """Update a config field, converting strings to the right types"""
+        """Update a config field, converting strings to the right types."""
         old_value = self._lookup(name)
         new_value = string_to_config_value(new_value, old_value)
         setattr(self, name, new_value)
@@ -455,7 +452,7 @@ class Config(object):
         setattr(self.__json_config, name, value)
 
     def migrate_defaults(self):
-        """ change default values in config """
+        """Change default values in config."""
         if self.device_sync.max_filename_length == 999:
             logger.debug("setting config.device_sync.max_filename_length=120"
                          " (999 is bad for NTFS and ext{2-4})")

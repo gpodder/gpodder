@@ -26,7 +26,7 @@
 #            libopmlwriter.py (2005-12-08)
 #
 
-"""OPML import and export functionality
+"""OPML import and export functionality.
 
 This module contains helper classes to import subscriptions
 from OPML files on the web and to export a list of channel
@@ -48,7 +48,8 @@ logger = logging.getLogger(__name__)
 
 
 class Importer(object):
-    """
+    """Import an OPML feed and return a GTK ListStore.
+
     Helper class to import an OPML feed from protocols
     supported by urllib2 (e.g. HTTP) and return a GTK
     ListStore that can be displayed in the GUI.
@@ -60,9 +61,9 @@ class Importer(object):
     VALID_TYPES = ('rss', 'link')
 
     def __init__(self, url):
-        """
-        Parses the OPML feed from the given URL into
-        a local data structure containing channel metadata.
+        """Parse an OPML feed from an URL.
+
+        Parses the feed into a local data structure containing channel metadata.
         """
         self.items = []
         if os.path.exists(url):
@@ -111,9 +112,7 @@ class Importer(object):
 
 
 class Exporter(object):
-    """
-    Helper class to export a list of channel objects
-    to a local file in OPML 1.1 format.
+    """Export a list of channel objects to a local file in OPML 1.1 format.
 
     See www.opml.org for the OPML specification.
     """
@@ -129,20 +128,16 @@ class Exporter(object):
             self.filename = '%s.opml' % (filename, )
 
     def create_node(self, doc, name, content):
-        """
-        Creates a simple XML Element node in a document
-        with tag name "name" and text content "content",
-        as in <name>content</name> and returns the element.
+        """Return an XML Element node with tag name "name" and text content "content".
+
+        E.g. <name>content</name>.
         """
         node = doc.createElement(name)
         node.appendChild(doc.createTextNode(content))
         return node
 
     def create_outline(self, doc, channel):
-        """
-        Creates a OPML outline as XML Element node in a
-        document for the supplied channel.
-        """
+        """Return an OPML outline as XML Element node in the supplied document."""
         outline = doc.createElement('outline')
         outline.setAttribute('title', channel.title)
         outline.setAttribute('text', channel.description)
@@ -151,19 +146,14 @@ class Exporter(object):
         return outline
 
     def create_section(self, doc, name):
-        """
-        Creates an empty OPML outline element used to divide sections.
-        """
+        """Create an empty OPML outline element used to divide sections."""
         section = doc.createElement('outline')
         section.setAttribute('title', name)
         section.setAttribute('text', name)
         return section
 
     def write(self, channels):
-        """
-        Creates a XML document containing metadata for each
-        channel object in the "channels" parameter, which
-        should be a list of channel objects.
+        """Write an XML document containing metadata for each channel in channels.
 
         OPML 2.0 specification: http://www.opml.org/spec2
 
