@@ -78,6 +78,12 @@ class CustomDownload(ABC):
         """
         return {}, None
 
+    def cancel(self):
+        """
+        cancel current download if possible (NOOP default implementation)
+        """
+        pass
+
 
 class CustomDownloader(ABC):
     """
@@ -222,16 +228,19 @@ class DownloadURLOpener:
     # FYI: The omission of "%" in the list is to avoid double escaping!
     ESCAPE_CHARS = {ord(c): '%%%x' % ord(c) for c in ' <>#"{}|\\^[]`'}
 
-    def __init__(self, channel, max_retries=3):
+    def __init__(self, channel, interruptor, max_retries=3, ):
         super().__init__()
         self.channel = channel
+        self.interruptor = interruptor
         self.max_retries = max_retries
 
     def init_session(self):
         """ init a session with our own retry codes + retry count """
         # I add a few retries for redirects but it means that I will allow max_retries + REDIRECT_RETRIES
         # if encountering max_retries connect and REDIRECT_RETRIES read for instance
-        retry_strategy = Retry(
+        retry_strategy = util.InterruptibleRetry(
+            interruptor=self.interruptor,
+            exception_on_interrupt=DownloadCancelledException,
             total=self.max_retries + REDIRECT_RETRIES,
             connect=self.max_retries,
             read=self.max_retries,
@@ -351,6 +360,7 @@ class DefaultDownload(CustomDownload):
         self.__episode = episode
         self._url = url
         self.__partial_filename = None
+        self.interruptor = threading.Event()
 
     @property
     def partial_filename(self):
@@ -364,7 +374,7 @@ class DefaultDownload(CustomDownload):
         url = self._url
         logger.info("Downloading %s", url)
         max_retries = max(0, self._config.auto.retries)
-        downloader = DownloadURLOpener(self.__episode.channel, max_retries=max_retries)
+        downloader = DownloadURLOpener(self.__episode.channel, self.interruptor, max_retries=max_retries)
         self.partial_filename = tempname
 
         # Retry the download on incomplete download (other retries are done by the Retry strategy)
@@ -385,6 +395,9 @@ class DefaultDownload(CustomDownload):
                     continue
                 raise
         return (headers, real_url)
+
+    def cancel(self):
+        self.interruptor.set()
 
 
 class DefaultDownloader(CustomDownloader):
@@ -615,6 +628,9 @@ class DownloadTask(object):
         if status != self.__status:
             self.__status_changed = True
             self.__status = status
+            if status == self.CANCELLING and self.custom_downloader:
+                # best-effort cancel
+                self.custom_downloader.cancel()
 
     status = property(fget=__get_status, fset=__set_status)
 

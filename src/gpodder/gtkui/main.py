@@ -2554,6 +2554,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
         If auth_tokens is given, it should be a dictionary
         mapping URLs to (username, password) tuples."""
 
+        def util_interrupt(_dialog, response):
+            # FIXME: only works to cancel default podcasts, not youtube-dl
+            util.INTERRUPTOR.set()
+
         if auth_tokens is None:
             auth_tokens = {}
 
@@ -2594,7 +2598,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         progress = ProgressIndicator(_('Adding podcasts'),
                 _('Please wait while episode information is downloaded.'),
-                parent=self.get_dialog_parent())
+                parent=self.get_dialog_parent(),
+                cancellable=util_interrupt)
 
         def on_after_update():
             progress.on_finished()
@@ -2842,6 +2847,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 try:
                     channel._update_error = None
                     util.idle_add(indicate_updating_podcast, channel)
+                    # FIXME: here pass info to updater to be able to cancel
                     new_episodes.extend(channel.update(max_episodes=self.config.limit.episodes))
                     self._update_cover(channel)
                 except Exception as e:

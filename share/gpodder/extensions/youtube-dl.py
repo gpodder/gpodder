@@ -90,6 +90,7 @@ class YoutubeCustomDownload(download.CustomDownload):
         self._prev_dl_bytes = 0
         self._episode = episode
         self._partial_filename = None
+        self._cancelling = False
 
     @property
     def partial_filename(self):
@@ -165,6 +166,8 @@ class YoutubeCustomDownload(download.CustomDownload):
                 self._reporthook(self._prev_dl_bytes + dl_bytes,
                                  1,
                                  self._prev_dl_bytes + total_bytes)
+            if self._cancelling:
+                raise youtube_dl.utils.DownloadCancelled()
         elif d['status'] == 'finished':
             dl_bytes = d['downloaded_bytes']
             self._prev_dl_bytes += dl_bytes
@@ -174,6 +177,9 @@ class YoutubeCustomDownload(download.CustomDownload):
             logger.error('download hook error: %r', d)
         else:
             logger.debug('unknown download hook status: %r', d)
+
+    def cancel(self):
+        self._cancelling = True
 
 
 class YoutubeFeed(model.Feed):
