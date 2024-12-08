@@ -384,12 +384,13 @@ class gPodderPreferences(BuilderWidget):
                                                ProxyTypeActionList.C_CAPTION)
         self.combobox_proxy_type.set_active(self.proxy_type_model.get_index())
         env_proxies = getproxies()
-        env_proxies_str = 'None'
+        self.label_env_proxy_descr.set_visible(bool(env_proxies))
+        self.label_env_proxy.set_visible(bool(env_proxies))
         if env_proxies:
             env_proxies_str = ''
             for var, url in env_proxies.items():
                 env_proxies_str += f"{var}_proxy={url}\n"
-        self.label_env_proxy.set_text(env_proxies_str)
+            self.label_env_proxy.set_text(env_proxies_str)
 
         # Configure the extensions manager GUI
         self.set_extension_preferences()
