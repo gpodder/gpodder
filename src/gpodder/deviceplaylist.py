@@ -103,7 +103,7 @@ class gPodderDevicePlaylist(object):
         if self._config.device_sync.playlists.use_absolute_path:
             # find mount point, ensuring we don't end up locked up in the loop
             drive_start = self._config.device_sync.device_folder
-            while os.path.ismount(drive_start) is not True and drive_start != os.path.dirname(drive_start):
+            while not os.path.ismount(drive_start) and drive_start != os.path.dirname(drive_start):
                 drive_start = os.path.dirname(drive_start)
             filename = os.path.join(util.relpath(self._config.device_sync.device_folder, drive_start), filename)
             # distinguish this as an absolute path relative to the device
