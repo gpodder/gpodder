@@ -487,7 +487,7 @@ class PodcastEpisode(PodcastModelObject):
         return player
 
     def can_play(self, config):
-        """# gPodder.playback_episodes() filters selection with this method."""
+        """gPodder.playback_episodes() filters selection with this method."""
         return (self.was_downloaded(and_exists=True)
                 or self.can_preview()
                 or self.can_stream(config))
