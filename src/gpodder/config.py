@@ -48,7 +48,7 @@ defaults = {
         'username': '',
         'password': '',
         'device': {
-            'uid': util.get_hostname(),
+            'uid': util.get_hostname_uid(),
             'type': 'desktop',
             'caption': _('gPodder on %s') % util.get_hostname(),
         },
