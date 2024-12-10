@@ -12,6 +12,7 @@ from filelock import SoftFileLock, Timeout
 from PIL import Image
 
 import gpodder
+from gpodder import coverart
 
 logger = logging.getLogger(__name__)
 _ = gpodder.gettext
@@ -61,21 +62,12 @@ class gPodderExtension:
             else:
                 device_match_filetype = device_filetype.upper()
 
-            # barring any way for gpodder core to tell us the source cover art name,
-            # let's try to find it...
             if (self.config.convert_and_resize_art is True):
-                if os.path.isfile(os.path.join(episode_folder, "folder.jpg")):
-                    episode_art = os.path.join(episode_folder, "folder.jpg")
-                elif os.path.isfile(os.path.join(episode_folder, "cover.jpg")):
-                    episode_art = os.path.join(episode_folder, "cover.jpg")
-                elif os.path.isfile(os.path.join(episode_folder, "folder.jpeg")):
-                    episode_art = os.path.join(episode_folder, "folder.jpeg")
-                elif os.path.isfile(os.path.join(episode_folder, "cover.jpeg")):
-                    episode_art = os.path.join(episode_folder, "cover.jpeg")
-                elif os.path.isfile(os.path.join(episode_folder, "folder.png")):
-                    episode_art = os.path.join(episode_folder, "folder.png")
-                elif os.path.isfile(os.path.join(episode_folder, "cover.png")):
-                    episode_art = os.path.join(episode_folder, "cover.png")
+                # episode.channel.cover_file gives us the file and path (no extension!),
+                # get the real file and path from CoverDownloader()
+                episode_art = coverart.CoverDownloader().get_cover(episode.channel.cover_file,
+                                                            None, None, None, download=False)
+                logger.info("episode_art file: %s", episode_art)
 
                 device_art = os.path.join(device_folder, "%s.%s" %
                     (device_filename, device_filetype))
@@ -90,9 +82,9 @@ class gPodderExtension:
                         # lock the file first, otherwise we can easily crash
                         device_lockfile.acquire()
                     except:
-                        logger.info('info: Could not acquire file lock for %s', device_art)
+                        logger.info('Could not acquire file lock for %s', device_art)
                     else:
-                        # file exists, assume it's good (see comment below)
+                        # file exists, check if it's what we want or not
                         if os.path.isfile(device_art):
                             try:
                                 with Image.open(device_art) as img:
