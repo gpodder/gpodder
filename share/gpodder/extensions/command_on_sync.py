@@ -23,7 +23,7 @@ __only_for__ = 'gtk'
 
 
 DefaultConfig = {
-    'command': "zenity --info --width=600 --text=\"Sync completed!\""
+    'command': 'zenity --info --width=600 --text="Sync completed!"',
 }
 
 
