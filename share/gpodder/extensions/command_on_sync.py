@@ -41,6 +41,6 @@ class gPodderExtension:
         proc = util.Popen(command, shell=True, env=env, close_fds=True)
         proc.wait()
         if proc.returncode == 0:
-            logger.info("%s succeeded", command)
+            logger.info("Post-sync command %r succeeded", command)
         else:
-            logger.warning("%s run with exit code %i", command, proc.returncode)
+            logger.warning("Post-sync command %r exited with status=%i", command, proc.returncode)
