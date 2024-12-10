@@ -19,6 +19,7 @@
 
 import logging
 import os
+from urllib import request
 
 import gpodder
 from gpodder import util
@@ -101,12 +102,22 @@ class gPodderDevicePlaylist(object):
         if foldername:
             filename = os.path.join(foldername, filename)
         if self._config.device_sync.playlists.use_absolute_path:
+            # ensure our path is a path, not a url - need to manually strip prefix
+            # this is largely so that os.path.ismount() will work correctly
+            drive_start = self._config.device_sync.device_folder.removeprefix('file:')
+            drive_start = drive_start.removeprefix('mtp:')
+            drive_start = request.url2pathname(drive_start)
+            device_folder = drive_start
+
             # find mount point, ensuring we don't end up locked up in the loop
-            drive_start = self._config.device_sync.device_folder
             while not os.path.ismount(drive_start) and drive_start != os.path.dirname(drive_start):
                 drive_start = os.path.dirname(drive_start)
-            filename = os.path.join(util.relpath(self._config.device_sync.device_folder, drive_start), filename)
-            # distinguish this as an absolute path relative to the device
+
+            # filename should be guaranteed to be a real path, not a url
+            # relpath will not have a leading '/' though.
+            filename = os.path.join(util.relpath(device_folder, drive_start), filename)
+
+            # distinguish this as an absolute path from the device's point of view
             filename = "/" + filename
         else:
             filename = os.path.join(self.playlist_to_device_relpath, filename)
