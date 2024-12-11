@@ -74,6 +74,7 @@ $run_pip install -v brotli || exit 1
 $run_pip install -v pycryptodomex || exit 1
 # install extension dependencies; no explicit version for yt-dlp
 $run_pip install html5lib==1.1 mutagen==1.47.0 yt-dlp || exit 1
+$run_pip install pillow=11.0.0 filelock==3.16.1 || exit 1
 
 cd "$checkout"
 touch share/applications/gpodder{,-url-handler}.desktop
