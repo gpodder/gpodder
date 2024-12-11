@@ -107,6 +107,8 @@ PySocks==1.7.1
 requests==2.32.3
 urllib3==2.2.2
 webencodings==0.5.1
+pillow==11.0.0
+filelock==3.16.1
 yt-dlp
 "
 

@@ -28,7 +28,8 @@ function main {
 
     pip3 install --user podcastparser mygpoclient \
 						pywin32-ctypes \
-						html5lib webencodings six
+						html5lib webencodings six\
+                        pillow filelock
 }
 
 main;
