@@ -61,7 +61,8 @@ class PodverseDirectoryProvider(Provider):
 
 
 class gPodderExtension:
-    """ (un)register a podverse search provider """
+    """Register and unregister a podverse search provider."""
+
     def __init__(self, container):
         pass
 

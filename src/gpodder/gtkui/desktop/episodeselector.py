@@ -28,7 +28,7 @@ N_ = gpodder.ngettext
 
 
 class gPodderEpisodeSelector(BuilderWidget):
-    """Episode selection dialog
+    """Episode selection dialog.
 
     Optional keyword arguments that modify the behaviour of this dialog:
 
@@ -80,6 +80,7 @@ class gPodderEpisodeSelector(BuilderWidget):
                            the text for the tooltips when hovering
                            over an episode (default is 'description')
     """
+
     COLUMN_INDEX = 0
     COLUMN_TOOLTIP = 1
     COLUMN_TOGGLE = 2

@@ -50,8 +50,7 @@ class gPodderExtension:
                 self.speakers[uid] = speaker
 
     def _stream_to_speaker(self, speaker_uid, episodes):
-        """ Play or enqueue selected episodes """
-
+        """Play or enqueue selected episodes."""
         urls = [episode.url for episode in episodes if SONOS_CAN_PLAY(episode)]
         logger.info('Streaming to Sonos %s: %s' % (self.speakers[speaker_uid].ip_address, ', '.join(urls)))
 
@@ -65,8 +64,7 @@ class gPodderExtension:
         controller.play()
 
     def on_episodes_context_menu(self, episodes):
-        """ Adds a context menu for each Sonos speaker group """
-
+        """Add a context menu for each Sonos speaker group."""
         # Only show context menu if we can play at least one file
         if not any(SONOS_CAN_PLAY(e) for e in episodes):
             return []

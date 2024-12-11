@@ -33,7 +33,8 @@ logger = logging.getLogger(__name__)
 
 
 class ExceptionWithData(Exception):
-    """Base exception with additional payload"""
+    """Base exception with additional payload."""
+
     def __init__(self, data):
         Exception.__init__(self)
         self.data = data
@@ -130,7 +131,7 @@ class Fetcher(object):
                   'text/xml')
 
     def _resolve_url(self, url):
-        """Provide additional ways of resolving an URL
+        """Provide additional ways of resolving an URL.
 
         Subclasses can override this method to provide more
         ways of resolving a given URL to a feed URL. If the
@@ -164,7 +165,8 @@ class Fetcher(object):
             raise UnknownStatusCode(status)
 
     def parse_feed(self, url, feed_data, data_stream, headers, status, **kwargs):
-        """
+        """Parse feed.
+
         kwargs are passed from Fetcher.fetch
         :param str url: real url
         :param data_stream: file-like object to read from (bytes mode)
@@ -175,7 +177,7 @@ class Fetcher(object):
         raise NotImplementedError("Implement parse_feed()")
 
     def fetch(self, url, etag=None, modified=None, autodiscovery=True, **kwargs):
-        """ use kwargs to pass extra data to parse_feed in Fetcher subclasses """
+        """Use kwargs to pass extra data to parse_feed in Fetcher subclasses."""
         # handle local file first
         if url.startswith('file://'):
             url = url[len('file://'):]

@@ -233,11 +233,12 @@ DEFAULT_PLUGINS = [
 
 
 def load_plugins():
-    """Load (non-essential) plugin modules
+    """Load (non-essential) plugin modules.
 
     This loads a default set of plugins, but you can use
     the environment variable "GPODDER_PLUGINS" to modify
-    the list of plugins."""
+    the list of plugins.
+    """
     PLUGINS = os.environ.get('GPODDER_PLUGINS', None)
     if PLUGINS is None:
         PLUGINS = DEFAULT_PLUGINS

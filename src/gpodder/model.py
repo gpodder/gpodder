@@ -46,39 +46,39 @@ _ = gpodder.gettext
 
 
 class Feed:
-    """ abstract class for presenting a parsed feed to PodcastChannel """
+    """Abstract class for presenting a parsed feed to PodcastChannel."""
 
     def get_title(self):
-        """ :return str: the feed's title """
+        """Return the feeds title or None."""
         return None
 
     def get_link(self):
-        """ :return str: link to the feed's website """
+        """Return the link to the feeds website or None."""
         return None
 
     def get_description(self):
-        """ :return str: feed's textual description """
+        """Return the feeds textual description or None."""
         return None
 
     def get_cover_url(self):
-        """ :return str: url of the feed's cover image """
+        """Return the URL of the feeds cover image or None."""
         return None
 
     def get_payment_url(self):
-        """ :return str: optional -- feed's payment url """
+        """Return the feeds payment url or None."""
         return None
 
     def get_http_etag(self):
-        """ :return str: optional -- last HTTP etag header, for conditional request next time """
+        """Return the last HTTP etag header, for conditional request next time, or None."""
         return None
 
     def get_http_last_modified(self):
-        """ :return str: optional -- last HTTP Last-Modified header, for conditional request next time """
+        """Return the last HTTP Last-Modified header, for conditional request next time, or None."""
         return None
 
     def get_new_episodes(self, channel, existing_guids):
-        """
-        Produce new episodes and update old ones.
+        """Produce new episodes and update old ones.
+
         Feed is a class to present results, so the feed shall have already been fetched.
         Existing episodes not in all_seen_guids will be purged from the database.
         :param PodcastChannel channel: the updated channel
@@ -88,8 +88,8 @@ class Feed:
         return ([], set())
 
     def get_next_page(self, channel, max_episodes):
-        """
-        Paginated feed support (RFC 5005).
+        """Paginated feed support (RFC 5005).
+
         If the feed is paged, return the next feed page.
         Returned page will in turn be asked for the next page, until None is returned.
         :return feedcore.Result: the next feed's page,
@@ -197,10 +197,8 @@ class PodcastParserFeed(Feed):
 
 
 class gPodderFetcher(feedcore.Fetcher):
-    """
-    This class implements fetching a channel from custom feed handlers
-    or the default using podcastparser
-    """
+    """Implements fetching a channel from custom feed handlers or the default using podcastparser."""
+
     def fetch_channel(self, channel, max_episodes):
         custom_feed = registry.feed_handler.resolve(channel, None, max_episodes)
         if custom_feed is not None:
@@ -241,17 +239,16 @@ class gPodderFetcher(feedcore.Fetcher):
 
 
 class PodcastModelObject(object):
-    """
-    A generic base class for our podcast model providing common helper
-    and utility functions.
-    """
+    """A generic base class for our podcast model providing common helper and utility functions."""
+
     __slots__ = ('id', 'parent', 'children')
 
     @classmethod
     def create_from_dict(cls, d, *args):
-        """
-        Create a new object, passing "args" to the constructor
-        and then updating the object with the values from "d".
+        """Create a podcast model from constructor args and dict.
+
+        Passes "args" to the constructor and then updates the object with
+        the values from "d".
         """
         o = cls(*args)
 
@@ -263,7 +260,8 @@ class PodcastModelObject(object):
 
 
 class PodcastEpisode(PodcastModelObject):
-    """holds data for one object in a channel"""
+    """Holds data for one object in a channel."""
+
     # In theory, Linux can have 255 bytes (not characters!) in a filename, but
     # filesystems like eCryptFS store metadata in the filename, making the
     # effective number of characters less than that. eCryptFS recommends
@@ -420,7 +418,7 @@ class PodcastEpisode(PodcastModelObject):
 
     @property
     def trimmed_title(self):
-        """Return the title with the common prefix trimmed"""
+        """Return the title with the common prefix trimmed."""
         # Minimum amount of leftover characters after trimming. This
         # avoids things like "Common prefix 123" to become just "123".
         # If there are LEFTOVER_MIN or less characters after trimming,
@@ -489,9 +487,7 @@ class PodcastEpisode(PodcastModelObject):
         return player
 
     def can_play(self, config):
-        """
-        # gPodder.playback_episodes() filters selection with this method.
-        """
+        """gPodder.playback_episodes() filters selection with this method."""
         return (self.was_downloaded(and_exists=True)
                 or self.can_preview()
                 or self.can_stream(config))
@@ -503,7 +499,8 @@ class PodcastEpisode(PodcastModelObject):
                 and os.path.exists(self.download_task.custom_downloader.partial_filename))
 
     def can_stream(self, config):
-        """
+        """Return True if episode can be streamed.
+
         Don't try streaming if the user has not defined a player
         or else we would probably open the browser when giving a URL to xdg-open.
         We look at the audio or video player depending on its file type.
@@ -512,7 +509,8 @@ class PodcastEpisode(PodcastModelObject):
         return player and player != 'default'
 
     def can_download(self):
-        """
+        """Return True if episode can be downloaded.
+
         gPodder.on_download_selected_episodes() filters selection with this method.
         PAUSING and PAUSED tasks can be resumed.
         """
@@ -522,26 +520,25 @@ class PodcastEpisode(PodcastModelObject):
             or self.download_task.status == self.download_task.PAUSING)
 
     def can_pause(self):
-        """
-        gPodder.on_pause_selected_episodes() filters selection with this method.
-        """
+        """gPodder.on_pause_selected_episodes() filters selection with this method."""
         return self.download_task is not None and self.download_task.can_pause()
 
     def can_cancel(self):
-        """
-        DownloadTask.cancel() only cancels the following tasks.
-        """
+        """DownloadTask.cancel() only cancels the following tasks."""
         return self.download_task is not None and self.download_task.can_cancel()
 
     def can_delete(self):
-        """
-        gPodder.delete_episode_list() filters out locked episodes, and cancels all unlocked tasks in selection.
+        """Return True, if episode can be deleted.
+
+        gPodder.delete_episode_list() filters out locked episodes,
+        and cancels all unlocked tasks in selection.
         """
         return self.state != gpodder.STATE_DELETED and not self.archive and (
             self.download_task is None or self.download_task.status == self.download_task.FAILED)
 
     def can_lock(self):
-        """
+        """Return True, if episode can be locked.
+
         gPodder.on_item_toggle_lock_activate() unlocks deleted episodes and toggles all others.
         Locked episodes can always be unlocked.
         """
@@ -632,7 +629,7 @@ class PodcastEpisode(PodcastModelObject):
         self.set_state(gpodder.STATE_DELETED)
 
     def get_playback_url(self, config=None, allow_partial=False):
-        """Local (or remote) playback/streaming filename/URL
+        """Local (or remote) playback/streaming filename/URL.
 
         Returns either the local filename or a streaming URL that
         can be used to playback this episode.
@@ -661,7 +658,7 @@ class PodcastEpisode(PodcastModelObject):
 
     def local_filename(self, create, force_update=False, check_only=False,
             template=None, return_wanted_filename=False):
-        """Get (and possibly generate) the local saving filename
+        """Get (and possibly generate) the local saving filename.
 
         Pass create=True if you want this function to generate a
         new filename if none exists. You only want to do this when
@@ -821,9 +818,7 @@ class PodcastEpisode(PodcastModelObject):
 
     @property
     def pubtime(self):
-        """
-        Returns published time as HHMM (or 0000 if not available)
-        """
+        """Return published time as HHMM (or 0000 if not available)."""
         try:
             return datetime.datetime.fromtimestamp(self.published).strftime('%H%M')
         except:
@@ -831,7 +826,7 @@ class PodcastEpisode(PodcastModelObject):
             return '0000'
 
     def playlist_title(self):
-        """Return a title for this episode in a playlist
+        """Return a title for this episode in a playlist.
 
         The title will be composed of the podcast name, the
         episode name and the publication date. The return
@@ -878,7 +873,7 @@ class PodcastEpisode(PodcastModelObject):
         return self.published_datetime().strftime('%y')
 
     def is_finished(self):
-        """Return True if this episode is considered "finished playing"
+        """Return True if this episode is considered "finished playing".
 
         An episode is considered "finished" when there is a
         current position mark on the track, and when the
@@ -1005,7 +1000,7 @@ class PodcastChannel(PodcastModelObject):
         return new_url
 
     def check_download_folder(self):
-        """Check the download folder for externally-downloaded files
+        """Check the download folder for externally-downloaded files.
 
         This will try to assign downloaded files with episodes in the
         database.
@@ -1140,7 +1135,8 @@ class PodcastChannel(PodcastModelObject):
             return tmp
 
     def episode_factory(self, d):
-        """
+        """Create a PodcastEpisode from a dict.
+
         This function takes a dictionary containing key-value pairs for
         episodes and returns a new PodcastEpisode object that is connected
         to this object.
@@ -1544,9 +1540,9 @@ class Model(object):
 
     @classmethod
     def sort_episodes_by_pubdate(cls, episodes, reverse=False):
-        """Sort a list of PodcastEpisode objects chronologically
+        """Sort a list of PodcastEpisode objects chronologically.
 
-        Returns a iterable, sorted sequence of the episodes
+        Returns a iterable, sorted sequence of the episodes.
         """
         return sorted(episodes, key=cls.episode_sort_key, reverse=reverse)
 

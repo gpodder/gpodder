@@ -101,7 +101,7 @@ git+https://github.com/jaraco/pywin32-ctypes.git@f27d6a0
 html5lib==1.1
 idna==3.7
 mutagen==1.47.0
-mygpoclient==1.9
+mygpoclient==1.10
 podcastparser==0.6.10
 PySocks==1.7.1
 requests==2.32.3
@@ -356,8 +356,7 @@ function cleanup_after {
     find "${MINGW_ROOT}"/bin -name "*.pyo" -exec rm -f {} \;
     find "${MINGW_ROOT}"/bin -name "*.pyc" -exec rm -f {} \;
 
-# TODO: Commented out until we can make depcheck.py working again.
-#    build_python "${MISC}/depcheck.py" --delete
+    build_python "${MISC}/depcheck.py" --delete
 
     find "${MINGW_ROOT}" -type d -empty -delete
 

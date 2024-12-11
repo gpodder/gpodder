@@ -24,13 +24,15 @@ DefaultConfig = {
 
 
 class BlockExceptFrame:
-    """
-    Utility class to manage a Block or Except frame, with sub-widgets:
+    """Utility class to manage a Block or Except frame.
+
+    With sub-widgets:
      - Creation as well as internal UI change is handled;
      - Changes to the other widget and to the model have to be handled outside.
     It's less optimized than mapping each widget to a different signal handler,
     but makes shorter code.
     """
+
     def __init__(self, value, enable_re, enable_ic, on_change_cb):
         self.on_change_cb = on_change_cb
         self.frame = Gtk.Frame()

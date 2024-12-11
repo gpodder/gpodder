@@ -163,10 +163,7 @@ class DownloadStatusModel(Gtk.ListStore):
                         task.removed_from_list()
 
     def are_downloads_in_progress(self):
-        """
-        Returns True if there are any downloads in the
-        QUEUED or DOWNLOADING status, False otherwise.
-        """
+        """Return True if there are any downloads with QUEUED or DOWNLOADING status."""
         for row in self:
             task = row[DownloadStatusModel.C_TASK]
             if task is not None and \
@@ -207,7 +204,8 @@ class DownloadStatusModel(Gtk.ListStore):
 
 
 class DownloadTaskMonitor(object):
-    """A helper class that abstracts download events"""
+    """A helper class that abstracts download events."""
+
     def __init__(self, episode, on_can_resume, on_can_pause, on_finished):
         self.episode = episode
         self._status = None

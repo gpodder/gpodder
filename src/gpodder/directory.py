@@ -34,22 +34,24 @@ _ = gpodder.gettext
 
 
 class JustAWarning(Exception):
-    """
-    Use this exception in providers to avoid a stack trace shown to the user.
+    """Use this exception in providers to avoid a stack trace shown to the user.
+
     Warning should be an already localized error message.
     """
+
     def __init__(self, warning):
         super().__init__(self, warning)
         self.warning = warning
 
 
 class DirectoryEntry(object):
-    def __init__(self, title, url, image=None, subscribers=-1, description=None):
+    def __init__(self, title, url, image=None, subscribers=-1, description=None, section=None):
         self.title = title
         self.url = url
         self.image = image
         self.subscribers = subscribers
         self.description = description
+        self.section = section
 
 
 class DirectoryTag(object):
@@ -92,7 +94,7 @@ class Provider(object):
 
 
 def directory_entry_from_opml(url):
-    return [DirectoryEntry(d['title'], d['url'], description=d['description']) for d in opml.Importer(url).items]
+    return [DirectoryEntry(d['title'], d['url'], description=d['description'], section=d['section']) for d in opml.Importer(url).items]
 
 
 def directory_entry_from_mygpo_json(url):
