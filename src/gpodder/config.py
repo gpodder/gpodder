@@ -201,12 +201,13 @@ defaults = {
         'delete_played_episodes': False,
         'delete_deleted_episodes': False,
 
-        'max_filename_length': 120,
+        'max_filename_length': 60,
 
         'compare_episode_filesize': True,
 
         'custom_sync_name': '{episode.sortdate}_{episode.title}',
         'custom_sync_name_enabled': False,
+        'use_title_as_filename': False,
 
         'after_sync': {
             'mark_episodes_played': False,

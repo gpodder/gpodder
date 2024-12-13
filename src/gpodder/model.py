@@ -798,12 +798,16 @@ class PodcastEpisode(PodcastModelObject):
             return False
         return True
 
-    def sync_filename(self, use_custom=False, custom_format=None):
+    def sync_filename(self, use_custom=False, custom_format=None, use_title=False):
         if use_custom:
             return util.object_string_formatter(custom_format,
                     episode=self, podcast=self.channel)
-        else:
+        elif use_title:
+            # return self.title
             return self.title
+        else:
+            #use same filename as on local
+            return str(self.download_filename).strip(self.extension())
 
     def file_type(self):
         # Assume all YouTube/Vimeo links are video files
