@@ -58,7 +58,7 @@ class gPodderDevicePlaylist(object):
             logger.warning('could not find mount point for MP3 player - using %s as MP3 player root', self.mountpoint.get_uri())
         self.playlist_absolute_filename = self.playlist_folder.resolve_relative_path(self.playlist_file)
 
-    def build_extinf(self, filename):
+    def build_extinf(self, filename, episode=None):
         # TODO: Windows playlists
         #        if self._config.mp3_player_playlist_win_path:
         #            filename = filename.replace('\\', os.sep)
@@ -70,7 +70,11 @@ class gPodderDevicePlaylist(object):
         #            absfile = util.rel2abs(filename, os.path.dirname(self.playlist_file))
 
         # fallback: use the basename of the file
-        (title, extension) = os.path.splitext(os.path.basename(filename))
+        if episode is not None:
+            print(episode.title)
+            title = episode.title
+        else:
+            (title, extension) = os.path.splitext(os.path.basename(filename))
 
         return "#EXTINF:0,%s%s" % (title.strip(), self.linebreak)
 
@@ -142,7 +146,7 @@ class gPodderDevicePlaylist(object):
             os.put_string('#EXTM3U%s' % self.linebreak)
             for current_episode in episodes:
                 filename = self.get_filename_for_playlist(current_episode)
-                os.put_string(self.build_extinf(filename))
+                os.put_string(self.build_extinf(filename, episode=current_episode))
                 filename = self.get_path_to_filename_for_playlist(current_episode)
                 os.put_string(filename)
                 os.put_string(self.linebreak)

@@ -2008,7 +2008,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 if len(self.config.sendto.custom_file_format) > 0:
                     filename = self.build_filename(episode.sync_filename(
                             self.config.sendto.custom_file_format_enabled,
-                            self.config.sendto.custom_file_format), extension)
+                            self.config.sendto.custom_file_format,
+                            self.config.device_sync.use_title_as_filename), extension)
                 else:
                     filename = self.build_filename(episode.title, extension)
 
