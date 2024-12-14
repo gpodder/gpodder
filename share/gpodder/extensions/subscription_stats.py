@@ -2,6 +2,7 @@
 # Show publishing statistics for subscriptions.
 # Released under the same license terms as gPodder itself.
 
+import locale
 import time
 from time import localtime, strftime
 
@@ -41,7 +42,7 @@ class gPodderExtension:
         for average, name, edate, paused in channels:
             last = strftime('%x', localtime(edate))
             store.append([
-                ('%.1f' % round(average, 1)) if average > 0 else '?',
+                locale.format_string('%.1f', round(average, 1)) if average > 0 else '?',
                 average, ('❚❚ ' if paused else '') + name, last, edate,
             ])
 
