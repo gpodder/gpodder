@@ -4,13 +4,13 @@
 # Translators:
 # Thomas Perl <thp@perli.net>, 2006.
 # Torstein Adolf Winterseth <kvikende@fsfe.org>, 2009, 2010.
-# Karl Ove Hufthammer <karl@huftis.org>, 2019, 2020, 2021, 2022, 2023.
+# Karl Ove Hufthammer <karl@huftis.org>, 2019, 2020, 2021, 2022, 2023, 2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: gPodder\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-12-08 13:25+0100\n"
-"PO-Revision-Date: 2023-02-19 09:11+0100\n"
+"PO-Revision-Date: 2024-12-14 20:19+0100\n"
 "Last-Translator: Karl Ove Hufthammer <karl@huftis.org>\n"
 "Language-Team: Norwegian Nynorsk <l10n-no@lister.huftis.org>\n"
 "Language: nn\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Lokalize 22.12.2\n"
+"X-Generator: Lokalize 24.08.3\n"
 
 #: src/gpodder/config.py:53
 #, python-format
@@ -64,17 +64,17 @@ msgstr "SoundCloud-søk"
 
 #: src/gpodder/directory.py:195
 msgid "Sorry, soundcloud search doesn't work anymore."
-msgstr ""
+msgstr "Søk på SoundCloud verkar dessverre ikkje lenger."
 
 #: src/gpodder/directory.py:198
 #, python-format
 msgid "Error querying soundcloud: %(code)s %(msg)s"
-msgstr ""
+msgstr "Feil ved søk på SoundCloud: %(code)s %(msg)s"
 
 #: src/gpodder/directory.py:199
 #, python-format
 msgid "Unexpected response from soundcloud: %r"
-msgstr ""
+msgstr "Uventa svar frå SoundCloud: %r"
 
 #: src/gpodder/directory.py:204
 msgid "Imported OPML file"
@@ -362,29 +362,28 @@ msgstr "I går"
 
 #: src/gpodder/util.py:568
 msgid "kB"
-msgstr ""
+msgstr "kB"
 
+# skip-rule: einingmb
 #: src/gpodder/util.py:569
 msgid "MB"
-msgstr ""
+msgstr "MB"
 
 #: src/gpodder/util.py:570
 msgid "GB"
-msgstr ""
+msgstr "GB"
 
 #: src/gpodder/util.py:574
-#, fuzzy
-#| msgid "KiB/s"
 msgid "KiB"
-msgstr "KiB/s"
+msgstr "KiB"
 
 #: src/gpodder/util.py:575
 msgid "MiB"
-msgstr ""
+msgstr "MiB"
 
 #: src/gpodder/util.py:576
 msgid "GiB"
-msgstr ""
+msgstr "GiB"
 
 #: src/gpodder/util.py:582 src/gpodder/util.py:585
 msgid "(unknown)"
@@ -392,7 +391,7 @@ msgstr "(ukjend)"
 
 #: src/gpodder/util.py:592
 msgid "B"
-msgstr ""
+msgstr "B"
 
 #: src/gpodder/util.py:1475 src/gpodder/util.py:1497
 #, python-format
@@ -499,7 +498,7 @@ msgstr "Standardprogram"
 #: src/gpodder/gtkui/download.py:98
 #, python-format
 msgid "%(status)s (%(progress).0f%%, %(rate)s/s, %(remaining)s)"
-msgstr ""
+msgstr "%(status)s (%(progress).0f %%, %(rate)s/s, %(remaining)s)"
 
 #: src/gpodder/gtkui/main.py:178 share/applications/gpodder.desktop.in.h:1
 msgid "gPodder"
@@ -1579,27 +1578,25 @@ msgid "Please wait while the podcast list is downloaded"
 msgstr "Vent mens oversikta over podkastar vert lasta ned"
 
 #: src/gpodder/gtkui/desktop/podcastdirectory.py:263
-#, fuzzy
-#| msgid "Error: %s"
 msgid "Error"
-msgstr "Feil: %s"
+msgstr "Feil"
 
 #: src/gpodder/gtkui/desktop/podcastdirectory.py:267
-#, fuzzy, python-format
-#| msgid "Error: %s"
+#, python-format
 msgid ""
 "Error: %s\n"
 "\n"
 "%s"
-msgstr "Feil: %s"
+msgstr ""
+"Feil: %s\n"
+"\n"
+"%s"
 
 #: src/gpodder/gtkui/desktop/podcastdirectory.py:270
 msgid "No results"
-msgstr ""
+msgstr "Ingen søkjetreff"
 
 #: src/gpodder/gtkui/desktop/podcastdirectory.py:271
-#, fuzzy
-#| msgid "No podcasts found."
 msgid "Sorry, no podcasts were found"
 msgstr "Fann ikkje nokon podkastar."
 
@@ -1618,7 +1615,7 @@ msgstr "Legg til nedlastingskøen"
 
 #: src/gpodder/gtkui/desktop/preferences.py:50
 msgid "Download immediately"
-msgstr "Last ned med ein gong"
+msgstr "Last ned med éin gong"
 
 #: src/gpodder/gtkui/desktop/preferences.py:69
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:57
@@ -1649,15 +1646,15 @@ msgstr "Tilpassa (%(format_ids)s)"
 
 #: src/gpodder/gtkui/desktop/preferences.py:190
 msgid "SOCKS5h (Remote DNS)"
-msgstr ""
+msgstr "SOCKS5h (fjern-DNS)"
 
 #: src/gpodder/gtkui/desktop/preferences.py:191
 msgid "SOCKS5"
-msgstr ""
+msgstr "SOCKS5"
 
 #: src/gpodder/gtkui/desktop/preferences.py:192
 msgid "HTTP"
-msgstr ""
+msgstr "HTTP"
 
 #: src/gpodder/gtkui/desktop/preferences.py:460
 msgid "Name"
@@ -1883,7 +1880,7 @@ msgid ""
 "made."
 msgstr ""
 "<b>Merk:</b> «Avbryt»-knappen set <b>ikkje</b> filtera tilbake til dei "
-"tidlegare verdiane. Filter­endringane vert lagra med ein gong."
+"tidlegare verdiane. Filter­endringane vert lagra med éin gong."
 
 #: share/gpodder/extensions/filter.py:152
 msgid "Block"
@@ -1961,30 +1958,25 @@ msgid "Display notification bubbles for different events."
 msgstr "Vis varslingsbobler for ulike hendingar."
 
 #: share/gpodder/extensions/podverse.py:23
-#, fuzzy
-#| msgid "Search for:"
 msgid "Search Podverse"
-msgstr "Søk etter:"
+msgstr "Søk på Podverse"
 
 #: share/gpodder/extensions/podverse.py:24
 msgid "Search podverse podcast index"
-msgstr ""
+msgstr "Søk i podkastindeksen til Podverse"
 
 #: share/gpodder/extensions/podverse.py:31
-#, fuzzy
-#| msgid "gpodder.net search"
 msgid "Podverse search"
-msgstr "Søk på gpodder.net"
+msgstr "Podverse-søk"
 
 #: share/gpodder/extensions/podverse.py:37
 msgid "Please provide at least 3 characters"
-msgstr ""
+msgstr "Skriv inn minst tre teikn"
 
 #: share/gpodder/extensions/podverse.py:43
-#, fuzzy, python-format
-#| msgid "Error: %s"
+#, python-format
 msgid "Error searching: %s"
-msgstr "Feil: %s"
+msgstr "Feil ved søk: %s"
 
 #: share/gpodder/extensions/rename_download.py:18
 msgid "Rename episodes after download"
@@ -2010,11 +2002,10 @@ msgid "Renaming all downloaded episodes"
 msgstr "Endrar namn på alle nedlasta episodar"
 
 #: share/gpodder/extensions/rename_download.py:80
-#, fuzzy, python-format
-#| msgid "Renamed %(count)d downloaded episodes"
+#, python-format
 msgid "Renamed %(count)d downloaded episode"
 msgid_plural "Renamed %(count)d downloaded episodes"
-msgstr[0] "Endra namn på %(count)d nedlasta episodar"
+msgstr[0] "Endra namn på %(count)d nedlasta episode"
 msgstr[1] "Endra namn på %(count)d nedlasta episodar"
 
 #: share/gpodder/extensions/rm_ogg_cover.py:37
@@ -2056,51 +2047,46 @@ msgstr "Straum podkastar til Sonos-høgtalarar"
 #: share/gpodder/extensions/subscription_stats.py:17
 #: share/gpodder/extensions/subscription_stats.py:35
 #: share/gpodder/extensions/subscription_stats.py:145
-#, fuzzy
-#| msgid "Subscription paused"
 msgid "Subscription Statistics"
-msgstr "Abonnement sett på pause"
+msgstr "Abonnementsstatistikk"
 
 #: share/gpodder/extensions/subscription_stats.py:18
 msgid "Show publishing statistics for subscriptions."
-msgstr ""
+msgstr "Vis publiseringsstatistikk for abonnement"
 
 #: share/gpodder/extensions/subscription_stats.py:52
-#, fuzzy
-#| msgid "Update podcast"
 msgid "Updated"
-msgstr "Oppdater podkast"
+msgstr "Oppdatert"
 
 #: share/gpodder/extensions/subscription_stats.py:60
 msgid "Days"
-msgstr ""
+msgstr "Dagar"
 
 #: share/gpodder/extensions/subscription_stats.py:153
-#, fuzzy, python-format
-#| msgid "Subscription paused"
+#, python-format
 msgid "%d subscriptions (%d paused)"
-msgstr "Abonnement sett på pause"
+msgstr "%d abonnement (%d på pause)"
 
 #: share/gpodder/extensions/subscription_stats.py:162
 msgid "daily"
-msgstr ""
+msgstr "dagleg"
 
 #: share/gpodder/extensions/subscription_stats.py:163
 msgid "weekly"
-msgstr ""
+msgstr "vekentleg"
 
 #: share/gpodder/extensions/subscription_stats.py:164
 msgid "monthly"
-msgstr ""
+msgstr "månadleg"
 
 #: share/gpodder/extensions/subscription_stats.py:165
 msgid "yearly"
-msgstr ""
+msgstr "årleg"
 
 #: share/gpodder/extensions/subscription_stats.py:169
 #, python-format
 msgid "Average days between the last %d episodes."
-msgstr ""
+msgstr "Gjennomsnittleg tal dagar mellom dei siste %d episodane."
 
 #: share/gpodder/extensions/tagging.py:50
 msgid "Tag downloaded files using Mutagen"
@@ -2223,8 +2209,6 @@ msgstr ""
 "at du kan lasta ned manuelt frå desse nettstadane."
 
 #: share/gpodder/extensions/youtube-dl.py:612
-#, fuzzy
-#| msgid "Embed all available subtitles to downloaded video"
 msgid "Embed all available subtitles in downloaded video"
 msgstr "Bygg alle tilgjengelege undertekstar inn i nedlasta videofil"
 
@@ -2324,22 +2308,16 @@ msgid "Add"
 msgstr "Legg til"
 
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:5
-#, fuzzy
-#| msgid "<big>Welcome to gPodder</big>"
 msgid "<big>Choose</big>"
-msgstr "<big>Velkommen til gPodder</big>"
+msgstr "<big>Vel</big>"
 
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:6
-#, fuzzy
-#| msgid "Select folder for playlists"
 msgid "Select a source for new podcasts"
-msgstr "Vel mappe for spelelister"
+msgstr "Vel kjelde for nye podkastar"
 
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:7
-#, fuzzy
-#| msgid "Podcast Client"
 msgid "Podcast Providers"
-msgstr "Podkastklient"
+msgstr "Podkastleverandørar"
 
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:8
 msgid "label"
@@ -2350,28 +2328,20 @@ msgid "..."
 msgstr "…"
 
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:10
-#, fuzzy
-#| msgid "Download new episodes"
 msgid "Download in progress..."
-msgstr "Last ned nye episodar"
+msgstr "Lastar ned …"
 
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:11
-#, fuzzy
-#| msgid "Podcast settings"
 msgid "Podcast Retrieve Progress"
-msgstr "Podkastinnstillingar"
+msgstr "Framgang i podkasthenting"
 
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:12
-#, fuzzy
-#| msgid "Podcast settings"
 msgid "Podcast Results"
-msgstr "Podkastinnstillingar"
+msgstr "Podkastresultat"
 
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:13
-#, fuzzy
-#| msgid "Podcast settings"
 msgid "Podcast Selection"
-msgstr "Podkastinnstillingar"
+msgstr "Podkastutval"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:1
 #: share/gpodder/ui/gtk/gpodder.ui.h:6 share/gpodder/ui/gtk/menus.ui.h:1
@@ -2396,19 +2366,19 @@ msgstr "Kontinuerleg søk"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:7
 msgid "Color scheme:"
-msgstr ""
+msgstr "Fargeoppsett:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:8
 msgid "System"
-msgstr ""
+msgstr "System"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:9
 msgid "Light"
-msgstr ""
+msgstr "Lyst"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:10
 msgid "Dark"
-msgstr ""
+msgstr "Mørkt"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:11
 msgid "General"
@@ -2445,10 +2415,8 @@ msgid "Episode descriptions"
 msgstr "Episodeskildringar"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:18
-#, fuzzy
-#| msgid "_View"
 msgid "View"
-msgstr "_Vis"
+msgstr "Vis"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:19
 msgid "Synchronize subscriptions and episode actions"
@@ -2484,7 +2452,7 @@ msgstr "Øvre grense på episodar per podkast:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:29
 msgid "Consider only episodes added in the update as new"
-msgstr "Rekn berre episodar lagde til i oppdateringa som nye"
+msgstr "Rekn berre episodar som er lagde til i oppdateringa, som nye"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:30
 msgid "When new episodes are found:"
@@ -2526,7 +2494,7 @@ msgstr "Monteringspunkt:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:39
 msgid "Create playlists on device"
-msgstr "Lag spelelista på eininga"
+msgstr "Lag spelelister på eininga"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:40
 msgid "Playlists Folder:"
@@ -2553,6 +2521,8 @@ msgid ""
 "Sync existing episodes on device when file size differs from gPodder "
 "(disable if device modifies files)"
 msgstr ""
+"Synkroniser gamle episodar på eininga når filstorleiken er ulik den i "
+"gPodder (slå av dersom eininga gjer endringar i filer)"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:46
 msgid "Devices"
@@ -2572,37 +2542,35 @@ msgstr "Føretrekt format for Vimeo:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:51
 msgid "Use proxy (Overrides environment variables)"
-msgstr ""
+msgstr "Bruk mellomtenar (overstyrer eventuelle miljøvariablar)"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:52
 msgid "Proxy type:"
-msgstr ""
+msgstr "Type mellomtenar:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:53
-#, fuzzy
-#| msgid "Username:"
 msgid "Hostname:"
-msgstr "Brukarnamn:"
+msgstr "Vertsnamn:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:54
 msgid "Port:"
-msgstr ""
+msgstr "Port:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:55
-#, fuzzy
-#| msgid "Wrong username/password"
 msgid "Use username and password"
-msgstr "Feil brukarnamn/passord"
+msgstr "Bruk brukarnamn og passord"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:56
 msgid ""
 "Proxies given in environment variables (will be used only if proxy above is "
 "disabled):"
 msgstr ""
+"Mellomtenarar oppgjevne i miljøvariablar (vert berre brukt dersom "
+"mellomtenar ikkje er sett opp ovanfor):"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:58
 msgid "Network"
-msgstr ""
+msgstr "Nettverk"
 
 #: share/gpodder/ui/gtk/gpodder.ui.h:8 share/gpodder/ui/gtk/menus.ui.h:9
 msgid "Check for new episodes"
@@ -2782,14 +2750,12 @@ msgid "Unplayed episodes"
 msgstr "Uavspela episodar"
 
 #: share/gpodder/ui/gtk/menus.ui.h:49
-#, fuzzy
-#| msgid "Show episode list"
 msgid "Show episode released time"
-msgstr "Vis episodeliste"
+msgstr "Vis òg klokkeslett i «Publisert»-kolonnen"
 
 #: share/gpodder/ui/gtk/menus.ui.h:50
 msgid "Right align episode released column"
-msgstr ""
+msgstr "Høgrejuster «Publisert»-kolonnen"
 
 # Er snakk om at ein må halda «Ctrl»-tasten inne.
 #: share/gpodder/ui/gtk/menus.ui.h:51
@@ -2801,32 +2767,24 @@ msgid "Visible columns"
 msgstr "Synlege kolonnar"
 
 #: share/gpodder/ui/gtk/menus.ui.h:53
-#, fuzzy
-#| msgid "Update interval:"
 msgid "Update channel"
-msgstr "Oppdateringsintervall:"
+msgstr "Oppdater kanalen"
 
 #: share/gpodder/ui/gtk/menus.ui.h:54
-#, fuzzy
-#| msgid "Podcast settings"
 msgid "Channel settings"
-msgstr "Podkastinnstillingar"
+msgstr "Kanalinnstillingar"
 
 #: share/gpodder/ui/gtk/menus.ui.h:55
-#, fuzzy
-#| msgid "Select channel"
 msgid "Delete channel"
-msgstr "Vel kanal"
+msgstr "Slett kanalen"
 
 #: share/gpodder/ui/gtk/menus.ui.h:56
 msgid "Mark episodes as old"
 msgstr "Merk episodar som gamle"
 
 #: share/gpodder/ui/gtk/menus.ui.h:57
-#, fuzzy
-#| msgid "All episodes"
 msgid "Archive all episodes"
-msgstr "Alle episodar"
+msgstr "Arkiver alle episodane"
 
 # Er snakk om omslagbilete (cover image).
 #: share/gpodder/ui/gtk/menus.ui.h:58
