@@ -806,7 +806,7 @@ class PodcastEpisode(PodcastModelObject):
             # return self.title
             return self.title
         else:
-            #use same filename as on local
+            # use same filename as on local
             return str(self.download_filename).strip(self.extension())
 
     def file_type(self):
