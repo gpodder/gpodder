@@ -1613,7 +1613,7 @@ def sanitize_filename(filename, max_length):
     >>> sanitize_filename('Binärgewitter', 0)
     'Binärgewitter'
     >>> sanitize_filename('Cool feed (ogg)', 0)
-    'Cool feed (ogg)'
+    'Cool feed _ogg_'
     >>> sanitize_filename('Cool feed (ogg)', 1)
     'C'
     """
