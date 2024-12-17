@@ -94,7 +94,7 @@ function extract_installer {
 }
 
 PIP_REQUIREMENTS="\
-certifi==2024.12.4
+certifi==2024.12.14
 chardet==5.2.0
 comtypes==1.4.8
 git+https://github.com/jaraco/pywin32-ctypes.git@f27d6a0
