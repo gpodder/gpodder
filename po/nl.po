@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: gPodder\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-12-17 21:52+0100\n"
-"PO-Revision-Date: 2023-09-22 18:22+0200\n"
+"PO-Revision-Date: 2024-12-19 11:42+0100\n"
 "Last-Translator: Heimen Stoffels <vistausss@fastmail.com>\n"
 "Language-Team: Dutch\n"
 "Language: nl\n"
@@ -20,7 +20,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.3.2\n"
+"X-Generator: Poedit 3.4.2\n"
 
 #: src/gpodder/config.py:53
 #, python-format
@@ -66,17 +66,17 @@ msgstr "Zoeken op Soundcloud"
 
 #: src/gpodder/directory.py:195
 msgid "Sorry, soundcloud search doesn't work anymore."
-msgstr ""
+msgstr "Zoeken op Soundcloud werkt niet meer."
 
 #: src/gpodder/directory.py:198
 #, python-format
 msgid "Error querying soundcloud: %(code)s %(msg)s"
-msgstr ""
+msgstr "Soundcloud is niet beschikbaar: %(code)s %(msg)s"
 
 #: src/gpodder/directory.py:199
 #, python-format
 msgid "Unexpected response from soundcloud: %r"
-msgstr ""
+msgstr "Onverwacht antwoord van Soundcloud: %r"
 
 #: src/gpodder/directory.py:204
 msgid "Imported OPML file"
@@ -108,7 +108,7 @@ msgstr "Afgebroken"
 
 #: src/gpodder/download.py:589 src/gpodder/sync.py:656
 msgid "Pausing"
-msgstr "Bezig met pauzeren…"
+msgstr "Bezig met onderbreken…"
 
 #: src/gpodder/download.py:589 src/gpodder/sync.py:656
 #: src/gpodder/gtkui/model.py:386
@@ -146,7 +146,7 @@ msgstr "HTTP-fout %(code)s: %(message)s"
 #: src/gpodder/download.py:1015 src/gpodder/sync.py:856
 #, python-format
 msgid "Error: %s"
-msgstr "Fout: %s"
+msgstr "Foutmelding: %s"
 
 #: src/gpodder/extensions.py:48
 msgid "Desktop Integration"
@@ -474,7 +474,7 @@ msgstr "Locatie van gPodder-map is te lang"
 
 #: src/gpodder/gtkui/config.py:54
 msgid "Integer"
-msgstr "Integer"
+msgstr "Geheel getal"
 
 #: src/gpodder/gtkui/config.py:56
 msgid "Float"
@@ -482,11 +482,11 @@ msgstr "Float"
 
 #: src/gpodder/gtkui/config.py:58
 msgid "Boolean"
-msgstr "Boolean"
+msgstr "Booleaanse waarde"
 
 #: src/gpodder/gtkui/config.py:60
 msgid "String"
-msgstr "String"
+msgstr "Tekenreeks"
 
 #: src/gpodder/gtkui/desktopfile.py:74
 #, python-format
@@ -1575,29 +1575,27 @@ msgid "Please wait while the podcast list is downloaded"
 msgstr "Even geduld; bezig met downloaden van podcastlijst"
 
 #: src/gpodder/gtkui/desktop/podcastdirectory.py:263
-#, fuzzy
-#| msgid "Error: %s"
 msgid "Error"
-msgstr "Fout: %s"
+msgstr "Foutmelding"
 
 #: src/gpodder/gtkui/desktop/podcastdirectory.py:267
-#, fuzzy, python-format
-#| msgid "Error: %s"
+#, python-format
 msgid ""
 "Error: %s\n"
 "\n"
 "%s"
-msgstr "Fout: %s"
+msgstr ""
+"Foutmelding: %s\n"
+"\n"
+"%s"
 
 #: src/gpodder/gtkui/desktop/podcastdirectory.py:270
 msgid "No results"
-msgstr ""
+msgstr "Geen zoekresultaten"
 
 #: src/gpodder/gtkui/desktop/podcastdirectory.py:271
-#, fuzzy
-#| msgid "No podcasts found."
 msgid "Sorry, no podcasts were found"
-msgstr "Geen podcasts gevonden."
+msgstr "Er zijn geen podcasts gevonden."
 
 #: src/gpodder/gtkui/desktop/preferences.py:47
 #: src/gpodder/gtkui/desktop/preferences.py:90
@@ -1645,15 +1643,15 @@ msgstr "Aangepast (%(format_ids)s)"
 
 #: src/gpodder/gtkui/desktop/preferences.py:190
 msgid "SOCKS5h (Remote DNS)"
-msgstr ""
+msgstr "SOCKS5h (externe dns)"
 
 #: src/gpodder/gtkui/desktop/preferences.py:191
 msgid "SOCKS5"
-msgstr ""
+msgstr "SOCKS5"
 
 #: src/gpodder/gtkui/desktop/preferences.py:192
 msgid "HTTP"
-msgstr ""
+msgstr "Http"
 
 #: src/gpodder/gtkui/desktop/preferences.py:461
 msgid "Name"
@@ -1958,30 +1956,25 @@ msgid "Display notification bubbles for different events."
 msgstr "Toont meldingsballonnen voor verschillende gebeurtenissen."
 
 #: share/gpodder/extensions/podverse.py:23
-#, fuzzy
-#| msgid "Search for:"
 msgid "Search Podverse"
-msgstr "Zoeken naar:"
+msgstr "Podverse doorzoeken"
 
 #: share/gpodder/extensions/podverse.py:24
 msgid "Search podverse podcast index"
-msgstr ""
+msgstr "Doorzoek de Podverse-podcastindex"
 
 #: share/gpodder/extensions/podverse.py:31
-#, fuzzy
-#| msgid "gpodder.net search"
 msgid "Podverse search"
-msgstr "gpodder.net - zoeken"
+msgstr "Podverse doorzoeken"
 
 #: share/gpodder/extensions/podverse.py:37
 msgid "Please provide at least 3 characters"
-msgstr ""
+msgstr "Voer minimaal 3 tekens in"
 
 #: share/gpodder/extensions/podverse.py:43
-#, fuzzy, python-format
-#| msgid "Error: %s"
+#, python-format
 msgid "Error searching: %s"
-msgstr "Fout: %s"
+msgstr "Foutmelding: %s"
 
 #: share/gpodder/extensions/rename_download.py:18
 msgid "Rename episodes after download"
@@ -2004,7 +1997,7 @@ msgstr "Er zijn geen gedownloade afleveringen"
 
 #: share/gpodder/extensions/rename_download.py:66
 msgid "Renaming all downloaded episodes"
-msgstr "Bezig met hernoemen…"
+msgstr "Bezig met wijzigen van namen…"
 
 #: share/gpodder/extensions/rename_download.py:80
 #, python-format
@@ -2052,51 +2045,46 @@ msgstr "Podcasts streamen naar Sonos-luidsprekers"
 #: share/gpodder/extensions/subscription_stats.py:18
 #: share/gpodder/extensions/subscription_stats.py:36
 #: share/gpodder/extensions/subscription_stats.py:146
-#, fuzzy
-#| msgid "Subscription paused"
 msgid "Subscription Statistics"
-msgstr "Abonnement gepauzeerd"
+msgstr "Abonnementsstatistieken"
 
 #: share/gpodder/extensions/subscription_stats.py:19
 msgid "Show publishing statistics for subscriptions."
-msgstr ""
+msgstr "Toon de publicatiestatistieken van abonnementen."
 
 #: share/gpodder/extensions/subscription_stats.py:53
-#, fuzzy
-#| msgid "Update podcast"
 msgid "Updated"
-msgstr "Podcast bĳwerken"
+msgstr "Bijgewerkt"
 
 #: share/gpodder/extensions/subscription_stats.py:61
 msgid "Days"
-msgstr ""
+msgstr "Aantal dagen"
 
 #: share/gpodder/extensions/subscription_stats.py:154
-#, fuzzy, python-format
-#| msgid "Subscription paused"
+#, python-format
 msgid "%d subscriptions (%d paused)"
-msgstr "Abonnement gepauzeerd"
+msgstr "%d abonnementen (%d onderbroken)"
 
 #: share/gpodder/extensions/subscription_stats.py:163
 msgid "daily"
-msgstr ""
+msgstr "iedere dag"
 
 #: share/gpodder/extensions/subscription_stats.py:164
 msgid "weekly"
-msgstr ""
+msgstr "iedere week"
 
 #: share/gpodder/extensions/subscription_stats.py:165
 msgid "monthly"
-msgstr ""
+msgstr "iedere maand"
 
 #: share/gpodder/extensions/subscription_stats.py:166
 msgid "yearly"
-msgstr ""
+msgstr "ieder jaar"
 
 #: share/gpodder/extensions/subscription_stats.py:170
 #, python-format
 msgid "Average days between the last %d episodes."
-msgstr ""
+msgstr "Het gemiddeld aantal dagen tussen de %d nieuwste afleveringen."
 
 #: share/gpodder/extensions/tagging.py:50
 msgid "Tag downloaded files using Mutagen"
@@ -2316,22 +2304,16 @@ msgid "Add"
 msgstr "Toevoegen"
 
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:5
-#, fuzzy
-#| msgid "<big>Welcome to gPodder</big>"
 msgid "<big>Choose</big>"
-msgstr "<big>Welkom bij gPodder</big>"
+msgstr "<big>Kiezen</big>"
 
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:6
-#, fuzzy
-#| msgid "Select folder for playlists"
 msgid "Select a source for new podcasts"
-msgstr "Kies een map voor de afspeellijsten"
+msgstr "Kies een podcastbron"
 
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:7
-#, fuzzy
-#| msgid "Podcast Client"
 msgid "Podcast Providers"
-msgstr "Podcast-client"
+msgstr "Podcastdiensten"
 
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:8
 msgid "label"
@@ -2342,28 +2324,20 @@ msgid "..."
 msgstr "…"
 
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:10
-#, fuzzy
-#| msgid "Download new episodes"
 msgid "Download in progress..."
-msgstr "Nieuwe afleveringen downloaden"
+msgstr "Bezig met downloaden…"
 
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:11
-#, fuzzy
-#| msgid "Podcast settings"
 msgid "Podcast Retrieve Progress"
-msgstr "Podcast-instellingen"
+msgstr "Downloadvoortgang"
 
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:12
-#, fuzzy
-#| msgid "Podcast settings"
 msgid "Podcast Results"
-msgstr "Podcast-instellingen"
+msgstr "Podcast-zoekresultaten"
 
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:13
-#, fuzzy
-#| msgid "Podcast settings"
 msgid "Podcast Selection"
-msgstr "Podcast-instellingen"
+msgstr "Podcastkeuze"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:1
 #: share/gpodder/ui/gtk/gpodder.ui.h:6 share/gpodder/ui/gtk/menus.ui.h:1
@@ -2388,19 +2362,19 @@ msgstr "Zoeken tijdens het typen"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:7
 msgid "Color scheme:"
-msgstr ""
+msgstr "Thema:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:8
 msgid "System"
-msgstr ""
+msgstr "Systeemthema"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:9
 msgid "Light"
-msgstr ""
+msgstr "Licht thema"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:10
 msgid "Dark"
-msgstr ""
+msgstr "Donker thema"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:11
 msgid "General"
@@ -2437,10 +2411,8 @@ msgid "Episode descriptions"
 msgstr "Afleveringsomschrijvingen"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:18
-#, fuzzy
-#| msgid "_View"
 msgid "View"
-msgstr "_Beeld"
+msgstr "Beeld"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:19
 msgid "Synchronize subscriptions and episode actions"
@@ -2568,37 +2540,35 @@ msgstr "Voorkeur voor Vimeo-formaat:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:51
 msgid "Use proxy (Overrides environment variables)"
-msgstr ""
+msgstr "Proxy gebruiken (systeeminstellingen negeren)"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:52
 msgid "Proxy type:"
-msgstr ""
+msgstr "Soort proxy:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:53
-#, fuzzy
-#| msgid "Username:"
 msgid "Hostname:"
-msgstr "Gebruikersnaam:"
+msgstr "Hostnaam:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:54
 msgid "Port:"
-msgstr ""
+msgstr "Poort:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:55
-#, fuzzy
-#| msgid "Wrong username/password"
 msgid "Use username and password"
-msgstr "Onjuiste gebruikersnaam/wachtwoord"
+msgstr "Gebruikersnaam en wachtwoord gebruiken"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:56
 msgid ""
 "Proxies given in environment variables (will be used only if proxy above is "
 "disabled):"
 msgstr ""
+"Proxy's in omgevingsvariabelen (alleen indien bovenstaande proxy is "
+"uitgeschakeld):"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:58
 msgid "Network"
-msgstr ""
+msgstr "Netwerk"
 
 #: share/gpodder/ui/gtk/gpodder.ui.h:8 share/gpodder/ui/gtk/menus.ui.h:9
 msgid "Check for new episodes"
@@ -2793,32 +2763,24 @@ msgid "Visible columns"
 msgstr "Zichtbare kolommen"
 
 #: share/gpodder/ui/gtk/menus.ui.h:53
-#, fuzzy
-#| msgid "Update interval:"
 msgid "Update channel"
-msgstr "Bijwerktussenpoos:"
+msgstr "Kanaal bijwerken"
 
 #: share/gpodder/ui/gtk/menus.ui.h:54
-#, fuzzy
-#| msgid "Podcast settings"
 msgid "Channel settings"
-msgstr "Podcast-instellingen"
+msgstr "Kanaalinstellingen"
 
 #: share/gpodder/ui/gtk/menus.ui.h:55
-#, fuzzy
-#| msgid "Select channel"
 msgid "Delete channel"
-msgstr "Kies een kanaal"
+msgstr "Kanaal verwijderen"
 
 #: share/gpodder/ui/gtk/menus.ui.h:56
 msgid "Mark episodes as old"
 msgstr "Afleveringen markeren als oud"
 
 #: share/gpodder/ui/gtk/menus.ui.h:57
-#, fuzzy
-#| msgid "All episodes"
 msgid "Archive all episodes"
-msgstr "Alle afleveringen"
+msgstr "Alle afleveringen archiveren"
 
 #: share/gpodder/ui/gtk/menus.ui.h:58
 msgid "Refresh image"
@@ -2948,7 +2910,7 @@ msgstr "Geen aflevering gevonden met de opgegeven GUID."
 #: bin/gpo:719
 #, python-format
 msgid "Deleted episode \"%s\"."
-msgstr "Aflevering \"%s\" is verwijderd."
+msgstr "“%s” is verwijderd."
 
 #: bin/gpo:721
 msgid "Episode has already been deleted."
@@ -3082,7 +3044,7 @@ msgstr "De uitbreiding ‘%(name)s (%(title)s)’ is %(enabled)s"
 #: bin/gpo:1156
 #, python-format
 msgid "Syntax error: %(error)s"
-msgstr "Syntax-fout: %(error)s"
+msgstr "Syntaxisfout: %(error)s"
 
 #: bin/gpo:1274
 msgid "Ambiguous command. Did you mean.."
