@@ -156,7 +156,7 @@ Thanks to {{contributors[0]}}{% for c in contributors[1:-1] %}, {{c}}{% endfor %
 md5:<i>{{c.md5}}</i> 
 sha256:<i>{{c.sha256}}</i>
 {% endfor %}
-""")
+""")  # noqa: W291
     args = {
             'contributors': get_contributors(tag, previous_tag),
             'tag': tag,
