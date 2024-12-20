@@ -5,6 +5,7 @@ import hashlib
 import os
 import re
 import sys
+import zipfile
 
 import magic  # use python-magic (not compatible with filemagic)
 import requests
@@ -76,7 +77,7 @@ def download_mac_github(github_workflow, prefix, version):
     os.remove(output)
     os.remove(os.path.join("_build", "{}-gPodder-{}.zip.md5".format(prefix, version)))
     os.remove(os.path.join("_build", "{}-gPodder-{}.zip.sha256".format(prefix, version)))
-    checksum()
+    checksums()
 
 
 def download_appveyor(appveyor_build, prefix):
@@ -151,7 +152,9 @@ Thanks to {{contributors[0]}}{% for c in contributors[1:-1] %}, {{c}}{% endfor %
 
 ## Checksums
 {% for f, c in checksums.items() %}
- - {{f}} md5:<i>{{c.md5}}</i> sha256:<i>{{c.sha256}}</i>
+ - {{f}} 
+md5:<i>{{c.md5}}</i> 
+sha256:<i>{{c.sha256}}</i>
 {% endfor %}
 """)
     args = {
@@ -204,7 +207,7 @@ if __name__ == "__main__":
         formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('tag', type=str, help='gPodder git tag to create a release from')
     parser.add_argument('--download', action='store_true', help='download artifacts')
-    parser.add_argument('--mac-github-workflow', type=str, help='mac github workflow number')
+    parser.add_argument('--mac-github-workflow', type=int, help='mac github workflow number')
     parser.add_argument('--appveyor', type=str, help='appveyor build number')
     parser.add_argument('--debug', '-d', action='store_true', help='debug requests')
 
@@ -221,14 +224,14 @@ if __name__ == "__main__":
     repo = gh.repository('gpodder', 'gpodder')
 
     if args.download:
-        if not args.mac_github:
+        if not args.mac_github_workflow:
             error_exit("E: --download requires --mac-github-workflow number")
         elif not args.appveyor:
             error_exit("E: --download requires --appveyor number")
         if os.path.isdir("_build"):
             error_exit("E: _build directory exists", -1)
         os.mkdir("_build")
-        download_mac_github(args.mac_github, "macOS", args.tag)
+        download_mac_github(args.mac_github_workflow, "macOS", args.tag)
         download_appveyor(args.appveyor, "windows")
         print("I: download success.")
     else:
@@ -236,4 +239,4 @@ if __name__ == "__main__":
             error_exit("E: _build directory doesn't exist. You need to download build artifacts (see Usage)", -1)
 
     previous_tag = get_previous_tag()
-    upload(repo, args.tag, previous_tag, args.mac_github, args.appveyor)
+    upload(repo, args.tag, previous_tag, args.mac_github_workflow, args.appveyor)
