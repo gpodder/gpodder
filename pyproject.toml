@@ -17,15 +17,22 @@ classifiers = [
 ]
 requires-python = ">=3.8"
 dependencies = [
-    "podcastparser>=0.6.0",
-    "mygpoclient>=1.7",
     "dbus-python;platform_system=='Linux'",
+    "mygpoclient==1.10",
+    "podcastparser==0.6.10",
     "PyGObject",
+    "requests[socks]==2.32.3",
+    "urllib3==2.2.2",
 ]
 dynamic = ["version"]
 
 [project.optional-dependencies]
+eyed3 = ["eyed3"]
 gui = ["PySocks"]
+html5lib = ["html5lib==1.1"]
+mutagen = ["mutagen==1.47.0"]
+rockbox-coverart = ["filelock", "pillow"]
+yt-dlp = ["yt-dlp"]
 
 [project.urls]
 Homepage = "http://gpodder.org"
