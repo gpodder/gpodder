@@ -38,6 +38,10 @@ from mutagen.mp4 import MP4Cover, MP4Tags
 import gpodder
 from gpodder import coverart
 
+import gi
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
+
 logger = logging.getLogger(__name__)
 
 
@@ -324,3 +328,126 @@ class gPodderExtension:
         downloader = coverart.CoverDownloader()
         return downloader.get_cover(podcast.cover_file, podcast.cover_url,
             podcast.url, podcast.title, None, None, True)
+
+    def toggle_auto_embed_coverart(self, widget):
+        self.container.config.auto_embed_coverart = widget.get_active()
+
+    def toggle_remove_before_modify(self, widget):
+        self.container.config.remove_before_modify = widget.get_active()
+    
+    def toggle_set_artist_to_album(self, widget):
+        self.container.config.set_artist_to_album = widget.get_active()
+    
+    def toggle_modify_tags(self, widget):
+        self.container.config.modify_tags = widget.get_active()
+    
+    def toggle_strip_album_from_title(self, widget):
+        self.container.config.strip_album_from_title = widget.get_active()
+    
+    def toggle_write_title(self, widget):
+        self.container.config.write_title = widget.get_active()
+
+    def toggle_write_album(self, widget):
+        self.container.config.write_album = widget.get_active()
+    
+    def toggle_write_subtitle(self, widget):
+        self.container.config.write_subtitle = widget.get_active()
+
+    def toggle_write_comments(self, widget):
+        self.container.config.write_comments = widget.get_active()
+
+    def toggle_write_genre(self, widget):
+        self.container.config.write_genre = widget.get_active()
+
+    def toggle_write_pubdate(self, widget):
+        self.container.config.write_pubdate = widget.get_active()
+    
+    def on_genre_tag_changed(self, widget):
+        self.container.config.genre_tag = widget.get_text()
+
+    def show_preferences(self):
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
+        box.set_border_width(10)
+
+        remove_before_modify = Gtk.CheckButton(_('Remove existing tags before writing'))
+        remove_before_modify.set_active(self.container.config.remove_before_modify)
+        remove_before_modify.connect('toggled', self.toggle_remove_before_modify)
+        box.pack_start(remove_before_modify, False, False, 0)
+
+        modify_tags = Gtk.CheckButton(_('Modify existing tags'))
+        modify_tags.set_active(self.container.config.modify_tags)
+        modify_tags.connect('toggled', self.toggle_modify_tags)
+        box.pack_start(modify_tags, False, False, 0)
+
+        box.pack_start(Gtk.HSeparator(), False, False, 0)
+
+        write_title = Gtk.CheckButton(_('Write Title tag'))
+        write_title.set_active(self.container.config.write_title)
+        write_title.connect('toggled', self.toggle_write_title)
+        box.pack_start(write_title, False, False, 0)
+
+        write_album = Gtk.CheckButton(_('Write Album tag'))
+        write_album.set_active(self.container.config.write_album)
+        write_album.connect('toggled', self.toggle_write_album)
+        box.pack_start(write_album, False, False, 0)
+
+        write_subtitle = Gtk.CheckButton(_('Write Subtitle tag'))
+        write_subtitle.set_active(self.container.config.write_subtitle)
+        write_subtitle.connect('toggled', self.toggle_write_subtitle)
+        box.pack_start(write_subtitle, False, False, 0)
+
+        write_comments = Gtk.CheckButton(_('Write Comments tag'))
+        write_comments.set_active(self.container.config.write_comments)
+        write_comments.connect('toggled', self.toggle_write_comments)
+        box.pack_start(write_comments, False, False, 0)
+
+        write_genre = Gtk.CheckButton(_('Write Genre tag'))
+        write_genre.set_active(self.container.config.write_genre)
+        write_genre.connect('toggled', self.toggle_write_genre)
+        box.pack_start(write_genre, False, False, 0)
+
+        write_pubdate = Gtk.CheckButton(_('Write Publish Date tag'))
+        write_pubdate.set_active(self.container.config.write_pubdate)
+        write_pubdate.connect('toggled', self.toggle_write_pubdate)
+        box.pack_start(write_pubdate, False, False, 0)
+
+        box.pack_start(Gtk.HSeparator(), False, False, 0)
+
+        set_artist_to_album = Gtk.CheckButton(_('Set Artist tag to same as Album'))
+        set_artist_to_album.set_active(self.container.config.set_artist_to_album)
+        set_artist_to_album.connect('toggled', self.toggle_set_artist_to_album)
+        box.pack_start(set_artist_to_album, False, False, 0)
+
+        strip_album_from_title = Gtk.CheckButton(_('Remove Album from Title (if present)'))
+        strip_album_from_title.set_active(self.container.config.strip_album_from_title)
+        strip_album_from_title.connect('toggled', self.toggle_strip_album_from_title)
+        box.pack_start(strip_album_from_title, False, False, 0)
+
+        genre_tag = Gtk.Entry()
+        genre_tag.set_text(self.container.config.genre_tag)
+        genre_tag.connect("changed", self.on_genre_tag_changed)
+        genre_tag.set_halign(Gtk.Align.END)
+        genre_tag.set_size_request(200, -1)
+        genre_tag_label = Gtk.Label(_('Genre tag:'))
+        hbox_genre_tag = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=0)
+        hbox_genre_tag.pack_start(genre_tag_label, False, False, 0)
+        hbox_genre_tag.pack_start(genre_tag, True, True, 0)
+        box.pack_start(hbox_genre_tag, False, False, 0)
+
+        box.pack_start(Gtk.HSeparator(), False, False, 0)
+
+        auto_embed_coverart = Gtk.CheckButton(_('Embed coverart'))
+        auto_embed_coverart.set_active(self.container.config.auto_embed_coverart)
+        auto_embed_coverart.connect('toggled', self.toggle_auto_embed_coverart)
+        box.pack_start(auto_embed_coverart, False, False, 0)
+
+        note1 = Gtk.Label(use_markup=True, wrap=True, label=_(
+            'Note: Coverart is not standardized in any way, so results may vary.'))
+        note1.set_property('xalign', 0.0)
+        box.add(note1)
+
+        box.show_all()
+        return box
+
+    def on_preferences(self):
+        return [(_('Tagging'), self.show_preferences)]

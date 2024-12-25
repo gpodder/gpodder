@@ -164,12 +164,20 @@ class gPodderExtension:
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
         box.set_border_width(10)
 
-        convert_enable = Gtk.CheckButton(_('Process Art: Convert, Resize, and make Baseline'))
+        convert_enable = Gtk.CheckButton(_('Process art: convert, resize, and make baseline'))
         convert_enable.set_active(self.config.convert_and_resize_art)
         convert_enable.connect('toggled', self.toggle_convert_and_resize_art)
         box.pack_start(convert_enable, False, False, 0)
 
-        convert_allow_upscale = Gtk.CheckButton(_('Allow Art Upscaling'))
+        note1 = Gtk.Label(use_markup=True, wrap=True, label=_(
+            'Enable conversion and resizing of art.\n\n'
+            ' If enabled, convert art to desired format (default JPEG) and size (default 500px x 500px),\n'
+            ' and if format is JPEG, write as Baseline (rather than Progressive) format.\n'
+            ' If disabled, fall back to simple behavior.'))
+        note1.set_property('xalign', 0.0)
+        box.add(note1)
+
+        convert_allow_upscale = Gtk.CheckButton(_('Allow upscaling of art'))
         convert_allow_upscale.set_active(self.config.convert_allow_upscale_art)
         convert_allow_upscale.connect('toggled', self.toggle_convert_allow_upscale_art)
         # convert_allow_upscale.set_sensitive(self.config.convert_and_resize_art)
@@ -186,7 +194,7 @@ class gPodderExtension:
         convert_size.set_size_request(200, -1)
         convert_size.connect("value-changed", self.on_convert_size_changed)
         # convert_size.set_sensitive(self.config.convert_and_resize_art)
-        convert_size_label = Gtk.Label(_('Image Size (px)'))
+        convert_size_label = Gtk.Label(_('Image size (px):'))
         # convert_size_label.set_sensitive(self.config.convert_and_resize_art)
         hbox_convert_size = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=0)
         hbox_convert_size.pack_start(convert_size_label, False, False, 0)
@@ -199,12 +207,19 @@ class gPodderExtension:
         art_name_on_device.set_halign(Gtk.Align.END)
         art_name_on_device.set_size_request(200, -1)
         # art_name_on_device.set_sensitive(self.config.convert_and_resize_art)
-        art_name_on_device_label = Gtk.Label(_('Art Name on Device'))
+        art_name_on_device_label = Gtk.Label(_('Art name on device:'))
         # art_name_on_device_label.set_sensitive(self.config.convert_and_resize_art)
         hbox_art_name = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=0)
         hbox_art_name.pack_start(art_name_on_device_label, False, False, 0)
         hbox_art_name.pack_start(art_name_on_device, True, True, 0)
         box.pack_start(hbox_art_name, False, False, 0)
+
+        note2 = Gtk.Label(use_markup=True, wrap=True, label=_(
+            'Only JPEG and PNG formats are allowed. Note that Rockbox only supports'
+            ' JPEG format images, so PNG is not recommended if using a Rockbox player.'
+            ' Typically, devices look for art named either \"cover.jpg\" or \"folder.jpg\".'))
+        note2.set_property('xalign', 0.0)
+        box.add(note2)
 
         box.show_all()
         return box
