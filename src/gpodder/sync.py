@@ -106,7 +106,8 @@ def get_track_length(filename):
 
 
 def episode_filename_on_device(config, episode):
-    """
+    """Return the basename of the episode file to save on device.
+
     :param gpodder.config.Config config: configuration (for sync options)
     :param gpodder.model.PodcastEpisode episode: episode to get filename for
     :return str: basename minus extension to use to save episode on device
@@ -130,7 +131,8 @@ def episode_filename_on_device(config, episode):
 
 
 def episode_foldername_on_device(config, episode):
-    """
+    """Return the folder name to which the episode is saved on device.
+
     :param gpodder.config.Config config: configuration (for sync options)
     :param gpodder.model.PodcastEpisode episode: episode to get folder name for
     :return str: folder name to save episode to on device
@@ -146,9 +148,9 @@ def episode_foldername_on_device(config, episode):
 
 
 class SyncTrack(object):
-    """
-    This represents a track that is on a device. You need
-    to specify at least the following keyword arguments,
+    """Class representing a track that is on a device.
+
+    You need to specify at least the following keyword arguments,
     because these will be used to display the track in the
     GUI. All other keyword arguments are optional and can
     be used to reference internal objects, etc... See the
@@ -162,6 +164,7 @@ class SyncTrack(object):
     passed to the function (the values will default to None
     for all required fields).
     """
+
     def __init__(self, title, length, modified, **kwargs):
         self.title = title
         self.length = length

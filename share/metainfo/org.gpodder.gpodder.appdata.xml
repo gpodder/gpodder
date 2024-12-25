@@ -10,40 +10,15 @@
     <p>You can also take advantage of the service gpodder.net, which lets you sync subscriptions, playback progress and starred episodes.</p>
   </description>
   <launchable type="desktop-id">org.gpodder.gpodder.desktop</launchable>
+  <developer_name>The gPodder Team</developer_name>
   <url type="homepage">https://www.gpodder.org</url>
+  <url type="bugtracker">https://github.com/gpodder/gpodder/issues</url>
+  <url type="vcs-browser">https://github.com/gpodder/gpodder</url>
   <provides>
     <binary>gpodder</binary>
     <id>gpodder.desktop</id>
   </provides>
-  <content_rating type="oars-1.1">
-    <content_attribute id="violence-cartoon">none</content_attribute>
-    <content_attribute id="violence-fantasy">none</content_attribute>
-    <content_attribute id="violence-realistic">none</content_attribute>
-    <content_attribute id="violence-bloodshed">none</content_attribute>
-    <content_attribute id="violence-sexual">none</content_attribute>
-    <content_attribute id="violence-desecration">none</content_attribute>
-    <content_attribute id="violence-slavery">none</content_attribute>
-    <content_attribute id="violence-worship">none</content_attribute>
-    <content_attribute id="drugs-alcohol">none</content_attribute>
-    <content_attribute id="drugs-narcotics">none</content_attribute>
-    <content_attribute id="drugs-tobacco">none</content_attribute>
-    <content_attribute id="sex-nudity">none</content_attribute>
-    <content_attribute id="sex-themes">none</content_attribute>
-    <content_attribute id="sex-homosexuality">none</content_attribute>
-    <content_attribute id="sex-prostitution">none</content_attribute>
-    <content_attribute id="sex-adultery">none</content_attribute>
-    <content_attribute id="sex-appearance">none</content_attribute>
-    <content_attribute id="language-profanity">none</content_attribute>
-    <content_attribute id="language-humor">none</content_attribute>
-    <content_attribute id="language-discrimination">none</content_attribute>
-    <content_attribute id="social-chat">none</content_attribute>
-    <content_attribute id="social-info">none</content_attribute>
-    <content_attribute id="social-audio">none</content_attribute>
-    <content_attribute id="social-location">none</content_attribute>
-    <content_attribute id="social-contacts">none</content_attribute>
-    <content_attribute id="money-purchasing">none</content_attribute>
-    <content_attribute id="money-gambling">none</content_attribute>
-  </content_rating>
+  <content_rating type="oars-1.1"/>
   <screenshots>
     <screenshot type="default">
       <caption>The main window</caption>
@@ -51,6 +26,29 @@
     </screenshot>
   </screenshots>
   <releases>
+    <release version="3.11.5" date="2024-12-17">
+      <description>
+        <p>Changes:</p>
+        <ul>
+          <li>Replace context GtkMenus with GtkPopovers (#1293)</li>
+          <li>Add PotPlayer Support For Windows (#1583)</li>
+          <li>New subscription statistics extension (#1590)</li>
+          <li>Group subscriptions in OPML import/export (#1658)</li>
+          <li>Add `path.alternate` setting so users can append to PATH inside gpodder (#1649)</li>
+          <li>Limit the length of UTF-8 filenames (#1645)</li>
+          <li>Sort episodes by published date when sending to folder (#1624)</li>
+          <li>Add view menu podcast and episode list checkboxes to preferences (#1618)</li>
+          <li>New podverse search extension (#1615)</li>
+          <li>SendTo automatic rename filename (#1620)</li>
+          <li>Add socks proxy to settings and network tab in Preferences (#1592)</li>
+          <li>Extract YouTube channel ID from URL (#1603)</li>
+          <li>Modernize userappsdirs (#1601)</li>
+          <li>Add color scheme (dark and light mode) support (#1595)</li>
+          <li>Change %d to %ld in Windows launcher (#1589)</li>
+       <li>Add forceDownload action to Downloads context menu and toolbar</li>
+        </ul>
+      </description>
+    </release>
     <release version="3.11.4" date="2023-10-11">
       <description>
         <p>This release only updates dependencies in the Windows and Mac builds</p>

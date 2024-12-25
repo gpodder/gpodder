@@ -12,17 +12,19 @@ function main {
     pacman --noconfirm -Suy
 
     pacman --noconfirm -S --needed \
-        git mingw-w64-i686-gdk-pixbuf2 \
-        mingw-w64-i686-librsvg \
-        mingw-w64-i686-gtk3 \
-		intltool \
-        base-devel mingw-w64-i686-toolchain
+        git \
+        intltool \
+        base-devel \
+        "${MINGW_PACKAGE_PREFIX}"-gdk-pixbuf2 \
+        "${MINGW_PACKAGE_PREFIX}"-librsvg \
+        "${MINGW_PACKAGE_PREFIX}"-gtk3 \
+        "${MINGW_PACKAGE_PREFIX}"-toolchain
 
     pacman --noconfirm -S --needed \
-        mingw-w64-i686-python3 \
-        mingw-w64-i686-python3-gobject \
-        mingw-w64-i686-python3-cairo \
-        mingw-w64-i686-python3-pip
+        "${MINGW_PACKAGE_PREFIX}"-python \
+        "${MINGW_PACKAGE_PREFIX}"-python-gobject \
+        "${MINGW_PACKAGE_PREFIX}"-python-cairo \
+        "${MINGW_PACKAGE_PREFIX}"-python-pip
 
     pip3 install --user podcastparser mygpoclient \
 						pywin32-ctypes \

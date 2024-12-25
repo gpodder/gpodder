@@ -89,7 +89,7 @@ class GPodcast(model.PodcastChannel):
 
     @property
     def title_markup(self):
-        """ escaped title for the mass unsubscribe dialog """
+        """Escaped title for the mass unsubscribe dialog."""
         return html.escape(self.title)
 
 
@@ -247,7 +247,7 @@ class EpisodeListModel(Gtk.ListStore):
         return True
 
     def get_filtered_model(self):
-        """Returns a filtered version of this episode model
+        """Return a filtered version of this episode model.
 
         The filtered version should be displayed in the UI,
         as this model can have some filters set that should
@@ -256,7 +256,7 @@ class EpisodeListModel(Gtk.ListStore):
         return self._sorter
 
     def has_episodes(self):
-        """Returns True if episodes are visible (filtered)
+        """Return True if episodes are visible (filtered).
 
         If episodes are visible with the current filter
         applied, return True (otherwise return False).
@@ -264,17 +264,18 @@ class EpisodeListModel(Gtk.ListStore):
         return bool(len(self._filter))
 
     def set_view_mode(self, new_mode):
-        """Sets a new view mode for this model
+        """Set a new view mode for this model.
 
         After setting the view mode, the filtered model
-        might be updated to reflect the new mode."""
+        might be updated to reflect the new mode.
+        """
         if self._view_mode != new_mode:
             self._view_mode = new_mode
             self._filter.refilter()
             self._on_filter_changed(self.has_episodes())
 
     def get_view_mode(self):
-        """Returns the currently-set view mode"""
+        """Return the currently-set view mode."""
         return self._view_mode
 
     def set_search_term(self, new_term):
@@ -311,11 +312,10 @@ class EpisodeListModel(Gtk.ListStore):
         return ''.join(d)
 
     def replace_from_channel(self, channel):
-        """
-        Add episode from the given channel to this model.
+        """Add episode from the given channel to this model.
+
         Downloading should be a callback.
         """
-
         # Remove old episodes in the list store
         self.clear()
 
@@ -498,7 +498,8 @@ class EpisodeListModel(Gtk.ListStore):
 
 
 class PodcastChannelProxy:
-    """ a bag of podcasts: 'All Episodes' or each section """
+    """A bag of podcasts: 'All Episodes' or each section."""
+
     def __init__(self, db, config, channels, section, model):
         self.ALL_EPISODES_PROXY = not bool(section)
         self._db = db
@@ -542,7 +543,7 @@ class PodcastChannelProxy:
             return total, deleted, new, downloaded, unplayed
 
     def get_all_episodes(self):
-        """Returns a generator that yields every episode"""
+        """Return a generator that yields every episode."""
         if self.model._search_term is not None:
             def matches(channel):
                 columns = (getattr(channel, c) for c in PodcastListModel.SEARCH_ATTRS)
@@ -626,7 +627,7 @@ class PodcastListModel(Gtk.ListStore):
         return True
 
     def get_filtered_model(self):
-        """Returns a filtered version of this episode model
+        """Return a filtered version of this episode model.
 
         The filtered version should be displayed in the UI,
         as this model can have some filters set that should
@@ -635,16 +636,17 @@ class PodcastListModel(Gtk.ListStore):
         return self._filter
 
     def set_view_mode(self, new_mode):
-        """Sets a new view mode for this model
+        """Set a new view mode for this model.
 
         After setting the view mode, the filtered model
-        might be updated to reflect the new mode."""
+        might be updated to reflect the new mode.
+        """
         if self._view_mode != new_mode:
             self._view_mode = new_mode
             self._filter.refilter()
 
     def get_view_mode(self):
-        """Returns the currently-set view mode"""
+        """Return the currently-set view mode."""
         return self._view_mode
 
     def set_search_term(self, new_term):
@@ -661,8 +663,8 @@ class PodcastListModel(Gtk.ListStore):
         self._cover_cache = {}
 
     def _resize_pixbuf_keep_ratio(self, url, pixbuf):
-        """
-        Resizes a GTK Pixbuf but keeps its aspect ratio.
+        """Resizes a GTK Pixbuf but keeps its aspect ratio.
+
         Returns None if the pixbuf does not need to be
         resized or the newly resized pixbuf if it does.
         """
@@ -742,11 +744,12 @@ class PodcastListModel(Gtk.ListStore):
         channel.save()
 
     def _get_cover_image(self, channel, add_overlay=False, pixbuf_overlay=None):
-        """ get channel's cover image. Callable from gtk thread.
-            :param channel: channel model
-            :param bool add_overlay: True to add a pause/error overlay
-            :param GdkPixbuf.Pixbux pixbuf_overlay: existing pixbuf if already loaded, as an optimization
-            :return GdkPixbuf.Pixbux: channel's cover image as pixbuf
+        """Get channel's cover image. Callable from gtk thread.
+
+        :param channel: channel model
+        :param bool add_overlay: True to add a pause/error overlay
+        :param GdkPixbuf.Pixbux pixbuf_overlay: existing pixbuf if already loaded, as an optimization
+        :return GdkPixbuf.Pixbux: channel's cover image as pixbuf
         """
         if self._cover_downloader is None:
             return pixbuf_overlay

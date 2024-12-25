@@ -243,12 +243,11 @@ def upgrade(db, filename):
 
 
 def convert_gpodder2_db(old_db, new_db):
-    """Convert gPodder 2.x databases to the new format
+    """Convert gPodder 2.x databases to the new format.
 
     Both arguments should be SQLite3 connections to the
     corresponding databases.
     """
-
     old_db = sqlite.connect(old_db)
     new_db_filename = new_db
     new_db = sqlite.connect(new_db)

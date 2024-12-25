@@ -216,6 +216,11 @@ class gPodderCli(object):
             self._extensions_podcast_update_cb,
             self._extensions_episode_download_cb)
 
+        observer = gpodder.config.get_network_proxy_observer(self._config)
+        self._config.add_observer(observer)
+        # Trigger the global gpodder.config._proxies observer contraption to initialize it.
+        observer("network.", None, None)
+
     @contextlib.contextmanager
     def _action(self, msg):
         self._start_action(msg)
@@ -308,7 +313,7 @@ class gPodderCli(object):
 
     def import_(self, url):
         for channel in opml.Importer(url).items:
-            self.subscribe(channel['url'], channel.get('title'))
+            self.subscribe(channel['url'], channel.get('title'), channel.get('section'))
 
     def export(self, filename):
         podcasts = self._model.get_podcasts()
@@ -364,7 +369,7 @@ class gPodderCli(object):
             self._error(_('You are not subscribed to %s.') % url)
         return None
 
-    def subscribe(self, url, title=None):
+    def subscribe(self, url, title=None, section=None):
         existing = self.get_podcast(url, check_only=True)
         if existing is not None:
             self._error(_('Already subscribed to %s.') % existing.url)
@@ -809,7 +814,7 @@ class gPodderCli(object):
 
             title, url = results[index - 1]
             self._info(_('Adding %s...') % title)
-            self.subscribe(url)
+            self.subscribe(url, title=title)
             if not multiple:
                 break
 

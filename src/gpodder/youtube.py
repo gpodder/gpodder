@@ -393,8 +393,8 @@ def is_youtube_guid(guid):
 
 
 def for_each_feed_pattern(func, url, fallback_result):
-    """
-    Try to find the username for all possible YouTube feed/webpage URLs
+    """Try to find the username for all possible YouTube feed/webpage URLs.
+
     Will call func(url, channel) for each match, and if func() returns
     a result other than None, returns this. If no match is found or
     func() returns None, return fallback_result.
@@ -432,6 +432,14 @@ def get_real_channel_url(url):
 @lru_cache(1)
 def get_channel_id_url(url, feed_data=None):
     if 'youtube.com' in url:
+        # URL may contain channel ID, avoid a network request
+        m = re.search(r'channel_id=([^"]+)', url)
+        if m:
+            # old versions of gpodder allowed newlines and whitespace in feed URLs, strip here to avoid a 404
+            channel_id = m.group(1).strip()
+            channel_url = 'https://www.youtube.com/channel/{}'.format(channel_id)
+            return channel_url
+
         try:
             if feed_data is None:
                 r = util.urlopen(url, cookies={'SOCS': 'CAI'})
@@ -471,7 +479,8 @@ def get_cover(url, feed_data=None):
     if 'youtube.com' in url:
 
         class YouTubeHTMLCoverParser(HTMLParser):
-            """This custom html parser searches for the youtube channel thumbnail/avatar"""
+            """This custom html parser searches for the youtube channel thumbnail/avatar."""
+
             def __init__(self):
                 super().__init__()
                 self.url = []
@@ -508,8 +517,8 @@ def get_cover(url, feed_data=None):
 
 
 def get_gdpr_consent_url(html_data):
-    """
-    Creates the URL for automatically accepting GDPR consents
+    """Create the URL for automatically accepting GDPR consents.
+
     EU GDPR redirects to a form that needs to be posted to be redirected to a get request
     with the form data as input to the youtube video URL. This extracts that form data from
     the GDPR form and builds up the URL the posted form results.
@@ -552,6 +561,7 @@ def get_channel_desc(url, feed_data=None):
 
         class YouTubeHTMLDesc(HTMLParser):
             """This custom html parser searches for the YouTube channel description."""
+
             def __init__(self):
                 super().__init__()
                 self.description = ''
@@ -585,8 +595,8 @@ def get_channel_desc(url, feed_data=None):
 
 
 def parse_youtube_url(url):
-    """
-    Youtube Channel Links are parsed into youtube feed links
+    """Parse Youtube Channel Links into youtube feed links.
+
     >>> parse_youtube_url("https://www.youtube.com/channel/CHANNEL_ID")
     'https://www.youtube.com/feeds/videos.xml?channel_id=CHANNEL_ID'
 

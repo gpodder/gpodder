@@ -48,8 +48,8 @@ N_ = gpodder.ngettext
 
 
 def parse_app_menu_for_accels(filename):
-    """
-    grab (accelerator, action) bindings from menus.ui.
+    """Grab (accelerator, action) bindings from menus.ui.
+
     See #815 Ctrl-Q doesn't quit for justification.
     Unfortunately it's not available from the Gio.MenuModel we get from the Gtk.Builder,
     so we get it ourself.

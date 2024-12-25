@@ -203,7 +203,7 @@ class MygPoClient(object):
         atexit.register(self._at_exit)
 
     def create_device(self):
-        """Uploads the device changes to the server
+        """Upload the device changes to the server.
 
         This should be called when device settings change
         or when the mygpo client functionality is enabled.
@@ -218,7 +218,7 @@ class MygPoClient(object):
         self._store.save(action)
 
     def get_rewritten_urls(self):
-        """Returns a list of rewritten URLs for uploads
+        """Return a list of rewritten URLs for uploads.
 
         This should be called regularly. Every object returned
         should be merged into the database, and the old_url
@@ -229,7 +229,7 @@ class MygPoClient(object):
         return rewritten_urls
 
     def process_episode_actions(self, find_episode, on_updated=None):
-        """Process received episode actions
+        """Process received episode actions.
 
         The parameter "find_episode" should be a function accepting
         two parameters (podcast_url and episode_url). It will be used
@@ -284,7 +284,7 @@ class MygPoClient(object):
         logger.debug('Received episode actions processed.')
 
     def get_received_actions(self):
-        """Returns a list of ReceivedSubscribeAction objects
+        """Return a list of ReceivedSubscribeAction objects.
 
         The list might be empty. All these actions have to
         be processed. The user should confirm which of these
@@ -297,7 +297,7 @@ class MygPoClient(object):
         return self._store.load(ReceivedSubscribeAction)
 
     def confirm_received_actions(self, actions):
-        """Confirm that a list of actions has been processed
+        """Confirm that a list of actions has been processed.
 
         The UI should call this with a list of actions that
         have been accepted by the user and processed by the
@@ -307,7 +307,7 @@ class MygPoClient(object):
         self._store.remove(actions)
 
     def reject_received_actions(self, actions):
-        """Reject (undo) a list of ReceivedSubscribeAction objects
+        """Reject (undo) a list of ReceivedSubscribeAction objects.
 
         The UI should call this with a list of actions that
         have been rejected by the user. A reversed set of
@@ -657,11 +657,11 @@ class Directory(object):
         self.client = public.PublicClient()
 
     def toplist(self):
-        return [(p.title or p.url, p.url)
+        return [(p.title or p.url, p.url, None)
                 for p in self.client.get_toplist()
                 if p.url]
 
     def search(self, query):
-        return [(p.title or p.url, p.url)
+        return [(p.title or p.url, p.url, None)
                 for p in self.client.search_podcasts(query)
                 if p.url]

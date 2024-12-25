@@ -32,13 +32,6 @@ installing = ('install' in sys.argv and '--help' not in sys.argv)
 os.chdir(os.path.dirname(os.path.realpath(__file__)))
 
 
-# Read the metadata from gPodder's __init__ module (doesn't need importing)
-main_module = open('src/gpodder/__init__.py', 'r', encoding='utf-8').read()
-metadata = dict(re.findall("__([a-z_]+)__\\s*=\\s*'([^']+)'", main_module))
-
-author, email = re.match(r'^(.*) <(.*)>$', metadata['author']).groups()
-
-
 class MissingFile(BaseException):
     pass
 
@@ -199,24 +192,8 @@ except MissingFile as mf:
 
 
 setup(
-    name='gpodder-adaptive',
-    version=metadata['version'],
-    description=metadata['tagline'],
-    license=metadata['license'],
-    url=metadata['url'],
-
-    author=author,
-    author_email=email,
-
     package_dir={'': 'src'},
     packages=packages,
     scripts=scripts,
     data_files=data_files,
-
-    install_requires=[
-        "podcastparser>=0.6.0",
-        "mygpoclient>=1.7",
-        "dbus-python;platform_system=='Linux'",
-        "PyGObject",
-    ]
 )

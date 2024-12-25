@@ -17,9 +17,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-# Notification implementation for Windows
 # Sean Munkel; 2012-12-29
-"""
+"""Notification implementation for Windows.
+
 Current state (2018/07/29 ELL):
  - I can't get pywin32 to work in msys2 (the platform used for this python3/gtk3 installer)
    so existing code using COM doesn't work.

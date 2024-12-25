@@ -5,8 +5,8 @@ Windows Installer Build Scripts
 We use `msys2 <https://msys2.github.io/>`__ for creating the Windows installer
 and development on Windows.
 
-This is an adaptation of `QuodLibet's own installer <https://github.com/quodlibet/quodlibet/tree/master/win_installer>`
-which is Copyright 2016 Christoph Reiter.
+This is an adaptation of `QuodLibet's own installer <https://github.com/quodlibet/quodlibet/tree/main/dev-utils/win_installer>`
+which is Copyright 2016 Christoph Reiter and 2022 Nick Boultbee.
 
 Development
 -----------
@@ -29,7 +29,7 @@ Setting Up the MSYS2 Environment
 
 * Download msys2 64-bit from https://msys2.github.io/
 * Follow instructions on https://msys2.github.io/
-* Execute ``C:\msys64\mingw32.exe``
+* Execute ``C:\msys64\mingw64.exe``
 * Run ``pacman -S git`` to install git
 * Run ``git clone https://github.com/gpodder/gpodder.git``
 * Run ``cd gpodder/tools/win_installer`` to end up where this README exists.
@@ -60,4 +60,4 @@ might result in newer versions of dependencies being used. To reduce the risk
 of stable release breakage you can use an existing installer and just install
 a newer gPodder version into it and then repack it.
 
-``./rebuild.sh gpodder-3.10.2-installer.exe [git-tag]``
+``./rebuild.sh gpodder-3.11.4-installer.exe [git-tag]``

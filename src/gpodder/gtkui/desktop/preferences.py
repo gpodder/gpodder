@@ -20,6 +20,7 @@
 import html
 import logging
 import os
+from urllib.request import getproxies
 
 from gi.repository import Gdk, Gtk, Pango
 
@@ -183,6 +184,26 @@ class VimeoVideoFormatListModel(Gtk.ListStore):
             self._config.vimeo.fileformat = value
 
 
+class ProxyTypeActionList(Gtk.ListStore):
+    C_CAPTION, C_PROXY_TYPE = list(range(2))
+
+    def __init__(self, config):
+        Gtk.ListStore.__init__(self, str, str)
+        self._config = config
+        self.append((_('SOCKS5h (Remote DNS)'), 'socks5h'))
+        self.append((_('SOCKS5'), 'socks5'))
+        self.append((_('HTTP'), 'http'))
+
+    def get_index(self):
+        for index, row in enumerate(self):
+            if self._config.network.proxy_type == row[self.C_PROXY_TYPE]:
+                return index
+        return 0
+
+    def set_index(self, index):
+        self._config.network.proxy_type = self[index][self.C_PROXY_TYPE]
+
+
 class gPodderPreferences(BuilderWidget):
     C_TOGGLE, C_LABEL, C_EXTENSION, C_SHOW_TOGGLE = list(range(4))
 
@@ -251,6 +272,20 @@ class gPodderPreferences(BuilderWidget):
 
         self._config.connect_gtk_togglebutton('ui.gtk.find_as_you_type',
                                               self.checkbutton_find_as_you_type)
+
+        self._config.connect_gtk_togglebutton('ui.gtk.podcast_list.hide_empty',
+                                              self.checkbutton_podcast_list_hide_empty)
+        self._config.connect_gtk_togglebutton('ui.gtk.podcast_list.all_episodes',
+                                              self.checkbutton_podcast_list_all_episodes)
+        self._config.connect_gtk_togglebutton('ui.gtk.podcast_list.sections',
+                                              self.checkbutton_podcast_list_sections)
+
+        self._config.connect_gtk_togglebutton('ui.gtk.episode_list.always_show_new',
+                                              self.checkbutton_episode_list_always_show_new)
+        self._config.connect_gtk_togglebutton('ui.gtk.episode_list.trim_title_prefix',
+                                              self.checkbutton_episode_list_trim_title_prefix)
+        self._config.connect_gtk_togglebutton('ui.gtk.episode_list.descriptions',
+                                              self.checkbutton_episode_list_descriptions)
 
         self.update_interval_presets = [0, 10, 30, 60, 2 * 60, 6 * 60, 12 * 60]
         adjustment_update_interval = self.hscale_update_interval.get_adjustment()
@@ -335,6 +370,32 @@ class gPodderPreferences(BuilderWidget):
 
         # Disable mygpo sync while the dialog is open
         self._config.mygpo.enabled = False
+
+        # Network proxy settings UI
+        self._config.connect_gtk_togglebutton('network.use_proxy',
+                                              self.checkbutton_use_proxy)
+        self._config.connect_gtk_togglebutton('network.proxy_use_username_password',
+                                              self.checkbutton_proxy_use_username_password)
+        self.entry_proxy_hostname.set_text(self._config.network.proxy_hostname)
+        self.entry_proxy_port.set_text(self._config.network.proxy_port)
+        # This will disable the proxy input details on creation if checkbutton
+        # is unticked (value from _config) on each preferences menu creation
+        self.on_checkbutton_use_proxy_toggled(self.checkbutton_use_proxy)
+        self.on_checkbutton_proxy_use_username_password_toggled(self.checkbutton_proxy_use_username_password)
+        self.proxy_type_model = ProxyTypeActionList(self._config)
+        self.combobox_proxy_type.set_model(self.proxy_type_model)
+        self.combobox_proxy_type.pack_start(cellrenderer, True)
+        self.combobox_proxy_type.add_attribute(cellrenderer, 'text',
+                                               ProxyTypeActionList.C_CAPTION)
+        self.combobox_proxy_type.set_active(self.proxy_type_model.get_index())
+        env_proxies = getproxies()
+        self.label_env_proxy_descr.set_visible(bool(env_proxies))
+        self.label_env_proxy.set_visible(bool(env_proxies))
+        if env_proxies:
+            env_proxies_str = ''
+            for var, url in env_proxies.items():
+                env_proxies_str += f"{var}_proxy={url}\n"
+            self.label_env_proxy.set_text(env_proxies_str)
 
         # Configure the extensions manager GUI
         self.set_extension_preferences()
@@ -777,6 +838,31 @@ class gPodderPreferences(BuilderWidget):
 
         fs.destroy()
 
+    def on_checkbutton_use_proxy_toggled(self, widget):
+        widgets = (self.grid_network_proxy_details,
+                   self.vbox_network_proxy_username_password)
+        for w in widgets:
+            w.set_sensitive(widget.get_active())
+
+    def on_checkbutton_proxy_use_username_password_toggled(self, widget):
+        self.grid_network_proxy_username_password.set_sensitive(widget.get_active())
+
+    def on_combobox_proxy_type_changed(self, widget):
+        index = self.combobox_proxy_type.get_active()
+        self.proxy_type_model.set_index(index)
+
+    def on_proxy_hostname_changed(self, widget):
+        self._config.network.proxy_hostname = widget.get_text()
+
+    def on_proxy_port_changed(self, widget):
+        self._config.network.proxy_port = widget.get_text()
+
+    def on_proxy_username_changed(self, widget):
+        self._config.network.proxy_username = widget.get_text()
+
+    def on_proxy_password_changed(self, widget):
+        self._config.network.proxy_password = widget.get_text()
+
     def on_flap_show_toggled(self, togglebutton, *args):
         if self.prefs_flap.get_folded():
             self.prefs_flap.set_reveal_flap(togglebutton.get_active())
@@ -784,7 +870,7 @@ class gPodderPreferences(BuilderWidget):
     def on_prefs_sidebar_set_focus_child(self, widget, *args):
         if self.prefs_flap.get_folded():
             self.prefs_flap.set_reveal_flap(False)
-
+            
     def on_prefs_scrolled_window_edge_overshot(self, scrolled_window, pos, *args):
         if pos == Gtk.PositionType.TOP:
             self.prefs_flap.set_reveal_flap(True)

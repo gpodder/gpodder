@@ -26,7 +26,7 @@
 #            libopmlwriter.py (2005-12-08)
 #
 
-"""OPML import and export functionality
+"""OPML import and export functionality.
 
 This module contains helper classes to import subscriptions
 from OPML files on the web and to export a list of channel
@@ -48,7 +48,8 @@ logger = logging.getLogger(__name__)
 
 
 class Importer(object):
-    """
+    """Import an OPML feed and return a GTK ListStore.
+
     Helper class to import an OPML feed from protocols
     supported by urllib2 (e.g. HTTP) and return a GTK
     ListStore that can be displayed in the GUI.
@@ -60,56 +61,58 @@ class Importer(object):
     VALID_TYPES = ('rss', 'link')
 
     def __init__(self, url):
-        """
-        Parses the OPML feed from the given URL into
-        a local data structure containing channel metadata.
+        """Parse an OPML feed from an URL.
+
+        Parses the feed into a local data structure containing channel metadata.
         """
         self.items = []
-        try:
-            if os.path.exists(url):
-                doc = xml.dom.minidom.parse(url)
-            else:
-                doc = xml.dom.minidom.parse(io.BytesIO(util.urlopen(url).content))
+        if os.path.exists(url):
+            doc = xml.dom.minidom.parse(url)
+        else:
+            doc = xml.dom.minidom.parse(io.BytesIO(util.urlopen(url).content))
 
-            for outline in doc.getElementsByTagName('outline'):
-                # Make sure we are dealing with a valid link type (ignore case)
-                otl_type = outline.getAttribute('type')
-                if otl_type is None or otl_type.lower() not in self.VALID_TYPES:
-                    continue
+        section = None
+        for outline in doc.getElementsByTagName('outline'):
+            # Make sure we are dealing with a valid link type (ignore case)
+            otl_type = outline.getAttribute('type')
+            if otl_type is None or otl_type.lower() not in self.VALID_TYPES:
+                otl_title = outline.getAttribute('title')
+                otl_text = outline.getAttribute('text')
+                # gPodder sections will have name == text, if OPML accepts it type=section
+                if otl_title is not None and otl_title == otl_text:
+                    section = otl_title
+                continue
 
-                if outline.getAttribute('xmlUrl') or outline.getAttribute('url'):
-                    channel = {
-                        'url':
-                            outline.getAttribute('xmlUrl')
-                            or outline.getAttribute('url'),
-                        'title':
-                            outline.getAttribute('title')
-                            or outline.getAttribute('text')
-                            or outline.getAttribute('xmlUrl')
-                            or outline.getAttribute('url'),
-                        'description':
-                            outline.getAttribute('text')
-                            or outline.getAttribute('xmlUrl')
-                            or outline.getAttribute('url'),
-                    }
+            if outline.getAttribute('xmlUrl') or outline.getAttribute('url'):
+                channel = {
+                    'url':
+                        outline.getAttribute('xmlUrl')
+                        or outline.getAttribute('url'),
+                    'title':
+                        outline.getAttribute('title')
+                        or outline.getAttribute('text')
+                        or outline.getAttribute('xmlUrl')
+                        or outline.getAttribute('url'),
+                    'description':
+                        outline.getAttribute('text')
+                        or outline.getAttribute('xmlUrl')
+                        or outline.getAttribute('url'),
+                    'section': section,
+                }
 
-                    if channel['description'] == channel['title']:
-                        channel['description'] = channel['url']
+                if channel['description'] == channel['title']:
+                    channel['description'] = channel['url']
 
-                    for attr in ('url', 'title', 'description'):
-                        channel[attr] = channel[attr].strip()
+                for attr in ('url', 'title', 'description'):
+                    channel[attr] = channel[attr].strip()
 
-                    self.items.append(channel)
-            if not len(self.items):
-                logger.info('OPML import finished, but no items found: %s', url)
-        except:
-            logger.error('Cannot import OPML from URL: %s', url, exc_info=True)
+                self.items.append(channel)
+        if not len(self.items):
+            logger.info('OPML import finished, but no items found: %s', url)
 
 
 class Exporter(object):
-    """
-    Helper class to export a list of channel objects
-    to a local file in OPML 1.1 format.
+    """Export a list of channel objects to a local file in OPML 1.1 format.
 
     See www.opml.org for the OPML specification.
     """
@@ -125,20 +128,16 @@ class Exporter(object):
             self.filename = '%s.opml' % (filename, )
 
     def create_node(self, doc, name, content):
-        """
-        Creates a simple XML Element node in a document
-        with tag name "name" and text content "content",
-        as in <name>content</name> and returns the element.
+        """Return an XML Element node with tag name "name" and text content "content".
+
+        E.g. <name>content</name>.
         """
         node = doc.createElement(name)
         node.appendChild(doc.createTextNode(content))
         return node
 
     def create_outline(self, doc, channel):
-        """
-        Creates a OPML outline as XML Element node in a
-        document for the supplied channel.
-        """
+        """Return an OPML outline as XML Element node in the supplied document."""
         outline = doc.createElement('outline')
         outline.setAttribute('title', channel.title)
         outline.setAttribute('text', channel.description)
@@ -146,11 +145,15 @@ class Exporter(object):
         outline.setAttribute('type', self.FEED_TYPE)
         return outline
 
+    def create_section(self, doc, name):
+        """Create an empty OPML outline element used to divide sections."""
+        section = doc.createElement('outline')
+        section.setAttribute('title', name)
+        section.setAttribute('text', name)
+        return section
+
     def write(self, channels):
-        """
-        Creates a XML document containing metadata for each
-        channel object in the "channels" parameter, which
-        should be a list of channel objects.
+        """Write an XML document containing metadata for each channel in channels.
 
         OPML 2.0 specification: http://www.opml.org/spec2
 
@@ -172,8 +175,16 @@ class Exporter(object):
         opml.appendChild(head)
 
         body = doc.createElement('body')
+
+        sections = {}
         for channel in channels:
-            body.appendChild(self.create_outline(doc, channel))
+            if channel.section not in sections.keys():
+                sections[channel.section] = self.create_section(doc, channel.section)
+            sections[channel.section].appendChild(self.create_outline(doc, channel))
+
+        for section in sections.values():
+            body.appendChild(section)
+
         opml.appendChild(body)
 
         try:

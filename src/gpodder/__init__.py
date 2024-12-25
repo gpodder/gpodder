@@ -17,12 +17,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-# This metadata block gets parsed by setup.py - use single quotes only
+# This metadata block gets parsed by setup.py and pyproject.toml - use single quotes only
 __tagline__ = 'Media aggregator and podcast client'
 __author__ = 'Thomas Perl <thp@gpodder.org>'
-__version__ = '3.11.4+1'
-__date__ = '2023-10-12'
-__copyright__ = '© 2005-2023 The gPodder Team'
+__version__ = '3.11.5+1'
+__date__ = '2024-12-25'
+__copyright__ = '© 2005-2024 The gPodder Team'
 __license__ = 'GNU General Public License, version 3 or later'
 __url__ = 'http://gpodder.org/'
 
@@ -233,11 +233,12 @@ DEFAULT_PLUGINS = [
 
 
 def load_plugins():
-    """Load (non-essential) plugin modules
+    """Load (non-essential) plugin modules.
 
     This loads a default set of plugins, but you can use
     the environment variable "GPODDER_PLUGINS" to modify
-    the list of plugins."""
+    the list of plugins.
+    """
     PLUGINS = os.environ.get('GPODDER_PLUGINS', None)
     if PLUGINS is None:
         PLUGINS = DEFAULT_PLUGINS

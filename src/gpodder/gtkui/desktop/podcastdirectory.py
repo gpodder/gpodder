@@ -27,8 +27,9 @@
 import html
 import logging
 import os
+import traceback
 
-from gi.repository import GdkPixbuf, GLib, Gtk, Handy, Pango
+from gi.repository import Gdk, GdkPixbuf, GLib, Gtk, Handy, Pango
 
 import gpodder
 from gpodder import directory, util
@@ -42,21 +43,25 @@ logger = logging.getLogger(__name__)
 
 
 class DirectoryPodcastsModel(Gtk.ListStore):
-    C_SELECTED, C_MARKUP, C_TITLE, C_URL = list(range(4))
+    C_SELECTED, C_MARKUP, C_TITLE, C_URL, C_SECTION = list(range(5))
 
     def __init__(self, callback_can_subscribe):
-        Gtk.ListStore.__init__(self, bool, str, str, str)
+        Gtk.ListStore.__init__(self, bool, str, str, str, str)
         self.callback_can_subscribe = callback_can_subscribe
 
     def load(self, directory_entries):
         self.clear()
         for entry in directory_entries:
             if entry.subscribers != -1:
-                self.append((False, '%s (%d)\n<small>%s</small>' % (html.escape(entry.title),
-                    entry.subscribers, html.escape(entry.url)), entry.title, entry.url))
+                subscribers_part = '(%d)' % entry.subscribers
             else:
-                self.append((False, '%s\n<small>%s</small>' % (html.escape(entry.title),
-                    html.escape(entry.url)), entry.title, entry.url))
+                subscribers_part = ''
+            if entry.section:
+                section_part = '%s\n' % (html.escape(entry.section))
+            else:
+                section_part = ''
+            self.append((False, '%s%s%s\n<small>%s</small>' % (section_part, html.escape(entry.title),
+                subscribers_part, html.escape(entry.url)), entry.title, entry.url, entry.section))
         self.callback_can_subscribe(len(self.get_selected_podcasts()) > 0)
 
     def toggle(self, path):
@@ -69,7 +74,7 @@ class DirectoryPodcastsModel(Gtk.ListStore):
         self.callback_can_subscribe(len(self.get_selected_podcasts()) > 0)
 
     def get_selected_podcasts(self):
-        return [(row[self.C_TITLE], row[self.C_URL]) for row in self if row[self.C_SELECTED]]
+        return [(row[self.C_TITLE], row[self.C_URL], row[self.C_SECTION]) for row in self if row[self.C_SELECTED]]
 
 
 class DirectoryProvidersModel(Gtk.ListStore):
@@ -80,17 +85,30 @@ class DirectoryProvidersModel(Gtk.ListStore):
     def __init__(self, providers):
         Gtk.ListStore.__init__(self, int, str, GdkPixbuf.Pixbuf, object)
         for provider in providers:
-            self.add_provider(provider() if provider else None)
+            instance = provider() if provider else None
+            if instance is not None and instance.kind == directory.Provider.PROVIDER_TAGCLOUD:
+                logger.warning("PROVIDER_TAGCLOUD is unsupported")
+            else:
+                self.add_provider(instance)
 
     def add_provider(self, provider):
         if provider is None:
             self.append(self.SEPARATOR)
         else:
-            try:
-                pixbuf = GdkPixbuf.Pixbuf.new_from_file(os.path.join(gpodder.images_folder, provider.icon)) if provider.icon else None
-            except Exception as e:
-                logger.warning('Could not load icon: %s (%s)', provider.icon or '-', e)
-                pixbuf = None
+            pixbuf = None
+            if provider.icon:
+                search_path = {gpodder.images_folder, }
+                # let an extension provide an icon by putting it next to the source code
+                for e in gpodder.user_extensions.filenames:
+                    search_path.add(os.path.dirname(e))
+                for d in search_path:
+                    path_to_try = os.path.join(d, provider.icon)
+                    if os.path.exists(path_to_try):
+                        try:
+                            pixbuf = GdkPixbuf.Pixbuf.new_from_file(path_to_try)
+                            break
+                        except Exception as e:
+                            logger.warning('Could not load icon: %s (%s)', provider.icon, e)
             self.append((Pango.Weight.NORMAL, provider.name, pixbuf, provider))
 
     def is_row_separator(self, model, it):
@@ -113,16 +131,17 @@ class gPodderPodcastDirectory(BuilderWidget):
         self.providers_model = DirectoryProvidersModel(directory.PROVIDERS)
         self.podcasts_model = DirectoryPodcastsModel(self.on_can_subscribe_changed)
         self.current_provider = None
-        self.podcasts_progress_indicator = None
 
         self.setup_providers_treeview()
         self.setup_podcasts_treeview()
-        self.setup_tag_cloud()
 
-        selection = self.tv_providers.get_selection()
-        selection.select_path((0,))
-        self.on_tv_providers_row_activated(self.tv_providers, (0,), None)
+        accel = Gtk.AccelGroup()
+        accel.connect(Gdk.KEY_Escape, 0, Gtk.AccelFlags.VISIBLE, self.on_escape)
+        self.main_window.add_accel_group(accel)
 
+        self._config.connect_gtk_window(self.main_window, 'podcastdirectory', True)
+
+        self.btnBack.hide()
         self.main_window.show()
 
         def show_flap(x):
@@ -132,8 +151,10 @@ class gPodderPodcastDirectory(BuilderWidget):
         GLib.timeout_add(500, show_flap, None)
 
     def download_opml_file(self, filename):
-        self.providers_model.add_provider(directory.FixedOpmlFileProvider(filename))
+        provider = directory.FixedOpmlFileProvider(filename)
+        self.providers_model.add_provider(provider)
         self.tv_providers.set_cursor(len(self.providers_model) - 1)
+        self.use_provider(provider, allow_back=False)
 
     def setup_podcasts_treeview(self):
         column = Gtk.TreeViewColumn('')
@@ -152,7 +173,7 @@ class gPodderPodcastDirectory(BuilderWidget):
         self.tv_podcasts.append_column(column)
 
         self.tv_podcasts.set_model(self.podcasts_model)
-        self.podcasts_model.append((False, 'a', 'b', 'c'))
+        self.podcasts_model.append((False, 'a', 'b', 'c', 'd'))
 
     def setup_providers_treeview(self):
         column = Gtk.TreeViewColumn('')
@@ -170,16 +191,7 @@ class gPodderPodcastDirectory(BuilderWidget):
 
         self.tv_providers.set_model(self.providers_model)
 
-    def setup_tag_cloud(self):
-        self.tag_cloud = TagCloud()
-        self.tag_cloud.set_size_request(-1, 130)
-        self.tag_cloud.show_all()
-        self.sw_tagcloud.add(self.tag_cloud)
-
-        self.tag_cloud.connect('selected', self.on_tag_selected)
-
-    def on_tag_selected(self, tag_cloud, tag):
-        self.obtain_podcasts_with(lambda: self.current_provider.on_tag(tag))
+        self.tv_providers.connect("row-activated", self.on_tv_providers_row_activated)
 
     def on_tv_providers_row_activated(self, treeview, path, column):
         it = self.providers_model.get_iter(path)
@@ -194,9 +206,10 @@ class gPodderPodcastDirectory(BuilderWidget):
             if self.directory_flap.get_folded():
                 self.directory_flap.set_reveal_flap(False)
 
-    def use_provider(self, provider):
+    def use_provider(self, provider, allow_back=True):
         self.podcasts_model.clear()
         self.current_provider = provider
+        self.main_window.set_title(provider.name)
 
         if provider.kind == directory.Provider.PROVIDER_SEARCH:
             self.lb_search.set_text(_('Search:'))
@@ -207,20 +220,6 @@ class gPodderPodcastDirectory(BuilderWidget):
         elif provider.kind == directory.Provider.PROVIDER_FILE:
             self.lb_search.set_text(_('Filename:'))
             self.bt_search.set_label(_('Open'))
-        elif provider.kind == directory.Provider.PROVIDER_TAGCLOUD:
-            self.tag_cloud.clear_tags()
-
-            @util.run_in_background
-            def load_tags():
-                try:
-                    tags = [(t.tag, t.weight) for t in provider.get_tags()]
-                except Exception as e:
-                    logger.warning('Got exception while loading tags: %s', e)
-                    tags = []
-
-                @util.idle_add
-                def update_ui():
-                    self.tag_cloud.set_tags(tags)
         elif provider.kind == directory.Provider.PROVIDER_STATIC:
             self.obtain_podcasts_with(provider.on_static)
 
@@ -232,74 +231,82 @@ class gPodderPodcastDirectory(BuilderWidget):
             util.idle_add(self.en_query.grab_focus)
         else:
             self.hb_text_entry.hide()
-
-        if provider.kind == directory.Provider.PROVIDER_TAGCLOUD:
-            self.sw_tagcloud.show()
-        else:
-            self.sw_tagcloud.hide()
-
-    def on_tv_providers_cursor_changed(self, treeview):
-        path, column = treeview.get_cursor()
-        if path is not None:
-            self.on_tv_providers_row_activated(treeview, path, column)
+        self.progressBar.set_fraction(0)
+        self.progressLabel.set_label('')
+        self.txtError.hide()
+        self.stState.set_visible_child(self.stPodcasts)
+        self.btnBack.set_visible(allow_back)
 
     def obtain_podcasts_with(self, callback):
-        if self.podcasts_progress_indicator is not None:
-            self.podcasts_progress_indicator.on_finished()
-
-        self.podcasts_progress_indicator = ProgressIndicator(_('Loading podcasts'),
-                _('Please wait while the podcast list is downloaded'),
-                parent=self.main_window)
+        self.progressBar.set_fraction(0.1)
+        self.progressLabel.set_text(_('Please wait while the podcast list is downloaded'))
+        self.txtError.hide()
+        self.stackProgressErrorPodcasts.set_visible_child(self.stProgError)
+        self.selectbox.hide()
+        self.btnOK.hide()
 
         original_provider = self.current_provider
 
         self.en_query.set_sensitive(False)
         self.bt_search.set_sensitive(False)
-        self.tag_cloud.set_sensitive(False)
         self.podcasts_model.clear()
 
         @util.run_in_background
         def download_data():
+            podcasts = []
+            error = None
             try:
                 podcasts = callback()
+            except directory.JustAWarning as e:
+                error = e
             except Exception as e:
-                logger.warning('Got exception while loading podcasts: %s', e)
-                podcasts = []
+                logger.warning(
+                    'Got exception while loading podcasts: %r', e,
+                    exc_info=True)
+                error = e
 
             @util.idle_add
             def update_ui():
-                if self.podcasts_progress_indicator is not None:
-                    self.podcasts_progress_indicator.on_finished()
-                    self.podcasts_progress_indicator = None
+                self.progressBar.set_fraction(1)
 
                 if original_provider == self.current_provider:
                     self.podcasts_model.load(podcasts or [])
+                    if error:
+                        self.progressLabel.set_text(_("Error"))
+                        if isinstance(error, directory.JustAWarning):
+                            self.txtError.get_buffer().set_text(error.warning)
+                        else:
+                            self.txtError.get_buffer().set_text(_("Error: %s\n\n%s") % (error, "".join(traceback.format_exception(error))))
+                        self.txtError.show()
+                    elif not podcasts:
+                        self.progressLabel.set_text(_("No results"))
+                        self.txtError.get_buffer().set_text(_("Sorry, no podcasts were found"))
+                        self.txtError.show()
+                    else:
+                        self.stackProgressErrorPodcasts.set_visible_child(self.sw_podcasts)
+                        self.selectbox.show()
+                        self.btnOK.show()
                 else:
                     logger.warning('Ignoring update from old thread')
 
                 self.en_query.set_sensitive(True)
                 self.bt_search.set_sensitive(True)
-                self.tag_cloud.set_sensitive(True)
                 if self.en_query.get_realized():
                     self.en_query.grab_focus()
 
     def on_bt_search_clicked(self, widget):
         if self.current_provider is None:
             return
-
         query = self.en_query.get_text()
 
         @self.obtain_podcasts_with
         def load_data():
-            try:
-                if self.current_provider.kind == directory.Provider.PROVIDER_SEARCH:
-                    return self.current_provider.on_search(query)
-                elif self.current_provider.kind == directory.Provider.PROVIDER_URL:
-                    return self.current_provider.on_url(query)
-                elif self.current_provider.kind == directory.Provider.PROVIDER_FILE:
-                    return self.current_provider.on_file(query)
-            except Exception as e:
-                logger.warning('Got exception while loading podcasts: %s', e)
+            if self.current_provider.kind == directory.Provider.PROVIDER_SEARCH:
+                return self.current_provider.on_search(query)
+            elif self.current_provider.kind == directory.Provider.PROVIDER_URL:
+                return self.current_provider.on_url(query)
+            elif self.current_provider.kind == directory.Provider.PROVIDER_FILE:
+                return self.current_provider.on_file(query)
 
     def on_can_subscribe_changed(self, can_subscribe):
         self.btnOK.set_sensitive(can_subscribe)
@@ -321,6 +328,18 @@ class gPodderPodcastDirectory(BuilderWidget):
 
     def on_btnCancel_clicked(self, widget, *args):
         self.main_window.destroy()
+
+    def on_btnBack_clicked(self, widget, *args):
+        self.stState.set_visible_child(self.stProviders)
+        widget.hide()
+        self.selectbox.hide()
+        self.btnOK.hide()
+
+    def on_escape(self, *args, **kwargs):
+        if self.stState.get_visible_child() == self.stProviders:
+            self.main_window.destroy()
+        else:
+            self.on_btnBack_clicked(self.btnBack)
 
     def on_providers_show_toggled(self, togglebutton, *args):
         if self.directory_flap.get_folded():

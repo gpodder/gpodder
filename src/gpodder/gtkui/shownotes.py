@@ -294,7 +294,8 @@ class gPodderShownotesText(gPodderShownotes):
         return False
 
     def hyperlink_at_pos(self, pos):
-        """
+        """Return the hyperlink in the given position, or None.
+
         :param int pos: offset in text buffer
         :return str: hyperlink target at pos if any or None
         """

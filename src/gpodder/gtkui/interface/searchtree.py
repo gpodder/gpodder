@@ -24,11 +24,12 @@ from .common import TreeViewHelper
 
 
 class SearchTree:
+    """Handle showing/hiding the search box for podcast or episode treeviews.
+
+    Also handles searching for text entered in the search entry.
+    Automatically attaches to entry signals on creation.
     """
-        handle showing/hiding the search box for podcast or episode treeviews,
-        as well as searching for text entered in the search entry.
-        Automatically attaches to entry signals on creation.
-    """
+
     def __init__(self, search_box, search_entry, tree, model, config):
         self.search_box = search_box
         self.search_entry = search_entry

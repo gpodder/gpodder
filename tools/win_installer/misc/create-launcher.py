@@ -7,7 +7,7 @@
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
 
-"""Creates simple Python .exe launchers for gui and cli apps
+"""Creates simple Python .exe launchers for gui and cli apps.
 
 ./create-launcher.py "3.8.0" <target-dir>
 """
@@ -22,7 +22,7 @@ import tempfile
 
 
 def build_resource(rc_path, out_path):
-    """Raises subprocess.CalledProcessError"""
+    """Can raise subprocess.CalledProcessError."""
 
     def is_64bit():
         return struct.calcsize("P") == 8
@@ -66,53 +66,11 @@ def get_launcher_code(entry_point):
 #include "Python.h"
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#include <tchar.h>
-
-#define BUFSIZE 32768
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                     PWSTR lpCmdLine, int nCmdShow)
 {
     int result;
-
-    DWORD retval = 0;
-    BOOL success;
-    WCHAR buffer[BUFSIZE] = {0};
-    WCHAR* lppPart[1] = {NULL};
-
-    retval = GetFullPathNameW(__wargv[0], BUFSIZE, buffer, lppPart);
-
-    if (retval == 0)
-    {
-        // It's bad, but can be ignored
-        printf ("GetFullPathName failed (%%ld)\\n", GetLastError());
-    }
-    else if (retval < BUFSIZE)
-    {
-        if (*lppPart != NULL)
-        {
-            lppPart[0][-1] = 0;
-            printf("Calling SetDllDirectoryW(%%ls)\\n", buffer);
-            success = SetDllDirectoryW(buffer);
-            if (success)
-            {
-                printf("Successfully SetDllDirectoryW\\n");
-            }
-            else
-            {
-                printf ("SetDllDirectoryW failed (%%ld)\\n", GetLastError());
-            }
-        }
-        else
-        {
-            printf ("E: GetFullPathName didn't return filename\\n");
-        }
-    }
-    else
-    {
-        printf ("GetFullPathName buffer too small (required %%ld)\\n", retval);
-        return -1; // this shouldn't happen
-    }
 
     Py_NoUserSiteDirectory = 1;
     Py_IgnoreEnvironmentFlag = 1;
@@ -134,6 +92,7 @@ def get_resource_code(filename, file_version, file_desc, icon_path,
                       product_name, product_version, company_name):
 
     template = """\
+#include <winuser.h>
 1 ICON "%(icon_path)s"
 1 VERSIONINFO
 FILEVERSION     %(file_version_list)s
@@ -168,7 +127,8 @@ END
     product_version_list = to_ver_list(product_version)
 
     return template % {
-        "icon_path": icon_path, "file_version_list": file_version_list,
+        "icon_path": icon_path,
+        "file_version_list": file_version_list,
         "product_version_list": product_version_list,
         "file_version": file_version, "product_version": product_version,
         "company_name": company_name, "filename": filename,
@@ -177,8 +137,8 @@ END
     }
 
 
-def build_launcher(out_path, icon_path, file_desc, product_name, product_version,
-                   company_name, entry_point, is_gui):
+def build_launcher(out_path, icon_path, file_desc, product_name,
+                   product_version, company_name, entry_point, is_gui):
 
     src_ico = os.path.abspath(icon_path)
     target = os.path.abspath(out_path)
@@ -195,7 +155,8 @@ def build_launcher(out_path, icon_path, file_desc, product_name, product_version
         with open("launcher.rc", "w") as h:
             h.write(get_resource_code(
                 os.path.basename(target), file_version, file_desc,
-                "launcher.ico", product_name, product_version, company_name))
+                "launcher.ico",
+                product_name, product_version, company_name))
 
         build_resource("launcher.rc", "launcher.res")
         build_exe("launcher.c", "launcher.res", is_gui, target)
@@ -215,17 +176,20 @@ def main():
 
     build_launcher(
         os.path.join(target, "gpodder.exe"),
-        os.path.join(misc, "gpodder.ico"), "gPodder", "gPodder",
+        os.path.join(misc, "gpodder.ico"),
+        "gPodder", "gPodder",
         version, company_name, "gpodder_launch.gpodder:main", True)
 
     build_launcher(
         os.path.join(target, "gpodder-cmd.exe"),
-        os.path.join(misc, "gpodder.ico"), "gPodder", "gPodder",
+        os.path.join(misc, "gpodder.ico"),
+        "gPodder", "gPodder",
         version, company_name, "gpodder_launch.gpodder:main", False)
 
     build_launcher(
         os.path.join(target, "gpo.exe"),
-        os.path.join(misc, "gpo.ico"), "gPodder CLI", "gpo",
+        os.path.join(misc, "gpo.ico"),
+        "gPodder CLI", "gpo",
         version, company_name, "gpodder_launch.gpo:main", False)
 
 

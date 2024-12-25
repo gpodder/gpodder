@@ -60,7 +60,7 @@ PLAYLIST_RE = re.compile(r'https://www.youtube.com/feeds/videos.xml\?playlist_id
 
 
 def youtube_parsedate(s):
-    """Parse a string into a unix timestamp
+    """Parse a string into a unix timestamp.
 
     Only strings provided by youtube-dl API are
     parsed with this function (20170920).
@@ -71,18 +71,16 @@ def youtube_parsedate(s):
 
 
 def video_guid(video_id):
-    """
-    generate same guid as youtube
-    """
+    """Generate same guid as youtube."""
     return 'yt:video:{}'.format(video_id)
 
 
 class YoutubeCustomDownload(download.CustomDownload):
-    """
-    Represents the download of a single episode using youtube-dl.
+    """Represents the download of a single episode using youtube-dl.
 
     Actual youtube-dl interaction via gPodderYoutubeDL.
     """
+
     def __init__(self, ytdl, url, episode):
         self._ytdl = ytdl
         self._url = url
@@ -100,9 +98,7 @@ class YoutubeCustomDownload(download.CustomDownload):
         self._partial_filename = val
 
     def retrieve_resume(self, tempname, reporthook=None):
-        """
-        called by download.DownloadTask to perform the download.
-        """
+        """Called by download.DownloadTask to perform the download."""  # noqa: D401
         self._reporthook = reporthook
         # outtmpl: use given tempname by DownloadTask
         # (escape % because outtmpl used as a string template by youtube-dl)
@@ -177,9 +173,8 @@ class YoutubeCustomDownload(download.CustomDownload):
 
 
 class YoutubeFeed(model.Feed):
-    """
-    Represents the youtube feed for model.PodcastChannel
-    """
+    """Represents the youtube feed for model.PodcastChannel."""
+
     def __init__(self, url, cover_url, description, max_episodes, ie_result, downloader):
         self._url = url
         self._cover_url = cover_url
@@ -222,12 +217,18 @@ class YoutubeFeed(model.Feed):
         return self._cover_url
 
     def get_http_etag(self):
-        """ :return str: optional -- last HTTP etag header, for conditional request next time """
+        """Return the last HTTP etag header, for conditional request next time.
+
+        :return str: optional.
+        """
         # youtube-dl doesn't provide it!
         return None
 
     def get_http_last_modified(self):
-        """ :return str: optional -- last HTTP Last-Modified header, for conditional request next time """
+        """Return the last HTTP Last-Modified header, for conditional request next time.
+
+        :return str: optional
+        """
         # youtube-dl doesn't provide it!
         return None
 
@@ -274,8 +275,8 @@ class YoutubeFeed(model.Feed):
         return episodes, all_seen_guids
 
     def get_next_page(self, channel, max_episodes):
-        """
-        Paginated feed support (RFC 5005).
+        """Paginated feed support (RFC 5005).
+
         If the feed is paged, return the next feed page.
         Returned page will in turn be asked for the next page, until None is returned.
         :return feedcore.Result: the next feed's page,
@@ -322,7 +323,7 @@ class gPodderYoutubeDL(download.CustomDownloader):
             self._ydl_opts['logger'] = logger
 
     def add_format(self, gpodder_config, opts, fallback=None):
-        """ construct youtube-dl -f argument from configured format. """
+        """Construct youtube-dl -f argument from configured format."""
         # You can set a custom format or custom formats by editing the config for key
         # `youtube.preferred_fmt_ids`
         #
@@ -352,6 +353,12 @@ class gPodderYoutubeDL(download.CustomDownloader):
             'subtitleslangs': ['all'] if subs else [],
             'postprocessors': [{'key': 'FFmpegEmbedSubtitle'}] if subs else [],
         }
+
+        # Need the proxy_url from src/gpodder/config.py:get_proxies_from_config()
+        if gpodder.config._proxies:
+            opts['proxy'] = gpodder.config._proxies['http']
+            logger.debug(f"Setting proxy from network setting proxy: {opts['proxy']}")
+
         opts.update(self._ydl_opts)
         self.add_format(self.gpodder_config, opts)
         with youtube_dl.YoutubeDL(opts) as ydl:
@@ -371,6 +378,12 @@ class gPodderYoutubeDL(download.CustomDownloader):
         self.add_format(self.gpodder_config, opts, fallback='18')
         opts.update(self._ydl_opts)
         new_entries = []
+
+        # Need the proxy_url from src/gpodder/config.py:get_proxies_from_config()
+        if gpodder.config._proxies:
+            opts['proxy'] = gpodder.config._proxies['http']
+            logger.debug(f"Setting proxy from network setting proxy: {opts['proxy']}")
+
         # refresh videos one by one to catch single videos blocked by youtube
         for e in ie_result.get('entries', []):
             tmp = {k: v for k, v in ie_result.items() if k != 'entries'}
@@ -408,6 +421,12 @@ class gPodderYoutubeDL(download.CustomDownloader):
             'youtube_include_dash_manifest': False,  # only interested in video title and id
         }
         opts.update(self._ydl_opts)
+
+        # Need the proxy_url from src/gpodder/config.py:get_proxies_from_config()
+        if gpodder.config._proxies:
+            opts['proxy'] = gpodder.config._proxies['http']
+            logger.debug(f"Setting proxy from network setting proxy: {opts['proxy']}")
+
         with youtube_dl.YoutubeDL(opts) as ydl:
             ie_result = ydl.extract_info(url, download=False, process=False)
             result_type, has_playlist = extract_type(ie_result)
@@ -429,9 +448,10 @@ class gPodderYoutubeDL(download.CustomDownloader):
             YoutubeFeed(url, cover_url, description, max_episodes, ie_result, self))
 
     def fetch_channel(self, channel, max_episodes=0):
-        """
-        called by model.gPodderFetcher to get a custom feed.
-        :returns feedcore.Result: a YoutubeFeed or None if channel is not a youtube channel or playlist
+        """Return a custom feed. Called by model.gPodderFetcher.
+
+        :returns feedcore.Result: A YoutubeFeed or None if channel is not
+                                  a youtube channel or playlist
         """
         if not self.my_config.manage_channel:
             return None
@@ -475,9 +495,7 @@ class gPodderYoutubeDL(download.CustomDownloader):
         return False
 
     def custom_downloader(self, unused_config, episode):
-        """
-        called from registry.custom_downloader.resolve
-        """
+        """Called from registry.custom_downloader.resolve."""  # noqa: D401
         if not self.force and not self.my_config.manage_downloads:
             return None
 

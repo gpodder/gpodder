@@ -78,7 +78,7 @@ def draw_rounded_rectangle(ctx, x, y, w, h, r=10, left_side_width=None,
 
 
 def rounded_rectangle(ctx, x, y, width, height, radius=4.):
-    """Simple rounded rectangle algorithm
+    """Return a rounded rectangle.
 
     http://www.cairographics.org/samples/rounded_rectangle/
     """
@@ -311,9 +311,9 @@ def cake_size_from_widget(widget=None):
 
 
 def cairo_surface_to_pixbuf(s):
-    """
-    Converts a Cairo surface to a Gtk Pixbuf by
-    encoding it as PNG and using the PixbufLoader.
+    """Convert a Cairo surface to a Gtk Pixbuf.
+
+    Conversion is made by encoding it as PNG and using the PixbufLoader.
     """
     bio = io.BytesIO()
     try:
@@ -378,7 +378,8 @@ def progressbar_pixbuf(width, height, percentage):
 
 
 def get_background_color(state=Gtk.StateFlags.NORMAL, widget=Gtk.TreeView()):
-    """
+    """Get the background color.
+
     @param state state flag (e.g. Gtk.StateFlags.SELECTED to get selected background)
     @param widget specific widget to get info from.
            defaults to TreeView which has all one usually wants.
@@ -394,7 +395,8 @@ def get_background_color(state=Gtk.StateFlags.NORMAL, widget=Gtk.TreeView()):
 
 
 def get_foreground_color(state=Gtk.StateFlags.NORMAL, widget=Gtk.TreeView()):
-    """
+    """Get the foreground color.
+
     @param state state flag (e.g. Gtk.StateFlags.SELECTED to get selected text color)
     @param widget specific widget to get info from
            defaults to TreeView which has all one usually wants.
@@ -410,9 +412,9 @@ def get_foreground_color(state=Gtk.StateFlags.NORMAL, widget=Gtk.TreeView()):
 
 
 def investigate_widget_colors(type_classes_and_widgets):
-    """
-    investigate using Gtk.StyleContext to get widget style properties
-    I tried to compare gettings values from static and live widgets.
+    """Investigate using Gtk.StyleContext to get widget style properties.
+
+    I tried to compare values from static and live widgets.
     To sum up, better use the live widget, because you'll get the correct path, classes, regions automatically.
     See "CSS Nodes" in widget documentation for classes and sub-nodes (=regions).
     WidgetPath and Region are replaced by CSSNodes in gtk4.
@@ -484,9 +486,9 @@ def investigate_widget_colors(type_classes_and_widgets):
 
 
 def draw_iconcell_scale(column, cell, model, iterator, scale):
-    """
-    Draw cell's pixbuf to a surface with proper scaling for high resolution
-    displays. To be used as gtk.TreeViewColumn.set_cell_data_func.
+    """Draw cell's pixbuf to a surface with proper scaling for high resolution displays.
+
+    To be used as gtk.TreeViewColumn.set_cell_data_func.
 
     :param column: gtk.TreeViewColumn (ignored)
     :param cell: gtk.CellRenderer

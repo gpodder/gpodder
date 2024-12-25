@@ -43,7 +43,7 @@ from requests.packages.urllib3.exceptions import MaxRetryError
 from requests.packages.urllib3.util.retry import Retry
 
 import gpodder
-from gpodder import registry, util
+from gpodder import config, registry, util
 
 logger = logging.getLogger(__name__)
 
@@ -53,14 +53,14 @@ REDIRECT_RETRIES = 3
 
 
 class CustomDownload(ABC):
-    """ abstract class for custom downloads. DownloadTask call retrieve_resume() on it """
+    """Abstract class for custom downloads. DownloadTask call retrieve_resume() on it."""
 
     @property
     @abstractmethod
     def partial_filename(self):
-        """
-        Full path to the temporary file actually being downloaded (downloaders
-        may not support setting a tempname).
+        """Full path to the temporary file actually being downloaded.
+
+        (downloaders may not support setting a tempname).
         """
         ...
 
@@ -71,7 +71,8 @@ class CustomDownload(ABC):
 
     @abstractmethod
     def retrieve_resume(self, tempname, reporthook):
-        """
+        """Download files, return (headers, real_url).
+
         :param str tempname: temporary filename for the download
         :param func(number, number, number) reporthook: callback for download progress (count, blockSize, totalSize)
         :return dict(str, str), str: (headers, real_url)
@@ -88,12 +89,11 @@ class CustomDownloader(ABC):
 
     @abstractmethod
     def custom_downloader(self, config, episode):
-        """
-        if this custom downloader has a custom download method (e.g. youtube-dl),
-        return a CustomDownload. Else return None
+        """Return a CustomDownload if this downloader has a custom download method.
+
         :param config: gpodder config (e.g. to get preferred video format)
         :param model.PodcastEpisode episode: episode to download
-        :return CustomDownload: object used to download the episode
+        :return CustomDownload: object used to download the episode or None
         """
         return None
 
@@ -122,8 +122,7 @@ class ContentRange(object):
     # LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
     # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
     # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-    """
-    Represents the Content-Range header
+    """Represents the Content-Range header.
 
     This header is ``start-stop/length``, where stop and length can be
     ``*`` (represented as None in the attributes).
@@ -154,7 +153,8 @@ class ContentRange(object):
         return 'bytes %s-%s/%s' % (self.start, stop, length)
 
     def __iter__(self):
-        """
+        """Iterate through a ContentRange.
+
         Mostly so you can unpack this, like:
 
             start, stop, length = res.content_range
@@ -163,9 +163,7 @@ class ContentRange(object):
 
     @classmethod
     def parse(cls, value):
-        """
-        Parse the header.  May return None if it cannot parse.
-        """
+        """Parse the header.  May return None if it cannot parse."""
         if value is None:
             return None
         value = value.strip()
@@ -228,7 +226,7 @@ class DownloadURLOpener:
         self.max_retries = max_retries
 
     def init_session(self):
-        """ init a session with our own retry codes + retry count """
+        """Init a session with our own retry codes + retry count."""
         # I add a few retries for redirects but it means that I will allow max_retries + REDIRECT_RETRIES
         # if encountering max_retries connect and REDIRECT_RETRIES read for instance
         retry_strategy = Retry(
@@ -248,12 +246,11 @@ class DownloadURLOpener:
 # Also based on http://mail.python.org/pipermail/python-list/2001-October/110069.html
 
     def retrieve_resume(self, url, filename, reporthook=None, data=None, disable_auth=False):
-        """Download files from an URL; return (headers, real_url)
+        """Download files from an URL; return (headers, real_url).
 
         Resumes a download if the local filename exists and
         the server supports download resuming.
         """
-
         current_size = 0
         tfp = None
         headers = {
@@ -284,11 +281,14 @@ class DownloadURLOpener:
         # Fix a problem with bad URLs that are not encoded correctly (bug 549)
         url = url.translate(self.ESCAPE_CHARS)
 
+        proxies = config._proxies
         session = self.init_session()
+        logger.debug(f"DownloadURLOpener.retrieve_resume(): url: {url}, proxies: {proxies}")
         with session.get(url,
                          headers=headers,
                          stream=True,
                          auth=auth,
+                         proxies=proxies,
                          timeout=gpodder.SOCKET_TIMEOUT) as resp:
             try:
                 resp.raise_for_status()
@@ -468,8 +468,7 @@ class DownloadQueueManager(object):
                 return True
 
     def __spawn_threads(self):
-        """Spawn new worker threads if necessary
-        """
+        """Spawn new worker threads if necessary."""
         if not self.tasks.enabled:
             return
 
@@ -502,8 +501,7 @@ class DownloadQueueManager(object):
                 util.run_in_background(worker.run)
 
     def queue_task(self, task):
-        """Marks a task as queued
-        """
+        """Mark a task as queued."""
         self.tasks.queue_task(task)
         self.__spawn_threads()
 
@@ -512,7 +510,7 @@ class DownloadQueueManager(object):
 
 
 class DownloadTask(object):
-    """An object representing the download task of an episode
+    """An object representing the download task of an episode.
 
     You can create a new download task like this:
 
@@ -579,12 +577,13 @@ class DownloadTask(object):
 
     The UI can call the method "notify_as_finished()" to determine if
     this episode still has still to be shown as "finished" download
-    in a notification window. This will return True only the first time
+    in a notification window. This will return True only the first time.
     it is called when the status is DONE. After returning True once,
     it will always return False afterwards.
 
     The same thing works for failed downloads ("notify_as_failed()").
     """
+
     # Possible states this download task can be in
     STATUS_MESSAGE = (_('Queued'), _('Queued'), _('Downloading'),
             _('Finished'), _('Failed'), _('Cancelling'), _('Cancelled'), _('Pausing'), _('Paused'))

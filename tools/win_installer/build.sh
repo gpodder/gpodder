@@ -15,9 +15,10 @@ function main {
     [[ -d "${BUILD_ROOT}" ]] && (echo "${BUILD_ROOT} already exists"; exit 1)
 
     # started from the wrong env -> switch
+    MINGW=$(echo "${MINGW_PREFIX}" | sed 's:^/::')
     if [ -n "$MSYSTEM" ] && [ $(echo "$MSYSTEM" | tr '[A-Z]' '[a-z]') != "$MINGW" ]; then
         echo ">>>>> MSYSTEM=${MSYSTEM} - SWITCHING TO ${MINGW} <<<<"
-        "/${MINGW}.exe" "$0"
+        "${MINGW_PREFIX}.exe" "$0"
         echo ">>>>> DONE WITH ${MINGW} ?? <<<<"
         exit $?
     fi
@@ -35,7 +36,7 @@ function main {
 	echo ">>>> cleanup_after <<<<"
     cleanup_after
 	echo ">>>> dump_packages <<<<"
-	dump_packages
+    dump_packages
 	echo ">>>> build_installer <<<<"
     build_installer
 	echo ">>>> build_portable_installer <<<<"

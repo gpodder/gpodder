@@ -33,13 +33,25 @@ from gpodder import opml, util
 _ = gpodder.gettext
 
 
+class JustAWarning(Exception):
+    """Use this exception in providers to avoid a stack trace shown to the user.
+
+    Warning should be an already localized error message.
+    """
+
+    def __init__(self, warning):
+        super().__init__(self, warning)
+        self.warning = warning
+
+
 class DirectoryEntry(object):
-    def __init__(self, title, url, image=None, subscribers=-1, description=None):
+    def __init__(self, title, url, image=None, subscribers=-1, description=None, section=None):
         self.title = title
         self.url = url
         self.image = image
         self.subscribers = subscribers
         self.description = description
+        self.section = section
 
 
 class DirectoryTag(object):
@@ -82,7 +94,7 @@ class Provider(object):
 
 
 def directory_entry_from_opml(url):
-    return [DirectoryEntry(d['title'], d['url'], description=d['description']) for d in opml.Importer(url).items]
+    return [DirectoryEntry(d['title'], d['url'], description=d['description'], section=d['section']) for d in opml.Importer(url).items]
 
 
 def directory_entry_from_mygpo_json(url):
@@ -173,8 +185,18 @@ class SoundcloudSearchProvider(Provider):
         # XXX: This cross-import of the plugin here is bad, but it
         # works for now (no proper plugin architecture...)
         from gpodder.plugins.soundcloud import search_for_user
-
-        return [DirectoryEntry(entry['username'], entry['permalink_url']) for entry in search_for_user(query)]
+        results = search_for_user(query)
+        if isinstance(results, list):
+            return [DirectoryEntry(entry['username'], entry['permalink_url']) for entry in results]
+        # {'code': 401, 'message': '', 'status': '401 - Unauthorized',
+        #   'link': 'https://developers.soundcloud.com/docs/api/explorer/open-api',
+        #  'errors': [], 'error': None}
+        if isinstance(results, dict) and results.get('code') == 401:
+            raise JustAWarning(_("Sorry, soundcloud search doesn't work anymore."))
+        if isinstance(results, dict) and 'code' in results:
+            results['msg'] = results.get('message') or results.get('error') or results.get('status')
+            raise JustAWarning(_("Error querying soundcloud: %(code)s %(msg)s") % results)
+        raise Exception(_("Unexpected response from soundcloud: %r") % (results, ))
 
 
 class FixedOpmlFileProvider(Provider):

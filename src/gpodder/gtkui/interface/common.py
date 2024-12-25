@@ -84,7 +84,7 @@ class BuilderWidget(GtkBuilderWidget):
         util.idle_add(self.show_message, message, title, important, widget)
 
     def get_dialog_parent(self):
-        """Return a Gtk.Window that should be the parent of dialogs"""
+        """Return a Gtk.Window that should be the parent of dialogs."""
         return self.main_window
 
     def show_message_details(self, title, message, details):
@@ -294,6 +294,7 @@ class BuilderWidget(GtkBuilderWidget):
 
 class TreeViewHelper(object):
     """Container for gPodder-specific TreeView attributes."""
+
     LAST_TOOLTIP = '_gpodder_last_tooltip'
     CAN_TOOLTIP = '_gpodder_can_tooltip'
     ROLE = '_gpodder_role'
@@ -334,7 +335,8 @@ class TreeViewHelper(object):
 
     @staticmethod
     def make_popup_position_func(widget):
-        """
+        """Make a function suitable for Gtk.Menu.popup().
+
         :return: suitable function to pass to Gtk.Menu.popup()
         It's used for instance when the popup trigger is the Menu key:
         it will position the menu on top of the selected row even if the mouse is elsewhere
@@ -358,8 +360,7 @@ class TreeViewHelper(object):
 
     @staticmethod
     def get_popup_rectangle(treeview, event, column=0):
-        """
-        :return: Gdk.Rectangle to pass to Gtk.Popover.set_pointing_to()
+        """Return a Gdk.Rectangle to pass to Gtk.Popover.set_pointing_to().
 
         If event is given, return a zero-width and height rectangle with the
         event coordinates. If event is None, get the area of the column in the
@@ -419,7 +420,7 @@ class TreeViewHelper(object):
 
 
 class ExtensionMenuHelper(object):
-    """A helper class to handle extension submenus"""
+    """A helper class to handle extension submenus."""
 
     def __init__(self, gpodder, menu, action_prefix, gen_callback_func=None):
         self.gPodder = gpodder
@@ -452,6 +453,7 @@ class ExtensionMenuHelper(object):
 
 
 class Dummy:
-    """A class for objects with arbitrary attributes (for imitating Gtk Events etc.)"""
+    """Class with arbitrary attributes (for imitating e.g. Gtk Events)."""
+
     def __init__(self, **kwds):
         self.__dict__.update(kwds)

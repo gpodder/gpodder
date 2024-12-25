@@ -104,6 +104,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         self.on_episode_list_selection_changed_id = None
 
+        observer = gpodder.config.get_network_proxy_observer(self.config)
+        self.config.add_observer(observer)
+        # Trigger the global gpodder.config._proxies observer contraption to initialize it.
+        observer("network.", None, None)
+
     def new(self):
         if self.application.want_headerbar:
             # Plus menu button
@@ -600,7 +605,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 finish_progress_callback)
 
     def episode_object_by_uri(self, uri):
-        """Get an episode object given a local or remote URI
+        """Get an episode object given a local or remote URI.
 
         This can be used to quickly access an episode object
         when all we have is its download filename or episode
@@ -649,7 +654,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         return self.application.get_active_window() == self.progress_window
 
     def on_played(self, start, end, total, file_uri):
-        """Handle the "played" signal from a media player"""
+        """Handle the "played" signal from a media player."""
         if start == 0 and end == 0 and total == 0:
             # Ignore bogus play event
             return
@@ -719,7 +724,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             # In the future, we might retrieve the title from gpodder.net here,
             # but for now, we just use "None" to use the feed-provided title
             title = None
-            add_list = [(title, c.action.url)
+            section = None
+            add_list = [(title, c.action.url, section)
                     for c in selected if c.action.is_add]
             remove_list = [c.podcast for c in selected if c.action.is_remove]
 
@@ -1982,8 +1988,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.update_podcast_list_model()
 
     def format_episode_list(self, episode_list, max_episodes=10):
-        """
-        Format a list of episode names for notifications
+        """Format a list of episode names for notifications.
 
         Will truncate long episode names and limit the amount of
         episodes displayed (max_episodes=10).
@@ -2198,11 +2203,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return True
 
     def cover_download_finished(self, channel, pixbuf):
-        """
-        The Cover Downloader calls this when it has finished
-        downloading (or registering, if already downloaded)
-        a new channel cover, which is ready for displaying.
-        """
+        """Called by Cover Downloader when it has finished downloading.
+
+        Also called after registering a new channel cover, which is ready
+        for displaying, if the cover is already downloaded.
+        """  # noqa: D401
         util.idle_add(self.podcast_list_model.add_cover_by_channel,
                 channel, pixbuf)
 
@@ -2250,6 +2255,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         remaining = len(episodes)
         dialog = gPodderExportToLocalFolder(self.main_window,
                                             _config=self.config)
+        episodes.sort(key=lambda episode: episode.published)
         for episode in episodes:
             remaining -= 1
             if episode.was_downloaded(and_exists=True):
@@ -2257,7 +2263,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 assert copy_from is not None
 
                 base, extension = os.path.splitext(copy_from)
-                filename = self.build_filename(episode.sync_filename(), extension)
+                if len(self.config.sendto.custom_file_format) > 0:
+                    filename = self.build_filename(episode.sync_filename(
+                            self.config.sendto.custom_file_format_enabled,
+                            self.config.sendto.custom_file_format), extension)
+                else:
+                    filename = self.build_filename(episode.title, extension)
 
                 try:
                     if allRemainingDefault:
@@ -2439,8 +2450,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.gPodder.set_title(new_title)
 
     def update_episode_list_icons(self, urls=None, selected=False, update_all=False):
-        """
-        Updates the status icons in the episode list.
+        """Update the status icons in the episode list.
 
         If urls is given, it should be a list of URLs
         of episodes that should be updated.
@@ -2670,7 +2680,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def update_podcast_list_model(self, urls=None, selected=False, select_url=None,
             sections_changed=False):
-        """Update the podcast list treeview model
+        """Update the podcast list treeview model.
 
         If urls is given, it should list the URLs of each
         podcast that has to be updated in the list.
@@ -2814,11 +2824,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
         return False
 
     def add_podcast_list(self, podcasts, auth_tokens=None):
-        """Subscribe to a list of podcast given (title, url) pairs
+        """Subscribe to a list of podcast given (title, url) pairs.
 
         If auth_tokens is given, it should be a dictionary
-        mapping URLs to (username, password) tuples."""
-
+        mapping URLs to (username, password) tuples.
+        """
         if auth_tokens is None:
             auth_tokens = {}
 
@@ -2827,9 +2837,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # For a given URL, the desired title (or None)
         title_for_url = {}
 
+        # For a given URL, the desired section (or None)
+        section_for_url = {}
+
         # Sort and split the URL list into five buckets
         queued, failed, existing, worked, authreq = [], [], [], [], []
-        for input_title, input_url in podcasts:
+        for input_title, input_url, input_section in podcasts:
             url = util.normalize_feed_url(input_url)
 
             # Check if it's a YouTube channel, user, or playlist and resolves it to its feed if that's the case
@@ -2846,6 +2859,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             else:
                 # This URL has survived the first round - queue for add
                 title_for_url[url] = input_title
+                section_for_url[url] = input_section
                 queued.append(url)
                 if url != input_url and input_url in auth_tokens:
                     auth_tokens[url] = auth_tokens[input_url]
@@ -2920,7 +2934,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             # If we have authentication data to retry, do so here
             if retry_podcasts:
-                podcasts = [(title_for_url.get(url), url)
+                podcasts = [(title_for_url.get(url), url, section_for_url.get(url))
                         for url in list(retry_podcasts.keys())]
                 self.add_podcast_list(podcasts, retry_podcasts)
                 # This will NOT show new episodes for podcasts that have
@@ -2946,6 +2960,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             length = len(queued)
             for index, url in enumerate(queued):
                 title = title_for_url.get(url)
+                section = section_for_url.get(url)
                 progress.on_progress(float(index) / float(length))
                 progress.on_message(title or url)
                 try:
@@ -2962,6 +2977,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
                     if title is not None:
                         # Prefer title from subscription source (bug 1711)
                         channel.title = title
+                    if section is not None:
+                        channel.section = section
 
                     if username is not None and channel.auth_username is None and \
                             password is not None and channel.auth_password is None:
@@ -2999,7 +3016,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             util.idle_add(on_after_update)
 
     def find_episode(self, podcast_url, episode_url):
-        """Find an episode given its podcast and episode URL
+        """Find an episode given its podcast and episode URL.
 
         The function will return a PodcastEpisode object if
         the episode is found, or None if it's not found.
@@ -3013,7 +3030,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         return None
 
     def process_received_episode_actions(self):
-        """Process/merge episode actions from gpodder.net
+        """Process/merge episode actions from gpodder.net.
 
         This function will merge all changes received from
         the server to the local database and update the
@@ -3220,20 +3237,20 @@ class gPodder(BuilderWidget, dbus.service.Object):
             util.idle_add(update_feed_cache_finish_callback, new_episodes)
 
     def on_gPodder_delete_event(self, *args):
-        """Called when the GUI wants to close the window
-        Displays a confirmation dialog (and closes/hides gPodder)
-        """
+        """Called when the GUI wants to close the window.
 
+        Displays a confirmation dialog (and closes/hides gPodder).
+        """  # noqa: D401
         if self.confirm_quit():
             self.close_gpodder()
 
         return True
 
     def confirm_quit(self):
-        """Called when the GUI wants to close the window
-        Displays a confirmation dialog
-        """
+        """Called when the GUI wants to close the window.
 
+        Displays a confirmation dialog.
+        """  # noqa: D401
         downloading = self.download_status_model.are_downloads_in_progress()
 
         if downloading:
@@ -3256,8 +3273,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             return True
 
     def close_gpodder(self):
-        """ clean everything and exit properly
-        """
+        """Clean everything and exit properly."""
         # Cancel any running background updates of the episode list model
         self.episode_list_model.background_update = None
 
@@ -3363,7 +3379,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.show_delete_episodes_window()
 
     def show_delete_episodes_window(self, channel=None):
-        """Offer deletion of episodes
+        """Offer deletion of episodes.
 
         If channel is None, offer deletion of all episodes.
         Otherwise only offer deletion of episodes in the channel.
@@ -3693,7 +3709,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 [e for e in c.get_all_episodes() if e.check_is_new()]]
 
     def commit_changes_to_database(self):
-        """This will be called after the sync process is finished"""
+        """Called after the sync process is finished."""  # noqa: D401
         self.db.commit()
 
     def on_itemShowToolbar_activate(self, action, param):
@@ -3788,12 +3804,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
         def after_login():
             title = _('Subscriptions on %(server)s') \
                     % {'server': self.config.mygpo.server}
-            gpd = gPodderPodcastDirectory(self.gPodder,
-                                          ui_folder=os.path.join(gpodder.ui_folders[0], '..', 'adaptive'),
-                                          _config=self.config,
-                                          custom_title=title,
-                                          add_podcast_list=self.add_podcast_list,
-                                          hide_url_entry=True)
+            gpd = gPodderPodcastDirectory(
+                self.gPodder,
+                ui_folder=os.path.join(gpodder.ui_folders[0], '..', 'adaptive'),
+                _config=self.config,
+                custom_title=title,
+                add_podcast_list=self.add_podcast_list)
 
             url = self.mygpo_client.get_download_user_subscriptions_url()
             gpd.download_opml_file(url)
@@ -3968,8 +3984,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
             gpd = gPodderPodcastDirectory(self.gPodder, _config=self.config,
                     ui_folder=os.path.join(gpodder.ui_folders[0], '..', 'adaptive'),
                     custom_title=_('Import podcasts from OPML file'),
-                    add_podcast_list=self.add_podcast_list,
-                    hide_url_entry=True)
+                    add_podcast_list=self.add_podcast_list)
             gpd.download_opml_file(filename)
 
     def on_itemExportChannels_activate(self, widget, *args):
@@ -4022,7 +4037,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.show_message(message, title, important=True)
 
     def check_for_updates(self, silent):
-        """Check for updates and (optionally) show a message
+        """Check for updates and (optionally) show a message.
 
         If silent=False, a message will be shown even if no updates are
         available (set silent=False when the check is manually triggered).
@@ -4096,7 +4111,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         return True
 
     def get_selected_channels(self):
-        """Get a list of selected channels from treeChannels"""
+        """Get a list of selected channels from treeChannels."""
         selection = self.treeChannels.get_selection()
         model, paths = selection.get_selected_rows()
 
@@ -4134,11 +4149,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
         return True
 
     def get_podcast_urls_from_selected_episodes(self):
-        """Get a set of podcast URLs based on the selected episodes"""
+        """Get a set of podcast URLs based on the selected episodes."""
         return {episode.channel.url for episode in self.get_selected_episodes()}
 
     def get_selected_episodes(self):
-        """Get a list of selected episodes from treeAvailable"""
+        """Get a list of selected episodes from treeAvailable."""
         selection = self.treeAvailable.get_selection()
         model, paths = selection.get_selected_rows()
 
@@ -4286,7 +4301,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self._for_each_task_set_status(selected_tasks, None, False)
 
     def on_treeAvailable_row_activated(self, widget, path, view_column):
-        """Double-click/enter action handler for treeAvailable"""
+        """Double-click/enter action handler for treeAvailable."""
         self.on_shownotes_selected_episodes(widget)
         self.deck.set_can_swipe_forward(True)
         return True

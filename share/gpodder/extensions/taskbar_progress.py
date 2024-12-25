@@ -151,7 +151,7 @@ assert alignment(tagTHUMBBUTTON) in [4, 8], alignment(tagTHUMBBUTTON)
 
 
 def consume_events():
-    """ consume pending events """
+    """Consume pending events."""
     while Gtk.events_pending():
         Gtk.main_iteration()
 
