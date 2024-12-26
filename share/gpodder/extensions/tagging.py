@@ -328,6 +328,48 @@ class gPodderExtension:
         downloader = coverart.CoverDownloader()
         return downloader.get_cover(podcast.cover_file, podcast.cover_url,
             podcast.url, podcast.title, None, None, True)
+    
+    def toggle_sensitivity_of_widgets(self):
+        if not self.container.config.always_remove_tags:
+            self.container.modify_tags.set_sensitive(True)
+            self.container.remove_before_modify.set_sensitive(self.container.config.modify_tags)
+            self.container.write_album.set_sensitive(self.container.config.modify_tags)
+            self.container.write_title.set_sensitive(self.container.config.modify_tags)
+            self.container.write_subtitle.set_sensitive(self.container.config.modify_tags)
+            self.container.write_comments.set_sensitive(self.container.config.modify_tags)
+            self.container.write_comments_note.set_sensitive(self.container.config.modify_tags)
+            self.container.write_genre.set_sensitive(self.container.config.modify_tags)
+            self.container.write_pubdate.set_sensitive(self.container.config.modify_tags)
+            self.container.set_artist_to_album.set_sensitive(self.container.config.modify_tags)
+            self.container.auto_embed_coverart.set_sensitive(True)
+            self.container.note1.set_sensitive(True)
+
+            if self.container.config.modify_tags:
+                self.container.hbox_genre_tag.set_sensitive(self.container.config.write_genre)
+                self.container.strip_album_from_title.set_sensitive(self.container.config.write_title)
+            else:
+                self.container.hbox_genre_tag.set_sensitive(False)
+                self.container.strip_album_from_title.set_sensitive(False)
+
+        else:
+            self.container.modify_tags.set_sensitive(False)
+            self.container.remove_before_modify.set_sensitive(False)
+            self.container.write_album.set_sensitive(False)
+            self.container.write_title.set_sensitive(False)
+            self.container.strip_album_from_title.set_sensitive(False)
+            self.container.write_subtitle.set_sensitive(False)
+            self.container.write_comments.set_sensitive(False)
+            self.container.write_comments_note.set_sensitive(False)
+            self.container.write_genre.set_sensitive(False)
+            self.container.write_pubdate.set_sensitive(False)
+            self.container.set_artist_to_album.set_sensitive(False)
+            self.container.auto_embed_coverart.set_sensitive(False)
+            self.container.note1.set_sensitive(False)
+            self.container.hbox_genre_tag.set_sensitive(False)
+
+    def toggle_always_remove_tags(self, widget):
+        self.container.config.always_remove_tags = widget.get_active()
+        self.toggle_sensitivity_of_widgets()
 
     def toggle_auto_embed_coverart(self, widget):
         self.container.config.auto_embed_coverart = widget.get_active()
@@ -340,12 +382,14 @@ class gPodderExtension:
     
     def toggle_modify_tags(self, widget):
         self.container.config.modify_tags = widget.get_active()
+        self.toggle_sensitivity_of_widgets()
     
     def toggle_strip_album_from_title(self, widget):
         self.container.config.strip_album_from_title = widget.get_active()
     
     def toggle_write_title(self, widget):
         self.container.config.write_title = widget.get_active()
+        self.toggle_sensitivity_of_widgets()
 
     def toggle_write_album(self, widget):
         self.container.config.write_album = widget.get_active()
@@ -358,93 +402,128 @@ class gPodderExtension:
 
     def toggle_write_genre(self, widget):
         self.container.config.write_genre = widget.get_active()
+        self.toggle_sensitivity_of_widgets()
 
     def toggle_write_pubdate(self, widget):
         self.container.config.write_pubdate = widget.get_active()
     
     def on_genre_tag_changed(self, widget):
         self.container.config.genre_tag = widget.get_text()
+    
+    # destroy references to widgets which don't exist anymore
+    def on_box_destroy(self, widget):
+        del(self.container.always_remove_tags)
+        del(self.container.remove_before_modify)
+        del(self.container.modify_tags)
+        del(self.container.write_title)
+        del(self.container.write_album)
+        del(self.container.write_subtitle)
+        del(self.container.write_comments)
+        del(self.container.write_comments_note)
+        del(self.container.write_genre)
+        del(self.container.write_pubdate)
+        del(self.container.set_artist_to_album)
+        del(self.container.strip_album_from_title)
+        del(self.container.genre_tag)
+        del(self.container.genre_tag_label)
+        del(self.container.hbox_genre_tag)
+        del(self.container.auto_embed_coverart)
+        del(self.container.note1)
+        None
 
     def show_preferences(self):
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
         box.set_border_width(10)
 
-        remove_before_modify = Gtk.CheckButton(_('Remove existing tags before writing'))
-        remove_before_modify.set_active(self.container.config.remove_before_modify)
-        remove_before_modify.connect('toggled', self.toggle_remove_before_modify)
-        box.pack_start(remove_before_modify, False, False, 0)
+        self.container.always_remove_tags = Gtk.CheckButton(_('Only Remove Existing Tags'))
+        self.container.always_remove_tags.set_active(self.container.config.always_remove_tags)
+        self.container.always_remove_tags.connect('toggled', self.toggle_always_remove_tags)
+        box.pack_start(self.container.always_remove_tags, False, False, 0)
 
-        modify_tags = Gtk.CheckButton(_('Modify existing tags'))
-        modify_tags.set_active(self.container.config.modify_tags)
-        modify_tags.connect('toggled', self.toggle_modify_tags)
-        box.pack_start(modify_tags, False, False, 0)
+        self.container.modify_tags = Gtk.CheckButton(_('Modify tags'))
+        self.container.modify_tags.set_active(self.container.config.modify_tags)
+        self.container.modify_tags.connect('toggled', self.toggle_modify_tags)
+        box.pack_start(self.container.modify_tags, False, False, 0)
 
-        box.pack_start(Gtk.HSeparator(), False, False, 0)
-
-        write_title = Gtk.CheckButton(_('Write Title tag'))
-        write_title.set_active(self.container.config.write_title)
-        write_title.connect('toggled', self.toggle_write_title)
-        box.pack_start(write_title, False, False, 0)
-
-        write_album = Gtk.CheckButton(_('Write Album tag'))
-        write_album.set_active(self.container.config.write_album)
-        write_album.connect('toggled', self.toggle_write_album)
-        box.pack_start(write_album, False, False, 0)
-
-        write_subtitle = Gtk.CheckButton(_('Write Subtitle tag'))
-        write_subtitle.set_active(self.container.config.write_subtitle)
-        write_subtitle.connect('toggled', self.toggle_write_subtitle)
-        box.pack_start(write_subtitle, False, False, 0)
-
-        write_comments = Gtk.CheckButton(_('Write Comments tag'))
-        write_comments.set_active(self.container.config.write_comments)
-        write_comments.connect('toggled', self.toggle_write_comments)
-        box.pack_start(write_comments, False, False, 0)
-
-        write_genre = Gtk.CheckButton(_('Write Genre tag'))
-        write_genre.set_active(self.container.config.write_genre)
-        write_genre.connect('toggled', self.toggle_write_genre)
-        box.pack_start(write_genre, False, False, 0)
-
-        write_pubdate = Gtk.CheckButton(_('Write Publish Date tag'))
-        write_pubdate.set_active(self.container.config.write_pubdate)
-        write_pubdate.connect('toggled', self.toggle_write_pubdate)
-        box.pack_start(write_pubdate, False, False, 0)
+        self.container.remove_before_modify = Gtk.CheckButton(_('Remove existing tags before writing'))
+        self.container.remove_before_modify.set_active(self.container.config.remove_before_modify)
+        self.container.remove_before_modify.connect('toggled', self.toggle_remove_before_modify)
+        box.pack_start(self.container.remove_before_modify, False, False, 0)
 
         box.pack_start(Gtk.HSeparator(), False, False, 0)
 
-        set_artist_to_album = Gtk.CheckButton(_('Set Artist tag to same as Album'))
-        set_artist_to_album.set_active(self.container.config.set_artist_to_album)
-        set_artist_to_album.connect('toggled', self.toggle_set_artist_to_album)
-        box.pack_start(set_artist_to_album, False, False, 0)
+        self.container.write_title = Gtk.CheckButton(_('Write Title tag'))
+        self.container.write_title.set_active(self.container.config.write_title)
+        self.container.write_title.connect('toggled', self.toggle_write_title)
+        box.pack_start(self.container.write_title, False, False, 0)
 
-        strip_album_from_title = Gtk.CheckButton(_('Remove Album from Title (if present)'))
-        strip_album_from_title.set_active(self.container.config.strip_album_from_title)
-        strip_album_from_title.connect('toggled', self.toggle_strip_album_from_title)
-        box.pack_start(strip_album_from_title, False, False, 0)
+        self.container.write_album = Gtk.CheckButton(_('Write Album tag'))
+        self.container.write_album.set_active(self.container.config.write_album)
+        self.container.write_album.connect('toggled', self.toggle_write_album)
+        box.pack_start(self.container.write_album, False, False, 0)
 
-        genre_tag = Gtk.Entry()
-        genre_tag.set_text(self.container.config.genre_tag)
-        genre_tag.connect("changed", self.on_genre_tag_changed)
-        genre_tag.set_halign(Gtk.Align.END)
-        genre_tag.set_size_request(200, -1)
-        genre_tag_label = Gtk.Label(_('Genre tag:'))
-        hbox_genre_tag = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=0)
-        hbox_genre_tag.pack_start(genre_tag_label, False, False, 0)
-        hbox_genre_tag.pack_start(genre_tag, True, True, 0)
-        box.pack_start(hbox_genre_tag, False, False, 0)
+        self.container.set_artist_to_album = Gtk.CheckButton(_('Write Artist tag (to same as Album)'))
+        self.container.set_artist_to_album.set_active(self.container.config.set_artist_to_album)
+        self.container.set_artist_to_album.connect('toggled', self.toggle_set_artist_to_album)
+        box.pack_start(self.container.set_artist_to_album, False, False, 0)
+
+        self.container.write_subtitle = Gtk.CheckButton(_('Write Subtitle tag'))
+        self.container.write_subtitle.set_active(self.container.config.write_subtitle)
+        self.container.write_subtitle.connect('toggled', self.toggle_write_subtitle)
+        box.pack_start(self.container.write_subtitle, False, False, 0)
+
+        self.container.write_comments = Gtk.CheckButton(_('Write Comments tag (to same as Subtitle)'))
+        self.container.write_comments.set_active(self.container.config.write_comments)
+        self.container.write_comments.connect('toggled', self.toggle_write_comments)
+        box.pack_start(self.container.write_comments, False, False, 0)
+
+        self.container.write_comments_note = Gtk.Label(_('Note: Subtitle and Comments are often very long. May cause parsing issues.'))
+        self.container.write_comments_note.set_property('xalign', 0.0)
+        box.add(self.container.write_comments_note)
+
+        self.container.write_genre = Gtk.CheckButton(_('Write Genre tag'))
+        self.container.write_genre.set_active(self.container.config.write_genre)
+        self.container.write_genre.connect('toggled', self.toggle_write_genre)
+        box.pack_start(self.container.write_genre, False, False, 0)
+
+        self.container.write_pubdate = Gtk.CheckButton(_('Write Publish Date tag'))
+        self.container.write_pubdate.set_active(self.container.config.write_pubdate)
+        self.container.write_pubdate.connect('toggled', self.toggle_write_pubdate)
+        box.pack_start(self.container.write_pubdate, False, False, 0)
 
         box.pack_start(Gtk.HSeparator(), False, False, 0)
 
-        auto_embed_coverart = Gtk.CheckButton(_('Embed coverart'))
-        auto_embed_coverart.set_active(self.container.config.auto_embed_coverart)
-        auto_embed_coverart.connect('toggled', self.toggle_auto_embed_coverart)
-        box.pack_start(auto_embed_coverart, False, False, 0)
+        self.container.strip_album_from_title = Gtk.CheckButton(_('Remove Album from Title (if present)'))
+        self.container.strip_album_from_title.set_active(self.container.config.strip_album_from_title)
+        self.container.strip_album_from_title.connect('toggled', self.toggle_strip_album_from_title)
+        box.pack_start(self.container.strip_album_from_title, False, False, 0)
 
-        note1 = Gtk.Label(use_markup=True, wrap=True, label=_(
+        self.container.genre_tag = Gtk.Entry()
+        self.container.genre_tag.set_text(self.container.config.genre_tag)
+        self.container.genre_tag.connect("changed", self.on_genre_tag_changed)
+        self.container.genre_tag.set_halign(Gtk.Align.END)
+        self.container.genre_tag.set_size_request(200, -1)
+        self.container.genre_tag_label = Gtk.Label(_('Genre tag:'))
+        self.container.hbox_genre_tag = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=0)
+        self.container.hbox_genre_tag.pack_start(self.container.genre_tag_label, False, False, 0)
+        self.container.hbox_genre_tag.pack_start(self.container.genre_tag, True, True, 0)
+        box.pack_start(self.container.hbox_genre_tag, False, False, 0)
+
+        box.pack_start(Gtk.HSeparator(), False, False, 0)
+
+        self.container.auto_embed_coverart = Gtk.CheckButton(_('Embed coverart'))
+        self.container.auto_embed_coverart.set_active(self.container.config.auto_embed_coverart)
+        self.container.auto_embed_coverart.connect('toggled', self.toggle_auto_embed_coverart)
+        box.pack_start(self.container.auto_embed_coverart, False, False, 0)
+
+        self.container.note1 = Gtk.Label(use_markup=True, wrap=True, label=_(
             'Note: Coverart is not standardized in any way, so results may vary.'))
-        note1.set_property('xalign', 0.0)
-        box.add(note1)
+        self.container.note1.set_property('xalign', 0.0)
+        box.add(self.container.note1)
+
+        box.connect("destroy", self.on_box_destroy)
+
+        self.toggle_sensitivity_of_widgets()
 
         box.show_all()
         return box
