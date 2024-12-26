@@ -142,8 +142,7 @@ class gPodderExtension:
                     # copy and rename art
                     shutil.copy(episode_art, device_art)
     
-    def toggle_convert_and_resize_art(self, widget):
-        self.config.convert_and_resize_art = widget.get_active()
+    def toggle_sensitivity_of_widgets(self):
         # all options rely on convert_and_resize_art being true
         self.container.convert_allow_upscale.set_sensitive(self.config.convert_and_resize_art)
         self.container.convert_size.set_sensitive(self.config.convert_and_resize_art)
@@ -151,6 +150,10 @@ class gPodderExtension:
         self.container.art_name_on_device.set_sensitive(self.config.convert_and_resize_art)
         self.container.art_name_on_device_label.set_sensitive(self.config.convert_and_resize_art)
         self.container.note2.set_sensitive(self.config.convert_and_resize_art)
+    
+    def toggle_convert_and_resize_art(self, widget):
+        self.config.convert_and_resize_art = widget.get_active()
+        self.toggle_sensitivity_of_widgets()
 
     def toggle_convert_allow_upscale_art(self, widget):
         self.config.convert_allow_upscale_art = widget.get_active()
@@ -194,7 +197,6 @@ class gPodderExtension:
         self.container.convert_allow_upscale = Gtk.CheckButton(_('Allow upscaling of art'))
         self.container.convert_allow_upscale.set_active(self.config.convert_allow_upscale_art)
         self.container.convert_allow_upscale.connect('toggled', self.toggle_convert_allow_upscale_art)
-        self.container.convert_allow_upscale.set_sensitive(self.config.convert_and_resize_art)
         box.pack_start(self.container.convert_allow_upscale, False, False, 0)
 
         self.container.convert_size = Gtk.SpinButton()
@@ -209,7 +211,6 @@ class gPodderExtension:
         self.container.convert_size.connect("value-changed", self.on_convert_size_changed)
         self.container.convert_size.set_sensitive(self.config.convert_and_resize_art)
         self.container.convert_size_label = Gtk.Label(_('Image size (px):'))
-        self.container.convert_size_label.set_sensitive(self.config.convert_and_resize_art)
         self.container.hbox_convert_size = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=0)
         self.container.hbox_convert_size.pack_start(self.container.convert_size_label, False, False, 0)
         self.container.hbox_convert_size.pack_start(self.container.convert_size, True, True, 0)
@@ -220,9 +221,7 @@ class gPodderExtension:
         self.container.art_name_on_device.connect("changed", self.on_art_name_on_device_changed)
         self.container.art_name_on_device.set_halign(Gtk.Align.END)
         self.container.art_name_on_device.set_size_request(200, -1)
-        self.container.art_name_on_device.set_sensitive(self.config.convert_and_resize_art)
         self.container.art_name_on_device_label = Gtk.Label(_('Art name on device:'))
-        self.container.art_name_on_device_label.set_sensitive(self.config.convert_and_resize_art)
         self.container.hbox_art_name = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=0)
         self.container.hbox_art_name.pack_start(self.container.art_name_on_device_label, False, False, 0)
         self.container.hbox_art_name.pack_start(self.container.art_name_on_device, True, True, 0)
@@ -233,8 +232,9 @@ class gPodderExtension:
             ' JPEG format images, so PNG is not recommended if using a Rockbox player.'
             ' Typically, devices look for art named either \"cover.jpg\" or \"folder.jpg\".'))
         self.container.note2.set_property('xalign', 0.0)
-        self.container.note2.set_sensitive(self.config.convert_and_resize_art)
         box.add(self.container.note2)
+
+        self.toggle_sensitivity_of_widgets()
 
         box.connect("destroy", self.on_box_destroy)
 
