@@ -477,7 +477,7 @@ class gPodderExtension:
         self.container.write_comments.connect('toggled', self.toggle_write_comments)
         box.pack_start(self.container.write_comments, False, False, 0)
 
-        self.container.write_comments_note = Gtk.Label(_('Note: Subtitle and Comments are often very long. May cause parsing issues.'))
+        self.container.write_comments_note = Gtk.Label(_('Note: Subtitle is often very long. Can cause parsing issues.'))
         self.container.write_comments_note.set_property('xalign', 0.0)
         box.add(self.container.write_comments_note)
 
