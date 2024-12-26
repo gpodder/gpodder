@@ -144,12 +144,13 @@ class gPodderExtension:
     
     def toggle_convert_and_resize_art(self, widget):
         self.config.convert_and_resize_art = widget.get_active()
-        # TODO: how to call other widgets from here?
-        # convert_allow_upscale.set_sensitive(self.config.convert_and_resize_art)
-        # convert_size.set_sensitive(self.config.convert_and_resize_art)
-        # convert_size_label.set_sensitive(self.config.convert_and_resize_art)
-        # art_name_on_device.set_sensitive(self.config.convert_and_resize_art)
-        # art_name_on_device_label.set_sensitive(self.config.convert_and_resize_art)
+        # all options rely on convert_and_resize_art being true
+        self.container.convert_allow_upscale.set_sensitive(self.config.convert_and_resize_art)
+        self.container.convert_size.set_sensitive(self.config.convert_and_resize_art)
+        self.container.convert_size_label.set_sensitive(self.config.convert_and_resize_art)
+        self.container.art_name_on_device.set_sensitive(self.config.convert_and_resize_art)
+        self.container.art_name_on_device_label.set_sensitive(self.config.convert_and_resize_art)
+        self.container.note2.set_sensitive(self.config.convert_and_resize_art)
 
     def toggle_convert_allow_upscale_art(self, widget):
         self.config.convert_allow_upscale_art = widget.get_active()
@@ -160,66 +161,82 @@ class gPodderExtension:
     def on_art_name_on_device_changed(self, widget):
         self.config.art_name_on_device = widget.get_text()
 
+    # ensure we destroy all our references to now-defunct widgets
+    def on_box_destroy(self,widget):
+        del(self.container.convert_enable)
+        del(self.container.note1)
+        del(self.container.convert_allow_upscale)
+        del(self.container.convert_size)
+        del(self.container.convert_size_label)
+        del(self.container.hbox_convert_size)
+        del(self.container.art_name_on_device)
+        del(self.container.art_name_on_device_label)
+        del(self.container.hbox_art_name)
+        del(self.container.note2)
+
     def show_preferences(self):
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
         box.set_border_width(10)
 
-        convert_enable = Gtk.CheckButton(_('Process art: convert, resize, and make baseline'))
-        convert_enable.set_active(self.config.convert_and_resize_art)
-        convert_enable.connect('toggled', self.toggle_convert_and_resize_art)
-        box.pack_start(convert_enable, False, False, 0)
+        self.container.convert_enable = Gtk.CheckButton(_('Process art: convert, resize, and make baseline'))
+        self.container.convert_enable.set_active(self.config.convert_and_resize_art)
+        self.container.convert_enable.connect('toggled', self.toggle_convert_and_resize_art)
+        box.pack_start(self.container.convert_enable, False, False, 0)
 
-        note1 = Gtk.Label(use_markup=True, wrap=True, label=_(
+        self.container.note1 = Gtk.Label(use_markup=True, wrap=True, label=_(
             'Enable conversion and resizing of art.\n\n'
             ' If enabled, convert art to desired format (default JPEG) and size (default 500px x 500px),\n'
             ' and if format is JPEG, write as Baseline (rather than Progressive) format.\n'
             ' If disabled, fall back to simple behavior.'))
-        note1.set_property('xalign', 0.0)
-        box.add(note1)
+        self.container.note1.set_property('xalign', 0.0)
+        box.add(self.container.note1)
 
-        convert_allow_upscale = Gtk.CheckButton(_('Allow upscaling of art'))
-        convert_allow_upscale.set_active(self.config.convert_allow_upscale_art)
-        convert_allow_upscale.connect('toggled', self.toggle_convert_allow_upscale_art)
-        # convert_allow_upscale.set_sensitive(self.config.convert_and_resize_art)
-        box.pack_start(convert_allow_upscale, False, False, 0)
+        self.container.convert_allow_upscale = Gtk.CheckButton(_('Allow upscaling of art'))
+        self.container.convert_allow_upscale.set_active(self.config.convert_allow_upscale_art)
+        self.container.convert_allow_upscale.connect('toggled', self.toggle_convert_allow_upscale_art)
+        self.container.convert_allow_upscale.set_sensitive(self.config.convert_and_resize_art)
+        box.pack_start(self.container.convert_allow_upscale, False, False, 0)
 
-        convert_size = Gtk.SpinButton()
-        convert_size.set_numeric(True)
-        convert_size.set_range(100,2000)
-        convert_size.set_digits(0)
-        convert_size.set_increments(50,100)
-        convert_size.set_snap_to_ticks(True)
-        convert_size.set_value(float(self.config.convert_size))
-        convert_size.set_halign(Gtk.Align.END)
-        convert_size.set_size_request(200, -1)
-        convert_size.connect("value-changed", self.on_convert_size_changed)
-        # convert_size.set_sensitive(self.config.convert_and_resize_art)
-        convert_size_label = Gtk.Label(_('Image size (px):'))
-        # convert_size_label.set_sensitive(self.config.convert_and_resize_art)
-        hbox_convert_size = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=0)
-        hbox_convert_size.pack_start(convert_size_label, False, False, 0)
-        hbox_convert_size.pack_start(convert_size, True, True, 0)
-        box.pack_start(hbox_convert_size, False, False, 0)
+        self.container.convert_size = Gtk.SpinButton()
+        self.container.convert_size.set_numeric(True)
+        self.container.convert_size.set_range(100,2000)
+        self.container.convert_size.set_digits(0)
+        self.container.convert_size.set_increments(50,100)
+        self.container.convert_size.set_snap_to_ticks(True)
+        self.container.convert_size.set_value(float(self.config.convert_size))
+        self.container.convert_size.set_halign(Gtk.Align.END)
+        self.container.convert_size.set_size_request(200, -1)
+        self.container.convert_size.connect("value-changed", self.on_convert_size_changed)
+        self.container.convert_size.set_sensitive(self.config.convert_and_resize_art)
+        self.container.convert_size_label = Gtk.Label(_('Image size (px):'))
+        self.container.convert_size_label.set_sensitive(self.config.convert_and_resize_art)
+        self.container.hbox_convert_size = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=0)
+        self.container.hbox_convert_size.pack_start(self.container.convert_size_label, False, False, 0)
+        self.container.hbox_convert_size.pack_start(self.container.convert_size, True, True, 0)
+        box.pack_start(self.container.hbox_convert_size, False, False, 0)
 
-        art_name_on_device = Gtk.Entry()
-        art_name_on_device.set_text(self.config.art_name_on_device)
-        art_name_on_device.connect("changed", self.on_art_name_on_device_changed)
-        art_name_on_device.set_halign(Gtk.Align.END)
-        art_name_on_device.set_size_request(200, -1)
-        # art_name_on_device.set_sensitive(self.config.convert_and_resize_art)
-        art_name_on_device_label = Gtk.Label(_('Art name on device:'))
-        # art_name_on_device_label.set_sensitive(self.config.convert_and_resize_art)
-        hbox_art_name = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=0)
-        hbox_art_name.pack_start(art_name_on_device_label, False, False, 0)
-        hbox_art_name.pack_start(art_name_on_device, True, True, 0)
-        box.pack_start(hbox_art_name, False, False, 0)
+        self.container.art_name_on_device = Gtk.Entry()
+        self.container.art_name_on_device.set_text(self.config.art_name_on_device)
+        self.container.art_name_on_device.connect("changed", self.on_art_name_on_device_changed)
+        self.container.art_name_on_device.set_halign(Gtk.Align.END)
+        self.container.art_name_on_device.set_size_request(200, -1)
+        self.container.art_name_on_device.set_sensitive(self.config.convert_and_resize_art)
+        self.container.art_name_on_device_label = Gtk.Label(_('Art name on device:'))
+        self.container.art_name_on_device_label.set_sensitive(self.config.convert_and_resize_art)
+        self.container.hbox_art_name = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=0)
+        self.container.hbox_art_name.pack_start(self.container.art_name_on_device_label, False, False, 0)
+        self.container.hbox_art_name.pack_start(self.container.art_name_on_device, True, True, 0)
+        box.pack_start(self.container.hbox_art_name, False, False, 0)
 
-        note2 = Gtk.Label(use_markup=True, wrap=True, label=_(
+        self.container.note2 = Gtk.Label(use_markup=True, wrap=True, label=_(
             'Only JPEG and PNG formats are allowed. Note that Rockbox only supports'
             ' JPEG format images, so PNG is not recommended if using a Rockbox player.'
             ' Typically, devices look for art named either \"cover.jpg\" or \"folder.jpg\".'))
-        note2.set_property('xalign', 0.0)
-        box.add(note2)
+        self.container.note2.set_property('xalign', 0.0)
+        self.container.note2.set_sensitive(self.config.convert_and_resize_art)
+        box.add(self.container.note2)
+
+        box.connect("destroy", self.on_box_destroy)
 
         box.show_all()
         return box
