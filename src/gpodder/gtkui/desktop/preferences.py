@@ -870,7 +870,7 @@ class gPodderPreferences(BuilderWidget):
     def on_prefs_sidebar_set_focus_child(self, widget, *args):
         if self.prefs_flap.get_folded():
             self.prefs_flap.set_reveal_flap(False)
-            
+
     def on_prefs_scrolled_window_edge_overshot(self, scrolled_window, pos, *args):
         if pos == Gtk.PositionType.TOP:
             self.prefs_flap.set_reveal_flap(True)
