@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.38.2 -->
+<!-- Generated with glade 3.40.0 -->
 <interface>
-  <requires lib="gtk+" version="3.12"/>
-  <requires lib="libhandy" version="1.2"/>
+  <requires lib="gtk+" version="3.16"/>
+  <object class="GtkTextBuffer" id="textbuffer1"/>
   <object class="GtkWindow" id="gPodderPodcastDirectory">
     <property name="can-focus">False</property>
     <property name="border-width">6</property>
@@ -12,33 +12,40 @@
     <property name="default-height">400</property>
     <property name="type-hint">dialog</property>
     <child>
-      <object class="GtkBox" id="vb_directory">
+      <object class="GtkBox">
         <property name="visible">True</property>
         <property name="can-focus">False</property>
         <property name="orientation">vertical</property>
         <property name="spacing">6</property>
         <child>
-          <object class="HdyFlap" id="directory_flap">
+          <object class="GtkBox">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
-            <property name="vexpand">True</property>
-            <property name="flap-position">end</property>
-            <child type="content">
-              <object class="GtkBox" id="vb_podcasts">
+            <property name="orientation">vertical</property>
+            <property name="spacing">10</property>
+            <child>
+              <object class="GtkStack" id="stState">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="orientation">vertical</property>
-                <property name="spacing">5</property>
+                <property name="hexpand">True</property>
+                <property name="vexpand">True</property>
+                <property name="transition-type">slide-left-right</property>
+                <property name="interpolate-size">True</property>
                 <child>
-                  <object class="GtkBox" id="hb_text_entry">
+                  <object class="GtkBox" id="stProviders">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
-                    <property name="spacing">5</property>
+                    <property name="orientation">vertical</property>
                     <child>
-                      <object class="GtkLabel" id="lb_search">
+                      <object class="GtkLabel" id="label5">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
-                        <property name="label" translatable="yes">label</property>
+                        <property name="margin-left">10</property>
+                        <property name="margin-start">10</property>
+                        <property name="label" translatable="yes">&lt;big&gt;Choose&lt;/big&gt;</property>
+                        <property name="use-markup">True</property>
+                        <property name="xalign">0</property>
+                        <property name="yalign">1</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -47,104 +54,227 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkEntry" id="en_query">
+                      <object class="GtkLabel" id="label6">
                         <property name="visible">True</property>
-                        <property name="can-focus">True</property>
-                        <property name="invisible-char">•</property>
-                        <property name="primary-icon-activatable">False</property>
-                        <property name="secondary-icon-activatable">False</property>
-                        <signal name="activate" handler="on_bt_search_clicked" swapped="no"/>
+                        <property name="can-focus">False</property>
+                        <property name="margin-left">20</property>
+                        <property name="margin-start">20</property>
+                        <property name="margin-top">10</property>
+                        <property name="margin-bottom">10</property>
+                        <property name="label" translatable="yes">Select a source for new podcasts</property>
+                        <property name="xalign">0</property>
+                        <property name="yalign">0</property>
                       </object>
                       <packing>
-                        <property name="expand">True</property>
+                        <property name="expand">False</property>
                         <property name="fill">True</property>
                         <property name="position">1</property>
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkButton" id="bt_search">
-                        <property name="label" translatable="yes">...</property>
+                      <object class="GtkTreeView" id="tv_providers">
                         <property name="visible">True</property>
                         <property name="can-focus">True</property>
-                        <property name="receives-default">True</property>
-                        <signal name="clicked" handler="on_bt_search_clicked" swapped="no"/>
+                        <property name="margin-left">10</property>
+                        <property name="margin-right">10</property>
+                        <property name="margin-start">10</property>
+                        <property name="margin-end">10</property>
+                        <property name="margin-top">10</property>
+                        <property name="margin-bottom">10</property>
+                        <property name="headers-visible">False</property>
+                        <property name="enable-search">False</property>
+                        <property name="activate-on-single-click">True</property>
+                        <child internal-child="selection">
+                          <object class="GtkTreeSelection"/>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">3</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="name">stackChildProviders</property>
+                    <property name="title" translatable="yes">Podcast Providers</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkBox" id="stPodcasts">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="orientation">vertical</property>
+                    <property name="spacing">10</property>
+                    <child>
+                      <object class="GtkBox" id="hb_text_entry">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="spacing">5</property>
+                        <child>
+                          <object class="GtkLabel" id="lb_search">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="label" translatable="yes">label</property>
+                            <attributes>
+                              <attribute name="weight" value="bold"/>
+                            </attributes>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkEntry" id="en_query">
+                            <property name="visible">True</property>
+                            <property name="can-focus">True</property>
+                            <property name="invisible-char">•</property>
+                            <property name="width-chars">20</property>
+                            <property name="primary-icon-activatable">False</property>
+                            <property name="secondary-icon-activatable">False</property>
+                            <signal name="activate" handler="on_bt_search_clicked" swapped="no"/>
+                          </object>
+                          <packing>
+                            <property name="expand">True</property>
+                            <property name="fill">True</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="bt_search">
+                            <property name="label" translatable="yes">...</property>
+                            <property name="visible">True</property>
+                            <property name="can-focus">True</property>
+                            <property name="receives-default">True</property>
+                            <signal name="clicked" handler="on_bt_search_clicked" swapped="no"/>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">2</property>
+                          </packing>
+                        </child>
                       </object>
                       <packing>
                         <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkStack" id="stackProgressErrorPodcasts">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="transition-type">slide-left-right</property>
+                        <property name="interpolate-size">True</property>
+                        <child>
+                          <object class="GtkBox" id="stProgError">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="orientation">vertical</property>
+                            <property name="spacing">6</property>
+                            <child>
+                              <object class="GtkProgressBar" id="progressBar">
+                                <property name="visible">True</property>
+                                <property name="can-focus">False</property>
+                                <property name="fraction">0.10</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="progressLabel">
+                                <property name="visible">True</property>
+                                <property name="can-focus">False</property>
+                                <property name="label" translatable="yes">Download in progress...</property>
+                                <property name="ellipsize">end</property>
+                                <property name="xalign">0</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkScrolledWindow">
+                                <property name="visible">True</property>
+                                <property name="can-focus">True</property>
+                                <property name="shadow-type">in</property>
+                                <child>
+                                  <object class="GtkTextView" id="txtError">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">True</property>
+                                    <property name="hexpand">True</property>
+                                    <property name="vexpand">True</property>
+                                    <property name="editable">False</property>
+                                    <property name="wrap-mode">word</property>
+                                    <property name="cursor-visible">False</property>
+                                    <property name="buffer">textbuffer1</property>
+                                  </object>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="expand">True</property>
+                                <property name="fill">True</property>
+                                <property name="position">2</property>
+                              </packing>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="name">stackChildProgressErrors</property>
+                            <property name="title" translatable="yes">Podcast Retrieve Progress</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkScrolledWindow" id="sw_podcasts">
+                            <property name="visible">True</property>
+                            <property name="can-focus">True</property>
+                            <property name="hexpand">True</property>
+                            <property name="vexpand">True</property>
+                            <property name="shadow-type">in</property>
+                            <child>
+                              <object class="GtkTreeView" id="tv_podcasts">
+                                <property name="visible">True</property>
+                                <property name="can-focus">True</property>
+                                <property name="headers-visible">False</property>
+                                <child internal-child="selection">
+                                  <object class="GtkTreeSelection"/>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="name">stackChildResults</property>
+                            <property name="title" translatable="yes">Podcast Results</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
                         <property name="fill">True</property>
                         <property name="position">2</property>
                       </packing>
                     </child>
                   </object>
                   <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkScrolledWindow" id="sw_tagcloud">
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <child>
-                      <placeholder/>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
+                    <property name="name">stackChildPodcasts</property>
+                    <property name="title" translatable="yes">Podcast Selection</property>
                     <property name="position">1</property>
                   </packing>
                 </child>
-                <child>
-                  <object class="GtkScrolledWindow" id="sw_podcasts">
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="hscrollbar-policy">never</property>
-                    <property name="shadow-type">in</property>
-                    <child>
-                      <object class="GtkTreeView" id="tv_podcasts">
-                        <property name="width-request">300</property>
-                        <property name="visible">True</property>
-                        <property name="can-focus">True</property>
-                        <property name="headers-visible">False</property>
-                        <child internal-child="selection">
-                          <object class="GtkTreeSelection"/>
-                        </child>
-                      </object>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">2</property>
-                  </packing>
-                </child>
               </object>
-            </child>
-            <child type="separator">
-              <placeholder/>
-            </child>
-            <child type="flap">
-              <object class="GtkScrolledWindow" id="sw_providers">
-                <property name="visible">True</property>
-                <property name="can-focus">True</property>
-                <property name="hscrollbar-policy">never</property>
-                <property name="shadow-type">in</property>
-                <child>
-                  <object class="GtkTreeView" id="tv_providers">
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="headers-visible">False</property>
-                    <property name="enable-search">False</property>
-                    <signal name="cursor-changed" handler="on_tv_providers_cursor_changed" swapped="no"/>
-                    <signal name="row-activated" handler="on_tv_providers_row_activated" swapped="no"/>
-                    <child internal-child="selection">
-                      <object class="GtkTreeSelection"/>
-                    </child>
-                  </object>
-                </child>
-              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
             </child>
           </object>
           <packing>
@@ -258,30 +388,29 @@
       </object>
     </child>
     <child type="titlebar">
-      <object class="HdyHeaderBar">
+      <object class="GtkHeaderBar">
         <property name="visible">True</property>
         <property name="can-focus">False</property>
         <property name="title" translatable="yes">Find new podcasts</property>
         <property name="has-subtitle">False</property>
         <property name="show-close-button">True</property>
         <child>
-          <object class="GtkToggleButton" id="providers_show">
+          <object class="GtkButton" id="btnBack">
             <property name="visible">True</property>
-            <property name="sensitive" bind-source="directory_flap" bind-property="folded" bind-flags="sync-create">False</property>
             <property name="can-focus">True</property>
             <property name="receives-default">True</property>
-            <property name="active" bind-source="directory_flap" bind-property="reveal-flap" bind-flags="sync-create">False</property>
-            <signal name="toggled" handler="on_providers_show_toggled" swapped="no"/>
+            <property name="halign">start</property>
+            <property name="valign">end</property>
+            <property name="relief">none</property>
+            <signal name="clicked" handler="on_btnBack_clicked" swapped="no"/>
             <child>
-              <object class="GtkImage" id="flap_show_image">
+              <object class="GtkImage">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
+                <property name="icon-name">go-previous</property>
               </object>
             </child>
           </object>
-          <packing>
-            <property name="pack-type">end</property>
-          </packing>
         </child>
       </object>
     </child>

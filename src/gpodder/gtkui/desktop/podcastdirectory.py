@@ -119,8 +119,6 @@ class gPodderPodcastDirectory(BuilderWidget):
     def new(self):
         # Setting a window transient causes phosh not to maximize it
         # self.gPodderPodcastDirectory.set_transient_for(self.parent_widget)
-        self.flap_show_image.set_from_file(os.path.join(
-            gpodder.icons_folder, 'actions', 'view-sidebar-end-symbolic.svg'))
 
         if hasattr(self, 'custom_title'):
             self.main_window.set_title(self.custom_title)
@@ -143,12 +141,6 @@ class gPodderPodcastDirectory(BuilderWidget):
 
         self.btnBack.hide()
         self.main_window.show()
-
-        def show_flap(x):
-            self.directory_flap.set_reveal_flap(True)
-            return False
-
-        GLib.timeout_add(500, show_flap, None)
 
     def download_opml_file(self, filename):
         provider = directory.FixedOpmlFileProvider(filename)
@@ -203,8 +195,6 @@ class gPodderPodcastDirectory(BuilderWidget):
             self.providers_model.set_value(it, DirectoryProvidersModel.C_WEIGHT, Pango.Weight.BOLD)
             provider = self.providers_model.get_value(it, DirectoryProvidersModel.C_PROVIDER)
             self.use_provider(provider)
-            if self.directory_flap.get_folded():
-                self.directory_flap.set_reveal_flap(False)
 
     def use_provider(self, provider, allow_back=True):
         self.podcasts_model.clear()
@@ -340,7 +330,3 @@ class gPodderPodcastDirectory(BuilderWidget):
             self.main_window.destroy()
         else:
             self.on_btnBack_clicked(self.btnBack)
-
-    def on_providers_show_toggled(self, togglebutton, *args):
-        if self.directory_flap.get_folded():
-            self.directory_flap.set_reveal_flap(togglebutton.get_active())
