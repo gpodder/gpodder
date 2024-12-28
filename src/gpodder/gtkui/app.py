@@ -115,6 +115,10 @@ class gPodderApplication(Gtk.Application):
         action.connect('activate', self.on_menu)
         self.add_action(action)
 
+        action = Gio.SimpleAction.new('subscribe_to_url', GLib.VariantType.new('s'))
+        action.connect('activate', self.on_subscribe_to_url_activate)
+        self.add_action(action)
+
     def do_startup(self):
         Gtk.Application.do_startup(self)
 
@@ -335,6 +339,9 @@ class gPodderApplication(Gtk.Application):
             self.window.check_for_distro_updates()
         else:
             self.window.check_for_updates(silent=False)
+
+    def on_subscribe_to_url_activate(self, action, param):
+        self.window.subscribe_to_url(param.get_string())
 
     def on_extension_enabled(self, extension):
         self.window.on_extension_enabled(extension)
