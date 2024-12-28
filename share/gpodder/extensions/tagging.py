@@ -435,6 +435,18 @@ class gPodderExtension:
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
         box.set_border_width(10)
 
+        title = Gtk.Label(use_markup=True, label=_('<b><big>Tagging Extension</big></b>'))
+        title.set_halign(Gtk.Align.CENTER)
+        box.add(title)
+
+        whatisthis = Gtk.Label(use_markup=True, wrap=True, label=_(
+            'This extension writes tags on episodes after download.'
+        ))
+        whatisthis.set_property('xalign', 0.0)
+        box.add(whatisthis)
+
+        box.pack_start(Gtk.HSeparator(), False, False, 0)
+
         self.container.always_remove_tags = Gtk.CheckButton(_('Only Remove Existing Tags'))
         self.container.always_remove_tags.set_active(self.container.config.always_remove_tags)
         self.container.always_remove_tags.connect('toggled', self.toggle_always_remove_tags)
