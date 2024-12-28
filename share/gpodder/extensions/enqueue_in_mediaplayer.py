@@ -222,6 +222,11 @@ PLAYERS = [
     # VLC media player, http://videolan.org/vlc/
     Win32Player('vlc', 'VLC', r'HKEY_CLASSES_ROOT\VLC.mp3\shell\AddToPlaylistVLC\command'),
 
+    # SMPlayer, https://www.smplayer.info (unsigned installer: SMPlayer from Windows store
+    # doesn't create this but HKEY_CLASSES_ROOT\AppX055xaggmfvyyr7t0hd5am4em22jvax6z\Shell\enqueue
+    # and other obscure app names)
+    Win32Player('smplayer', 'SMPlayer', r'HKEY_CLASSES_ROOT\MPlayerFileVideo\shell\enqueue\command'),
+
     # foobar2000, http://www.foobar2000.org/
     Win32Player('foobar2000', 'foobar2000', r'HKEY_CLASSES_ROOT\foobar2000.MP3\shell\enqueue\command'),
 ]
