@@ -26,9 +26,12 @@ import urllib.parse
 import urllib.request
 
 import dbus
-import dbus.service
 
 import gpodder
+
+import gi  # isort:skip
+gi.require_version('GLib', '2.0')
+from gi.repository import GLib  # isort:skip
 
 logger = logging.getLogger(__name__)
 _ = gpodder.gettext
@@ -301,19 +304,23 @@ class MPRISDBusReceiver(object):
         return props.Get(self.INTERFACE_MPRIS, prop)
 
 
-class gPodderNotifier(dbus.service.Object):
-    def __init__(self, bus, path):
-        dbus.service.Object.__init__(self, bus, path)
+class gPodderActionNotifier:
+    def __init__(self):
         self.start_position = 0
+        self.gpodder = None
 
-    @dbus.service.signal(dbus_interface='org.gpodder.player', signature='us')
     def PlaybackStarted(self, start_position, file_uri):
-        logger.info('PlaybackStarted: %s: %d', file_uri, start_position)
+        logger.info('playbackStarted: %s: %d', file_uri, start_position)
+        if self.gpodder is not None:
+            self.gpodder.activate_action('playbackStarted', GLib.Variant('(ts)', (
+                start_position, str(file_uri))))
 
-    @dbus.service.signal(dbus_interface='org.gpodder.player', signature='uuus')
     def PlaybackStopped(self, start_position, end_position, total_time, file_uri):
-        logger.info('PlaybackStopped: %s: %d--%d/%d',
+        logger.info('playbackStopped: %s: %d--%d/%d',
             file_uri, start_position, end_position, total_time)
+        if self.gpodder is not None:
+            self.gpodder.activate_action('playbackStopped', GLib.Variant('(ttts)', (
+                start_position, end_position, total_time, str(file_uri))))
 
 
 # Finally, this is the extension, which just pulls this all together
@@ -321,7 +328,6 @@ class gPodderExtension:
 
     def __init__(self, container):
         self.container = container
-        self.path = '/org/gpodder/player/notifier'
         self.notifier = None
         self.rcvr = None
 
@@ -329,12 +335,15 @@ class gPodderExtension:
         if gpodder.dbus_session_bus is None:
             logger.debug("dbus session bus not available, not loading")
         else:
+            self.notifier = gPodderActionNotifier()
             self.session_bus = gpodder.dbus_session_bus
-            self.notifier = gPodderNotifier(self.session_bus, self.path)
             self.rcvr = MPRISDBusReceiver(self.session_bus, self.notifier)
 
     def on_unload(self):
-        if self.notifier is not None:
-            self.notifier.remove_from_connection(self.session_bus, self.path)
         if self.rcvr is not None:
             self.rcvr.stop_receiving()
+
+    def on_ui_object_available(self, name, ui_object):
+        """Called by gPodder when ui is ready."""  # noqa: D401
+        if name == 'gpodder-gtk':
+            self.notifier.gpodder = ui_object.gPodder
