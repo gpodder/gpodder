@@ -409,27 +409,6 @@ class gPodderExtension:
     
     def on_genre_tag_changed(self, widget):
         self.container.config.genre_tag = widget.get_text()
-    
-    # destroy references to widgets which don't exist anymore
-    def on_box_destroy(self, widget):
-        del(self.container.always_remove_tags)
-        del(self.container.remove_before_modify)
-        del(self.container.modify_tags)
-        del(self.container.write_title)
-        del(self.container.write_album)
-        del(self.container.write_subtitle)
-        del(self.container.write_comments)
-        del(self.container.write_comments_note)
-        del(self.container.write_genre)
-        del(self.container.write_pubdate)
-        del(self.container.set_artist_to_album)
-        del(self.container.strip_album_from_title)
-        del(self.container.genre_tag)
-        del(self.container.genre_tag_label)
-        del(self.container.hbox_genre_tag)
-        del(self.container.auto_embed_coverart)
-        del(self.container.note1)
-        None
 
     def show_preferences(self):
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
@@ -532,8 +511,6 @@ class gPodderExtension:
             'Note: Coverart is not standardized in any way, so results may vary.'))
         self.container.note1.set_property('xalign', 0.0)
         box.add(self.container.note1)
-
-        box.connect("destroy", self.on_box_destroy)
 
         self.toggle_sensitivity_of_widgets()
 

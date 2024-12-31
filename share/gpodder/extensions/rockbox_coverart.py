@@ -23,7 +23,6 @@ from gi.repository import Gtk
 logger = logging.getLogger(__name__)
 _ = gpodder.gettext
 
-
 # Provide some metadata that will be displayed in the gPodder GUI
 __title__ = _('Rockbox Cover Art Sync')
 __description__ = _('Copy Cover Art To Rockboxed Media Player')
@@ -164,19 +163,6 @@ class gPodderExtension:
     def on_art_name_on_device_changed(self, widget):
         self.config.art_name_on_device = widget.get_text()
 
-    # ensure we destroy all our references to now-defunct widgets
-    def on_box_destroy(self,widget):
-        del(self.container.convert_enable)
-        del(self.container.note1)
-        del(self.container.convert_allow_upscale)
-        del(self.container.convert_size)
-        del(self.container.convert_size_label)
-        del(self.container.hbox_convert_size)
-        del(self.container.art_name_on_device)
-        del(self.container.art_name_on_device_label)
-        del(self.container.hbox_art_name)
-        del(self.container.note2)
-
     def show_preferences(self):
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
         box.set_border_width(10)
@@ -250,8 +236,6 @@ class gPodderExtension:
         box.add(self.container.note2)
 
         self.toggle_sensitivity_of_widgets()
-
-        box.connect("destroy", self.on_box_destroy)
 
         box.show_all()
         return box
