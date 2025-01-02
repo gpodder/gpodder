@@ -738,8 +738,7 @@ class gPodderPreferences(BuilderWidget):
             self.btn_playlistfolder.set_sensitive(False)
             self.btn_playlistfolder.set_label('')
             self.checkbutton_delete_using_playlists.set_sensitive(False)
-    
-        
+
     def on_checkbutton_use_title_as_filename_toggled(
             self, widget):
         if not widget.get_active():

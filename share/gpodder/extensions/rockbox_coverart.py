@@ -140,7 +140,7 @@ class gPodderExtension:
                     logger.info('Fallback Syncing cover art for %s', episode.channel.title)
                     # copy and rename art
                     shutil.copy(episode_art, device_art)
-    
+
     def toggle_sensitivity_of_widgets(self):
         # all options rely on convert_and_resize_art being true
         self.container.convert_allow_upscale.set_sensitive(self.config.convert_and_resize_art)
@@ -149,7 +149,7 @@ class gPodderExtension:
         self.container.art_name_on_device.set_sensitive(self.config.convert_and_resize_art)
         self.container.art_name_on_device_label.set_sensitive(self.config.convert_and_resize_art)
         self.container.note2.set_sensitive(self.config.convert_and_resize_art)
-    
+
     def toggle_convert_and_resize_art(self, widget):
         self.config.convert_and_resize_art = widget.get_active()
         self.toggle_sensitivity_of_widgets()
@@ -202,9 +202,9 @@ class gPodderExtension:
 
         self.container.convert_size = Gtk.SpinButton()
         self.container.convert_size.set_numeric(True)
-        self.container.convert_size.set_range(100,2000)
+        self.container.convert_size.set_range(100, 2000)
         self.container.convert_size.set_digits(0)
-        self.container.convert_size.set_increments(50,100)
+        self.container.convert_size.set_increments(50, 100)
         self.container.convert_size.set_snap_to_ticks(True)
         self.container.convert_size.set_value(float(self.config.convert_size))
         self.container.convert_size.set_halign(Gtk.Align.END)

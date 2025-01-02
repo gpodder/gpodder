@@ -328,7 +328,7 @@ class gPodderExtension:
         downloader = coverart.CoverDownloader()
         return downloader.get_cover(podcast.cover_file, podcast.cover_url,
             podcast.url, podcast.title, None, None, True)
-    
+
     def toggle_sensitivity_of_widgets(self):
         if not self.container.config.always_remove_tags:
             self.container.modify_tags.set_sensitive(True)
@@ -376,24 +376,24 @@ class gPodderExtension:
 
     def toggle_remove_before_modify(self, widget):
         self.container.config.remove_before_modify = widget.get_active()
-    
+
     def toggle_set_artist_to_album(self, widget):
         self.container.config.set_artist_to_album = widget.get_active()
-    
+
     def toggle_modify_tags(self, widget):
         self.container.config.modify_tags = widget.get_active()
         self.toggle_sensitivity_of_widgets()
-    
+
     def toggle_strip_album_from_title(self, widget):
         self.container.config.strip_album_from_title = widget.get_active()
-    
+
     def toggle_write_title(self, widget):
         self.container.config.write_title = widget.get_active()
         self.toggle_sensitivity_of_widgets()
 
     def toggle_write_album(self, widget):
         self.container.config.write_album = widget.get_active()
-    
+
     def toggle_write_subtitle(self, widget):
         self.container.config.write_subtitle = widget.get_active()
 
@@ -406,7 +406,7 @@ class gPodderExtension:
 
     def toggle_write_pubdate(self, widget):
         self.container.config.write_pubdate = widget.get_active()
-    
+
     def on_genre_tag_changed(self, widget):
         self.container.config.genre_tag = widget.get_text()
 
