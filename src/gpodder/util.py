@@ -528,8 +528,18 @@ def format_date(timestamp):
     'Yesterday'
     >>> format_date(1736243460 - 6*24*60*60)
     'Wednesday'
-    >>> format_date(1704063600)
+    >>> if os.name == 'posix':
+    ...    old_tz = os.environ.get('TZ')
+    ...    os.environ['TZ'] = 'Europe/Paris'
+    ...    time.tzset()
+    >>> format_date(1704099600)
     '01/01/24'
+    >>> if os.name == 'posix':
+    ...    if old_tz:
+    ...        os.environ['TZ'] = old_tz
+    ...    else:
+    ...        del os.environ['TZ']
+    ...    time.tzset()
     """
     if timestamp is None:
         return None
