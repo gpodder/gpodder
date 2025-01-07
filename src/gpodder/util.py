@@ -517,45 +517,42 @@ def format_date(timestamp):
 
     Returns None if there has been an error converting the
     timestamp to a string representation.
+
+    For instance on windows we can't represent dates before epoch (timestamp<0)
+
+    >>> (os.name == 'nt') == (format_date(-39539) == None)
+    True
+    >>> format_date(time.time())
+    'Today'
+    >>> format_date(time.time() - 24*60*60)
+    'Yesterday'
+    >>> format_date(1736243460 - 6*24*60*60)
+    'Wednesday'
+    >>> format_date(1704063600)
+    '01/01/24'
     """
     if timestamp is None:
         return None
 
-    seconds_in_a_day = 60 * 60 * 24
-
-    today = time.localtime()[:3]
-    yesterday = time.localtime(time.time() - seconds_in_a_day)[:3]
     try:
-        timestamp_date = time.localtime(timestamp)[:3]
-    except ValueError:
-        logger.warning('Cannot convert timestamp', exc_info=True)
+        timestamp_date = datetime.date.fromtimestamp(timestamp)
+    except (OSError, TypeError, ValueError):
+        logger.warning('Cannot convert timestamp %r' % timestamp, exc_info=True)
         return None
-    except TypeError:
-        logger.warning('Cannot convert timestamp', exc_info=True)
-        return None
+
+    today = datetime.date.today()
+
+    delta = today - timestamp_date
 
     if timestamp_date == today:
         return _('Today')
-    elif timestamp_date == yesterday:
+    if delta <= datetime.timedelta(days=1):
         return _('Yesterday')
-
-    try:
-        diff = int((time.time() - timestamp) / seconds_in_a_day)
-    except:
-        logger.warning('Cannot convert "%s" to date.', timestamp, exc_info=True)
-        return None
-
-    try:
-        timestamp = datetime.datetime.fromtimestamp(timestamp)
-    except:
-        return None
-
-    if diff < 7:
+    if delta <= datetime.timedelta(days=7):
         # Weekday name
-        return timestamp.strftime('%A')
-    else:
-        # Locale's appropriate date representation
-        return timestamp.strftime('%x')
+        return timestamp_date.strftime('%A')
+    # Locale's appropriate date representation
+    return timestamp_date.strftime('%x')
 
 
 def format_filesize(bytesize, use_si_units=False, digits=2):
