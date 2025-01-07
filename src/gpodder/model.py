@@ -819,11 +819,7 @@ class PodcastEpisode(PodcastModelObject):
     @property
     def pubtime(self):
         """Return published time as HHMM (or 0000 if not available)."""
-        try:
-            return datetime.datetime.fromtimestamp(self.published).strftime('%H%M')
-        except (OSError, TypeError, ValueError):
-            logger.warning('Cannot format pubtime: %s', self.title, exc_info=True)
-            return '0000'
+        return self.published_formatted('%H%M', '0000')
 
     def playlist_title(self):
         """Return a title for this episode in a playlist.
