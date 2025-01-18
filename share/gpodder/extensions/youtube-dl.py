@@ -366,6 +366,7 @@ class gPodderYoutubeDL(download.CustomDownloader):
             return info, opts
 
     def fetch_video(self, info, opts):
+        self.add_format(self.gpodder_config, opts, fallback="bv*+ba/b")
         with youtube_dl.YoutubeDL(opts) as ydl:
             return ydl.process_video_result(info, download=True)
 
