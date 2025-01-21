@@ -37,15 +37,6 @@ from optparse import OptionGroup, OptionParser
 
 logger = logging.getLogger(__name__)
 
-try:
-    import dbus
-    have_dbus = True
-except ImportError:
-    print("""
-    Warning: python-dbus not found. Disabling D-Bus support.
-    """, file=sys.stderr)
-    have_dbus = False
-
 
 def main():
     # Paths to important files
@@ -144,30 +135,6 @@ def main():
             and os.environ.get('WAYLAND_DISPLAY', '') == ''):
         logger.error('Cannot start gPodder: $DISPLAY or $WAYLAND_DISPLAY is not set.')
         sys.exit(1)
-
-    if have_dbus:
-        # Try to find an already-running instance of gPodder
-        session_bus = dbus.SessionBus()
-
-        # Obtain a reference to an existing instance; don't call get_object if
-        # such an instance doesn't exist as it *will* create a new instance
-        if session_bus.name_has_owner(gpodder.dbus_bus_name):
-            try:
-                remote_object = session_bus.get_object(
-                    gpodder.dbus_bus_name,
-                    gpodder.dbus_gui_object_path)
-
-                # An instance of GUI is already running
-                logger.info('Activating existing instance via D-Bus.')
-                remote_object.show_gui_window(
-                    dbus_interface=gpodder.dbus_interface)
-
-                if options.subscribe:
-                    remote_object.subscribe_to_url(options.subscribe)
-
-                return
-            except dbus.exceptions.DBusException as dbus_exception:
-                logger.info('Cannot connect to remote object.', exc_info=True)
 
     if gpodder.ui.gtk:
         from gpodder.gtkui import app
