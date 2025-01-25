@@ -41,6 +41,7 @@ import mimetypes
 import os
 import os.path
 import platform
+import random
 import re
 import shlex
 import shutil
@@ -1777,17 +1778,33 @@ def relpath(p1, p2):
 
 def get_hostname():
     """Return the hostname of this computer.
-
-    This can be implemented in a different way on each
-    platform and should yield a unique-per-user device ID.
     """
-    nodename = platform.node()
 
+    nodename = platform.node()
     if nodename:
         return nodename
 
     # Fallback - but can this give us "localhost"?
-    return socket.gethostname()
+    nodename = socket.gethostname()
+    if nodename:
+        return nodename
+
+    return 'unknown'
+
+
+def get_hostname_uid():
+    """Return the hostname of this computer and a random identifier.
+
+    This can be implemented in a different way on each
+    platform and should yield a unique-per-user device ID.
+    """
+
+    # Generate a 32-bit random identifier
+    random.seed()
+    uid = '%X' % random.getrandbits(32)
+
+    hostname = get_hostname()
+    return f'{hostname}-{uid}'
 
 
 def detect_device_type():
