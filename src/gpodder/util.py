@@ -1682,44 +1682,26 @@ def find_mount_point(directory):
       ...
     ValueError: Directory names should be of type str.
 
-    >>> from minimock import mock, restore
+    >>> from unittest import mock
     >>> mocked_mntpoints = ('/', '/home', '/media/usbdisk', '/media/cdrom')
-    >>> mock('os.path.ismount', returns_func=lambda x: x in mocked_mntpoints)
-    >>>
-    >>> # For mocking os.getcwd(), we simply use a lambda to avoid the
-    >>> # massive output of "Called os.getcwd()" lines in this doctest
-    >>> os.getcwd = lambda: '/home/thp'
-    >>>
-    >>> find_mount_point('.')
-    Called os.path.ismount('/home/thp')
-    Called os.path.ismount('/home')
+    >>> def mocked(f, *args):
+    ...     with mock.patch('os.path.ismount', lambda x: x in mocked_mntpoints):
+    ...         with mock.patch('os.getcwd', lambda: '/home/thp'):
+    ...             return f(*args)
+    >>> mocked(find_mount_point, '.')
     '/home'
-    >>> find_mount_point('relativity')
-    Called os.path.ismount('/home/thp/relativity')
-    Called os.path.ismount('/home/thp')
-    Called os.path.ismount('/home')
+    >>> mocked(find_mount_point, 'relativity')
     '/home'
-    >>> find_mount_point('/media/usbdisk/')
-    Called os.path.ismount('/media/usbdisk')
+    >>> mocked(find_mount_point, '/media/usbdisk/')
     '/media/usbdisk'
-    >>> find_mount_point('/home/thp/Desktop')
-    Called os.path.ismount('/home/thp/Desktop')
-    Called os.path.ismount('/home/thp')
-    Called os.path.ismount('/home')
+    >>> mocked(find_mount_point, '/home/thp/Desktop')
     '/home'
-    >>> find_mount_point('/media/usbdisk/Podcasts/With Spaces')
-    Called os.path.ismount('/media/usbdisk/Podcasts/With Spaces')
-    Called os.path.ismount('/media/usbdisk/Podcasts')
-    Called os.path.ismount('/media/usbdisk')
+    >>> mocked(find_mount_point, '/media/usbdisk/Podcasts/With Spaces')
     '/media/usbdisk'
-    >>> find_mount_point('/home/')
-    Called os.path.ismount('/home')
+    >>> mocked(find_mount_point, '/home/')
     '/home'
-    >>> find_mount_point('/media/cdrom/../usbdisk/blubb//')
-    Called os.path.ismount('/media/usbdisk/blubb')
-    Called os.path.ismount('/media/usbdisk')
+    >>> mocked(find_mount_point, '/media/cdrom/../usbdisk/blubb//')
     '/media/usbdisk'
-    >>> restore()
     """
     if isinstance(directory, bytes):
         # We do not accept byte strings, because they could fail when

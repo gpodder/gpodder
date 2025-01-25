@@ -24,7 +24,7 @@ jobs:
         run: |
           sudo apt-get update -q
           sudo apt-get install intltool desktop-file-utils
-          pip3 install pytest-cov minimock pycodestyle isort codespell requests pytest pytest-httpserver
+          pip3 install pytest-cov pycodestyle isort codespell requests pytest pytest-httpserver
           pip3 install podcastparser mygpoclient
       - name: Lint
         run: make lint
