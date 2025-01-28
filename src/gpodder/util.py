@@ -1613,7 +1613,7 @@ def sanitize_filename(filename, max_length):
     >>> sanitize_filename('Binärgewitter', 0)
     'Binärgewitter'
     >>> sanitize_filename('Cool feed (ogg)', 0)
-    'Cool feed (ogg)'
+    'Cool feed _ogg_'
     >>> sanitize_filename('Cool feed (ogg)', 1)
     'C'
     """
@@ -1632,7 +1632,8 @@ def sanitize_filename(filename, max_length):
         filename = filename.decode('utf-8')
 
     # see #361 - at least slash must be removed
-    filename = re.sub(r"[\"*/:<>?\\|]", "_", filename)
+    # add additional common punctuation
+    filename = re.sub(r"[\"\'\‘\’\“\”&\[\]!@#$%^()+=,;\{\}*/:<>?\\|]", "_", filename)
 
     return filename.strip('.' + string.whitespace)
 
