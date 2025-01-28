@@ -3,7 +3,7 @@
 ## Getting started <!-- omit in toc -->
 
 Before you begin:
- - Ensure you are using Python 3.7+
+ - Ensure you are using Python 3.8+
  - Check out the [existing issues](https://github.com/gpodder/gpodder/issues)
 
 Contributions are made to this repo via Issues and Pull Requests (PRs). Make

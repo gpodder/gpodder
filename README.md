@@ -26,7 +26,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 ## Dependencies
 
-- [Python 3.7](http://python.org/) or newer
+- [Python 3.8](http://python.org/) or newer
 - [Podcastparser](http://gpodder.org/podcastparser/) 0.6.0 or newer
 - [mygpoclient](http://gpodder.org/mygpoclient/) 1.7 or newer
 - [requests](https://requests.readthedocs.io) 2.24.0 or newer
