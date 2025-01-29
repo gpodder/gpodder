@@ -382,6 +382,8 @@ class gPodderPreferences(BuilderWidget):
                                               self.checkbutton_delete_deleted_episodes)
         self._config.connect_gtk_togglebutton('device_sync.compare_episode_filesize',
                                               self.checkbutton_compare_episode_filesize)
+        self._config.connect_gtk_togglebutton('device_sync.one_folder_per_podcast',
+                                              self.checkbutton_one_folder_per_podcast)
 
         self.entry_custom_sync_name.set_text(self._config.device_sync.custom_sync_name)
 
@@ -789,6 +791,7 @@ class gPodderPreferences(BuilderWidget):
             self.checkbutton_skip_played_episodes.set_sensitive(False)
             self.combobox_episode_filename.set_sensitive(False)
             self.entry_custom_sync_name.set_sensitive(False)
+            self.checkbutton_one_folder_per_podcast.set_sensitive(False)
         elif device_type == 'filesystem':
             self.btn_filesystemMountpoint.set_label(self._config.device_sync.device_folder or "")
             self.btn_filesystemMountpoint.set_sensitive(True)
@@ -800,6 +803,7 @@ class gPodderPreferences(BuilderWidget):
             self.combobox_episode_filename.set_sensitive(True)
             self.entry_custom_sync_name.set_sensitive(
                 self._config.device_sync.custom_sync_name_enabled)
+            self.checkbutton_one_folder_per_podcast.set_sensitive(True)
         elif device_type == 'ipod':
             self.btn_filesystemMountpoint.set_label(self._config.device_sync.device_folder)
             self.btn_filesystemMountpoint.set_sensitive(True)
@@ -811,6 +815,7 @@ class gPodderPreferences(BuilderWidget):
             self.checkbutton_delete_deleted_episodes.set_sensitive(True)
             self.combobox_episode_filename.set_sensitive(False)
             self.entry_custom_sync_name.set_sensitive(False)
+            self.checkbutton_one_folder_per_podcast.set_sensitive(False)
         self.checkbutton_compare_episode_filesize.set_sensitive(True)
 
         children = self.btn_filesystemMountpoint.get_children()
