@@ -387,7 +387,8 @@ class gPodderPreferences(BuilderWidget):
         self._config.connect_gtk_togglebutton('device_sync.playlists.use_absolute_path',
                                               self.checkbutton_playlists_use_absolute_path)
         
-
+        self._config.connect_gtk_spinbutton('device_sync.max_filename_length', self.spinbutton_max_filename_length)
+        
         self.entry_custom_sync_name.set_text(self._config.device_sync.custom_sync_name)
 
         # Have to do this before calling set_active on checkbutton_enable
@@ -759,11 +760,13 @@ class gPodderPreferences(BuilderWidget):
         if not widget.get_active():
             self._config.device_sync.playlists.create = False
             self.toggle_playlist_interface(False)
+            self.checkbutton_playlists_use_absolute_path.set_sensitive(False)
             # need to read value of checkbutton from interface,
             # rather than value of parameter
         else:
             self._config.device_sync.playlists.create = True
             self.toggle_playlist_interface(True)
+            self.checkbutton_playlists_use_absolute_path.set_sensitive(True)
 
     def toggle_playlist_interface(self, enabled):
         if enabled and self._config.device_sync.device_type == 'filesystem':
@@ -803,6 +806,7 @@ class gPodderPreferences(BuilderWidget):
             self.entry_custom_sync_name.set_sensitive(False)
             self.checkbutton_one_folder_per_podcast.set_sensitive(False)
             self.checkbutton_playlists_use_absolute_path.set_sensitive(False)
+            self.spinbutton_max_filename_length.set_sensitive(False)
         elif device_type == 'filesystem':
             self.btn_filesystemMountpoint.set_label(self._config.device_sync.device_folder or "")
             self.btn_filesystemMountpoint.set_sensitive(True)
@@ -816,6 +820,7 @@ class gPodderPreferences(BuilderWidget):
                 self._config.device_sync.custom_sync_name_enabled)
             self.checkbutton_one_folder_per_podcast.set_sensitive(True)
             self.checkbutton_playlists_use_absolute_path.set_sensitive(True)
+            self.spinbutton_max_filename_length.set_sensitive(True)
         elif device_type == 'ipod':
             self.btn_filesystemMountpoint.set_label(self._config.device_sync.device_folder)
             self.btn_filesystemMountpoint.set_sensitive(True)
@@ -829,6 +834,7 @@ class gPodderPreferences(BuilderWidget):
             self.entry_custom_sync_name.set_sensitive(False)
             self.checkbutton_one_folder_per_podcast.set_sensitive(False)
             self.checkbutton_playlists_use_absolute_path.set_sensitive(False)
+            self.spinbutton_max_filename_length.set_sensitive(False)
         self.checkbutton_compare_episode_filesize.set_sensitive(True)
 
         children = self.btn_filesystemMountpoint.get_children()
