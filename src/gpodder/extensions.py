@@ -387,9 +387,13 @@ class ExtensionManager(object):
                 continue
 
             name, _ = os.path.splitext(os.path.basename(filename))
+
+            # strip ordering prefix, if present
+            name = re.sub(r'^[0-9]*_', '', name)
             extensions[name] = filename
 
-        return sorted(extensions.items())
+        # sort by filename
+        return sorted(extensions.items(), key=lambda i: i[1])
 
     def get_extensions(self):
         """Get a list of all loaded extensions and their enabled flag."""
