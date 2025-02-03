@@ -526,7 +526,8 @@ def format_date(timestamp):
     'Today'
     >>> format_date(time.time() - 24*60*60)
     'Yesterday'
-    >>> format_date(1736243460 - 6*24*60*60)
+    >>> weekday = datetime.datetime.now().weekday()
+    >>> 'Wednesday' if weekday == 2 else format_date(time.time() - ((weekday + 5)%7)*24*60*60)
     'Wednesday'
     >>> if os.name == 'posix':
     ...    old_tz = os.environ.get('TZ')
