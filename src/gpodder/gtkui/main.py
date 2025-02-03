@@ -2699,7 +2699,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
                     if title is not None:
                         # Prefer title from subscription source (bug 1711)
-                        channel.title = title
+                        channel.rename(title)
                     if section is not None:
                         channel.section = section
 
