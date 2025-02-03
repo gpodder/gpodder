@@ -202,7 +202,7 @@ class gPodderShownotesText(gPodderShownotes):
         heading = episode.title
         subheading = _('from %s') % (episode.channel.title)
         details = self.details_fmt % {
-            'date': '{} {}'.format(datetime.datetime.fromtimestamp(episode.published).strftime('%H:%M'),
+            'date': '{} {}'.format(episode.published_formatted('%H:%M', ''),
                 util.format_date(episode.published)),
             'size': util.format_filesize(episode.file_size, digits=1)
             if episode.file_size > 0 else "-",
@@ -345,7 +345,7 @@ class gPodderShownotesHTML(gPodderShownotes):
         heading = '<h3>%s</h3>' % html.escape(episode.title)
         subheading = _('from %s') % html.escape(episode.channel.title)
         details = '<small>%s</small>' % html.escape(self.details_fmt % {
-            'date': '{} {}'.format(datetime.datetime.fromtimestamp(episode.published).strftime('%H:%M'),
+            'date': '{} {}'.format(episode.published_formatted('%H:%M', ''),
                 util.format_date(episode.published)),
             'size': util.format_filesize(episode.file_size, digits=1)
             if episode.file_size > 0 else "-",

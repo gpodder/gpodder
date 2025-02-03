@@ -48,20 +48,12 @@ class gPodderExtension:
             return None
         info = {
             'filename': filename,
-            'playlist_title': None,
-            'podcast': None,
-            'published': None,
-            'section': None,
-            'title': None,
+            'playlist_title': episode.playlist_title(),
+            'podcast': episode.channel.title,
+            'published': episode.published_formatted('%Y-%m-%d %H:%M', '0000-00-00 00:00'),
+            'section': episode.channel.section,
+            'title': episode.title,
         }
-
-        info['podcast'] = episode.channel.title
-        info['title'] = episode.title
-        info['section'] = episode.channel.section
-
-        published = datetime.datetime.fromtimestamp(episode.published)
-        info['published'] = published.strftime('%Y-%m-%d %H:%M')
-        info['playlist_title'] = episode.playlist_title()
         return info
 
     def run_command(self, command, info):
