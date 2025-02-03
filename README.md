@@ -71,7 +71,6 @@ to install dependencies.
 
 ### Test Dependencies
 
-- python-minimock
 - pytest
 - pytest-httpserver
 - pytest-cov
