@@ -1016,6 +1016,7 @@ class gPodderCli(object):
         done_lock.acquire()
         sync_ui.on_synchronize_episodes(self._model.get_podcasts(), episodes=None, force_played=True, done_callback=done_lock.release)
         done_lock.acquire()  # block until done
+        gpodder.user_extensions.on_all_episodes_synced()
 
     def _extensions_list(self):
         def by_category(ext):
