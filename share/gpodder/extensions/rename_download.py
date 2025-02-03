@@ -107,9 +107,7 @@ class gPodderExtension:
             new_basename,
             ext,
             PodcastEpisode.MAX_FILENAME_LENGTH,
-            PodcastEpisode.MAX_FILENAME_WITH_EXT_LENGTH,
-            self.config.sanitize_filenames.remove_more_punctuation,
-            self.config.sanitize_filenames.ascii_only)
+            PodcastEpisode.MAX_FILENAME_WITH_EXT_LENGTH)
         new_filename = os.path.join(dirname, new_basename + ext)
 
         if new_filename == current_filename:
