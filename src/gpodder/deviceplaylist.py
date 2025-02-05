@@ -19,6 +19,7 @@
 
 import logging
 import os
+from urllib import request
 
 import gpodder
 from gpodder import util
@@ -44,6 +45,7 @@ class gPodderDevicePlaylist(object):
             + '.' + self._config.device_sync.playlists.extension)
         device_folder = util.new_gio_file(self._config.device_sync.device_folder)
         self.playlist_folder = device_folder.resolve_relative_path(self._config.device_sync.playlists.folder)
+        self.playlist_to_device_relpath = os.path.relpath(device_folder, self.playlist_folder)
 
         self.mountpoint = None
         try:
@@ -56,7 +58,7 @@ class gPodderDevicePlaylist(object):
             logger.warning('could not find mount point for MP3 player - using %s as MP3 player root', self.mountpoint.get_uri())
         self.playlist_absolute_filename = self.playlist_folder.resolve_relative_path(self.playlist_file)
 
-    def build_extinf(self, filename):
+    def build_extinf(self, filename, episode=None):
         # TODO: Windows playlists
         #        if self._config.mp3_player_playlist_win_path:
         #            filename = filename.replace('\\', os.sep)
@@ -68,7 +70,11 @@ class gPodderDevicePlaylist(object):
         #            absfile = util.rel2abs(filename, os.path.dirname(self.playlist_file))
 
         # fallback: use the basename of the file
-        (title, extension) = os.path.splitext(os.path.basename(filename))
+        if episode is not None:
+            print(episode.title)
+            title = episode.title
+        else:
+            (title, extension) = os.path.splitext(os.path.basename(filename))
 
         return "#EXTINF:0,%s%s" % (title.strip(), self.linebreak)
 
@@ -91,14 +97,34 @@ class gPodderDevicePlaylist(object):
         """Get the filename for the given episode for the playlist."""
         return episode_filename_on_device(self._config, episode)
 
-    def get_absolute_filename_for_playlist(self, episode):
-        """Get the filename including full path for the given episode for the playlist."""
+    def get_path_to_filename_for_playlist(self, episode):
+        """
+        get the filename including full path for the given episode for the playlist
+        """
         filename = self.get_filename_for_playlist(episode)
         foldername = episode_foldername_on_device(self._config, episode)
         if foldername:
             filename = os.path.join(foldername, filename)
         if self._config.device_sync.playlists.use_absolute_path:
-            filename = os.path.join(util.relpath(self._config.device_sync.device_folder, self.mountpoint.get_uri()), filename)
+            # ensure our path is a path, not a url - need to manually strip prefix
+            # this is largely so that os.path.ismount() will work correctly
+            drive_start = self._config.device_sync.device_folder.removeprefix('file:')
+            drive_start = drive_start.removeprefix('mtp:')
+            drive_start = request.url2pathname(drive_start)
+            device_folder = drive_start
+
+            # find mount point, ensuring we don't end up locked up in the loop
+            while not os.path.ismount(drive_start) and drive_start != os.path.dirname(drive_start):
+                drive_start = os.path.dirname(drive_start)
+
+            # filename should be guaranteed to be a real path, not a url
+            # relpath will not have a leading '/' though.
+            filename = os.path.join(util.relpath(device_folder, drive_start), filename)
+
+            # distinguish this as an absolute path from the device's point of view
+            filename = "/" + filename
+        else:
+            filename = os.path.join(self.playlist_to_device_relpath, filename)
         return filename
 
     def write_m3u(self, episodes):
@@ -120,8 +146,8 @@ class gPodderDevicePlaylist(object):
             os.put_string('#EXTM3U%s' % self.linebreak)
             for current_episode in episodes:
                 filename = self.get_filename_for_playlist(current_episode)
-                os.put_string(self.build_extinf(filename))
-                filename = self.get_absolute_filename_for_playlist(current_episode)
+                os.put_string(self.build_extinf(filename, episode=current_episode))
+                filename = self.get_path_to_filename_for_playlist(current_episode)
                 os.put_string(filename)
                 os.put_string(self.linebreak)
             os.close()
