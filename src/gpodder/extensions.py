@@ -392,6 +392,11 @@ class ExtensionManager(object):
 
             # strip ordering prefix, if present
             name = re.sub(r'^[0-9]*_', '', name)
+            try:
+                if extensions[name] is not None:
+                    logger.info("extension at %s will be ignored in favor of %s", extensions[name], filename)
+            except:
+                None
             extensions[name] = filename
 
         # sort by filename
