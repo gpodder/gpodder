@@ -865,22 +865,22 @@ class PodcastEpisode(PodcastModelObject):
 
     @property
     def sortdate(self):
-        return self._published_formatted('%Y-%m-%d', '0000-00-00')
+        return self.published_formatted('%Y-%m-%d', '0000-00-00')
 
     @property
     def pubdate_day(self):
         """for custom sync filename: use episode.pubdate_day for day of publication (01-31)"""
-        return self._published_formatted('%d', '00')
+        return self.published_formatted('%d', '00')
 
     @property
     def pubdate_month(self):
         """for custom filename: use episode.pubdate_month for month of publication (01-12)"""
-        return self._published_formatted('%m', '00')
+        return self.published_formatted('%m', '00')
 
     @property
     def pubdate_year(self):
         """for custom filename: use episode.pubdate_year for year of publication without century)"""
-        return self._published_formatted('%y', '00')
+        return self.published_formatted('%y', '00')
 
     def is_finished(self):
         """Return True if this episode is considered "finished playing".
