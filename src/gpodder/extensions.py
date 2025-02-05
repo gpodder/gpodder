@@ -380,7 +380,9 @@ class ExtensionManager(object):
             user_extensions = os.path.join(gpodder.home, 'Extensions', '*.py')
             self.filenames = glob.glob(builtins) + glob.glob(user_extensions)
 
-        # Let user extensions override built-in extensions of the same name
+        # Let user extensions override built-in extensions of the same name.
+        # This inherently happens because we search the user extensions folder second,
+        # and the entries are put in the extensions dict by their name field.
         for filename in self.filenames:
             if not filename or not os.path.exists(filename):
                 logger.info('Skipping non-existing file: %s', filename)
