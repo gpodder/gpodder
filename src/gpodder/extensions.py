@@ -371,7 +371,7 @@ class ExtensionManager(object):
                 self.core.config.extensions.enabled = [x
                         for x in self.core.config.extensions.enabled
                         if x != container.name]
-    
+
     # extensions with no priority get lowest priority, 99
     def _get_prefix(self, name):
         prefix = name.split('_')[0]
