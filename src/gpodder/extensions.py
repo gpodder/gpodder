@@ -191,7 +191,7 @@ class MissingCommand(MissingDependency):
 class ExtensionContainer(object):
     """An extension container wraps one extension module."""
 
-    def __init__(self, manager, name, config, filename=None, module=None):
+    def __init__(self, manager, name, config, filename=None, extpriority=99, module=None):
         self.manager = manager
 
         self.name = name
@@ -200,6 +200,7 @@ class ExtensionContainer(object):
         self.module = module
         self.enabled = False
         self.error = None
+        self.extpriority = extpriority
 
         self.default_config = None
         self.parameters = None
@@ -333,10 +334,10 @@ class ExtensionManager(object):
             logger.info('Disabling all extensions (from environment)')
             return
 
-        for name, filename in self._find_extensions():
-            logger.debug('Found extension "%s" in %s', name, filename)
+        for name, (priority, filename) in self._find_extensions():
+            logger.debug('Found extension "%s", priority %s, in %s', name, str(priority), filename)
             config = getattr(core.config.extensions, name)
-            container = ExtensionContainer(self, name, config, filename)
+            container = ExtensionContainer(self, name, config, filename, extpriority=priority)
             if (name in enabled_extensions
                     or container.metadata.mandatory_in_current_ui):
                 container.set_enabled(True)
@@ -370,6 +371,16 @@ class ExtensionManager(object):
                 self.core.config.extensions.enabled = [x
                         for x in self.core.config.extensions.enabled
                         if x != container.name]
+    
+    # extensions with no priority get lowest priority, 99
+    def _get_prefix(self, name):
+        prefix = name.split('_')[0]
+        try:
+            prefix = int(prefix)
+        except:
+            return 99
+        else:
+            return prefix
 
     def _find_extensions(self):
         extensions = {}
@@ -390,17 +401,21 @@ class ExtensionManager(object):
 
             name, _ = os.path.splitext(os.path.basename(filename))
 
-            # strip ordering prefix, if present
+            # get ordering prefix
+            priority = self._get_prefix(name)
+
+            # strip ordering prefix from name, if present
             name = re.sub(r'^[0-9]*_', '', name)
             try:
                 if extensions[name] is not None:
-                    logger.info("extension at %s will be ignored in favor of %s", extensions[name], filename)
+                    logger.info("extension at %s will be ignored in favor of %s", extensions[name][1], filename)
             except:
                 None
-            extensions[name] = filename
+            extensions[name] = (priority, filename)
 
-        # sort by filename
-        return sorted(extensions.items(), key=lambda i: i[1])
+        # sort by priority - extensions with same priority will retain the order
+        # in which they were found.
+        return sorted(extensions.items(), key=lambda i: i[1][0])
 
     def get_extensions(self):
         """Get a list of all loaded extensions and their enabled flag."""
