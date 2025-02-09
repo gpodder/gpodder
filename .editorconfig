@@ -1,0 +1,29 @@
+# EditorConfig is awesome: http://EditorConfig.org
+
+# top-most EditorConfig file
+root = true
+
+# Unix-style newlines with a newline ending every file
+[*]
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+charset = utf-8
+indent_style = space
+
+# 4 space indentation
+[*.{py,java,r,R}]
+indent_size = 4
+max_line_length = 142
+
+# 2 space indentation
+[*.{js,json,y{a,}ml,html,xml,cwl,blp}]
+indent_size = 2
+
+# Docs
+[*.{md,Rmd,rst}]
+indent_size = 4
+max_line_length = 80
+
+[{M,m}akefile]
+indent_style = tab

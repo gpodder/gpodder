@@ -823,11 +823,7 @@ class PodcastEpisode(PodcastModelObject):
     @property
     def pubtime(self):
         """Return published time as HHMM (or 0000 if not available)."""
-        try:
-            return datetime.datetime.fromtimestamp(self.published).strftime('%H%M')
-        except:
-            logger.warning('Cannot format pubtime: %s', self.title, exc_info=True)
-            return '0000'
+        return self.published_formatted('%H%M', '0000')
 
     def playlist_title(self):
         """Return a title for this episode in a playlist.
@@ -852,29 +848,43 @@ class PodcastEpisode(PodcastModelObject):
                 return '<small>{}</small>\n{}'.format(timestamp.strftime('%H:%M'), result)
             else:
                 return result
-        except:
+        except (OSError, TypeError, ValueError):
+            # Not likely: util.format_date has succeeded
             return result
 
     pubdate_prop = property(fget=cute_pubdate)
 
-    def published_datetime(self):
-        return datetime.datetime.fromtimestamp(self.published)
+    def published_formatted(self, format, default):
+        """safe method to convert self.published to a string
+
+        format: anything accepted by datetime.datetime.strftime
+        default: string to return when self.published is invalid
+        """
+        try:
+            d = datetime.datetime.fromtimestamp(self.published)
+            return d.strftime(format)
+        except (OSError, TypeError, ValueError):
+            logger.warning('Cannot compute published_datetime %r' % timestamp, exc_info=True)
+            return default
 
     @property
     def sortdate(self):
-        return self.published_datetime().strftime('%Y-%m-%d')
+        return self.published_formatted('%Y-%m-%d', '0000-00-00')
 
     @property
     def pubdate_day(self):
-        return self.published_datetime().strftime('%d')
+        """for custom sync filename: use episode.pubdate_day for day of publication (01-31)"""
+        return self.published_formatted('%d', '00')
 
     @property
     def pubdate_month(self):
-        return self.published_datetime().strftime('%m')
+        """for custom filename: use episode.pubdate_month for month of publication (01-12)"""
+        return self.published_formatted('%m', '00')
 
     @property
     def pubdate_year(self):
-        return self.published_datetime().strftime('%y')
+        """for custom filename: use episode.pubdate_year for year of publication without century)"""
+        return self.published_formatted('%y', '00')
 
     def is_finished(self):
         """Return True if this episode is considered "finished playing".

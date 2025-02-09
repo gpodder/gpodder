@@ -115,7 +115,10 @@ class Matcher(object):
         elif k == 'description':
             return episode._text_description
         elif k == 'since':
-            return (datetime.datetime.now() - datetime.datetime.fromtimestamp(episode.published)).days
+            try:
+                return (datetime.datetime.now() - datetime.datetime.fromtimestamp(episode.published)).days
+            except (OSError, TypeError, ValueError):
+                return (datetime.datetime.now() - datetime.datetime.fromtimestamp(0)).days
         elif k == 'age':
             return episode.age_in_days()
         elif k in ('minutes', 'min'):

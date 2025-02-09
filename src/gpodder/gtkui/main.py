@@ -1708,9 +1708,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
             message += self.format_episode_list(
                 [str(task) for task in failed_syncs], 5)
             self.show_message(message, _('Device synchronization finished'), True)
+            gpodder.user_extensions.on_all_episodes_synced()
         elif finished_syncs:
             message = self.format_episode_list([str(task) for task in finished_syncs])
             self.show_message(message, _('Device synchronization finished'))
+            gpodder.user_extensions.on_all_episodes_synced()
         elif failed_syncs:
             message = self.format_episode_list([str(task) for task in failed_syncs])
             self.show_message(message, _('Device synchronization failed'), True)
@@ -2700,7 +2702,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
                     if title is not None:
                         # Prefer title from subscription source (bug 1711)
-                        channel.title = title
+                        channel.rename(title)
                     if section is not None:
                         channel.section = section
 

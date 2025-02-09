@@ -288,17 +288,7 @@ class gPodderExtension:
         if self.container.config.genre_tag is not None:
             info['genre'] = self.container.config.genre_tag
 
-        # convert pubDate to string
-        try:
-            pubDate = datetime.datetime.fromtimestamp(episode.pubDate)
-            info['pubDate'] = pubDate.strftime('%Y-%m-%d %H:%M')
-        except:
-            try:
-                # since version 3 the published date has a new/other name
-                pubDate = datetime.datetime.fromtimestamp(episode.published)
-                info['pubDate'] = pubDate.strftime('%Y-%m-%d %H:%M')
-            except:
-                info['pubDate'] = None
+        info['pubDate'] = episode.published_formatted('%Y-%m-%d %H:%M', None)
 
         return info
 

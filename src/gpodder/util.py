@@ -517,45 +517,53 @@ def format_date(timestamp):
 
     Returns None if there has been an error converting the
     timestamp to a string representation.
+
+    For instance on windows we can't represent dates before epoch (timestamp<0)
+
+    >>> (os.name == 'nt') == (format_date(-39539) == None)
+    True
+    >>> format_date(time.time())
+    'Today'
+    >>> format_date(time.time() - 24*60*60)
+    'Yesterday'
+    >>> weekday = datetime.datetime.now().weekday()
+    >>> 'Wednesday' if weekday == 2 else format_date(time.time() - ((weekday + 5)%7)*24*60*60)
+    'Wednesday'
+    >>> if os.name == 'posix':
+    ...    old_tz = os.environ.get('TZ')
+    ...    os.environ['TZ'] = 'Europe/Paris'
+    ...    time.tzset()
+    >>> format_date(1704099600)
+    '01/01/24'
+    >>> if os.name == 'posix':
+    ...    if old_tz:
+    ...        os.environ['TZ'] = old_tz
+    ...    else:
+    ...        del os.environ['TZ']
+    ...    time.tzset()
     """
     if timestamp is None:
         return None
 
-    seconds_in_a_day = 60 * 60 * 24
-
-    today = time.localtime()[:3]
-    yesterday = time.localtime(time.time() - seconds_in_a_day)[:3]
     try:
-        timestamp_date = time.localtime(timestamp)[:3]
-    except ValueError:
-        logger.warning('Cannot convert timestamp', exc_info=True)
+        timestamp_date = datetime.date.fromtimestamp(timestamp)
+    except (OSError, TypeError, ValueError):
+        logger.warning('Cannot convert timestamp %r' % timestamp, exc_info=True)
         return None
-    except TypeError:
-        logger.warning('Cannot convert timestamp', exc_info=True)
-        return None
+
+    today = datetime.date.today()
+
+    delta = today - timestamp_date
 
     if timestamp_date == today:
         return _('Today')
-    elif timestamp_date == yesterday:
+    if delta <= datetime.timedelta(days=1):
         return _('Yesterday')
-
-    try:
-        diff = int((time.time() - timestamp) / seconds_in_a_day)
-    except:
-        logger.warning('Cannot convert "%s" to date.', timestamp, exc_info=True)
-        return None
-
-    try:
-        timestamp = datetime.datetime.fromtimestamp(timestamp)
-    except:
-        return None
-
-    if diff < 7:
+    if delta <= datetime.timedelta(days=7):
         # Weekday name
-        return timestamp.strftime('%A')
-    else:
-        # Locale's appropriate date representation
-        return timestamp.strftime('%x')
+        return timestamp_date.strftime('%A')
+    # Locale's appropriate date representation
+    return timestamp_date.strftime('%x')
 
 
 def format_filesize(bytesize, use_si_units=False, digits=2):
@@ -1683,44 +1691,26 @@ def find_mount_point(directory):
       ...
     ValueError: Directory names should be of type str.
 
-    >>> from minimock import mock, restore
+    >>> from unittest import mock
     >>> mocked_mntpoints = ('/', '/home', '/media/usbdisk', '/media/cdrom')
-    >>> mock('os.path.ismount', returns_func=lambda x: x in mocked_mntpoints)
-    >>>
-    >>> # For mocking os.getcwd(), we simply use a lambda to avoid the
-    >>> # massive output of "Called os.getcwd()" lines in this doctest
-    >>> os.getcwd = lambda: '/home/thp'
-    >>>
-    >>> find_mount_point('.')
-    Called os.path.ismount('/home/thp')
-    Called os.path.ismount('/home')
+    >>> def mocked(f, *args):
+    ...     with mock.patch('os.path.ismount', lambda x: x in mocked_mntpoints):
+    ...         with mock.patch('os.getcwd', lambda: '/home/thp'):
+    ...             return f(*args)
+    >>> mocked(find_mount_point, '.')
     '/home'
-    >>> find_mount_point('relativity')
-    Called os.path.ismount('/home/thp/relativity')
-    Called os.path.ismount('/home/thp')
-    Called os.path.ismount('/home')
+    >>> mocked(find_mount_point, 'relativity')
     '/home'
-    >>> find_mount_point('/media/usbdisk/')
-    Called os.path.ismount('/media/usbdisk')
+    >>> mocked(find_mount_point, '/media/usbdisk/')
     '/media/usbdisk'
-    >>> find_mount_point('/home/thp/Desktop')
-    Called os.path.ismount('/home/thp/Desktop')
-    Called os.path.ismount('/home/thp')
-    Called os.path.ismount('/home')
+    >>> mocked(find_mount_point, '/home/thp/Desktop')
     '/home'
-    >>> find_mount_point('/media/usbdisk/Podcasts/With Spaces')
-    Called os.path.ismount('/media/usbdisk/Podcasts/With Spaces')
-    Called os.path.ismount('/media/usbdisk/Podcasts')
-    Called os.path.ismount('/media/usbdisk')
+    >>> mocked(find_mount_point, '/media/usbdisk/Podcasts/With Spaces')
     '/media/usbdisk'
-    >>> find_mount_point('/home/')
-    Called os.path.ismount('/home')
+    >>> mocked(find_mount_point, '/home/')
     '/home'
-    >>> find_mount_point('/media/cdrom/../usbdisk/blubb//')
-    Called os.path.ismount('/media/usbdisk/blubb')
-    Called os.path.ismount('/media/usbdisk')
+    >>> mocked(find_mount_point, '/media/cdrom/../usbdisk/blubb//')
     '/media/usbdisk'
-    >>> restore()
     """
     if isinstance(directory, bytes):
         # We do not accept byte strings, because they could fail when
