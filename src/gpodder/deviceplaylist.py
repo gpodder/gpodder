@@ -19,6 +19,7 @@
 
 import logging
 import os
+import re
 from urllib import request
 
 import gpodder
@@ -46,15 +47,32 @@ class gPodderDevicePlaylist(object):
         device_folder = util.new_gio_file(self._config.device_sync.device_folder)
         self.playlist_folder = device_folder.resolve_relative_path(self._config.device_sync.playlists.folder)
         self.playlist_to_device_relpath = os.path.relpath(device_folder, self.playlist_folder)
-
+        breakpoint()
         self.mountpoint = None
         try:
             self.mountpoint = self.playlist_folder.find_enclosing_mount().get_root()
         except GLib.Error as err:
             logger.error('find_enclosing_mount folder %s failed: %s', self.playlist_folder.get_uri(), err.message)
-
         if not self.mountpoint:
-            self.mountpoint = self.playlist_folder
+            # look for the common path of device folder and playlists
+            # (not using os.path.commonpath because we want a gio.File)
+            # must work with:
+            # - Playlist path a parent of the device folder (playlists at device root)
+            # - Playlist path a child of the device folder (Playlists folder next to each podcast folder)
+            # - Playlist path next to or in a subfolder next to the device folder
+            mountpoint = device_folder
+            # we constructed the path to playlist using util.relpath, so it must be / separated
+            to_parent_path_components = self._config.device_sync.playlists.folder.split('/')
+            while mountpoint and to_parent_path_components and to_parent_path_components[0] == '..':
+                # path starts with .. : move up once
+                mountpoint = mountpoint.get_parent()
+                to_parent_path_components.pop(0)
+            if mountpoint and (self.playlist_folder.has_prefix(mountpoint) or self.playlist_folder.equal(mountpoint)):
+               self.mountpoint = mountpoint
+            else:
+                 raise Exception(
+                     "Unable to find the device root path from %s and playlist %s"
+                     % (self._config.device_sync.device_folder, self._config.device_sync.playlists.folder))
             logger.warning('could not find mount point for MP3 player - using %s as MP3 player root', self.mountpoint.get_uri())
         self.playlist_absolute_filename = self.playlist_folder.resolve_relative_path(self.playlist_file)
 
@@ -106,23 +124,9 @@ class gPodderDevicePlaylist(object):
         if foldername:
             filename = os.path.join(foldername, filename)
         if self._config.device_sync.playlists.use_absolute_path:
-            # ensure our path is a path, not a url - need to manually strip prefix
-            # this is largely so that os.path.ismount() will work correctly
-            drive_start = self._config.device_sync.device_folder.removeprefix('file:')
-            drive_start = drive_start.removeprefix('mtp:')
-            drive_start = request.url2pathname(drive_start)
-            device_folder = drive_start
-
-            # find mount point, ensuring we don't end up locked up in the loop
-            while not os.path.ismount(drive_start) and drive_start != os.path.dirname(drive_start):
-                drive_start = os.path.dirname(drive_start)
-
-            # filename should be guaranteed to be a real path, not a url
-            # relpath will not have a leading '/' though.
-            filename = os.path.join(util.relpath(device_folder, drive_start), filename)
-
-            # distinguish this as an absolute path from the device's point of view
-            filename = "/" + filename
+            device_folder = util.new_gio_file(self._config.device_sync.device_folder)
+            file_ = device_folder.resolve_relative_path(filename)
+            filename = "/" + util.relpath(file_.get_path(), self.mountpoint.get_path())
         else:
             filename = os.path.join(self.playlist_to_device_relpath, filename)
         return filename
