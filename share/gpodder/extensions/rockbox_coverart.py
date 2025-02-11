@@ -52,7 +52,7 @@ class gPodderExtension:
             device_folder = device.get_episode_folder_on_device(episode)
 
             # discover desired filetype
-            device_filetype, device_filename = self.config.art_name_on_device.rsplit(".", 1)
+            device_filename, device_filetype = self.config.art_name_on_device.rsplit(".", 1)
 
             # only allow jpeg, jpg, and png - if invalid, default to jpg
             if device_filetype.lower() not in ("jpeg", "jpg", "png"):
