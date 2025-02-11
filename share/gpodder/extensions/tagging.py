@@ -110,27 +110,27 @@ class AudioFile(object):
                 logger.info("removing before writing")
                 audio.delete()
 
-            if write_album is True and self.album is not None:
+            if write_album and self.album is not None:
                 logger.info("writing album")
                 audio.tags['album'] = self.album
 
-            if write_title is True and self.title is not None:
+            if write_title and self.title is not None:
                 logger.info("writing title")
                 audio.tags['title'] = self.title
 
-            if write_subtitle is True and self.subtitle is not None:
+            if write_subtitle and self.subtitle is not None:
                 logger.info("writing subtitle")
                 audio.tags['subtitle'] = self.subtitle
 
-            if write_comments is True and self.subtitle is not None:
+            if write_comments and self.subtitle is not None:
                 logger.info("writing comments")
                 audio.tags['comments'] = self.subtitle
 
-            if write_genre is True and self.genre is not None:
+            if write_genre and self.genre is not None:
                 logger.info("writing genre")
                 audio.tags['genre'] = self.genre
 
-            if write_pubdate is True and self.pubDate is not None:
+            if write_pubdate and self.pubDate is not None:
                 logger.info("writing date")
                 audio.tags['date'] = self.pubDate
 

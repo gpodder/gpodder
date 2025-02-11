@@ -71,7 +71,6 @@ class gPodderDevicePlaylist(object):
 
         # fallback: use the basename of the file
         if episode is not None:
-            print(episode.title)
             title = episode.title
         else:
             (title, extension) = os.path.splitext(os.path.basename(filename))

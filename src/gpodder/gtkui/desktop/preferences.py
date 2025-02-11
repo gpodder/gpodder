@@ -743,12 +743,8 @@ class gPodderPreferences(BuilderWidget):
             self, widget):
         if not widget.get_active():
             self._config.device_sync.use_title_as_filename = False
-            # self.toggle_playlist_interface(False)
-            # need to read value of checkbutton from interface,
-            # rather than value of parameter
         else:
             self._config.device_sync.use_title_as_filename = True
-            # self.toggle_playlist_interface(True)
 
     def on_combobox_device_type_changed(self, widget):
         index = self.combobox_device_type.get_active()

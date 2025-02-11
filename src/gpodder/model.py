@@ -803,7 +803,6 @@ class PodcastEpisode(PodcastModelObject):
             return util.object_string_formatter(custom_format,
                     episode=self, podcast=self.channel)
         elif use_title:
-            # return self.title
             return self.title
         else:
             # use same filename as on local
