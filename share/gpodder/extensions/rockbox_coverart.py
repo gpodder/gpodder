@@ -90,10 +90,11 @@ class gPodderExtension:
                         if os.path.isfile(device_art):
                             try:
                                 with Image.open(device_art) as img:
-                                    if img.height != int(self.config.convert_size) and\
+                                    imgsize = max(img.height, img.width)
+                                    if imgsize != int(self.config.convert_size) and\
                                             self.config.convert_allow_upscale_art:
                                         copyflag = True
-                                    elif img.height > int(self.config.convert_size) and\
+                                    elif imgsize > int(self.config.convert_size) and\
                                             not self.config.convert_allow_upscale_art:
                                         copyflag = True
                                     elif img.format.upper() != device_match_filetype:
@@ -116,7 +117,9 @@ class gPodderExtension:
                                 with Image.open(episode_art) as img:
                                     if img.height > int(self.config.convert_size)\
                                             or self.config.convert_allow_upscale_art:
-                                        out = img.resize((int(self.config.convert_size), int(self.config.convert_size)))
+                                        ratio = min(self.config.convert_size/img.height, self.config.convert_size/img.width)
+                                        newsize = (int(ratio * img.width), int(ratio * img.height))
+                                        out = img.resize(newsize)
                                     else:
                                         out = img.copy()
                                     out.save(device_art)
