@@ -330,7 +330,23 @@ class gPodderExtension:
             podcast.url, podcast.title, None, None, True)
 
     def toggle_sensitivity_of_widgets(self):
-        if not self.container.config.always_remove_tags:
+        if self.container.config.always_remove_tags:
+            self.container.modify_tags.set_sensitive(False)
+            self.container.remove_before_modify.set_sensitive(False)
+            self.container.write_album.set_sensitive(False)
+            self.container.write_title.set_sensitive(False)
+            self.container.strip_album_from_title.set_sensitive(False)
+            self.container.write_subtitle.set_sensitive(False)
+            self.container.write_comments.set_sensitive(False)
+            self.container.write_comments_note.set_sensitive(False)
+            self.container.write_genre.set_sensitive(False)
+            self.container.write_pubdate.set_sensitive(False)
+            self.container.set_artist_to_album.set_sensitive(False)
+            self.container.auto_embed_coverart.set_sensitive(False)
+            self.container.note1.set_sensitive(False)
+            self.container.hbox_genre_tag.set_sensitive(False)
+
+        else:
             self.container.modify_tags.set_sensitive(True)
             self.container.remove_before_modify.set_sensitive(self.container.config.modify_tags)
             self.container.write_album.set_sensitive(self.container.config.modify_tags)
@@ -350,22 +366,6 @@ class gPodderExtension:
             else:
                 self.container.hbox_genre_tag.set_sensitive(False)
                 self.container.strip_album_from_title.set_sensitive(False)
-
-        else:
-            self.container.modify_tags.set_sensitive(False)
-            self.container.remove_before_modify.set_sensitive(False)
-            self.container.write_album.set_sensitive(False)
-            self.container.write_title.set_sensitive(False)
-            self.container.strip_album_from_title.set_sensitive(False)
-            self.container.write_subtitle.set_sensitive(False)
-            self.container.write_comments.set_sensitive(False)
-            self.container.write_comments_note.set_sensitive(False)
-            self.container.write_genre.set_sensitive(False)
-            self.container.write_pubdate.set_sensitive(False)
-            self.container.set_artist_to_album.set_sensitive(False)
-            self.container.auto_embed_coverart.set_sensitive(False)
-            self.container.note1.set_sensitive(False)
-            self.container.hbox_genre_tag.set_sensitive(False)
 
     def toggle_always_remove_tags(self, widget):
         self.container.config.always_remove_tags = widget.get_active()
