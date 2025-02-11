@@ -105,7 +105,7 @@ class gPodderExtension:
                                     except:
                                         pass  # expected result if baseline jpeg or png
                             except OSError:
-                                logger.info("%s check image error!", device_art)
+                                logger.info("%s check image error: %r", device_art, e)
                         # file does not exist, we will create it
                         else:
                             copyflag = True
