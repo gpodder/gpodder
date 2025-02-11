@@ -18,8 +18,6 @@ from gpodder import coverart
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
-# debug
-# from gi.repository import Gdk
 
 logger = logging.getLogger(__name__)
 _ = gpodder.gettext
@@ -54,12 +52,10 @@ class gPodderExtension:
             device_folder = device.get_episode_folder_on_device(episode)
 
             # discover desired filetype
-            device_filetype = self.config.art_name_on_device.split(".")[-1]
-            device_filename = self.config.art_name_on_device.strip(".%s" % (device_filetype))
+            device_filetype, device_filename = self.config.art_name_on_device.rsplit(".", 1)
 
             # only allow jpeg, jpg, and png - if invalid, default to jpg
-            if device_filetype.lower() != "jpeg" and device_filetype.lower() != "jpg"\
-                    and device_filetype.lower() != "png":
+            if device_filetype.lower() not in ("jpeg", "jpg", "png"):
                 device_filetype = "jpg"
 
             # sanitize for filetype checking - "jpg" will not match "jpeg"
@@ -77,7 +73,7 @@ class gPodderExtension:
 
                 device_art = os.path.join(device_folder, "%s.%s" %
                     (device_filename, device_filetype))
-                device_lockpath = "%s%s" % (device_art, ".lock")
+                device_lockpath = "%s.lock" % device_art
                 device_lockfile = SoftFileLock(device_lockpath, blocking=False)
 
                 if os.path.isfile(episode_art):
@@ -95,10 +91,10 @@ class gPodderExtension:
                             try:
                                 with Image.open(device_art) as img:
                                     if img.height != int(self.config.convert_size) and\
-                                            self.config.convert_allow_upscale_art is True:
+                                            self.config.convert_allow_upscale_art:
                                         copyflag = True
                                     elif img.height > int(self.config.convert_size) and\
-                                            self.config.convert_allow_upscale_art is False:
+                                            not self.config.convert_allow_upscale_art:
                                         copyflag = True
                                     elif img.format.upper() != device_match_filetype:
                                         copyflag = True
@@ -113,21 +109,21 @@ class gPodderExtension:
                         else:
                             copyflag = True
 
-                        if copyflag is True:
+                        if copyflag:
                             logger.info("%s %s" % (device_art, "copying"))
                             try:
                                 # should we file lock the source file?
                                 with Image.open(episode_art) as img:
                                     if img.height > int(self.config.convert_size)\
-                                            or self.config.convert_allow_upscale_art is True:
+                                            or self.config.convert_allow_upscale_art:
                                         out = img.resize((int(self.config.convert_size), int(self.config.convert_size)))
                                     else:
                                         out = img.copy()
                                     out.save(device_art)
-                            except OSError:
-                                logger.info("%s image error!", episode_art)
+                            except OSError as e:
+                                logger.info("%s copy image error: %r", episode_art, e)
                         else:
-                            logger.info("%s %s" % (device_art, "already exists"))
+                            logger.info("%s already exists" % device_art)
 
                         device_lockfile.release()
 
