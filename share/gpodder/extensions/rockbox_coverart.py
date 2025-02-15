@@ -82,6 +82,9 @@ class gPodderExtension:
                     # if already exists, check if it's what we want:
                     try:
                         # lock the file first, otherwise we can easily crash
+                        # N.B. Be careful when modifying anything within this try: except
+                        # block - All branches should catch their own exceptions so that
+                        # we always release the lockfile!
                         device_lockfile.acquire()
                     except:
                         logger.info('Could not acquire file lock for %s', device_art)
