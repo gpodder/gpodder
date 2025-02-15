@@ -49,13 +49,27 @@ class gPodderDevicePlaylist(object):
 
         self.mountpoint = None
         try:
+            # N.B. As of time of writing (Feb. 2025), we expect this to not work anywhere except Linux.
+            # Windows, MacOS, and anything which does not use dbus are expected to use the fallback
+            # behavior below.
             self.mountpoint = self.playlist_folder.find_enclosing_mount().get_root()
         except GLib.Error as err:
-            logger.error('find_enclosing_mount folder %s failed: %s', self.playlist_folder.get_uri(), err.message)
+            logger.info('find_enclosing_mount folder %s failed: %s', self.playlist_folder.get_uri(), err.message)
 
+        # changed fallback code
         if not self.mountpoint:
-            self.mountpoint = self.playlist_folder
-            logger.warning('could not find mount point for MP3 player - using %s as MP3 player root', self.mountpoint.get_uri())
+            # ensure our path is a path, not a url.
+            # this is so that os.path.ismount() will work correctly!
+            drive_start = device_folder.get_path()
+
+            # find mount point, ensuring we don't end up locked up in the loop
+            while not os.path.ismount(drive_start) and drive_start != os.path.dirname(drive_start):
+                drive_start = os.path.dirname(drive_start)
+
+            # self.mountpoint must be a gio file
+            self.mountpoint = util.new_gio_file(drive_start)
+
+            logger.info('could not automatically find mount point for MP3 player - using %s as MP3 player root', self.mountpoint.get_uri())
         self.playlist_absolute_filename = self.playlist_folder.resolve_relative_path(self.playlist_file)
 
     def build_extinf(self, filename, episode=None):
@@ -105,23 +119,9 @@ class gPodderDevicePlaylist(object):
         if foldername:
             filename = os.path.join(foldername, filename)
         if self._config.device_sync.playlists.use_absolute_path:
-            # ensure our path is a path, not a url - need to manually strip prefix
-            # this is largely so that os.path.ismount() will work correctly
-            drive_start = self._config.device_sync.device_folder.removeprefix('file:')
-            drive_start = drive_start.removeprefix('mtp:')
-            drive_start = request.url2pathname(drive_start)
-            device_folder = drive_start
-
-            # find mount point, ensuring we don't end up locked up in the loop
-            while not os.path.ismount(drive_start) and drive_start != os.path.dirname(drive_start):
-                drive_start = os.path.dirname(drive_start)
-
-            # filename should be guaranteed to be a real path, not a url
-            # relpath will not have a leading '/' though.
-            filename = os.path.join(util.relpath(device_folder, drive_start), filename)
-
-            # distinguish this as an absolute path from the device's point of view
-            filename = "/" + filename
+            device_folder = util.new_gio_file(self._config.device_sync.device_folder)
+            file_ = device_folder.resolve_relative_path(filename)
+            filename = "/" + util.relpath(file_.get_path(), self.mountpoint.get_path())
         else:
             filename = os.path.join(self.playlist_to_device_relpath, filename)
         return filename
