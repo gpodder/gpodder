@@ -121,7 +121,7 @@ class gPodderExtension:
                                 with Image.open(episode_art) as img:
                                     if img.height > int(self.config.convert_size)\
                                             or self.config.convert_allow_upscale_art:
-                                        ratio = min(self.config.convert_size/img.height, self.config.convert_size/img.width)
+                                        ratio = min(self.config.convert_size / img.height, self.config.convert_size / img.width)
                                         newsize = (int(ratio * img.width), int(ratio * img.height))
                                         out = img.resize(newsize)
                                     else:
