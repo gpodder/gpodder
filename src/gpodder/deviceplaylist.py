@@ -56,7 +56,7 @@ class gPodderDevicePlaylist(object):
         except GLib.Error as err:
             logger.info('find_enclosing_mount folder %s failed: %s', self.playlist_folder.get_uri(), err.message)
 
-        # changed fallback code
+        # fallback, expected anywhere we don't have dbus
         if not self.mountpoint:
             # ensure our path is a path, not a url.
             # this is so that os.path.ismount() will work correctly!
