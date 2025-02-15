@@ -64,7 +64,7 @@ class gPodderExtension:
             else:
                 device_match_filetype = device_filetype.upper()
 
-            if (self.config.convert_and_resize_art is True):
+            if self.config.convert_and_resize_art:
                 # episode.channel.cover_file gives us the file and path (no extension!),
                 # get the real file and path from CoverDownloader()
                 episode_art = coverart.CoverDownloader().get_cover(episode.channel.cover_file,
