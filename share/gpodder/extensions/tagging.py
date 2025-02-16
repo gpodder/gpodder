@@ -346,7 +346,7 @@ class gPodderExtension:
         with Image.open(BytesIO(bytesimg)) as img:
             if max(img.height, img.width) > size:
                 # Retain ratio, the larger of height, width will be set to size
-                ratio = min(size/img.height, size/img.width)
+                ratio = min(size / img.height, size / img.width)
                 newsize = (int(ratio * img.width), int(ratio * img.height))
                 out = img.resize(newsize)
             else:
