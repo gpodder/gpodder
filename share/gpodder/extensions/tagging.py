@@ -344,8 +344,11 @@ class gPodderExtension:
     def normalize_image(self, bytesimg, filetype):
         size = int(self.container.config.episode_coverart_size)
         with Image.open(BytesIO(bytesimg)) as img:
-            if img.height > size:
-                out = img.resize((size, size))
+            if max(img.height, img.width) > size:
+                # Retain ratio, the larger of height, width will be set to size
+                ratio = min(size/img.height, size/img.width)
+                newsize = (int(ratio * img.width), int(ratio * img.height))
+                out = img.resize(newsize)
             else:
                 out = img.copy()
 
@@ -633,7 +636,7 @@ class gPodderExtension:
 
         self.container.note1 = Gtk.Label(use_markup=True, wrap=True, label=_(
             'Enable conversion and resizing of art.\n\n'
-            ' If enabled, convert art to desired format (default JPEG) and size (default 500px x 500px),\n'
+            ' If enabled, convert art to desired format (default JPEG) and size (default 500px),\n'
             ' and if format is JPEG, write as Baseline (rather than Progressive) format.\n'
             ' If disabled, embed art as-is.'))
         self.container.note1.set_property('xalign', 0.0)
