@@ -192,7 +192,7 @@ class gPodderExtension:
 
         self.container.note1 = Gtk.Label(use_markup=True, wrap=True, label=_(
             'Enable conversion and resizing of art.\n\n'
-            ' If enabled, convert art to desired format (default JPEG) and size (default 500px x 500px),\n'
+            ' If enabled, convert art to desired format (default JPEG) and size (default 500px),\n'
             ' and if format is JPEG, write as Baseline (rather than Progressive) format.\n'
             ' If disabled, fall back to simple behavior.'))
         self.container.note1.set_property('xalign', 0.0)
