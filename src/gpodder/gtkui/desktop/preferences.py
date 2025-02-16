@@ -386,9 +386,9 @@ class gPodderPreferences(BuilderWidget):
                                               self.checkbutton_one_folder_per_podcast)
         self._config.connect_gtk_togglebutton('device_sync.playlists.use_absolute_path',
                                               self.checkbutton_playlists_use_absolute_path)
-        
+
         self._config.connect_gtk_spinbutton('device_sync.max_filename_length', self.spinbutton_max_filename_length)
-        
+
         self.entry_custom_sync_name.set_text(self._config.device_sync.custom_sync_name)
 
         # Have to do this before calling set_active on checkbutton_enable
