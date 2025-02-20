@@ -245,8 +245,9 @@ function cleanup_after {
         fi
     done
 
-    find "${MINGW_ROOT}" -regextype "posix-extended" -name "*.exe" -a ! \
-        -iregex ".*/(gpodder|gpo|python)[^/]*\\.exe" \
+    find "${MINGW_ROOT}" -path "**/site-packages" -prune -o \
+        -regextype "posix-extended" -name "*.exe" -a ! \
+        -iregex ".*/(gpodder|gpo|python|pip)[^/]*\\.exe" \
         -exec rm -f {} \;
 
     rm -Rf "${MINGW_ROOT}"/libexec
