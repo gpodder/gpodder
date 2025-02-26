@@ -799,7 +799,7 @@ class PodcastEpisode(PodcastModelObject):
         return True
 
     def sync_filename(self, use_custom=False, custom_format=None, use_title=False):
-        if use_custom and len(custom_format) > 0:
+        if use_custom and custom_format:
             return util.object_string_formatter(custom_format,
                     episode=self, podcast=self.channel)
         elif use_title:
