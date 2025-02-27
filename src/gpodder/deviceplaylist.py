@@ -19,6 +19,7 @@
 
 import logging
 import os
+from urllib import request
 
 import gpodder
 from gpodder import util
@@ -44,19 +45,34 @@ class gPodderDevicePlaylist(object):
             + '.' + self._config.device_sync.playlists.extension)
         device_folder = util.new_gio_file(self._config.device_sync.device_folder)
         self.playlist_folder = device_folder.resolve_relative_path(self._config.device_sync.playlists.folder)
+        self.playlist_to_device_relpath = os.path.relpath(device_folder, self.playlist_folder)
 
         self.mountpoint = None
         try:
+            # N.B. As of time of writing (Feb. 2025), we expect this to not work anywhere except Linux.
+            # Windows, MacOS, and anything which does not use dbus are expected to use the fallback
+            # behavior below.
             self.mountpoint = self.playlist_folder.find_enclosing_mount().get_root()
         except GLib.Error as err:
-            logger.error('find_enclosing_mount folder %s failed: %s', self.playlist_folder.get_uri(), err.message)
+            logger.info('find_enclosing_mount folder %s failed: %s', self.playlist_folder.get_uri(), err.message)
 
+        # fallback, expected anywhere we don't have dbus
         if not self.mountpoint:
-            self.mountpoint = self.playlist_folder
-            logger.warning('could not find mount point for MP3 player - using %s as MP3 player root', self.mountpoint.get_uri())
+            # ensure our path is a path, not a url.
+            # this is so that os.path.ismount() will work correctly!
+            drive_start = device_folder.get_path()
+
+            # find mount point, ensuring we don't end up locked up in the loop
+            while not os.path.ismount(drive_start) and drive_start != os.path.dirname(drive_start):
+                drive_start = os.path.dirname(drive_start)
+
+            # self.mountpoint must be a gio file
+            self.mountpoint = util.new_gio_file(drive_start)
+
+            logger.info('could not automatically find mount point for MP3 player - using %s as MP3 player root', self.mountpoint.get_uri())
         self.playlist_absolute_filename = self.playlist_folder.resolve_relative_path(self.playlist_file)
 
-    def build_extinf(self, filename):
+    def build_extinf(self, filename, episode=None):
         # TODO: Windows playlists
         #        if self._config.mp3_player_playlist_win_path:
         #            filename = filename.replace('\\', os.sep)
@@ -68,7 +84,10 @@ class gPodderDevicePlaylist(object):
         #            absfile = util.rel2abs(filename, os.path.dirname(self.playlist_file))
 
         # fallback: use the basename of the file
-        (title, extension) = os.path.splitext(os.path.basename(filename))
+        if episode is not None:
+            title = episode.title
+        else:
+            (title, extension) = os.path.splitext(os.path.basename(filename))
 
         return "#EXTINF:0,%s%s" % (title.strip(), self.linebreak)
 
@@ -91,14 +110,20 @@ class gPodderDevicePlaylist(object):
         """Get the filename for the given episode for the playlist."""
         return episode_filename_on_device(self._config, episode)
 
-    def get_absolute_filename_for_playlist(self, episode):
-        """Get the filename including full path for the given episode for the playlist."""
+    def get_path_to_filename_for_playlist(self, episode):
+        """
+        get the filename including full path for the given episode for the playlist
+        """
         filename = self.get_filename_for_playlist(episode)
         foldername = episode_foldername_on_device(self._config, episode)
         if foldername:
             filename = os.path.join(foldername, filename)
         if self._config.device_sync.playlists.use_absolute_path:
-            filename = os.path.join(util.relpath(self._config.device_sync.device_folder, self.mountpoint.get_uri()), filename)
+            device_folder = util.new_gio_file(self._config.device_sync.device_folder)
+            file_ = device_folder.resolve_relative_path(filename)
+            filename = "/" + util.relpath(file_.get_path(), self.mountpoint.get_path())
+        else:
+            filename = os.path.join(self.playlist_to_device_relpath, filename)
         return filename
 
     def write_m3u(self, episodes):
@@ -120,8 +145,8 @@ class gPodderDevicePlaylist(object):
             os.put_string('#EXTM3U%s' % self.linebreak)
             for current_episode in episodes:
                 filename = self.get_filename_for_playlist(current_episode)
-                os.put_string(self.build_extinf(filename))
-                filename = self.get_absolute_filename_for_playlist(current_episode)
+                os.put_string(self.build_extinf(filename, episode=current_episode))
+                filename = self.get_path_to_filename_for_playlist(current_episode)
                 os.put_string(filename)
                 os.put_string(self.linebreak)
             os.close()

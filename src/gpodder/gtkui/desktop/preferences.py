@@ -352,6 +352,8 @@ class gPodderPreferences(BuilderWidget):
                                               self.checkbutton_delete_deleted_episodes)
         self._config.connect_gtk_togglebutton('device_sync.compare_episode_filesize',
                                               self.checkbutton_compare_episode_filesize)
+        self._config.connect_gtk_togglebutton('device_sync.use_title_as_filename',
+                                              self.checkbutton_use_title_as_filename)
 
         # Have to do this before calling set_active on checkbutton_enable
         self._enable_mygpo = self._config.mygpo.enabled
@@ -737,6 +739,13 @@ class gPodderPreferences(BuilderWidget):
             self.btn_playlistfolder.set_label('')
             self.checkbutton_delete_using_playlists.set_sensitive(False)
 
+    def on_checkbutton_use_title_as_filename_toggled(
+            self, widget):
+        if not widget.get_active():
+            self._config.device_sync.use_title_as_filename = False
+        else:
+            self._config.device_sync.use_title_as_filename = True
+
     def on_combobox_device_type_changed(self, widget):
         index = self.combobox_device_type.get_active()
         self.device_type_model.set_index(index)
@@ -749,6 +758,7 @@ class gPodderPreferences(BuilderWidget):
             self.checkbutton_delete_using_playlists.set_sensitive(False)
             self.combobox_on_sync.set_sensitive(False)
             self.checkbutton_skip_played_episodes.set_sensitive(False)
+            self.checkbutton_use_title_as_filename.set_sensitive(False)
         elif device_type == 'filesystem':
             self.btn_filesystemMountpoint.set_label(self._config.device_sync.device_folder or "")
             self.btn_filesystemMountpoint.set_sensitive(True)
@@ -757,6 +767,7 @@ class gPodderPreferences(BuilderWidget):
             self.combobox_on_sync.set_sensitive(True)
             self.checkbutton_skip_played_episodes.set_sensitive(True)
             self.checkbutton_delete_deleted_episodes.set_sensitive(True)
+            self.checkbutton_use_title_as_filename.set_sensitive(True)
         elif device_type == 'ipod':
             self.btn_filesystemMountpoint.set_label(self._config.device_sync.device_folder)
             self.btn_filesystemMountpoint.set_sensitive(True)
@@ -766,6 +777,7 @@ class gPodderPreferences(BuilderWidget):
             self.combobox_on_sync.set_sensitive(False)
             self.checkbutton_skip_played_episodes.set_sensitive(True)
             self.checkbutton_delete_deleted_episodes.set_sensitive(True)
+            self.checkbutton_use_title_as_filename.set_sensitive(True)
         self.checkbutton_compare_episode_filesize.set_sensitive(True)
 
         children = self.btn_filesystemMountpoint.get_children()

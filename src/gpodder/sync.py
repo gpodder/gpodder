@@ -117,7 +117,8 @@ def episode_filename_on_device(config, episode):
     # get the formatted base name
     filename_base = util.sanitize_filename(episode.sync_filename(
         config.device_sync.custom_sync_name_enabled,
-        config.device_sync.custom_sync_name),
+        config.device_sync.custom_sync_name,
+        config.device_sync.use_title_as_filename),
         config.device_sync.max_filename_length)
     # add the file extension
     to_file = filename_base + os.path.splitext(from_file)[1].lower()
@@ -602,7 +603,8 @@ class MP3PlayerDevice(Device):
     def episode_on_device(self, episode):
         e = util.sanitize_filename(episode.sync_filename(
             self._config.device_sync.custom_sync_name_enabled,
-            self._config.device_sync.custom_sync_name),
+            self._config.device_sync.custom_sync_name,
+            self._config.device_sync.use_title_as_filename),
             self._config.device_sync.max_filename_length)
         return self._track_on_device(e)
 

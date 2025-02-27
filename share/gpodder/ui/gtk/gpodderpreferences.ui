@@ -1188,6 +1188,22 @@
                                 <property name="position">11</property>
                               </packing>
                             </child>
+                            <child>
+                              <object class="GtkCheckButton" id="checkbutton_use_title_as_filename">
+                                <property name="label" translatable="yes">Use Episode Title as Filename</property>
+                                <property name="visible">True</property>
+                                <property name="can-focus">True</property>
+                                <property name="receives-default">False</property>
+                                <property name="halign">start</property>
+                                <property name="draw-indicator">True</property>
+                                <signal name="toggled" handler="on_checkbutton_use_title_as_filename_toggled" swapped="no"/>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">12</property>
+                              </packing>
+                            </child>
                           </object>
                           <packing>
                             <property name="name">devices</property>
