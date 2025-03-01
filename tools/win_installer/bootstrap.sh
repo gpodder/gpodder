@@ -27,8 +27,8 @@ function main {
         "${MINGW_PACKAGE_PREFIX}"-python-pip
 
     pip3 install --user podcastparser mygpoclient \
-						pywin32-ctypes \
-						html5lib webencodings six\
+                        pywin32-ctypes \
+                        html5lib webencodings six \
                         pillow filelock
 }
 
