@@ -351,6 +351,8 @@ class gPodderExtension:
                 out = img.resize(newsize)
             else:
                 out = img.copy()
+            if filetype == 'JPEG' and img.mode != 'RGB':
+                out = img.convert('RGB')
 
         bytesimg = BytesIO()
         out.save(bytesimg, format=filetype, progressive=False)
