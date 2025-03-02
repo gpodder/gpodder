@@ -25,13 +25,12 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
-import dbus
-
 import gpodder
 
 import gi  # isort:skip
+gi.require_version('Gio', '2.0')
 gi.require_version('GLib', '2.0')
-from gi.repository import GLib  # isort:skip
+from gi.repository import Gio, GLib  # isort:skip
 
 logger = logging.getLogger(__name__)
 _ = gpodder.gettext
@@ -188,7 +187,7 @@ class CurrentTrackTracker(object):
         pos = self.pos // USECS_IN_SEC
         parsed_url = urllib.parse.urlparse(self.uri)
         if (not parsed_url.scheme) or parsed_url.scheme == 'file':
-            file_uri = urllib.request.url2pathname(urllib.parse.urlparse(self.uri).path).encode('utf-8')
+            file_uri = urllib.request.url2pathname(urllib.parse.urlparse(self.uri).path)
         else:
             file_uri = self.uri
         total_time = self.length // USECS_IN_SEC
@@ -232,32 +231,30 @@ class MPRISDBusReceiver(object):
     def __init__(self, bus, notifier):
         self.bus = bus
         self.cur = CurrentTrackTracker(notifier)
-        self.bus.add_signal_receiver(self.on_prop_change,
-                                     self.SIGNAL_PROP_CHANGE,
-                                     self.INTERFACE_PROPS,
-                                     None,
-                                     self.PATH_MPRIS,
-                                     sender_keyword='sender')
-        self.bus.add_signal_receiver(self.on_seeked,
-                                     self.SIGNAL_SEEKED,
-                                     self.INTERFACE_MPRIS,
-                                     None,
-                                     None)
+        self.prop_change_listener_id = self.bus.signal_subscribe(
+            None,
+            self.INTERFACE_PROPS,
+            self.SIGNAL_PROP_CHANGE,
+            self.PATH_MPRIS,
+            None, Gio.DBusSignalFlags.NONE,
+            self.on_prop_change, None)
+        self.seeked_listener_id = self.bus.signal_subscribe(
+            None,
+            self.INTERFACE_MPRIS,
+            self.SIGNAL_SEEKED,
+            self.PATH_MPRIS,
+            None, Gio.DBusSignalFlags.NONE,
+            self.on_seeked, None)
 
     def stop_receiving(self):
-        self.bus.remove_signal_receiver(self.on_prop_change,
-                                        self.SIGNAL_PROP_CHANGE,
-                                        self.INTERFACE_PROPS,
-                                        None,
-                                        self.PATH_MPRIS)
-        self.bus.remove_signal_receiver(self.on_seeked,
-                                        self.SIGNAL_SEEKED,
-                                        self.INTERFACE_MPRIS,
-                                        None,
-                                        None)
+        self.bus.signal_unsubscribe(self.prop_change_listener_id)
+        self.bus.signal_unsubscribe(self.seeked_listener_id)
 
-    def on_prop_change(self, interface_name, changed_properties,
-                       invalidated_properties, path=None, sender=None):
+    def on_prop_change(self, connection, sender, path, interface, signal, props, user_data):
+        logger.debug('on_prop_change: %s, %r, %r, %r, %r, %r',
+                     sender, path, interface, signal, props, user_data)
+        interface_name, changed_properties, _unused = props.unpack() if props else ("", {}, [])
+
         if interface_name != self.INTERFACE_MPRIS:
             if interface_name not in self.OTHER_MPRIS_INTERFACES:
                 logger.warning('unexpected interface: %s, props=%r', interface_name, list(changed_properties.keys()))
@@ -267,9 +264,8 @@ class MPRISDBusReceiver(object):
             return
 
         collected_info = {}
-        logger.debug("on_prop_change %r", changed_properties.keys())
         if 'PlaybackStatus' in changed_properties:
-            collected_info['status'] = str(changed_properties['PlaybackStatus'])
+            collected_info['status'] = changed_properties['PlaybackStatus']
         if 'Metadata' in changed_properties:
             logger.debug("Metadata %r", changed_properties['Metadata'].keys())
             # on stop there is no xesam:url
@@ -282,26 +278,31 @@ class MPRISDBusReceiver(object):
         if changed_properties.get('PlaybackStatus') != 'Stopped':
             try:
                 collected_info['pos'] = self.query_property(sender, 'Position')
-            except dbus.exceptions.DBusException:
+            except GLib.Error:
                 pass
         if 'status' not in collected_info:
             try:
-                collected_info['status'] = str(self.query_property(
-                    sender, 'PlaybackStatus'))
-            except dbus.exceptions.DBusException:
+                collected_info['status'] = self.query_property(
+                    sender, 'PlaybackStatus')
+            except GLib.Error:
                 pass
 
         logger.debug('collected info: %r', collected_info)
         self.cur.update(**collected_info)
 
-    def on_seeked(self, position):
-        logger.debug('seeked to pos: %f', position)
-        self.cur.update(pos=position)
+    def on_seeked(self, connection, sender, path, interface, signal, params_variant, user_data):
+        logger.debug('on_seeked: %s, %r, %r, %r, %r, %r',
+                     sender, path, interface, signal, params_variant, user_data)
+        if params_variant is not None:
+            position = params_variant.unpack()[0]
+            self.cur.update(pos=position)
 
     def query_property(self, sender, prop):
-        proxy = self.bus.get_object(sender, self.PATH_MPRIS)
-        props = dbus.Interface(proxy, self.INTERFACE_PROPS)
-        return props.Get(self.INTERFACE_MPRIS, prop)
+        variant = self.bus.call_sync(
+            sender, self.PATH_MPRIS, self.INTERFACE_PROPS,
+            'Get', GLib.Variant('(ss)', (self.INTERFACE_MPRIS, prop)),
+            None, Gio.DBusCallFlags.NONE, -1, None)
+        return variant.unpack()[0]
 
 
 class gPodderActionNotifier:
@@ -313,14 +314,14 @@ class gPodderActionNotifier:
         logger.info('playbackStarted: %s: %d', file_uri, start_position)
         if self.gpodder is not None:
             self.gpodder.activate_action('playbackStarted', GLib.Variant('(ts)', (
-                start_position, str(file_uri))))
+                start_position, file_uri)))
 
     def PlaybackStopped(self, start_position, end_position, total_time, file_uri):
         logger.info('playbackStopped: %s: %d--%d/%d',
             file_uri, start_position, end_position, total_time)
         if self.gpodder is not None:
             self.gpodder.activate_action('playbackStopped', GLib.Variant('(ttts)', (
-                start_position, end_position, total_time, str(file_uri))))
+                start_position, end_position, total_time, file_uri)))
 
 
 # Finally, this is the extension, which just pulls this all together
@@ -332,12 +333,13 @@ class gPodderExtension:
         self.rcvr = None
 
     def on_load(self):
-        if gpodder.dbus_session_bus is None:
+        bus = Gio.bus_get_sync(Gio.BusType.SESSION, None)
+        if bus is None:
             logger.debug("dbus session bus not available, not loading")
-        else:
-            self.notifier = gPodderActionNotifier()
-            self.session_bus = gpodder.dbus_session_bus
-            self.rcvr = MPRISDBusReceiver(self.session_bus, self.notifier)
+            return
+
+        self.notifier = gPodderActionNotifier()
+        self.rcvr = MPRISDBusReceiver(bus, self.notifier)
 
     def on_unload(self):
         if self.rcvr is not None:
