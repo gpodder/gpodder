@@ -1803,7 +1803,9 @@ def get_hostname_uid():
     random.seed()
     uid = '%X' % random.getrandbits(32)
 
-    hostname = get_hostname()
+    # conform to mygpo device uid limit
+    # (https://github.com/gpodder/mygpo/blob/master/mygpo/users/models.py#L235)
+    hostname = get_hostname()[:64 - len(uid) - 1]
     return f'{hostname}-{uid}'
 
 
