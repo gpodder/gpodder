@@ -202,6 +202,11 @@ class MygPoClient(object):
         self._worker_thread = None
         atexit.register(self._at_exit)
 
+        # Old versions could set uid to an empty string which causes mygpo to always fail
+        if self._config.mygpo.device.uid == '':
+            self._config.mygpo.device.uid = util.get_hostname_uid()
+            logger.warning('mygpo.device.uid was empty, initializing to "%s"' % self._config.mygpo.device.uid)
+
     def create_device(self):
         """Upload the device changes to the server.
 
