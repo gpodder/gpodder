@@ -23,9 +23,14 @@ import os
 import sys
 import xml.etree.ElementTree as ET
 
-import dbus
-import dbus.service
-from dbus.mainloop.glib import DBusGMainLoop
+try:
+    import dbus
+    import dbus.service
+    from dbus.mainloop.glib import DBusGMainLoop
+except ImportError:
+    print("Error: 'dbus' module not found. Either dbus-python or fake-dbus is required",
+          file=sys.stderr)
+    sys.exit(1)
 
 import gpodder
 from gpodder import core, util
@@ -38,7 +43,7 @@ from .model import Model
 
 import gi  # isort:skip
 gi.require_version('Gtk', '3.0')  # isort:skip
-from gi.repository import GdkPixbuf, Gio, GObject, Gtk  # isort:skip
+from gi.repository import GdkPixbuf, Gio, GLib, Gtk  # isort:skip
 
 
 logger = logging.getLogger(__name__)
@@ -81,6 +86,7 @@ class gPodderApplication(Gtk.Application):
         self.window = None
         self.options = options
         self.connect('window-removed', self.on_window_removed)
+        self.connect('notify::is-registered', self.on_notify_is_registered)
 
     def create_actions(self):
         action = Gio.SimpleAction.new('about', None)
@@ -113,6 +119,10 @@ class gPodderApplication(Gtk.Application):
 
         action = Gio.SimpleAction.new('menu', None)
         action.connect('activate', self.on_menu)
+        self.add_action(action)
+
+        action = Gio.SimpleAction.new('subscribe_to_url', GLib.VariantType.new('s'))
+        action.connect('activate', self.on_subscribe_to_url_activate)
         self.add_action(action)
 
     def do_startup(self):
@@ -261,6 +271,14 @@ class gPodderApplication(Gtk.Application):
                     f"'color-scheme' changed to {value}, setting dark mode to {dark}")
                 self.set_dark_mode(dark)
 
+    def on_notify_is_registered(self, params, _data):
+        if self.get_is_registered() and self.get_is_remote():
+            logger.info('Activating existing instance via D-Bus.')
+            if self.options.subscribe:
+                logger.info("Subscribing to %s" % self.options.subscribe)
+                self.activate_action('subscribe_to_url', GLib.Variant('s', self.options.subscribe))
+                Gio.bus_get_sync(Gio.BusType.SESSION, None).flush_sync(None)
+
     def on_menu(self, action, param):
         self.menu_popover.popup()
 
@@ -336,6 +354,9 @@ class gPodderApplication(Gtk.Application):
         else:
             self.window.check_for_updates(silent=False)
 
+    def on_subscribe_to_url_activate(self, action, param):
+        self.window.subscribe_to_url(param.get_string())
+
     def on_extension_enabled(self, extension):
         self.window.on_extension_enabled(extension)
 
@@ -354,7 +375,7 @@ class gPodderApplication(Gtk.Application):
 
 
 def main(options=None):
-    GObject.set_application_name('gPodder')
+    GLib.set_application_name('gPodder')
 
     gp = gPodderApplication(options)
     gp.run()
