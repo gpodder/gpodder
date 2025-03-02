@@ -107,6 +107,29 @@ class OnSyncActionList(Gtk.ListStore):
         self._config.device_sync.after_sync.mark_episodes_played = self[index][self.C_ON_SYNC_MARK_PLAYED]
 
 
+class OnEpisodeFilenameList(Gtk.ListStore):
+    C_CAPTION, C_USE_EPISODE_TITLE, C_USE_CUSTOM_FORMAT = list(range(3))
+
+    def __init__(self, config):
+        Gtk.ListStore.__init__(self, str, bool, bool)
+        self._config = config
+        self.append((_('Same filename as local'), False, False))
+        self.append((_('Use episode title as filename'), True, False))
+        self.append((_('Use custom filename format'), False, True))
+
+    def get_index(self):
+        for index, row in enumerate(self):
+            if (self._config.device_sync.custom_sync_name_enabled and row[self.C_USE_CUSTOM_FORMAT]):
+                return index
+            if (self._config.device_sync.use_title_as_filename and row[self.C_USE_EPISODE_TITLE]):
+                return index
+        return 0
+
+    def set_index(self, index):
+        self._config.device_sync.use_title_as_filename = self[index][self.C_USE_EPISODE_TITLE]
+        self._config.device_sync.custom_sync_name_enabled = self[index][self.C_USE_CUSTOM_FORMAT]
+
+
 class YouTubeVideoFormatListModel(Gtk.ListStore):
     C_CAPTION, C_ID = list(range(2))
 
@@ -342,6 +365,13 @@ class gPodderPreferences(BuilderWidget):
         self.combobox_on_sync.add_attribute(cellrenderer, 'text', OnSyncActionList.C_CAPTION)
         self.combobox_on_sync.set_active(self.on_sync_model.get_index())
 
+        self.episode_filename_model = OnEpisodeFilenameList(self._config)
+        self.combobox_episode_filename.set_model(self.episode_filename_model)
+        cellrenderer = Gtk.CellRendererText()
+        self.combobox_episode_filename.pack_start(cellrenderer, True)
+        self.combobox_episode_filename.add_attribute(cellrenderer, 'text', OnEpisodeFilenameList.C_CAPTION)
+        self.combobox_episode_filename.set_active(self.episode_filename_model.get_index())
+
         self._config.connect_gtk_togglebutton('device_sync.skip_played_episodes',
                                               self.checkbutton_skip_played_episodes)
         self._config.connect_gtk_togglebutton('device_sync.playlists.create',
@@ -352,8 +382,14 @@ class gPodderPreferences(BuilderWidget):
                                               self.checkbutton_delete_deleted_episodes)
         self._config.connect_gtk_togglebutton('device_sync.compare_episode_filesize',
                                               self.checkbutton_compare_episode_filesize)
-        self._config.connect_gtk_togglebutton('device_sync.use_title_as_filename',
-                                              self.checkbutton_use_title_as_filename)
+        self._config.connect_gtk_togglebutton('device_sync.one_folder_per_podcast',
+                                              self.checkbutton_one_folder_per_podcast)
+        self._config.connect_gtk_togglebutton('device_sync.playlists.use_absolute_path',
+                                              self.checkbutton_playlists_use_absolute_path)
+
+        self._config.connect_gtk_spinbutton('device_sync.max_filename_length', self.spinbutton_max_filename_length)
+
+        self.entry_custom_sync_name.set_text(self._config.device_sync.custom_sync_name)
 
         # Have to do this before calling set_active on checkbutton_enable
         self._enable_mygpo = self._config.mygpo.enabled
@@ -713,16 +749,24 @@ class gPodderPreferences(BuilderWidget):
         index = self.combobox_on_sync.get_active()
         self.on_sync_model.set_index(index)
 
+    def on_combobox_episode_filename_changed(self, widget):
+        index = self.combobox_episode_filename.get_active()
+        self.episode_filename_model.set_index(index)
+        self.entry_custom_sync_name.set_sensitive(
+            self._config.device_sync.custom_sync_name_enabled)
+
     def on_checkbutton_create_playlists_toggled(
             self, widget, device_type_changed=False):
         if not widget.get_active():
             self._config.device_sync.playlists.create = False
             self.toggle_playlist_interface(False)
+            self.checkbutton_playlists_use_absolute_path.set_sensitive(False)
             # need to read value of checkbutton from interface,
             # rather than value of parameter
         else:
             self._config.device_sync.playlists.create = True
             self.toggle_playlist_interface(True)
+            self.checkbutton_playlists_use_absolute_path.set_sensitive(True)
 
     def toggle_playlist_interface(self, enabled):
         if enabled and self._config.device_sync.device_type == 'filesystem':
@@ -741,10 +785,10 @@ class gPodderPreferences(BuilderWidget):
 
     def on_checkbutton_use_title_as_filename_toggled(
             self, widget):
-        if not widget.get_active():
-            self._config.device_sync.use_title_as_filename = False
-        else:
+        if widget.get_active():
             self._config.device_sync.use_title_as_filename = True
+        else:
+            self._config.device_sync.use_title_as_filename = False
 
     def on_combobox_device_type_changed(self, widget):
         index = self.combobox_device_type.get_active()
@@ -758,7 +802,11 @@ class gPodderPreferences(BuilderWidget):
             self.checkbutton_delete_using_playlists.set_sensitive(False)
             self.combobox_on_sync.set_sensitive(False)
             self.checkbutton_skip_played_episodes.set_sensitive(False)
-            self.checkbutton_use_title_as_filename.set_sensitive(False)
+            self.combobox_episode_filename.set_sensitive(False)
+            self.entry_custom_sync_name.set_sensitive(False)
+            self.checkbutton_one_folder_per_podcast.set_sensitive(False)
+            self.checkbutton_playlists_use_absolute_path.set_sensitive(False)
+            self.spinbutton_max_filename_length.set_sensitive(False)
         elif device_type == 'filesystem':
             self.btn_filesystemMountpoint.set_label(self._config.device_sync.device_folder or "")
             self.btn_filesystemMountpoint.set_sensitive(True)
@@ -767,7 +815,12 @@ class gPodderPreferences(BuilderWidget):
             self.combobox_on_sync.set_sensitive(True)
             self.checkbutton_skip_played_episodes.set_sensitive(True)
             self.checkbutton_delete_deleted_episodes.set_sensitive(True)
-            self.checkbutton_use_title_as_filename.set_sensitive(True)
+            self.combobox_episode_filename.set_sensitive(True)
+            self.entry_custom_sync_name.set_sensitive(
+                self._config.device_sync.custom_sync_name_enabled)
+            self.checkbutton_one_folder_per_podcast.set_sensitive(True)
+            self.checkbutton_playlists_use_absolute_path.set_sensitive(True)
+            self.spinbutton_max_filename_length.set_sensitive(True)
         elif device_type == 'ipod':
             self.btn_filesystemMountpoint.set_label(self._config.device_sync.device_folder)
             self.btn_filesystemMountpoint.set_sensitive(True)
@@ -777,7 +830,11 @@ class gPodderPreferences(BuilderWidget):
             self.combobox_on_sync.set_sensitive(False)
             self.checkbutton_skip_played_episodes.set_sensitive(True)
             self.checkbutton_delete_deleted_episodes.set_sensitive(True)
-            self.checkbutton_use_title_as_filename.set_sensitive(True)
+            self.combobox_episode_filename.set_sensitive(False)
+            self.entry_custom_sync_name.set_sensitive(False)
+            self.checkbutton_one_folder_per_podcast.set_sensitive(False)
+            self.checkbutton_playlists_use_absolute_path.set_sensitive(False)
+            self.spinbutton_max_filename_length.set_sensitive(False)
         self.checkbutton_compare_episode_filesize.set_sensitive(True)
 
         children = self.btn_filesystemMountpoint.get_children()
@@ -858,3 +915,6 @@ class gPodderPreferences(BuilderWidget):
 
     def on_proxy_password_changed(self, widget):
         self._config.network.proxy_password = widget.get_text()
+
+    def on_custom_sync_name_changed(self, widget):
+        self._config.device_sync.custom_sync_name = widget.get_text()
