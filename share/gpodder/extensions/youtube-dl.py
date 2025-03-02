@@ -7,6 +7,7 @@
 import logging
 import os
 import re
+import subprocess
 import sys
 import time
 from collections.abc import Iterable
@@ -517,6 +518,8 @@ class gPodderExtension:
         self.container = container
         self.ytdl = None
         self.infobar = None
+        self.latest_version = _('Not checked')
+        self.update_label = None
 
     def on_load(self):
         self.ytdl = gPodderYoutubeDL(self.container.manager.core.config, self.container.config)
@@ -577,6 +580,28 @@ class gPodderExtension:
         else:
             self.container.config.embed_subtitles = False
 
+    def check_for_update(self, widget):
+        try:
+            output = subprocess.check_output([sys.executable, '-m', 'pip', 'index', 'versions', program_name]).decode('utf-8')
+            logger.debug(f"pip index version {program_name}: {output}")
+            match = re.search(r'LATEST:\s*(\S*)', output)
+            if match:
+                self.latest_version = match.group(1)
+            else:
+                logger.Error("Could not find LATEST version in pip output")
+                self.latest_version = _('Error')
+        except Exception as e:
+            logger.Error(e)
+            self.latest_version = _('Error')
+
+        self.update_label.set_text('%s %s' % (_('Available version:'), self.latest_version))
+
+    def do_update(self, widget):
+        try:
+            subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--upgrade', program_name])
+        except Exception as e:
+            logger.Error(e)
+
     def show_preferences(self):
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
         box.set_border_width(10)
@@ -619,6 +644,22 @@ class gPodderExtension:
             'The "ffmpeg" command was not found. FFmpeg is required for embedding subtitles.')))
         self.infobar = infobar
         box.pack_end(infobar, False, False, 0)
+
+        box.pack_start(Gtk.HSeparator(), False, False, 0)
+
+        note_label = Gtk.Label(_("Note: You need to restart gpodder after updating %s") % (program_name))
+        box.pack_start(note_label, False, False, 0)
+        update_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
+        check_for_update_btn = Gtk.Button(_('Check for update'))
+        check_for_update_btn.connect('clicked', self.check_for_update)
+        self.update_label = Gtk.Label('%s %s' % (_('Available version:'), self.latest_version))
+        do_update_btn = Gtk.Button(_('Update'))
+        do_update_btn.connect('clicked', self.do_update)
+
+        update_box.pack_start(self.update_label, False, False, 0)
+        update_box.add(check_for_update_btn)
+        update_box.add(do_update_btn)
+        box.pack_start(update_box, False, False, 0)
 
         box.show_all()
         infobar.hide()
