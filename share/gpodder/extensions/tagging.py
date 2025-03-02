@@ -284,7 +284,7 @@ class gPodderExtension:
             with open(channel_image_filename, 'rb') as f:
                 channel_image = f.read()
         except:
-            logger.error("problems reading channel image!")
+            logger.exception("problems reading channel image!")
             channel_image = None
 
         embed_img = None
