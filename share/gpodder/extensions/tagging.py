@@ -70,7 +70,7 @@ DefaultConfig = {
     'modify_tags': True,
     'remove_before_modify': True,
 
-    'embed_coverart': False,
+    'auto_embed_coverart': False,
     'prefer_channel_coverart': False,
     'normalize_coverart': True,
     'episode_coverart_size': 500,
@@ -284,12 +284,12 @@ class gPodderExtension:
             with open(channel_image_filename, 'rb') as f:
                 channel_image = f.read()
         except:
-            logger.exception("problems reading channel image!")
+            logger.error("problems reading channel image!")
             channel_image = None
 
         embed_img = None
         mimetype = None
-        if self.container.config.embed_coverart:
+        if self.container.config.auto_embed_coverart:
             if (self.container.config.prefer_channel_coverart or extracted_image is None) and\
                     channel_image:
                 logger.info("using channel image")
@@ -298,7 +298,7 @@ class gPodderExtension:
                 logger.info("using episode image")
                 embed_img = extracted_image
 
-            if embed_image and self.container.config.normalize_coverart:
+            if self.container.config.normalize_coverart:
                 # normalize artwork regardless of source
                 embed_img = self.normalize_image(embed_img, config_filetype)
 
@@ -451,7 +451,7 @@ class gPodderExtension:
                 self.container.hbox_genre_tag.set_sensitive(False)
                 self.container.strip_album_from_title.set_sensitive(False)
 
-            if self.container.config.embed_coverart:
+            if self.container.config.auto_embed_coverart:
                 self.container.prefer_channel_coverart.set_sensitive(True)
                 self.container.normalize_coverart.set_sensitive(True)
                 self.container.note1.set_sensitive(True)
@@ -472,8 +472,8 @@ class gPodderExtension:
         self.container.config.always_remove_tags = widget.get_active()
         self.toggle_sensitivity_of_widgets()
 
-    def toggle_embed_coverart(self, widget):
-        self.container.config.embed_coverart = widget.get_active()
+    def toggle_auto_embed_coverart(self, widget):
+        self.container.config.auto_embed_coverart = widget.get_active()
         self.toggle_sensitivity_of_widgets()
 
     def toggle_prefer_channel_coverart(self, widget):
@@ -619,10 +619,10 @@ class gPodderExtension:
 
         self.container.vbox_coverart = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
 
-        self.container.embed_coverart = Gtk.CheckButton(_('Embed Coverart'))
-        self.container.embed_coverart.set_active(self.container.config.embed_coverart)
-        self.container.embed_coverart.connect('toggled', self.toggle_embed_coverart)
-        self.container.vbox_coverart.pack_start(self.container.embed_coverart, False, False, 0)
+        self.container.auto_embed_coverart = Gtk.CheckButton(_('Embed Coverart'))
+        self.container.auto_embed_coverart.set_active(self.container.config.auto_embed_coverart)
+        self.container.auto_embed_coverart.connect('toggled', self.toggle_auto_embed_coverart)
+        self.container.vbox_coverart.pack_start(self.container.auto_embed_coverart, False, False, 0)
 
         self.container.prefer_channel_coverart = Gtk.CheckButton(_('Prefer channel coverart'))
         self.container.prefer_channel_coverart.set_active(self.container.config.prefer_channel_coverart)
