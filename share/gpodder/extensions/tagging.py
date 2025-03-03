@@ -227,12 +227,15 @@ class Mp3File(AudioFile):
 
     def extract_coverart(self):
         tags = ID3(self.filename)
-        try:
-            p = tags.get("APIC:").data
-        except:
-            return None
-        else:
-            return p
+        for i in tags:
+            # unfortunately the name may be "APIC:", or "APIC:Image", or others?
+            # so look for substring "APIC" and go with that if found.
+            if "APIC" in i:
+                logger.debug("Found APIC tag: %s", i)
+                return tags.get(i).data
+
+        # none found
+        return None
 
     def insert_coverart(self, image=None, mimetype=None):
         audio = MP3(self.filename, ID3=ID3)
