@@ -584,8 +584,12 @@ class gPodderExtension:
     def check_for_update(self, widget):
         success = False
         try:
-            output = subprocess.check_output([sys.executable, '-m', 'pip', 'index', 'versions', program_name]).decode('utf-8')
-            logger.debug(f"pip index version {program_name}: {output}")
+            output = subprocess.check_output(
+                    [sys.executable, '-m', 'pip', 'index', 'versions', program_name],
+                    stderr=subprocess.STDOUT,
+                    encoding='utf-8',
+                    timeout=60)
+            logger.debug("pip index version %s: %s", program_name, output)
             match = re.search(r'LATEST:\s*(\S*)', output)
             if match:
                 self.latest_version = match.group(1)
@@ -594,7 +598,7 @@ class gPodderExtension:
                 logger.Error("Could not find LATEST version in pip output")
                 self.latest_version = None
         except Exception as e:
-            logger.Error(e)
+            logger.Error("Error checking for latest version: %r", e)
             self.latest_version = None
 
         if success:
@@ -603,7 +607,7 @@ class gPodderExtension:
             version = ".".join([str(int(i)) for i in youtube_dl.version.__version__.split('.')])
             if self.latest_version != version:
                 self.update_btn.set_sensitive(True)
-                self.update_label.set_text('%s %s' % (_('Available version:'), self.latest_version))
+                self.update_label.set_text(_('Available version: %(version)s') % {'version': self.latest_version})
             else:
                 self.update_btn.set_sensitive(False)
                 self.update_label.set_text(_('No update available'))
@@ -613,9 +617,15 @@ class gPodderExtension:
 
     def do_update(self, widget):
         try:
-            subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--upgrade', program_name])
+            subprocess.check_output(
+                    [sys.executable, '-m', 'pip', 'install', '--upgrade', program_name],
+                    stderr=subprocess.STDOUT,
+                    encoding='utf-8',
+                    timeout=120)
+        except subprocess.CalledProcessError as e:
+            logger.error("Error running %s: exit code %s, output: %s", e.cmd, e.returncode, e.output)
         except Exception as e:
-            logger.Error(e)
+            logger.exception("Error updating %s: %r", program_name, e)
 
     def show_preferences(self):
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
