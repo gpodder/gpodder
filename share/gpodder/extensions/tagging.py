@@ -305,7 +305,7 @@ class gPodderExtension:
                 logger.info("using episode image")
                 embed_img = extracted_image
 
-            if self.container.config.normalize_coverart:
+            if embed_img and self.container.config.normalize_coverart:
                 # normalize artwork regardless of source
                 embed_img = self.normalize_image(embed_img, config_filetype)
 
