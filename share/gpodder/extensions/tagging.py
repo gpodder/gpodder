@@ -234,7 +234,7 @@ class Mp3File(AudioFile):
         for i in tags:
             # unfortunately the name may be "APIC:", or "APIC:Image", or others?
             # so look for substring "APIC" and go with that if found.
-            if "APIC" in i:
+            if i.startswith("APIC"):
                 logger.debug("Found APIC tag: %s", i)
                 return tags.get(i).data
 
