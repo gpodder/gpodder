@@ -29,7 +29,7 @@ import mimetypes
 from io import BytesIO
 
 import gi
-from mutagen import File
+from mutagen import File, MutagenError
 from mutagen.easyid3 import EasyID3
 from mutagen.easymp4 import EasyMP4Tags
 from mutagen.flac import Picture
@@ -183,7 +183,11 @@ class OggFile(AudioFile):
         try:
             image = base64.b64decode(str(audio['metadata_block_picture']))
             image = Picture(image)
-        except:
+        except (TypeError, ValueError, MutagenError) as e:
+            logger.error("extract_coverart got exception %s", e)
+            return None
+        except KeyError:
+            logger.info("No OGG coverart to extract")
             return None
         else:
             return image.data
