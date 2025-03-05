@@ -372,16 +372,6 @@ class ExtensionManager(object):
                         for x in self.core.config.extensions.enabled
                         if x != container.name]
 
-    # extensions with no priority get lowest priority, 99
-    def _get_prefix(self, name):
-        prefix = name.split('_')[0]
-        try:
-            prefix = int(prefix)
-        except:
-            return 99
-        else:
-            return prefix
-
     def _find_extensions(self):
         extensions = {}
 
@@ -401,16 +391,17 @@ class ExtensionManager(object):
 
             name, _ = os.path.splitext(os.path.basename(filename))
 
-            # get ordering prefix
-            priority = self._get_prefix(name)
-
-            # strip ordering prefix from name, if present
-            name = re.sub(r'^[0-9]*_', '', name)
-            try:
-                if extensions[name] is not None:
-                    logger.info("extension at %s will be ignored in favor of %s", extensions[name][1], filename)
-            except:
-                None
+            # extensions with no priority get lowest priority, 99
+            priority = 99
+            m = re.fullmatch(r'^([0-9]*)_(.+)', name)
+            if m:
+                if m.group(1):
+                    # get ordering prefix
+                    priority = int(m.group(1))
+                # strip ordering prefix from name (or leading _)
+                name = m.group(2)
+            if name in extensions:
+                logger.info("extension at %s will be ignored in favor of %s", extensions[name][1], filename)
             extensions[name] = (priority, filename)
 
         # sort by priority - extensions with same priority will retain the order
