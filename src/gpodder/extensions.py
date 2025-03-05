@@ -335,7 +335,7 @@ class ExtensionManager(object):
             return
 
         for name, (priority, filename) in self._find_extensions():
-            logger.debug('Found extension "%s", priority %s, in %s', name, str(priority), filename)
+            logger.debug('Found extension "%s", priority %s, in %s', name, priority, filename)
             config = getattr(core.config.extensions, name)
             container = ExtensionContainer(self, name, config, filename, extpriority=priority)
             if (name in enabled_extensions
