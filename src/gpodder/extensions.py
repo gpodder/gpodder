@@ -415,7 +415,7 @@ class ExtensionManager(object):
 
         # sort by priority - extensions with same priority will retain the order
         # in which they were found.
-        return sorted(extensions.items(), key=lambda i: i[1][0])
+        return sorted(extensions.items(), key=lambda i: (i[1][0], i[0]))
 
     def get_extensions(self):
         """Get a list of all loaded extensions and their enabled flag."""
