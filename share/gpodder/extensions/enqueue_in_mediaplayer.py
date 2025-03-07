@@ -244,10 +244,10 @@ RESUMERS = [
     # MPRISResumer('totem', 'Totem', ['totem'], 'org.mpris.MediaPlayer2.totem'),
 
     # with https://github.com/Serranya/deadbeef-mpris2-plugin
-    MPRISResumer('resume in deadbeef', 'DeaDBeeF', ['deadbeef'], 'org.mpris.MediaPlayer2.DeaDBeeF'),
+    MPRISResumer('deadbeef', 'DeaDBeeF', ['deadbeef'], 'org.mpris.MediaPlayer2.DeaDBeeF'),
 
     # the gPodder Downloads directory must be in gmusicbrowser's library
-    MPRISResumer('resume in gmusicbrowser', 'gmusicbrowser', ['gmusicbrowser'], 'org.mpris.MediaPlayer2.gmusicbrowser'),
+    MPRISResumer('gmusicbrowser', 'gmusicbrowser', ['gmusicbrowser'], 'org.mpris.MediaPlayer2.gmusicbrowser'),
 
     # Audacious doesn't implement MPRIS2.OpenUri
     # MPRISResumer('audacious', 'resume in Audacious', ['audacious', '--enqueue'], 'org.mpris.MediaPlayer2.audacious'),
