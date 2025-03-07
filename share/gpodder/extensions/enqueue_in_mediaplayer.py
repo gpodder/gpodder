@@ -103,14 +103,14 @@ class MPRISResumer(FreeDesktopPlayer):
             return False
         return util.find_command(self.command[0]) is not None
 
-    def enqueue_episodes(self, episodes, config=None):
-        self.do_enqueue(episodes[0].get_playback_url(config=config),
+    def resume_episode(self, episodes, config=None):
+        """Resume playback of the first episode in given episodes."""
+        self._do_resume(episodes[0].get_playback_url(config=config),
                         episodes[0].current_position)
 
-        for episode in episodes:
-            episode.playback_mark()
-            if self.gpodder is not None:
-                self.gpodder.update_episode_list_icons(selected=True)
+        episodes[0].playback_mark()
+        if self.gpodder is not None:
+            self.gpodder.update_episode_list_icons(selected=True)
 
     def init_dbus(self):
         bus = gpodder.dbus_session_bus
@@ -138,7 +138,7 @@ class MPRISResumer(FreeDesktopPlayer):
         obj = bus.get_object(self.NAME_DBUS, self.OBJECT_DBUS)
         cancel = obj.connect_to_signal('NameOwnerChanged', name_owner_changed, dbus_interface=self.NAME_DBUS)
 
-    def do_enqueue(self, filename, pos):
+    def _do_resume(self, filename, pos):
         def on_reply():
             logger.debug('MPRISResumer opened %s', self.url)
 
@@ -291,7 +291,7 @@ class gPodderExtension:
         # and no point in using DBus when episode is not played.
         if not hasattr(gpodder.dbus_session_bus, 'fake') and \
                 len(episodes) == 1 and episodes[0].current_position > 0:
-            ret.extend([(p.title, functools.partial(p.enqueue_episodes, config=self.gpodder_config))
+            ret.extend([(p.title, functools.partial(p.resume_episode, config=self.gpodder_config))
                         for p in self.resumers])
 
         return ret
