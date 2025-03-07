@@ -5,6 +5,7 @@
 # Released under the same license terms as gPodder itself.
 import functools
 import logging
+import pathlib
 
 import gpodder
 from gpodder import util
@@ -147,11 +148,8 @@ class MPRISResumer(FreeDesktopPlayer):
             self.signal_match.remove()
 
         if filename.startswith('/'):
-            try:
-                import pathlib
-                self.url = pathlib.Path(filename).as_uri()
-            except ImportError:
-                self.url = 'file://' + filename
+            self.url = pathlib.Path(filename).as_uri()
+
         self.position_us = pos * 1000 * 1000  # pos in microseconds
         if self.init_dbus():
             # async to not freeze the ui waiting for the application to answer
