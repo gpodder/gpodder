@@ -259,6 +259,9 @@ RESUMERS = [
 
     # just enable the plugin
     MPRISResumer('parole', 'Parole', ['parole'], 'org.mpris.MediaPlayer2.parole'),
+
+    # Needs the mpv-mpris plugin.
+    MPRISResumer('mpv', 'mpv', ['mpv', '--player-operation-mode=pseudo-gui'], 'org.mpris.MediaPlayer2.mpv'),
 ]
 
 
