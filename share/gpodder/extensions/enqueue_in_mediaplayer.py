@@ -176,10 +176,11 @@ class MPRISResumer(FreeDesktopPlayer):
         track_id = metadata.get('mpris:trackid')
         if url is not None and track_id is not None:
             if url == self.url:
+                self.player.disconnect_by_func(self.on_props_changed)
                 logger.debug('Setting %s, track %s position to %d',
                              url, track_id, self.position_us)
                 self.player.SetPosition('(ox)', track_id, self.position_us)
-                self.player.disconnect_by_func(self.on_props_changed)
+                self.player.Play()
             else:
                 logger.debug('Player has unexpected url: %s', url)
 
