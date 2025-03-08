@@ -7,6 +7,11 @@ import functools
 import logging
 import pathlib
 
+import gi
+
+gi.require_version('Gio', '2.0')
+from gi.repository import Gio, GLib
+
 import gpodder
 from gpodder import util
 
@@ -98,6 +103,7 @@ class MPRISResumer(FreeDesktopPlayer):
         self.player = None
         self.position_us = None
         self.url = None
+        self.watcher_id = None
 
     def is_installed(self):
         if gpodder.ui.win32:
@@ -106,84 +112,76 @@ class MPRISResumer(FreeDesktopPlayer):
 
     def resume_episode(self, episodes, config=None):
         """Resume playback of the first episode in given episodes."""
-        self._do_resume(episodes[0].get_playback_url(config=config),
-                        episodes[0].current_position)
+        self.position_us = episodes[0].current_position * 1e6
+        self.url = episodes[0].get_playback_url(config=config)
+        if self.url.startswith('/'):
+            self.url = pathlib.Path(self.url).as_uri()
+
+        if self.player is None:
+            self._start_and_resume()
+        else:
+            self._open_and_set_pos()
 
         episodes[0].playback_mark()
         if self.gpodder is not None:
             self.gpodder.update_episode_list_icons(selected=True)
 
-    def init_dbus(self):
-        bus = gpodder.dbus_session_bus
+    def _start_and_resume(self):
+        self.watcher_id = Gio.bus_watch_name(
+            Gio.BusType.SESSION, self.bus_name,
+            Gio.BusNameWatcherFlags.NONE,
+            self.on_name_appeared, self.on_name_vanished)
 
-        if not bus.name_has_owner(self.bus_name):
-            logger.debug('MPRISResumer %s is not there...', self.bus_name)
-            return False
+    def on_name_appeared(self, connection, name, name_owner):
+        if name == self.bus_name:
+            logger.debug('MPRISResumer player %s is on the bus', name)
+            self.player = Gio.DBusProxy.new_sync(
+                connection, Gio.DBusProxyFlags.NONE, None,
+                name, self.OBJECT_PLAYER, self.INTERFACE_PLAYER,
+                None)
+            if self.player is None:
+                logger.error('Failed to create player proxy for %s', name)
+                return
+            self._open_and_set_pos()
 
-        self.player = bus.get_object(self.bus_name, self.OBJECT_PLAYER)
-        self.signal_match = self.player.connect_to_signal(self.SIGNAL_PROP_CHANGE,
-            self.on_prop_change,
-            dbus_interface=self.INTERFACE_PROPS)
-        return True
+    def on_name_vanished(self, connection, name):
+        if name == self.bus_name:
+            if self.player is None:
+                logger.debug('MPRISResumer player %s not found on the bus, starting...', name)
+                super(MPRISResumer, self).open_files([])
+            else:
+                logger.debug('MPRISResumer player %s vanished', name)
+                self.player = None
+                if self.watcher_id is not None:
+                    Gio.bus_unwatch_name(self.watcher_id)
+                    self.watcher_id = None
 
-    def enqueue_when_ready(self, filename, pos):
-        def name_owner_changed(name, old_owner, new_owner):
-            logger.debug('name_owner_changed "%s" "%s" "%s"',
-                         name, old_owner, new_owner)
-            if name == self.bus_name:
-                logger.debug('MPRISResumer player %s is there', name)
-                cancel.remove()
-                util.idle_add(lambda: self.do_enqueue(filename, pos))
+    def _open_and_set_pos(self):
+        if self.player is None:
+            logger.debug('Proxy for player %s does not exist', self.bus_name)
+            return
 
-        bus = gpodder.dbus_session_bus
-        obj = bus.get_object(self.NAME_DBUS, self.OBJECT_DBUS)
-        cancel = obj.connect_to_signal('NameOwnerChanged', name_owner_changed, dbus_interface=self.NAME_DBUS)
+        self.player.connect('g-properties-changed', self.on_props_changed)
+        logger.debug('Opening %s', self.url)
+        self.player.OpenUri('(s)', self.url)
 
-    def _do_resume(self, filename, pos):
-        def on_reply():
-            logger.debug('MPRISResumer opened %s', self.url)
+    def on_props_changed(self, proxy, changed_props, invalidated_props):
+        props = changed_props.unpack()
+        metadata = props.get('Metadata')
+        if metadata is None:
+            logger.debug('No metadata in changed properties')
+            return
 
-        def on_error(exception):
-            logger.error('MPRISResumer error %s', repr(exception))
-            self.signal_match.remove()
-
-        if filename.startswith('/'):
-            self.url = pathlib.Path(filename).as_uri()
-
-        self.position_us = pos * 1000 * 1000  # pos in microseconds
-        if self.init_dbus():
-            # async to not freeze the ui waiting for the application to answer
-            self.player.OpenUri(self.url,
-                                dbus_interface=self.INTERFACE_PLAYER,
-                                reply_handler=on_reply,
-                                error_handler=on_error)
-        else:
-            self.enqueue_when_ready(filename, pos)
-            logger.debug('MPRISResumer launching player %s', self.application)
-            super(MPRISResumer, self).open_files([])
-
-    def on_prop_change(self, interface, props, invalidated_props):
-        def on_reply():
-            pass
-
-        def on_error(exception):
-            logger.error('MPRISResumer SetPosition error %s', repr(exception))
-            self.signal_match.remove()
-
-        metadata = props.get('Metadata', {})
         url = metadata.get('xesam:url')
         track_id = metadata.get('mpris:trackid')
         if url is not None and track_id is not None:
             if url == self.url:
-                logger.info('Enqueue %s setting track %s position=%d',
-                            url, track_id, self.position_us)
-                self.player.SetPosition(str(track_id), self.position_us,
-                                        dbus_interface=self.INTERFACE_PLAYER,
-                                        reply_handler=on_reply,
-                                        error_handler=on_error)
+                logger.debug('Setting %s, track %s position to %d',
+                             url, track_id, self.position_us)
+                self.player.SetPosition('(ox)', track_id, self.position_us)
+                self.player.disconnect_by_func(self.on_props_changed)
             else:
-                logger.debug('Changed but wrong url: %s, giving up', url)
-            self.signal_match.remove()
+                logger.debug('Player has unexpected url: %s', url)
 
 
 PLAYERS = [
@@ -287,6 +285,7 @@ class gPodderExtension:
 
         # needs dbus, doesn't handle more than 1 episode
         # and no point in using DBus when episode is not played.
+        # TODO: Detect Dbus availability with GDBus
         if not hasattr(gpodder.dbus_session_bus, 'fake') and \
                 len(episodes) == 1 and episodes[0].current_position > 0:
             ret.extend([(p.title, functools.partial(p.resume_episode, config=self.gpodder_config))
