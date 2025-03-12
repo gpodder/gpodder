@@ -588,6 +588,7 @@ class gPodderExtension:
                     [sys.executable, '-m', 'pip', 'index', 'versions', program_name],
                     stderr=subprocess.STDOUT,
                     encoding='utf-8',
+                    close_fds=True,
                     timeout=60)
             logger.debug("pip index version %s: %s", program_name, output)
             match = re.search(r'LATEST:\s*(\S*)', output)
@@ -621,6 +622,7 @@ class gPodderExtension:
                     [sys.executable, '-m', 'pip', 'install', '--upgrade', program_name],
                     stderr=subprocess.STDOUT,
                     encoding='utf-8',
+                    close_fds=True,
                     timeout=120)
         except subprocess.CalledProcessError as e:
             logger.error("Error running %s: exit code %s, output: %s", e.cmd, e.returncode, e.output)
