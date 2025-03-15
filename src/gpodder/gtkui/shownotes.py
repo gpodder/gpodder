@@ -40,11 +40,23 @@ logger = logging.getLogger(__name__)
 
 has_webkit2 = False
 try:
-    gi.require_version('WebKit2', '4.0')
+    gi.require_version('WebKit2', '4.1')
     from gi.repository import WebKit2
     has_webkit2 = True
+    logger.info('Webkit2 4.1 loaded')
 except (ImportError, ValueError):
-    logger.info('No WebKit2 gobject bindings, so no HTML shownotes')
+    logger.info('Webkit2 4.1 not found. Trying 4.0')
+    has_webkit2 = False
+
+if not has_webkit2:
+    try:
+        gi.require_version('Webkit2', '4.0')
+        from gi.repository import WebKit2
+        has_webkit2 = True
+        logger.info('Webkit2 4.0 loaded')
+    except (ImportError, ValueError):
+        logger.info('No WebKit2 gobject bindings, so no HTML shownotes')
+        has_webkit2 = False
 
 
 def get_shownotes(enable_html, pane):
