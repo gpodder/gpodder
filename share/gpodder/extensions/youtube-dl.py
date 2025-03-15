@@ -7,6 +7,7 @@
 import logging
 import os
 import re
+import subprocess
 import sys
 import time
 from collections.abc import Iterable
@@ -517,6 +518,9 @@ class gPodderExtension:
         self.container = container
         self.ytdl = None
         self.infobar = None
+        self.latest_version = _('Not checked')
+        self.update_label = None
+        self.update_btn = None
 
     def on_load(self):
         self.ytdl = gPodderYoutubeDL(self.container.manager.core.config, self.container.config)
@@ -577,6 +581,54 @@ class gPodderExtension:
         else:
             self.container.config.embed_subtitles = False
 
+    def check_for_update(self, widget):
+        success = False
+        try:
+            output = subprocess.check_output(
+                    [sys.executable, '-m', 'pip', 'index', 'versions', program_name],
+                    stderr=subprocess.STDOUT,
+                    encoding='utf-8',
+                    close_fds=True,
+                    timeout=60)
+            logger.debug("pip index version %s: %s", program_name, output)
+            match = re.search(r'LATEST:\s*(\S*)', output)
+            if match:
+                self.latest_version = match.group(1)
+                success = True
+            else:
+                logger.Error("Could not find LATEST version in pip output:\n%s", output)
+                self.latest_version = None
+        except Exception as e:
+            logger.Error("Error checking for latest version: %r", e)
+            self.latest_version = None
+
+        if success:
+            # Need to remove zeros from single digit days and months
+            # Because pip returns versions like 2021.2.9 but the module reports it like 2021.02.09
+            version = ".".join([str(int(i)) for i in youtube_dl.version.__version__.split('.')])
+            if self.latest_version != version:
+                self.update_btn.set_sensitive(True)
+                self.update_label.set_text(_('Available version: %(version)s') % {'version': self.latest_version})
+            else:
+                self.update_btn.set_sensitive(False)
+                self.update_label.set_text(_('No update available'))
+        else:
+            self.update_btn.set_sensitive(False)
+            self.update_label.set_text(_('Error checking for update'))
+
+    def do_update(self, widget):
+        try:
+            subprocess.check_output(
+                    [sys.executable, '-m', 'pip', 'install', '--upgrade', program_name],
+                    stderr=subprocess.STDOUT,
+                    encoding='utf-8',
+                    close_fds=True,
+                    timeout=120)
+        except subprocess.CalledProcessError as e:
+            logger.error("Error running %s: exit code %s, output: %s", e.cmd, e.returncode, e.output)
+        except Exception as e:
+            logger.exception("Error updating %s: %r", program_name, e)
+
     def show_preferences(self):
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
         box.set_border_width(10)
@@ -619,6 +671,25 @@ class gPodderExtension:
             'The "ffmpeg" command was not found. FFmpeg is required for embedding subtitles.')))
         self.infobar = infobar
         box.pack_end(infobar, False, False, 0)
+
+        # Do not show the pip update buttons in linux
+        if gpodder.ui.win32 or gpodder.ui.osx:
+            box.pack_start(Gtk.HSeparator(), False, False, 0)
+
+            note_label = Gtk.Label(_("Note: You need to restart gpodder after updating %s") % (program_name))
+            box.pack_start(note_label, False, False, 0)
+            update_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
+            check_for_update_btn = Gtk.Button(_('Check for update'))
+            check_for_update_btn.connect('clicked', self.check_for_update)
+            self.update_label = Gtk.Label('%s %s' % (_('Available version:'), self.latest_version))
+            self.update_btn = Gtk.Button(_('Update'))
+            self.update_btn.connect('clicked', self.do_update)
+            self.update_btn.set_sensitive(False)  # Only enable it if check update finds newer version
+
+            update_box.pack_start(self.update_label, False, False, 0)
+            update_box.add(check_for_update_btn)
+            update_box.add(self.update_btn)
+            box.pack_start(update_box, False, False, 0)
 
         box.show_all()
         infobar.hide()
