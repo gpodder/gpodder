@@ -611,8 +611,7 @@ class PodcastEpisode(PodcastModelObject):
         if not desc:
             return _('No description available')
         else:
-            # Decode the description to avoid gPodder bug 1277
-            desc = util.convert_bytes(desc).strip()
+            desc = desc.strip()
 
             if len(desc) > MAX_LINE_LENGTH:
                 return desc[:MAX_LINE_LENGTH] + '...'
