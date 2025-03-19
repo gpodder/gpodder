@@ -28,15 +28,7 @@ import gpodder
 from gpodder import util
 
 
-def safe_str(txt):
-    if txt:
-        return txt.encode()
-    else:
-        return ''
-
-
-def safe_first_line(txt):
-    txt = safe_str(txt)
+def first_line(txt):
     lines = util.remove_html_tags(txt).strip().splitlines()
     if not lines or lines[0] == '':
         return ''
@@ -79,9 +71,9 @@ class DBusPodcastsProxy(dbus.service.Object):
     def get_podcasts(self):
         """Get all podcasts in gPodder's subscription list."""
         def podcast_to_tuple(podcast):
-            title = safe_str(podcast.title)
-            url = safe_str(podcast.url)
-            description = safe_first_line(podcast.description)
+            title = podcast.title
+            url = podcast.url
+            description = first_line(podcast.description)
             cover_file = ''
 
             return (title, url, description, cover_file)
@@ -110,11 +102,11 @@ class DBusPodcastsProxy(dbus.service.Object):
             return []
 
         def episode_to_tuple(episode):
-            title = safe_str(episode.title)
-            url = safe_str(episode.url)
-            description = safe_first_line(episode._text_description)
-            filename = safe_str(episode.download_filename)
-            file_type = safe_str(episode.file_type())
+            title = episode.title
+            url = episode.url
+            description = first_line(episode._text_description)
+            filename = episode.download_filename
+            file_type = episode.file_type()
             is_new = (episode.state == gpodder.STATE_NORMAL and episode.is_new)
             is_downloaded = episode.was_downloaded(and_exists=True)
             is_deleted = (episode.state == gpodder.STATE_DELETED)
