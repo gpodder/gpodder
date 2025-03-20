@@ -21,6 +21,7 @@ import collections
 import html
 import logging
 import os
+import pathlib
 import re
 import shutil
 import sys
@@ -1904,7 +1905,22 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_open_episode_download_folder(self, unused1=None, unused2=None):
         episodes = self.get_selected_episodes()
         assert len(episodes) == 1
-        util.gui_open(episodes[0].parent.save_dir, gui=self)
+        try:
+            bus = Gio.bus_get_sync(Gio.BusType.SESSION, None)
+            if bus is None:
+                raise GLib.GError(Gio.IOErrorEnum.NOT_SUPPORTED,
+                                  'No session bus available')
+
+            uri = pathlib.Path(episodes[0].local_filename(create=False)).as_uri()
+            bus.call_sync('org.freedesktop.FileManager1',
+                          '/org/freedesktop/FileManager1',
+                          'org.freedesktop.FileManager1',
+                          'ShowItems',
+                          GLib.Variant('(ass)', ((uri,), '')),
+                          None, Gio.DBusCallFlags.NONE, -1, None)
+            logger.debug(f"Opened '{uri}' with org.freedesktop.FileManager1.ShowItems")
+        except GLib.GError:
+            util.gui_open(episodes[0].parent.save_dir, gui=self)
 
     def on_select_channel_of_episode(self, unused1=None, unused2=None):
         episodes = self.get_selected_episodes()

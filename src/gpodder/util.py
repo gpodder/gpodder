@@ -1546,6 +1546,7 @@ def gui_open(filename, gui=None):
                 raise Exception((_("System default program '%(opener)s' not found"))
                     % {'opener': opener}
                 )
+            logger.debug('Opening file/folder "%s" using "%s"', filename, opener_fullpath)
             Popen([opener_fullpath, filename], close_fds=True)
         return True
     except:
