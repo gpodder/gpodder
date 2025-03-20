@@ -509,7 +509,7 @@ def get_free_disk_space(path):
     return s.f_bavail * s.f_bsize
 
 
-def format_date(timestamp):
+def format_date(timestamp, today=datetime.date.today()):
     """Convert a UNIX timestamp to a date representation.
 
     This function returns "Today", "Yesterday", a weekday name or
@@ -521,6 +521,8 @@ def format_date(timestamp):
 
     For instance on windows we can't represent dates before epoch (timestamp<0)
 
+    The 'today' keyword argument is used for testing purposes only.
+
     >>> (os.name == 'nt') == (format_date(-39539) == None)
     True
     >>> format_date(time.time())
@@ -528,7 +530,7 @@ def format_date(timestamp):
     >>> format_date(time.time() - 24*60*60)
     'Yesterday'
     >>> weekday = datetime.datetime.now().weekday()
-    >>> 'Wednesday' if weekday == 2 else format_date(time.time() - ((weekday + 5)%7)*24*60*60)
+    >>> format_date(1742388710.0, today=datetime.date(2025, 3, 21))
     'Wednesday'
     >>> if os.name == 'posix':
     ...    old_tz = os.environ.get('TZ')
@@ -551,8 +553,6 @@ def format_date(timestamp):
     except (OSError, TypeError, ValueError):
         logger.warning('Cannot convert timestamp %r' % timestamp, exc_info=True)
         return None
-
-    today = datetime.date.today()
 
     delta = today - timestamp_date
 
