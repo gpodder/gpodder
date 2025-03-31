@@ -20,7 +20,15 @@ from functools import cache
 from multiprocessing import Process, Queue
 
 import gi  # isort:skip
-gi.require_version("GIRepository", "2.0")  # isort:skip
+
+girepository_version = 3
+try:
+    gi.require_version("GIRepository", "3.0")  # isort:skip
+    girepository_version = 3
+except ValueError as e:
+    girepository_version = 2
+    gi.require_version("GIRepository", "2.0")  # isort:skip
+
 from gi.repository import GIRepository  # isort:skip
 
 
@@ -28,7 +36,18 @@ def _get_shared_libraries(q, namespace, version):
     repo = GIRepository.Repository()
     try:
         repo.require(namespace, version, 0)
-        lib = repo.get_shared_library(namespace)
+        if girepository_version == 3:
+            ret = repo.get_shared_libraries(namespace)
+            if ret:
+                lib = ret[0]
+            else:
+                lib = None
+        elif girepository_version == 2:
+            lib = repo.get_shared_library(namespace)
+        else:
+            lib = None
+            logging.error("GIRepository version is not 3 or 2")
+
         q.put(lib)
     except Exception as e:
         logging.exception(e)
@@ -148,6 +167,7 @@ def main(argv):
     if "--debug" in argv[1:]:
         logging.getLogger().setLevel(logging.DEBUG)
 
+    logging.debug("GIRepository being used: %s", girepository_version)
     libs = get_things_to_delete(sys.prefix)
 
     if "--delete" in argv[1:]:
