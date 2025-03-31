@@ -583,7 +583,7 @@ class MP3PlayerDevice(Device):
 
         root_path = self.destination
         for path_info in root_path.enumerate_children(attributes, Gio.FileQueryInfoFlags.NONE, None):
-            if self._config.one_folder_per_podcast:
+            if self._config.device_sync.one_folder_per_podcast:
                 if path_info.get_file_type() == Gio.FileType.DIRECTORY:
                     path_file = root_path.get_child(path_info.get_name())
                     try:
@@ -595,7 +595,7 @@ class MP3PlayerDevice(Device):
                         logger.error('get all tracks for %s failed: %s', path_file.get_uri(), err.message)
 
             else:
-                if path_info.get_file_type() == Gio.FileTypeFlags.REGULAR:
+                if path_info.get_file_type() == Gio.FileType.REGULAR:
                     path_file = root_path.get_child(path_info.get_name())
                     self.add_sync_track(tracks, path_file, path_info, None)
         return tracks
@@ -619,7 +619,7 @@ class MP3PlayerDevice(Device):
                     logger.error('deleting file %s failed: %s', file.get_uri(), err.message)
                 return
 
-        if self._config.one_folder_per_podcast:
+        if self._config.device_sync.one_folder_per_podcast:
             try:
                 if self.directory_is_empty(folder):
                     folder.delete()
