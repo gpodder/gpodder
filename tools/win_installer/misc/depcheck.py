@@ -33,6 +33,7 @@ from gi.repository import GIRepository  # isort:skip
 
 
 def _get_shared_libraries(q, namespace, version, loglevel=logging.WARNING):
+    """put a list of libraries into q, regardless of girepository_version."""
     import multiprocessing
     logger = multiprocessing.log_to_stderr(level=loglevel)
 
@@ -40,27 +41,28 @@ def _get_shared_libraries(q, namespace, version, loglevel=logging.WARNING):
     try:
         repo.require(namespace, version, 0)
         if girepository_version == 3:
-            ret = repo.get_shared_libraries(namespace)
-            logger.debug("repo.get_share_libraries(%s) returned: %s", namespace, ret)
-            if ret:
-                lib = ret[0]
-            else:
-                lib = None
+            libs = repo.get_shared_libraries(namespace)
+            logger.debug("repo.get_share_libraries(%s) returned: %s", namespace, libs)
         elif girepository_version == 2:
-            lib = repo.get_shared_library(namespace)
-            logger.debug("repo.get_share_library(%s) returned: %s", namespace, lib)
+            ret = repo.get_shared_library(namespace)
+            logger.debug("repo.get_share_library(%s) returned: %s", namespace, ret)
+            if ret:
+                libs = ret.split(',')
+            else:
+                libs = []
         else:
-            lib = None
+            libs = []
             logger.error("GIRepository version is not 3 or 2")
 
-        q.put(lib)
+        q.put(libs)
     except Exception as e:
         logger.exception(e)
-        q.put(None)
+        q.put([])
 
 
 @cache
 def get_shared_libraries(namespace, version):
+    """Return a list of libraries."""
     # we have to start a new process because multiple versions can't be loaded
     # in the same process
     loglevel = logging.getLogger().getEffectiveLevel()
@@ -78,13 +80,9 @@ def get_required_by_typelibs():
     for tl in os.listdir(repo.get_search_path()[0]):
         namespace, version = os.path.splitext(tl)[0].split("-", 1)
         logging.debug(f"get_require_by_typelibs(): calling get_shared_libraries({namespace}, {version})")
-        lib = get_shared_libraries(namespace, version)
-        if lib:
-            libs = lib.lower().split(",")
-        else:
-            libs = []
+        libs = get_shared_libraries(namespace, version)
         for lib in libs:
-            deps.add((namespace, version, lib))
+            deps.add((namespace, version, lib.lower()))
     return deps
 
 
