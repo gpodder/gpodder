@@ -20,27 +20,54 @@ from functools import cache
 from multiprocessing import Process, Queue
 
 import gi  # isort:skip
-gi.require_version("GIRepository", "2.0")  # isort:skip
+
+girepository_version = 3
+try:
+    gi.require_version("GIRepository", "3.0")  # isort:skip
+    girepository_version = 3
+except ValueError as e:
+    girepository_version = 2
+    gi.require_version("GIRepository", "2.0")  # isort:skip
+
 from gi.repository import GIRepository  # isort:skip
 
 
-def _get_shared_libraries(q, namespace, version):
+def _get_shared_libraries(q, namespace, version, loglevel=logging.WARNING):
+    """put a list of libraries into q, regardless of girepository_version."""
+    import multiprocessing
+    logger = multiprocessing.log_to_stderr(level=loglevel)
+
     repo = GIRepository.Repository()
     try:
         repo.require(namespace, version, 0)
-        lib = repo.get_shared_library(namespace)
-        q.put(lib)
+        if girepository_version == 3:
+            libs = repo.get_shared_libraries(namespace)
+            logger.debug("repo.get_share_libraries(%s) returned: %s", namespace, libs)
+        elif girepository_version == 2:
+            ret = repo.get_shared_library(namespace)
+            logger.debug("repo.get_share_library(%s) returned: %s", namespace, ret)
+            if ret:
+                libs = ret.split(',')
+            else:
+                libs = []
+        else:
+            libs = []
+            logger.error("GIRepository version is not 3 or 2")
+
+        q.put(libs)
     except Exception as e:
-        logging.exception(e)
-        q.put(None)
+        logger.exception(e)
+        q.put([])
 
 
 @cache
 def get_shared_libraries(namespace, version):
+    """Return a list of libraries."""
     # we have to start a new process because multiple versions can't be loaded
     # in the same process
+    loglevel = logging.getLogger().getEffectiveLevel()
     q = Queue()
-    p = Process(target=_get_shared_libraries, args=(q, namespace, version))
+    p = Process(target=_get_shared_libraries, args=(q, namespace, version, loglevel))
     p.start()
     result = q.get()
     p.join()
@@ -53,13 +80,9 @@ def get_required_by_typelibs():
     for tl in os.listdir(repo.get_search_path()[0]):
         namespace, version = os.path.splitext(tl)[0].split("-", 1)
         logging.debug(f"get_require_by_typelibs(): calling get_shared_libraries({namespace}, {version})")
-        lib = get_shared_libraries(namespace, version)
-        if lib:
-            libs = lib.lower().split(",")
-        else:
-            libs = []
+        libs = get_shared_libraries(namespace, version)
         for lib in libs:
-            deps.add((namespace, version, lib))
+            deps.add((namespace, version, lib.lower()))
     return deps
 
 
@@ -148,6 +171,7 @@ def main(argv):
     if "--debug" in argv[1:]:
         logging.getLogger().setLevel(logging.DEBUG)
 
+    logging.debug("GIRepository being used: %s", girepository_version)
     libs = get_things_to_delete(sys.prefix)
 
     if "--delete" in argv[1:]:
