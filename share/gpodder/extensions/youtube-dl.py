@@ -51,6 +51,16 @@ DefaultConfig = {
     'manage_downloads': True,
     # Embed all available subtitles to downloaded videos. Needs ffmpeg.
     'embed_subtitles': False,
+    # Use cookies from browser to download videos that require login.
+    'cookiesfrombrowser': [],   # A tuple containing the name of the browser,
+                                # the profile name/path from where cookies are loaded,
+                                # the name of the keyring,
+                                # and the container name,
+                                # e.g. ('chrome', ) or
+                                # ('vivaldi', 'default', 'BASICTEXT') or
+                                # ('firefox', 'default', None, 'Meta')
+                                # see also yt-dlp's help on --cookies-from-browser
+
 }
 
 
@@ -312,6 +322,12 @@ class gPodderYoutubeDL(download.CustomDownloader):
             self._ydl_opts['verbose'] = True
         else:
             self._ydl_opts['quiet'] = True
+
+        if self.my_config.cookiesfrombrowser:
+            self._ydl_opts['cookiesfrombrowser'] = tuple(
+                None if x == "None" else x
+                for x in self.my_config.cookiesfrombrowser
+            )
         # Don't create downloaders for URLs supported by these youtube-dl extractors
         self.ie_blacklist = ["Generic"]
         # Cache URL regexes from youtube-dl matches here, seed with youtube regex
