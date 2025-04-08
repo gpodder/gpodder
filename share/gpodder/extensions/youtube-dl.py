@@ -17,7 +17,7 @@ try:
     program_name = 'yt-dlp'
     want_ytdl_version = '2023.06.22'
 except:
-    import youtube_dl
+    import youtube_dl # pyright: ignore[reportMissingImports]
     program_name = 'youtube-dl'
     want_ytdl_version = '2023.02.17'  # youtube-dl has been patched, but not yet released
 
@@ -60,7 +60,10 @@ DefaultConfig = {
                                 # ('vivaldi', 'default', 'BASICTEXT') or
                                 # ('firefox', 'default', None, 'Meta')
                                 # see also yt-dlp's help on --cookies-from-browser
-
+    # Make all connections via IPv4
+    'force_ipv4': False,
+    # Make all connections via IPv6
+    'force_ipv6': False,
 }
 
 
@@ -328,6 +331,12 @@ class gPodderYoutubeDL(download.CustomDownloader):
                 None if x == "None" else x
                 for x in self.my_config.cookiesfrombrowser
             )
+
+        if self.my_config.force_ipv4 and not self.my_config.force_ipv6:
+            self._ydl_opts['force_ipv4'] = True
+        elif self.my_config.force_ipv6 and not self.my_config.force_ipv4:
+            self._ydl_opts['force_ipv6'] = True
+
         # Don't create downloaders for URLs supported by these youtube-dl extractors
         self.ie_blacklist = ["Generic"]
         # Cache URL regexes from youtube-dl matches here, seed with youtube regex
@@ -408,7 +417,7 @@ class gPodderYoutubeDL(download.CustomDownloader):
             try:
                 with youtube_dl.YoutubeDL(opts) as ydl:
                     ydl.process_ie_result(tmp, download=False)
-                    new_entries.extend(tmp.get('entries'))
+                    new_entries.extend(tmp.get('entries') or [])
             except youtube_dl.utils.DownloadError as ex:
                 if ex.exc_info[0] == youtube_dl.utils.ExtractorError:
                     # for instance "This video contains content from xyz, who has blocked it on copyright grounds"
@@ -612,10 +621,10 @@ class gPodderExtension:
                 self.latest_version = match.group(1)
                 success = True
             else:
-                logger.Error("Could not find LATEST version in pip output:\n%s", output)
+                logger.error("Could not find LATEST version in pip output:\n%s", output)
                 self.latest_version = None
         except Exception as e:
-            logger.Error("Error checking for latest version: %r", e)
+            logger.error("Error checking for latest version: %r", e)
             self.latest_version = None
 
         if success:
