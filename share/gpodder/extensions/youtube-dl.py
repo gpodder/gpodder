@@ -60,7 +60,10 @@ DefaultConfig = {
                                 # ('vivaldi', 'default', 'BASICTEXT') or
                                 # ('firefox', 'default', None, 'Meta')
                                 # see also yt-dlp's help on --cookies-from-browser
-
+    # Make all connections via IPv4
+    'force_ipv4': False,
+    # Make all connections via IPv6
+    'force_ipv6': False,
 }
 
 
@@ -328,6 +331,12 @@ class gPodderYoutubeDL(download.CustomDownloader):
                 None if x == "None" else x
                 for x in self.my_config.cookiesfrombrowser
             )
+
+        if self.my_config.force_ipv4 and not self.my_config.force_ipv6:
+            self._ydl_opts['force-ipv4'] = True
+        elif self.my_config.force_ipv6 and not self.my_config.force_ipv4:
+            self._ydl_opts['force-ipv6'] = True
+
         # Don't create downloaders for URLs supported by these youtube-dl extractors
         self.ie_blacklist = ["Generic"]
         # Cache URL regexes from youtube-dl matches here, seed with youtube regex
