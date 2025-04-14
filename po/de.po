@@ -64,17 +64,17 @@ msgstr "Soundcloud-Suche"
 
 #: src/gpodder/directory.py:195
 msgid "Sorry, soundcloud search doesn't work anymore."
-msgstr ""
+msgstr "Die Soundcloud-Suche funktioniert leider nicht mehr."
 
 #: src/gpodder/directory.py:198
 #, python-format
 msgid "Error querying soundcloud: %(code)s %(msg)s"
-msgstr ""
+msgstr "Fehler bei der Soundcloud-Abfrage: %(code)s %(msg)s"
 
 #: src/gpodder/directory.py:199
 #, python-format
 msgid "Unexpected response from soundcloud: %r"
-msgstr ""
+msgstr "Unerwartete Antwort von Soundcloud: %r"
 
 #: src/gpodder/directory.py:204
 msgid "Imported OPML file"
@@ -554,7 +554,7 @@ msgstr "Wählen Sie die Aktionen, die Sie ausführen möchten."
 #: src/gpodder/gtkui/main.py:637
 #, fuzzy
 msgid "A_pply"
-msgstr "verwenden"
+msgstr "A_nwenden"
 
 #: src/gpodder/gtkui/main.py:673
 msgid "Uploading subscriptions"
@@ -2000,7 +2000,7 @@ msgstr "Suche nach:"
 
 #: share/gpodder/extensions/podverse.py:24
 msgid "Search podverse podcast index"
-msgstr ""
+msgstr "Suche im Podverse-Podcast-Index"
 
 #: share/gpodder/extensions/podverse.py:31
 #, fuzzy
@@ -2010,7 +2010,7 @@ msgstr "gpodder.net-Suche"
 
 #: share/gpodder/extensions/podverse.py:37
 msgid "Please provide at least 3 characters"
-msgstr ""
+msgstr "Bitte geben Sie mindestens 3 Zeichen ein"
 
 #: share/gpodder/extensions/podverse.py:43
 #, fuzzy, python-format
@@ -2101,7 +2101,7 @@ msgstr "Abonnement pausiert"
 
 #: share/gpodder/extensions/subscription_stats.py:19
 msgid "Show publishing statistics for subscriptions."
-msgstr ""
+msgstr "Publikationsstatistiken für Abonnements anzeigen."
 
 #: share/gpodder/extensions/subscription_stats.py:53
 #, fuzzy
@@ -2111,7 +2111,7 @@ msgstr "Podcast aktualisieren"
 
 #: share/gpodder/extensions/subscription_stats.py:61
 msgid "Days"
-msgstr ""
+msgstr "Tage"
 
 #: share/gpodder/extensions/subscription_stats.py:154
 #, fuzzy, python-format
@@ -2121,24 +2121,24 @@ msgstr "Abonnement pausiert"
 
 #: share/gpodder/extensions/subscription_stats.py:163
 msgid "daily"
-msgstr ""
+msgstr "täglich"
 
 #: share/gpodder/extensions/subscription_stats.py:164
 msgid "weekly"
-msgstr ""
+msgstr "wöchentlich"
 
 #: share/gpodder/extensions/subscription_stats.py:165
 msgid "monthly"
-msgstr ""
+msgstr "monatlich"
 
 #: share/gpodder/extensions/subscription_stats.py:166
 msgid "yearly"
-msgstr ""
+msgstr "jährlich"
 
 #: share/gpodder/extensions/subscription_stats.py:170
 #, python-format
 msgid "Average days between the last %d episodes."
-msgstr ""
+msgstr "Tage im Durchschnitt zwischen den letzten %d Episoden."
 
 #: share/gpodder/extensions/tagging.py:50
 msgid "Tag downloaded files using Mutagen"
@@ -2261,13 +2261,13 @@ msgstr ""
 
 #: share/gpodder/extensions/youtube-dl.py:612
 msgid "Embed all available subtitles in downloaded video"
-msgstr ""
+msgstr "Alle verfügbaren Untertitel in das heruntergeladene Video einbetten"
 
 #: share/gpodder/extensions/youtube-dl.py:619
 msgid ""
 "The \"ffmpeg\" command was not found. FFmpeg is required for embedding "
 "subtitles."
-msgstr ""
+msgstr "Der Befehl \"ffmpeg\" wurde nicht gefunden. FFmpeg wird zum Einbetten von Untertiteln benötigt."
 
 #: share/gpodder/extensions/youtube-dl.py:628
 msgid "youtube-dl"
@@ -2431,11 +2431,11 @@ msgstr "Audio-Player:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:6
 msgid "Find as you type"
-msgstr ""
+msgstr "Suchen während der Eingabe"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:7
 msgid "Color scheme:"
-msgstr ""
+msgstr "Farbschema:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:8
 msgid "System"
@@ -2443,11 +2443,11 @@ msgstr ""
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:9
 msgid "Light"
-msgstr ""
+msgstr "Hell"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:10
 msgid "Dark"
-msgstr ""
+msgstr "Dunkel"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:11
 msgid "General"
@@ -2476,7 +2476,7 @@ msgstr "Immer neue Episoden anzeigen"
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:16
 #: share/gpodder/ui/gtk/menus.ui.h:47
 msgid "Trim episode title prefix"
-msgstr ""
+msgstr "Episodentitelprafix kürzen"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:17
 #: share/gpodder/ui/gtk/menus.ui.h:48
@@ -2523,7 +2523,7 @@ msgstr "Maximale Episoden pro Podcast:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:29
 msgid "Consider only episodes added in the update as new"
-msgstr ""
+msgstr "Nur im Update hinzugefügte Episoden als neu betrachten"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:30
 msgid "When new episodes are found:"
@@ -2591,7 +2591,8 @@ msgstr "In gPodder gelöschte Episoden vom Gerät entfernen"
 msgid ""
 "Sync existing episodes on device when file size differs from gPodder "
 "(disable if device modifies files)"
-msgstr ""
+msgstr "Vorhandene Episoden auf dem Gerät synchronisieren, wenn die Dateigröße von gPodder abweicht "
+"(deaktivieren, wenn das Gerät Dateien ändert)"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:46
 msgid "Devices"
@@ -2611,11 +2612,11 @@ msgstr "Bevorzugtes Vimeo-Format:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:51
 msgid "Use proxy (Overrides environment variables)"
-msgstr ""
+msgstr "Proxy verwenden (überschreibt Umgebungsvariablen)"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:52
 msgid "Proxy type:"
-msgstr ""
+msgstr "Proxy-Typ:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:53
 #, fuzzy
@@ -2637,11 +2638,11 @@ msgstr "Falscher Benutzername/Passwort"
 msgid ""
 "Proxies given in environment variables (will be used only if proxy above is "
 "disabled):"
-msgstr ""
+msgstr "In Umgebungsvariablen angegebene Proxys (wird nur verwendet, wenn der Proxy oben deaktiviert ist):"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:58
 msgid "Network"
-msgstr ""
+msgstr "Netzwerk"
 
 #: share/gpodder/ui/gtk/gpodder.ui.h:8 share/gpodder/ui/gtk/menus.ui.h:9
 msgid "Check for new episodes"
@@ -2831,7 +2832,7 @@ msgstr "Liste mit Episoden anzeigen"
 
 #: share/gpodder/ui/gtk/menus.ui.h:50
 msgid "Right align episode released column"
-msgstr ""
+msgstr "Spalte „Veröffentlicht“ rechtsbündig ausrichten"
 
 #: share/gpodder/ui/gtk/menus.ui.h:51
 msgid "Require control click to sort episodes"
