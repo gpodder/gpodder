@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gPodder 3.10.21\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-17 21:52+0100\n"
+"POT-Creation-Date: 2025-04-14 03:56-0600\n"
 "PO-Revision-Date: 2022-04-11 10:00+0300\n"
 "Last-Translator: Serkan ÖNDER <serkanonder@outlook.com>\n"
 "Language-Team: \n"
@@ -23,12 +23,12 @@ msgstr ""
 msgid "gPodder on %s"
 msgstr "%s üzerinde gPodder"
 
-#: src/gpodder/deviceplaylist.py:108
+#: src/gpodder/deviceplaylist.py:133
 #, python-format
 msgid "Folder %s could not be created."
 msgstr "%s klasörü oluşturulamadı."
 
-#: src/gpodder/deviceplaylist.py:108
+#: src/gpodder/deviceplaylist.py:133
 msgid "Error writing playlist"
 msgstr "Oynatma listesi yazılırken hata oluştu"
 
@@ -78,7 +78,7 @@ msgstr ""
 msgid "Imported OPML file"
 msgstr "İçe aktarılan OPML dosyası"
 
-#: src/gpodder/download.py:588 src/gpodder/sync.py:655
+#: src/gpodder/download.py:588 src/gpodder/sync.py:657
 msgid "Queued"
 msgstr "Kuyrukta"
 
@@ -86,27 +86,27 @@ msgstr "Kuyrukta"
 msgid "Downloading"
 msgstr "İndiriliyor"
 
-#: src/gpodder/download.py:589 src/gpodder/model.py:893 src/gpodder/sync.py:656
+#: src/gpodder/download.py:589 src/gpodder/model.py:905 src/gpodder/sync.py:658
 msgid "Finished"
 msgstr "Tamamlandı"
 
-#: src/gpodder/download.py:589 src/gpodder/sync.py:656
+#: src/gpodder/download.py:589 src/gpodder/sync.py:658
 msgid "Failed"
 msgstr "Başarısız"
 
-#: src/gpodder/download.py:589 src/gpodder/sync.py:656
+#: src/gpodder/download.py:589 src/gpodder/sync.py:658
 msgid "Cancelling"
 msgstr "İptal ediliyor"
 
-#: src/gpodder/download.py:589 src/gpodder/sync.py:656
+#: src/gpodder/download.py:589 src/gpodder/sync.py:658
 msgid "Cancelled"
 msgstr "Vazgeçildi"
 
-#: src/gpodder/download.py:589 src/gpodder/sync.py:656
+#: src/gpodder/download.py:589 src/gpodder/sync.py:658
 msgid "Pausing"
 msgstr "Duraklatma"
 
-#: src/gpodder/download.py:589 src/gpodder/sync.py:656
+#: src/gpodder/download.py:589 src/gpodder/sync.py:658
 #: src/gpodder/gtkui/model.py:386
 msgid "Paused"
 msgstr "Duraklatıldı"
@@ -139,7 +139,7 @@ msgstr "G/Ç Hatası: %(error)s: %(filename)s"
 msgid "HTTP Error %(code)s: %(message)s"
 msgstr "HTTP Hatası %(code)s: %(message)s"
 
-#: src/gpodder/download.py:1015 src/gpodder/sync.py:856
+#: src/gpodder/download.py:1015 src/gpodder/sync.py:858
 #, python-format
 msgid "Error: %s"
 msgstr "Hata: %s"
@@ -156,8 +156,8 @@ msgstr "Arayüz"
 msgid "Post download"
 msgstr "İndirme sonrası"
 
-#: src/gpodder/extensions.py:52 src/gpodder/model.py:958
-#: src/gpodder/model.py:1381
+#: src/gpodder/extensions.py:52 src/gpodder/model.py:970
+#: src/gpodder/model.py:1393
 msgid "Other"
 msgstr "Diğer"
 
@@ -185,28 +185,28 @@ msgstr "Python modülü bulunamadı: %(module)s"
 msgid "No description available"
 msgstr "Açıklama yok"
 
-#: src/gpodder/model.py:843
+#: src/gpodder/model.py:841
 msgid "unknown"
 msgstr "bilinmeyen"
 
-#: src/gpodder/model.py:923
+#: src/gpodder/model.py:935
 msgid "Default"
 msgstr "Öntanımlı"
 
-#: src/gpodder/model.py:924
+#: src/gpodder/model.py:936
 msgid "Only keep latest"
 msgstr "Sadece en yeniyi sakla"
 
-#: src/gpodder/model.py:1364 src/gpodder/model.py:1379
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:50
+#: src/gpodder/model.py:1376 src/gpodder/model.py:1391
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:56
 msgid "Video"
 msgstr "Video"
 
-#: src/gpodder/model.py:1377
+#: src/gpodder/model.py:1389
 msgid "Audio"
 msgstr "Ses"
 
-#: src/gpodder/model.py:1557
+#: src/gpodder/model.py:1569
 #, python-format
 msgid ""
 "Warning: path to gPodder home (%(root)s) is very long and can result in "
@@ -215,7 +215,7 @@ msgstr ""
 "Uyarı: gPodder ana sayfasına (%(root)s) giden yol çok uzun ve dosyaların "
 "indirilememesine neden olabilir.\n"
 
-#: src/gpodder/model.py:1559
+#: src/gpodder/model.py:1571
 msgid "You're advised to set it to a shorter path."
 msgstr "Daha kısa bir yola ayarlamanız tavsiye edilir."
 
@@ -229,52 +229,52 @@ msgstr "%s ekle"
 msgid "Remove %s"
 msgstr "%s kaldır"
 
-#: src/gpodder/sync.py:204
+#: src/gpodder/sync.py:205
 msgid "Cancelled by user"
 msgstr "Kullanıcı tarafından iptal edildi"
 
-#: src/gpodder/sync.py:207
+#: src/gpodder/sync.py:208
 msgid "Writing data to disk"
 msgstr "Verileri diske yazma"
 
-#: src/gpodder/sync.py:309
+#: src/gpodder/sync.py:310
 msgid "Opening iPod database"
 msgstr "İPod veritabanını açma"
 
-#: src/gpodder/sync.py:315
+#: src/gpodder/sync.py:316
 msgid "iPod opened"
 msgstr "iPod açıldı"
 
-#: src/gpodder/sync.py:324
+#: src/gpodder/sync.py:325
 msgid "Saving iPod database"
 msgstr "İPod veritabanını kaydetme"
 
-#: src/gpodder/sync.py:357 src/gpodder/sync.py:631
+#: src/gpodder/sync.py:358 src/gpodder/sync.py:633
 #, python-format
 msgid "Removing %s"
 msgstr "%s Kaldırılıyor"
 
-#: src/gpodder/sync.py:368 src/gpodder/sync.py:503
+#: src/gpodder/sync.py:369 src/gpodder/sync.py:504
 #, python-format
 msgid "Adding %s"
 msgstr "%s Ekleniyor"
 
-#: src/gpodder/sync.py:385
+#: src/gpodder/sync.py:386
 #, python-format
 msgid "Error copying %(episode)s: Not enough free space on %(mountpoint)s"
 msgstr ""
 "%(episode)s kopyalanırken hata oluştu: %(mountpoint)s üzerinde yeterli boş "
 "alan yok"
 
-#: src/gpodder/sync.py:443
+#: src/gpodder/sync.py:444
 msgid "Opening MP3 player"
 msgstr "MP3 çaları açma"
 
-#: src/gpodder/sync.py:468
+#: src/gpodder/sync.py:469
 msgid "MP3 player opened"
 msgstr "MP3 çalar açıldı"
 
-#: src/gpodder/sync.py:522
+#: src/gpodder/sync.py:523
 #, python-format
 msgid ""
 "Not enough space in %(path)s: %(free)s available, but need at least %(need)s"
@@ -282,14 +282,14 @@ msgstr ""
 "%(path)s içinde yeterli alan yok: %(free)s mevcut, ancak en az %(need)s "
 "gerekiyor"
 
-#: src/gpodder/sync.py:559
+#: src/gpodder/sync.py:560
 #, python-format
 msgid "Error copying %(from_file)s to %(to_file)s: %(message)s"
 msgstr ""
 "%(from_file)s dosyası, %(to_file)s dosyasına kopyalanırken hata oluştu: "
 "%(message)s"
 
-#: src/gpodder/sync.py:655
+#: src/gpodder/sync.py:657
 msgid "Syncing"
 msgstr "Eşitleme"
 
@@ -332,8 +332,8 @@ msgid "The playlist on your MP3 player has been updated."
 msgstr "MP3 çalarınızdaki çalma listesi güncellendi."
 
 #: src/gpodder/syncui.py:294 src/gpodder/gtkui/main.py:982
-#: src/gpodder/gtkui/main.py:1185 src/gpodder/gtkui/main.py:3105
-#: src/gpodder/gtkui/main.py:3379
+#: src/gpodder/gtkui/main.py:1185 src/gpodder/gtkui/main.py:3104
+#: src/gpodder/gtkui/main.py:3378
 #: src/gpodder/gtkui/desktop/episodeselector.py:130
 msgid "Episode"
 msgstr "Bölüm"
@@ -346,114 +346,114 @@ msgstr "Bölümler cihazdan silindi"
 msgid "Error writing playlist files"
 msgstr "Çalma listesi dosyaları yazılırken hata oluştu"
 
-#: src/gpodder/util.py:465
+#: src/gpodder/util.py:466
 #, python-format
 msgid "%(count)d day ago"
 msgid_plural "%(count)d days ago"
 msgstr[0] "%(count)d gün önce"
 msgstr[1] "%(count)d gün önce"
 
-#: src/gpodder/util.py:538
+#: src/gpodder/util.py:560
 msgid "Today"
 msgstr "Bugün"
 
-#: src/gpodder/util.py:540
+#: src/gpodder/util.py:562
 msgid "Yesterday"
 msgstr "Dün"
 
-#: src/gpodder/util.py:568
+#: src/gpodder/util.py:577
 msgid "kB"
 msgstr ""
 
-#: src/gpodder/util.py:569
+#: src/gpodder/util.py:578
 msgid "MB"
 msgstr ""
 
-#: src/gpodder/util.py:570
+#: src/gpodder/util.py:579
 msgid "GB"
 msgstr ""
 
-#: src/gpodder/util.py:574
+#: src/gpodder/util.py:583
 #, fuzzy
 #| msgid "KiB/s"
 msgid "KiB"
 msgstr "KiB/s"
 
-#: src/gpodder/util.py:575
+#: src/gpodder/util.py:584
 msgid "MiB"
 msgstr ""
 
-#: src/gpodder/util.py:576
+#: src/gpodder/util.py:585
 msgid "GiB"
 msgstr ""
 
-#: src/gpodder/util.py:582 src/gpodder/util.py:585
+#: src/gpodder/util.py:591 src/gpodder/util.py:594
 msgid "(unknown)"
 msgstr "(bilinmiyor)"
 
-#: src/gpodder/util.py:592
+#: src/gpodder/util.py:601
 msgid "B"
 msgstr ""
 
-#: src/gpodder/util.py:1475 src/gpodder/util.py:1497
+#: src/gpodder/util.py:1484 src/gpodder/util.py:1506
 #, python-format
 msgid "%(count)d second"
 msgid_plural "%(count)d seconds"
 msgstr[0] "%(count)d saniye"
 msgstr[1] "%(count)d saniye"
 
-#: src/gpodder/util.py:1489
+#: src/gpodder/util.py:1498
 #, python-format
 msgid "%(count)d hour"
 msgid_plural "%(count)d hours"
 msgstr[0] "%(count)d saat"
 msgstr[1] "%(count)d saat"
 
-#: src/gpodder/util.py:1493
+#: src/gpodder/util.py:1502
 #, python-format
 msgid "%(count)d minute"
 msgid_plural "%(count)d minutes"
 msgstr[0] "%(count)d dakika"
 msgstr[1] "%(count)d dakika"
 
-#: src/gpodder/util.py:1501
+#: src/gpodder/util.py:1510
 msgid "and"
 msgstr "ve"
 
-#: src/gpodder/util.py:1537
+#: src/gpodder/util.py:1546
 #, python-format
 msgid "System default program '%(opener)s' not found"
 msgstr "Sistem varsayılan programı '%(opener)s' bulunamadı"
 
-#: src/gpodder/util.py:1546
+#: src/gpodder/util.py:1555
 #, python-format
 msgid "Cannot open file/folder '%(filename)s' using default program"
 msgstr ""
 "Varsayılan program kullanılarak '%(filename)s' dosyası/klasörü açılamıyor"
 
-#: src/gpodder/util.py:1548
+#: src/gpodder/util.py:1557
 #, python-format
 msgid "Cannot open '%(filename)s' using '%(opener)s'"
 msgstr "'%(opener)s' kullanılarak '%(filename)s' açılamıyor"
 
-#: src/gpodder/util.py:1550
+#: src/gpodder/util.py:1559
 msgid "Cannot open file/folder"
 msgstr "Dosya/klasör açılamıyor"
 
-#: src/gpodder/gtkui/app.py:182
+#: src/gpodder/gtkui/app.py:192
 msgid "Cannot start gPodder"
 msgstr "gPodder başlatılamıyor"
 
-#: src/gpodder/gtkui/app.py:183
+#: src/gpodder/gtkui/app.py:193
 #, python-format
 msgid "D-Bus error: %s"
 msgstr "D-Bus hatası: %s"
 
-#: src/gpodder/gtkui/app.py:268
+#: src/gpodder/gtkui/app.py:286
 msgid "About gPodder"
 msgstr "gPodder hakkında"
 
-#: src/gpodder/gtkui/app.py:270
+#: src/gpodder/gtkui/app.py:288
 #: src/gpodder/gtkui/desktop/episodeselector.py:330
 #: share/gpodder/extensions/subscription_stats.py:177
 #: share/gpodder/ui/gtk/gpodderconfigeditor.ui.h:2
@@ -461,15 +461,15 @@ msgstr "gPodder hakkında"
 msgid "_Close"
 msgstr "Kapa_t"
 
-#: src/gpodder/gtkui/app.py:292
+#: src/gpodder/gtkui/app.py:310
 msgid "Website"
 msgstr "İnternet Sitesi"
 
-#: src/gpodder/gtkui/app.py:293
+#: src/gpodder/gtkui/app.py:311
 msgid "Bug Tracker"
 msgstr "Hata İzleyici"
 
-#: src/gpodder/gtkui/app.py:351
+#: src/gpodder/gtkui/app.py:372
 msgid "Path to gPodder home is too long"
 msgstr "gPodder ana klasörüne giden yol çok uzun"
 
@@ -509,7 +509,7 @@ msgstr "gPodder"
 
 #: src/gpodder/gtkui/main.py:218 src/gpodder/gtkui/main.py:808
 #: src/gpodder/gtkui/main.py:950
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:59
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:65
 msgid "Extensions"
 msgstr "Uzantılar"
 
@@ -725,62 +725,62 @@ msgstr "İndirmeler başarısız oldu"
 msgid "Could not sync some episodes:"
 msgstr "Bazı bölümler senkronize edilemedi:"
 
-#: src/gpodder/gtkui/main.py:1710 src/gpodder/gtkui/main.py:1713
+#: src/gpodder/gtkui/main.py:1710 src/gpodder/gtkui/main.py:1714
 msgid "Device synchronization finished"
 msgstr "Cihaz senkronizasyonu tamamlandı"
 
-#: src/gpodder/gtkui/main.py:1716
+#: src/gpodder/gtkui/main.py:1718
 msgid "Device synchronization failed"
 msgstr "Cihaz senkronizasyonu başarısız oldu"
 
-#: src/gpodder/gtkui/main.py:1758
+#: src/gpodder/gtkui/main.py:1760
 #, python-format
 msgid "%(count)d more episode"
 msgid_plural "%(count)d more episodes"
 msgstr[0] "%(count)d fazla bölüm"
 msgstr[1] "%(count)d fazla bölümler"
 
-#: src/gpodder/gtkui/main.py:1775 src/gpodder/gtkui/main.py:3253
+#: src/gpodder/gtkui/main.py:1777 src/gpodder/gtkui/main.py:3252
 #, fuzzy
 #| msgid "Queued"
 msgid "Queueing"
 msgstr "Kuyrukta"
 
-#: src/gpodder/gtkui/main.py:1776
+#: src/gpodder/gtkui/main.py:1778
 #, fuzzy
 #| msgid "Removing %s"
 msgid "Removing"
 msgstr "%s Kaldırılıyor"
 
-#: src/gpodder/gtkui/main.py:1843 src/gpodder/gtkui/main.py:3282
-#: src/gpodder/gtkui/main.py:3363
+#: src/gpodder/gtkui/main.py:1845 src/gpodder/gtkui/main.py:3281
+#: src/gpodder/gtkui/main.py:3362
 #, fuzzy
 #| msgid "Updating"
 msgid "Updating..."
 msgstr "Güncelleme"
 
-#: src/gpodder/gtkui/main.py:1877 share/gpodder/ui/gtk/gpodder.ui.h:2
+#: src/gpodder/gtkui/main.py:1879 share/gpodder/ui/gtk/gpodder.ui.h:2
 #: share/gpodder/ui/gtk/menus.ui.h:63
 msgid "Start download now"
 msgstr "Şimdi indirmeye başlayın"
 
-#: src/gpodder/gtkui/main.py:1879 src/gpodder/gtkui/main.py:2107
+#: src/gpodder/gtkui/main.py:1881 src/gpodder/gtkui/main.py:2106
 #: src/gpodder/gtkui/desktop/podcastdirectory.py:207
 #: share/gpodder/ui/gtk/gpodder.ui.h:3 share/gpodder/ui/gtk/menus.ui.h:24
 msgid "Download"
 msgstr "İndir"
 
-#: src/gpodder/gtkui/main.py:1976
+#: src/gpodder/gtkui/main.py:1978
 msgid "File already exists"
 msgstr "Dosya zaten mevcut"
 
-#: src/gpodder/gtkui/main.py:1978
+#: src/gpodder/gtkui/main.py:1980
 #, python-format
 msgid ""
 "A file named \"%(filename)s\" already exists. Do you want to replace it?"
 msgstr "\"%(filename)s\" adlı bir dosya zaten var. Değiştirmek istiyor musun?"
 
-#: src/gpodder/gtkui/main.py:2026
+#: src/gpodder/gtkui/main.py:2025
 #, python-format
 msgid ""
 "Error saving to local folder: %(error)r.\n"
@@ -789,210 +789,210 @@ msgstr ""
 "Yerel klasöre kaydedilirken hata oluştu: %(error)r.\n"
 "Devam etmek ister misin?"
 
-#: src/gpodder/gtkui/main.py:2028 src/gpodder/gtkui/main.py:2033
+#: src/gpodder/gtkui/main.py:2027 src/gpodder/gtkui/main.py:2032
 msgid "Error saving to local folder"
 msgstr "Yerel klasöre kaydedilirken hata oluştu"
 
-#: src/gpodder/gtkui/main.py:2032
+#: src/gpodder/gtkui/main.py:2031
 #, python-format
 msgid "Error saving to local folder: %(error)r"
 msgstr "Yerel klasöre kaydedilirken hata oluştu: %(error)r"
 
-#: src/gpodder/gtkui/main.py:2057
+#: src/gpodder/gtkui/main.py:2056
 msgid "Error converting file."
 msgstr "Dosya dönüştürme hatası."
 
-#: src/gpodder/gtkui/main.py:2057
+#: src/gpodder/gtkui/main.py:2056
 msgid "Bluetooth file transfer"
 msgstr "Bluetooth dosya aktarımı"
 
-#: src/gpodder/gtkui/main.py:2092 src/gpodder/gtkui/main.py:2151
+#: src/gpodder/gtkui/main.py:2091 src/gpodder/gtkui/main.py:2150
 #: src/gpodder/gtkui/desktop/podcastdirectory.py:210
 #: share/gpodder/ui/gtk/menus.ui.h:23
 msgid "Open"
 msgstr "Aç"
 
-#: src/gpodder/gtkui/main.py:2095 src/gpodder/gtkui/main.py:2159
+#: src/gpodder/gtkui/main.py:2094 src/gpodder/gtkui/main.py:2158
 #: share/gpodder/ui/gtk/gpodder.ui.h:1 share/gpodder/ui/gtk/menus.ui.h:22
 msgid "Play"
 msgstr "Oynat"
 
-#: src/gpodder/gtkui/main.py:2097 src/gpodder/gtkui/main.py:2161
+#: src/gpodder/gtkui/main.py:2096 src/gpodder/gtkui/main.py:2160
 msgid "Preview"
 msgstr "Ön İzleme"
 
-#: src/gpodder/gtkui/main.py:2099 src/gpodder/gtkui/main.py:2163
+#: src/gpodder/gtkui/main.py:2098 src/gpodder/gtkui/main.py:2162
 msgid "Stream"
 msgstr "Akış"
 
-#: src/gpodder/gtkui/main.py:2105 share/gpodder/ui/gtk/gpodder.ui.h:4
+#: src/gpodder/gtkui/main.py:2104 share/gpodder/ui/gtk/gpodder.ui.h:4
 #: share/gpodder/ui/gtk/menus.ui.h:25
 msgid "Pause"
 msgstr "Duraklat"
 
-#: src/gpodder/gtkui/main.py:2116 src/gpodder/gtkui/desktop/channel.py:206
+#: src/gpodder/gtkui/main.py:2115 src/gpodder/gtkui/desktop/channel.py:206
 #: share/gpodder/ui/gtk/gpodder.ui.h:5 share/gpodder/ui/gtk/menus.ui.h:26
 msgid "Cancel"
 msgstr "İptal"
 
-#: src/gpodder/gtkui/main.py:2128
+#: src/gpodder/gtkui/main.py:2127
 msgid "Send to"
 msgstr "Gönder"
 
-#: src/gpodder/gtkui/main.py:2322
+#: src/gpodder/gtkui/main.py:2321
 msgid "Please check your media player settings in the preferences dialog."
 msgstr ""
 "Lütfen tercihler iletişim kutusundaki medya oynatıcı ayarlarınızı kontrol "
 "edin."
 
-#: src/gpodder/gtkui/main.py:2323
+#: src/gpodder/gtkui/main.py:2322
 msgid "Error opening player"
 msgstr "Oynatıcı açılırken hata oluştu"
 
-#: src/gpodder/gtkui/main.py:2593
+#: src/gpodder/gtkui/main.py:2592
 msgid "Adding podcasts"
 msgstr "Podcast ekleme"
 
-#: src/gpodder/gtkui/main.py:2594
+#: src/gpodder/gtkui/main.py:2593
 msgid "Please wait while episode information is downloaded."
 msgstr "Bölüm bilgileri indirilirken lütfen bekleyin."
 
-#: src/gpodder/gtkui/main.py:2602
+#: src/gpodder/gtkui/main.py:2601
 msgid "Existing subscriptions skipped"
 msgstr "Mevcut abonelikler atlandı"
 
-#: src/gpodder/gtkui/main.py:2603
+#: src/gpodder/gtkui/main.py:2602
 msgid "You are already subscribed to these podcasts:"
 msgstr "Bu podcast'lere zaten abonesiniz:"
 
-#: src/gpodder/gtkui/main.py:2611 bin/gpo:350
+#: src/gpodder/gtkui/main.py:2610 bin/gpo:350
 msgid "Podcast requires authentication"
 msgstr "Podcast, kimlik doğrulaması gerektiriyor"
 
-#: src/gpodder/gtkui/main.py:2612 bin/gpo:351
+#: src/gpodder/gtkui/main.py:2611 bin/gpo:351
 #, python-format
 msgid "Please login to %s:"
 msgstr "Lütfen %s hesabına giriş yapın:"
 
-#: src/gpodder/gtkui/main.py:2620 src/gpodder/gtkui/main.py:2718
+#: src/gpodder/gtkui/main.py:2619 src/gpodder/gtkui/main.py:2717
 msgid "Authentication failed"
 msgstr "Kimlik doğrulama başarısız oldu"
 
-#: src/gpodder/gtkui/main.py:2626
+#: src/gpodder/gtkui/main.py:2625
 msgid "Website redirection detected"
 msgstr "Web sitesi yeniden yönlendirmesi algılandı"
 
-#: src/gpodder/gtkui/main.py:2627
+#: src/gpodder/gtkui/main.py:2626
 #, python-format
 msgid "The URL %(url)s redirects to %(target)s."
 msgstr "%(url)s URL'si %(target)s'ye yönlendiriyor."
 
-#: src/gpodder/gtkui/main.py:2628
+#: src/gpodder/gtkui/main.py:2627
 msgid "Do you want to visit the website now?"
 msgstr "Web sitesini şimdi ziyaret etmek ister misiniz?"
 
-#: src/gpodder/gtkui/main.py:2637
+#: src/gpodder/gtkui/main.py:2636
 msgid "Could not add some podcasts"
 msgstr "Bazı podcast'ler eklenemedi"
 
-#: src/gpodder/gtkui/main.py:2638
+#: src/gpodder/gtkui/main.py:2637
 msgid "Some podcasts could not be added to your list:"
 msgstr "Listenize bazı podcast'ler eklenemedi:"
 
-#: src/gpodder/gtkui/main.py:2640
+#: src/gpodder/gtkui/main.py:2639
 msgid "Unknown"
 msgstr "Bilinmeyen"
 
-#: src/gpodder/gtkui/main.py:2727
+#: src/gpodder/gtkui/main.py:2726
 msgid "Redirection detected"
 msgstr "Yönlendirme algılandı"
 
-#: src/gpodder/gtkui/main.py:2761
+#: src/gpodder/gtkui/main.py:2760
 msgid "Merging episode actions"
 msgstr "Bölüm eylemlerini birleştirme"
 
-#: src/gpodder/gtkui/main.py:2762
+#: src/gpodder/gtkui/main.py:2761
 msgid "Episode actions from gpodder.net are merged."
 msgstr "Gpodder.net'teki bölüm eylemleri birleştirildi."
 
-#: src/gpodder/gtkui/main.py:2788
+#: src/gpodder/gtkui/main.py:2787
 msgid "Cancelling..."
 msgstr "İptal ediliyor..."
 
-#: src/gpodder/gtkui/main.py:2797
+#: src/gpodder/gtkui/main.py:2796
 msgid "Please connect to a network, then try again."
 msgstr "Lütfen bir ağa bağlanın ve ardından tekrar deneyin."
 
-#: src/gpodder/gtkui/main.py:2798
+#: src/gpodder/gtkui/main.py:2797
 msgid "No network connection"
 msgstr "Ağ bağlantısı yok"
 
-#: src/gpodder/gtkui/main.py:2819
+#: src/gpodder/gtkui/main.py:2818
 #, python-format
 msgid "Updating %(count)d feed..."
 msgid_plural "Updating %(count)d feeds..."
 msgstr[0] "%(count)d beslemesi güncelleniyor..."
 msgstr[1] "%(count)d beslemeleri güncelleniyor..."
 
-#: src/gpodder/gtkui/main.py:2836
+#: src/gpodder/gtkui/main.py:2835
 #, python-format
 msgid "Updating %(podcast)s (%(position)d/%(total)d)"
 msgstr "Güncelleniyor %(podcast)s (%(position)d/%(total)d)"
 
-#: src/gpodder/gtkui/main.py:2882
+#: src/gpodder/gtkui/main.py:2881
 #, python-format
 msgid "%(count)d channel failed to update"
 msgid_plural "%(count)d channels failed to update"
 msgstr[0] "%(count)d kanal güncellenemedi"
 msgstr[1] "%(count)d kanalar güncellenemedi"
 
-#: src/gpodder/gtkui/main.py:2885
+#: src/gpodder/gtkui/main.py:2884
 msgid "Error while updating feeds"
 msgstr "Beslemeleri güncellerken hata"
 
-#: src/gpodder/gtkui/main.py:2917
+#: src/gpodder/gtkui/main.py:2916
 #, fuzzy
 #| msgid "No new episodes available"
 msgid "No new episodes with downloadable content"
 msgstr "Yeni bölüm yok"
 
-#: src/gpodder/gtkui/main.py:2917
+#: src/gpodder/gtkui/main.py:2916
 msgid "No new episodes"
 msgstr "Yeni bölüm yok"
 
-#: src/gpodder/gtkui/main.py:2932
+#: src/gpodder/gtkui/main.py:2931
 #, python-format
 msgid "Downloading %(count)d new episode."
 msgid_plural "Downloading %(count)d new episodes."
 msgstr[0] "%(count)d yeni bölüm indiriliyor."
 msgstr[1] "%(count)d yeni bölümler indiriliyor."
 
-#: src/gpodder/gtkui/main.py:2935 src/gpodder/gtkui/main.py:2942
-#: src/gpodder/gtkui/main.py:3402
+#: src/gpodder/gtkui/main.py:2934 src/gpodder/gtkui/main.py:2941
+#: src/gpodder/gtkui/main.py:3401
 msgid "New episodes available"
 msgstr "Yeni bölümler mevcut"
 
-#: src/gpodder/gtkui/main.py:2939
+#: src/gpodder/gtkui/main.py:2938
 #, python-format
 msgid "%(count)d new episode added to download list."
 msgid_plural "%(count)d new episodes added to download list."
 msgstr[0] "%(count)d indirme listesine yeni bölüm eklendi."
 msgstr[1] "%(count)d indirme listesine yeni bölümler eklendi."
 
-#: src/gpodder/gtkui/main.py:2948
+#: src/gpodder/gtkui/main.py:2947
 #, python-format
 msgid "%(count)d new episode available"
 msgid_plural "%(count)d new episodes available"
 msgstr[0] "%(count)d yeni bölüm mevcut"
 msgstr[1] "%(count)d yeni bölümler mevcut"
 
-#: src/gpodder/gtkui/main.py:2976 src/gpodder/gtkui/main.py:3672
-#: src/gpodder/gtkui/main.py:3699 src/gpodder/gtkui/interface/common.py:133
+#: src/gpodder/gtkui/main.py:2975 src/gpodder/gtkui/main.py:3671
+#: src/gpodder/gtkui/main.py:3698 src/gpodder/gtkui/interface/common.py:133
 #: src/gpodder/gtkui/interface/common.py:269
 #: src/gpodder/gtkui/desktop/channel.py:145
 #: src/gpodder/gtkui/desktop/episodeselector.py:328
-#: src/gpodder/gtkui/desktop/preferences.py:781
-#: src/gpodder/gtkui/desktop/preferences.py:799
+#: src/gpodder/gtkui/desktop/preferences.py:850
+#: src/gpodder/gtkui/desktop/preferences.py:868
 #: share/gpodder/extensions/concatenate_videos.py:40
 #: share/gpodder/ui/gtk/gpodderaddpodcast.ui.h:2
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:2
@@ -1002,15 +1002,15 @@ msgstr[1] "%(count)d yeni bölümler mevcut"
 msgid "_Cancel"
 msgstr "_Vazgeç"
 
-#: src/gpodder/gtkui/main.py:2977
+#: src/gpodder/gtkui/main.py:2976
 msgid "_Quit"
 msgstr "_Çık"
 
-#: src/gpodder/gtkui/main.py:2979
+#: src/gpodder/gtkui/main.py:2978
 msgid "Quit gPodder"
 msgstr "gPodder'dan çıkın"
 
-#: src/gpodder/gtkui/main.py:2980
+#: src/gpodder/gtkui/main.py:2979
 msgid ""
 "You are downloading episodes. You can resume downloads the next time you "
 "start gPodder. Do you want to quit now?"
@@ -1018,11 +1018,11 @@ msgstr ""
 "Bölümleri indiriyorsunuz. GPodder'ı bir sonraki başlatışınızda indirme "
 "işlemlerine devam edebilirsiniz. Şimdi çıkmak istiyor musun?"
 
-#: src/gpodder/gtkui/main.py:3034 bin/gpo:870
+#: src/gpodder/gtkui/main.py:3033 bin/gpo:870
 msgid "Episodes are locked"
 msgstr "Bölümler kilitlendi"
 
-#: src/gpodder/gtkui/main.py:3036 bin/gpo:872
+#: src/gpodder/gtkui/main.py:3035 bin/gpo:872
 msgid ""
 "The selected episodes are locked. Please unlock the episodes that you want "
 "to delete before trying to delete them."
@@ -1030,125 +1030,125 @@ msgstr ""
 "Seçilen bölümler kilitlendi. Silmeyi denemeden önce lütfen silmek "
 "istediğiniz bölümlerin kilidini açın."
 
-#: src/gpodder/gtkui/main.py:3043 bin/gpo:879
+#: src/gpodder/gtkui/main.py:3042 bin/gpo:879
 #, python-format
 msgid "Delete %(count)d episode?"
 msgid_plural "Delete %(count)d episodes?"
 msgstr[0] "%(count)d bölüm silinsin mi?"
 msgstr[1] "%(count)d bölümler silinsin mi?"
 
-#: src/gpodder/gtkui/main.py:3045 bin/gpo:881
+#: src/gpodder/gtkui/main.py:3044 bin/gpo:881
 msgid "Deleting episodes removes downloaded files."
 msgstr "Bölümleri silmek, indirilen dosyaları kaldırır."
 
-#: src/gpodder/gtkui/main.py:3054
+#: src/gpodder/gtkui/main.py:3053
 msgid "Deleting episodes"
 msgstr "Bölümleri silme"
 
-#: src/gpodder/gtkui/main.py:3055 bin/gpo:886
+#: src/gpodder/gtkui/main.py:3054 bin/gpo:886
 msgid "Please wait while episodes are deleted"
 msgstr "Bölümler silinirken lütfen bekleyin"
 
-#: src/gpodder/gtkui/main.py:3108
+#: src/gpodder/gtkui/main.py:3107
 #, python-format
 msgid "Select older than %(count)d day"
 msgid_plural "Select older than %(count)d days"
 msgstr[0] "%(count)d günden daha eski olanı seçin"
 msgstr[1] "%(count)d günden daha eski olanı seçin"
 
-#: src/gpodder/gtkui/main.py:3110
+#: src/gpodder/gtkui/main.py:3109
 msgid "Select played"
 msgstr "Oynatılanı seçin"
 
-#: src/gpodder/gtkui/main.py:3111
+#: src/gpodder/gtkui/main.py:3110
 msgid "Select finished"
 msgstr "Bitti'yi seçin"
 
-#: src/gpodder/gtkui/main.py:3116
+#: src/gpodder/gtkui/main.py:3115
 msgid "Select the episodes you want to delete:"
 msgstr "Silmek istediğiniz bölümleri seçin:"
 
-#: src/gpodder/gtkui/main.py:3133 share/gpodder/ui/gtk/menus.ui.h:11
+#: src/gpodder/gtkui/main.py:3132 share/gpodder/ui/gtk/menus.ui.h:11
 msgid "Delete episodes"
 msgstr "Bölümleri silin"
 
-#: src/gpodder/gtkui/main.py:3136 src/gpodder/gtkui/main.py:3570
+#: src/gpodder/gtkui/main.py:3135 src/gpodder/gtkui/main.py:3569
 msgid "_Delete"
 msgstr "_Sil"
 
-#: src/gpodder/gtkui/main.py:3203 src/gpodder/gtkui/main.py:3544
-#: src/gpodder/gtkui/main.py:3653
+#: src/gpodder/gtkui/main.py:3202 src/gpodder/gtkui/main.py:3543
+#: src/gpodder/gtkui/main.py:3652
 msgid "No podcast selected"
 msgstr "Podcast seçilmedi"
 
-#: src/gpodder/gtkui/main.py:3204
+#: src/gpodder/gtkui/main.py:3203
 msgid "Please select a podcast in the podcasts list to update."
 msgstr "Lütfen güncellemek için podcast listesinden bir podcast seçin."
 
-#: src/gpodder/gtkui/main.py:3336
+#: src/gpodder/gtkui/main.py:3335
 #, python-format
 msgid "Download error while downloading %(episode)s: %(message)s"
 msgstr "%(episode)s indirilirken indirme hatası: %(message)s"
 
-#: src/gpodder/gtkui/main.py:3337
+#: src/gpodder/gtkui/main.py:3336
 msgid "Download error"
 msgstr "İndirme hatası"
 
-#: src/gpodder/gtkui/main.py:3382
+#: src/gpodder/gtkui/main.py:3381
 msgid "Select the episodes you want to download:"
 msgstr "İndirmek istediğiniz bölümleri seçin:"
 
-#: src/gpodder/gtkui/main.py:3410
+#: src/gpodder/gtkui/main.py:3409
 msgid "_Mark as old"
 msgstr "Eski ola_rak işaretle"
 
-#: src/gpodder/gtkui/main.py:3417
+#: src/gpodder/gtkui/main.py:3416
 msgid "Please check for new episodes later."
 msgstr "Lütfen yeni bölümleri daha sonra kontrol edin."
 
-#: src/gpodder/gtkui/main.py:3418
+#: src/gpodder/gtkui/main.py:3417
 msgid "No new episodes available"
 msgstr "Yeni bölüm yok"
 
-#: src/gpodder/gtkui/main.py:3507
+#: src/gpodder/gtkui/main.py:3506
 #, python-format
 msgid "Subscriptions on %(server)s"
 msgstr "%(server)s Üzerindeki abonelikler"
 
-#: src/gpodder/gtkui/main.py:3518
+#: src/gpodder/gtkui/main.py:3517
 msgid "Login to gpodder.net"
 msgstr "Gpodder.net'te oturum açın"
 
-#: src/gpodder/gtkui/main.py:3519
+#: src/gpodder/gtkui/main.py:3518
 msgid "Please login to download your subscriptions."
 msgstr "Aboneliklerinizi indirmek için lütfen giriş yapın."
 
-#: src/gpodder/gtkui/main.py:3545
+#: src/gpodder/gtkui/main.py:3544
 msgid "Please select a podcast in the podcasts list to edit."
 msgstr "Lütfen podcast listesinden düzenlemek için bir podcast seçin."
 
-#: src/gpodder/gtkui/main.py:3559
+#: src/gpodder/gtkui/main.py:3558
 #: share/gpodder/extensions/subscription_stats.py:68
 msgid "Podcast"
 msgstr "Podcast"
 
-#: src/gpodder/gtkui/main.py:3565 share/gpodder/ui/gtk/menus.ui.h:16
+#: src/gpodder/gtkui/main.py:3564 share/gpodder/ui/gtk/menus.ui.h:16
 msgid "Delete podcasts"
 msgstr "Podcast'leri silin"
 
-#: src/gpodder/gtkui/main.py:3566
+#: src/gpodder/gtkui/main.py:3565
 msgid "Select the podcast you want to delete."
 msgstr "Silmek istediğiniz podcast'i seçin."
 
-#: src/gpodder/gtkui/main.py:3579
+#: src/gpodder/gtkui/main.py:3578
 msgid "Deleting podcast"
 msgstr "Podcast siliniyor"
 
-#: src/gpodder/gtkui/main.py:3580
+#: src/gpodder/gtkui/main.py:3579
 msgid "Please wait while the podcast is deleted"
 msgstr "Podcast silinirken lütfen bekleyin"
 
-#: src/gpodder/gtkui/main.py:3581
+#: src/gpodder/gtkui/main.py:3580
 msgid ""
 "This podcast and all its episodes will be PERMANENTLY DELETED.\n"
 "Are you sure you want to continue?"
@@ -1156,15 +1156,15 @@ msgstr ""
 "Bu podcast ve tüm bölümleri KALICI OLARAK SİLİNECEK.\n"
 "Devam etmek istediğine emin misin?"
 
-#: src/gpodder/gtkui/main.py:3583
+#: src/gpodder/gtkui/main.py:3582
 msgid "Deleting podcasts"
 msgstr "Podcast'leri silme"
 
-#: src/gpodder/gtkui/main.py:3584
+#: src/gpodder/gtkui/main.py:3583
 msgid "Please wait while the podcasts are deleted"
 msgstr "Podcast'ler silinirken lütfen bekleyin"
 
-#: src/gpodder/gtkui/main.py:3585
+#: src/gpodder/gtkui/main.py:3584
 msgid ""
 "These podcasts and all their episodes will be PERMANENTLY DELETED.\n"
 "Are you sure you want to continue?"
@@ -1172,33 +1172,33 @@ msgstr ""
 "Bu podcast'ler ve tüm bölümleri KALICI OLARAK SİLİNECEKTİR.\n"
 "Devam etmek istediğine emin misin?"
 
-#: src/gpodder/gtkui/main.py:3654
+#: src/gpodder/gtkui/main.py:3653
 msgid "Please select a podcast in the podcasts list to remove."
 msgstr "Lütfen podcast listesinden kaldırılacak bir podcast seçin."
 
-#: src/gpodder/gtkui/main.py:3664
+#: src/gpodder/gtkui/main.py:3663
 msgid "OPML files"
 msgstr "OPML dosyaları"
 
-#: src/gpodder/gtkui/main.py:3669
+#: src/gpodder/gtkui/main.py:3668
 msgid "Import from OPML"
 msgstr "OPML'den içe aktar"
 
-#: src/gpodder/gtkui/main.py:3673 src/gpodder/gtkui/desktop/channel.py:146
-#: src/gpodder/gtkui/desktop/preferences.py:782
-#: src/gpodder/gtkui/desktop/preferences.py:800
+#: src/gpodder/gtkui/main.py:3672 src/gpodder/gtkui/desktop/channel.py:146
+#: src/gpodder/gtkui/desktop/preferences.py:851
+#: src/gpodder/gtkui/desktop/preferences.py:869
 msgid "_Open"
 msgstr "_Aç"
 
-#: src/gpodder/gtkui/main.py:3683
+#: src/gpodder/gtkui/main.py:3682
 msgid "Import podcasts from OPML file"
 msgstr "Podcast'leri OPML dosyasından içe aktarın"
 
-#: src/gpodder/gtkui/main.py:3689
+#: src/gpodder/gtkui/main.py:3688
 msgid "Nothing to export"
 msgstr "Dışa aktarılacak bir şey yok"
 
-#: src/gpodder/gtkui/main.py:3690
+#: src/gpodder/gtkui/main.py:3689
 msgid ""
 "Your list of podcast subscriptions is empty. Please subscribe to some "
 "podcasts first before trying to export your subscription list."
@@ -1206,11 +1206,11 @@ msgstr ""
 "Podcast abonelikleri listeniz boş. Lütfen abonelik listenizi dışa aktarmaya "
 "çalışmadan önce bazı podcast'lere abone olun."
 
-#: src/gpodder/gtkui/main.py:3696
+#: src/gpodder/gtkui/main.py:3695
 msgid "Export to OPML"
 msgstr "OPML'ye aktar"
 
-#: src/gpodder/gtkui/main.py:3700 src/gpodder/gtkui/interface/common.py:270
+#: src/gpodder/gtkui/main.py:3699 src/gpodder/gtkui/interface/common.py:270
 #: src/gpodder/gtkui/desktop/channel.py:195
 #: src/gpodder/gtkui/desktop/channel.py:203
 #: share/gpodder/extensions/concatenate_videos.py:41
@@ -1218,69 +1218,69 @@ msgstr "OPML'ye aktar"
 msgid "_Save"
 msgstr "_Kaydet"
 
-#: src/gpodder/gtkui/main.py:3709
+#: src/gpodder/gtkui/main.py:3708
 #, python-format
 msgid "%(count)d subscription exported"
 msgid_plural "%(count)d subscriptions exported"
 msgstr[0] "%(count)d abonelik dışa aktarıldı"
 msgstr[1] "%(count)d abonelikler dışa aktarıldı"
 
-#: src/gpodder/gtkui/main.py:3712
+#: src/gpodder/gtkui/main.py:3711
 msgid "Your podcast list has been successfully exported."
 msgstr "Podcast listeniz başarıyla dışa aktarıldı."
 
-#: src/gpodder/gtkui/main.py:3716
+#: src/gpodder/gtkui/main.py:3715
 msgid "Could not export OPML to file. Please check your permissions."
 msgstr "OPML dosyaya aktarılamadı. Lütfen izinlerinizi kontrol edin."
 
-#: src/gpodder/gtkui/main.py:3718
+#: src/gpodder/gtkui/main.py:3717
 msgid "OPML export failed"
 msgstr "OPML dışa aktarımı başarısız oldu"
 
-#: src/gpodder/gtkui/main.py:3731
+#: src/gpodder/gtkui/main.py:3730
 msgid "Managed by distribution"
 msgstr "Dağıtım tarafından yönetilir"
 
-#: src/gpodder/gtkui/main.py:3732
+#: src/gpodder/gtkui/main.py:3731
 msgid "Please check your distribution for gPodder updates."
 msgstr "Lütfen gPodder güncellemeleri için dağıtımınızı kontrol edin."
 
-#: src/gpodder/gtkui/main.py:3747
+#: src/gpodder/gtkui/main.py:3746
 msgid "Could not check for updates"
 msgstr "Güncellemeler kontrol edilemedi"
 
-#: src/gpodder/gtkui/main.py:3748
+#: src/gpodder/gtkui/main.py:3747
 msgid "Please try again later."
 msgstr "Lütfen daha sonra tekrar deneyiniz."
 
-#: src/gpodder/gtkui/main.py:3753
+#: src/gpodder/gtkui/main.py:3752
 msgid "No updates available"
 msgstr "Güncelleme mevcut değil"
 
-#: src/gpodder/gtkui/main.py:3754
+#: src/gpodder/gtkui/main.py:3753
 msgid "You have the latest version of gPodder."
 msgstr "GPodder'ın en son sürümüne sahipsiniz."
 
-#: src/gpodder/gtkui/main.py:3758
+#: src/gpodder/gtkui/main.py:3757
 msgid "New version available"
 msgstr "Yeni sürüm mevcut"
 
-#: src/gpodder/gtkui/main.py:3760
+#: src/gpodder/gtkui/main.py:3759
 #, python-format
 msgid "Installed version: %s"
 msgstr "Yüklü sürüm: %s"
 
-#: src/gpodder/gtkui/main.py:3761
+#: src/gpodder/gtkui/main.py:3760
 #, python-format
 msgid "Newest version: %s"
 msgstr "En yeni sürüm: %s"
 
-#: src/gpodder/gtkui/main.py:3762
+#: src/gpodder/gtkui/main.py:3761
 #, python-format
 msgid "Release date: %s"
 msgstr "Yayın tarihi: %s"
 
-#: src/gpodder/gtkui/main.py:3764
+#: src/gpodder/gtkui/main.py:3763
 msgid "Download the latest version from gpodder.org?"
 msgstr "En son sürümü gpodder.org'dan indirmek ister misiniz?"
 
@@ -1290,8 +1290,8 @@ msgid "released %s"
 msgstr "%s yayınlandı"
 
 #: src/gpodder/gtkui/model.py:59 src/gpodder/gtkui/model.py:77
-#: src/gpodder/gtkui/model.py:303 src/gpodder/gtkui/shownotes.py:203
-#: src/gpodder/gtkui/shownotes.py:346
+#: src/gpodder/gtkui/model.py:303 src/gpodder/gtkui/shownotes.py:212
+#: src/gpodder/gtkui/shownotes.py:355
 #, python-format
 msgid "from %s"
 msgstr "%s 'den"
@@ -1381,24 +1381,24 @@ msgstr "tüm podcast'lerden"
 msgid "Subscription paused"
 msgstr "Abonelik duraklatıldı"
 
-#: src/gpodder/gtkui/shownotes.py:60
+#: src/gpodder/gtkui/shownotes.py:69
 #, python-format
 msgid "%(date)s | %(size)s | %(duration)s"
 msgstr "%(date)s | %(size)s | %(duration)s"
 
-#: src/gpodder/gtkui/shownotes.py:147
+#: src/gpodder/gtkui/shownotes.py:156
 msgid "Please select an episode"
 msgstr "Lütfen bir bölüm seçin"
 
-#: src/gpodder/gtkui/shownotes.py:253
+#: src/gpodder/gtkui/shownotes.py:262
 msgid "Open Episode Title Link"
 msgstr "Bölüm Başlığı Bağlantısını Aç"
 
-#: src/gpodder/gtkui/shownotes.py:258
+#: src/gpodder/gtkui/shownotes.py:267
 msgid "Copy Episode Title Link Address"
 msgstr "Bölüm Başlığı Bağlantı Adresini Kopyala"
 
-#: src/gpodder/gtkui/shownotes.py:353
+#: src/gpodder/gtkui/shownotes.py:362
 #, python-format
 msgid ""
 "<div id=\"gpodder-title\">\n"
@@ -1411,11 +1411,11 @@ msgstr ""
 "<p>%(subheading)s</p>\n"
 "<p>%(details)s</p></div>\n"
 
-#: src/gpodder/gtkui/shownotes.py:393
+#: src/gpodder/gtkui/shownotes.py:402
 msgid "Open shownotes in web browser"
 msgstr "Gösterilen notları web tarayıcısında aç"
 
-#: src/gpodder/gtkui/shownotes.py:399
+#: src/gpodder/gtkui/shownotes.py:408
 msgid "Open link in web browser"
 msgstr "Bağlantıyı web tarayıcısında aç"
 
@@ -1626,7 +1626,7 @@ msgid "Download immediately"
 msgstr "Hemen indirin"
 
 #: src/gpodder/gtkui/desktop/preferences.py:69
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:57
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:63
 msgid "None"
 msgstr "Hiç"
 
@@ -1646,89 +1646,103 @@ msgstr "Oynatıldı olarak işaretle"
 msgid "Delete from gPodder"
 msgstr "gPodder'dan sil"
 
+#: src/gpodder/gtkui/desktop/preferences.py:116
+msgid "Same filename as local"
+msgstr ""
+
+#: src/gpodder/gtkui/desktop/preferences.py:117
+#, fuzzy
+#| msgid "Show episode list"
+msgid "Use episode title as filename"
+msgstr "Bölüm listesini göster"
+
 #: src/gpodder/gtkui/desktop/preferences.py:118
-#: src/gpodder/gtkui/desktop/preferences.py:144
+msgid "Use custom filename format"
+msgstr ""
+
+#: src/gpodder/gtkui/desktop/preferences.py:141
+#: src/gpodder/gtkui/desktop/preferences.py:167
 #, python-format
 msgid "Custom (%(format_ids)s)"
 msgstr "Özel (%(format_ids)s)"
 
-#: src/gpodder/gtkui/desktop/preferences.py:190
+#: src/gpodder/gtkui/desktop/preferences.py:213
 msgid "SOCKS5h (Remote DNS)"
 msgstr ""
 
-#: src/gpodder/gtkui/desktop/preferences.py:191
+#: src/gpodder/gtkui/desktop/preferences.py:214
 msgid "SOCKS5"
 msgstr ""
 
-#: src/gpodder/gtkui/desktop/preferences.py:192
+#: src/gpodder/gtkui/desktop/preferences.py:215
 msgid "HTTP"
 msgstr ""
 
-#: src/gpodder/gtkui/desktop/preferences.py:461
+#: src/gpodder/gtkui/desktop/preferences.py:499
 msgid "Name"
 msgstr "Ad"
 
-#: src/gpodder/gtkui/desktop/preferences.py:513
+#: src/gpodder/gtkui/desktop/preferences.py:551
 msgid "Documentation"
 msgstr "Belgelendirme"
 
-#: src/gpodder/gtkui/desktop/preferences.py:518
+#: src/gpodder/gtkui/desktop/preferences.py:556
 msgid "Extension info"
 msgstr "Uzantı bilgileri"
 
-#: src/gpodder/gtkui/desktop/preferences.py:523
+#: src/gpodder/gtkui/desktop/preferences.py:561
 msgid "Support the author"
 msgstr "Yazarı destekleyin"
 
-#: src/gpodder/gtkui/desktop/preferences.py:566 bin/gpo:1083
+#: src/gpodder/gtkui/desktop/preferences.py:604 bin/gpo:1084
 msgid "Extension cannot be activated"
 msgstr "Uzantı etkinleştirilemez"
 
-#: src/gpodder/gtkui/desktop/preferences.py:618
+#: src/gpodder/gtkui/desktop/preferences.py:656
 msgid "Configure audio player"
 msgstr "Ses oynatıcıyı yapılandırın"
 
-#: src/gpodder/gtkui/desktop/preferences.py:619
-#: src/gpodder/gtkui/desktop/preferences.py:629
+#: src/gpodder/gtkui/desktop/preferences.py:657
+#: src/gpodder/gtkui/desktop/preferences.py:667
 msgid "Command:"
 msgstr "Komut:"
 
-#: src/gpodder/gtkui/desktop/preferences.py:628
+#: src/gpodder/gtkui/desktop/preferences.py:666
 msgid "Configure video player"
 msgstr "Video oynatıcıyı yapılandırın"
 
-#: src/gpodder/gtkui/desktop/preferences.py:641
-#: src/gpodder/gtkui/desktop/preferences.py:665
+#: src/gpodder/gtkui/desktop/preferences.py:679
+#: src/gpodder/gtkui/desktop/preferences.py:703
 msgid "manually"
 msgstr "elle"
 
-#: src/gpodder/gtkui/desktop/preferences.py:667
+#: src/gpodder/gtkui/desktop/preferences.py:705
 #, python-format
 msgid "after %(count)d day"
 msgid_plural "after %(count)d days"
 msgstr[0] "%(count)d gün sonra"
 msgstr[1] "%(count)d gün sonra"
 
-#: src/gpodder/gtkui/desktop/preferences.py:701
+#: src/gpodder/gtkui/desktop/preferences.py:739
 msgid "Replace subscription list on server"
 msgstr "Sunucudaki abonelik listesini değiştirin"
 
-#: src/gpodder/gtkui/desktop/preferences.py:702
+#: src/gpodder/gtkui/desktop/preferences.py:740
 msgid ""
 "Remote podcasts that have not been added locally will be removed on the "
 "server. Continue?"
 msgstr ""
 "Yerel olarak eklenmemiş uzak podcast'ler sunucuda kaldırılacaktır. Devam et?"
 
-#: src/gpodder/gtkui/desktop/preferences.py:778
+#: src/gpodder/gtkui/desktop/preferences.py:847
 msgid "Select folder for mount point"
 msgstr "Bağlama noktası için klasör seçin"
 
-#: src/gpodder/gtkui/desktop/preferences.py:796
+#: src/gpodder/gtkui/desktop/preferences.py:865
 msgid "Select folder for playlists"
 msgstr "Çalma listeleri için klasör seçin"
 
-#: src/gpodder/gtkui/desktop/preferences.py:810
+#: src/gpodder/gtkui/desktop/preferences.py:879
 msgid "The playlists folder must be on the device"
 msgstr "Çalma listeleri klasörü cihazda olmalıdır"
 
@@ -1790,6 +1804,19 @@ msgid "Run a predefined external command upon download completion."
 msgstr ""
 "İndirme tamamlandıktan sonra önceden tanımlanmış bir harici komut çalıştırın."
 
+#: share/gpodder/extensions/command_on_sync.py:17
+#, fuzzy
+#| msgid "Run a Command on Download"
+msgid "Run a Command on Sync"
+msgstr "İndirmede Komut Çalıştırın"
+
+#: share/gpodder/extensions/command_on_sync.py:18
+#, fuzzy
+#| msgid "Run a predefined external command upon download completion."
+msgid "Run a custom external command upon sync completion."
+msgstr ""
+"İndirme tamamlandıktan sonra önceden tanımlanmış bir harici komut çalıştırın."
+
 #: share/gpodder/extensions/concatenate_videos.py:19
 #: share/gpodder/extensions/concatenate_videos.py:103
 msgid "Concatenate videos"
@@ -1824,11 +1851,11 @@ msgstr "Videoları dönüştürme hatası"
 msgid "Concatenation result"
 msgstr "Birleştirme sonucu"
 
-#: share/gpodder/extensions/enqueue_in_mediaplayer.py:16
+#: share/gpodder/extensions/enqueue_in_mediaplayer.py:22
 msgid "Enqueue/Resume in media players"
 msgstr "Medya oynatıcılarda sıraya al/devam ettir"
 
-#: share/gpodder/extensions/enqueue_in_mediaplayer.py:17
+#: share/gpodder/extensions/enqueue_in_mediaplayer.py:23
 msgid ""
 "Add a context menu item for enqueueing/resuming playback of episodes in "
 "installed media players"
@@ -1836,11 +1863,11 @@ msgstr ""
 "Yüklü medya oynatıcılarda bölümlerin oynatılmasını sıraya koymak/devam "
 "ettirmek için bir bağlam menüsü öğesi ekleyin"
 
-#: share/gpodder/extensions/enqueue_in_mediaplayer.py:35
+#: share/gpodder/extensions/enqueue_in_mediaplayer.py:41
 msgid "Enqueue in"
 msgstr "Sırala"
 
-#: share/gpodder/extensions/enqueue_in_mediaplayer.py:95
+#: share/gpodder/extensions/enqueue_in_mediaplayer.py:101
 msgid "Resume in"
 msgstr "Devam et"
 
@@ -2047,13 +2074,68 @@ msgstr "Video dosyalarını Rockbox için MP4'e dönüştürün"
 msgid "Converts all videos to a Rockbox-compatible format"
 msgstr "Tüm videoları Rockbox uyumlu bir formata dönüştürür"
 
-#: share/gpodder/extensions/rockbox_coverart.py:18
+#: share/gpodder/extensions/rockbox_coverart.py:25
 msgid "Rockbox Cover Art Sync"
 msgstr "Rockbox Kapak Sanatı Senkronizasyonu"
 
-#: share/gpodder/extensions/rockbox_coverart.py:19
+#: share/gpodder/extensions/rockbox_coverart.py:26
 msgid "Copy Cover Art To Rockboxed Media Player"
 msgstr "Kapak Resmini Rockboxed Media Player'a Kopyala"
+
+#: share/gpodder/extensions/rockbox_coverart.py:173
+msgid "<b><big>Rockbox Coverart Extension</big></b>"
+msgstr ""
+
+#: share/gpodder/extensions/rockbox_coverart.py:178
+msgid ""
+"This extension writes podcast cover art to a media player. This extension "
+"assumes that each podcast has its own folder on device. Only folder-wide "
+"coverart is written - this extension does not do anything about embedded "
+"cover art."
+msgstr ""
+
+#: share/gpodder/extensions/rockbox_coverart.py:188
+#: share/gpodder/extensions/tagging.py:641
+msgid "Process art: convert, resize, and make baseline"
+msgstr ""
+
+#: share/gpodder/extensions/rockbox_coverart.py:194
+msgid ""
+"Enable conversion and resizing of art.\n"
+"\n"
+" If enabled, convert art to desired format (default JPEG) and size (default "
+"500px),\n"
+" and if format is JPEG, write as Baseline (rather than Progressive) format.\n"
+" If disabled, fall back to simple behavior."
+msgstr ""
+
+#: share/gpodder/extensions/rockbox_coverart.py:201
+msgid "Allow upscaling of art"
+msgstr ""
+
+#: share/gpodder/extensions/rockbox_coverart.py:217
+#: share/gpodder/extensions/tagging.py:664
+msgid "Image size (px):"
+msgstr ""
+
+#: share/gpodder/extensions/rockbox_coverart.py:228
+#, fuzzy
+#| msgid "Create playlists on device"
+msgid "Art name on device:"
+msgstr "Cihazda oynatma listeleri oluşturun"
+
+#: share/gpodder/extensions/rockbox_coverart.py:235
+msgid ""
+"Only JPEG and PNG formats are allowed. Note that Rockbox only supports JPEG "
+"format images, so PNG is not recommended if using a Rockbox player. "
+"Typically, devices look for art named either \"cover.jpg\" or \"folder.jpg\"."
+msgstr ""
+
+#: share/gpodder/extensions/rockbox_coverart.py:247
+#, fuzzy
+#| msgid "Rockbox Cover Art Sync"
+msgid "Rockbox Coverart"
+msgstr "Rockbox Kapak Sanatı Senkronizasyonu"
 
 #: share/gpodder/extensions/sonos.py:19 share/gpodder/extensions/sonos.py:79
 msgid "Stream to Sonos"
@@ -2112,13 +2194,105 @@ msgstr ""
 msgid "Average days between the last %d episodes."
 msgstr ""
 
-#: share/gpodder/extensions/tagging.py:50
+#: share/gpodder/extensions/tagging.py:56
 msgid "Tag downloaded files using Mutagen"
 msgstr "Mutagen kullanarak indirilen dosyaları etiketleyin"
 
-#: share/gpodder/extensions/tagging.py:51
+#: share/gpodder/extensions/tagging.py:57
 msgid "Add episode and podcast titles to MP3/OGG tags"
 msgstr "MP3/OGG etiketlerine bölüm ve podcast başlıkları ekleyin"
+
+#: share/gpodder/extensions/tagging.py:541
+msgid "<b><big>Tagging Extension</big></b>"
+msgstr ""
+
+#: share/gpodder/extensions/tagging.py:546
+msgid "This extension writes tags on MP3/MP4/OGG episodes after download."
+msgstr ""
+
+#: share/gpodder/extensions/tagging.py:553
+msgid "Only Remove Existing Tags"
+msgstr ""
+
+#: share/gpodder/extensions/tagging.py:558
+msgid "Modify tags"
+msgstr ""
+
+#: share/gpodder/extensions/tagging.py:563
+msgid "Remove existing tags before writing"
+msgstr ""
+
+#: share/gpodder/extensions/tagging.py:570
+msgid "Write Title tag"
+msgstr ""
+
+#: share/gpodder/extensions/tagging.py:575
+msgid "Write Album tag"
+msgstr ""
+
+#: share/gpodder/extensions/tagging.py:580
+msgid "Write Artist tag (to same as Album)"
+msgstr ""
+
+#: share/gpodder/extensions/tagging.py:585
+msgid "Write Subtitle tag"
+msgstr ""
+
+#: share/gpodder/extensions/tagging.py:590
+msgid "Write Comments tag (to same as Subtitle)"
+msgstr ""
+
+#: share/gpodder/extensions/tagging.py:595
+msgid "Note: Subtitle is often very long. Can cause parsing issues."
+msgstr ""
+
+#: share/gpodder/extensions/tagging.py:599
+msgid "Write Genre tag"
+msgstr ""
+
+#: share/gpodder/extensions/tagging.py:604
+msgid "Write Publish Date tag"
+msgstr ""
+
+#: share/gpodder/extensions/tagging.py:611
+#, fuzzy
+#| msgid "Remove from list"
+msgid "Remove Album from Title (if present)"
+msgstr "Listeden sil"
+
+#: share/gpodder/extensions/tagging.py:621
+msgid "Genre tag:"
+msgstr ""
+
+#: share/gpodder/extensions/tagging.py:631
+#, fuzzy
+#| msgid "Remove cover art"
+msgid "Embed Coverart"
+msgstr "Kapak resmini kaldır"
+
+#: share/gpodder/extensions/tagging.py:636
+msgid "Prefer channel coverart"
+msgstr ""
+
+#: share/gpodder/extensions/tagging.py:647
+msgid ""
+"Enable conversion and resizing of art.\n"
+"\n"
+" If enabled, convert art to desired format (default JPEG) and size (default "
+"500px),\n"
+" and if format is JPEG, write as Baseline (rather than Progressive) format.\n"
+" If disabled, embed art as-is."
+msgstr ""
+
+#: share/gpodder/extensions/tagging.py:677
+#, fuzzy
+#| msgid "Device type:"
+msgid "Image type:"
+msgstr "Aygıt türü:"
+
+#: share/gpodder/extensions/tagging.py:691
+msgid "Tagging"
+msgstr ""
 
 #: share/gpodder/extensions/taskbar_progress.py:42
 msgid "Show download progress on the taskbar"
@@ -2177,7 +2351,7 @@ msgstr "Video dosyalarını dönüştürün"
 msgid "Transcode video files to avi/mp4/m4v"
 msgstr "Video dosyalarını avi/mp4/m4v'ye dönüştürün"
 
-#: share/gpodder/extensions/youtube-dl.py:37
+#: share/gpodder/extensions/youtube-dl.py:38
 #, fuzzy
 #| msgid ""
 #| "Manage Youtube subscriptions using youtube-dl (pip install youtube_dl) or "
@@ -2189,7 +2363,7 @@ msgstr ""
 "youtube-dl (pip kurulumu youtube_dl) veya yt-dlp (pip kurulumu yt-dlp) "
 "kullanarak Youtube aboneliklerini yönetin"
 
-#: share/gpodder/extensions/youtube-dl.py:42
+#: share/gpodder/extensions/youtube-dl.py:43
 #, python-format
 msgid ""
 "Your version of youtube-dl/yt-dlp %(have_version)s has known issues, please "
@@ -2198,30 +2372,52 @@ msgstr ""
 "youtube-dl/yt-dlp %(have_version)s sürümünüzde bilinen sorunlar var, lütfen "
 "%(want_version)s veya daha yenisine yükseltin."
 
-#: share/gpodder/extensions/youtube-dl.py:550
+#: share/gpodder/extensions/youtube-dl.py:521
+msgid "Not checked"
+msgstr ""
+
+#: share/gpodder/extensions/youtube-dl.py:554
 #, fuzzy
 #| msgid "Old Youtube-DL"
 msgid "Old youtube-dl"
 msgstr "Eski Youtube-DL"
 
-#: share/gpodder/extensions/youtube-dl.py:554
+#: share/gpodder/extensions/youtube-dl.py:558
 #, fuzzy
 #| msgid "Download with Youtube-DL"
 msgid "Download with youtube-dl"
 msgstr "Youtube-DL ile indirin"
 
-#: share/gpodder/extensions/youtube-dl.py:589
+#: share/gpodder/extensions/youtube-dl.py:611
+#, fuzzy, python-format
+#| msgid "Installed version: %s"
+msgid "Available version: %(version)s"
+msgstr "Yüklü sürüm: %s"
+
+#: share/gpodder/extensions/youtube-dl.py:614
+#, fuzzy
+#| msgid "No updates available"
+msgid "No update available"
+msgstr "Güncelleme mevcut değil"
+
+#: share/gpodder/extensions/youtube-dl.py:617
+#, fuzzy
+#| msgid "Could not check for updates"
+msgid "Error checking for update"
+msgstr "Güncellemeler kontrol edilemedi"
+
+#: share/gpodder/extensions/youtube-dl.py:641
 msgid ""
 "Parse YouTube channel feeds with youtube-dl to access more than 15 episodes"
 msgstr ""
 
-#: share/gpodder/extensions/youtube-dl.py:596
+#: share/gpodder/extensions/youtube-dl.py:648
 #, fuzzy
 #| msgid "Download with Youtube-DL"
 msgid "Download all supported episodes with youtube-dl"
 msgstr "Youtube-DL ile indirin"
 
-#: share/gpodder/extensions/youtube-dl.py:601
+#: share/gpodder/extensions/youtube-dl.py:653
 msgid ""
 "youtube-dl provides access to additional YouTube formats and DRM content.  "
 "Episodes from non-YouTube channels, that have youtube-dl support, will "
@@ -2231,21 +2427,82 @@ msgid ""
 "is disabled, and can be used to manually download from supported sites."
 msgstr ""
 
-#: share/gpodder/extensions/youtube-dl.py:612
+#: share/gpodder/extensions/youtube-dl.py:664
 msgid "Embed all available subtitles in downloaded video"
 msgstr ""
 
-#: share/gpodder/extensions/youtube-dl.py:619
+#: share/gpodder/extensions/youtube-dl.py:671
 msgid ""
 "The \"ffmpeg\" command was not found. FFmpeg is required for embedding "
 "subtitles."
 msgstr ""
 
-#: share/gpodder/extensions/youtube-dl.py:628
+#: share/gpodder/extensions/youtube-dl.py:679
+#, python-format
+msgid "Note: You need to restart gpodder after updating %s"
+msgstr ""
+
+#: share/gpodder/extensions/youtube-dl.py:682
+#, fuzzy
+#| msgid "Could not check for updates"
+msgid "Check for update"
+msgstr "Güncellemeler kontrol edilemedi"
+
+#: share/gpodder/extensions/youtube-dl.py:684
+#, fuzzy
+#| msgid "Installed version: %s"
+msgid "Available version:"
+msgstr "Yüklü sürüm: %s"
+
+#: share/gpodder/extensions/youtube-dl.py:685
+#, fuzzy
+#| msgid "Update podcast"
+msgid "Update"
+msgstr "Podcast'i güncelleyin"
+
+#: share/gpodder/extensions/youtube-dl.py:699
 #, fuzzy
 #| msgid "Old Youtube-DL"
 msgid "youtube-dl"
 msgstr "Eski Youtube-DL"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:6
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:1
+#: share/gpodder/ui/gtk/menus.ui.h:1
+msgid "Preferences"
+msgstr "Tercihler"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:8 share/gpodder/ui/gtk/menus.ui.h:9
+msgid "Check for new episodes"
+msgstr "Yeni bölümleri kontrol edin"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:9
+msgid "Filter:"
+msgstr "Filtre:"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:10
+msgid "Podcasts"
+msgstr "Ortam Akışları"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:11
+msgid "Resume all"
+msgstr "Tümünü devam ettir"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:12
+msgid "Incomplete downloads from a previous session were found."
+msgstr "Önceki bir oturumdan eksik indirmeler bulundu."
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:13
+msgid "Limit rate to"
+msgstr "Oranı sınırla"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:14
+msgid "KiB/s"
+msgstr "KiB/s"
+
+#: share/gpodder/ui/gtk/gpodder.ui.h:15
+msgid "Limit downloads to"
+msgstr "İndirmeleri şununla sınırla"
 
 #: share/gpodder/ui/gtk/gpodderaddpodcast.ui.h:1
 msgid "Add a new podcast"
@@ -2378,11 +2635,6 @@ msgstr "Podcast ayarları"
 #| msgid "Podcast settings"
 msgid "Podcast Selection"
 msgstr "Podcast ayarları"
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:1
-#: share/gpodder/ui/gtk/gpodder.ui.h:6 share/gpodder/ui/gtk/menus.ui.h:1
-msgid "Preferences"
-msgstr "Tercihler"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:2
 msgid "_Edit config"
@@ -2533,116 +2785,116 @@ msgid "Mountpoint:"
 msgstr "Bağlama noktası:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:39
+msgid "Create separate folders for each podcast"
+msgstr ""
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:40
 msgid "Create playlists on device"
 msgstr "Cihazda oynatma listeleri oluşturun"
 
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:40
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:41
+msgid "Use absolute paths in playlists"
+msgstr ""
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:42
 msgid "Playlists Folder:"
 msgstr "Oynatma Listeleri Klasörü:"
 
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:41
-msgid "Remove episodes deleted on device from gPodder"
-msgstr "Cihazda silinen bölümleri gPodder'dan kaldırın"
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:42
-msgid "After syncing an episode:"
-msgstr "Bir bölümü senkronize ettikten sonra:"
-
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:43
+#, fuzzy
+#| msgid "Episodes are locked"
+msgid "Episode filename method:"
+msgstr "Bölümler kilitlendi"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:44
+msgid "Custom filename format:"
+msgstr ""
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:45
+msgid "Maximum filename length:"
+msgstr ""
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:46
 msgid "Only sync unplayed episodes"
 msgstr "Yalnızca oynatılmayan bölümleri senkronize et"
 
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:44
-msgid "Remove episodes deleted in gPodder from device"
-msgstr "gPodder'da silinen bölümleri cihazdan kaldırın"
-
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:45
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:47
 msgid ""
 "Sync existing episodes on device when file size differs from gPodder "
 "(disable if device modifies files)"
 msgstr ""
 
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:46
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:48
+#, fuzzy
+#| msgid "Episodes have been deleted on device"
+msgid "Delete episodes from gPodder when deleted on Device"
+msgstr "Bölümler cihazdan silindi"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:49
+msgid ""
+"Note: To detect episodes as deleted on the device, \"Create playlists on "
+"device\" must be enabled."
+msgstr ""
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:50
+#, fuzzy
+#| msgid "Remove episodes deleted in gPodder from device"
+msgid "Delete episodes from Device when deleted in gPodder"
+msgstr "gPodder'da silinen bölümleri cihazdan kaldırın"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:51
+msgid "After syncing an episode:"
+msgstr "Bir bölümü senkronize ettikten sonra:"
+
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:52
 msgid "Devices"
 msgstr "Aygıtlar"
 
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:47
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:53
 msgid "Preferred YouTube format:"
 msgstr "Tercih edilen YouTube biçimi:"
 
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:48
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:54
 msgid "Preferred YouTube HLS format:"
 msgstr "Tercih edilen YouTube HLS biçimi:"
 
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:49
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:55
 msgid "Preferred Vimeo format:"
 msgstr "Tercih edilen Vimeo biçimi:"
 
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:51
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:57
 msgid "Use proxy (Overrides environment variables)"
 msgstr ""
 
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:52
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:58
 msgid "Proxy type:"
 msgstr ""
 
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:53
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:59
 #, fuzzy
 #| msgid "Username:"
 msgid "Hostname:"
 msgstr "Kullanıcı adı:"
 
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:54
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:60
 msgid "Port:"
 msgstr ""
 
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:55
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:61
 #, fuzzy
 #| msgid "Wrong username/password"
 msgid "Use username and password"
 msgstr "Yanlış kullanıcı adı/şifre"
 
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:56
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:62
 msgid ""
 "Proxies given in environment variables (will be used only if proxy above is "
 "disabled):"
 msgstr ""
 
-#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:58
+#: share/gpodder/ui/gtk/gpodderpreferences.ui.h:64
 msgid "Network"
 msgstr ""
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:8 share/gpodder/ui/gtk/menus.ui.h:9
-msgid "Check for new episodes"
-msgstr "Yeni bölümleri kontrol edin"
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:9
-msgid "Filter:"
-msgstr "Filtre:"
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:10
-msgid "Podcasts"
-msgstr "Ortam Akışları"
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:11
-msgid "Resume all"
-msgstr "Tümünü devam ettir"
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:12
-msgid "Incomplete downloads from a previous session were found."
-msgstr "Önceki bir oturumdan eksik indirmeler bulundu."
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:13
-msgid "Limit rate to"
-msgstr "Oranı sınırla"
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:14
-msgid "KiB/s"
-msgstr "KiB/s"
-
-#: share/gpodder/ui/gtk/gpodder.ui.h:15
-msgid "Limit downloads to"
-msgstr "İndirmeleri şununla sınırla"
 
 #: share/gpodder/ui/gtk/gpodderwelcome.ui.h:3
 msgid "<big>Welcome to gPodder</big>"
@@ -3014,7 +3266,7 @@ msgstr "URL %(old_url)s yerine %(new_url)s olarak değiştirildi."
 msgid "%(title)s: %(msg)s ([yes]/no): "
 msgstr "%(title)s: %(msg)s ([evet]/hayır): "
 
-#: bin/gpo:861 bin/gpo:1048
+#: bin/gpo:861 bin/gpo:1049
 msgid "yes"
 msgstr "evet"
 
@@ -3052,83 +3304,87 @@ msgstr ""
 msgid "Syncing %s"
 msgstr "Eşitleme %s"
 
-#: bin/gpo:1031
+#: bin/gpo:1032
 msgid "(enabled)"
 msgstr "(etkin)"
 
-#: bin/gpo:1042
+#: bin/gpo:1043
 msgid "Title:"
 msgstr "Başlık:"
 
-#: bin/gpo:1043
+#: bin/gpo:1044
 msgid "Category:"
 msgstr "Kategori:"
 
-#: bin/gpo:1044
+#: bin/gpo:1045
 msgid "Description:"
 msgstr "Açıklama:"
 
-#: bin/gpo:1045
+#: bin/gpo:1046
 msgid "Authors:"
 msgstr "Yazarlar:"
 
-#: bin/gpo:1047
+#: bin/gpo:1048
 msgid "Documentation:"
 msgstr "Belgelendirme:"
 
-#: bin/gpo:1048
+#: bin/gpo:1049
 msgid "Enabled:"
 msgstr "Etkin:"
 
-#: bin/gpo:1048
+#: bin/gpo:1049
 msgid "no"
 msgstr "hayır"
 
-#: bin/gpo:1073
+#: bin/gpo:1074
 msgid "enabled"
 msgstr "etkin"
 
-#: bin/gpo:1073
+#: bin/gpo:1074
 msgid "disabled"
 msgstr "pasif"
 
-#: bin/gpo:1076
+#: bin/gpo:1077
 #, python-format
 msgid "Extension %(name)s (%(title)s) %(enabled)s"
 msgstr "Uzantı %(name)s (%(title)s) %(enabled)s"
 
-#: bin/gpo:1156
+#: bin/gpo:1157
 #, python-format
 msgid "Syntax error: %(error)s"
 msgstr "Sözdizimi hatası: %(error)s"
 
-#: bin/gpo:1274
+#: bin/gpo:1275
 msgid "Ambiguous command. Did you mean.."
 msgstr "Belirsiz komut. Demek istediğin.."
 
-#: bin/gpo:1278
+#: bin/gpo:1279
 msgid "The requested function is not available."
 msgstr "İstenen işlev mevcut değil."
 
-#: bin/gpodder:105
+#: bin/gpodder:96
 msgid "subscribe to the feed at URL"
 msgstr "URL'deki beslemeye abone olun"
 
-#: bin/gpodder:112
+#: bin/gpodder:103
 msgid "print logging output on the console"
 msgstr "konsolda günlük çıktısını yazdır"
 
-#: bin/gpodder:116
+#: bin/gpodder:107
 msgid "reduce warnings on the console"
 msgstr "konsoldaki uyarıları azaltın"
 
-#: bin/gpodder:122
+#: bin/gpodder:113
 msgid "exit once started up (for profiling)"
 msgstr "başlatıldıktan sonra çık (profil oluşturma için)"
 
-#: bin/gpodder:127
+#: bin/gpodder:118
 msgid "Mac OS X application process number"
 msgstr "Mac OS X uygulama süreci numarası"
+
+#: share/applications/gpodder-url-handler.desktop.in.h:1
+msgid "gPodder (subscribe to feed)"
+msgstr "gPodder (beslemeye abone olun)"
 
 #: share/applications/gpodder.desktop.in.h:2
 msgid "gPodder Podcast Client"
@@ -3141,7 +3397,3 @@ msgstr "Podcast İstemcisi"
 #: share/applications/gpodder.desktop.in.h:4
 msgid "Subscribe to audio and video content from the web"
 msgstr "Web'den ses ve video içeriğine abone olun"
-
-#: share/applications/gpodder-url-handler.desktop.in.h:1
-msgid "gPodder (subscribe to feed)"
-msgstr "gPodder (beslemeye abone olun)"
