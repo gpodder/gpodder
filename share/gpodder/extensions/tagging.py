@@ -28,7 +28,6 @@ import logging
 import mimetypes
 from io import BytesIO
 
-import gi
 from mutagen import File, MutagenError
 from mutagen.easyid3 import EasyID3
 from mutagen.easymp4 import EasyMP4Tags
@@ -41,6 +40,7 @@ from PIL import Image
 import gpodder
 from gpodder import coverart
 
+import gi  # isort:skip
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 

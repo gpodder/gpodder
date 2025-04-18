@@ -8,13 +8,13 @@ import logging
 import os
 import shutil
 
-import gi
 from filelock import SoftFileLock, Timeout
 from PIL import Image
 
 import gpodder
 from gpodder import coverart
 
+import gi  # isort:skip
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
