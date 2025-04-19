@@ -7,8 +7,7 @@ import functools
 import logging
 import pathlib
 
-import gi
-
+import gi  # isort:skip
 gi.require_version('Gio', '2.0')
 from gi.repository import Gio, GLib
 
