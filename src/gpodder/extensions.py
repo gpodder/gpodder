@@ -379,7 +379,11 @@ class ExtensionManager(object):
             builtins = os.path.join(gpodder.prefix, 'share', 'gpodder',
                 'extensions', '*.py')
             user_extensions = os.path.join(gpodder.home, 'Extensions', '*.py')
-            self.filenames = glob.glob(builtins) + glob.glob(user_extensions)
+
+            # sort filenames so that if duplicates are found in the same folder,
+            # the highest priority (lowest number) will always be used.
+            self.filenames = sorted(glob.glob(builtins), reverse=True) \
+                             + sorted(glob.glob(user_extensions), reverse=True)
 
         # Let user extensions override built-in extensions of the same name.
         # This inherently happens because we search the user extensions folder second,
