@@ -411,9 +411,12 @@ class ExtensionManager(object):
                     logger.info("extension at %s will be ignored in favor of %s", extensions[name][1], filename)
             extensions[name] = (priority, filename)
 
-        # sort by priority - extensions with same priority will retain the order
-        # in which they were found.
-        return sorted(extensions.items(), key=lambda i: (i[1][0], i[0]))
+        # sort by priority - extensions with same priority will be sorted by name
+        def sort_key(kv):
+            name, (priority, filename) = kv
+            return (priority, name)
+            
+        return sorted(extensions.items(), key=sort_key)
 
     def get_extensions(self):
         """Get a list of all loaded extensions and their enabled flag."""
