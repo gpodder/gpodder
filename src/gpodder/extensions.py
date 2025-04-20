@@ -404,11 +404,12 @@ class ExtensionManager(object):
                     priority = int(m.group(1))
                 # strip ordering prefix from name (or leading _)
                 name = m.group(2)
-            if name in extensions:
-                if filename.startswith(gpodder.home) == extensions[name][1].startswith(gpodder.home):
-                    logger.warning("extension at %s will be ignored in favor of %s", extensions[name][1], filename)
+            _, previous_filename = extensions.get(name, (None, None))
+            if previous_filename is not None:
+                if os.path.dirname(filename) == os.path.dirname(previous_filename):
+                    logger.warning("extension at %s will be ignored in favor of %s in the same directory", previous_filename, filename)
                 else:
-                    logger.info("extension at %s will be ignored in favor of %s", extensions[name][1], filename)
+                    logger.info("extension at %s will be ignored in favor of %s", previous_filename, filename)
             extensions[name] = (priority, filename)
 
         # sort by priority - extensions with same priority will be sorted by name
