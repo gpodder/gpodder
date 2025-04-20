@@ -329,6 +329,10 @@ class ExtensionManager(object):
         core.config.add_observer(self._config_value_changed)
         enabled_extensions = core.config.extensions.enabled
 
+        self.builtins_directory = os.path.join(gpodder.prefix, 'share', 'gpodder',
+                'extensions')
+        self.user_extentions_directory = os.path.join(gpodder.home, 'Extensions')
+
         if os.environ.get('GPODDER_DISABLE_EXTENSIONS', '') != '':
             logger.info('Disabling all extensions (from environment)')
             return
@@ -375,9 +379,8 @@ class ExtensionManager(object):
         extensions = {}
 
         if not self.filenames:
-            builtins = os.path.join(gpodder.prefix, 'share', 'gpodder',
-                'extensions', '*.py')
-            user_extensions = os.path.join(gpodder.home, 'Extensions', '*.py')
+            builtins = os.path.join(self.builtins_directory, '*.py')
+            user_extensions = os.path.join(self.user_extentions_directory, '*.py')
             self.filenames = glob.glob(builtins) + glob.glob(user_extensions)
 
         # Let user extensions override built-in extensions of the same name
