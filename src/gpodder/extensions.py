@@ -416,7 +416,7 @@ class ExtensionManager(object):
         def sort_key(kv):
             name, (priority, filename) = kv
             return (priority, name)
-            
+
         return sorted(extensions.items(), key=sort_key)
 
     def get_extensions(self):
