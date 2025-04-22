@@ -395,7 +395,7 @@ class ExtensionManager(object):
 
             name, _ = os.path.splitext(os.path.basename(filename))
 
-            # extensions with no priority get lowest priority, 99
+            # extensions with no priority get priority 99
             priority = 99
             m = re.fullmatch(r'^([0-9]*)_(.+)', name)
             if m:
