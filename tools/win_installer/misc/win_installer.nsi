@@ -110,7 +110,8 @@ VIAddVersionKey /LANG=${LANG_ENGLISH} "LegalCopyright" "Copyright gPodder Projec
 VIAddVersionKey /LANG=${LANG_ENGLISH} "FileDescription" "${GPO_DESC}"
 VIAddVersionKey /LANG=${LANG_ENGLISH} "FileVersion" "${VERSION}"
 VIAddVersionKey /LANG=${LANG_ENGLISH} "ProductVersion" "${VERSION}"
-VIProductVersion "3.11.5.0"
+# Need to be four numbers separated by dots
+VIProductVersion "${VERSION}.${BUILD_VERSION}"
 
 
 Section "Install"
