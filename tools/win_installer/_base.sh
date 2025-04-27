@@ -481,7 +481,7 @@ function build_installer {
     (cd $(dirname "$BUILDPY") && build_compileall -d "" -q -f -l .)
 
     cp "${MISC}"/gpodder.ico "${BUILD_ROOT}"
-    (cd "$BUILD_ROOT" && makensis -V3 -NOCD -DVERSION="$GPO_VERSION_DESC" "${MISC}"/win_installer.nsi)
+    (cd "$BUILD_ROOT" && makensis -V3 -NOCD -DVERSION="$GPO_VERSION_DESC" -DBUILD_VERSION="$BUILD_VERSION" "${MISC}"/win_installer.nsi)
 
     mv "$BUILD_ROOT/gpodder-LATEST.exe" "$DIR/gpodder-$GPO_VERSION_DESC-installer.exe"
 }

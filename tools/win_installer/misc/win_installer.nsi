@@ -104,6 +104,16 @@ Var UNINST_BIN
 !insertmacro MUI_LANGUAGE "Welsh"
 
 
+VIAddVersionKey /LANG=${LANG_ENGLISH} "ProductName" "${GPO_NAME}"
+VIAddVersionKey /LANG=${LANG_ENGLISH} "CompanyName" "${GPO_WEBSITE}"
+VIAddVersionKey /LANG=${LANG_ENGLISH} "LegalCopyright" "Copyright gPodder Project GPL-3.0"
+VIAddVersionKey /LANG=${LANG_ENGLISH} "FileDescription" "${GPO_DESC}"
+VIAddVersionKey /LANG=${LANG_ENGLISH} "FileVersion" "${VERSION}"
+VIAddVersionKey /LANG=${LANG_ENGLISH} "ProductVersion" "${VERSION}"
+# Need to be four numbers separated by dots
+VIProductVersion "${VERSION}.${BUILD_VERSION}"
+
+
 Section "Install"
     SetShellVarContext all
 
