@@ -33,7 +33,7 @@ import requests.exceptions
 import urllib3.exceptions
 
 import gpodder
-from gpodder import common, download, feedcore, my, opml, player, util, youtube
+from gpodder import common, download, feedcore, my, opml, util, youtube
 from gpodder.dbusproxy import DBusPodcastsProxy
 from gpodder.model import Model, PodcastEpisode
 from gpodder.syncui import gPodderSyncUI
@@ -122,8 +122,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.config.connect_gtk_paned('ui.gtk.state.main_window.paned_position', self.channelPaned)
 
         self.main_window.show()
-
-        self.player_receiver = player.MediaPlayerDBusReceiver(self.on_played)
 
         self.gPodder.connect('key-press-event', self.on_key_press)
 
@@ -363,6 +361,16 @@ class gPodder(BuilderWidget, dbus.service.Object):
         action.connect('activate', self.on_item_view_ctrl_click_to_sort_episodes_toggled)
         g.add_action(action)
 
+        # Playback started and stopped actions (activated by the MPRIS Listener extension)
+
+        action = Gio.SimpleAction.new('playbackStarted', GLib.VariantType('(ts)'))
+        # action.connect('activate', self.on_playback_started)  # not used
+        g.add_action(action)
+
+        action = Gio.SimpleAction.new('playbackStopped', GLib.VariantType('(ttts)'))
+        action.connect('activate', self.on_playback_stopped)
+        g.add_action(action)
+
         # Other Menus
 
         action_defs = [
@@ -539,8 +547,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def in_downloads_list(self):
         return self.wNotebook.get_current_page() == 1
 
-    def on_played(self, start, end, total, file_uri):
-        """Handle the "played" signal from a media player."""
+    def on_playback_stopped(self, action, variant):
+        """Handle the 'playbackStopped' action from MPRIS Listener."""
+        start, end, total, file_uri = variant.unpack()
+
         if start == 0 and end == 0 and total == 0:
             # Ignore bogus play event
             return
@@ -549,7 +559,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
             # as they can happen with seeking, etc...
             return
 
-        logger.debug('Received play action: %s (%d, %d, %d)', file_uri, start, end, total)
+        logger.debug('Received playbackStopped action: %s (%d, %d, %d)',
+            file_uri, start, end, total)
         episode = self.episode_object_by_uri(file_uri)
 
         if episode is not None:
