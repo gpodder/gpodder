@@ -6,6 +6,7 @@
 import functools
 import logging
 import pathlib
+import urllib.parse
 
 import gi  # isort:skip
 gi.require_version('Gio', '2.0')
@@ -174,7 +175,8 @@ class MPRISResumer(FreeDesktopPlayer):
         url = metadata.get('xesam:url')
         track_id = metadata.get('mpris:trackid')
         if url is not None and track_id is not None:
-            if url == self.url:
+            if (url == self.url  # Also test unquoted URLs because player bugs
+                    or urllib.parse.unquote(url) == urllib.parse.unquote(self.url)):
                 self.player.disconnect_by_func(self.on_props_changed)
                 logger.debug('Setting %s, track %s position to %d',
                              url, track_id, self.position_us)
