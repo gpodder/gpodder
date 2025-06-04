@@ -103,7 +103,7 @@ def _localefromlcid(lcid):
                # we have only one zh_CN.po translation. Applying to all.
                2052: 'zh_CN',  # Chinese - People's Republic of China
                4100: 'zh_CN',  # Chinese - Singapore
-               1028: 'zh_CN',  # Chinese - Taiwan
+               1028: 'zh_TW',  # Chinese - Taiwan
                3076: 'zh_CN',  # Chinese - Hong Kong SAR
                5124: 'zh_CN',  # Chinese - Macao SAR
                1050: 'hr',  # Croatian
