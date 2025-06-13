@@ -100,6 +100,13 @@ class YoutubeCustomDownload(download.CustomDownload):
 
     def retrieve_resume(self, tempname, reporthook=None):
         """Called by download.DownloadTask to perform the download."""  # noqa: D401
+        if self._episode.total_time == 0:
+            # When using a 'best' format, yt-dlp will download in-progress streams.
+            # However, it does not update progress and can not be cancelled.
+            # Throwing here requires the feed to be updated once the stream has ended.
+            raise Exception("Can not download episode until the live stream has concluded. "
+                            "Please refresh the feed if you know the stream has ended.")
+
         self._reporthook = reporthook
         # outtmpl: use given tempname by DownloadTask
         # (escape % because outtmpl used as a string template by youtube-dl)
