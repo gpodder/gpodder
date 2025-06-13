@@ -197,6 +197,9 @@ class Device(services.ObservableService):
         signals = ['progress', 'sub-progress', 'status', 'done', 'post-done']
         services.ObservableService.__init__(self, signals)
 
+    def get_device_description(self):
+        return 'unknown device'
+
     def open(self):
         pass
 
@@ -298,6 +301,9 @@ class iPodDevice(Device):
             # Can't get free disk space
             return -1
         return result - RESERVED_FOR_ITDB
+
+    def get_device_description(self):
+        return 'iPod mountpoint %s' % self.mountpoint
 
     def open(self):
         Device.open(self)
@@ -438,6 +444,9 @@ class MP3PlayerDevice(Device):
     def get_free_space(self):
         info = self.destination.query_filesystem_info(Gio.FILE_ATTRIBUTE_FILESYSTEM_FREE, None)
         return info.get_attribute_uint64(Gio.FILE_ATTRIBUTE_FILESYSTEM_FREE)
+
+    def get_device_description(self):
+        return 'MP3 player destination %s' % self.destination.get_uri()
 
     def open(self):
         Device.open(self)
