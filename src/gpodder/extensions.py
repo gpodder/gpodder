@@ -385,7 +385,7 @@ class ExtensionManager(object):
             # sort filenames so that if duplicates are found in the same folder,
             # the highest priority (lowest number) will always be used.
             self.filenames = sorted(glob.glob(builtins), reverse=True) \
-                             + sorted(glob.glob(user_extensions), reverse=True)
+                + sorted(glob.glob(user_extensions), reverse=True)
 
         # Let user extensions override built-in extensions of the same name.
         # This inherently happens because we search the user extensions folder second,
