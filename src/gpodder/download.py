@@ -382,12 +382,6 @@ class DefaultDownload(CustomDownload):
                     continue
                 raise
 
-        # Podcastparser defaults published to zero if pubDate is not specified in feed,
-        # so only change the file timestamp if non-zero.
-        # This does mean that episodes released exactly on the epoch will get current time.
-        if self.__episode.published != 0 and self.__episode.published < time.time():
-            os.utime(tempname, (self.__episode.published, self.__episode.published))
-
         return (headers, real_url)
 
 
@@ -916,6 +910,12 @@ class DownloadTask(object):
 
             self.custom_downloader = downloader
             headers, real_url = downloader.retrieve_resume(self.tempname, self.status_updated)
+
+            # Podcastparser defaults published to zero if pubDate is not specified in feed,
+            # so only change the file timestamp if non-zero.
+            # This does mean that episodes released exactly on the epoch will get current time.
+            if self.__episode.published != 0 and self.__episode.published < time.time():
+                os.utime(self.tempname, (self.__episode.published, self.__episode.published))
 
             new_mimetype = headers.get('content-type', self.__episode.mime_type)
             old_mimetype = self.__episode.mime_type
