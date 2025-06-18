@@ -431,6 +431,7 @@ class gPodderPreferences(BuilderWidget):
             self.label_env_proxy.set_text(env_proxies_str)
 
         # Configure the extensions manager GUI
+        util.make_directory(gpodder.user_extensions.user_extension_directory)
         self.set_extension_preferences()
 
         self._config.connect_gtk_window(self.main_window, 'preferences', True)
