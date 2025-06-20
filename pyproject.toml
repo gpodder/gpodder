@@ -11,8 +11,10 @@ authors = [
     {name = "Thomas Perl", email = "thp@gpodder.org"},
 ]
 readme = "README.md"
-license = "GPL-3.0-or-later"
-license-files = ["COPYING"]
+license = {file = "COPYING"}
+classifiers = [
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+]
 requires-python = ">=3.8"
 dependencies = [
     "dbus-python;platform_system=='Linux'",
