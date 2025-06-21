@@ -397,7 +397,7 @@ class ExtensionManager(object):
 
             name, _ = os.path.splitext(os.path.basename(filename))
 
-            # extensions with no priority get lowest priority, 99
+            # extensions with no priority get priority 99
             priority = 99
             m = re.fullmatch(r'^([0-9]*)_(.+)', name)
             if m:
@@ -406,16 +406,20 @@ class ExtensionManager(object):
                     priority = int(m.group(1))
                 # strip ordering prefix from name (or leading _)
                 name = m.group(2)
-            if name in extensions:
-                if filename.startswith(gpodder.home) == extensions[name][1].startswith(gpodder.home):
-                    logger.warning("extension at %s will be ignored in favor of %s", extensions[name][1], filename)
+            _, previous_filename = extensions.get(name, (None, None))
+            if previous_filename is not None:
+                if os.path.dirname(filename) == os.path.dirname(previous_filename):
+                    logger.warning("extension at %s will be ignored in favor of %s in the same directory", previous_filename, filename)
                 else:
-                    logger.info("extension at %s will be ignored in favor of %s", extensions[name][1], filename)
+                    logger.info("extension at %s will be ignored in favor of %s", previous_filename, filename)
             extensions[name] = (priority, filename)
 
-        # sort by priority - extensions with same priority will retain the order
-        # in which they were found.
-        return sorted(extensions.items(), key=lambda i: (i[1][0], i[0]))
+        # sort by priority - extensions with same priority will be sorted by name
+        def sort_key(kv):
+            name, (priority, filename) = kv
+            return (priority, name)
+
+        return sorted(extensions.items(), key=sort_key)
 
     def get_extensions(self):
         """Get a list of all loaded extensions and their enabled flag."""
