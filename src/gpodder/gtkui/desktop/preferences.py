@@ -431,6 +431,7 @@ class gPodderPreferences(BuilderWidget):
             self.label_env_proxy.set_text(env_proxies_str)
 
         # Configure the extensions manager GUI
+        util.make_directory(gpodder.user_extensions.user_extension_directory)
         self.set_extension_preferences()
 
         self._config.connect_gtk_window(self.main_window, 'preferences', True)
@@ -631,6 +632,12 @@ class gPodderPreferences(BuilderWidget):
     def on_button_advanced_clicked(self, widget):
         self.main_window.destroy()
         gPodderConfigEditor(self.parent_window, _config=self._config)
+
+    def on_button_system_extensions_clicked(self, widget):
+        util.gui_open(gpodder.user_extensions.builtins_directory, gui=self)
+
+    def on_button_user_extensions_clicked(self, widget):
+        util.gui_open(gpodder.user_extensions.user_extension_directory, gui=self)
 
     def on_combo_audio_player_app_changed(self, widget):
         index = self.combo_audio_player_app.get_active()

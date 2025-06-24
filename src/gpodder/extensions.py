@@ -330,6 +330,10 @@ class ExtensionManager(object):
         core.config.add_observer(self._config_value_changed)
         enabled_extensions = core.config.extensions.enabled
 
+        self.builtins_directory = os.path.join(gpodder.prefix, 'share', 'gpodder',
+                'extensions')
+        self.user_extension_directory = os.path.join(gpodder.home, 'Extensions')
+
         if os.environ.get('GPODDER_DISABLE_EXTENSIONS', '') != '':
             logger.info('Disabling all extensions (from environment)')
             return
@@ -376,10 +380,8 @@ class ExtensionManager(object):
         extensions = {}
 
         if not self.filenames:
-            builtins = os.path.join(gpodder.prefix, 'share', 'gpodder',
-                'extensions', '*.py')
-            user_extensions = os.path.join(gpodder.home, 'Extensions', '*.py')
-
+            builtins = os.path.join(self.builtins_directory, '*.py')
+            user_extensions = os.path.join(self.user_extension_directory, '*.py')
             # sort filenames so that if duplicates are found in the same folder,
             # the highest priority (lowest number) will always be used.
             self.filenames = sorted(glob.glob(builtins), reverse=True) \
