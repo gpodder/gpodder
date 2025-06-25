@@ -65,7 +65,7 @@ class DownloadStatusModel(Gtk.ListStore):
         # Set up stock icon IDs for tasks
         self._status_ids = collections.defaultdict(lambda: None)
         self._status_ids[download.DownloadTask.DOWNLOADING] = 'go-down'
-        self._status_ids[download.DownloadTask.DONE] = 'object-select-symbolic'
+        self._status_ids[download.DownloadTask.DONE] = 'selection-mode-symbolic'
         self._status_ids[download.DownloadTask.FAILED] = 'dialog-error'
         self._status_ids[download.DownloadTask.CANCELLING] = 'media-playback-stop'
         self._status_ids[download.DownloadTask.CANCELLED] = 'media-playback-stop'
