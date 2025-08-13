@@ -23,6 +23,7 @@
 
 import logging
 import re
+import os
 
 import gpodder
 from gpodder import sync, util
@@ -249,8 +250,10 @@ class gPodderSyncUI(object):
                                                                key=lambda ep: ep.published)
                                 episode_keys = list(map(playlist.get_path_to_filename_for_playlist,
                                                         episodes_for_playlist))
+                                episode_keys_basename = list(map(os.path.basename, episode_keys))
 
                                 episode_dict = dict(list(zip(episode_keys, episodes_for_playlist)))
+                                episode_dict_basename = dict(list(zip(episode_keys_basename, episode_keys)))
 
                                 # then get episodes in playlist (if it exists) already on device
                                 episodes_in_playlists = playlist.read_m3u()
@@ -258,14 +261,23 @@ class gPodderSyncUI(object):
                                 if episodes_in_playlists:
                                     for episode_filename in episodes_in_playlists:
                                         abs_path_episode_noslash = re.sub(r'^/', '', episode_filename)
-                                        if ((not self._config.device_sync.playlists.use_absolute_path
+                                        # playlist was last updated with relative paths AND cannot be found
+                                        # OR
+                                        # playlist was last updated with absolute paths AND cannot be found
+                                        if (((episode_filename.find("/") != 0)
                                         and not playlist.playlist_folder.resolve_relative_path(episode_filename).query_exists())
-                                        or (self._config.device_sync.playlists.use_absolute_path
+                                        or ((episode_filename.find("/") == 0)
                                         and not playlist.mountpoint.resolve_relative_path(abs_path_episode_noslash).query_exists())):
                                             # episode was synced but no longer on device
                                             # i.e. must have been deleted by user, so delete from gpodder
+                                            episode_basename = os.path.basename(episode_filename)
                                             try:
-                                                episodes_to_delete.append(episode_dict[episode_filename])
+                                                # Use basename to find item in dict, because we can't trust the path. 
+                                                # (self._config.device_sync.playlists.use_absolute_path may have changed
+                                                # since last time the playlist was written!)
+                                                # Note that this does NOT handle if custom file name options, file name length,
+                                                # etc. have been changed - not much we can do about that!
+                                                episodes_to_delete.append(episode_dict[episode_dict_basename[episode_basename]])
                                             except KeyError:
                                                 logger.warning('Episode %s, removed from device has already been deleted from gpodder',
                                                             episode_filename)
