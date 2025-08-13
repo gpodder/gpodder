@@ -22,8 +22,8 @@
 # Ported to gPodder 3 by Joseph Wickremasinghe in June 2012
 
 import logging
-import re
 import os
+import re
 
 import gpodder
 from gpodder import sync, util
