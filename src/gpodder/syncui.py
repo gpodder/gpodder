@@ -272,7 +272,7 @@ class gPodderSyncUI(object):
                                             # i.e. must have been deleted by user, so delete from gpodder
                                             episode_basename = os.path.basename(episode_filename)
                                             try:
-                                                # Use basename to find item in dict, because we can't trust the path. 
+                                                # Use basename to find item in dict, because we can't trust the path.
                                                 # (self._config.device_sync.playlists.use_absolute_path may have changed
                                                 # since last time the playlist was written!)
                                                 # Note that this does NOT handle if custom file name options, file name length,
