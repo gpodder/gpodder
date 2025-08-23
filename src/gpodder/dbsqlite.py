@@ -150,7 +150,8 @@ class Database(object):
     def load_podcasts(self, factory):
         logger.info('Loading podcasts')
 
-        sql = 'SELECT * FROM %s' % self.TABLE_PODCAST
+        # See https://github.com/gpodder/gpodder/issues/1768 for why descending order
+        sql = 'SELECT * FROM %s order by id desc' % self.TABLE_PODCAST
 
         with self.lock:
             cur = self.cursor()
