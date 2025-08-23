@@ -72,12 +72,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
     def __init__(self, app, bus_name, gpodder_core, options):
         dbus.service.Object.__init__(self, object_path=gpodder.dbus_gui_object_path, bus_name=bus_name)
-        self.podcasts_proxy = DBusPodcastsProxy(lambda: self.channels,
-                self.on_itemUpdate_activate,
-                self.playback_episodes,
-                self.download_episode_list,
-                self.episode_object_by_uri,
-                bus_name)
         self.application = app
         self.core = gpodder_core
         self.config = self.core.config
@@ -4127,3 +4121,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_extension_disabled(self, extension):
         self.extensions_menu_helper.replace_entries(
             gpodder.user_extensions.on_create_menu())
+
+    def on_bus_acquired(self, gdbus_conn):
+        self.podcasts_proxy = DBusPodcastsProxy(lambda: self.channels,
+                self.on_itemUpdate_activate,
+                self.playback_episodes,
+                self.download_episode_list,
+                self.episode_object_by_uri,
+                gdbus_conn)

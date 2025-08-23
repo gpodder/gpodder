@@ -85,6 +85,7 @@ class gPodderApplication(Gtk.Application):
                          flags=Gio.ApplicationFlags.FLAGS_NONE)
         self.window = None
         self.options = options
+        self.gdbus_connection = None
         self.connect('window-removed', self.on_window_removed)
         self.connect('notify::is-registered', self.on_notify_is_registered)
 
@@ -195,6 +196,26 @@ class gPodderApplication(Gtk.Application):
             dlg.run()
             dlg.destroy()
             sys.exit(0)
+
+        try:
+            self.loop = GLib.MainLoop()
+            self.owner_id = Gio.bus_own_name(
+                # Specify connection to the session bus:
+                Gio.BusType.SESSION,
+                # Set the well-known name:
+                gpodder.dbus_bus_name + "-gdbus",
+                # Provide any flags
+                # (for example, to allow replacement):
+                Gio.BusNameOwnerFlags.DO_NOT_QUEUE,
+                # Provide handler 1 (bus_acquired):
+                self.on_bus_acquired,
+                # Provide handler 2 (name_acquired):
+                None,
+                # Provide handler 3 (name_lost):
+                None,
+            )
+        except Exception as e:
+            logger.warning("Name Already clamed: %r", e, exc_info=True)
         util.idle_add(self.check_root_folder_path_gui)
 
     def do_activate(self):
@@ -325,6 +346,9 @@ class gPodderApplication(Gtk.Application):
         self.window.on_gPodder_delete_event()
 
     def on_window_removed(self, *args):
+        if self.owner_id:
+            Gio.bus_unown_name(self.owner_id)
+            self.owner_id = None
         self.quit()
 
     def on_help_activate(self, action, param):
@@ -362,6 +386,11 @@ class gPodderApplication(Gtk.Application):
 
     def on_extension_disabled(self, extension):
         self.window.on_extension_disabled(extension)
+
+    def on_bus_acquired(self, conn, name):
+        self.gdbus_connection = conn
+        if self.window:
+            self.window.on_bus_acquired(conn)
 
     @staticmethod
     def check_root_folder_path_gui():
