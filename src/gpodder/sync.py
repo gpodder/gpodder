@@ -387,7 +387,7 @@ class iPodDevice(Device):
         assert local_filename is not None
 
         if util.calculate_size(local_filename) > self.get_free_space():
-            logger.error('Not enough space on %s, sync aborted...', self.mountpoint)
+            logger.error('Not enough space on %s, sync aborted...', self.get_device_description())
             d = {'episode': episode.title, 'mountpoint': self.mountpoint}
             message = _('Error copying %(episode)s: Not enough free space on %(mountpoint)s')
             self.errors.append(message % d)
@@ -462,12 +462,12 @@ class MP3PlayerDevice(Device):
                 Gio.FileQueryInfoFlags.NONE,
                 None)
         except GLib.Error as err:
-            logger.error('querying destination info for %s failed with %s',
-                self.destination.get_uri(), err.message)
+            logger.error('querying info for %s failed with %s',
+                self.get_device_description(), err.message)
             return False
 
         if info.get_file_type() != Gio.FileType.DIRECTORY:
-            logger.error('destination %s is not a directory', self.destination.get_uri())
+            logger.error('%s is not a directory', self.get_device_description())
             return False
 
         # open is ok if the target is a directory, and it can be written to
@@ -479,7 +479,7 @@ class MP3PlayerDevice(Device):
             self.tracks_list = self.get_all_tracks()
             return True
 
-        logger.error('destination %s is not writable', self.destination.get_uri())
+        logger.error('%s is not writable', self.get_device_description())
         return False
 
     def get_episode_folder_on_device(self, episode):
