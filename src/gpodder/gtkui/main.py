@@ -1187,6 +1187,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
         cell = Gtk.CellRendererPixbuf()
         cell.set_property('stock-size', Gtk.IconSize.BUTTON)
+        cell.set_property('xpad', 4)
         column.pack_start(cell, False)
         column.add_attribute(cell, 'icon-name',
                 DownloadStatusModel.C_ICON_NAME)
