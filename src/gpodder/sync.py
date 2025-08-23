@@ -197,6 +197,9 @@ class Device(services.ObservableService):
         signals = ['progress', 'sub-progress', 'status', 'done', 'post-done']
         services.ObservableService.__init__(self, signals)
 
+    def get_device_description(self):
+        return 'unknown device'
+
     def open(self):
         pass
 
@@ -299,6 +302,9 @@ class iPodDevice(Device):
             return -1
         return result - RESERVED_FOR_ITDB
 
+    def get_device_description(self):
+        return 'iPod mountpoint %s' % self.mountpoint
+
     def open(self):
         Device.open(self)
         if not gpod_available:
@@ -381,7 +387,7 @@ class iPodDevice(Device):
         assert local_filename is not None
 
         if util.calculate_size(local_filename) > self.get_free_space():
-            logger.error('Not enough space on %s, sync aborted...', self.mountpoint)
+            logger.error('Not enough space on %s, sync aborted...', self.get_device_description())
             d = {'episode': episode.title, 'mountpoint': self.mountpoint}
             message = _('Error copying %(episode)s: Not enough free space on %(mountpoint)s')
             self.errors.append(message % d)
@@ -439,6 +445,9 @@ class MP3PlayerDevice(Device):
         info = self.destination.query_filesystem_info(Gio.FILE_ATTRIBUTE_FILESYSTEM_FREE, None)
         return info.get_attribute_uint64(Gio.FILE_ATTRIBUTE_FILESYSTEM_FREE)
 
+    def get_device_description(self):
+        return 'MP3 player destination %s' % self.destination.get_uri()
+
     def open(self):
         Device.open(self)
         self.notify('status', _('Opening MP3 player'))
@@ -453,12 +462,12 @@ class MP3PlayerDevice(Device):
                 Gio.FileQueryInfoFlags.NONE,
                 None)
         except GLib.Error as err:
-            logger.error('querying destination info for %s failed with %s',
-                self.destination.get_uri(), err.message)
+            logger.error('querying info for %s failed with %s',
+                self.get_device_description(), err.message)
             return False
 
         if info.get_file_type() != Gio.FileType.DIRECTORY:
-            logger.error('destination %s is not a directory', self.destination.get_uri())
+            logger.error('%s is not a directory', self.get_device_description())
             return False
 
         # open is ok if the target is a directory, and it can be written to
@@ -470,7 +479,7 @@ class MP3PlayerDevice(Device):
             self.tracks_list = self.get_all_tracks()
             return True
 
-        logger.error('destination %s is not writable', self.destination.get_uri())
+        logger.error('%s is not writable', self.get_device_description())
         return False
 
     def get_episode_folder_on_device(self, episode):
