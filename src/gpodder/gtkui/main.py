@@ -69,7 +69,7 @@ N_ = gpodder.ngettext
 
 class gPodder(BuilderWidget):
 
-    def __init__(self, app, bus_name, gpodder_core, options):
+    def __init__(self, app, gpodder_core, options):
         self.application = app
         self.core = gpodder_core
         self.config = self.core.config

@@ -182,11 +182,11 @@ class gPodderApplication(Gtk.Application):
 
         Gtk.Window.set_default_icon_name('gpodder')
 
+        # FIXME: we want to get rid of dbus dependency
         try:
             dbus_main_loop = DBusGMainLoop(set_as_default=True)
             gpodder.dbus_session_bus = dbus.SessionBus(dbus_main_loop)
 
-            self.bus_name = dbus.service.BusName(gpodder.dbus_bus_name, bus=gpodder.dbus_session_bus)
         except dbus.exceptions.DBusException as dbe:
             logger.warning('Cannot get "on the bus".', exc_info=True)
             dlg = Gtk.MessageDialog(None, Gtk.DialogFlags.MODAL, Gtk.MessageType.ERROR,
@@ -197,13 +197,14 @@ class gPodderApplication(Gtk.Application):
             dlg.destroy()
             sys.exit(0)
 
+        # Using GDBus
         try:
             self.loop = GLib.MainLoop()
             self.owner_id = Gio.bus_own_name(
                 # Specify connection to the session bus:
                 Gio.BusType.SESSION,
                 # Set the well-known name:
-                gpodder.dbus_bus_name + "-gdbus",
+                gpodder.dbus_bus_name,
                 # Provide any flags
                 # (for example, to allow replacement):
                 Gio.BusNameOwnerFlags.DO_NOT_QUEUE,
@@ -223,7 +224,7 @@ class gPodderApplication(Gtk.Application):
         if not self.window:
             # Windows are associated with the application
             # when the last one is closed the application shuts down
-            self.window = gPodder(self, self.bus_name, core.Core(UIConfig, model_class=Model), self.options)
+            self.window = gPodder(self, core.Core(UIConfig, model_class=Model), self.options)
 
             if gpodder.ui.osx:
                 from . import macosx
