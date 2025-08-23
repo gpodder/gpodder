@@ -67,6 +67,21 @@ xml = f"""
           <arg name='message' type='s' direction='out'/>
       </method>
   </interface>
+  <interface name='{gpodder.dbus_interface}'>
+      <method name='show_gui_window'>
+      </method>
+      <method name='offer_new_episodes'>
+          <arg name='channels' type='as' direction='in'/>
+          <arg name='new_episodes' type='b' direction='out'/>
+      </method>
+      <method name='subscribe_to_url'>
+          <arg name='url' type='s' direction='in'/>
+      </method>
+      <method name='mark_episode_played'>
+          <arg name='filename' type='s' direction='in'/>
+          <arg name='success' type='b' direction='out'/>
+      </method>
+  </interface>
 </node>
 """
 
@@ -82,12 +97,20 @@ class DBusPodcastsProxy:
     def __init__(self, get_podcast_list,
             check_for_updates, playback_episodes,
             download_episodes, episode_from_uri,
+            show_gui_window,
+            offer_new_episodes,
+            subscribe_to_url,
+            mark_episode_played,
             gdbus_conn):
         self._get_podcasts = get_podcast_list
         self._on_check_for_updates = check_for_updates
         self._playback_episodes = playback_episodes
         self._download_episodes = download_episodes
         self._episode_from_uri = episode_from_uri
+        self._show_gui_window = show_gui_window
+        self._offer_new_episodes = offer_new_episodes
+        self._subscribe_to_url = subscribe_to_url
+        self._mark_episode_played = mark_episode_played
 
         self._node = Gio.DBusNodeInfo.new_for_xml(xml)
 
@@ -97,6 +120,16 @@ class DBusPodcastsProxy:
             # Specify the interface via index
             # (as defined above in the XML):
             self._node.interfaces[0],
+            self.on_handle_method_call,  # method_call
+            None,  # get_property unused
+            None,  # set_property unused
+        )
+        gdbus_conn.register_object(
+            # Set the object path:
+            gpodder.dbus_gui_object_path,
+            # Specify the interface via index
+            # (as defined above in the XML):
+            self._node.interfaces[1],
             self.on_handle_method_call,  # method_call
             None,  # get_property unused
             None,  # set_property unused
@@ -172,9 +205,14 @@ class DBusPodcastsProxy:
 
         return GLib.Variant('(bs)', (True, 'Success'))
 
-    def check_for_updates(self):
-        """Check for new episodes or offer subscriptions."""
-        self._on_check_for_updates()
+    def mark_episode_played(self, filename):
+        res = False
+        for p in self._get_podcasts():
+            for e in p.get_all_episodes():
+                if e.local_filename(create=False, check_only=True) == filename:
+                    res = self._mark_episode_played(e)
+                    break
+        return GLib.Variant('(b)', res)
 
     def on_handle_method_call(self, conn, sender, path, iname, method, params, invo):
         if method == 'check_for_updates':
@@ -187,4 +225,12 @@ class DBusPodcastsProxy:
             return invo.return_value(self.get_podcasts())
         elif method == 'play_or_download_episode':
             return invo.return_value(self.play_or_download_episode(params[0]))
+        elif method == 'show_gui_window':
+            return invo.return_value(self._show_gui_window())
+        elif method == 'offer_new_episodes':
+            return invo.return_value(self._offer_new_episodes(TODO))
+        elif method == 'subscribe_to_url':
+            return invo.return_value(self._subscribe_to_url(params[0]))
+        elif method == 'mark_episode_played':
+            return invo.return_value(self.mark_episode_played(params[0]))
         logger.warning("NOT HANDLING %s(%r) %r", method, params, invo)
