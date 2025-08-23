@@ -105,7 +105,8 @@ class DBusPodcastsProxy(dbus.service.Object):
             title = episode.title
             url = episode.url
             description = first_line(episode._text_description)
-            filename = episode.download_filename
+            # can't marshall None as string
+            filename = episode.download_filename or ''
             file_type = episode.file_type()
             is_new = (episode.state == gpodder.STATE_NORMAL and episode.is_new)
             is_downloaded = episode.was_downloaded(and_exists=True)
