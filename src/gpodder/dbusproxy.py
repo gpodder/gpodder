@@ -139,7 +139,7 @@ class DBusPodcastsProxy:
             title = episode.title
             url = episode.url
             description = first_line(episode._text_description)
-            filename = or_empty_str(episode.download_filename)  # None when not downloaded
+            filename = or_empty_str(episode.local_filename(False, check_only=True))  # None when not downloaded
             file_type = episode.file_type()
             is_new = (episode.state == gpodder.STATE_NORMAL and episode.is_new)
             is_downloaded = episode.was_downloaded(and_exists=True)
