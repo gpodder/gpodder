@@ -109,7 +109,9 @@ class Chapters:
 
             start_str = util.format_time(c["start"], always_include_hours=align_hours)
             lbl = Gtk.Label(visible=True, xalign=1)
-            lbl.set_markup("""<a href="%(position)i">%(timestamp)s</a>""" % {"position": c["start"], "timestamp": start_str})
+            lbl.set_markup(
+                """<a href="%(position)i"><span font_family="Monospace">%(timestamp)s</span></a>"""
+                % {"position": c["start"], "timestamp": start_str})
             lbl.connect("activate-link", self.on_timestamp_click)
             grid.attach(lbl, 1, i * 2, 1, 1)
             lbl = Gtk.Label(visible=True, xalign=0)

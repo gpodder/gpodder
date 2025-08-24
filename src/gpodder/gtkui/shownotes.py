@@ -193,7 +193,8 @@ class gPodderShownotes:
                     underline=Pango.Underline.SINGLE)
                 self.text_buffer.create_tag('timestamp',
                     foreground=self.link_color.to_string(),
-                    underline=Pango.Underline.SINGLE)
+                    underline=Pango.Underline.SINGLE,
+                    family="Monospace")
 
 
 class gPodderShownotesText(gPodderShownotes):
