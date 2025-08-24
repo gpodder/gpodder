@@ -110,9 +110,9 @@ class MPRISResumer(FreeDesktopPlayer):
             return False
         return util.find_command(self.command[0]) is not None
 
-    def resume_episode(self, episodes, config=None):
+    def resume_episode(self, episodes, config=None, position=None):
         """Resume playback of the first episode in given episodes."""
-        self.position_us = episodes[0].current_position * 1e6
+        self.position_us = (position or episodes[0].current_position) * 1e6
         self.url = episodes[0].get_playback_url(config=config)
         if self.url.startswith('/'):
             self.url = pathlib.Path(self.url).as_uri()
@@ -286,13 +286,23 @@ class gPodderExtension:
                for p in self.players]
 
         # needs dbus, doesn't handle more than 1 episode
-        # and no point in using DBus when episode is not played.
         # TODO: Detect Dbus availability with GDBus
-        if not hasattr(gpodder.dbus_session_bus, 'fake') and \
-                len(episodes) == 1 and episodes[0].current_position > 0:
-            ret.extend([(p.title, functools.partial(p.resume_episode, config=self.gpodder_config))
-                        for p in self.resumers])
+        if not hasattr(gpodder.dbus_session_bus, 'fake') and len(episodes) == 1:
+            # no point in using DBus when episode is not played.
+            if episodes[0].current_position > 0:
+                ret.extend([(p.title, functools.partial(p.resume_episode, config=self.gpodder_config))
+                            for p in self.resumers])
 
+            # construct chapters menu
+            if episodes[0].chapters:
+                chapters = episodes[0].parsed_chapters
+                for c in chapters:
+                    time_str = util.format_time(c["start"])
+                    # gPodder uses / to describe sub-menus. Replace it with a similar character
+                    title = c["title"].replace("/", "\u2215")
+                    for p in self.resumers:
+                        t = "%s/%s/%s" % (_("Chapters"), title, _("Jump to %s in %s") % (time_str, p.application))
+                        ret.append((t, functools.partial(p.resume_episode, config=self.gpodder_config, position=c["start"])))
         return ret
 
     def on_episode_downloaded(self, episode):

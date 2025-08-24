@@ -154,9 +154,15 @@ defaults = {
                     'width': 500,
                     'height': 400,
                     'x': -1, 'y': -1, 'maximized': False,
+                },
+                'chapters': {
+                    'width': 500,
+                    'height': 400,
+                    'x': -1, 'y': -1, 'maximized': False,
                 }
             },
 
+            'playbar': True,
             'toolbar': False,
             'new_episodes': 'show',  # ignore, show, queue, download
             'only_added_are_new': False,  # Only just added episodes are considered new after an update

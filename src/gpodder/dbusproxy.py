@@ -20,12 +20,14 @@
 # gpodder.dbusproxy - Expose Podcasts over D-Bus
 # Based on a patch by Iwan van der Kleijn <iwanvanderkleyn@gmail.com>
 # See also: http://gpodder.org/bug/699
+import logging
 
-import dbus
-import dbus.service
+from gi.repository import Gio, GLib
 
 import gpodder
 from gpodder import util
+
+logger = logging.getLogger(__name__)
 
 
 def first_line(txt):
@@ -36,7 +38,54 @@ def first_line(txt):
         return lines[0]
 
 
-class DBusPodcastsProxy(dbus.service.Object):
+def or_empty_str(txt):
+    """can't marshal the None value as a string, so use this wrapper to be safe"""
+    return txt or ''
+
+
+xml = f"""
+<node>
+  <interface name='{gpodder.dbus_podcasts}'>
+      <method name='check_for_updates'>
+      </method>
+      <method name='get_episode_title'>
+          <arg name='url' type='s' direction='in'/>
+          <arg name='episode_title' type='s' direction='out'/>
+          <arg name='channel_title' type='s' direction='out'/>
+      </method>
+      <method name='get_episodes'>
+          <arg name='url' type='s' direction='in'/>
+          <arg name='episodes' type='a(sssssbbb)' direction='out'/>
+      </method>
+      <method name='get_podcasts'>
+          <arg name='podcasts' type='a(ssss)' direction='out'/>
+      </method>
+      <method name='play_or_download_episode'>
+          <arg name='episode_urls' type='as' direction='in'/>
+          <arg name='success' type='b' direction='out'/>
+          <arg name='message' type='s' direction='out'/>
+      </method>
+  </interface>
+  <interface name='{gpodder.dbus_interface}'>
+      <method name='show_gui_window'>
+      </method>
+      <method name='offer_new_episodes'>
+          <arg name='channels' type='as' direction='in'/>
+          <arg name='new_episodes' type='b' direction='out'/>
+      </method>
+      <method name='subscribe_to_url'>
+          <arg name='url' type='s' direction='in'/>
+      </method>
+      <method name='mark_episode_played'>
+          <arg name='filename' type='s' direction='in'/>
+          <arg name='success' type='b' direction='out'/>
+      </method>
+  </interface>
+</node>
+"""
+
+
+class DBusPodcastsProxy:
     """Implements API accessible through D-Bus.
 
     Methods on DBusPodcastsProxy can be called by D-Bus clients. They implement
@@ -44,19 +93,46 @@ class DBusPodcastsProxy(dbus.service.Object):
     for parameter and return values.
     """
 
-    # DBusPodcastsProxy(lambda: self.channels, self.on_itemUpdate_activate(), self.playback_episodes, self.download_episode_list, bus_name)
     def __init__(self, get_podcast_list,
             check_for_updates, playback_episodes,
             download_episodes, episode_from_uri,
-            bus_name):
+            show_gui_window,
+            offer_new_episodes,
+            subscribe_to_url,
+            mark_episode_played,
+            gdbus_conn):
         self._get_podcasts = get_podcast_list
         self._on_check_for_updates = check_for_updates
         self._playback_episodes = playback_episodes
         self._download_episodes = download_episodes
         self._episode_from_uri = episode_from_uri
-        dbus.service.Object.__init__(self,
-                object_path=gpodder.dbus_podcasts_object_path,
-                bus_name=bus_name)
+        self._show_gui_window = show_gui_window
+        self._offer_new_episodes = offer_new_episodes
+        self._subscribe_to_url = subscribe_to_url
+        self._mark_episode_played = mark_episode_played
+
+        self._node = Gio.DBusNodeInfo.new_for_xml(xml)
+
+        gdbus_conn.register_object(
+            # Set the object path:
+            gpodder.dbus_podcasts_object_path,
+            # Specify the interface via index
+            # (as defined above in the XML):
+            self._node.interfaces[0],
+            self.on_handle_method_call,  # method_call
+            None,  # get_property unused
+            None,  # set_property unused
+        )
+        gdbus_conn.register_object(
+            # Set the object path:
+            gpodder.dbus_gui_object_path,
+            # Specify the interface via index
+            # (as defined above in the XML):
+            self._node.interfaces[1],
+            self.on_handle_method_call,  # method_call
+            None,  # get_property unused
+            None,  # set_property unused
+        )
 
     def _get_episode_refs(self, urls):
         """Get Episode instances associated with URLs."""
@@ -67,7 +143,6 @@ class DBusPodcastsProxy(dbus.service.Object):
                     episodes.append(e)
         return episodes
 
-    @dbus.service.method(dbus_interface=gpodder.dbus_podcasts, in_signature='', out_signature='a(ssss)')
     def get_podcasts(self):
         """Get all podcasts in gPodder's subscription list."""
         def podcast_to_tuple(podcast):
@@ -78,35 +153,25 @@ class DBusPodcastsProxy(dbus.service.Object):
 
             return (title, url, description, cover_file)
 
-        return [podcast_to_tuple(p) for p in self._get_podcasts()]
+        res = [podcast_to_tuple(p) for p in self._get_podcasts()]
+        return GLib.Variant('(a(ssss))', (res,))
 
-    @dbus.service.method(dbus_interface=gpodder.dbus_podcasts, in_signature='s', out_signature='ss')
     def get_episode_title(self, url):
         episode = self._episode_from_uri(url)
 
+        title, channel_title = ('', '')
         if episode is not None:
-            return episode.title, episode.channel.title
+            title, channel_title = episode.title, episode.channel.title
 
-        return ('', '')
+        return GLib.Variant('(ss)', (title, channel_title))
 
-    @dbus.service.method(dbus_interface=gpodder.dbus_podcasts, in_signature='s', out_signature='a(sssssbbb)')
     def get_episodes(self, url):
         """Return all episodes of the podcast with the given URL."""
-        podcast = None
-        for channel in self._get_podcasts():
-            if channel.url == url:
-                podcast = channel
-                break
-
-        if podcast is None:
-            return []
-
         def episode_to_tuple(episode):
             title = episode.title
             url = episode.url
             description = first_line(episode._text_description)
-            # can't marshall None as string
-            filename = episode.download_filename or ''
+            filename = or_empty_str(episode.local_filename(False, check_only=True))  # None when not downloaded
             file_type = episode.file_type()
             is_new = (episode.state == gpodder.STATE_NORMAL and episode.is_new)
             is_downloaded = episode.was_downloaded(and_exists=True)
@@ -114,9 +179,14 @@ class DBusPodcastsProxy(dbus.service.Object):
 
             return (title, url, description, filename, file_type, is_new, is_downloaded, is_deleted)
 
-        return [episode_to_tuple(e) for e in podcast.get_all_episodes()]
+        res = []
+        for channel in self._get_podcasts():
+            if channel.url == url:
+                res = [episode_to_tuple(e) for e in channel.get_all_episodes()]
+                break
 
-    @dbus.service.method(dbus_interface=gpodder.dbus_podcasts, in_signature='as', out_signature='(bs)')
+        return GLib.Variant('(a(sssssbbb))', (res,))
+
     def play_or_download_episode(self, urls):
         """Play (or download) a list of episodes given by URL."""
         episodes = self._get_episode_refs(urls)
@@ -132,9 +202,34 @@ class DBusPodcastsProxy(dbus.service.Object):
         if to_download:
             self._download_episodes(to_download)
 
-        return (1, 'Success')
+        return GLib.Variant('(bs)', (True, 'Success'))
 
-    @dbus.service.method(dbus_interface=gpodder.dbus_podcasts, in_signature='', out_signature='')
-    def check_for_updates(self):
-        """Check for new episodes or offer subscriptions."""
-        self._on_check_for_updates()
+    def mark_episode_played(self, filename):
+        res = False
+        for p in self._get_podcasts():
+            for e in p.get_all_episodes():
+                if e.local_filename(create=False, check_only=True) == filename:
+                    res = self._mark_episode_played(e)
+                    break
+        return GLib.Variant('(b)', res)
+
+    def on_handle_method_call(self, conn, sender, path, iname, method, params, invo):
+        if method == 'check_for_updates':
+            return invo.return_value(self._on_check_for_updates())
+        elif method == 'get_episode_title':
+            return invo.return_value(self.get_episode_title(params[0]))
+        elif method == 'get_episodes':
+            return invo.return_value(self.get_episodes(params[0]))
+        elif method == 'get_podcasts':
+            return invo.return_value(self.get_podcasts())
+        elif method == 'play_or_download_episode':
+            return invo.return_value(self.play_or_download_episode(params[0]))
+        elif method == 'show_gui_window':
+            return invo.return_value(self._show_gui_window())
+        elif method == 'offer_new_episodes':
+            return invo.return_value(self._offer_new_episodes(TODO))
+        elif method == 'subscribe_to_url':
+            return invo.return_value(self._subscribe_to_url(params[0]))
+        elif method == 'mark_episode_played':
+            return invo.return_value(self.mark_episode_played(params[0]))
+        logger.warning("NOT HANDLING %s(%r) %r", method, params, invo)

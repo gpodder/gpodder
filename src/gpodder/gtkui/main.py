@@ -29,7 +29,6 @@ import tempfile
 import time
 import urllib.parse
 
-import dbus.service
 import requests.exceptions
 import urllib3.exceptions
 
@@ -40,6 +39,7 @@ from gpodder.model import Model, PodcastEpisode
 from gpodder.syncui import gPodderSyncUI
 
 from . import shownotes
+from .chapters import Chapters
 from .desktop.channel import gPodderChannel
 from .desktop.episodeselector import gPodderEpisodeSelector
 from .desktop.exportlocal import gPodderExportToLocalFolder
@@ -55,6 +55,7 @@ from .interface.common import (BuilderWidget, Dummy, ExtensionMenuHelper,
 from .interface.progress import ProgressIndicator
 from .interface.searchtree import SearchTree
 from .model import EpisodeListModel, PodcastChannelProxy, PodcastListModel
+from .playbar import Playbar
 from .services import CoverDownloader
 
 import gi  # isort:skip
@@ -68,16 +69,9 @@ _ = gpodder.gettext
 N_ = gpodder.ngettext
 
 
-class gPodder(BuilderWidget, dbus.service.Object):
+class gPodder(BuilderWidget):
 
-    def __init__(self, app, bus_name, gpodder_core, options):
-        dbus.service.Object.__init__(self, object_path=gpodder.dbus_gui_object_path, bus_name=bus_name)
-        self.podcasts_proxy = DBusPodcastsProxy(lambda: self.channels,
-                self.on_itemUpdate_activate,
-                self.playback_episodes,
-                self.download_episode_list,
-                self.episode_object_by_uri,
-                bus_name)
+    def __init__(self, app, gpodder_core, options):
         self.application = app
         self.core = gpodder_core
         self.config = self.core.config
@@ -121,6 +115,15 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.config.connect_gtk_window(self.main_window, 'main_window')
 
         self.config.connect_gtk_paned('ui.gtk.state.main_window.paned_position', self.channelPaned)
+        self.playbar = Playbar(self.on_jump_player_to_position)
+        self.playbarContainer.pack_start(self.playbar.box, True, True, 0)
+
+        self.show_chapters = Gtk.Button.new_from_icon_name("view-list-symbolic", Gtk.IconSize.SMALL_TOOLBAR)
+        self.show_chapters.set_property('visible', True)
+        self.show_chapters.set_sensitive(False)
+        self.show_chapters.connect('clicked', self.on_show_chapters)
+        self.playbarContainer.pack_end(self.show_chapters, False, False, 10)
+        self.playbarContainer.set_property('visible', self.config.ui.gtk.playbar)
 
         self.main_window.show()
 
@@ -132,7 +135,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
         self.config.add_observer(self.on_config_changed)
 
         self.shownotes_pane = Gtk.Box()
-        self.shownotes_object = shownotes.get_shownotes(self.config.ui.gtk.html_shownotes, self.shownotes_pane)
+        self.shownotes_object = shownotes.get_shownotes(
+            self.config.ui.gtk.html_shownotes,
+            self.shownotes_pane,
+            self.on_jump_player_to_position,
+            self.on_show_chapters)
 
         # Vertical paned for the episode list and shownotes
         self.vpaned = Gtk.Paned(orientation=Gtk.Orientation.VERTICAL)
@@ -280,6 +287,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
         g = self.gPodder
 
         # View
+
+        action = Gio.SimpleAction.new_stateful(
+            'showPlaybar', None, GLib.Variant.new_boolean(self.config.ui.gtk.playbar))
+        action.connect('activate', self.on_itemShowPlaybar_activate)
+        g.add_action(action)
 
         action = Gio.SimpleAction.new_stateful(
             'showToolbar', None, GLib.Variant.new_boolean(self.config.ui.gtk.toolbar))
@@ -540,9 +552,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def in_downloads_list(self):
         return self.wNotebook.get_current_page() == 1
 
-    def on_played(self, start, end, total, file_uri):
+    def on_played(self, start, end, total, file_uri, event):
         """Handle the "played" signal from a media player."""
-        if start == 0 and end == 0 and total == 0:
+        exited = event == player.MediaPlayerDBusReceiver.SIGNAL_EXITED
+        if exited:
+            pass
+        elif start == 0 and end == 0 and total == 0:
             # Ignore bogus play event
             return
         elif end < start + 5:
@@ -550,10 +565,15 @@ class gPodder(BuilderWidget, dbus.service.Object):
             # as they can happen with seeking, etc...
             return
 
-        logger.debug('Received play action: %s (%d, %d, %d)', file_uri, start, end, total)
+        logger.debug('Received play action: %s (%d, %d, %d, %s)', file_uri, start, end, total, event)
         episode = self.episode_object_by_uri(file_uri)
 
         if episode is not None:
+            if exited:
+                # only playbar is interested, to clear itself and show "No Playback"
+                self.playbar.on_episode_playback(episode, start, end, total, file_uri, event)
+                # Especially don't update episode attributes: start, end, total are all 0
+                return
             now = time.time()
             if total > 0:
                 episode.total_time = total
@@ -570,8 +590,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
             episode.save()
             self.episode_list_status_changed([episode])
 
-            # Submit this action to the webservice
-            self.mygpo_client.on_playback_full(episode, start, end, total)
+            self.playbar.on_episode_playback(episode, start, end, total, file_uri, event)
+            if not exited and start >= 0:
+                # Submit this action to the webservice
+                self.mygpo_client.on_playback_full(episode, start, end, total)
 
     def on_add_remove_podcasts_mygpo(self):
         actions = self.mygpo_client.get_received_actions()
@@ -1173,7 +1195,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         # Update the toolbar buttons
         self.play_or_download()
         # and the shownotes
-        self.shownotes_object.set_episodes(self.get_selected_episodes())
+        episodes = self.get_selected_episodes()
+        self.shownotes_object.set_episodes(episodes)
+        self.show_chapters.set_sensitive(bool(episodes and episodes[0].chapters))
 
     def on_download_list_selection_changed(self, selection):
         if self.in_downloads_list():
@@ -1479,7 +1503,9 @@ class gPodder(BuilderWidget, dbus.service.Object):
         util.idle_add(self._on_config_changed, *args)
 
     def _on_config_changed(self, name, old_value, new_value):
-        if name == 'ui.gtk.toolbar':
+        if name == 'ui.gtk.playbar':
+            self.playbarContainer.set_property('visible', self.config.ui.gtk.playbar)
+        elif name == 'ui.gtk.toolbar':
             self.toolbar.set_property('visible', new_value)
         elif name in ('ui.gtk.episode_list.show_released_time',
                 'ui.gtk.episode_list.descriptions',
@@ -2216,6 +2242,8 @@ class gPodder(BuilderWidget, dbus.service.Object):
         If urls is None, set ONE OF selected, all to
         True (the former updates just the selected
         episodes and the latter updates all episodes).
+
+        FIXME: why do we pass urls and not episodes?
         """
         self.episode_list_model.cache_config(self.config)
 
@@ -2237,9 +2265,10 @@ class gPodder(BuilderWidget, dbus.service.Object):
             raise ValueError('Invalid call to update_episode_list_icons')
 
     def episode_list_status_changed(self, episodes):
+        self.db.commit()
         self.update_episode_list_icons({e.url for e in episodes})
         self.update_podcast_list_model({e.channel.url for e in episodes})
-        self.db.commit()
+        # TODO self.play_or_download()
 
     def playback_episodes_for_real(self, episodes):
         groups = collections.defaultdict(list)
@@ -2275,6 +2304,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
 
             # If Panucci is configured, use D-Bus to call it
             if player == 'panucci':
+                # FIXME: broken in master also
                 try:
                     PANUCCI_NAME = 'org.panucci.panucciInterface'
                     PANUCCI_PATH = '/panucciInterface'
@@ -2416,10 +2446,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_cbLimitDownloads_toggled(self, widget, *args):
         self.spinLimitDownloads.set_sensitive(self.cbLimitDownloads.get_active())
 
-    def episode_new_status_changed(self, urls):
-        self.update_podcast_list_model()
-        self.update_episode_list_icons(urls)
-
     def refresh_episode_dates(self):
         t = time.localtime()
         current_day = t[:3]
@@ -2554,7 +2580,6 @@ class gPodder(BuilderWidget, dbus.service.Object):
         else:
             self.episode_list_model.clear()
 
-    @dbus.service.method(gpodder.dbus_interface)
     def offer_new_episodes(self, channels=None):
         new_episodes = self.get_new_episodes(channels)
         if new_episodes:
@@ -3424,7 +3449,7 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 callback=download_episodes_callback,
                 remove_callback=lambda e: e.mark_old(),
                 remove_action=_('_Mark as old'),
-                remove_finished=self.episode_new_status_changed,
+                remove_finished=self.episode_list_status_changed,
                 _config=self.config,
                 show_notification=False)
 
@@ -3440,6 +3465,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def commit_changes_to_database(self):
         """Called after the sync process is finished."""  # noqa: D401
         self.db.commit()
+
+    def on_itemShowPlaybar_activate(self, action, param):
+        state = action.get_state()
+        self.config.ui.gtk.playbar = not state
+        action.set_state(GLib.Variant.new_boolean(not state))
 
     def on_itemShowToolbar_activate(self, action, param):
         state = action.get_state()
@@ -4033,12 +4063,11 @@ class gPodder(BuilderWidget, dbus.service.Object):
         if not self.is_iconified():
             self.gPodder.iconify()
 
-    @dbus.service.method(gpodder.dbus_interface)
     def show_gui_window(self):
+        """for dbusproxy only"""
         parent = self.get_dialog_parent()
         parent.present()
 
-    @dbus.service.method(gpodder.dbus_interface)
     def subscribe_to_url(self, url):
         # Strip leading application protocol, so these URLs work:
         # gpodder://example.com/episodes.rss
@@ -4052,22 +4081,14 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 add_podcast_list=self.add_podcast_list,
                 preset_url=url)
 
-    @dbus.service.method(gpodder.dbus_interface)
-    def mark_episode_played(self, filename):
-        if filename is None:
+    def mark_episode_played(self, episode):
+        """for dbusproxy only at the moment"""
+        if episode is None:
             return False
 
-        for channel in self.channels:
-            for episode in channel.get_all_episodes():
-                fn = episode.local_filename(create=False, check_only=True)
-                if fn == filename:
-                    episode.mark(is_played=True)
-                    self.db.commit()
-                    self.update_episode_list_icons([episode.url])
-                    self.update_podcast_list_model([episode.channel.url])
-                    return True
-
-        return False
+        episode.mark(is_played=True)
+        self.episode_list_status_changed([episode])
+        return True
 
     def extensions_podcast_update_cb(self, podcast):
         logger.debug('extensions_podcast_update_cb(%s)', podcast)
@@ -4127,3 +4148,31 @@ class gPodder(BuilderWidget, dbus.service.Object):
     def on_extension_disabled(self, extension):
         self.extensions_menu_helper.replace_entries(
             gpodder.user_extensions.on_create_menu())
+
+    def on_bus_acquired(self, gdbus_conn):
+        self.podcasts_proxy = DBusPodcastsProxy(lambda: self.channels,
+                self.on_itemUpdate_activate,
+                self.playback_episodes,
+                self.download_episode_list,
+                self.episode_object_by_uri,
+                self.show_gui_window,
+                self.offer_new_episodes,
+                self.subscribe_to_url,
+                self.mark_episode_played,
+                gdbus_conn)
+
+    def on_jump_player_to_position(self, file_uri, position):
+        logger.debug("on_jump_player_to_position(%s, %i)", file_uri, position)
+        self.player_receiver.seek(file_uri, position)
+
+    def on_show_chapters(self, _btn):
+        episodes = self.get_selected_episodes()
+        if episodes and episodes[0].chapters:
+            episode = episodes[0]
+            d = Gtk.Window()
+            d.set_transient_for(self.gPodder)
+            self.config.connect_gtk_window(d, 'chapters')
+            d.set_title(_("Chapters for %(title)s" % {"title": episode.title}))
+            c = Chapters(episode, self.on_jump_player_to_position)
+            d.add(c.box)
+            d.set_visible(True)

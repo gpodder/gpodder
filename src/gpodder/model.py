@@ -880,6 +880,16 @@ class PodcastEpisode(PodcastModelObject):
         """for custom filename: use episode.pubdate_year for year of publication without century)"""
         return self.published_formatted('%y', '00')
 
+    @property
+    def parsed_chapters(self):
+        if not self.chapters:
+            return []
+        try:
+            return json.loads(self.chapters)
+        except Exception as e:
+            logger.warning("invalid chapters in %s: %s", self.title, e)
+            return []
+
     def is_finished(self):
         """Return True if this episode is considered "finished playing".
 
