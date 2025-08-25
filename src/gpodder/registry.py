@@ -86,6 +86,7 @@ RESOLVER_NAMES = {
     # 'content_type': 'Resolve the content type (audio, video) of an episode',
     'feed_handler': 'Handle fetching of a feed',
     # 'fallback_feed_handler': 'Handle parsing of a feed (catch-all)',
+    'player_control': 'Be notified of playback events and be able to control the player. See player.PlayerControl',
     # 'url_shortcut': 'Expand shortcuts when adding a new URL',
     # 'after_download': 'Function to call with episodes after download finishes',
     # 'directory': 'Podcast directory and search provider',

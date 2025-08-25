@@ -24,6 +24,8 @@
 import gpodder
 from gpodder import config, dbsqlite, extensions, model, util
 
+from .player import PlayerController
+
 
 class Core(object):
     def __init__(self,
@@ -37,6 +39,9 @@ class Core(object):
         self.db = database_class(gpodder.database_file)
         self.model = model_class(self.db)
         self.config = config_class(gpodder.config_file)
+
+        # initialized the PlayerController
+        gpodder.player = PlayerController(self.model)
 
         # Load extension modules and install the extension manager
         gpodder.user_extensions = extensions.ExtensionManager(self)
