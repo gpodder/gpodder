@@ -115,7 +115,7 @@ class DBusPodcastsProxy:
 
         gdbus_conn.register_object(
             # Set the object path:
-            gpodder.dbus_podcasts_object_path,
+            gpodder.dbus_default_object_path,
             # Specify the interface via index
             # (as defined above in the XML):
             self._node.interfaces[0],
@@ -125,7 +125,7 @@ class DBusPodcastsProxy:
         )
         gdbus_conn.register_object(
             # Set the object path:
-            gpodder.dbus_gui_object_path,
+            gpodder.dbus_default_object_path,
             # Specify the interface via index
             # (as defined above in the XML):
             self._node.interfaces[1],
