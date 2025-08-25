@@ -18,7 +18,6 @@
 #
 
 import collections
-import functools
 import html
 import logging
 import os
@@ -34,9 +33,12 @@ import requests.exceptions
 import urllib3.exceptions
 
 import gpodder
-from gpodder import common, download, feedcore, my, opml, player, util, youtube
+from gpodder import (common, download, feedcore, my, opml, registry, util,
+                     youtube)
 from gpodder.dbusproxy import DBusPodcastsProxy
 from gpodder.model import Model, PodcastEpisode, episode_object_by_uri
+from gpodder.player import MyGPOClientObserver, PlayerInterface
+from gpodder.services import AutoRegisterObserver
 from gpodder.syncui import gPodderSyncUI
 
 from . import shownotes
@@ -116,8 +118,6 @@ class gPodder(BuilderWidget):
         self.config.connect_gtk_paned('ui.gtk.state.main_window.paned_position', self.channelPaned)
 
         self.main_window.show()
-
-        self.player_receiver = player.MediaPlayerDBusReceiver(self.on_played)
 
         self.gPodder.connect('key-press-event', self.on_key_press)
 
@@ -206,6 +206,12 @@ class gPodder(BuilderWidget):
 
         # Set up the first instance of MygPoClient
         self.mygpo_client = my.MygPoClient(self.config)
+        # track playback via PlayerInterface
+        MyGPOClientObserver(self.mygpo_client)
+        AutoRegisterObserver(registry.player_interface, {
+                PlayerInterface.SIGNAL_STARTED: self._on_playback_started,
+                PlayerInterface.SIGNAL_STOPPED: self._on_playback_stopped,
+        }, label="gtkui.main")
 
         # Extensions section in app menu and menubar Extras menu
         extensions_menu = Gio.Menu()
@@ -486,39 +492,6 @@ class gPodder(BuilderWidget):
 
     def in_downloads_list(self):
         return self.wNotebook.get_current_page() == 1
-
-    def on_played(self, start, end, total, file_uri):
-        """Handle the "played" signal from a media player."""
-        if start == 0 and end == 0 and total == 0:
-            # Ignore bogus play event
-            return
-        elif end < start + 5:
-            # Ignore "less than five seconds" segments,
-            # as they can happen with seeking, etc...
-            return
-
-        logger.debug('Received play action: %s (%d, %d, %d)', file_uri, start, end, total)
-        episode = self.episode_object_by_uri(file_uri)
-
-        if episode is not None:
-            now = time.time()
-            if total > 0:
-                episode.total_time = total
-            elif total == 0:
-                # Assume the episode's total time for the action
-                total = episode.total_time
-
-            assert (episode.current_position_updated is None
-                    or now >= episode.current_position_updated)
-
-            episode.current_position = end
-            episode.current_position_updated = now
-            episode.mark(is_played=True)
-            episode.save()
-            self.episode_list_status_changed([episode])
-
-            # Submit this action to the webservice
-            self.mygpo_client.on_playback_full(episode, start, end, total)
 
     def on_add_remove_podcasts_mygpo(self):
         actions = self.mygpo_client.get_received_actions()
@@ -4037,9 +4010,15 @@ class gPodder(BuilderWidget):
                 self.on_itemUpdate_activate,
                 self.playback_episodes,
                 self.download_episode_list,
-                functools.partial(episode_object_by_uri, self.channels),
+                (lambda uri: episode_object_by_uri(self.channels, uri)),
                 self.show_gui_window,
                 self.offer_new_episodes,
                 self.subscribe_to_url,
                 self.mark_episode_played,
                 gdbus_conn)
+
+    def _on_playback_started(self, _start, _total, episode):
+        self.episode_list_status_changed([episode])
+
+    def _on_playback_stopped(self, _start, _end, _total, episode):
+        self.episode_list_status_changed([episode])
