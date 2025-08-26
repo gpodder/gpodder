@@ -858,7 +858,7 @@ class PodcastEpisode(PodcastModelObject):
             d = datetime.datetime.fromtimestamp(self.published)
             return d.strftime(format)
         except (OSError, TypeError, ValueError):
-            logger.warning('Cannot compute published_datetime %r' % timestamp, exc_info=True)
+            logger.warning('Cannot compute published_datetime %r' % self.published, exc_info=True)
             return default
 
     @property
