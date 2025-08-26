@@ -1912,7 +1912,12 @@ class gPodder(BuilderWidget, dbus.service.Object):
                 raise GLib.GError(Gio.IOErrorEnum.NOT_SUPPORTED,
                                   'No session bus available')
 
-            uri = pathlib.Path(episodes[0].local_filename(create=False)).as_uri()
+            filename = episodes[0].local_filename(create=False)
+            if filename is None:
+                raise GLib.GError(Gio.IOErrorEnum.NOT_FOUND,
+                                  'Episode file not found')
+
+            uri = pathlib.Path(filename).as_uri()
             bus.call_sync('org.freedesktop.FileManager1',
                           '/org/freedesktop/FileManager1',
                           'org.freedesktop.FileManager1',
