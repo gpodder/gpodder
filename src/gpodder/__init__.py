@@ -99,9 +99,8 @@ class UI(object):
 ui = UI()
 
 # D-Bus specific interface names
-dbus_bus_name = 'org.gpodder'
-dbus_gui_object_path = '/gui'
-dbus_podcasts_object_path = '/podcasts'
+dbus_bus_name = 'org.gpodder.gpodder'
+dbus_default_object_path = '/org/gpodder/gpodder'
 dbus_interface = 'org.gpodder.interface'
 dbus_podcasts = 'org.gpodder.podcasts'
 dbus_session_bus = None
