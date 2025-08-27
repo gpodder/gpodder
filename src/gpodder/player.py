@@ -49,6 +49,10 @@ class PlayerControl(ABC, ObservableService):
         signals = [self.SIGNAL_STARTED, self.SIGNAL_STOPPED, self.SIGNAL_EXITED]
         super(ObservableService, self).__init__(signals)
 
+    @abstractmethod
+    def seek(self, file_uri, position):
+        ...
+
 
 class PlayerController:
     def __init__(self, model):
