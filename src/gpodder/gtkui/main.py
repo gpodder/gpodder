@@ -18,6 +18,7 @@
 #
 
 import collections
+import functools
 import html
 import logging
 import os
@@ -35,7 +36,7 @@ import urllib3.exceptions
 import gpodder
 from gpodder import common, download, feedcore, my, opml, player, util, youtube
 from gpodder.dbusproxy import DBusPodcastsProxy
-from gpodder.model import Model, PodcastEpisode
+from gpodder.model import Model, PodcastEpisode, episode_object_by_uri
 from gpodder.syncui import gPodderSyncUI
 
 from . import shownotes
@@ -482,52 +483,6 @@ class gPodder(BuilderWidget):
                 progress_callback,
                 final_progress_callback,
                 finish_progress_callback)
-
-    def episode_object_by_uri(self, uri):
-        """Get an episode object given a local or remote URI.
-
-        This can be used to quickly access an episode object
-        when all we have is its download filename or episode
-        URL (e.g. from external D-Bus calls / signals, etc..)
-        """
-        if uri.startswith('/'):
-            uri = 'file://' + urllib.parse.quote(uri)
-
-        prefix = 'file://' + urllib.parse.quote(gpodder.downloads)
-
-        if uri.startswith(prefix):
-            # File is on the local filesystem in the download folder
-            # Try to reduce search space by pre-selecting the channel
-            # based on the folder name of the local file
-
-            filename = urllib.parse.unquote(uri[len(prefix):])
-            file_parts = [_f for _f in filename.split(os.sep) if _f]
-
-            if len(file_parts) != 2:
-                return None
-
-            foldername, filename = file_parts
-
-            def is_channel(c):
-                return c.download_folder == foldername
-
-            def is_episode(e):
-                return e.download_filename == filename
-        else:
-            # By default, assume we can't pre-select any channel
-            # but can match episodes simply via the download URL
-            def is_channel(c):
-                return True
-
-            def is_episode(e):
-                return e.url == uri
-
-        # Deep search through channels and episodes for a match
-        for channel in filter(is_channel, self.channels):
-            for episode in filter(is_episode, channel.get_all_episodes()):
-                return episode
-
-        return None
 
     def in_downloads_list(self):
         return self.wNotebook.get_current_page() == 1
@@ -4115,7 +4070,7 @@ class gPodder(BuilderWidget):
                 self.on_itemUpdate_activate,
                 self.playback_episodes,
                 self.download_episode_list,
-                self.episode_object_by_uri,
+                functools.partial(episode_object_by_uri, self.channels),
                 self.show_gui_window,
                 self.offer_new_episodes,
                 self.subscribe_to_url,
