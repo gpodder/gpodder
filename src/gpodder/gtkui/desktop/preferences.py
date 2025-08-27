@@ -507,7 +507,7 @@ class gPodderPreferences(BuilderWidget):
 
         def key_func(pair):
             category, container = pair
-            return (category, container.metadata.title)
+            return (category, container.priority, container.metadata.title)
 
         def convert(extensions):
             for container in extensions:
