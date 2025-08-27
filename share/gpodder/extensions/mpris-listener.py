@@ -216,7 +216,7 @@ class CurrentTrackTracker(object):
         elif status == 'Playing':
             start_position = pos_seconds
             if self._prev_notif != (start_position, total_time, file_uri):
-                self._notifier.PlaybackStarted(start_position, file_uri)
+                self._notifier.PlaybackStarted(start_position, total_time, file_uri)
                 self._prev_notif = (start_position, total_time, file_uri)
             self._start_position = start_position
 
@@ -350,9 +350,9 @@ class gPodderNotifier(dbus.service.Object):
     def __init__(self, bus, path):
         dbus.service.Object.__init__(self, bus, path)
 
-    @dbus.service.signal(dbus_interface='org.gpodder.player', signature='us')
-    def PlaybackStarted(self, start_position, file_uri):
-        logger.info('PlaybackStarted: %s: %d', file_uri, start_position)
+    @dbus.service.signal(dbus_interface='org.gpodder.player', signature='uus')
+    def PlaybackStarted(self, start_position, total_time, file_uri):
+        logger.info('PlaybackStarted: %s: %d/%d', file_uri, start_position, total_time)
 
     @dbus.service.signal(dbus_interface='org.gpodder.player', signature='uuus')
     def PlaybackStopped(self, start_position, end_position, total_time, file_uri):

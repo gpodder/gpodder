@@ -77,7 +77,7 @@ class MediaPlayerDBusReceiver(object):
                                      None,
                                      None)
 
-    def on_playback_started(self, position, file_uri):
+    def on_playback_started(self, position, total, file_uri):
         pass
 
     def on_playback_stopped(self, start, end, total, file_uri):
