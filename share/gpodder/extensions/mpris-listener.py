@@ -43,7 +43,7 @@ __only_for__ = 'freedesktop'
 USECS_IN_SEC = 1000000
 
 TrackInfo = collections.namedtuple('TrackInfo',
-                        ['uri', 'length', 'status', 'pos', 'rate'])
+                        ['uri', 'length', 'status', 'pos', 'rate', 'player_id', 'track_id'])
 
 
 def subsecond_difference(usec1, usec2):
@@ -51,19 +51,23 @@ def subsecond_difference(usec1, usec2):
 
 
 class CurrentTrackTracker(object):
-    """This class tracks the state of the currently playing track.
+    """An instance of this class tracks the state of the currently playing track.
 
     Playback status, playing position, etc.
+    of a single MPRIS-enabled player (an running instance of vlc, ...).
+    player_id is the identity of the MPRIS-enable player on d-bus.
     """
-
-    def __init__(self, notifier):
+    def __init__(self, notifier, player_id):
         self.uri = None
         self.length = None
         self.pos = None
         self.rate = None
         self.status = None
+        self.player_id = player_id
         self._notifier = notifier
         self._prev_notif = ()
+        self._start_position = 0
+        self.track_id = None
 
     def _calc_update(self):
 
@@ -96,6 +100,11 @@ class CurrentTrackTracker(object):
         return False
 
     def update(self, **kwargs):
+        """ callback from MPRISDBusReceiver """
+
+        player_id = kwargs.pop('player_id', self.player_id)
+        if self.player_id != player_id:
+            raise Exception("CurrentTrackTracker[%s] received update for %s" % (self.player_id, player_id))
 
         # check if there is any new info here -- if not, no need to update!
 
@@ -104,7 +113,6 @@ class CurrentTrackTracker(object):
             return
 
         # there *is* new info, go ahead and update...
-
         uri = kwargs.pop('uri', None)
         if uri is not None:
             length = kwargs.pop('length')  # don't know how to handle uri with no length
@@ -119,18 +127,23 @@ class CurrentTrackTracker(object):
             self.uri = uri
             self.length = float(length)
 
+        track_id = kwargs.pop('track_id', None)
+        if track_id is not None:
+            self.track_id = track_id
+
         if 'pos' in kwargs:
+            newpos = kwargs.pop('pos')
             # If the position is being updated, and the current status was Playing
             # If the status *is* playing, and *was* playing, but the position
             # has changed discontinuously, notify a stop for the old position
             if (cur['status'] == 'Playing'
                     and ('status' not in kwargs or kwargs['status'] == 'Playing') and not
-                    subsecond_difference(cur['pos'], kwargs['pos'])):
+                    subsecond_difference(cur['pos'], newpos)):
                 logger.debug('notify Stopped: playback discontinuity:'
-                             + 'calc: %r observed: %r', cur['pos'], kwargs['pos'])
+                             + 'calc: %r observed: %r', cur['pos'], newpos)
                 self.notify_stop()
 
-            if ((kwargs['pos']) <= 0
+            if (newpos <= 0
                     and self.pos is not None
                     and self.length is not None
                     and (self.length - USECS_IN_SEC) < self.pos
@@ -139,15 +152,12 @@ class CurrentTrackTracker(object):
                              self.pos / USECS_IN_SEC, self.length / USECS_IN_SEC,
                              (self.pos / USECS_IN_SEC) - (self.length / USECS_IN_SEC))
                 self.pos = self.length
-                kwargs.pop('pos')  # remove 'pos' even though we're not using it
-            else:
-                if self.pos is not None and self.length is not None:
-                    logger.debug("%r %r", self.pos, self.length)
-                    logger.debug('pos=0 not end of stream (calculated pos: %f/%f [%f])',
-                                 self.pos / USECS_IN_SEC, self.length / USECS_IN_SEC,
-                                 (self.pos / USECS_IN_SEC) - (self.length / USECS_IN_SEC))
-                newpos = kwargs.pop('pos')
-                self.pos = newpos if newpos >= 0 else 0
+            elif self.pos is not None and self.length is not None:
+                logger.debug("%r %r", self.pos, self.length)
+                logger.debug('pos!=0 not end of stream (calculated pos: %f/%f [%f])',
+                             self.pos / USECS_IN_SEC, self.length / USECS_IN_SEC,
+                             (self.pos / USECS_IN_SEC) - (self.length / USECS_IN_SEC))
+            self.pos = newpos if newpos >= 0 else 0
 
         if 'status' in kwargs:
             self.status = kwargs.pop('status')
@@ -167,7 +177,9 @@ class CurrentTrackTracker(object):
 
     def getinfo(self):
         self._calc_update()
-        return TrackInfo(self.uri, self.length, self.status, self.pos, self.rate)
+        return TrackInfo(
+            self.uri, self.length, self.status, self.pos, self.rate,
+            self.player_id, self.track_id)
 
     def notify_stop(self):
         self.notify('Stopped')
@@ -181,34 +193,38 @@ class CurrentTrackTracker(object):
                 or self.status is None
                 or self.length is None
                 or self.length <= 0):
+            logger.debug("Skip notify %r %r %r %r",
+                self.uri, self.pos, self.status, self.length)
             return
-        pos = self.pos // USECS_IN_SEC
+        pos_seconds = self.pos // USECS_IN_SEC
         parsed_url = urllib.parse.urlparse(self.uri)
         if (not parsed_url.scheme) or parsed_url.scheme == 'file':
             file_uri = urllib.request.url2pathname(urllib.parse.urlparse(self.uri).path).encode('utf-8')
         else:
             file_uri = self.uri
         total_time = self.length // USECS_IN_SEC
+        logger.debug("MPRISDBusReceiver.notify %s/%s %i%%", pos_seconds, total_time, int(100 * pos_seconds / total_time))
 
         if status == 'Stopped':
-            end_position = pos
-            start_position = self._notifier.start_position
+            end_position = pos_seconds
+            start_position = self._start_position
             if self._prev_notif != (start_position, end_position, total_time, file_uri):
                 self._notifier.PlaybackStopped(start_position, end_position,
                                                total_time, file_uri)
                 self._prev_notif = (start_position, end_position, total_time, file_uri)
 
         elif status == 'Playing':
-            start_position = pos
-            if self._prev_notif != (start_position, file_uri):
+            start_position = pos_seconds
+            if self._prev_notif != (start_position, total_time, file_uri):
                 self._notifier.PlaybackStarted(start_position, file_uri)
-                self._prev_notif = (start_position, file_uri)
-            self._notifier.start_position = start_position
+                self._prev_notif = (start_position, total_time, file_uri)
+            self._start_position = start_position
 
-        logger.info('CurrentTrackTracker: %s: %r %s', status, self, file_uri)
+        logger.info('CurrentTrackTracker notified: %s: %r %s', status, self, file_uri)
 
     def __repr__(self):
-        return '%s: %s at %d/%d (@%f)' % (
+        return '[%s] %s: %s at %d/%d (@%f)' % (
+            self.player_id or 'No Id',
             self.uri or 'None',
             self.status or 'None',
             (self.pos or 0) // USECS_IN_SEC,
@@ -217,6 +233,8 @@ class CurrentTrackTracker(object):
 
 
 class MPRISDBusReceiver(object):
+    """ listen to d-bus events from any MPRIS-enabled player """
+
     INTERFACE_PROPS = 'org.freedesktop.DBus.Properties'
     SIGNAL_PROP_CHANGE = 'PropertiesChanged'
     PATH_MPRIS = '/org/mpris/MediaPlayer2'
@@ -226,9 +244,10 @@ class MPRISDBusReceiver(object):
                               'org.mpris.MediaPlayer2.TrackList',
                               'org.mpris.MediaPlayer2.Playlists']
 
-    def __init__(self, bus, notifier):
+    def __init__(self, bus):
+        super().__init__()
         self.bus = bus
-        self.cur = CurrentTrackTracker(notifier)
+        self.current_trackers = {}  # one per player dbus id
         self.bus.add_signal_receiver(self.on_prop_change,
                                      self.SIGNAL_PROP_CHANGE,
                                      self.INTERFACE_PROPS,
@@ -263,20 +282,23 @@ class MPRISDBusReceiver(object):
             logger.warning('No sender associated to D-Bus signal, please report a bug')
             return
 
-        collected_info = {}
-        logger.debug("on_prop_change %r", changed_properties.keys())
+        collected_info = {"player_id": sender}
+        logger.debug("on_prop_change from %s %s", sender, ", ".join(changed_properties.keys()))
         if 'PlaybackStatus' in changed_properties:
             collected_info['status'] = str(changed_properties['PlaybackStatus'])
         if 'Metadata' in changed_properties:
-            logger.debug("Metadata %r", changed_properties['Metadata'].keys())
+            logger.debug("Metadata %s", ", ".join(changed_properties['Metadata'].keys()))
             # on stop there is no xesam:url
             if 'xesam:url' in changed_properties['Metadata']:
                 collected_info['uri'] = changed_properties['Metadata']['xesam:url']
                 collected_info['length'] = changed_properties['Metadata'].get('mpris:length', 0.0)
+            if 'mpris:trackid' in changed_properties['Metadata']:
+                collected_info['track_id'] = changed_properties['Metadata']['mpris:trackid']
         if 'Rate' in changed_properties:
             collected_info['rate'] = changed_properties['Rate']
-        # Fix #788 pos=0 when Stopped resulting in not saving position on VLC quit
+        # Collect extra info if not provided:
         if changed_properties.get('PlaybackStatus') != 'Stopped':
+            # Fix #788 pos=0 when Stopped resulting in not saving position on VLC quit
             try:
                 collected_info['pos'] = self.query_property(sender, 'Position')
             except dbus.exceptions.DBusException:
@@ -287,13 +309,32 @@ class MPRISDBusReceiver(object):
                     sender, 'PlaybackStatus'))
             except dbus.exceptions.DBusException:
                 pass
+        # DeaDBeeF doesn't emit rate, grab it
+        if 'rate' not in collected_info and collected_info['status'] != 'Stopped':
+            try:
+                collected_info['rate'] = self.query_property(
+                    sender, 'Rate')
+            except dbus.exceptions.DBusException:
+                pass
+        # TODO: re-emit CanPause, CanSeek for the UI
 
         logger.debug('collected info: %r', collected_info)
-        self.cur.update(**collected_info)
+        self._update_tracker(sender, **collected_info)
 
-    def on_seeked(self, position):
-        logger.debug('seeked to pos: %f', position)
-        self.cur.update(pos=position)
+    def _update_tracker(self, sender, **collected_info):
+        cur = self.current_trackers.get(sender)
+        if not cur:
+            logger.debug("tracking new player %r", sender)
+            cur = CurrentTrackTracker(self.notifier, sender)
+            self.current_trackers[sender] = cur
+        cur.update(**collected_info)
+
+    def on_seeked(self, position, sender=None):
+        if sender is None:
+            logger.warning('No sender associated to %s D-Bus signal, please report a bug', self.SIGNAL_SEEKED)
+            return
+        logger.debug('%s seeked to pos: %f', sender, position)
+        self._update_tracker(sender, pos=position)
 
     def query_property(self, sender, prop):
         proxy = self.bus.get_object(sender, self.PATH_MPRIS)
@@ -302,9 +343,12 @@ class MPRISDBusReceiver(object):
 
 
 class gPodderNotifier(dbus.service.Object):
+    """ Bridge from MPRIS to gPodder player interface:
+    this object will publish PlaybackStarted, PlaybackStopped, PlayerExited signals
+    that src/gpodder/player.py will listen to.
+    """
     def __init__(self, bus, path):
         dbus.service.Object.__init__(self, bus, path)
-        self.start_position = 0
 
     @dbus.service.signal(dbus_interface='org.gpodder.player', signature='us')
     def PlaybackStarted(self, start_position, file_uri):

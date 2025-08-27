@@ -81,6 +81,7 @@ class MediaPlayerDBusReceiver(object):
         pass
 
     def on_playback_stopped(self, start, end, total, file_uri):
+        logger.debug("Player.on_playback_stopped(%s, %s, %s, %s)", start, end, total, file_uri)
         if file_uri.startswith('/'):
             file_uri = 'file://' + urllib.parse.quote(file_uri)
         self.on_play_event(start, end, total, file_uri)
