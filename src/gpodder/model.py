@@ -34,6 +34,7 @@ import re
 import shutil
 import string
 import time
+import urllib.parse
 
 import podcastparser
 
@@ -1565,4 +1566,51 @@ def check_root_folder_path():
             return _("Warning: path to gPodder home (%(root)s) is very long "
                      "and can result in failure to download files.\n" % {"root": root}) \
                 + _("You're advised to set it to a shorter path.")
+    return None
+
+
+def episode_object_by_uri(channels, uri):
+    """Get an episode object given a local or remote URI.
+
+    This can be used to quickly access an episode object
+    when all we have is its download filename or episode
+    URL (e.g. from external D-Bus calls / signals, etc..)
+    """
+    if uri.startswith('/'):
+        uri = 'file://' + urllib.parse.quote(uri)
+
+    prefix = 'file://' + urllib.parse.quote(gpodder.downloads)
+
+    if uri.startswith(prefix):
+        # File is on the local filesystem in the download folder
+        # Try to reduce search space by pre-selecting the channel
+        # based on the folder name of the local file
+
+        filename = urllib.parse.unquote(uri[len(prefix):])
+        file_parts = [_f for _f in filename.split(os.sep) if _f]
+
+        if len(file_parts) != 2:
+            return None
+
+        foldername, filename = file_parts
+
+        def is_channel(c):
+            return c.download_folder == foldername
+
+        def is_episode(e):
+            return e.download_filename == filename
+    else:
+        # By default, assume we can't pre-select any channel
+        # but can match episodes simply via the download URL
+        def is_channel(c):
+            return True
+
+        def is_episode(e):
+            return e.url == uri
+
+    # Deep search through channels and episodes for a match
+    for channel in filter(is_channel, channels):
+        for episode in filter(is_episode, channel.get_all_episodes()):
+            return episode
+
     return None
