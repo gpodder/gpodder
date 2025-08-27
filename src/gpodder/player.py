@@ -29,6 +29,7 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
+from abc import ABCMeta, abstractmethod
 
 from gpodder import registry
 
@@ -38,7 +39,7 @@ from .services import ObservableService
 logger = logging.getLogger(__name__)
 
 
-class PlayerControl(ObservableService):
+class PlayerControl(ObservableService, metaclass=ABCMeta):
     """Example base class and common value definitions for player control implementations"""
     SIGNAL_STARTED = 'PlaybackStarted'  # start_position_seconds, total_seconds, file_uri
     SIGNAL_STOPPED = 'PlaybackStopped'  # start_position_seconds, end_position_seconds, total_seconds, file_uri
@@ -47,6 +48,10 @@ class PlayerControl(ObservableService):
     def __init__(self):
         signals = [self.SIGNAL_STARTED, self.SIGNAL_STOPPED, self.SIGNAL_EXITED]
         super().__init__(signals)
+
+    @abstractmethod
+    def seek(self, file_uri, position):
+        ...
 
 
 class PlayerController:
