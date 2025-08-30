@@ -40,7 +40,9 @@ logger = logging.getLogger(__name__)
 
 
 class PlayerControl(ObservableService, metaclass=ABCMeta):
-    """Example base class and common value definitions for player control implementations"""
+    """Example base class and common value definitions for player control implementations.
+
+    They must be a subclass of ObservableService, with following signals."""
     SIGNAL_STARTED = 'PlaybackStarted'  # start_position_seconds, total_seconds, file_uri
     SIGNAL_STOPPED = 'PlaybackStopped'  # start_position_seconds, end_position_seconds, total_seconds, file_uri
     SIGNAL_EXITED = 'PlayerExited'  # file_uri
@@ -51,46 +53,61 @@ class PlayerControl(ObservableService, metaclass=ABCMeta):
 
     @abstractmethod
     def seek(self, file_uri, position):
+        """Tell player currently playing the file identified by file_uri to jump to position (float, in seconds)."""
         ...
 
 
 class PlayerController:
+    """Monitors PlayerControl implementations.
+
+    Keeps track of currently playing files and pushes updates to gpodder.net via mygpo_client.
+    """
     def __init__(self, model):
         self._player_control = None
         self.model = model
         self._currently_playing = {}
         self.mygpo_client = None
-
-    def activate(self, *, mygpo_client, on_episode_status_changed):
-        self.mygpo_client = mygpo_client
-        self.on_episode_status_changed = on_episode_status_changed
-        self._player_control = registry.player_control.resolve(None, None)
-        if self._player_control:
-            logger.debug("A PlayerControl implementation is active (%s), registering to it", self._player_control)
-            self._player_control.register(PlayerControl.SIGNAL_STARTED, self.on_playback_started)
-            self._player_control.register(PlayerControl.SIGNAL_STOPPED, self.on_playback_stopped)
-            self._player_control.register(PlayerControl.SIGNAL_EXITED, self.on_player_exited)
-        self._currently_playing = {}
-
-    def deactivate(self):
-        if self._player_control:
-            logger.debug("Unregistering PlayerController")
-            self._player_control.unregister(PlayerControl.SIGNAL_STARTED, self.on_playback_started)
-            self._player_control.unregister(PlayerControl.SIGNAL_STOPPED, self.on_playback_stopped)
-            self._player_control.unregister(PlayerControl.SIGNAL_EXITED, self.on_player_exited)
-            self._player_control = None
-        self._currently_playing = {}
-        self._mygpo_client = None
         self.on_episode_status_changed = None
+        self._currently_playing = {}
+        registry.player_control.add_observer(self._player_control_observer)
+        self._player_control_observer()  # if a PlayerControl already exists
 
-    def player_control_available(self):
-        return self._player_control is not None
+    def set_mygpo_client(self, mygpo_client):
+        """Register the mypo_client to send events to the gpodder.net server"""
+        self.mygpo_client = mygpo_client
+
+    def set_on_episode_status_changed(self, on_episode_status_changed):
+        """Register the `callback(episode)` to be notified once an episode has been updated.
+
+        This is only used by gtkui/main.py."""
+        self.on_episode_status_changed = on_episode_status_changed
+
+    def _player_control_observer(self):
+        """Internal method to be notified of PlayerControl implementation changes."""
+        player_control = registry.player_control.resolve(None, None)
+        if self._player_control is not None and player_control == self._player_control:
+            logger.debug("Still using PlayerControl=%r", self._player_control)
+            return
+        if self._player_control is not None and player_control != self._player_control:
+            # unregister from old player_control
+            self._player_control.unregister(PlayerControl.SIGNAL_STARTED, self._on_playback_started)
+            self._player_control.unregister(PlayerControl.SIGNAL_STOPPED, self._on_playback_stopped)
+            self._player_control.unregister(PlayerControl.SIGNAL_EXITED, self._on_player_exited)
+        if player_control:
+            self._player_control = player_control
+            logger.debug("A PlayerControl implementation is active (%s), registering to it", self._player_control)
+            self._player_control.register(PlayerControl.SIGNAL_STARTED, self._on_playback_started)
+            self._player_control.register(PlayerControl.SIGNAL_STOPPED, self._on_playback_stopped)
+            self._player_control.register(PlayerControl.SIGNAL_EXITED, self._on_player_exited)
+        else:
+            logger.debug("No PlayerControl implementation is active")
+        self._currently_playing = {}
 
     def currently_playing(self):
         # FIXME: copy? property?
         return self._currently_playing
 
-    def on_playback_started(self, start, total, file_uri):
+    def _on_playback_started(self, start, total, file_uri):
         if file_uri.startswith('/'):
             file_uri = 'file://' + urllib.parse.quote(file_uri)
         if file_uri in self._currently_playing:
@@ -101,25 +118,25 @@ class PlayerController:
             "total": total,
             "episode": None,
         }
-        self.save(-1000, start, total, file_uri)
+        self._save(-1000, start, total, file_uri)
 
-    def on_playback_stopped(self, start, end, total, file_uri):
+    def _on_playback_stopped(self, start, end, total, file_uri):
         logger.debug("Player.on_playback_stopped(%s, %s, %s, %s)", start, end, total, file_uri)
         if file_uri.startswith('/'):
             file_uri = 'file://' + urllib.parse.quote(file_uri)
         if (start == 0 and end == 0 and total == 0):
             # Ignore bogus play event
             return
-        self.save(start, end, total, file_uri)
+        self._save(start, end, total, file_uri)
 
-    def on_player_exited(self, file_uri):
+    def _on_player_exited(self, file_uri):
         if file_uri.startswith('/'):
             file_uri = 'file://' + urllib.parse.quote(file_uri)
         if file_uri in self._currently_playing:
             del self._currently_playing[file_uri]
         logger.debug('Received player exited: %s', file_uri)
 
-    def save(self, start, end, total, file_uri):
+    def _save(self, start, end, total, file_uri):
         if end < start + 5:
             # Ignore "less than five seconds" segments,
             # as they can happen with seeking, etc...
@@ -151,6 +168,6 @@ class PlayerController:
                 self.on_episode_status_changed(episode)
 
             # Submit this action to the webservice
-            if start >= 0:
+            if start >= 0 and self.mygpo_client:
                 # Submit this action to the webservice
                 self.mygpo_client.on_playback_full(episode, start, end, total)

@@ -25,6 +25,7 @@ class Resolver(object):
         self._name = name
         self._description = description
         self._resolvers = []
+        self._observers = set()
 
     def resolve(self, item, default, *args):
         for resolver in self._resolvers:
@@ -53,20 +54,24 @@ class Resolver(object):
     def register(self, func):
         logger.debug('Registering {} resolver: {}'.format(self._name, func))
         self._resolvers.append(func)
+        self._notify_observers()
         return func
 
     def unregister(self, func):
         logger.debug('Unregistering {} resolver: {}'.format(self._name, func))
         self._resolvers.remove(func)
+        self._notify_observers()
 
     def register_instance(self, klass):
         logger.debug('Registering {} resolver instance: {}'.format(self._name, klass))
         self._resolvers.append(klass())
+        self._notify_observers()
         return klass
 
     def unregister_instance(self, klass):
         logger.debug('Unregistering {} resolver instance: {}'.format(self._name, klass))
         self._resolvers = [r for r in self._resolvers if not isinstance(r, klass)]
+        self._notify_observers()
 
     def _info(self, resolver):
         return '%s from %s' % (resolver.__name__ if hasattr(resolver, '__name__')
@@ -76,6 +81,20 @@ class Resolver(object):
         print('== {} ({}) =='.format(self._name, self._description))
         print('\n'.join('%s- %s' % (indent, self._info(resolver)) for resolver in self._resolvers))
         print()
+
+    def add_observer(self, callback):
+        """Register to be notified for changes in resolvers.
+
+        callback() will be called on change in resolvers (added or removed)"""
+        self._observers.add(callback)
+
+    def empty():
+        """Check if any resolver is registered in this Resolver."""
+        return not bool(self._resolvers)
+
+    def _notify_observers(self):
+        for observer in self._observers:
+            observer()
 
 
 RESOLVER_NAMES = {

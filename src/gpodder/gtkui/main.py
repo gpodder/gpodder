@@ -205,7 +205,8 @@ class gPodder(BuilderWidget):
         # Set up the first instance of MygPoClient
         self.mygpo_client = my.MygPoClient(self.config)
 
-        gpodder.player.activate(mygpo_client=self.mygpo_client, on_episode_status_changed=lambda ep: self.episode_list_status_changed([ep]))
+        gpodder.player.set_mygpo_client(self.mygpo_client)
+        gpodder.player.set_on_episode_status_changed(lambda ep: self.episode_list_status_changed([ep]))
 
         # Extensions section in app menu and menubar Extras menu
         extensions_menu = Gio.Menu()
