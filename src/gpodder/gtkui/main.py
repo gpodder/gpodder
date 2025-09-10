@@ -2223,39 +2223,6 @@ class gPodder(BuilderWidget):
             if resume_position == episode.total_time:
                 resume_position = 0
 
-            # If Panucci is configured, use D-Bus to call it
-            if player == 'panucci':
-                # FIXME: broken in master also
-                try:
-                    PANUCCI_NAME = 'org.panucci.panucciInterface'
-                    PANUCCI_PATH = '/panucciInterface'
-                    PANUCCI_INTF = 'org.panucci.panucciInterface'
-                    o = gpodder.dbus_session_bus.get_object(PANUCCI_NAME, PANUCCI_PATH)
-                    i = dbus.Interface(o, PANUCCI_INTF)
-
-                    def on_reply(*args):
-                        pass
-
-                    def error_handler(filename, err):
-                        logger.error('Exception in D-Bus call: %s', str(err))
-
-                        # Fallback: use the command line client
-                        for command in util.format_desktop_command('panucci',
-                                [filename]):
-                            logger.info('Executing: %s', repr(command))
-                            util.Popen(command, close_fds=True)
-
-                    def on_error(err):
-                        return error_handler(filename, err)
-
-                    # This method only exists in Panucci > 0.9 ('new Panucci')
-                    i.playback_from(filename, resume_position,
-                            reply_handler=on_reply, error_handler=on_error)
-
-                    continue  # This file was handled by the D-Bus call
-                except Exception:
-                    logger.error('Calling Panucci using D-Bus', exc_info=True)
-
             groups[player].append(filename)
 
         # Open episodes with system default player
