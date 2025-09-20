@@ -365,6 +365,22 @@ class MPRISDBusReceiver(PlayerInterface):
             self.current_trackers[old_owner].on_player_exited()
             del self.current_trackers[old_owner]
 
+    def seek(self, file_uri, position):
+        logger.info('Seek: %s: %d', file_uri, position)
+        target_tracker = None
+        for player_id, tracker in self.current_trackers.items():
+            if tracker.uri == file_uri:
+                if tracker.status == 'Playing' or tracker.status == 'Paused':
+                    target_tracker = tracker
+                    break
+        if target_tracker:
+            pos_us = int(position * USECS_IN_SEC)
+            variant = self.bus.call_sync(
+                target_tracker.player_id, self.PATH_MPRIS, self.INTERFACE_MPRIS,
+                'SetPosition', GLib.Variant('(si)', (target_tracker.track_id, pos_us)),
+                None, Gio.DBusCallFlags.NONE, -1, None)
+            logger.debug("Called player.SetPosition(%s, %s, %s, %d) => %r",
+                target_tracker.player_id, file_uri, target_tracker.track_id, pos_us, variant)
 
 
 # Finally, this is the extension, which just pulls this all together

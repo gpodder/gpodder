@@ -29,6 +29,7 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
+from abc import ABCMeta, abstractmethod
 
 from gpodder import registry
 
@@ -38,7 +39,7 @@ from .services import AutoRegisterObserver, ObservableService
 logger = logging.getLogger(__name__)
 
 
-class PlayerInterface(ObservableService):
+class PlayerInterface(ObservableService, metaclass=ABCMeta):
     """Example base class and common value definitions for player control implementations.
 
     They must be a subclass of ObservableService, with following signals.
@@ -54,6 +55,10 @@ class PlayerInterface(ObservableService):
         self.model = model
         self._currently_playing = {}
 
+    @abstractmethod
+    def seek(self, episode, position):
+        """Tell player currently playing the file identified by episode to jump to position (float, in seconds)."""
+        ...
 
     def _on_playback_started(self, start, total, file_uri):
         """Call from subclasses to update currently playing and notify observers"""
