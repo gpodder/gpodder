@@ -68,6 +68,9 @@ unittest:
 
 ISORTOPTS := -c share src/gpodder tools bin/* setup.py
 lint:
+	flake8 --version
+	flake8 share src/gpodder tools bin setup.py || true
+
 	pycodestyle --version
 	pycodestyle share src/gpodder tools bin/* setup.py
 

@@ -33,7 +33,7 @@ changes to your repo. In order to do so ensure the necessary packages are
 installed by executing:
 
 ```shell
-pip3 install pytest-cov pycodestyle isort requests pytest pytest-httpserver
+pip3 install flake8 pytest-cov pycodestyle isort requests pytest pytest-httpserver
 ```
 
 Execute the linter in the root directory (Linux only): `make lint unittest`. On
