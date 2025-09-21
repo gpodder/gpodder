@@ -8,7 +8,7 @@ import logging
 import os
 import shutil
 
-from filelock import SoftFileLock, Timeout
+from filelock import SoftFileLock
 from PIL import Image
 
 import gpodder

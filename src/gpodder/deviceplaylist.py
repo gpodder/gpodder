@@ -19,7 +19,6 @@
 
 import logging
 import os
-from urllib import request
 
 import gpodder
 from gpodder import util
