@@ -849,7 +849,7 @@ class PodcastEpisode(PodcastModelObject):
     pubdate_prop = property(fget=cute_pubdate)
 
     def published_formatted(self, fmt, default):
-        """safe method to convert self.published to a string
+        """Safe method to convert self.published to a string.
 
         fmt: anything accepted by datetime.datetime.strftime
         default: string to return when self.published is invalid

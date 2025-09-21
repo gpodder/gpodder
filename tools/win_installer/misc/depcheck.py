@@ -37,7 +37,7 @@ from gi.repository import GIRepository  # isort:skip
 
 
 def _get_shared_libraries(q, namespace, version, loglevel=logging.WARNING):
-    """put a list of libraries into q, regardless of girepository_version."""
+    """Put a list of libraries into q, regardless of girepository_version."""
     import multiprocessing
     logger = multiprocessing.log_to_stderr(level=loglevel)
 
