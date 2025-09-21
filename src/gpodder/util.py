@@ -1771,7 +1771,6 @@ def relpath(p1, p2):
 
 def get_hostname():
     """Return the hostname of this computer."""
-
     nodename = platform.node()
     if nodename:
         return nodename
@@ -1790,7 +1789,6 @@ def get_hostname_uid():
     This can be implemented in a different way on each
     platform and should yield a unique-per-user device ID.
     """
-
     # Generate a 32-bit random identifier
     random.seed()
     uid = '%X' % random.getrandbits(32)
