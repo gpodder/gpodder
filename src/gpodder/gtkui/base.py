@@ -114,7 +114,7 @@ class GtkBuilderWidget(object):
         """
         Gtk.main()
 
-    def quit(self):
+    def quit_app(self):
         """Quit processing events.
 
         The default implementation calls Gtk.main_quit()
