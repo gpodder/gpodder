@@ -25,11 +25,11 @@ girepository_version = 0
 try:
     gi.require_version("GIRepository", "3.0")  # isort:skip
     girepository_version = 3
-except ValueError as e:
+except ValueError:
     try:
         gi.require_version("GIRepository", "2.0")  # isort:skip
         girepository_version = 2
-    except ValueError as e:
+    except ValueError:
         # let it crash
         raise Exception("GIRepository version is not 3 or 2")
 
