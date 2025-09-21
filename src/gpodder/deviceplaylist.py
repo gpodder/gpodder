@@ -110,9 +110,7 @@ class gPodderDevicePlaylist(object):
         return episode_filename_on_device(self._config, episode)
 
     def get_path_to_filename_for_playlist(self, episode):
-        """
-        get the filename including full path for the given episode for the playlist
-        """
+        """Get the filename including full path for the given episode for the playlist."""
         filename = self.get_filename_for_playlist(episode)
         foldername = episode_foldername_on_device(self._config, episode)
         if foldername:

@@ -1770,8 +1770,7 @@ def relpath(p1, p2):
 
 
 def get_hostname():
-    """Return the hostname of this computer.
-    """
+    """Return the hostname of this computer."""
 
     nodename = platform.node()
     if nodename:
