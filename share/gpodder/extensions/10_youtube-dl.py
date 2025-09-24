@@ -345,8 +345,8 @@ class gPodderYoutubeDL(download.CustomDownloader):
         opts = {
             'paths': {'home': os.path.dirname(tempname)},
             # Postprocessing in yt-dlp breaks without ext
-            'outtmpl': (os.path.basename(tempname) if program_name == 'yt-dlp'
-                        else tempname) + '.%(ext)s',
+            'outtmpl': ({'default': os.path.basename(tempname) + '.%(ext)s'} if program_name == 'yt-dlp'
+                        else tempname + '.%(ext)s'),
             'nopart': True,  # don't append .part (already .partial)
             'retries': 3,  # retry a few times
             'progress_hooks': [reporthook],  # to notify UI
