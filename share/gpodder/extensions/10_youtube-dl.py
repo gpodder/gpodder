@@ -298,10 +298,10 @@ class gPodderYoutubeDL(download.CustomDownloader):
         # cachedir is not much used in youtube-dl, but set it anyway
         cachedir = os.path.join(gpodder.home, 'youtube-dl')
         os.makedirs(cachedir, exist_ok=True)
-        self._ydl_opts = {
-            'cachedir': cachedir,
-            'noprogress': True,  # prevent progress bar from appearing in console
-        }
+        # Read options from youtube-dl config file
+        _parser, _opts, _urls, self._ydl_opts = youtube_dl.parse_options()
+        self._ydl_opts['cachedir'] = cachedir
+        self._ydl_opts['noprogress'] = True  # prevent progress bar from appearing in console
         # prevent escape codes in desktop notifications on errors
         if program_name == 'yt-dlp':
             self._ydl_opts['color'] = 'no_color'
@@ -342,25 +342,23 @@ class gPodderYoutubeDL(download.CustomDownloader):
 
     def fetch_info(self, url, tempname, reporthook):
         subs = self.my_config.embed_subtitles
-        opts = {
-            'paths': {'home': os.path.dirname(tempname)},
-            # Postprocessing in yt-dlp breaks without ext
-            'outtmpl': ({'default': os.path.basename(tempname) + '.%(ext)s'} if program_name == 'yt-dlp'
-                        else tempname + '.%(ext)s'),
-            'nopart': True,  # don't append .part (already .partial)
-            'retries': 3,  # retry a few times
-            'progress_hooks': [reporthook],  # to notify UI
-            'writesubtitles': subs,
-            'subtitleslangs': ['all'] if subs else [],
-            'postprocessors': [{'key': 'FFmpegEmbedSubtitle'}] if subs else [],
-        }
+        opts = self._ydl_opts.copy()
+        opts['paths'].update({'home': os.path.dirname(tempname)})
+        # Postprocessing in yt-dlp breaks without ext
+        opts['outtmpl'] = ({'default': os.path.basename(tempname) + '.%(ext)s'} if program_name == 'yt-dlp'
+                           else tempname + '.%(ext)s')
+        opts['nopart'] = True  # don't append .part (already .partial)
+        opts['retries'] = 3  # retry a few times
+        opts['progress_hooks'] = [reporthook]  # to notify UI
+        opts['writesubtitles'] = subs
+        opts['subtitleslangs'] = opts.get('subtitleslangs') or (['all'] if subs else [])
+        opts['postprocessors'].extend([{'key': 'FFmpegEmbedSubtitle'}] if subs else [])
 
         # Need the proxy_url from src/gpodder/config.py:get_proxies_from_config()
         if gpodder.config._proxies:
             opts['proxy'] = gpodder.config._proxies['http']
             logger.debug(f"Setting proxy from network setting proxy: {opts['proxy']}")
 
-        opts.update(self._ydl_opts)
         self.add_format(self.gpodder_config, opts)
         with youtube_dl.YoutubeDL(opts) as ydl:
             info = ydl.extract_info(url, download=False)
@@ -418,10 +416,8 @@ class gPodderYoutubeDL(download.CustomDownloader):
             has_playlist = result_type in ('playlist', 'multi_video')
             return result_type, has_playlist
 
-        opts = {
-            'youtube_include_dash_manifest': False,  # only interested in video title and id
-        }
-        opts.update(self._ydl_opts)
+        opts = self._ydl_opts.copy()
+        opts['youtube_include_dash_manifest'] = False  # only interested in video title and id
 
         # Need the proxy_url from src/gpodder/config.py:get_proxies_from_config()
         if gpodder.config._proxies:
