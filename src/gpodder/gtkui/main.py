@@ -33,9 +33,12 @@ import requests.exceptions
 import urllib3.exceptions
 
 import gpodder
-from gpodder import common, download, feedcore, my, opml, player, util, youtube
+from gpodder import (common, download, feedcore, my, opml, registry, util,
+                     youtube)
 from gpodder.dbusproxy import DBusPodcastsProxy
-from gpodder.model import Model, PodcastEpisode
+from gpodder.model import Model, PodcastEpisode, episode_object_by_uri
+from gpodder.player import MyGPOClientObserver, PlayerInterface
+from gpodder.services import AutoRegisterObserver
 from gpodder.syncui import gPodderSyncUI
 
 from . import shownotes
@@ -115,8 +118,6 @@ class gPodder(BuilderWidget):
         self.config.connect_gtk_paned('ui.gtk.state.main_window.paned_position', self.channelPaned)
 
         self.main_window.show()
-
-        self.player_receiver = player.MediaPlayerDBusReceiver(self.on_played)
 
         self.gPodder.connect('key-press-event', self.on_key_press)
 
@@ -205,6 +206,12 @@ class gPodder(BuilderWidget):
 
         # Set up the first instance of MygPoClient
         self.mygpo_client = my.MygPoClient(self.config)
+        # track playback via PlayerInterface
+        MyGPOClientObserver(self.mygpo_client)
+        AutoRegisterObserver(registry.player_interface, {
+                PlayerInterface.SIGNAL_STARTED: self._on_playback_started,
+                PlayerInterface.SIGNAL_STOPPED: self._on_playback_stopped,
+        }, label="gtkui.main")
 
         # Extensions section in app menu and menubar Extras menu
         extensions_menu = Gio.Menu()
@@ -483,87 +490,8 @@ class gPodder(BuilderWidget):
                 final_progress_callback,
                 finish_progress_callback)
 
-    def episode_object_by_uri(self, uri):
-        """Get an episode object given a local or remote URI.
-
-        This can be used to quickly access an episode object
-        when all we have is its download filename or episode
-        URL (e.g. from external D-Bus calls / signals, etc..)
-        """
-        if uri.startswith('/'):
-            uri = 'file://' + urllib.parse.quote(uri)
-
-        prefix = 'file://' + urllib.parse.quote(gpodder.downloads)
-
-        if uri.startswith(prefix):
-            # File is on the local filesystem in the download folder
-            # Try to reduce search space by pre-selecting the channel
-            # based on the folder name of the local file
-
-            filename = urllib.parse.unquote(uri[len(prefix):])
-            file_parts = [_f for _f in filename.split(os.sep) if _f]
-
-            if len(file_parts) != 2:
-                return None
-
-            foldername, filename = file_parts
-
-            def is_channel(c):
-                return c.download_folder == foldername
-
-            def is_episode(e):
-                return e.download_filename == filename
-        else:
-            # By default, assume we can't pre-select any channel
-            # but can match episodes simply via the download URL
-            def is_channel(c):
-                return True
-
-            def is_episode(e):
-                return e.url == uri
-
-        # Deep search through channels and episodes for a match
-        for channel in filter(is_channel, self.channels):
-            for episode in filter(is_episode, channel.get_all_episodes()):
-                return episode
-
-        return None
-
     def in_downloads_list(self):
         return self.wNotebook.get_current_page() == 1
-
-    def on_played(self, start, end, total, file_uri):
-        """Handle the "played" signal from a media player."""
-        if start == 0 and end == 0 and total == 0:
-            # Ignore bogus play event
-            return
-        elif end < start + 5:
-            # Ignore "less than five seconds" segments,
-            # as they can happen with seeking, etc...
-            return
-
-        logger.debug('Received play action: %s (%d, %d, %d)', file_uri, start, end, total)
-        episode = self.episode_object_by_uri(file_uri)
-
-        if episode is not None:
-            now = time.time()
-            if total > 0:
-                episode.total_time = total
-            elif total == 0:
-                # Assume the episode's total time for the action
-                total = episode.total_time
-
-            assert (episode.current_position_updated is None
-                    or now >= episode.current_position_updated)
-
-            episode.current_position = end
-            episode.current_position_updated = now
-            episode.mark(is_played=True)
-            episode.save()
-            self.episode_list_status_changed([episode])
-
-            # Submit this action to the webservice
-            self.mygpo_client.on_playback_full(episode, start, end, total)
 
     def on_add_remove_podcasts_mygpo(self):
         actions = self.mygpo_client.get_received_actions()
@@ -2272,39 +2200,6 @@ class gPodder(BuilderWidget):
             resume_position = episode.current_position
             if resume_position == episode.total_time:
                 resume_position = 0
-
-            # If Panucci is configured, use D-Bus to call it
-            if player == 'panucci':
-                # FIXME: broken in master also
-                try:
-                    PANUCCI_NAME = 'org.panucci.panucciInterface'
-                    PANUCCI_PATH = '/panucciInterface'
-                    PANUCCI_INTF = 'org.panucci.panucciInterface'
-                    o = gpodder.dbus_session_bus.get_object(PANUCCI_NAME, PANUCCI_PATH)
-                    i = dbus.Interface(o, PANUCCI_INTF)
-
-                    def on_reply(*args):
-                        pass
-
-                    def error_handler(filename, err):
-                        logger.error('Exception in D-Bus call: %s', str(err))
-
-                        # Fallback: use the command line client
-                        for command in util.format_desktop_command('panucci',
-                                [filename]):
-                            logger.info('Executing: %s', repr(command))
-                            util.Popen(command, close_fds=True)
-
-                    def on_error(err):
-                        return error_handler(filename, err)
-
-                    # This method only exists in Panucci > 0.9 ('new Panucci')
-                    i.playback_from(filename, resume_position,
-                            reply_handler=on_reply, error_handler=on_error)
-
-                    continue  # This file was handled by the D-Bus call
-                except Exception:
-                    logger.error('Calling Panucci using D-Bus', exc_info=True)
 
             groups[player].append(filename)
 
@@ -4120,9 +4015,15 @@ class gPodder(BuilderWidget):
                 self.on_itemUpdate_activate,
                 self.playback_episodes,
                 self.download_episode_list,
-                self.episode_object_by_uri,
+                (lambda uri: episode_object_by_uri(self.channels, uri)),
                 self.show_gui_window,
                 self.offer_new_episodes,
                 self.subscribe_to_url,
                 self.mark_episode_played,
                 gdbus_conn)
+
+    def _on_playback_started(self, _start, _total, episode):
+        self.episode_list_status_changed([episode])
+
+    def _on_playback_stopped(self, _start, _end, _total, episode):
+        self.episode_list_status_changed([episode])
