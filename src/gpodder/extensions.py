@@ -535,8 +535,7 @@ class ExtensionManager(object):
 
     @call_extensions
     def on_all_episodes_synced(self):
-        """Called when all episodes have been synchronized
-        """
+        """Called when all episodes have been synchronized."""  # noqa: D401
 
     @call_extensions
     def on_create_menu(self):

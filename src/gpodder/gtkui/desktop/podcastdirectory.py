@@ -34,8 +34,6 @@ from gi.repository import Gdk, GdkPixbuf, Gtk, Pango
 import gpodder
 from gpodder import directory, util
 from gpodder.gtkui.interface.common import BuilderWidget
-from gpodder.gtkui.interface.progress import ProgressIndicator
-from gpodder.gtkui.interface.tagcloud import TagCloud
 
 _ = gpodder.gettext
 

@@ -25,11 +25,11 @@ girepository_version = 0
 try:
     gi.require_version("GIRepository", "3.0")  # isort:skip
     girepository_version = 3
-except ValueError as e:
+except ValueError:
     try:
         gi.require_version("GIRepository", "2.0")  # isort:skip
         girepository_version = 2
-    except ValueError as e:
+    except ValueError:
         # let it crash
         raise Exception("GIRepository version is not 3 or 2")
 
@@ -37,7 +37,7 @@ from gi.repository import GIRepository  # isort:skip
 
 
 def _get_shared_libraries(q, namespace, version, loglevel=logging.WARNING):
-    """put a list of libraries into q, regardless of girepository_version."""
+    """Put a list of libraries into q, regardless of girepository_version."""
     import multiprocessing
     logger = multiprocessing.log_to_stderr(level=loglevel)
 

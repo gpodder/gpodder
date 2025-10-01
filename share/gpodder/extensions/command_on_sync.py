@@ -3,7 +3,6 @@
 # gPodder extension for running a command on successful synchronization of all episodes
 #
 
-import datetime
 import logging
 import os
 
