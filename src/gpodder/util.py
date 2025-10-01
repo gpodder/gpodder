@@ -1241,8 +1241,14 @@ def urlopen(url, headers=None, data=None, timeout=None, **kwargs):
         timeout = gpodder.SOCKET_TIMEOUT
 
     retry_strategy = Retry(
-        total=3,
-        status_forcelist=Retry.RETRY_AFTER_STATUS_CODES.union((408, 418, 504, 598, 599,)))
+        total=None,
+        connect=3,
+        read=3,
+        redirect=3,
+        status=0,  # to raise as soon as request-limiting status codes are returned
+        other=0,
+        respect_retry_after_header=False,
+    )
     s = requests.Session()
     a = requests.adapters.HTTPAdapter(max_retries=retry_strategy)
     s.mount('http://', a)
@@ -2397,3 +2403,85 @@ def scale_pixbuf(pixbuf, max_size):
     h_new = int(h_cur * f)
 
     return pixbuf.scale_simple(w_new, h_new, GdkPixbuf.InterpType.BILINEAR)
+
+
+RE_9110_IMF_FIXDATE = re.compile(
+    r"""(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun),"""
+    r""" ([0-9]{2})"""
+    r""" (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)"""
+    r""" ([0-9]{4})"""
+    r""" ([0-9]{2}):([0-9]{2}):([0-9]{2})"""
+    r""" GMT""")
+
+RE_RFC_850 = re.compile(
+    r"""(?:Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday),"""
+    r""" ([0-9]{2})-(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)-([0-9]{2})"""
+    r""" ([0-9]{2}):([0-9]{2}):([0-9]{2})"""
+    r""" GMT""")
+
+RE_ASCTIME = re.compile(
+    r"""(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)"""
+    r""" (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)"""
+    r""" (?:([09]{2})| ([0-9]))"""
+    r""" ([0-9]{2}):([0-9]{2}):([0-9]{2})"""
+    r""" ([0-9]{4})""")
+
+MONTHS = {
+    month: num for (num, month) in
+    enumerate("Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec".split("|"), 1)
+}
+
+
+def parse_rfc_9110_date(date_repr: str):
+    """Parse a date used in eg. Expires header to a python datetime in UTC timezone.
+
+    See RFC 9110 5.6.7. Date/Time Formats.
+
+    Returns None if unable to parse date.
+    Ignores leap seconds.
+    Doesn't check that the input day of week is the correct one for this date.
+
+    >>> parse_rfc_9110_date("Sun, 06 Nov 1994 08:49:37 GMT")
+    datetime.datetime(1994, 11, 6, 8, 49, 37, tzinfo=datetime.timezone.utc)
+    >>> parse_rfc_9110_date("Sunday, 06-Nov-94 08:49:37 GMT")
+    datetime.datetime(1994, 11, 6, 8, 49, 37, tzinfo=datetime.timezone.utc)
+    >>> parse_rfc_9110_date("Sun Nov  6 08:49:37 1994")
+    datetime.datetime(1994, 11, 6, 8, 49, 37, tzinfo=datetime.timezone.utc)
+    >>> parse_rfc_9110_date("Fri, 30 Jun 1972 23:59:60 GMT")  # leap-second is ignored
+    datetime.datetime(1972, 6, 30, 23, 59, 59, tzinfo=datetime.timezone.utc)
+    """
+    def ignore_leap(s):
+        # for our usecase (not-before) we don't care about leap seconds
+        return 59 if s == 60 else s
+
+    try:
+        if m := RE_9110_IMF_FIXDATE.fullmatch(date_repr):
+            day = int(m.group(1))
+            month = MONTHS[m.group(2)]
+            year = int(m.group(3))
+            hour = int(m.group(4))
+            minute = int(m.group(5))
+            second = ignore_leap(int(m.group(6)))
+            return datetime.datetime(year, month, day, hour, minute, second, tzinfo=datetime.timezone.utc)
+        if m := RE_RFC_850.fullmatch(date_repr):
+            day = int(m.group(1))
+            month = MONTHS[m.group(2)]
+            year = int(m.group(3))
+            hour = int(m.group(4))
+            minute = int(m.group(5))
+            second = ignore_leap(int(m.group(6)))
+            # if more than 50 years in the future, it's from the last century
+            if year > (datetime.date.today().year % 100) + 50:
+                year = ((datetime.date.today().year // 100) - 1) * 100 + year
+            return datetime.datetime(year, month, day, hour, minute, second, tzinfo=datetime.timezone.utc)
+        if m := RE_ASCTIME.fullmatch(date_repr):
+            month = MONTHS[m.group(1)]
+            day = int(m.group(2) or m.group(3))
+            hour = int(m.group(4))
+            minute = int(m.group(5))
+            second = ignore_leap(int(m.group(6)))
+            year = int(m.group(7))
+            return datetime.datetime(year, month, day, hour, minute, second, tzinfo=datetime.timezone.utc)
+    except ValueError as e:
+        logger.debug("ValueError parsing date %r: %r", date_repr, e)
+    return None
