@@ -40,6 +40,7 @@ import podcastparser
 
 import gpodder
 from gpodder import coverart, feedcore, registry, schema, util, vimeo, youtube
+from gpodder.util import parse_rfc_9110_date
 
 logger = logging.getLogger(__name__)
 
@@ -97,6 +98,14 @@ class Feed:
                                  as a fully parsed Feed or None
         """
         return None
+
+    def get_not_before(self):
+        """Expose the Cache-control / Expires headers to PodcastChannel.
+
+        :return datetime.datetime: next time the channel should be refreshed.
+        This should be saved to DB and gPodder shouldn't refresh before this time by default.
+        datetime should be locale aware.
+        """
 
 
 class PodcastParserFeed(Feed):
@@ -191,6 +200,38 @@ class PodcastParserFeed(Feed):
             url = channel.authenticate_url(url)
             return self.fetcher.fetch(url, autodiscovery=False, max_episodes=max_episodes)
         return None
+
+    def get_not_before(self):
+        """Figures out "not before" based on headers according to RFC9111"""
+        if 'cache-control' in self.feed.get('headers', {}):
+            directives = {}
+            for single_directive in re.split(", ?", self.feed['headers']['cache-control']):
+                k, v = (single_directive.split("=", 1) + [""])[:2]
+                directives[k.lower()] = v
+            if s_max_age := directives.get('s-max-age'):
+                try:
+                    max_age = int(s_max_age)
+                except ValueError:
+                    return None
+            elif max_age := directives.get('max-age'):
+                age = self.feed.get('headers', {}).get('age')
+                try:
+                    age = int(age)
+                except (TypeError, ValueError):
+                    age = 0
+                try:
+                    max_age = int(max_age) - age
+                except ValueError:
+                    return None
+            if max_age > 0:
+                # should take into account the response time but it makes it even more complicated.
+                # With short response times and long polling it should be reasonable.
+                return datetime.datetime.now() + datetime.timedelta(seconds=max_age)
+        # by ordering we ensure that expires is ignored if Cache-Control= maxage | s-maxdate,
+        # as requested by RFC 9111
+        if 'expires' in self.feed.get('headers', {}):
+            # no filter here (eg be a cap to 24 hours). Do it elsewhere
+            return parse_rfc_9110_date(self.feed['headers']['expires'])
 
 
 class gPodderFetcher(feedcore.Fetcher):
@@ -401,6 +442,8 @@ class PodcastEpisode(PodcastModelObject):
 
         # Timestamp of last playback time
         self.last_playback = 0
+
+        self.not_before = None
 
         self._download_error = None
         self._text_description = ''
@@ -957,6 +1000,7 @@ class PodcastChannel(PodcastModelObject):
 
         self.http_last_modified = None
         self.http_etag = None
+        self.not_before = None
 
         self.auto_archive_episodes = False
         self.download_folder = None
@@ -1195,6 +1239,13 @@ class PodcastChannel(PodcastModelObject):
         self.http_etag = feed.get_http_etag() or self.http_etag
         self.http_last_modified = feed.get_http_last_modified() or self.http_last_modified
 
+        # store as isoformat
+        not_before = feed.get_not_before()
+        if not_before:
+            not_before = not_before.isoformat()
+        # (clears a pre-existing not-before)
+        self.not_before = not_before
+
         # Load all episodes to update them properly.
         existing = self.get_all_episodes()
         # GUID-based existing episode list
@@ -1295,9 +1346,15 @@ class PodcastChannel(PodcastModelObject):
         # Sort episodes by pubdate, descending
         self.children.sort(key=lambda e: e.published, reverse=True)
 
-    def update(self, max_episodes=0):
+    def update(self, max_episodes=0, force=False):
         max_episodes = int(max_episodes)
         new_episodes = []
+        if self.not_before and datetime.datetime.fromisoformat(self.not_before) > datetime.datetime.now():
+            if force:
+                logger.info("Feed %s has not-before %s but fetching anyway (force=True)", self.url, self.not_before)
+            else:
+                logger.info("Feed %s has not-before %s so not refreshing it", self.url, self.not_before)
+                return []
         try:
             result = self.feed_fetcher.fetch_channel(self, max_episodes)
 
