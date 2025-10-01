@@ -52,6 +52,7 @@ EpisodeColumns = (
     'description_html',
     'episode_art_url',
     'chapters',
+    'not_before',
 )
 
 PodcastColumns = (
@@ -72,9 +73,10 @@ PodcastColumns = (
     'download_strategy',
     'sync_to_mp3_player',
     'cover_thumb',
+    'not_before',
 )
 
-CURRENT_VERSION = 8
+CURRENT_VERSION = 9
 
 
 # SQL commands to upgrade old database versions to new ones
@@ -123,6 +125,12 @@ UPGRADE_SQL = [
         ALTER TABLE episode ADD COLUMN chapters TEXT NULL DEFAULT NULL
         UPDATE podcast SET http_last_modified=NULL, http_etag=NULL
         """),
+
+        # Version 9: Add episode.not_before and podcast.not_before to throttle download as requested by a server
+        (8, 9, """
+        ALTER TABLE episode ADD COLUMN not_before TEXT NULL DEFAULT NULL
+        ALTER TABLE podcast ADD COLUMN not_before TEXT NULL DEFAULT NULL
+        """),
 ]
 
 
@@ -147,7 +155,8 @@ def initialize_database(db):
         payment_url TEXT NULL DEFAULT NULL,
         download_strategy INTEGER NOT NULL DEFAULT 0,
         sync_to_mp3_player INTEGER NOT NULL DEFAULT 1,
-        cover_thumb BLOB NULL DEFAULT NULL
+        cover_thumb BLOB NULL DEFAULT NULL,
+        not_before TEXT NULL DEFAULT NULL
     )
     """)
 
@@ -183,7 +192,8 @@ def initialize_database(db):
         payment_url TEXT NULL DEFAULT NULL,
         description_html TEXT NOT NULL DEFAULT '',
         episode_art_url TEXT NULL DEFAULT NULL,
-        chapters TEXT NULL DEFAULT NULL
+        chapters TEXT NULL DEFAULT NULL,
+        not_before TEXT NULL DEFAULT NULL
     )
     """)
 
