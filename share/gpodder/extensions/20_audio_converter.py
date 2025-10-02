@@ -13,6 +13,10 @@ import subprocess
 import gpodder
 from gpodder import util
 
+import gi  # isort:skip
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
+
 logger = logging.getLogger(__name__)
 
 _ = gpodder.gettext
@@ -34,6 +38,7 @@ DefaultConfig = {
 
 class gPodderExtension:
     MIME_TYPES = ('audio/x-m4a', 'audio/mp4', 'audio/mp4a-latm', 'audio/mpeg', 'audio/ogg', 'audio/opus')
+    OUTPUT_TYPES = ('MP3', 'OGG', 'OPUS')
     EXT = ('.m4a', '.ogg', '.opus', '.mp3')
     CMD = {'avconv': {'.mp3': ['-n', '-i', '%(old_file)s', '-q:a', '2', '-id3v2_version', '3', '-write_id3v1', '1', '%(new_file)s'],
                       '.ogg': ['-n', '-i', '%(old_file)s', '-q:a', '2', '%(new_file)s'],
@@ -141,3 +146,59 @@ class gPodderExtension:
         # which one is being converted and nothing prevents from clicking convert twice.
         for episode in episodes:
             self._convert_episode(episode)
+
+    def on_context_menu_toggled(self, widget):
+        self.container.config.context_menu = widget.get_active()
+
+    # return (use_opus, use_ogg)
+    def outputtype_to_options(self, type):
+        if type.upper() == 'OPUS':
+            return (True, False)
+        elif type.upper() == 'OGG':
+            return (False, True)
+        else:
+            return (False, False)
+
+    def on_targetfiletype_changed(self, widget):
+        (self.container.config.use_opus, self.container.config.use_ogg) = self.outputtype_to_options(widget.get_active_text())
+
+    def show_preferences(self):
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
+        box.set_border_width(10)
+
+        title = Gtk.Label(use_markup=True, label=_('<b><big>Audio Converter Extension</big></b>'))
+        title.set_halign(Gtk.Align.CENTER)
+        box.add(title)
+
+        whatisthis = Gtk.Label(use_markup=True, wrap=True, label=_(
+            'This extension converts audio files to mp3 or ogg after download.'
+        ))
+        whatisthis.set_property('xalign', 0.0)
+        box.add(whatisthis)
+
+        box.pack_start(Gtk.HSeparator(), False, False, 0)
+
+        self.container.context_menu = Gtk.CheckButton(_('Add Context Menu Option'))
+        self.container.context_menu.set_active(self.container.config.context_menu)
+        self.container.context_menu.connect('toggled', self.on_context_menu_toggled)
+        box.pack_start(self.container.context_menu, False, False, 0)
+
+        self.container.targetfiletype = Gtk.ComboBoxText()
+        for i in self.OUTPUT_TYPES:
+            self.container.targetfiletype.append(i, i)
+        self.container.targetfiletype.set_active(self.OUTPUT_TYPES.index(self._target_format()))
+        self.container.targetfiletype.connect("changed", self.on_targetfiletype_changed)
+        self.container.targetfiletype.set_halign(Gtk.Align.END)
+        self.container.targetfiletype.set_size_request(200, -1)
+        self.container.targetfiletype_label = Gtk.Label(_('Output type:'))
+        self.container.hbox_targetfiletype = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=0)
+        self.container.hbox_targetfiletype.pack_start(self.container.targetfiletype_label, False, False, 0)
+        self.container.hbox_targetfiletype.pack_start(self.container.targetfiletype, True, True, 0)
+
+        box.pack_start(self.container.hbox_targetfiletype, False, False, 0)
+
+        box.show_all()
+        return box
+
+    def on_preferences(self):
+        return [(_('AudioConverter'), self.show_preferences)]
