@@ -16,7 +16,6 @@ __title__ = _('Search for new episodes on startup')
 __description__ = _('Starts the search for new episodes on startup')
 __authors__ = 'Bernd Schlapsi <brot@gmx.info>'
 __doc__ = 'https://gpodder.github.io/docs/extensions/searchepisodeonstartup.html'
-__payment__ = 'https://flattr.com/submit/auto?user_id=BerndSch&url=http://wiki.gpodder.org/wiki/Extensions/SearchEpisodeOnStartup'
 __category__ = 'interface'
 __only_for__ = 'gtk'
 
