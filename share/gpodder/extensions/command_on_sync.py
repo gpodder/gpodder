@@ -18,7 +18,7 @@ __title__ = _('Run a Command on Sync')
 __description__ = _('Run a custom external command upon sync completion.')
 __authors__ = 'Eric Le Lay <elelay@macports.org>, Azer Abdullaev <azer.abdullaev.berlin+git@gmail.com>'
 __doc__ = 'https://gpodder.github.io/docs/extensions/commandonsync.html'
-__category__ = 'post-sync'
+__category__ = 'device-sync'
 __only_for__ = 'gtk, cli'
 
 
