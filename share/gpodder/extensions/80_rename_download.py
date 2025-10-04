@@ -10,6 +10,10 @@ import gpodder
 from gpodder import util
 from gpodder.model import PodcastEpisode
 
+import gi  # isort:skip
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
+
 logger = logging.getLogger(__name__)
 
 _ = gpodder.gettext
@@ -117,3 +121,51 @@ class gPodderExtension:
             # Avoid filename collisions
             if not os.path.exists(filename):
                 return filename
+
+    def on_add_sortdate_toggled(self, widget):
+        self.config.add_sortdate = widget.get_active()
+
+    def on_add_podcast_title_toggled(self, widget):
+        self.config.add_podcast_title = widget.get_active()
+
+    def on_sortdate_after_podcast_title_toggled(self, widget):
+        self.config.sortdate_after_podcast_title = widget.get_active()
+
+    def show_preferences(self):
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
+        box.set_border_width(10)
+
+        title = Gtk.Label(use_markup=True, label=_('<b><big>Rename Episodes After Download</big></b>'))
+        title.set_halign(Gtk.Align.CENTER)
+        box.add(title)
+
+        whatisthis = Gtk.Label(use_markup=True, wrap=True, label=_(
+            'This extension renames episode files after download.'
+            ' Episodes will be renamed according to \"&lt;Episode Title&gt;.&lt;ext&gt;\", with extra options below.\n\n'
+            'The Rename all Downloaded Episodes option in the Extras menu will rename all currently downloaded episodes.'
+        ))
+        whatisthis.set_property('xalign', 0.0)
+        box.add(whatisthis)
+
+        box.pack_start(Gtk.HSeparator(), False, False, 0)
+
+        self.container.add_sortdate_checkbox = Gtk.CheckButton(_('Add Sort Date'))
+        self.container.add_sortdate_checkbox.set_active(self.config.add_sortdate)
+        self.container.add_sortdate_checkbox.connect('toggled', self.on_add_sortdate_toggled)
+        box.pack_start(self.container.add_sortdate_checkbox, False, False, 0)
+
+        self.container.add_podcast_title_checkbox = Gtk.CheckButton(_('Add Podcast Title'))
+        self.container.add_podcast_title_checkbox.set_active(self.config.add_podcast_title)
+        self.container.add_podcast_title_checkbox.connect('toggled', self.on_add_podcast_title_toggled)
+        box.pack_start(self.container.add_podcast_title_checkbox, False, False, 0)
+
+        self.container.sortdate_after_podcast_title_checkbox = Gtk.CheckButton(_('Put Sortdate After Podcast Title'))
+        self.container.sortdate_after_podcast_title_checkbox.set_active(self.config.sortdate_after_podcast_title)
+        self.container.sortdate_after_podcast_title_checkbox.connect('toggled', self.on_sortdate_after_podcast_title_toggled)
+        box.pack_start(self.container.sortdate_after_podcast_title_checkbox, False, False, 0)
+
+        box.show_all()
+        return box
+
+    def on_preferences(self):
+        return [(_('RenameAfterDownload'), self.show_preferences)]
