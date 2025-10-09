@@ -73,6 +73,7 @@ class gPodderChannel(BuilderWidget):
             self.FeedUsername.set_text(self.channel.auth_username)
         if self.channel.auth_password:
             self.FeedPassword.set_text(self.channel.auth_password)
+        self.add_password_reveal(self.FeedPassword)
 
         # Cover image
         ag = Gio.SimpleActionGroup()

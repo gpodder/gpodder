@@ -399,6 +399,7 @@ class gPodderPreferences(BuilderWidget):
         self.entry_server.set_text(self._config.mygpo.server)
         self.entry_username.set_text(self._config.mygpo.username)
         self.entry_password.set_text(self._config.mygpo.password)
+        self.add_password_reveal(self.entry_password)
         self.entry_caption.set_text(self._config.mygpo.device.caption)
 
         # Disable mygpo sync while the dialog is open
@@ -411,6 +412,7 @@ class gPodderPreferences(BuilderWidget):
                                               self.checkbutton_proxy_use_username_password)
         self.entry_proxy_hostname.set_text(self._config.network.proxy_hostname)
         self.entry_proxy_port.set_text(self._config.network.proxy_port)
+        self.add_password_reveal(self.entry_proxy_password)
         # This will disable the proxy input details on creation if checkbutton
         # is unticked (value from _config) on each preferences menu creation
         self.on_checkbutton_use_proxy_toggled(self.checkbutton_use_proxy)
