@@ -228,7 +228,7 @@ class Fetcher(object):
                 return Result(NEW_LOCATION, responses[i + 1].url)
         res = self._check_statuscode(stream.status_code, stream.url, stream.headers)
         if res == NOT_MODIFIED:
-            return Result(NOT_MODIFIED, stream.url)
+            return self.parse_feed(stream.url, None, None, stream.headers, NOT_MODIFIED, **kwargs)
 
         if autodiscovery and stream.headers.get('content-type', '').startswith('text/html'):
             ad = FeedAutodiscovery(url)
