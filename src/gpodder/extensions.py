@@ -92,7 +92,6 @@ class ExtensionMetadata(object):
     DEFAULTS = {
         'description': _('No description for this extension.'),
         'doc': None,
-        'payment': None,
     }
     SORTKEYS = {
         'title': 1,

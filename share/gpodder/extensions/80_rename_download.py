@@ -19,7 +19,6 @@ __title__ = _('Rename episodes after download')
 __description__ = _('Rename episodes to "<Episode Title>.<ext>" on download')
 __authors__ = 'Bernd Schlapsi <brot@gmx.info>, Thomas Perl <thp@gpodder.org>'
 __doc__ = 'https://gpodder.github.io/docs/extensions/renameafterdownload.html'
-__payment__ = 'https://flattr.com/submit/auto?user_id=BerndSch&url=http://wiki.gpodder.org/wiki/Extensions/RenameAfterDownload'
 __category__ = 'post-download'
 
 DefaultConfig = {

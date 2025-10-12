@@ -560,11 +560,6 @@ class gPodderPreferences(BuilderWidget):
         menu_item.connect('activate', self.show_extension_info, model, container)
         menu.append(menu_item)
 
-        if container.metadata.payment:
-            menu_item = Gtk.MenuItem(_('Support the author'))
-            menu_item.connect('activate', self.open_weblink, container.metadata.payment)
-            menu.append(menu_item)
-
         menu.show_all()
         if event is None:
             func = TreeViewHelper.make_popup_position_func(treeview)
