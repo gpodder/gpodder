@@ -726,6 +726,53 @@
                                     </child>
                                   </object>
                                 </child>
+                                <child>
+                                  <object class="GtkListBoxRow" id="row_not_before">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">True</property>
+                                    <property name="selectable">False</property>
+                                    <child>
+                                      <object class="GtkBox">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="margin-left">8</property>
+                                        <property name="margin-right">8</property>
+                                        <property name="margin-start">8</property>
+                                        <property name="margin-end">8</property>
+                                        <property name="margin-top">6</property>
+                                        <property name="margin-bottom">6</property>
+                                        <child>
+                                          <object class="GtkLabel" id="label_not_before">
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">False</property>
+                                            <property name="label" translatable="yes">Don't update before XXXXXX</property>
+                                            <property name="width-chars">7</property>
+                                            <property name="xalign">0</property>
+                                          </object>
+                                          <packing>
+                                            <property name="expand">False</property>
+                                            <property name="fill">True</property>
+                                            <property name="position">0</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkButton" id="reset_not_before">
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">False</property>
+                                            <property name="label" translatable="yes">Reset</property>
+                                            <signal name="clicked" handler="on_button_reset_not_before_clicked"/>
+                                          </object>
+                                          <packing>
+                                            <property name="expand">False</property>
+                                            <property name="fill">True</property>
+                                            <property name="pack-type">end</property>
+                                            <property name="position">1</property>
+                                          </packing>
+                                        </child>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
