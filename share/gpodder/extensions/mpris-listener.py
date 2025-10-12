@@ -61,6 +61,7 @@ class CurrentTrackTracker(object):
     of a single MPRIS-enabled player (an running instance of vlc, ...).
     player_id is the identity of the MPRIS-enable player on d-bus.
     """
+
     def __init__(self, notifier, player_id):
         self.uri = None
         self.length = None
@@ -104,8 +105,7 @@ class CurrentTrackTracker(object):
         return False
 
     def update(self, **kwargs):
-        """ callback from MPRISDBusReceiver """
-
+        """Call this from MPRISDBusReceiver on events."""
         player_id = kwargs.pop('player_id', self.player_id)
         if self.player_id != player_id:
             raise Exception("CurrentTrackTracker[%s] received update for %s" % (self.player_id, player_id))
@@ -225,7 +225,7 @@ class CurrentTrackTracker(object):
             self._start_position = start_position
 
     def on_player_exited(self):
-        """ callback from MPRISDBusReceiver """
+        """Call this method from MPRISDBusReceiver on player exited message."""
         if self.uri:
             self._notifier._on_player_exited(self.uri)
 
@@ -240,7 +240,7 @@ class CurrentTrackTracker(object):
 
 
 class MPRISDBusReceiver(PlayerInterface):
-    """ listen to d-bus events from any MPRIS-enabled player """
+    """This class listens to d-bus events from any MPRIS-enabled player."""
 
     INTERFACE_PROPS = 'org.freedesktop.DBus.Properties'
     SIGNAL_PROP_CHANGE = 'PropertiesChanged'

@@ -43,8 +43,8 @@ class PlayerInterface(ObservableService, metaclass=ABCMeta):
     """Example base class and common value definitions for player control implementations.
 
     They must be a subclass of ObservableService, with following signals.
-
     """
+
     SIGNAL_STARTED = 'PlaybackStarted'  # start_position_seconds, total_seconds, episode
     SIGNAL_STOPPED = 'PlaybackStopped'  # start_position_seconds, end_position_seconds, total_seconds, episode
     SIGNAL_EXITED = 'PlayerExited'  # episode
@@ -61,7 +61,7 @@ class PlayerInterface(ObservableService, metaclass=ABCMeta):
         ...
 
     def _on_playback_started(self, start, total, file_uri):
-        """Call from subclasses to update currently playing and notify observers"""
+        """Call from subclasses to update currently playing and notify observers."""
         if file_uri.startswith('/'):
             file_uri = 'file://' + urllib.parse.quote(file_uri)
         logger.info('_on_playback_started: %s: %d/%d', file_uri, start, total)
@@ -70,7 +70,7 @@ class PlayerInterface(ObservableService, metaclass=ABCMeta):
             self.notify(self.SIGNAL_STARTED, start, total, episode)
 
     def _on_playback_stopped(self, start, end, total, file_uri):
-        """Call from subclasses to update currently playing and notify observers"""
+        """Call from subclasses to update currently playing and notify observers."""
         if file_uri.startswith('/'):
             file_uri = 'file://' + urllib.parse.quote(file_uri)
         if (start == 0 and end == 0 and total == 0):
@@ -87,7 +87,7 @@ class PlayerInterface(ObservableService, metaclass=ABCMeta):
             self.notify(self.SIGNAL_STOPPED, start, end, total, episode)
 
     def _on_player_exited(self, file_uri):
-        """Call from subclasses to update currently playing and notify observers"""
+        """Call from subclasses to update currently playing and notify observers."""
         if file_uri.startswith('/'):
             file_uri = 'file://' + urllib.parse.quote(file_uri)
         logger.info('PlayerExited: %s', file_uri)
@@ -130,9 +130,8 @@ class PlayerInterface(ObservableService, metaclass=ABCMeta):
 
 
 class MyGPOClientObserver(AutoRegisterObserver):
-    """
-    Listen to PlayerInterface and send events to gpodder.net
-    """
+    """Listen to PlayerInterface and send events to gpodder.net."""
+
     def __init__(self, mygpoclient):
         super().__init__(registry.player_interface, {
             PlayerInterface.SIGNAL_STOPPED: self._save_stopped_to_mygpo

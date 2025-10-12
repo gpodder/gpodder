@@ -77,6 +77,7 @@ class AutoRegisterObserver:
     changes in PlayerInterface implementations. It observes the registry.player_interface Resolver
     for new implementation and (un)registers accordingly.
     """
+
     def __init__(self, resolver: Resolver, listeners_by_signal, *, label):
         """Instantiate and add self as observer to resolver.
 
@@ -93,7 +94,7 @@ class AutoRegisterObserver:
         self._resolver_observer()  # if an implementation of the service already exists in the resolver
 
     def _resolver_observer(self):
-        """Internal method to be notified of PlayerInterface implementation changes."""
+        # Internal method to be notified of PlayerInterface implementation changes
         service = self._resolver.resolve(None, None)
         if self._service is not None and service == self._service:
             logger.debug("%sStill using %s service impl = %r", self._label, self._resolver.name, self._service)

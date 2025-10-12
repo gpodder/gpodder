@@ -85,7 +85,8 @@ class Resolver(object):
     def add_observer(self, callback):
         """Register to be notified for changes in resolvers.
 
-        callback() will be called on change in resolvers (added or removed)"""
+        callback() will be called on change in resolvers (added or removed)
+        """
         self._observers.add(callback)
 
     def empty(self):
