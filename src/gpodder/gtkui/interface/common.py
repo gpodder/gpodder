@@ -80,12 +80,12 @@ class BuilderWidget(GtkBuilderWidget):
     @staticmethod
     def add_password_reveal(widget):
         def _toggle_visibility(*args):
-            visible = widget.get_visibility()
-            if visible:
-                widget.set_property('secondary-icon-name', 'view-reveal-symbolic')
-            else:
+            new_visible = not widget.get_visibility()
+            widget.set_visibility(new_visible)
+            if new_visible:
                 widget.set_property('secondary-icon-name', 'view-conceal-symbolic')
-            widget.set_visibility(not visible)
+            else:
+                widget.set_property('secondary-icon-name', 'view-reveal-symbolic')
 
         def _on_press(_widget, _icon_position, _event):
             _toggle_visibility()
