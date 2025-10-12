@@ -77,6 +77,31 @@ class BuilderWidget(GtkBuilderWidget):
         """Return a Gtk.Window that should be the parent of dialogs."""
         return self.main_window
 
+    @staticmethod
+    def add_password_reveal(widget):
+        def _toggle_visibility(*args):
+            new_visible = not widget.get_visibility()
+            widget.set_visibility(new_visible)
+            if new_visible:
+                widget.set_property('secondary-icon-name', 'view-conceal-symbolic')
+            else:
+                widget.set_property('secondary-icon-name', 'view-reveal-symbolic')
+
+        def _on_press(_widget, _icon_position, _event):
+            _toggle_visibility()
+
+        def _on_popup(_widget, menu):
+            visible = widget.get_visibility()
+            toggle_visibility = Gtk.MenuItem.new_with_label(_('Hide Password') if visible else _('Show Password'))
+            toggle_visibility.set_visible(True)
+            toggle_visibility.connect("activate", _toggle_visibility)
+            menu.add(toggle_visibility)
+
+        widget.set_property("secondary-icon-name", "view-reveal-symbolic")
+        widget.set_property("secondary-icon-activatable", True)
+        widget.connect("icon-press", _on_press)
+        widget.connect("populate-popup", _on_popup)
+
     def show_message_details(self, title, message, details):
         dlg = Gtk.MessageDialog(self.main_window, Gtk.DialogFlags.MODAL, Gtk.MessageType.INFO, Gtk.ButtonsType.OK)
         dlg.set_title(title)
