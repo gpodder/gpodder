@@ -27,7 +27,7 @@ __description__ = _('Copy Cover Art To Rockboxed Media Player')
 __only_for__ = 'gtk, cli'
 __authors__ = 'Alex Mayer <magictrick4906@aim.com>, Dana Conrad <dconrad@fastmail.com>'
 __doc__ = 'https://gpodder.github.io/docs/extensions/rockbox_coverart.html'
-__category__ = 'post-download'
+__category__ = 'device-sync'
 
 DefaultConfig = {
     "art_name_on_device": "cover.jpg",
