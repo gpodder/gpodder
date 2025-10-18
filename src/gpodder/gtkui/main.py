@@ -3889,6 +3889,25 @@ class gPodder(BuilderWidget):
         self.delete_episode_list(episodes)
 
     def on_key_press(self, widget, event):
+        if event.keyval == Gdk.KEY_F1:
+            # open documentation
+            util.open_website('https://gpodder.github.io/docs/')
+        if event.keyval == Gdk.KEY_F2 or (event.keyval == Gdk.KEY_1 and event.get_state() & Gdk.ModifierType.MOD1_MASK):
+            # switch focus to channel list
+            self.wNotebook.set_current_page(0)
+            self.treeChannels.grab_focus()
+            return True
+        if event.keyval == Gdk.KEY_F3 or (event.keyval == Gdk.KEY_2 and event.get_state() & Gdk.ModifierType.MOD1_MASK):
+            # switch focus to episode list
+            self.wNotebook.set_current_page(0)
+            self.treeAvailable.grab_focus()
+            return True
+        if event.keyval == Gdk.KEY_F4 or (event.keyval == Gdk.KEY_3 and event.get_state() & Gdk.ModifierType.MOD1_MASK):
+            # switch focus to progress list
+            self.wNotebook.set_current_page(1)
+            self.treeDownloads.grab_focus()
+            return True
+
         # Allow tab switching with Ctrl + PgUp/PgDown/Tab
         if event.get_state() & Gdk.ModifierType.CONTROL_MASK:
             current_page = self.wNotebook.get_current_page()
