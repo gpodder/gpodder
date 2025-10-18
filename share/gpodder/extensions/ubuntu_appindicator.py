@@ -5,6 +5,8 @@
 
 import logging
 
+import gi  # isort:skip
+gi.require_version('AppIndicator3', '0.1')
 from gi.repository import AppIndicator3 as appindicator
 from gi.repository import Gtk
 
