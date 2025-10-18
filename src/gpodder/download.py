@@ -38,7 +38,7 @@ from abc import ABC, abstractmethod
 
 import requests
 from requests.adapters import HTTPAdapter
-from requests.exceptions import ConnectionError, HTTPError, RequestException
+from requests.exceptions import HTTPError, RequestException
 from requests.packages.urllib3.exceptions import MaxRetryError
 from requests.packages.urllib3.util.retry import Retry
 
@@ -989,7 +989,7 @@ class DownloadTask(object):
         except urllib.error.ContentTooShortError:
             result = DownloadTask.FAILED
             self.error_message = _('Missing content from server')
-        except ConnectionError as ce:
+        except requests.ConnectionError as ce:
             # special case request exception
             result = DownloadTask.FAILED
             logger.error('Download failed: %s', str(ce))

@@ -23,7 +23,6 @@
 # The podcast title is written into the album tag
 
 import base64
-import datetime
 import logging
 import mimetypes
 from io import BytesIO

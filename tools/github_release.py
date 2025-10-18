@@ -3,7 +3,6 @@
 import argparse
 import hashlib
 import os
-import re
 import sys
 import zipfile
 
@@ -60,8 +59,8 @@ def download_mac_github(github_workflow, prefix, version):
     artifact = [(a['id'], a['archive_download_url']) for a in artifacts['artifacts'] if a['workflow_run']['id'] == github_workflow]
     if len(artifact) != 1:
         error_exit("Nothing found to download")
-    id, url = artifact[0]
-    print("I: found artifact %d" % id)
+    artifact_id, url = artifact[0]
+    print("I: found artifact %d" % artifact_id)
 
     print("I: downloading %s" % url)
     output = os.path.join("_build", "{}-artifact.zip".format(prefix))

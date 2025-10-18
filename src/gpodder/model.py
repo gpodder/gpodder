@@ -849,15 +849,15 @@ class PodcastEpisode(PodcastModelObject):
 
     pubdate_prop = property(fget=cute_pubdate)
 
-    def published_formatted(self, format, default):
-        """safe method to convert self.published to a string
+    def published_formatted(self, fmt, default):
+        """Safe method to convert self.published to a string.
 
-        format: anything accepted by datetime.datetime.strftime
+        fmt: anything accepted by datetime.datetime.strftime
         default: string to return when self.published is invalid
         """
         try:
             d = datetime.datetime.fromtimestamp(self.published)
-            return d.strftime(format)
+            return d.strftime(fmt)
         except (OSError, TypeError, ValueError):
             logger.warning('Cannot compute published_datetime %r' % self.published, exc_info=True)
             return default
