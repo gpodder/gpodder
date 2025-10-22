@@ -51,6 +51,8 @@ DefaultConfig = {
     'manage_downloads': True,
     # Embed all available subtitles to downloaded videos. Needs ffmpeg.
     'embed_subtitles': False,
+    # Read youtube-dl or yt-dlp config file
+    'read_config_file': False,
 }
 
 
@@ -298,8 +300,13 @@ class gPodderYoutubeDL(download.CustomDownloader):
         # cachedir is not much used in youtube-dl, but set it anyway
         cachedir = os.path.join(gpodder.home, 'youtube-dl')
         os.makedirs(cachedir, exist_ok=True)
-        # Read options from youtube-dl config file
-        _parser, _opts, _urls, self._ydl_opts = youtube_dl.parse_options()
+
+        if self.my_config.read_config_file:
+            # Read options from youtube-dl config file
+            _parser, _opts, _urls, self._ydl_opts = youtube_dl.parse_options()
+        else:
+            self._ydl_opts = {}
+
         self._ydl_opts['cachedir'] = cachedir
         self._ydl_opts['noprogress'] = True  # prevent progress bar from appearing in console
         # prevent escape codes in desktop notifications on errors
@@ -312,6 +319,7 @@ class gPodderYoutubeDL(download.CustomDownloader):
             self._ydl_opts['verbose'] = True
         else:
             self._ydl_opts['quiet'] = True
+
         # Don't create downloaders for URLs supported by these youtube-dl extractors
         self.ie_blacklist = ["Generic"]
         # Cache URL regexes from youtube-dl matches here, seed with youtube regex
@@ -577,6 +585,9 @@ class gPodderExtension:
         else:
             self.container.config.embed_subtitles = False
 
+    def toggle_read_config_file(self, widget):
+        self.container.config.read_config_file = widget.get_active()
+
     def check_for_update(self, widget):
         success = False
         try:
@@ -660,6 +671,11 @@ class gPodderExtension:
         checkbox = Gtk.CheckButton(_('Embed all available subtitles in downloaded video'))
         checkbox.set_active(self.container.config.embed_subtitles)
         checkbox.connect('toggled', self.toggle_embed_subtitles)
+        box.pack_start(checkbox, False, False, 0)
+
+        checkbox = Gtk.CheckButton(_('Read youtube-dl/yt-dlp config file for additional options'))
+        checkbox.set_active(self.container.config.read_config_file)
+        checkbox.connect('toggled', self.toggle_read_config_file)
         box.pack_start(checkbox, False, False, 0)
 
         infobar = Gtk.InfoBar()
