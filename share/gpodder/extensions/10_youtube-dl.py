@@ -596,10 +596,10 @@ class gPodderExtension:
                 self.latest_version = match.group(1)
                 success = True
             else:
-                logger.Error("Could not find LATEST version in pip output:\n%s", output)
+                logger.error("Could not find LATEST version in pip output:\n%s", output)
                 self.latest_version = None
         except Exception as e:
-            logger.Error("Error checking for latest version: %r", e)
+            logger.error("Error checking for latest version: %r", e)
             self.latest_version = None
 
         if success:
