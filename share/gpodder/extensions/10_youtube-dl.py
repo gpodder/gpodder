@@ -351,7 +351,13 @@ class gPodderYoutubeDL(download.CustomDownloader):
     def fetch_info(self, url, tempname, reporthook):
         subs = self.my_config.embed_subtitles
         opts = self._ydl_opts.copy()
-        opts['paths'].update({'home': os.path.dirname(tempname)})
+
+        home = {'home': os.path.dirname(tempname)}
+        if 'paths' in opts:
+            opts['paths'].update(home)
+        else:
+            opts['paths'] = home
+
         # Postprocessing in yt-dlp breaks without ext
         opts['outtmpl'] = ({'default': os.path.basename(tempname) + '.%(ext)s'} if program_name == 'yt-dlp'
                            else tempname + '.%(ext)s')
@@ -360,7 +366,12 @@ class gPodderYoutubeDL(download.CustomDownloader):
         opts['progress_hooks'] = [reporthook]  # to notify UI
         opts['writesubtitles'] = subs
         opts['subtitleslangs'] = opts.get('subtitleslangs') or (['all'] if subs else [])
-        opts['postprocessors'].extend([{'key': 'FFmpegEmbedSubtitle'}] if subs else [])
+
+        postprocessors = [{'key': 'FFmpegEmbedSubtitle'}] if subs else []
+        if 'postprocessors' in opts:
+            opts['postprocessors'].extend(postprocessors)
+        else:
+            opts['postprocessors'] = postprocessors
 
         # Need the proxy_url from src/gpodder/config.py:get_proxies_from_config()
         if gpodder.config._proxies:
