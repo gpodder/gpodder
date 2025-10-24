@@ -307,6 +307,10 @@ class gPodderYoutubeDL(download.CustomDownloader):
         else:
             self._ydl_opts = {}
 
+        # Ensure these keys exist for extending and updating
+        self._ydl_opts['paths'] = self._ydl_opts.get('paths', {})
+        self._ydl_opts['postprocessors'] = self._ydl_opts.get('postprocessors', [])
+
         self._ydl_opts['cachedir'] = cachedir
         self._ydl_opts['noprogress'] = True  # prevent progress bar from appearing in console
         # prevent escape codes in desktop notifications on errors
