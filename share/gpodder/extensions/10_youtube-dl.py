@@ -335,7 +335,7 @@ class gPodderYoutubeDL(download.CustomDownloader):
             logger.debug('no stdout, setting youtube-dl logger')
             self._ydl_opts['logger'] = logger
 
-    def add_format(self, gpodder_config, opts, fallback=None):
+    def get_ydl_format(self, gpodder_config, fallback=None):
         """Construct youtube-dl -f argument from configured format."""
         # You can set a custom format or custom formats by editing the config for key
         # `youtube.preferred_fmt_ids`
@@ -347,10 +347,12 @@ class gPodderYoutubeDL(download.CustomDownloader):
         # See https://github.com/ytdl-org/youtube-dl#format-selection for details
         # about youtube-dl format specification.
         fmt_ids = youtube.get_fmt_ids(gpodder_config.youtube, False)
-        opts['format'] = '/'.join(str(fmt) for fmt in fmt_ids)
+        ydl_format = '/'.join(str(fmt) for fmt in fmt_ids)
         if fallback:
-            opts['format'] += '/' + fallback
-        logger.debug('format=%s', opts['format'])
+            ydl_format += '/' + fallback
+
+        logger.debug(f'{ydl_format=}')
+        return ydl_format
 
     def fetch_info(self, url, tempname, reporthook):
         subs = self.my_config.embed_subtitles
@@ -371,7 +373,7 @@ class gPodderYoutubeDL(download.CustomDownloader):
             opts['proxy'] = gpodder.config._proxies['http']
             logger.debug(f"Setting proxy from network setting proxy: {opts['proxy']}")
 
-        self.add_format(self.gpodder_config, opts)
+        opts['format'] = self.get_ydl_format(self.gpodder_config)
         with youtube_dl.YoutubeDL(opts) as ydl:
             info = ydl.extract_info(url, download=False)
             return info, opts
@@ -382,12 +384,12 @@ class gPodderYoutubeDL(download.CustomDownloader):
 
     def refresh_entries(self, ie_result):
         # only interested in video metadata
-        opts = {
+        opts = self._ydl_opts.copy()
+        opts.update({
             'skip_download': True,  # don't download the video
             'youtube_include_dash_manifest': False,  # don't download the DASH manifest
-        }
-        self.add_format(self.gpodder_config, opts, fallback='18')
-        opts.update(self._ydl_opts)
+        })
+        opts['format'] = self.get_ydl_format(self.gpodder_config, fallback='18')
         new_entries = []
 
         # Need the proxy_url from src/gpodder/config.py:get_proxies_from_config()
