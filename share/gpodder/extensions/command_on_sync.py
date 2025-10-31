@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 _ = gpodder.gettext
 
-__title__ = _('Run a Command on Sync')
+__title__ = _('Run a command after sync')
 __description__ = _('Run a custom external command upon sync completion.')
 __authors__ = 'Eric Le Lay <elelay@macports.org>, Azer Abdullaev <azer.abdullaev.berlin+git@gmail.com>'
 __doc__ = 'https://gpodder.github.io/docs/extensions/commandonsync.html'
