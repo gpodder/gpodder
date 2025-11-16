@@ -217,7 +217,7 @@ def normalize_feed_url(url):
     and lazy typists (see the source for details).
 
     >>> normalize_feed_url('fb:43FPodcast')
-    'http://feeds.feedburner.com/43FPodcast'
+    'https://feeds.feedburner.com/43FPodcast'
 
     It will also take care of converting the domain name to
     all-lowercase (because domains are not case sensitive):
@@ -250,12 +250,11 @@ def normalize_feed_url(url):
     # keystrokes that you have to use.
     # Feel free to suggest other useful prefixes, and I'll add them here.
     PREFIXES = {
-            'fb:': 'http://feeds.feedburner.com/%s',
-            'yt:': 'http://www.youtube.com/rss/user/%s/videos.rss',
+            'fb:': 'https://feeds.feedburner.com/%s',
+            'yt:': 'https://www.youtube.com/feeds/videos.xml?user=%s',
             'sc:': 'https://soundcloud.com/%s',
-            # YouTube playlists. To get a list of playlists per-user, use:
-            # https://gdata.youtube.com/feeds/api/users/<username>/playlists
-            'ytpl:': 'http://gdata.youtube.com/feeds/api/playlists/%s',
+            'ytpl:': 'https://www.youtube.com/feeds/videos.xml?playlist_id=%s',
+            'ap:': 'https://podcasts.apple.com/podcast/id%s',
     }
 
     for prefix, expansion in PREFIXES.items():
@@ -292,6 +291,42 @@ def normalize_feed_url(url):
 
     # urlunsplit might return "a slightly different, but equivalent URL"
     return urllib.parse.urlunsplit((scheme, netloc, path, query, fragment))
+
+
+def parse_apple_podcasts_url(url):
+    """
+    Parses and resolves Apple Podcast links to podcast feed urls using the
+    iTunes Search API.
+    @return: the given url if not an apple podcasts url, or the feed url if
+    successfully parsed, or none if not.
+    Source: https://developer.apple.com/library/archive/documentation/AudioVideo/Conceptual/iTuneSearchAPI/LookupExamples.html
+    """
+    if url is None:
+        return url
+
+    re_apple_podcasts = re.compile(r'http[s]?://podcasts\.apple\.com(?:/[a-z]{2})?/podcast(?:/[^/]+)?/id([\d]+)', re.I)
+
+    m = re_apple_podcasts.match(url)
+    if m is not None:
+        apple_url = url
+        try:
+            lookup = urlopen('https://itunes.apple.com/lookup?id=%s' % m.group(1)).json()
+        except:
+            logger.warning('Could not parse %s.' % apple_url)
+            return None
+
+        if 'results' not in lookup or len(lookup['results']) == 0:
+            logger.warning('Could not parse %s: lookup returned no results.' % apple_url)
+            return None
+        elif 'feedUrl' not in lookup['results'][0]:
+            logger.warning('Could not parse %s: lookup doesn\'t contain feed URL.' % apple_url)
+            return None
+
+        url = normalize_feed_url(lookup['results'][0]['feedUrl'])
+        if url is None:
+            logger.warning('Could not parse %s: lookup contains invalid feed URL.' % apple_url)
+
+    return url
 
 
 def username_password_from_url(url):

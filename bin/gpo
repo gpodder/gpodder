@@ -326,12 +326,16 @@ class gPodderCli(object):
         the podcast has not been subscribed to.
         """
         url = util.normalize_feed_url(original_url)
-        if url is None:
-            self._error(_('Invalid url: %s') % original_url)
-            return None
+
+        # Check if it's an Apple Podcasts link, resolves to podcast feed url if that's the case
+        url = util.parse_apple_podcasts_url(url)
 
         # Check if it's a YouTube channel, user, or playlist and resolves it to its feed if that's the case
         url = youtube.parse_youtube_url(url)
+
+        if url is None:
+            self._error(_('Invalid url: %s') % original_url)
+            return None
 
         # Subscribe to new podcast
         if create:
