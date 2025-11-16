@@ -3634,11 +3634,6 @@ class gPodder(BuilderWidget):
     def on_homepage_activate(self, widget, *args):
         util.open_website(gpodder.__url__)
 
-    def check_for_distro_updates(self):
-        title = _('Managed by distribution')
-        message = _('Please check your distribution for gPodder updates.')
-        self.show_message(message, title, important=True)
-
     def check_for_updates(self, silent):
         """Check for updates and (optionally) show a message.
 
@@ -3667,12 +3662,24 @@ class gPodder(BuilderWidget):
                 _('Installed version: %s') % gpodder.__version__,
                 _('Newest version: %s') % version,
                 _('Release date: %s') % released,
-                '',
-                _('Download the latest version from gpodder.org?'),
             ])
+            if os.path.exists(gpodder.no_update_check_file):
+                message = '\n'.join([
+                    message,
+                    '',
+                    _('Please check your distribution for gPodder updates.'),
+                ])
 
-            if self.show_confirmation(message, title):
-                util.open_website('http://gpodder.org/downloads')
+                self.show_message(message, title, important=True)
+            else:
+                message = '\n'.join([
+                    message,
+                    '',
+                    _('Download the latest version from gpodder.org?'),
+                ])
+
+                if self.show_confirmation(message, title):
+                    util.open_website('http://gpodder.org/downloads')
 
     def on_wNotebook_switch_page(self, notebook, page, page_num):
         # wNotebook.get_current_page() (called in in_downloads_list() via
