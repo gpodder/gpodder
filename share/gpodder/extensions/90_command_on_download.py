@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 _ = gpodder.gettext
 
-__title__ = _('Run a Command on Download')
+__title__ = _('Run a command after download')
 __description__ = _('Run a predefined external command upon download completion.')
 __authors__ = 'Eric Le Lay <elelay@macports.org>'
 __doc__ = 'https://gpodder.github.io/docs/extensions/commandondownload.html'
