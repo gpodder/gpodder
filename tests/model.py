@@ -39,13 +39,13 @@ class TestEpisodePublishedProperties(unittest.TestCase):
         self.episode.published = self.PUBLISHED_UNIXTIME
 
     def test_sortdate(self):
-        self.assertEqual(self.episode.sortdate, self.PUBLISHED_SORT)
+        assert self.episode.sortdate == self.PUBLISHED_SORT
 
     def test_pubdate_year(self):
-        self.assertEqual(self.episode.pubdate_year, self.PUBLISHED_YEAR)
+        assert self.episode.pubdate_year == self.PUBLISHED_YEAR
 
     def test_pubdate_month(self):
-        self.assertEqual(self.episode.pubdate_month, self.PUBLISHED_MONTH)
+        assert self.episode.pubdate_month == self.PUBLISHED_MONTH
 
     def test_pubdate_day(self):
-        self.assertEqual(self.episode.pubdate_day, self.PUBLISHED_DAY)
+        assert self.episode.pubdate_day == self.PUBLISHED_DAY

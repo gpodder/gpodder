@@ -51,6 +51,8 @@ DefaultConfig = {
     'manage_downloads': True,
     # Embed all available subtitles to downloaded videos. Needs ffmpeg.
     'embed_subtitles': False,
+    # Read youtube-dl or yt-dlp config file
+    'read_config_file': False,
 }
 
 
@@ -298,10 +300,15 @@ class gPodderYoutubeDL(download.CustomDownloader):
         # cachedir is not much used in youtube-dl, but set it anyway
         cachedir = os.path.join(gpodder.home, 'youtube-dl')
         os.makedirs(cachedir, exist_ok=True)
-        self._ydl_opts = {
-            'cachedir': cachedir,
-            'noprogress': True,  # prevent progress bar from appearing in console
-        }
+
+        if self.my_config.read_config_file:
+            # Read options from youtube-dl config file
+            _parser, _opts, _urls, self._ydl_opts = youtube_dl.parse_options()
+        else:
+            self._ydl_opts = {}
+
+        self._ydl_opts['cachedir'] = cachedir
+        self._ydl_opts['noprogress'] = True  # prevent progress bar from appearing in console
         # prevent escape codes in desktop notifications on errors
         if program_name == 'yt-dlp':
             self._ydl_opts['color'] = 'no_color'
@@ -312,6 +319,7 @@ class gPodderYoutubeDL(download.CustomDownloader):
             self._ydl_opts['verbose'] = True
         else:
             self._ydl_opts['quiet'] = True
+
         # Don't create downloaders for URLs supported by these youtube-dl extractors
         self.ie_blacklist = ["Generic"]
         # Cache URL regexes from youtube-dl matches here, seed with youtube regex
@@ -342,25 +350,23 @@ class gPodderYoutubeDL(download.CustomDownloader):
 
     def fetch_info(self, url, tempname, reporthook):
         subs = self.my_config.embed_subtitles
-        opts = {
-            'paths': {'home': os.path.dirname(tempname)},
-            # Postprocessing in yt-dlp breaks without ext
-            'outtmpl': (os.path.basename(tempname) if program_name == 'yt-dlp'
-                        else tempname) + '.%(ext)s',
-            'nopart': True,  # don't append .part (already .partial)
-            'retries': 3,  # retry a few times
-            'progress_hooks': [reporthook],  # to notify UI
-            'writesubtitles': subs,
-            'subtitleslangs': ['all'] if subs else [],
-            'postprocessors': [{'key': 'FFmpegEmbedSubtitle'}] if subs else [],
-        }
+        opts = self._ydl_opts.copy()
+        opts['paths'].update({'home': os.path.dirname(tempname)})
+        # Postprocessing in yt-dlp breaks without ext
+        opts['outtmpl'] = ({'default': os.path.basename(tempname) + '.%(ext)s'} if program_name == 'yt-dlp'
+                           else tempname + '.%(ext)s')
+        opts['nopart'] = True  # don't append .part (already .partial)
+        opts['retries'] = 3  # retry a few times
+        opts['progress_hooks'] = [reporthook]  # to notify UI
+        opts['writesubtitles'] = subs
+        opts['subtitleslangs'] = opts.get('subtitleslangs') or (['all'] if subs else [])
+        opts['postprocessors'].extend([{'key': 'FFmpegEmbedSubtitle'}] if subs else [])
 
         # Need the proxy_url from src/gpodder/config.py:get_proxies_from_config()
         if gpodder.config._proxies:
             opts['proxy'] = gpodder.config._proxies['http']
             logger.debug(f"Setting proxy from network setting proxy: {opts['proxy']}")
 
-        opts.update(self._ydl_opts)
         self.add_format(self.gpodder_config, opts)
         with youtube_dl.YoutubeDL(opts) as ydl:
             info = ydl.extract_info(url, download=False)
@@ -418,10 +424,8 @@ class gPodderYoutubeDL(download.CustomDownloader):
             has_playlist = result_type in ('playlist', 'multi_video')
             return result_type, has_playlist
 
-        opts = {
-            'youtube_include_dash_manifest': False,  # only interested in video title and id
-        }
-        opts.update(self._ydl_opts)
+        opts = self._ydl_opts.copy()
+        opts['youtube_include_dash_manifest'] = False  # only interested in video title and id
 
         # Need the proxy_url from src/gpodder/config.py:get_proxies_from_config()
         if gpodder.config._proxies:
@@ -581,11 +585,14 @@ class gPodderExtension:
         else:
             self.container.config.embed_subtitles = False
 
+    def toggle_read_config_file(self, widget):
+        self.container.config.read_config_file = widget.get_active()
+
     def check_for_update(self, widget):
         success = False
         try:
             output = subprocess.check_output(
-                    [sys.executable, '-m', 'pip', 'index', 'versions', program_name],
+                    ['pythonw', '-m', 'pip', 'index', 'versions', program_name],
                     stderr=subprocess.STDOUT,
                     encoding='utf-8',
                     close_fds=True,
@@ -596,10 +603,10 @@ class gPodderExtension:
                 self.latest_version = match.group(1)
                 success = True
             else:
-                logger.Error("Could not find LATEST version in pip output:\n%s", output)
+                logger.error("Could not find LATEST version in pip output:\n%s", output)
                 self.latest_version = None
         except Exception as e:
-            logger.Error("Error checking for latest version: %r", e)
+            logger.error("Error checking for latest version: %r", e)
             self.latest_version = None
 
         if success:
@@ -619,7 +626,7 @@ class gPodderExtension:
     def do_update(self, widget):
         try:
             subprocess.check_output(
-                    [sys.executable, '-m', 'pip', 'install', '--upgrade', program_name],
+                    ['pythonw', '-m', 'pip', 'install', '--upgrade', program_name],
                     stderr=subprocess.STDOUT,
                     encoding='utf-8',
                     close_fds=True,
@@ -664,6 +671,11 @@ class gPodderExtension:
         checkbox = Gtk.CheckButton(_('Embed all available subtitles in downloaded video'))
         checkbox.set_active(self.container.config.embed_subtitles)
         checkbox.connect('toggled', self.toggle_embed_subtitles)
+        box.pack_start(checkbox, False, False, 0)
+
+        checkbox = Gtk.CheckButton(_('Read youtube-dl/yt-dlp config file for additional options'))
+        checkbox.set_active(self.container.config.read_config_file)
+        checkbox.connect('toggled', self.toggle_read_config_file)
         box.pack_start(checkbox, False, False, 0)
 
         infobar = Gtk.InfoBar()

@@ -92,7 +92,6 @@ class ExtensionMetadata(object):
     DEFAULTS = {
         'description': _('No description for this extension.'),
         'doc': None,
-        'payment': None,
     }
     SORTKEYS = {
         'title': 1,
@@ -535,8 +534,7 @@ class ExtensionManager(object):
 
     @call_extensions
     def on_all_episodes_synced(self):
-        """Called when all episodes have been synchronized
-        """
+        """Called when all episodes have been synchronized."""  # noqa: D401
 
     @call_extensions
     def on_create_menu(self):

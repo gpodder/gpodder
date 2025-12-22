@@ -10,7 +10,7 @@ import urllib.parse
 
 import gi  # isort:skip
 gi.require_version('Gio', '2.0')
-from gi.repository import Gio, GLib
+from gi.repository import Gio
 
 import gpodder
 from gpodder import util
@@ -23,7 +23,6 @@ __title__ = _('Enqueue/Resume in media players')
 __description__ = _('Add a context menu item for enqueueing/resuming playback of episodes in installed media players')
 __authors__ = 'Thomas Perl <thp@gpodder.org>, Bernd Schlapsi <brot@gmx.info>'
 __doc__ = 'https://gpodder.github.io/docs/extensions/enqueueinmediaplayer.html'
-__payment__ = 'https://flattr.com/submit/auto?user_id=BerndSch&url=http://wiki.gpodder.org/wiki/Extensions/EnqueueInMediaplayer'
 __category__ = 'interface'
 __only_for__ = 'gtk'
 

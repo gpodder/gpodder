@@ -68,6 +68,9 @@ unittest:
 
 ISORTOPTS := -c share src/gpodder tools bin/* setup.py
 lint:
+	flake8 --version
+	flake8 share src/gpodder tools bin setup.py || true
+
 	pycodestyle --version
 	pycodestyle share src/gpodder tools bin/* setup.py
 
@@ -75,7 +78,7 @@ lint:
 	isort -q $(ISORTOPTS) || isort --df $(ISORTOPTS)
 
 	codespell --version
-	codespell --quiet-level 3 --skip "./.git,*.po,.mypy_cache,./share/applications/gpodder.desktop" --  $(shell git ls-files)
+	git ls-files | xargs codespell --quiet-level 3 --skip "./.git,*.po,.mypy_cache,./share/applications/gpodder.desktop" --
 
 release: distclean
 	$(PYTHON) -m build --sdist
