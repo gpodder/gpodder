@@ -258,6 +258,17 @@ class gPodderSyncUI(object):
                                 if episodes_in_playlists:
                                     for episode_filename in episodes_in_playlists:
                                         abs_path_episode_noslash = re.sub(r'^/', '', episode_filename)
+
+                                        # check if episodes exist based on the absolute path setting and querying
+                                        # the path found in the playlist.
+                                        # NOTE: If the use_absolute_path setting is changed between last sync and this sync,
+                                        # the path will fail to be found and the episode could be considered deleted, HOWEVER:
+                                        # Because the episode dictionary also relies on the path, gPodder will not be able to
+                                        # match the on-device episode to the episode in the database, so the episode will simply
+                                        # be re-added to the device.
+                                        # This quirk is acceptable because if only the file basenames are used to determine whether
+                                        # a file matches, then the matching could potentially be too broad (across different podcasts).
+                                        # This is the lesser of two evils.
                                         if ((not self._config.device_sync.playlists.use_absolute_path
                                         and not playlist.playlist_folder.resolve_relative_path(episode_filename).query_exists())
                                         or (self._config.device_sync.playlists.use_absolute_path
