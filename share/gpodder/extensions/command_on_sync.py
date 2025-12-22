@@ -4,6 +4,7 @@
 #
 
 import datetime
+import html
 import logging
 import os
 
@@ -56,15 +57,20 @@ class gPodderExtension:
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
         box.set_border_width(10)
 
-        title = Gtk.Label(use_markup=True, label=_('<b><big>Command On Sync Complete Extension</big></b>'))
+        title = Gtk.Label(use_markup=True, label='<b><big>{}</big></b>'.format(__title__))
         title.set_halign(Gtk.Align.CENTER)
         box.add(title)
 
-        whatisthis = Gtk.Label(use_markup=True, wrap=True, label=_(
-            'This extension defines a command to run upon device sync completion.'
-        ))
-        whatisthis.set_property('xalign', 0.0)
-        box.add(whatisthis)
+        desc = Gtk.Label(use_markup=True, label=__description__)
+        desc.set_property('xalign', 0.0)
+        box.add(desc)
+
+        info = Gtk.Label(use_markup=True, label='\n'.join('<b>{}</b>: {}'.format(html.escape(key), html.escape(value))
+                                                          for key, value in self.container.metadata.get_sorted()
+                                                          if key not in ('title', 'description')))
+        info.set_property('xalign', 0.0)
+        info.set_selectable(True)
+        box.add(info)
 
         box.pack_start(Gtk.HSeparator(), False, False, 0)
 
