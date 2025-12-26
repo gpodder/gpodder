@@ -868,17 +868,17 @@ class PodcastEpisode(PodcastModelObject):
 
     @property
     def pubdate_day(self):
-        """for custom sync filename: use episode.pubdate_day for day of publication (01-31)"""
+        """For custom sync filename: use episode.pubdate_day for day of publication (01-31)."""
         return self.published_formatted('%d', '00')
 
     @property
     def pubdate_month(self):
-        """for custom filename: use episode.pubdate_month for month of publication (01-12)"""
+        """For custom filename: use episode.pubdate_month for month of publication (01-12)."""
         return self.published_formatted('%m', '00')
 
     @property
     def pubdate_year(self):
-        """for custom filename: use episode.pubdate_year for year of publication without century)"""
+        """For custom filename: use episode.pubdate_year for year of publication without century)."""
         return self.published_formatted('%y', '00')
 
     def is_finished(self):
