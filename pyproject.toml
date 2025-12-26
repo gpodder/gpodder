@@ -19,10 +19,10 @@ requires-python = ">=3.8"
 dependencies = [
     "dbus-python;platform_system=='Linux'",
     "mygpoclient==1.10",
-    "podcastparser==0.6.10",
+    "podcastparser==0.6.11",
     "PyGObject",
-    "requests[socks]==2.32.3",
-    "urllib3==2.2.2",
+    "requests[socks]>=2.32.3",
+    "urllib3>=2.2.2",
 ]
 dynamic = ["version"]
 
