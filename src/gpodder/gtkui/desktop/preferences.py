@@ -463,8 +463,24 @@ class gPodderPreferences(BuilderWidget):
         # add preferences buttons for all extensions
         result = gpodder.user_extensions.on_preferences()
         if result:
-            for label, callback in result:
+            for label, callback, container in result:
                 page = callback()
+
+                title_display = Gtk.Label(use_markup=True, label='<b><big>{}</big></b>'.format(container.metadata.title))
+                title_display.set_halign(Gtk.Align.CENTER)
+                desc_display = Gtk.Label(use_markup=True, label=container.metadata.description)
+                desc_display.set_property('xalign', 0.0)
+                metadata_display = Gtk.Label(use_markup=True, label='\n'.join('<b>{}</b>: {}'.format(html.escape(key), html.escape(value))
+                                                          for key, value in container.metadata.get_sorted()
+                                                          if key not in ('title', 'description')))
+                metadata_display.set_property('xalign', 0.0)
+                metadata_display.set_selectable(True)
+
+                for i, child in enumerate([title_display, desc_display, metadata_display]):
+                    page.add(child)
+                    page.reorder_child(child, i)
+                page.show_all()
+
                 name = "extension." + label
                 page.set_name(name)
                 page.foreach(self._wrap_checkbox_labels)
