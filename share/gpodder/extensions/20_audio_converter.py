@@ -151,12 +151,7 @@ class gPodderExtension:
 
     # return (use_opus, use_ogg)
     def outputtype_to_options(self, type):
-        if type.upper() == 'OPUS':
-            return (True, False)
-        elif type.upper() == 'OGG':
-            return (False, True)
-        else:
-            return (False, False)
+        return (type.upper() == 'OPUS', type.upper() == 'OGG')
 
     def on_targetfiletype_changed(self, widget):
         (self.container.config.use_opus, self.container.config.use_ogg) = self.outputtype_to_options(widget.get_active_text())
