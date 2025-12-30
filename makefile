@@ -88,7 +88,7 @@ $(GPODDER_SERVICE_FILE): $(GPODDER_SERVICE_FILE_IN)
 
 %.desktop: %.desktop.in $(POFILES)
 	sed -e 's#__PREFIX__#$(PREFIX)#' $< >$@.tmp
-	intltool-merge -d -u po $@.tmp $@
+	msgfmt --desktop --template $@.tmp -d po -o $@
 	rm -f $@.tmp
 
 build: messages $(GPODDER_SERVICE_FILE) $(DESKTOP_FILES)
