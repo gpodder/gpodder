@@ -23,7 +23,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update -q
-          sudo apt-get install intltool desktop-file-utils
+          sudo apt-get install gettext desktop-file-utils
           pip3 install flake8 pytest-cov pycodestyle isort codespell requests pytest pytest-httpserver
           pip3 install podcastparser mygpoclient
       - name: Lint

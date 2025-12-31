@@ -26,7 +26,6 @@ GPODDER_SERVICE_FILE=share/dbus-1/services/org.gpodder.service
 GPODDER_SERVICE_FILE_IN=$(addsuffix .in,$(GPODDER_SERVICE_FILE))
 
 DESKTOP_FILES_IN=$(wildcard share/applications/*.desktop.in)
-DESKTOP_FILES_IN_H=$(patsubst %.desktop.in,%.desktop.in.h,$(DESKTOP_FILES_IN))
 DESKTOP_FILES=$(patsubst %.desktop.in,%.desktop,$(DESKTOP_FILES_IN))
 
 MESSAGES = po/messages.pot
@@ -35,7 +34,6 @@ LOCALEDIR = share/locale
 MOFILES = $(patsubst po/%.po,$(LOCALEDIR)/%/LC_MESSAGES/gpodder.mo, $(POFILES))
 
 UIFILES=$(wildcard share/gpodder/ui/gtk/*.ui)
-UIFILES_H=$(subst .ui,.ui.h,$(UIFILES))
 GETTEXT_SOURCE=$(wildcard src/gpodder/*.py \
 			  src/gpodder/gtkui/*.py \
 			  src/gpodder/gtkui/interface/*.py \
@@ -43,9 +41,7 @@ GETTEXT_SOURCE=$(wildcard src/gpodder/*.py \
 			  src/gpodder/plugins/*.py \
 			  share/gpodder/extensions/*.py)
 
-GETTEXT_SOURCE += $(UIFILES_H)
 GETTEXT_SOURCE += $(wildcard bin/*[^~])
-GETTEXT_SOURCE += $(DESKTOP_FILES_IN_H)
 
 DESTDIR ?= /
 PREFIX ?= /usr
@@ -92,11 +88,8 @@ $(GPODDER_SERVICE_FILE): $(GPODDER_SERVICE_FILE_IN)
 
 %.desktop: %.desktop.in $(POFILES)
 	sed -e 's#__PREFIX__#$(PREFIX)#' $< >$@.tmp
-	intltool-merge -d -u po $@.tmp $@
+	msgfmt --desktop --template $@.tmp -d po -o $@
 	rm -f $@.tmp
-
-%.desktop.in.h: %.desktop.in
-	intltool-extract --quiet --type=gettext/ini $<
 
 build: messages $(GPODDER_SERVICE_FILE) $(DESKTOP_FILES)
 
@@ -143,14 +136,15 @@ $(LOCALEDIR)/%/LC_MESSAGES/gpodder.mo: po/%.po
 	@mkdir -p $(@D)
 	msgfmt $< -o $@
 
-%.ui.h: %.ui
-	intltool-extract --quiet --type=gettext/glade $<
-
-$(MESSAGES): $(GETTEXT_SOURCE)
-	xgettext --from-code=utf-8 -LPython -k_:1 -kN_:1 -kN_:1,2 -kn_:1,2 -o $(MESSAGES) $^
+$(MESSAGES): $(GETTEXT_SOURCE) $(UIFILES) $(DESKTOP_FILES_IN)
+	xgettext --from-code=utf-8 -LPython -k_:1 -kN_:1 -kN_:1,2 -kn_:1,2 -o $(MESSAGES) $(GETTEXT_SOURCE)
+	xgettext -j --from-code=utf-8 -LGlade -k_ -o $(MESSAGES) $(UIFILES)
+	xgettext -j --from-code=utf-8 -LDesktop -o $(MESSAGES) $(DESKTOP_FILES_IN)
 
 messages-force:
 	xgettext --from-code=utf-8 -LPython -k_:1 -kN_:1 -kN_:1,2 -kn_:1,2 -o $(MESSAGES)  $(GETTEXT_SOURCE)
+	xgettext -j --from-code=utf-8 -LGlade -k_ -o $(MESSAGES) $(UIFILES)
+	xgettext -j --from-code=utf-8 -LDesktop -o $(MESSAGES) $(DESKTOP_FILES_IN)
 
 ##########################################################################
 
@@ -171,7 +165,7 @@ clean:
 	find share/gpodder/ui/ -name '*.ui.h' -exec rm '{}' +
 	rm -f MANIFEST .coverage messages.mo po/*.mo
 	rm -f $(GPODDER_SERVICE_FILE)
-	rm -f $(DESKTOP_FILES) $(DESKTOP_FILES_IN_H)
+	rm -f $(DESKTOP_FILES)
 	rm -rf build $(LOCALEDIR)
 	rm -rf src/gpodder.egg-info
 
