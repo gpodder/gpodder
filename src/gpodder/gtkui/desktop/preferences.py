@@ -470,11 +470,20 @@ class gPodderPreferences(BuilderWidget):
                 title_display.set_halign(Gtk.Align.CENTER)
                 desc_display = Gtk.Label(use_markup=True, label=container.metadata.description)
                 desc_display.set_property('xalign', 0.0)
-                metadata_display = Gtk.Label(use_markup=True, label='\n'.join('<b>{}</b>: {}'.format(html.escape(key), html.escape(value))
-                                                          for key, value in container.metadata.get_sorted()
-                                                          if key not in ('title', 'description')))
+
+                metadata_display = Gtk.Label(use_markup=True, label='<b>{}</b>: {}\n'
+                                                                    '<b>{}</b>: {}\n'
+                                                                    '<b>{}</b>: <a href="{}">{}</a>'.format(
+                                                                        html.escape('category'),
+                                                                        html.escape(container.metadata.__dict__.get('category')),
+                                                                        html.escape('authors'),
+                                                                        html.escape(container.metadata.__dict__.get('authors')),
+                                                                        html.escape('doc'),
+                                                                        html.escape(container.metadata.__dict__.get('doc')),
+                                                                        html.escape(container.metadata.__dict__.get('doc'))
+                                                                    )
+                                             )
                 metadata_display.set_property('xalign', 0.0)
-                metadata_display.set_selectable(True)
 
                 for i, child in enumerate([title_display, desc_display, metadata_display]):
                     page.add(child)
