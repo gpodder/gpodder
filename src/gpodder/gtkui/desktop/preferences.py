@@ -472,8 +472,8 @@ class gPodderPreferences(BuilderWidget):
                 desc_display.set_property('xalign', 0.0)
 
                 metadata_display = Gtk.Label(use_markup=True, label='<b>{}</b> {}\n'
-                                                                    '<b>{}</b>: {}\n'
-                                                                    '<b>{}</b>: <a href="{}">{}</a>'.format(
+                                                                    '<b>{}</b> {}\n'
+                                                                    '<b>{}</b> <a href="{}">{}</a>'.format(
                                                                         _('Category:'),
                                                                         html.escape(_(container.metadata.category)),
                                                                         _('Authors:'),
