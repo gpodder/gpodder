@@ -714,4 +714,4 @@ class gPodderExtension:
         return box
 
     def on_preferences(self):
-        return [(_('youtube-dl'), self.show_preferences)]
+        return [(_('youtube-dl'), self.show_preferences, self.container)]

@@ -463,8 +463,33 @@ class gPodderPreferences(BuilderWidget):
         # add preferences buttons for all extensions
         result = gpodder.user_extensions.on_preferences()
         if result:
-            for label, callback in result:
+            for label, callback, container in result:
                 page = callback()
+
+                title_display = Gtk.Label(use_markup=True, label='<b><big>{}</big></b>'.format(container.metadata.title))
+                title_display.set_halign(Gtk.Align.CENTER)
+                desc_display = Gtk.Label(use_markup=True, label=container.metadata.description)
+                desc_display.set_property('xalign', 0.0)
+
+                metadata_display = Gtk.Label(use_markup=True, label='<b>{}</b> {}\n'
+                                                                    '<b>{}</b> {}\n'
+                                                                    '<b>{}</b> <a href="{}">{}</a>'.format(
+                                                                        _('Category:'),
+                                                                        html.escape(_(container.metadata.category)),
+                                                                        _('Authors:'),
+                                                                        html.escape(container.metadata.authors),
+                                                                        _('Documentation:'),
+                                                                        html.escape(container.metadata.doc),
+                                                                        html.escape(container.metadata.doc)
+                                                                    )
+                                             )
+                metadata_display.set_property('xalign', 0.0)
+
+                for i, child in enumerate([title_display, desc_display, metadata_display]):
+                    page.add(child)
+                    page.reorder_child(child, i)
+                page.show_all()
+
                 name = "extension." + label
                 page.set_name(name)
                 page.foreach(self._wrap_checkbox_labels)
