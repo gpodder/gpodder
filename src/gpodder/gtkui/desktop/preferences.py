@@ -471,16 +471,16 @@ class gPodderPreferences(BuilderWidget):
                 desc_display = Gtk.Label(use_markup=True, label=container.metadata.description)
                 desc_display.set_property('xalign', 0.0)
 
-                metadata_display = Gtk.Label(use_markup=True, label='<b>{}</b>: {}\n'
+                metadata_display = Gtk.Label(use_markup=True, label='<b>{}</b> {}\n'
                                                                     '<b>{}</b>: {}\n'
                                                                     '<b>{}</b>: <a href="{}">{}</a>'.format(
-                                                                        html.escape('category'),
-                                                                        html.escape(container.metadata.__dict__.get('category')),
-                                                                        html.escape('authors'),
-                                                                        html.escape(container.metadata.__dict__.get('authors')),
-                                                                        html.escape('doc'),
-                                                                        html.escape(container.metadata.__dict__.get('doc')),
-                                                                        html.escape(container.metadata.__dict__.get('doc'))
+                                                                        _('Category:'),
+                                                                        html.escape(_(container.metadata.category)),
+                                                                        _('Authors:'),
+                                                                        html.escape(container.metadata.authors),
+                                                                        _('Documentation:'),
+                                                                        html.escape(container.metadata.doc),
+                                                                        html.escape(container.metadata.doc)
                                                                     )
                                              )
                 metadata_display.set_property('xalign', 0.0)
