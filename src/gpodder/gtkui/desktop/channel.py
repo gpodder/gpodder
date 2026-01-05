@@ -27,7 +27,7 @@ _ = gpodder.gettext
 
 
 class gPodderChannel(BuilderWidget):
-    MAX_SIZE = 120
+    MAX_SIZE = 240
 
     def new(self):
         self.show_on_cover_load = True
