@@ -453,8 +453,9 @@ class gPodderYoutubeDL(download.CustomDownloader):
                                                  process=False,
                                                  ie_key=ie_result.get('ie_key'))
                 result_type, has_playlist = extract_type(ie_result)
-        cover_url = youtube.get_cover(channel_url)  # youtube-dl doesn't provide the cover url!
-        description = youtube.get_channel_desc(channel_url)  # youtube-dl doesn't provide the description!
+        thumbnails = ie_result.get('thumbnails', [])
+        cover_url = (thumbnails[0].get('url') if thumbnails else None) or youtube.get_cover(channel_url)
+        description = ie_result.get('description') or youtube.get_channel_desc(channel_url)
         return feedcore.Result(feedcore.UPDATED_FEED,
             YoutubeFeed(url, cover_url, description, max_episodes, ie_result, self))
 
