@@ -1559,8 +1559,8 @@ def gui_open(filename, gui=None):
             else:
                 message = _("Cannot open '%(filename)s' using '%(opener)s'") \
                                         % {'filename': filename, 'opener': opener}
-            gui.show_message_details(_('Cannot open file/folder'),
-                    str(sys.exc_info()[1]), message)
+            title = _('Cannot open file/folder')
+            gui.show_message_details(title, title, str(sys.exc_info()[1]), message)
         return False
 
 

@@ -2545,7 +2545,7 @@ class gPodder(BuilderWidget):
                 message = _('Some podcasts could not be added to your list:')
                 details = '\n\n'.join('<b>{}</b>:\n{}'.format(html.escape(url),
                     html.escape(error_messages.get(url, _('Unknown')))) for url in failed)
-                self.show_message_details(title, message, details)
+                self.show_message_details(title, title, message, details)
 
             # Upload subscription changes to gpodder.net
             self.mygpo_client.on_subscribe(worked)
