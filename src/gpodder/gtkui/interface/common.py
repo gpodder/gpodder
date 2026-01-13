@@ -102,9 +102,9 @@ class BuilderWidget(GtkBuilderWidget):
         widget.connect("icon-press", _on_press)
         widget.connect("populate-popup", _on_popup)
 
-    def show_message_details(self, title, message, details):
+    def show_message_details(self, window_title, title, message, details):
         dlg = Gtk.MessageDialog(self.main_window, Gtk.DialogFlags.MODAL, Gtk.MessageType.INFO, Gtk.ButtonsType.OK)
-        dlg.set_title(title)
+        dlg.set_title(window_title)
         dlg.set_property('text', title)
         dlg.format_secondary_text(message)
 
@@ -123,7 +123,7 @@ class BuilderWidget(GtkBuilderWidget):
         tv.set_buffer(tb)
         tv.set_property('expand', True)
         sw = Gtk.ScrolledWindow()
-        sw.set_size_request(400, 200)
+        sw.set_size_request(320, 200)
         sw.set_property('shadow-type', Gtk.ShadowType.IN)
         sw.add(tv)
         sw.show_all()

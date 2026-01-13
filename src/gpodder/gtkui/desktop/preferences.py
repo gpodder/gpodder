@@ -610,7 +610,8 @@ class gPodderPreferences(BuilderWidget):
                          for key, value in container.metadata.get_sorted()
                          if key not in ('title', 'description'))
 
-        self.show_message_details(container.metadata.title, container.metadata.description, info)
+        self.show_message_details(
+            _("Extension info"), container.metadata.title, container.metadata.description, info)
 
     def open_weblink(self, w, url):
         util.open_website(url)
