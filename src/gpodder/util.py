@@ -2485,3 +2485,43 @@ def parse_rfc_9110_date(date_repr: str):
     except ValueError as e:
         logger.debug("ValueError parsing date %r: %r", date_repr, e)
     return None
+
+
+def format_datetime_today(not_before, now_tz=None):
+    """Format datetime in local timezone.
+
+    avoiding the date if it's today.
+
+    >>> format_datetime_today(datetime.datetime(2026, 2, 15, 3, tzinfo=datetime.timezone.utc), now_tz=datetime.datetime(2026, 2, 15, 2, tzinfo=datetime.timezone.utc))  # noqa: E501
+    '03:00:00'
+    """
+    if now_tz is None:
+        now_tz = datetime.datetime.now(datetime.timezone.utc).astimezone()
+    not_before_tz = not_before.astimezone(now_tz.tzinfo)
+    if not_before_tz.date() == now_tz.date():
+        return not_before_tz.strftime("%X")
+    else:
+        return not_before_tz.strftime("%c")
+
+
+def get_retry_after(headers, now_tz=None):
+    """Compute not_before tz aware datetime from headers.
+
+    >>> get_retry_after({'retry-after': 'Fri, 31 Dec 1999 23:59:59 GMT'}, \
+            now_tz=datetime.datetime(1999, 12, 31, tzinfo=datetime.timezone.utc))
+    datetime.datetime(1999, 12, 31, 23, 59, 59, tzinfo=datetime.timezone.utc)
+    >>> get_retry_after({'retry-after': '60'}, now_tz=datetime.datetime(1999, 12, 31, tzinfo=datetime.timezone.utc))
+    datetime.datetime(1999, 12, 31, 0, 1, tzinfo=datetime.timezone.utc)
+    """
+    if now_tz is None:
+        now_tz = datetime.datetime.now(datetime.timezone.utc)
+    retry = headers.get('retry-after')
+    if retry:
+        retry_after_date = parse_rfc_9110_date(retry)
+        if not retry_after_date:
+            try:
+                retry_after = int(retry)
+            except ValueError:
+                return None
+            retry_after_date = now_tz + datetime.timedelta(seconds=retry_after)
+        return retry_after_date

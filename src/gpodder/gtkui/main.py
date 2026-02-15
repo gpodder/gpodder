@@ -36,7 +36,8 @@ import gpodder
 from gpodder import (common, download, feedcore, my, opml, registry, util,
                      youtube)
 from gpodder.dbusproxy import DBusPodcastsProxy
-from gpodder.model import Model, PodcastEpisode, episode_object_by_uri
+from gpodder.model import (FeedNotRefreshed, Model, PodcastEpisode,
+                           episode_object_by_uri)
 from gpodder.player import MyGPOClientObserver, PlayerInterface
 from gpodder.services import AutoRegisterObserver
 from gpodder.syncui import gPodderSyncUI
@@ -2747,11 +2748,22 @@ class gPodder(BuilderWidget):
 
                 try:
                     channel._update_error = None
+                    channel._not_refreshed = None
                     util.idle_add(indicate_updating_podcast, channel)
                     new_episodes.extend(channel.update(max_episodes=self.config.limit.episodes, force=force))
                     self._update_cover(channel)
+                except FeedNotRefreshed as e:
+                    not_before = util.format_datetime_today(e.data)
+                    channel._not_refreshed = _("Not refreshed, wait after %(not_before)s") % {'not_before': not_before}
                 except Exception as e:
-                    message = str(e)
+                    if isinstance(e, feedcore.RetryAfterException):
+                        not_before = util.format_datetime_today(e.data)
+                        message = \
+                            _("%(error)s: Retry after %(not_before)s") \
+                            % {'error': e.__class__.__name__, 'not_before': not_before}
+                    else:
+                        message = str(e)
+
                     if message:
                         channel._update_error = message
                     else:

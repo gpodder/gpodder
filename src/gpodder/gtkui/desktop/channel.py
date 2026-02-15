@@ -17,7 +17,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from datetime import datetime
 from gi.repository import Gdk, Gio, Gtk
 
 import gpodder
@@ -79,12 +78,7 @@ class gPodderChannel(BuilderWidget):
         if self.channel.not_before is None:
             self.row_not_before.set_visible(False)
         else:
-            not_before = self.channel.not_before_date
-            if not_before:
-                if not_before.date() == datetime.now().date():
-                    not_before = not_before.strftime("%X")
-                else:
-                    not_before = not_before.strftime("%c")
+            not_before = util.format_datetime_today(self.channel.not_before_date)
             self.label_not_before.set_markup(_("Don't refresh before <b>%(not_before)s</b>") % {'not_before': not_before})
 
         # Cover image

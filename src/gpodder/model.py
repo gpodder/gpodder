@@ -48,6 +48,10 @@ logger = logging.getLogger(__name__)
 _ = gpodder.gettext
 
 
+class FeedNotRefreshed(feedcore.RetryAfterException):
+    """Used to notify that the feed was not refreshed due to 'not before'."""
+
+
 class Feed:
     """Abstract class for presenting a parsed feed to PodcastChannel."""
 
@@ -207,7 +211,7 @@ class PodcastParserFeed(Feed):
 
     @staticmethod
     def compute_not_before(headers):
-        """Figures out "not before" based on headers according to RFC9111"""
+        """Figures out "not before" based on headers according to RFC9111."""
         if 'cache-control' in headers:
             directives = {}
             for single_directive in re.split(", ?", headers['cache-control']):
@@ -231,7 +235,7 @@ class PodcastParserFeed(Feed):
             if max_age > 0:
                 # should take into account the response time but it makes it even more complicated.
                 # With short response times and long polling it should be reasonable.
-                return datetime.datetime.now() + datetime.timedelta(seconds=max_age)
+                return datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(seconds=max_age)
         # by ordering we ensure that expires is ignored if Cache-Control= maxage | s-maxdate,
         # as requested by RFC 9111
         if 'expires' in headers:
@@ -973,7 +977,7 @@ class PodcastEpisode(PodcastModelObject):
 
 
 class PodcastChannel(PodcastModelObject):
-    __slots__ = schema.PodcastColumns + ('_common_prefix', '_update_error',)
+    __slots__ = schema.PodcastColumns + ('_common_prefix', '_not_refreshed', '_update_error')
 
     UNICODE_TRANSLATE = {ord('ö'): 'o', ord('ä'): 'a', ord('ü'): 'u'}
 
@@ -1026,6 +1030,7 @@ class PodcastChannel(PodcastModelObject):
             self.children = self.db.load_episodes(self, self.episode_factory)
             self._determine_common_prefix()
 
+        self._not_refreshed = None
         self._update_error = None
 
     @property
@@ -1364,10 +1369,11 @@ class PodcastChannel(PodcastModelObject):
     def update(self, max_episodes=0, force=False):
         max_episodes = int(max_episodes)
         new_episodes = []
-        if (not_before_date := self.not_before_date) and not_before_date > datetime.datetime.now():
+        if (not_before_date := self.not_before_date) and not_before_date > datetime.datetime.now(datetime.timezone.utc):
             if force:
                 logger.info("Feed %s has not-before %s but fetching anyway (force=True)", self.url, self.not_before)
             else:
+                raise FeedNotRefreshed(self.not_before_date)
                 logger.info("Feed %s has not-before %s so not refreshing it", self.url, self.not_before)
                 return []
         try:
@@ -1405,6 +1411,8 @@ class PodcastChannel(PodcastModelObject):
             # feedcore.NotFound
             # feedcore.InvalidFeed
             # feedcore.UnknownStatusCode
+            if isinstance(e, feedcore.RetryAfterException) and e.data:
+                self._consume_refresh_info(etag=None, last_modified=None, not_before=e.data)
             gpodder.user_extensions.on_podcast_update_failed(self, e)
             raise
 
