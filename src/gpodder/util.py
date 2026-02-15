@@ -2525,3 +2525,36 @@ def get_retry_after(headers, now_tz=None):
                 return None
             retry_after_date = now_tz + datetime.timedelta(seconds=retry_after)
         return retry_after_date
+
+
+def compute_not_before(headers):
+    """Figures out "not before" based on headers according to RFC9111."""
+    if 'cache-control' in headers:
+        directives = {}
+        for single_directive in re.split(", ?", headers['cache-control']):
+            k, v = (single_directive.split("=", 1) + [""])[:2]
+            directives[k.lower()] = v
+        if s_max_age := directives.get('s-max-age'):
+            try:
+                max_age = int(s_max_age)
+            except ValueError:
+                return None
+        elif max_age := directives.get('max-age'):
+            age = headers.get('age')
+            try:
+                age = int(age)
+            except (TypeError, ValueError):
+                age = 0
+            try:
+                max_age = int(max_age) - age
+            except ValueError:
+                return None
+        if max_age > 0:
+            # should take into account the response time but it makes it even more complicated.
+            # With short response times and long polling it should be reasonable.
+            return datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(seconds=max_age)
+    # by ordering we ensure that expires is ignored if Cache-Control= maxage | s-maxdate,
+    # as requested by RFC 9111
+    if 'expires' in headers:
+        # no filter here (eg be a cap to 24 hours). Do it elsewhere
+        return parse_rfc_9110_date(headers['expires'])
