@@ -41,7 +41,7 @@ import podcastparser
 
 import gpodder
 from gpodder import coverart, feedcore, registry, schema, util, vimeo, youtube
-from gpodder.util import parse_rfc_9110_date
+from gpodder.util import compute_not_before
 
 logger = logging.getLogger(__name__)
 
@@ -207,40 +207,7 @@ class PodcastParserFeed(Feed):
         return None
 
     def get_not_before(self):
-        return self.compute_not_before(self.feed.get('headers', {}))
-
-    @staticmethod
-    def compute_not_before(headers):
-        """Figures out "not before" based on headers according to RFC9111."""
-        if 'cache-control' in headers:
-            directives = {}
-            for single_directive in re.split(", ?", headers['cache-control']):
-                k, v = (single_directive.split("=", 1) + [""])[:2]
-                directives[k.lower()] = v
-            if s_max_age := directives.get('s-max-age'):
-                try:
-                    max_age = int(s_max_age)
-                except ValueError:
-                    return None
-            elif max_age := directives.get('max-age'):
-                age = headers.get('age')
-                try:
-                    age = int(age)
-                except (TypeError, ValueError):
-                    age = 0
-                try:
-                    max_age = int(max_age) - age
-                except ValueError:
-                    return None
-            if max_age > 0:
-                # should take into account the response time but it makes it even more complicated.
-                # With short response times and long polling it should be reasonable.
-                return datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(seconds=max_age)
-        # by ordering we ensure that expires is ignored if Cache-Control= maxage | s-maxdate,
-        # as requested by RFC 9111
-        if 'expires' in headers:
-            # no filter here (eg be a cap to 24 hours). Do it elsewhere
-            return parse_rfc_9110_date(headers['expires'])
+        return compute_not_before(self.feed.get('headers', {}))
 
 
 class gPodderFetcher(feedcore.Fetcher):
@@ -974,6 +941,20 @@ class PodcastEpisode(PodcastModelObject):
         # See #648 refreshing a youtube podcast clears downloaded file size
         if self.state != gpodder.STATE_DOWNLOADED:
             setattr(self, 'file_size', getattr(episode, 'file_size'))
+
+    def set_not_before(self, not_before_date):
+        # store as isoformat
+        if not_before_date:
+            not_before = not_before_date.isoformat()
+        # (clears a pre-existing not-before)
+        self.not_before = not_before
+
+    @property
+    def not_before_date(self):
+        """Return not_before as a datetime or None."""
+        if self.not_before:
+            return datetime.datetime.fromisoformat(self.not_before)
+        return None
 
 
 class PodcastChannel(PodcastModelObject):

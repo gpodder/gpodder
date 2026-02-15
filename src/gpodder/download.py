@@ -25,6 +25,7 @@
 #  Based on libwget.py (2005-10-29)
 #
 
+import datetime
 import glob
 import logging
 import mimetypes
@@ -207,10 +208,11 @@ class DownloadNoURLException(Exception):
 
 
 class gPodderDownloadHTTPError(Exception):
-    def __init__(self, url, error_code, error_message):
+    def __init__(self, url, error_code, error_message, headers):
         self.url = url
         self.error_code = error_code
         self.error_message = error_message
+        self.headers = headers
 
 
 class DownloadURLOpener:
@@ -234,8 +236,9 @@ class DownloadURLOpener:
             connect=self.max_retries,
             read=self.max_retries,
             redirect=max(REDIRECT_RETRIES, self.max_retries),
-            status=self.max_retries,
-            status_forcelist=Retry.RETRY_AFTER_STATUS_CODES.union((408, 418, 504, 598, 599,)))
+            raise_on_status=False,
+            status=0,
+            status_forcelist=(408, 413, 418, 598, 599))  # Removed 429, 503, 504
         adapter = HTTPAdapter(max_retries=retry_strategy)
         http = requests.Session()
         http.mount("https://", adapter)
@@ -283,7 +286,7 @@ class DownloadURLOpener:
 
         proxies = config._proxies
         session = self.init_session()
-        logger.debug(f"DownloadURLOpener.retrieve_resume(): url: {url}, proxies: {proxies}")
+        logger.debug("DownloadURLOpener.retrieve_resume(): url: %s, proxies: %s", url, proxies)
         with session.get(url,
                          headers=headers,
                          stream=True,
@@ -297,7 +300,7 @@ class DownloadURLOpener:
                     # Try again without authentication (bug 1296)
                     return self.retrieve_resume(url, filename, reporthook, data, True)
                 else:
-                    raise gPodderDownloadHTTPError(url, resp.status_code, str(e))
+                    raise gPodderDownloadHTTPError(url, resp.status_code, str(e), resp.headers)
 
             headers = resp.headers
 
@@ -659,6 +662,10 @@ class DownloadTask(object):
     def can_queue(self):
         return self.status in (self.CANCELLED, self.PAUSED, self.FAILED)
 
+    def wait_not_before(self):
+        return (not_before_date := self.__episode.not_before_date) \
+            and not_before_date > datetime.datetime.now(datetime.timezone.utc)
+
     def unpause(self):
         with self:
             # Resume a downloading task that was transitioning to paused
@@ -1016,6 +1023,10 @@ class DownloadTask(object):
             result = DownloadTask.FAILED
             d = {'code': gdhe.error_code, 'message': gdhe.error_message}
             self.error_message = _('HTTP Error %(code)s: %(message)s') % d
+            if not_before := util.get_retry_after(gdhe.headers):
+                self.__episode.set_not_before(not_before)
+                self.__episode.save()
+                logger.info("Setting not before %s on %s", not_before, self.episode)
         except Exception as e:
             result = DownloadTask.FAILED
             logger.error('Download failed: %s', str(e), exc_info=True)

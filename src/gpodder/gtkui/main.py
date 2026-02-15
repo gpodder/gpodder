@@ -1573,7 +1573,8 @@ class gPodder(BuilderWidget):
                            DownloadStatusModel.C_TASK)) for path in paths]
 
         for row_reference, task in selected_tasks:
-            if task.status != download.DownloadTask.QUEUED:
+            if (task.status != task.QUEUED
+                    and (task.status != task.PAUSED or not task.wait_not_before())):
                 can_force = False
             if not task.can_queue():
                 can_queue = False
@@ -1690,6 +1691,8 @@ class gPodder(BuilderWidget):
     def queue_task(self, task, force_start):
         if force_start:
             self.download_queue_manager.force_start_task(task)
+        elif task.wait_not_before():
+            task.status = task.PAUSED
         else:
             self.download_queue_manager.queue_task(task)
 
@@ -3170,7 +3173,7 @@ class gPodder(BuilderWidget):
             util.idle_add(show_welcome_window)
 
     def download_episode_list_paused(self, episodes, hide_progress=False):
-        self.download_episode_list(episodes, True, hide_progress=hide_progress)
+        self.download_episode_list(episodes, add_paused=True, hide_progress=hide_progress)
 
     def download_episode_list(self, episodes, add_paused=False, force_start=False, downloader=None, hide_progress=False):
         # Start progress indicator to queue existing tasks
@@ -3196,7 +3199,7 @@ class gPodder(BuilderWidget):
 
                 for task in tasks:
                     with task:
-                        if add_paused:
+                        if add_paused or (not force_start and task.wait_not_before()):
                             task.status = task.PAUSED
                         else:
                             self.mygpo_client.on_download([task.episode])
