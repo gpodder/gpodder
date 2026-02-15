@@ -22,7 +22,6 @@
 # Thomas Perl <thp@gpodder.org>; 2009-06-11
 #
 
-import datetime
 import logging
 import urllib.parse
 from html.parser import HTMLParser
@@ -57,11 +56,15 @@ class WifiLogin(ExceptionWithData):
     pass
 
 
-class TooManyRequests(ExceptionWithData):
+class RetryAfterException(ExceptionWithData):
+    """Subclass to mark the stored data is tz aware not_before info."""
+
+
+class TooManyRequests(RetryAfterException):
     pass
 
 
-class ServiceUnavailable(ExceptionWithData):
+class ServiceUnavailable(RetryAfterException):
     pass
 
 
@@ -151,18 +154,6 @@ class Fetcher(object):
 
     @staticmethod
     def _check_statuscode(status, url, headers):
-        def get_retry_after():
-            retry = headers.get('retry-after')
-            if retry:
-                retry_after_date = util.parse_rfc_9110_date(retry)
-                if not retry_after_date:
-                    try:
-                        retry_after = int(retry)
-                    except ValueError:
-                        return None
-                    retry_after_date = datetime.datetime.now() + datetime.timedelta(seconds=retry_after)
-                return retry_after_date
-
         if status >= 200 and status < 300:
             return UPDATED_FEED
         elif status == 304:
@@ -180,11 +171,11 @@ class Fetcher(object):
         elif status == 410:
             raise Unsubscribe('resource is gone')
         elif status == 429:
-            raise TooManyRequests(get_retry_after())
+            raise TooManyRequests(util.get_retry_after(headers))
         elif status >= 400 and status < 500:
             raise BadRequest('bad request')
         elif status == 503:
-            raise ServiceUnavailable(get_retry_after())
+            raise ServiceUnavailable(util.get_retry_after(headers))
         elif status >= 500 and status < 600:
             raise InternalServerError('internal server error')
         else:
