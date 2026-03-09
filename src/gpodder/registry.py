@@ -22,15 +22,16 @@ logger = logging.getLogger(__name__)
 
 class Resolver(object):
     def __init__(self, name, description):
-        self._name = name
+        self.name = name
         self._description = description
         self._resolvers = []
+        self._observers = set()
 
     def resolve(self, item, default, *args):
         for resolver in self._resolvers:
             result = resolver(item, *args)
             if result is not None:
-                logger.info('{} resolved by {}: {} -> {}'.format(self._name, self._info(resolver),
+                logger.info('{} resolved by {}: {} -> {}'.format(self.name, self._info(resolver),
                                                                  default, result))
                 return result
 
@@ -51,31 +52,50 @@ class Resolver(object):
                 yield resolver
 
     def register(self, func):
-        logger.debug('Registering {} resolver: {}'.format(self._name, func))
+        logger.debug('Registering {} resolver: {}'.format(self.name, func))
         self._resolvers.append(func)
+        self._notify_observers()
         return func
 
     def unregister(self, func):
-        logger.debug('Unregistering {} resolver: {}'.format(self._name, func))
+        logger.debug('Unregistering {} resolver: {}'.format(self.name, func))
         self._resolvers.remove(func)
+        self._notify_observers()
 
     def register_instance(self, klass):
-        logger.debug('Registering {} resolver instance: {}'.format(self._name, klass))
+        logger.debug('Registering {} resolver instance: {}'.format(self.name, klass))
         self._resolvers.append(klass())
+        self._notify_observers()
         return klass
 
     def unregister_instance(self, klass):
-        logger.debug('Unregistering {} resolver instance: {}'.format(self._name, klass))
+        logger.debug('Unregistering {} resolver instance: {}'.format(self.name, klass))
         self._resolvers = [r for r in self._resolvers if not isinstance(r, klass)]
+        self._notify_observers()
 
     def _info(self, resolver):
         return '%s from %s' % (resolver.__name__ if hasattr(resolver, '__name__')
                                else resolver.__class__.__name__, resolver.__module__)
 
     def _dump(self, indent=''):
-        print('== {} ({}) =='.format(self._name, self._description))
+        print('== {} ({}) =='.format(self.name, self._description))
         print('\n'.join('%s- %s' % (indent, self._info(resolver)) for resolver in self._resolvers))
         print()
+
+    def add_observer(self, callback):
+        """Register to be notified for changes in resolvers.
+
+        callback() will be called on change in resolvers (added or removed)
+        """
+        self._observers.add(callback)
+
+    def empty(self):
+        """Check if any resolver is registered in this Resolver."""
+        return not bool(self._resolvers)
+
+    def _notify_observers(self):
+        for observer in self._observers:
+            observer()
 
 
 RESOLVER_NAMES = {
@@ -86,6 +106,7 @@ RESOLVER_NAMES = {
     # 'content_type': 'Resolve the content type (audio, video) of an episode',
     'feed_handler': 'Handle fetching of a feed',
     # 'fallback_feed_handler': 'Handle parsing of a feed (catch-all)',
+    'player_interface': 'Be notified of playback events and be able to control the player. See player.PlayerInterface',
     # 'url_shortcut': 'Expand shortcuts when adding a new URL',
     # 'after_download': 'Function to call with episodes after download finishes',
     # 'directory': 'Podcast directory and search provider',

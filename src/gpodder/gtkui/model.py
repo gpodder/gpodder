@@ -672,7 +672,7 @@ class PodcastListModel(Gtk.ListStore):
         w_cur = pixbuf.get_width()
         h_cur = pixbuf.get_height()
 
-        if w_cur <= max_side and h_cur <= max_side:
+        if w_cur == max_side and h_cur == max_side:
             return None
 
         f = max_side / (w_cur if w_cur >= h_cur else h_cur)

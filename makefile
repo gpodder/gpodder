@@ -66,16 +66,19 @@ unittest:
 	LC_ALL=C PYTHONPATH=src/ $(PYTEST) --ignore=tests --ignore=src/gpodder/utilwin32ctypes.py --doctest-modules src/gpodder/util.py src/gpodder/jsonconfig.py
 	LC_ALL=C PYTHONPATH=src/ $(PYTEST) tests --ignore=src/gpodder/utilwin32ctypes.py --ignore=src/mygpoclient --cov=gpodder
 
-ISORTOPTS := -c share src/gpodder tools bin/* *.py
+ISORTOPTS := -c share src/gpodder tools bin/* setup.py
 lint:
+	flake8 --version
+	flake8 share src/gpodder tools bin setup.py || true
+
 	pycodestyle --version
-	pycodestyle share src/gpodder tools bin/* *.py
+	pycodestyle share src/gpodder tools bin/* setup.py
 
 	isort --version
 	isort -q $(ISORTOPTS) || isort --df $(ISORTOPTS)
 
 	codespell --version
-	codespell --quiet-level 3 --skip "./.git,*.po,.mypy_cache,./share/applications/gpodder.desktop"
+	git ls-files | xargs codespell --quiet-level 3 --skip "./.git,*.po,.mypy_cache,./share/applications/gpodder.desktop" --
 
 release: distclean
 	$(PYTHON) -m build --sdist

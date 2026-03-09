@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-# Convertes m4a audio files to mp3
+# Convertes video files to avi or mp4
 # This requires ffmpeg to be installed. Also works as a context
 # menu item for already-downloaded files.
 #
-# (c) 2011-11-23 Bernd Schlapsi <brot@gmx.info>
+# (c) 2011-08-05 Thomas Perl <thp.io/about>
 # Released under the same license terms as gPodder itself.
 
 import logging
@@ -17,32 +17,23 @@ logger = logging.getLogger(__name__)
 
 _ = gpodder.gettext
 
-__title__ = _('Convert audio files')
-__description__ = _('Transcode audio files to mp3/ogg')
-__authors__ = 'Bernd Schlapsi <brot@gmx.info>, Thomas Perl <thp@gpodder.org>'
-__doc__ = 'https://gpodder.github.io/docs/extensions/audioconverter.html'
-__payment__ = 'https://flattr.com/submit/auto?user_id=BerndSch&url=http://wiki.gpodder.org/wiki/Extensions/AudioConverter'
+__title__ = _('Convert video files')
+__description__ = _('Transcode video files to avi/mp4/m4v')
+__authors__ = 'Thomas Perl <thp@gpodder.org>, Bernd Schlapsi <brot@gmx.info>'
+__doc__ = 'https://gpodder.github.io/docs/extensions/videoconverter.html'
 __category__ = 'post-download'
 
-
 DefaultConfig = {
-    'use_opus': False,  # Set to True to convert to .opus
-    'use_ogg': False,  # Set to True to convert to .ogg
+    'output_format': 'mp4',  # At the moment we support/test only mp4, m4v and avi
     'context_menu': True,  # Show the conversion option in the context menu
 }
 
 
 class gPodderExtension:
-    MIME_TYPES = ('audio/x-m4a', 'audio/mp4', 'audio/mp4a-latm', 'audio/mpeg', 'audio/ogg', 'audio/opus')
-    EXT = ('.m4a', '.ogg', '.opus', '.mp3')
-    CMD = {'avconv': {'.mp3': ['-n', '-i', '%(old_file)s', '-q:a', '2', '-id3v2_version', '3', '-write_id3v1', '1', '%(new_file)s'],
-                      '.ogg': ['-n', '-i', '%(old_file)s', '-q:a', '2', '%(new_file)s'],
-                      '.opus': ['-n', '-i', '%(old_file)s', '-b:a', '64k', '%(new_file)s']
-                      },
-           'ffmpeg': {'.mp3': ['-n', '-i', '%(old_file)s', '-q:a', '2', '-id3v2_version', '3', '-write_id3v1', '1', '%(new_file)s'],
-                      '.ogg': ['-n', '-i', '%(old_file)s', '-q:a', '2', '%(new_file)s'],
-                      '.opus': ['-n', '-i', '%(old_file)s', '-b:a', '64k', '%(new_file)s']
-                      }
+    MIME_TYPES = ('video/mp4', 'video/m4v', 'video/x-flv', )
+    EXT = ('.mp4', '.m4v', '.flv', )
+    CMD = {'avconv': ['-i', '%(old_file)s', '-codec', 'copy', '%(new_file)s'],
+           'ffmpeg': ['-i', '%(old_file)s', '-codec', 'copy', '%(new_file)s']
            }
 
     def __init__(self, container):
@@ -53,19 +44,18 @@ class gPodderExtension:
         self.command = self.container.require_any_command(['avconv', 'ffmpeg'])
 
         # extract command without extension (.exe on Windows) from command-string
-        self.command_without_ext = os.path.basename(os.path.splitext(self.command)[0])
+        command_without_ext = os.path.basename(os.path.splitext(self.command)[0])
+        self.command_param = self.CMD[command_without_ext]
 
     def on_episode_downloaded(self, episode):
         self._convert_episode(episode)
 
     def _get_new_extension(self):
-        if self.config.use_ogg:
-            extension = '.ogg'
-        elif self.config.use_opus:
-            extension = '.opus'
-        else:
-            extension = '.mp3'
-        return extension
+        ext = self.config.output_format
+        if not ext.startswith('.'):
+            ext = '.' + ext
+
+        return ext
 
     def _check_source(self, episode):
         if episode.extension() == self._get_new_extension():
@@ -90,18 +80,9 @@ class gPodderExtension:
         if not any(self._check_source(episode) for episode in episodes):
             return None
 
-        menu_item = _('Convert to %(format)s') % {'format': self._target_format()}
+        menu_item = _('Convert to %(format)s') % {'format': self.config.output_format}
 
         return [(menu_item, self._convert_episodes)]
-
-    def _target_format(self):
-        if self.config.use_ogg:
-            target_format = 'OGG'
-        elif self.config.use_opus:
-            target_format = 'OPUS'
-        else:
-            target_format = 'MP3'
-        return target_format
 
     def _convert_episode(self, episode):
         if not self._check_source(episode):
@@ -112,10 +93,9 @@ class gPodderExtension:
         filename, old_extension = os.path.splitext(old_filename)
         new_filename = filename + new_extension
 
-        cmd_param = self.CMD[self.command_without_ext][new_extension]
         cmd = [self.command] + \
             [param % {'old_file': old_filename, 'new_file': new_filename}
-                for param in cmd_param]
+                for param in self.command_param]
 
         if gpodder.ui.win32:
             ffmpeg = util.Popen(cmd)
@@ -130,14 +110,12 @@ class gPodderExtension:
             util.rename_episode_file(episode, new_filename)
             os.remove(old_filename)
 
-            logger.info('Converted audio file to %(format)s.' % {'format': new_extension})
+            logger.info('Converted video file to %(format)s.' % {'format': self.config.output_format})
             gpodder.user_extensions.on_notification_show(_('File converted'), episode.title)
         else:
-            logger.warning('Error converting audio file: %s / %s', stdout, stderr)
+            logger.warning('Error converting video file: %s / %s', stdout, stderr)
             gpodder.user_extensions.on_notification_show(_('Conversion failed'), episode.title)
 
     def _convert_episodes(self, episodes):
-        # not running in background because there is no feedback to the user
-        # which one is being converted and nothing prevents from clicking convert twice.
         for episode in episodes:
             self._convert_episode(episode)

@@ -16,17 +16,17 @@
     <property name="step-increment">1</property>
     <property name="page-increment">10</property>
   </object>
-  <object class="GtkAdjustment" id="adjustment_update_interval">
-    <property name="upper">360</property>
-    <property name="step-increment">1</property>
-    <property name="page-increment">1</property>
-  </object>
   <object class="GtkAdjustment" id="adjustment_max_filename_length">
     <property name="lower">30</property>
     <property name="upper">150</property>
     <property name="value">60</property>
     <property name="step-increment">5</property>
     <property name="page-increment">5</property>
+  </object>
+  <object class="GtkAdjustment" id="adjustment_update_interval">
+    <property name="upper">360</property>
+    <property name="step-increment">1</property>
+    <property name="page-increment">1</property>
   </object>
   <object class="GtkDialog" id="gPodderPreferences">
     <property name="can-focus">False</property>
@@ -1661,6 +1661,8 @@
                                         <property name="visible">True</property>
                                         <property name="can-focus">True</property>
                                         <property name="hexpand">True</property>
+                                        <property name="visibility">False</property>
+                                        <property name="input-purpose">password</property>
                                         <signal name="changed" handler="on_proxy_password_changed" swapped="no"/>
                                       </object>
                                       <packing>
@@ -1734,6 +1736,52 @@
                             <property name="border-width">0</property>
                             <property name="orientation">vertical</property>
                             <child>
+                              <object class="GtkFlowBox">
+                                <property name="visible">True</property>
+                                <property name="can-focus">False</property>
+                                <property name="border-width">0</property>
+                                <property name="min-children-per-line">1</property>
+                                <property name="max-children-per-line">2</property>
+                                <child>
+                                  <object class="GtkFlowBoxChild">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
+                                    <child>
+                                      <object class="GtkButton" id="button_system_extensions">
+                                        <property name="label" translatable="yes">_System Extensions Folder</property>
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">True</property>
+                                        <property name="receives-default">False</property>
+                                        <property name="use-underline">True</property>
+                                        <signal name="clicked" handler="on_button_system_extensions_clicked" swapped="no"/>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkFlowBoxChild">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
+                                    <child>
+                                      <object class="GtkButton" id="button_user_extensions">
+                                        <property name="label" translatable="yes">_User Extensions Folder</property>
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">True</property>
+                                        <property name="receives-default">False</property>
+                                        <property name="use-underline">True</property>
+                                        <signal name="clicked" handler="on_button_user_extensions_clicked" swapped="no"/>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
                               <object class="GtkTreeView" id="treeviewExtensions">
                                 <property name="visible">True</property>
                                 <property name="can-focus">True</property>
@@ -1748,7 +1796,7 @@
                               <packing>
                                 <property name="expand">True</property>
                                 <property name="fill">True</property>
-                                <property name="position">0</property>
+                                <property name="position">1</property>
                               </packing>
                             </child>
                           </object>

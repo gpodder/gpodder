@@ -34,6 +34,7 @@ import re
 import shutil
 import string
 import time
+import urllib.parse
 
 import podcastparser
 
@@ -169,22 +170,18 @@ class PodcastParserFeed(Feed):
             # Detect (and update) existing episode based on GUIDs
             existing_episode = existing_guids.get(episode.guid, None)
             if existing_episode:
-                if existing_episode.total_time == 0 and 'youtube' in episode.url:
-                    # query duration for existing youtube episodes that haven't been downloaded or queried
-                    # such as live streams after they have ended
-                    existing_episode.total_time = youtube.get_total_time(episode)
-
                 existing_episode.update_from(episode)
-                existing_episode.cache_text_description()
-                existing_episode.save()
-                continue
-            elif episode.total_time == 0 and 'youtube' in episode.url:
-                # query duration for new youtube episodes
+                episode = existing_episode
+            else:
+                new_episodes.append(episode)
+
+            if episode.total_time == 0 and 'youtube' in episode.url:
+                # query duration for new and existing youtube episodes that haven't been
+                # downloaded or queried such as live streams after they have ended
                 episode.total_time = youtube.get_total_time(episode)
 
             episode.cache_text_description()
             episode.save()
-            new_episodes.append(episode)
         return new_episodes, seen_guids
 
     def get_next_page(self, channel, max_episodes):
@@ -852,17 +849,17 @@ class PodcastEpisode(PodcastModelObject):
 
     pubdate_prop = property(fget=cute_pubdate)
 
-    def published_formatted(self, format, default):
-        """safe method to convert self.published to a string
+    def published_formatted(self, fmt, default):
+        """Safe method to convert self.published to a string.
 
-        format: anything accepted by datetime.datetime.strftime
+        fmt: anything accepted by datetime.datetime.strftime
         default: string to return when self.published is invalid
         """
         try:
             d = datetime.datetime.fromtimestamp(self.published)
-            return d.strftime(format)
+            return d.strftime(fmt)
         except (OSError, TypeError, ValueError):
-            logger.warning('Cannot compute published_datetime %r' % timestamp, exc_info=True)
+            logger.warning('Cannot compute published_datetime %r' % self.published, exc_info=True)
             return default
 
     @property
@@ -871,17 +868,17 @@ class PodcastEpisode(PodcastModelObject):
 
     @property
     def pubdate_day(self):
-        """for custom sync filename: use episode.pubdate_day for day of publication (01-31)"""
+        """For custom sync filename: use episode.pubdate_day for day of publication (01-31)."""
         return self.published_formatted('%d', '00')
 
     @property
     def pubdate_month(self):
-        """for custom filename: use episode.pubdate_month for month of publication (01-12)"""
+        """For custom filename: use episode.pubdate_month for month of publication (01-12)."""
         return self.published_formatted('%m', '00')
 
     @property
     def pubdate_year(self):
-        """for custom filename: use episode.pubdate_year for year of publication without century)"""
+        """For custom filename: use episode.pubdate_year for year of publication without century)."""
         return self.published_formatted('%y', '00')
 
     def is_finished(self):
@@ -1569,4 +1566,51 @@ def check_root_folder_path():
             return _("Warning: path to gPodder home (%(root)s) is very long "
                      "and can result in failure to download files.\n" % {"root": root}) \
                 + _("You're advised to set it to a shorter path.")
+    return None
+
+
+def episode_object_by_uri(channels, uri):
+    """Get an episode object given a local or remote URI.
+
+    This can be used to quickly access an episode object
+    when all we have is its download filename or episode
+    URL (e.g. from external D-Bus calls / signals, etc..)
+    """
+    if uri.startswith('/'):
+        uri = 'file://' + urllib.parse.quote(uri)
+
+    prefix = 'file://' + urllib.parse.quote(gpodder.downloads)
+
+    if uri.startswith(prefix):
+        # File is on the local filesystem in the download folder
+        # Try to reduce search space by preselecting the channel
+        # based on the folder name of the local file
+
+        filename = urllib.parse.unquote(uri[len(prefix):])
+        file_parts = [_f for _f in filename.split(os.sep) if _f]
+
+        if len(file_parts) != 2:
+            return None
+
+        foldername, filename = file_parts
+
+        def is_channel(c):
+            return c.download_folder == foldername
+
+        def is_episode(e):
+            return e.download_filename == filename
+    else:
+        # By default, assume we can't preselect any channel
+        # but can match episodes simply via the download URL
+        def is_channel(c):
+            return True
+
+        def is_episode(e):
+            return e.url == uri
+
+    # Deep search through channels and episodes for a match
+    for channel in filter(is_channel, channels):
+        for episode in filter(is_episode, channel.get_all_episodes()):
+            return episode
+
     return None

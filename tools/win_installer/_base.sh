@@ -98,7 +98,6 @@ certifi==2024.12.14
 chardet==5.2.0
 comtypes==1.4.8
 git+https://github.com/jaraco/pywin32-ctypes.git@f27d6a0
-html5lib==1.1
 idna==3.10
 mutagen==1.47.0
 mygpoclient==1.10
@@ -481,7 +480,7 @@ function build_installer {
     (cd $(dirname "$BUILDPY") && build_compileall -d "" -q -f -l .)
 
     cp "${MISC}"/gpodder.ico "${BUILD_ROOT}"
-    (cd "$BUILD_ROOT" && makensis -V3 -NOCD -DVERSION="$GPO_VERSION_DESC" "${MISC}"/win_installer.nsi)
+    (cd "$BUILD_ROOT" && makensis -V3 -NOCD -DVERSION="$GPO_VERSION" -DVERSION_DESC="$GPO_VERSION_DESC" -DBUILD_VERSION="$BUILD_VERSION" "${MISC}"/win_installer.nsi)
 
     mv "$BUILD_ROOT/gpodder-LATEST.exe" "$DIR/gpodder-$GPO_VERSION_DESC-installer.exe"
 }

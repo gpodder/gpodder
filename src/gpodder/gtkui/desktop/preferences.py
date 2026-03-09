@@ -399,6 +399,7 @@ class gPodderPreferences(BuilderWidget):
         self.entry_server.set_text(self._config.mygpo.server)
         self.entry_username.set_text(self._config.mygpo.username)
         self.entry_password.set_text(self._config.mygpo.password)
+        self.add_password_reveal(self.entry_password)
         self.entry_caption.set_text(self._config.mygpo.device.caption)
 
         # Disable mygpo sync while the dialog is open
@@ -411,6 +412,7 @@ class gPodderPreferences(BuilderWidget):
                                               self.checkbutton_proxy_use_username_password)
         self.entry_proxy_hostname.set_text(self._config.network.proxy_hostname)
         self.entry_proxy_port.set_text(self._config.network.proxy_port)
+        self.add_password_reveal(self.entry_proxy_password)
         # This will disable the proxy input details on creation if checkbutton
         # is unticked (value from _config) on each preferences menu creation
         self.on_checkbutton_use_proxy_toggled(self.checkbutton_use_proxy)
@@ -431,6 +433,7 @@ class gPodderPreferences(BuilderWidget):
             self.label_env_proxy.set_text(env_proxies_str)
 
         # Configure the extensions manager GUI
+        util.make_directory(gpodder.user_extensions.user_extension_directory)
         self.set_extension_preferences()
 
         self._config.connect_gtk_window(self.main_window, 'preferences', True)
@@ -557,11 +560,6 @@ class gPodderPreferences(BuilderWidget):
         menu_item.connect('activate', self.show_extension_info, model, container)
         menu.append(menu_item)
 
-        if container.metadata.payment:
-            menu_item = Gtk.MenuItem(_('Support the author'))
-            menu_item.connect('activate', self.open_weblink, container.metadata.payment)
-            menu.append(menu_item)
-
         menu.show_all()
         if event is None:
             func = TreeViewHelper.make_popup_position_func(treeview)
@@ -631,6 +629,12 @@ class gPodderPreferences(BuilderWidget):
     def on_button_advanced_clicked(self, widget):
         self.main_window.destroy()
         gPodderConfigEditor(self.parent_window, _config=self._config)
+
+    def on_button_system_extensions_clicked(self, widget):
+        util.gui_open(gpodder.user_extensions.builtins_directory, gui=self)
+
+    def on_button_user_extensions_clicked(self, widget):
+        util.gui_open(gpodder.user_extensions.user_extension_directory, gui=self)
 
     def on_combo_audio_player_app_changed(self, widget):
         index = self.combo_audio_player_app.get_active()

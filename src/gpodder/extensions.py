@@ -92,7 +92,6 @@ class ExtensionMetadata(object):
     DEFAULTS = {
         'description': _('No description for this extension.'),
         'doc': None,
-        'payment': None,
     }
     SORTKEYS = {
         'title': 1,
@@ -191,7 +190,7 @@ class MissingCommand(MissingDependency):
 class ExtensionContainer(object):
     """An extension container wraps one extension module."""
 
-    def __init__(self, manager, name, config, filename=None, module=None):
+    def __init__(self, manager, name, config, filename=None, priority=99, module=None):
         self.manager = manager
 
         self.name = name
@@ -200,6 +199,7 @@ class ExtensionContainer(object):
         self.module = module
         self.enabled = False
         self.error = None
+        self.priority = priority
 
         self.default_config = None
         self.parameters = None
@@ -329,14 +329,18 @@ class ExtensionManager(object):
         core.config.add_observer(self._config_value_changed)
         enabled_extensions = core.config.extensions.enabled
 
+        self.builtins_directory = os.path.join(gpodder.prefix, 'share', 'gpodder',
+                'extensions')
+        self.user_extension_directory = os.path.join(gpodder.home, 'Extensions')
+
         if os.environ.get('GPODDER_DISABLE_EXTENSIONS', '') != '':
             logger.info('Disabling all extensions (from environment)')
             return
 
-        for name, filename in self._find_extensions():
-            logger.debug('Found extension "%s" in %s', name, filename)
+        for name, (extension_priority, filename) in self._find_extensions():
+            logger.debug('Found extension "%s", priority %s, in %s', name, extension_priority, filename)
             config = getattr(core.config.extensions, name)
-            container = ExtensionContainer(self, name, config, filename)
+            container = ExtensionContainer(self, name, config, filename, priority=extension_priority)
             if (name in enabled_extensions
                     or container.metadata.mandatory_in_current_ui):
                 container.set_enabled(True)
@@ -375,21 +379,46 @@ class ExtensionManager(object):
         extensions = {}
 
         if not self.filenames:
-            builtins = os.path.join(gpodder.prefix, 'share', 'gpodder',
-                'extensions', '*.py')
-            user_extensions = os.path.join(gpodder.home, 'Extensions', '*.py')
-            self.filenames = glob.glob(builtins) + glob.glob(user_extensions)
+            builtins = os.path.join(self.builtins_directory, '*.py')
+            user_extensions = os.path.join(self.user_extension_directory, '*.py')
+            # sort filenames so that if duplicates are found in the same folder,
+            # the highest priority (lowest number) will always be used.
+            self.filenames = sorted(glob.glob(builtins), reverse=True) \
+                + sorted(glob.glob(user_extensions), reverse=True)
 
-        # Let user extensions override built-in extensions of the same name
+        # Let user extensions override built-in extensions of the same name.
+        # This inherently happens because we search the user extensions folder second,
+        # and the entries are put in the extensions dict by their name field.
         for filename in self.filenames:
             if not filename or not os.path.exists(filename):
                 logger.info('Skipping non-existing file: %s', filename)
                 continue
 
             name, _ = os.path.splitext(os.path.basename(filename))
-            extensions[name] = filename
 
-        return sorted(extensions.items())
+            # extensions with no priority get priority 99
+            priority = 99
+            m = re.fullmatch(r'^([0-9]*)_(.+)', name)
+            if m:
+                if m.group(1):
+                    # get ordering prefix
+                    priority = int(m.group(1))
+                # strip ordering prefix from name (or leading _)
+                name = m.group(2)
+            _, previous_filename = extensions.get(name, (None, None))
+            if previous_filename is not None:
+                if os.path.dirname(filename) == os.path.dirname(previous_filename):
+                    logger.warning("extension at %s will be ignored in favor of %s in the same directory", previous_filename, filename)
+                else:
+                    logger.info("extension at %s will be ignored in favor of %s", previous_filename, filename)
+            extensions[name] = (priority, filename)
+
+        # sort by priority - extensions with same priority will be sorted by name
+        def sort_key(kv):
+            name, (priority, filename) = kv
+            return (priority, name)
+
+        return sorted(extensions.items(), key=sort_key)
 
     def get_extensions(self):
         """Get a list of all loaded extensions and their enabled flag."""
@@ -505,8 +534,7 @@ class ExtensionManager(object):
 
     @call_extensions
     def on_all_episodes_synced(self):
-        """Called when all episodes have been synchronized
-        """
+        """Called when all episodes have been synchronized."""  # noqa: D401
 
     @call_extensions
     def on_create_menu(self):

@@ -27,7 +27,7 @@ _ = gpodder.gettext
 
 
 class gPodderChannel(BuilderWidget):
-    MAX_SIZE = 120
+    MAX_SIZE = 240
 
     def new(self):
         self.show_on_cover_load = True
@@ -73,6 +73,7 @@ class gPodderChannel(BuilderWidget):
             self.FeedUsername.set_text(self.channel.auth_username)
         if self.channel.auth_password:
             self.FeedPassword.set_text(self.channel.auth_password)
+        self.add_password_reveal(self.FeedPassword)
 
         # Cover image
         ag = Gio.SimpleActionGroup()

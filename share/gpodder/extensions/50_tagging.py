@@ -23,12 +23,10 @@
 # The podcast title is written into the album tag
 
 import base64
-import datetime
 import logging
 import mimetypes
 from io import BytesIO
 
-import gi
 from mutagen import File, MutagenError
 from mutagen.easyid3 import EasyID3
 from mutagen.easymp4 import EasyMP4Tags
@@ -41,6 +39,7 @@ from PIL import Image
 import gpodder
 from gpodder import coverart
 
+import gi  # isort:skip
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
@@ -57,7 +56,6 @@ __title__ = _('Tag downloaded files using Mutagen')
 __description__ = _('Add episode and podcast titles to MP3/OGG tags')
 __authors__ = 'Bernd Schlapsi <brot@gmx.info>'
 __doc__ = 'https://gpodder.github.io/docs/extensions/tagging.html'
-__payment__ = 'https://flattr.com/submit/auto?user_id=BerndSch&url=http://wiki.gpodder.org/wiki/Extensions/Tagging'
 __category__ = 'post-download'
 
 

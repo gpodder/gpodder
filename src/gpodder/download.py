@@ -38,7 +38,7 @@ from abc import ABC, abstractmethod
 
 import requests
 from requests.adapters import HTTPAdapter
-from requests.exceptions import ConnectionError, HTTPError, RequestException
+from requests.exceptions import HTTPError, RequestException
 from requests.packages.urllib3.exceptions import MaxRetryError
 from requests.packages.urllib3.util.retry import Retry
 
@@ -381,6 +381,7 @@ class DefaultDownload(CustomDownload):
                             url)
                     continue
                 raise
+
         return (headers, real_url)
 
 
@@ -910,6 +911,12 @@ class DownloadTask(object):
             self.custom_downloader = downloader
             headers, real_url = downloader.retrieve_resume(self.tempname, self.status_updated)
 
+            # Podcastparser defaults published to zero if pubDate is not specified in feed,
+            # so only change the file timestamp if non-zero.
+            # This does mean that episodes released exactly on the epoch will get current time.
+            if self.__episode.published != 0 and self.__episode.published < time.time():
+                os.utime(self.tempname, (self.__episode.published, self.__episode.published))
+
             new_mimetype = headers.get('content-type', self.__episode.mime_type)
             old_mimetype = self.__episode.mime_type
             _basename, ext = os.path.splitext(self.filename)
@@ -982,7 +989,7 @@ class DownloadTask(object):
         except urllib.error.ContentTooShortError:
             result = DownloadTask.FAILED
             self.error_message = _('Missing content from server')
-        except ConnectionError as ce:
+        except requests.ConnectionError as ce:
             # special case request exception
             result = DownloadTask.FAILED
             logger.error('Download failed: %s', str(ce))

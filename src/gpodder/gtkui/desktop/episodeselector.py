@@ -40,7 +40,7 @@ class gPodderEpisodeSelector(BuilderWidget):
       - remove_action: Label for the "remove" action (default is "Remove")
       - remove_finished: Callback after all remove callbacks have finished
                          (default is None, also depends on remove_callback)
-                         It will get a list of episode URLs that have been
+                         It will get a list of episodes that have been
                          removed, so the main UI can update those
       - episodes: List of episodes that are presented for selection
       - selected: (optional) List of boolean variables that define the
@@ -368,13 +368,11 @@ class gPodderEpisodeSelector(BuilderWidget):
     def on_remove_action_activate(self, widget):
         episodes = self.get_selected_episodes(remove_episodes=True)
 
-        urls = []
         for episode in episodes:
-            urls.append(episode.url)
             self.remove_callback(episode)
 
         if self.remove_finished is not None:
-            self.remove_finished(urls)
+            self.remove_finished(episodes)
         self.calculate_total_size()
 
         # Close the window when there are no episodes left

@@ -19,20 +19,26 @@ requires-python = ">=3.8"
 dependencies = [
     "dbus-python;platform_system=='Linux'",
     "mygpoclient==1.10",
-    "podcastparser==0.6.10",
+    "podcastparser==0.6.11",
     "PyGObject",
-    "requests[socks]==2.32.3",
-    "urllib3==2.2.2",
+    "requests[socks]>=2.32.3",
+    "urllib3>=2.2.2",
 ]
 dynamic = ["version"]
 
 [project.optional-dependencies]
 eyed3 = ["eyed3"]
-gui = ["PySocks"]
 html5lib = ["html5lib==1.1"]
-mutagen = ["mutagen==1.47.0"]
-coverart = ["filelock", "pillow"]
-yt-dlp = ["yt-dlp"]
+# extensions
+audio_converter = ["ffmpeg"]
+concatenate_videos = ["ffmpeg"]
+rm_ogg_cover = ["mutagen==1.47.0"]
+rockbox_convert2mp4 = ["ffmpeg", "kaa-metadata"]
+rockbox_coverart = ["filelock", "pillow"]
+sonos = ["soco>=0.7"]
+tagging = ["mutagen==1.47.0", "pillow"]
+video_converter = ["ffmpeg"]
+youtube_dl = ["yt-dlp", "ffmpeg"]
 
 [project.urls]
 Homepage = "http://gpodder.org"

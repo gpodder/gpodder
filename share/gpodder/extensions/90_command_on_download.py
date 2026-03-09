@@ -3,7 +3,6 @@
 # gPodder extension for running a command on successful episode download
 #
 
-import datetime
 import logging
 import os
 

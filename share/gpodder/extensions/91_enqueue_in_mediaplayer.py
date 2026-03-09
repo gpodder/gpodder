@@ -6,11 +6,11 @@
 import functools
 import logging
 import pathlib
+import urllib.parse
 
-import gi
-
+import gi  # isort:skip
 gi.require_version('Gio', '2.0')
-from gi.repository import Gio, GLib
+from gi.repository import Gio
 
 import gpodder
 from gpodder import util
@@ -23,7 +23,6 @@ __title__ = _('Enqueue/Resume in media players')
 __description__ = _('Add a context menu item for enqueueing/resuming playback of episodes in installed media players')
 __authors__ = 'Thomas Perl <thp@gpodder.org>, Bernd Schlapsi <brot@gmx.info>'
 __doc__ = 'https://gpodder.github.io/docs/extensions/enqueueinmediaplayer.html'
-__payment__ = 'https://flattr.com/submit/auto?user_id=BerndSch&url=http://wiki.gpodder.org/wiki/Extensions/EnqueueInMediaplayer'
 __category__ = 'interface'
 __only_for__ = 'gtk'
 
@@ -175,7 +174,8 @@ class MPRISResumer(FreeDesktopPlayer):
         url = metadata.get('xesam:url')
         track_id = metadata.get('mpris:trackid')
         if url is not None and track_id is not None:
-            if url == self.url:
+            if (url == self.url  # Also test unquoted URLs because player bugs
+                    or urllib.parse.unquote(url) == urllib.parse.unquote(self.url)):
                 self.player.disconnect_by_func(self.on_props_changed)
                 logger.debug('Setting %s, track %s position to %d',
                              url, track_id, self.position_us)
