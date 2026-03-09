@@ -17,7 +17,7 @@ try:
     program_name = 'yt-dlp'
     want_ytdl_version = '2023.06.22'
 except:
-    import youtube_dl # pyright: ignore[reportMissingImports]
+    import youtube_dl  # pyright: ignore[reportMissingImports]
     program_name = 'youtube-dl'
     want_ytdl_version = '2023.02.17'  # youtube-dl has been patched, but not yet released
 
