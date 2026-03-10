@@ -109,6 +109,7 @@ webencodings==0.5.1
 pillow==11.0.0
 filelock==3.16.1
 yt-dlp
+yt-dlp-ejs
 "
 
 SEVENZINST='7z2301.exe' # http://www.7-zip.org/

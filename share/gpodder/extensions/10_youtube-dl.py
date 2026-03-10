@@ -632,8 +632,11 @@ class gPodderExtension:
 
     def do_update(self, widget):
         try:
+            arguments = ['pythonw', '-m', 'pip', 'install', '--upgrade', program_name]
+            if program_name == 'yt-dlp':
+                arguments.append('yt-dlp-ejs')
             subprocess.check_output(
-                    ['pythonw', '-m', 'pip', 'install', '--upgrade', program_name],
+                    arguments,
                     stderr=subprocess.STDOUT,
                     encoding='utf-8',
                     close_fds=True,
