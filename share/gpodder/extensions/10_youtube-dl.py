@@ -623,7 +623,7 @@ class gPodderExtension:
         success = False
         try:
             output = subprocess.check_output(
-                    ['pythonw', '-m', 'pip', 'index', 'versions', program_name],
+                    [sys.executable, '-m', 'pip', 'index', 'versions', program_name],
                     stderr=subprocess.STDOUT,
                     encoding='utf-8',
                     close_fds=True,
@@ -657,7 +657,7 @@ class gPodderExtension:
     def do_update(self, widget):
         try:
             subprocess.check_output(
-                    ['pythonw', '-m', 'pip', 'install', '--upgrade', program_name],
+                    [sys.executable, '-m', 'pip', 'install', '--upgrade', program_name],
                     stderr=subprocess.STDOUT,
                     encoding='utf-8',
                     close_fds=True,
