@@ -9,6 +9,7 @@
 import logging
 import os
 import subprocess
+from concurrent.futures import ThreadPoolExecutor
 
 import gpodder
 from gpodder import util
@@ -28,6 +29,8 @@ DefaultConfig = {
     'use_opus': False,  # Set to True to convert to .opus
     'use_ogg': False,  # Set to True to convert to .ogg
     'context_menu': True,  # Show the conversion option in the context menu
+    'processes': None  # Maximum simultaneous conversion processes.
+                       # Defaults to the value from os.cpu_count()
 }
 
 
@@ -54,6 +57,13 @@ class gPodderExtension:
         # extract command without extension (.exe on Windows) from command-string
         self.command_without_ext = os.path.basename(os.path.splitext(self.command)[0])
 
+        # Currently ongoing conversion tasks
+        self.futures = {}
+
+        # Use this thread pool to monitor subprocesses.
+        # We'll never run more simultaneous subprocesses than we have cores to run them on.
+        self.pool = ThreadPoolExecutor(DefaultConfig['processes'] or os.cpu_count())
+
     def on_episode_downloaded(self, episode):
         self._convert_episode(episode)
 
@@ -68,6 +78,10 @@ class gPodderExtension:
 
     def _check_source(self, episode):
         if episode.extension() == self._get_new_extension():
+            return False
+
+        if episode.local_filename(create=False) in self.futures:
+            # Conversion already in progress
             return False
 
         if episode.mime_type in self.MIME_TYPES:
@@ -102,10 +116,7 @@ class gPodderExtension:
             target_format = 'MP3'
         return target_format
 
-    def _convert_episode(self, episode):
-        if not self._check_source(episode):
-            return
-
+    def _do_conversion(self, episode):
         new_extension = self._get_new_extension()
         old_filename = episode.local_filename(create=False)
         filename, old_extension = os.path.splitext(old_filename)
@@ -115,16 +126,14 @@ class gPodderExtension:
         cmd = [self.command] + \
             [param % {'old_file': old_filename, 'new_file': new_filename}
                 for param in cmd_param]
-
         if gpodder.ui.win32:
             ffmpeg = util.Popen(cmd)
             ffmpeg.wait()
             stdout, stderr = ("<unavailable>",) * 2
         else:
             ffmpeg = util.Popen(cmd, stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE)
+                                stderr=subprocess.PIPE)
             stdout, stderr = ffmpeg.communicate()
-
         if ffmpeg.returncode == 0:
             util.rename_episode_file(episode, new_filename)
             os.remove(old_filename)
@@ -134,9 +143,17 @@ class gPodderExtension:
         else:
             logger.warning('Error converting audio file: %s / %s', stdout, stderr)
             gpodder.user_extensions.on_notification_show(_('Conversion failed'), episode.title)
+        del self.futures[old_filename]
+
+    def _convert_episode(self, episode):
+        if not self._check_source(episode):
+            return
+
+        self.futures[episode.local_filename(create=False)] = self.pool.submit(
+            self._do_conversion,
+            episode
+        )
 
     def _convert_episodes(self, episodes):
-        # not running in background because there is no feedback to the user
-        # which one is being converted and nothing prevents from clicking convert twice.
         for episode in episodes:
             self._convert_episode(episode)
