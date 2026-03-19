@@ -29,8 +29,8 @@ DefaultConfig = {
     'use_opus': False,  # Set to True to convert to .opus
     'use_ogg': False,  # Set to True to convert to .ogg
     'context_menu': True,  # Show the conversion option in the context menu
-    'processes': None  # Maximum simultaneous conversion processes.
-                       # Defaults to the value from os.cpu_count()
+    'processes': 0  # Maximum simultaneous conversion processes.
+                    # Defaults to the value from os.cpu_count()
 }
 
 
