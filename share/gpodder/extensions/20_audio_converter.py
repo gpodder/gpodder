@@ -36,11 +36,11 @@ class gPodderExtension:
     EXT = ('.m4a', '.ogg', '.opus', '.mp3')
     CMD = {'avconv': {'.mp3': ['-n', '-i', '%(old_file)s', '-q:a', '2', '-id3v2_version', '3', '-write_id3v1', '1', '%(new_file)s'],
                       '.ogg': ['-n', '-i', '%(old_file)s', '-q:a', '2', '%(new_file)s'],
-                      '.opus': ['-n', '-i', '%(old_file)s', '-b:a', '64k', '%(new_file)s']
+                      '.opus': ['-n', '-i', '%(old_file)s', '-b:a', '24k', '-application', 'voip', '%(new_file)s']
                       },
            'ffmpeg': {'.mp3': ['-n', '-i', '%(old_file)s', '-q:a', '2', '-id3v2_version', '3', '-write_id3v1', '1', '%(new_file)s'],
                       '.ogg': ['-n', '-i', '%(old_file)s', '-q:a', '2', '%(new_file)s'],
-                      '.opus': ['-n', '-i', '%(old_file)s', '-b:a', '64k', '%(new_file)s']
+                      '.opus': ['-n', '-i', '%(old_file)s', '-b:a', '24k', '-application', 'voip', '%(new_file)s']
                       }
            }
 
