@@ -62,7 +62,7 @@ class gPodderExtension:
 
         # Use this thread pool to monitor subprocesses.
         # We'll never run more simultaneous subprocesses than we have cores to run them on.
-        self.pool = ThreadPoolExecutor(DefaultConfig['processes'] or os.cpu_count())
+        self.pool = ThreadPoolExecutor(self.config.processes or os.cpu_count())
 
     def on_episode_downloaded(self, episode):
         self._convert_episode(episode)
