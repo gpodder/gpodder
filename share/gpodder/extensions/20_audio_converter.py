@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 _ = gpodder.gettext
 
 __title__ = _('Convert audio files')
-__description__ = _('Transcode audio files to mp3/ogg')
+__description__ = _('Transcode audio files to mp3, ogg, or opus')
 __authors__ = 'Bernd Schlapsi <brot@gmx.info>, Thomas Perl <thp@gpodder.org>'
 __doc__ = 'https://gpodder.github.io/docs/extensions/audioconverter.html'
 __category__ = 'post-download'
