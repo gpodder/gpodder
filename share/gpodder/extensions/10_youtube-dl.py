@@ -53,6 +53,24 @@ DefaultConfig = {
     'embed_subtitles': False,
     # Read youtube-dl or yt-dlp config file
     'read_config_file': False,
+    # Use cookies from browser to download videos that require login.
+    'cookiesfrombrowser': [],   # A tuple containing the name of the browser,
+                                # the profile name/path from where cookies are loaded,
+                                # the name of the keyring,
+                                # and the container name,
+                                # e.g. ('chrome', ) or
+                                # ('vivaldi', 'default', 'BASICTEXT') or
+                                # ('firefox', 'default', None, 'Meta')
+                                # see also yt-dlp's help on --cookies-from-browser
+    # Make all connections via IPv4
+    'force_ipv4': False,
+    # JS runtime to use for JS-based extractors (e.g. 'nodejs', 'deno').
+    'js_runtime': '',
+    # List of extractor-args strings, e.g. ["youtube:player_client=ios"].
+    # Format: "ie_key:arg1=val1;arg2=val2"
+    'extractor_args': [],
+    # List of remote-component strings, e.g. ["ejs:github"].
+    'remote_components': [],
 }
 
 
@@ -323,6 +341,34 @@ class gPodderYoutubeDL(download.CustomDownloader):
             self._ydl_opts['verbose'] = True
         else:
             self._ydl_opts['quiet'] = True
+
+        if self.my_config.cookiesfrombrowser:
+            self._ydl_opts['cookiesfrombrowser'] = tuple(
+                None if x == "None" else x
+                for x in self.my_config.cookiesfrombrowser
+            )
+
+        if self.my_config.force_ipv4:
+            self._ydl_opts['source_address'] = '0.0.0.0'
+
+        if self.my_config.js_runtime:
+            self._ydl_opts['js_runtimes'] = {self.my_config.js_runtime: {}}
+
+        if self.my_config.extractor_args:
+            ea = {}
+            for arg in self.my_config.extractor_args:
+                ie_key, _, params = arg.partition(':')
+                if not ie_key:
+                    continue
+                ea.setdefault(ie_key, {})
+                for param in params.split(';'):
+                    key, _, val = param.partition('=')
+                    if key:
+                        ea[ie_key].setdefault(key, []).append(val)
+            self._ydl_opts['extractor_args'] = ea
+
+        if self.my_config.remote_components:
+            self._ydl_opts['remote_components'] = set(self.my_config.remote_components)
 
         # Don't create downloaders for URLs supported by these youtube-dl extractors
         self.ie_blacklist = ["Generic"]
