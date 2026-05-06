@@ -142,7 +142,7 @@ class gPodderExtension:
             gpodder.user_extensions.on_notification_show(_('File converted'), episode.title)
         else:
             logger.warning('Error converting audio file: %s / %s', stdout, stderr)
-            gpodder.user_extensions.on_notification_show(_('Conversion failed'), "%s: %s" % (episode.title, stderr))
+            gpodder.user_extensions.on_notification_show(_('Conversion failed'), "%s: %s" % (episode.title, stderr[stderr.rfind("Error"):])
         del self.futures[old_filename]
 
     def _convert_episode(self, episode):
