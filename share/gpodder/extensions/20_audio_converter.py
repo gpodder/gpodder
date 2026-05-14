@@ -29,6 +29,7 @@ DefaultConfig = {
     "use_opus": False,  # Set to True to convert to .opus
     "use_ogg": False,  # Set to True to convert to .ogg
     "context_menu": True,  # Show the conversion option in the context menu
+    "batch_notify": True,  # Set to False to notify after every conversion
     "processes": 0,  # Maximum simultaneous conversion processes.
     # Defaults to the value from os.cpu_count()
 }
@@ -109,6 +110,8 @@ class gPodderExtension:
 
         # Currently ongoing conversion tasks
         self.futures = {}
+        # Finished conversion tasks not yet reported to the user
+        self.finished = []
 
         # Use this thread pool to monitor subprocesses.
         # We'll never run more simultaneous subprocesses than we have cores to run them on.
@@ -191,24 +194,34 @@ class gPodderExtension:
             logger.info(
                 "Converted audio file to %(format)s." % {"format": new_extension}
             )
-            gpodder.user_extensions.on_notification_show(
-                _("File converted"), episode.title
-            )
         else:
             logger.warning("Error converting audio file: %s / %s", stdout, stderr)
             gpodder.user_extensions.on_notification_show(
                 _("Conversion failed"),
-                "%s: %s" % (episode.title, stderr[stderr.rfind("Error"):]),
+                "%s: %s" % (episode.title, stderr[stderr.rfind("Error") :]),
             )
         del self.futures[old_filename]
+
+    def _notify_all_converted(self, fut):
+        self.finished.append(fut)
+        if self.config.batch_notify and not all(
+            fut.done() for fut in self.futures.values()
+        ):
+            return
+        gpodder.user_extensions.on_notification_show(
+            _("Episodes converted"),
+            ",\n".join(sorted(fut.episode.title for fut in self.finished)),
+        )
+        self.finished.clear()
 
     def _convert_episode(self, episode):
         if not self._check_source(episode):
             return
 
-        self.futures[episode.local_filename(create=False)] = self.pool.submit(
-            self._do_conversion, episode
-        )
+        fut = self.pool.submit(self._do_conversion, episode)
+        fut.episode = episode
+        fut.add_done_callback(self._notify_all_converted)
+        self.futures[episode.local_filename(create=False)] = fut
 
     def _convert_episodes(self, episodes):
         for episode in episodes:
