@@ -477,7 +477,8 @@ function build_installer {
     echo 'BUILD_TYPE = u"windows"' >> "$BUILDPY"
     echo "BUILD_VERSION = $BUILD_VERSION" >> "$BUILDPY"
     (cd "$REPO_CLONE" && echo "BUILD_INFO = u\"$(cd "${REPO_CLONE}" && git rev-parse --short HEAD)\"" >> "$BUILDPY")
-    (cd $(dirname "$BUILDPY") && build_compileall -d "" -q -f -l .)
+    DESTDIR=$(dirname "$BUILDPY")
+    (cd $DESTDIR && build_compileall -d "$DESTDIR" -q -f -l .)
 
     cp "${MISC}"/gpodder.ico "${BUILD_ROOT}"
     (cd "$BUILD_ROOT" && makensis -V3 -NOCD -DVERSION="$GPO_VERSION" -DVERSION_DESC="$GPO_VERSION_DESC" -DBUILD_VERSION="$BUILD_VERSION" "${MISC}"/win_installer.nsi)
@@ -491,7 +492,8 @@ function build_portable_installer {
     echo 'BUILD_TYPE = u"windows-portable"' >> "$BUILDPY"
     echo "BUILD_VERSION = $BUILD_VERSION" >> "$BUILDPY"
     (cd "$REPO_CLONE" && echo "BUILD_INFO = u\"$(cd "${REPO_CLONE}" && git rev-parse --short HEAD)\"" >> "$BUILDPY")
-    (cd $(dirname "$BUILDPY") && build_compileall -d "" -q -f -l .)
+    DESTDIR=$(dirname "$BUILDPY")
+    (cd $DESTDIR && build_compileall -d "$DESTDIR" -q -f -l .)
 
     local PORTABLE="$DIR/gpodder-${GPO_VERSION_DESC}-portable"
 
