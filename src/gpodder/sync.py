@@ -311,6 +311,7 @@ class iPodDevice(Device):
             logger.error('Please install libgpod 0.8.3 to sync with an iPod device.')
             return False
         if not os.path.isdir(self.mountpoint):
+            logger.error(f"iPod mountpoint '{self.mountpoint}' is not a directory")
             return False
 
         self.notify('status', _('Opening iPod database'))
