@@ -77,14 +77,6 @@ def open_device(gui):
 def get_track_length(filename):
     attempted = False
 
-    if mplayer_available:
-        try:
-            mplayer_output = os.popen('mplayer -msglevel all=-1 -identify -vo null -ao null -frames 0 "%s" 2>/dev/null' % filename).read()
-            return int(float(mplayer_output[mplayer_output.index('ID_LENGTH'):].splitlines()[0][10:]) * 1000)
-        except Exception:
-            logger.error('MPlayer could not determine length: %s', filename, exc_info=True)
-            attempted = True
-
     if eyed3mp3_available:
         try:
             length = int(eyed3.mp3.Mp3AudioFile(filename).info.time_secs * 1000)
@@ -95,6 +87,14 @@ def get_track_length(filename):
             return length
         except Exception:
             logger.error('eyed3.mp3 could not determine length: %s', filename, exc_info=True)
+            attempted = True
+
+    if mplayer_available:
+        try:
+            mplayer_output = os.popen('mplayer -msglevel all=-1 -identify -vo null -ao null -frames 0 "%s" 2>/dev/null' % filename).read()
+            return int(float(mplayer_output[mplayer_output.index('ID_LENGTH'):].splitlines()[0][10:]) * 1000)
+        except Exception:
+            logger.error('MPlayer could not determine length: %s', filename, exc_info=True)
             attempted = True
 
     if not attempted:
