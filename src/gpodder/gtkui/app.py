@@ -178,7 +178,7 @@ class gPodderApplication(Gtk.Application):
                 self.add_accelerator(accel, action, None)
 
         else:
-            self.set_app_menu(self.app_menu)
+            menubar.prepend_submenu(_("_Application"), self.app_menu)
 
         Gtk.Window.set_default_icon_name('gpodder')
 
