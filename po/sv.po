@@ -7,13 +7,14 @@
 # Peter Hultqvist <phq@endnode.se>, 2011.
 #   <revoltism@gmail.com>, 2012.
 # Thomas Perl <thp@perli.net>, 2006.
+# Jonatan Nyberg, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: gPodder\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-04-14 03:56-0600\n"
-"PO-Revision-Date: 2013-01-19 12:30+0000\n"
-"Last-Translator: Thomas Perl <m@thp.io>\n"
+"PO-Revision-Date: 2026-07-04 18:02+0300\n"
+"Last-Translator: Jonatan Nyberg\n"
 "Language-Team: Swedish (http://www.transifex.com/projects/p/gpodder/language/"
 "sv/)\n"
 "Language: sv\n"
@@ -21,6 +22,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 3.6\n"
 
 #: src/gpodder/config.py:53
 #, python-format
@@ -28,68 +30,59 @@ msgid "gPodder on %s"
 msgstr "gPodder på %s"
 
 #: src/gpodder/deviceplaylist.py:133
-#, fuzzy, python-format
+#, python-format
 msgid "Folder %s could not be created."
-msgstr "Kanalen på %(url)s kunde inte uppdateras."
+msgstr "Mappen %s kunde inte skapas."
 
 #: src/gpodder/deviceplaylist.py:133
-#, fuzzy
 msgid "Error writing playlist"
-msgstr "Fel vid öppnande av spelare"
+msgstr "Fel när spellistan skulle skrivas"
 
 #: src/gpodder/directory.py:111
-#, fuzzy
 msgid "gpodder.net search"
-msgstr "gpodder.net"
+msgstr "Sökning på gpodder.net"
 
 #: src/gpodder/directory.py:121
-#, fuzzy
 msgid "OPML from web"
-msgstr "OPML filer"
+msgstr "OPML från webben"
 
 #: src/gpodder/directory.py:131
-#, fuzzy
 msgid "OPML file"
-msgstr "OPML filer"
+msgstr "OPML-fil"
 
 #: src/gpodder/directory.py:141 share/gpodder/ui/gtk/gpodderwelcome.ui.h:1
-#, fuzzy
 msgid "Getting started"
-msgstr "Inställningar"
+msgstr "Kom igång"
 
 #: src/gpodder/directory.py:151
-#, fuzzy
 msgid "gpodder.net Top 50"
-msgstr "gpodder.net"
+msgstr "Topp 50 på gpodder.net"
 
 #: src/gpodder/directory.py:161
-#, fuzzy
 msgid "gpodder.net Tags"
-msgstr "gpodder.net"
+msgstr "gpodder.net-taggar"
 
 #: src/gpodder/directory.py:180
-#, fuzzy
 msgid "Soundcloud search"
-msgstr "%s i Soundcloud"
+msgstr "SoundCloud-sökning"
 
 #: src/gpodder/directory.py:195
 msgid "Sorry, soundcloud search doesn't work anymore."
-msgstr ""
+msgstr "Tyvärr fungerar SoundCloud-sökningen inte längre."
 
 #: src/gpodder/directory.py:198
 #, python-format
 msgid "Error querying soundcloud: %(code)s %(msg)s"
-msgstr ""
+msgstr "Fel vid sökning på SoundCloud: %(code)s %(msg)s"
 
 #: src/gpodder/directory.py:199
 #, python-format
 msgid "Unexpected response from soundcloud: %r"
-msgstr ""
+msgstr "Oväntat svar från SoundCloud: %r"
 
 #: src/gpodder/directory.py:204
-#, fuzzy
 msgid "Imported OPML file"
-msgstr "Importera från OPML fil"
+msgstr "Importerad OPML-fil"
 
 #: src/gpodder/download.py:588 src/gpodder/sync.py:657
 msgid "Queued"
@@ -97,7 +90,7 @@ msgstr "Köad"
 
 #: src/gpodder/download.py:588 src/gpodder/gtkui/model.py:390
 msgid "Downloading"
-msgstr "Laddar ner"
+msgstr "Hämtar"
 
 #: src/gpodder/download.py:589 src/gpodder/model.py:905 src/gpodder/sync.py:658
 msgid "Finished"
@@ -108,20 +101,16 @@ msgid "Failed"
 msgstr "Misslyckad"
 
 #: src/gpodder/download.py:589 src/gpodder/sync.py:658
-#, fuzzy
-#| msgid "Cancelling..."
 msgid "Cancelling"
-msgstr "Avbryter..."
+msgstr "Avbryter"
 
 #: src/gpodder/download.py:589 src/gpodder/sync.py:658
 msgid "Cancelled"
 msgstr "Avbruten"
 
 #: src/gpodder/download.py:589 src/gpodder/sync.py:658
-#, fuzzy
-#| msgid "Pause"
 msgid "Pausing"
-msgstr "Pausa"
+msgstr "Pausar"
 
 #: src/gpodder/download.py:589 src/gpodder/sync.py:658
 #: src/gpodder/gtkui/model.py:386
@@ -129,35 +118,32 @@ msgid "Paused"
 msgstr "Pausad"
 
 #: src/gpodder/download.py:981
-#, fuzzy
-#| msgid "Select the episodes you want to download:"
 msgid "Episode has no URL to download"
-msgstr "Välj de avsnitt du önskar ladda ned:"
+msgstr "Avsnittet saknar en URL för hämtning"
 
 #: src/gpodder/download.py:984
 msgid "Missing content from server"
-msgstr "Innehåll från server saknas"
+msgstr "Innehåll saknas på servern"
 
 #: src/gpodder/download.py:990
 #, python-format
 msgid "Couldn't connect to server %(host)s:%(port)s"
-msgstr ""
+msgstr "Kunde inte ansluta till servern %(host)s:%(port)s"
 
 #: src/gpodder/download.py:999
-#, fuzzy, python-format
-#| msgid "Syntax error: %(error)s"
+#, python-format
 msgid "Request Error: %(error)s"
-msgstr "Syntax error: %(error)s"
+msgstr "Fel i begäran: %(error)s"
 
 #: src/gpodder/download.py:1005
 #, python-format
 msgid "I/O Error: %(error)s: %(filename)s"
-msgstr "I/O Fel: %(error)s: %(filename)s"
+msgstr "I/O-fel: %(error)s: %(filename)s"
 
 #: src/gpodder/download.py:1011
 #, python-format
 msgid "HTTP Error %(code)s: %(message)s"
-msgstr "HTTP Fel: %(code)s: %(message)s"
+msgstr "HTTP-fel: %(code)s: %(message)s"
 
 #: src/gpodder/download.py:1015 src/gpodder/sync.py:858
 #, python-format
@@ -165,43 +151,40 @@ msgid "Error: %s"
 msgstr "Fel: %s"
 
 #: src/gpodder/extensions.py:48
-#, fuzzy
 msgid "Desktop Integration"
-msgstr "Ubuntu Unity-integration"
+msgstr "Skrivbordsintegration"
 
 #: src/gpodder/extensions.py:49
-#, fuzzy
 msgid "Interface"
-msgstr "Heltal"
+msgstr "Gränssnitt"
 
 #: src/gpodder/extensions.py:50
-#, fuzzy
 msgid "Post download"
-msgstr "Pausa nedladdning"
+msgstr "Efter hämtning"
 
 #: src/gpodder/extensions.py:52 src/gpodder/model.py:970
 #: src/gpodder/model.py:1393
 msgid "Other"
-msgstr "Annan"
+msgstr "Annat"
 
 #: src/gpodder/extensions.py:93
 msgid "No description for this extension."
-msgstr "Saknas beskrivning för den här extensionen"
+msgstr "Beskrivning saknas för det här tillägget."
 
 #: src/gpodder/extensions.py:217
-#, fuzzy, python-format
+#, python-format
 msgid "Command not found: %(command)s"
-msgstr "Anvädar kommando finns inte"
+msgstr "Kommandot hittades inte: %(command)s"
 
 #: src/gpodder/extensions.py:233
 #, python-format
 msgid "Need at least one of the following commands: %(list_of_commands)s"
-msgstr ""
+msgstr "Minst ett av följande kommandon krävs: %(list_of_commands)s"
 
 #: src/gpodder/extensions.py:271
-#, fuzzy, python-format
+#, python-format
 msgid "Python module not found: %(module)s"
-msgstr "Python modul \"%s\" ej installerad"
+msgstr "Python-modulen hittades inte: %(module)s"
 
 #: src/gpodder/model.py:605 src/gpodder/model.py:612 src/gpodder/youtube.py:591
 msgid "No description available"
@@ -213,11 +196,11 @@ msgstr "okänt"
 
 #: src/gpodder/model.py:935
 msgid "Default"
-msgstr ""
+msgstr "Standard"
 
 #: src/gpodder/model.py:936
 msgid "Only keep latest"
-msgstr ""
+msgstr "Behåll endast det senaste"
 
 #: src/gpodder/model.py:1376 src/gpodder/model.py:1391
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:56
@@ -234,10 +217,12 @@ msgid ""
 "Warning: path to gPodder home (%(root)s) is very long and can result in "
 "failure to download files.\n"
 msgstr ""
+"Varning: sökvägen till gPodders hemmapp (%(root)s) är"
+" mycket lång och kan göra att filer inte kan hämtas.\n"
 
 #: src/gpodder/model.py:1571
 msgid "You're advised to set it to a shorter path."
-msgstr ""
+msgstr "Du rekommenderas att ange en kortare sökväg."
 
 #: src/gpodder/my.py:180
 #, python-format
@@ -247,19 +232,19 @@ msgstr "Lägg till %s"
 #: src/gpodder/my.py:182
 #, python-format
 msgid "Remove %s"
-msgstr "Radera %s"
+msgstr "Ta bort %s"
 
 #: src/gpodder/sync.py:205
 msgid "Cancelled by user"
-msgstr "Avbruten av användare"
+msgstr "Avbruten av användaren"
 
 #: src/gpodder/sync.py:208
 msgid "Writing data to disk"
-msgstr "Skriver data till hårddisk"
+msgstr "Skriver data till disk"
 
 #: src/gpodder/sync.py:310
 msgid "Opening iPod database"
-msgstr "Öppnar iPod databas"
+msgstr "Öppnar iPod-databas"
 
 #: src/gpodder/sync.py:316
 msgid "iPod opened"
@@ -267,12 +252,12 @@ msgstr "iPod öppnad"
 
 #: src/gpodder/sync.py:325
 msgid "Saving iPod database"
-msgstr "Sparar iPod databas"
+msgstr "Sparar iPod-databas"
 
 #: src/gpodder/sync.py:358 src/gpodder/sync.py:633
 #, python-format
 msgid "Removing %s"
-msgstr "Raderar %s"
+msgstr "Tar bort %s"
 
 #: src/gpodder/sync.py:369 src/gpodder/sync.py:504
 #, python-format
@@ -288,28 +273,28 @@ msgstr ""
 
 #: src/gpodder/sync.py:444
 msgid "Opening MP3 player"
-msgstr "Öppna MP3 spelare"
+msgstr "Öppnar MP3-spelaren"
 
 #: src/gpodder/sync.py:469
 msgid "MP3 player opened"
-msgstr "MP3 spelare öppnad"
+msgstr "MP3-spelaren har öppnats"
 
 #: src/gpodder/sync.py:523
 #, python-format
 msgid ""
 "Not enough space in %(path)s: %(free)s available, but need at least %(need)s"
 msgstr ""
+"Det finns inte tillräckligt med utrymme i %(path)s: %(free)s tillgängligt, "
+"men minst %(need)s krävs"
 
 #: src/gpodder/sync.py:560
-#, fuzzy, python-format
-#| msgid "Error opening %(filename)s: %(message)s"
+#, python-format
 msgid "Error copying %(from_file)s to %(to_file)s: %(message)s"
-msgstr "Fel vid öppnande av %(filename)s: %(message)s"
+msgstr "Fel vid kopiering av %(from_file)s till %(to_file)s: %(message)s"
 
 #: src/gpodder/sync.py:657
-#, fuzzy
 msgid "Syncing"
-msgstr "Lägger till %s"
+msgstr "Synkroniserar"
 
 #: src/gpodder/syncui.py:88
 msgid "No device configured"
@@ -317,39 +302,36 @@ msgstr "Ingen enhet konfigurerad"
 
 #: src/gpodder/syncui.py:89
 msgid "Please set up your device in the preferences dialog."
-msgstr "Var vänlig konfigurera din enhet i dialogen för Inställningar."
+msgstr "Konfigurera enheten i inställningsdialogrutan."
 
 #: src/gpodder/syncui.py:94
 msgid "Cannot open device"
-msgstr "Kan inte öppna enhet"
+msgstr "Kan inte öppna enheten"
 
 #: src/gpodder/syncui.py:95
-#, fuzzy
-#| msgid "Please check the settings in the preferences dialog."
 msgid "Please check logs and the settings in the preferences dialog."
-msgstr "Var vänlig kontrollera konfigurationen i dialogen för Inställningar."
+msgstr "Kontrollera loggarna och inställningarna i inställningsdialogrutan."
 
 #: src/gpodder/syncui.py:156
 msgid "Not enough space left on device"
 msgstr "Inte tillräckligt med ledigt utrymme på enheten"
 
 #: src/gpodder/syncui.py:157
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "Additional free space required: %(required_space)s\n"
 "Do you want to continue?"
 msgstr ""
-"Du behöver frigöra %s.\n"
+"Ytterligare ledigt utrymme krävs: %(required_space)s\n"
 "Vill du fortsätta?"
 
 #: src/gpodder/syncui.py:221
-#, fuzzy
 msgid "Update successful"
-msgstr "Lista uppladdad."
+msgstr "Uppdateringen lyckades"
 
 #: src/gpodder/syncui.py:222
 msgid "The playlist on your MP3 player has been updated."
-msgstr ""
+msgstr "Spellistan på din MP3-spelare har uppdaterats."
 
 #: src/gpodder/syncui.py:294 src/gpodder/gtkui/main.py:982
 #: src/gpodder/gtkui/main.py:1185 src/gpodder/gtkui/main.py:3104
@@ -360,12 +342,11 @@ msgstr "Avsnitt"
 
 #: src/gpodder/syncui.py:299
 msgid "Episodes have been deleted on device"
-msgstr ""
+msgstr "Avsnitt har tagits bort på enheten"
 
 #: src/gpodder/syncui.py:311
-#, fuzzy
 msgid "Error writing playlist files"
-msgstr "Fel vid konvertering av fil."
+msgstr "Fel vid skrivning av spellistefiler"
 
 #: src/gpodder/util.py:466
 #, python-format
@@ -384,29 +365,27 @@ msgstr "Igår"
 
 #: src/gpodder/util.py:577
 msgid "kB"
-msgstr ""
+msgstr "kB"
 
 #: src/gpodder/util.py:578
 msgid "MB"
-msgstr ""
+msgstr "MB"
 
 #: src/gpodder/util.py:579
 msgid "GB"
-msgstr ""
+msgstr "GB"
 
 #: src/gpodder/util.py:583
-#, fuzzy
-#| msgid "KiB/s"
 msgid "KiB"
-msgstr "KiB/s"
+msgstr "KiB"
 
 #: src/gpodder/util.py:584
 msgid "MiB"
-msgstr ""
+msgstr "MiB"
 
 #: src/gpodder/util.py:585
 msgid "GiB"
-msgstr ""
+msgstr "GiB"
 
 #: src/gpodder/util.py:591 src/gpodder/util.py:594
 msgid "(unknown)"
@@ -414,7 +393,7 @@ msgstr "(okänt)"
 
 #: src/gpodder/util.py:601
 msgid "B"
-msgstr ""
+msgstr "B"
 
 #: src/gpodder/util.py:1484 src/gpodder/util.py:1506
 #, python-format
@@ -444,23 +423,21 @@ msgstr "och"
 #: src/gpodder/util.py:1546
 #, python-format
 msgid "System default program '%(opener)s' not found"
-msgstr ""
+msgstr "Systemets standardprogram \"%(opener)s\" hittades inte"
 
 #: src/gpodder/util.py:1555
 #, python-format
 msgid "Cannot open file/folder '%(filename)s' using default program"
-msgstr ""
+msgstr "Kan inte öppna filen eller mappen \"%(filename)s\" med standardprogrammet"
 
 #: src/gpodder/util.py:1557
 #, python-format
 msgid "Cannot open '%(filename)s' using '%(opener)s'"
-msgstr ""
+msgstr "Kan inte öppna \"%(filename)s\" med \"%(opener)s\""
 
 #: src/gpodder/util.py:1559
-#, fuzzy
-#| msgid "Cannot open device"
 msgid "Cannot open file/folder"
-msgstr "Kan inte öppna enhet"
+msgstr "Kan inte öppna fil eller mapp"
 
 #: src/gpodder/gtkui/app.py:192
 msgid "Cannot start gPodder"
@@ -469,7 +446,7 @@ msgstr "Kan inte starta gPodder"
 #: src/gpodder/gtkui/app.py:193
 #, python-format
 msgid "D-Bus error: %s"
-msgstr "D-Bus fel: %s"
+msgstr "D-Bus-fel: %s"
 
 #: src/gpodder/gtkui/app.py:286
 msgid "About gPodder"
@@ -481,20 +458,19 @@ msgstr "Om gPodder"
 #: share/gpodder/ui/gtk/gpodderconfigeditor.ui.h:2
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:3
 msgid "_Close"
-msgstr ""
+msgstr "_Stäng"
 
 #: src/gpodder/gtkui/app.py:310
-#, fuzzy
 msgid "Website"
-msgstr "Webbsida:"
+msgstr "Webbplats"
 
 #: src/gpodder/gtkui/app.py:311
 msgid "Bug Tracker"
-msgstr ""
+msgstr "Felrapporteringssystem"
 
 #: src/gpodder/gtkui/app.py:372
 msgid "Path to gPodder home is too long"
-msgstr ""
+msgstr "Sökvägen till gPodders hemmapp är för lång"
 
 #: src/gpodder/gtkui/config.py:54
 msgid "Integer"
@@ -506,7 +482,7 @@ msgstr "Flyttal"
 
 #: src/gpodder/gtkui/config.py:58
 msgid "Boolean"
-msgstr "Boolean"
+msgstr "Booleskt värde"
 
 #: src/gpodder/gtkui/config.py:60
 msgid "String"
@@ -519,12 +495,12 @@ msgstr "Kommando: %s"
 
 #: src/gpodder/gtkui/desktopfile.py:161
 msgid "Default application"
-msgstr "Förvald applikation"
+msgstr "Standardprogram"
 
 #: src/gpodder/gtkui/download.py:98
 #, python-format
 msgid "%(status)s (%(progress).0f%%, %(rate)s/s, %(remaining)s)"
-msgstr ""
+msgstr "%(status)s (%(progress).0f%%, %(rate)s/s, %(remaining)s)"
 
 #: src/gpodder/gtkui/main.py:178 share/applications/gpodder.desktop.in.h:1
 msgid "gPodder"
@@ -534,32 +510,30 @@ msgstr "gPodder"
 #: src/gpodder/gtkui/main.py:950
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:65
 msgid "Extensions"
-msgstr "Extensioner"
+msgstr "Tillägg"
 
 #: src/gpodder/gtkui/main.py:454
 msgid "Loading incomplete downloads"
-msgstr "Laddar inkompletta nedladdningar"
+msgstr "Läser in ofullständiga hämtningar"
 
 #: src/gpodder/gtkui/main.py:455
 msgid "Some episodes have not finished downloading in a previous session."
-msgstr "Nedladdningen av några avsnitt avslutades inte under förra sessionen"
+msgstr "Hämtningen av några avsnitt slutfördes inte under förra sessionen."
 
 #: src/gpodder/gtkui/main.py:458 bin/gpo:629
 #, python-format
 msgid "%(count)d partial file"
 msgid_plural "%(count)d partial files"
-msgstr[0] "%(count)d partiell fil"
-msgstr[1] "%(count)d partiella filer"
+msgstr[0] "%(count)d delvis hämtad fil"
+msgstr[1] "%(count)d delvis hämtade filer"
 
 #: src/gpodder/gtkui/main.py:469
-#, fuzzy
-#| msgid "Clean-up"
 msgid "Cleaning up..."
-msgstr "Rensa"
+msgstr "Rensar…"
 
 #: src/gpodder/gtkui/main.py:584
 msgid "Action"
-msgstr "Händelse"
+msgstr "Åtgärd"
 
 #: src/gpodder/gtkui/main.py:632
 msgid "Confirm changes from gpodder.net"
@@ -567,11 +541,11 @@ msgstr "Bekräfta ändringar från gpodder.net"
 
 #: src/gpodder/gtkui/main.py:633
 msgid "Select the actions you want to carry out."
-msgstr "Välj de händelser du vill ska ske."
+msgstr "Välj vilka åtgärder du vill utföra."
 
 #: src/gpodder/gtkui/main.py:637
 msgid "A_pply"
-msgstr ""
+msgstr "V_erkställ"
 
 #: src/gpodder/gtkui/main.py:673
 msgid "Uploading subscriptions"
@@ -583,7 +557,7 @@ msgstr "Dina prenumerationer laddas upp till servern."
 
 #: src/gpodder/gtkui/main.py:679
 msgid "List uploaded successfully."
-msgstr "Lista uppladdad."
+msgstr "Prenumerationslistan har laddats upp."
 
 #: src/gpodder/gtkui/main.py:687
 msgid ""
@@ -592,6 +566,10 @@ msgid ""
 "Check login is a username (not an email)\n"
 "and that the device name matches one in your account."
 msgstr ""
+"Kunde inte hitta din enhet.\n"
+"\n"
+"Kontrollera att inloggningen är ett användarnamn, inte en e-postadress,\n"
+"och att enhetsnamnet matchar ett namn i ditt konto."
 
 #: src/gpodder/gtkui/main.py:693
 msgid "Error while uploading"
@@ -603,23 +581,19 @@ msgstr "Storlek"
 
 #: src/gpodder/gtkui/main.py:1006
 msgid "Duration"
-msgstr "varaktighet"
+msgstr "Varaktighet"
 
 #: src/gpodder/gtkui/main.py:1011
 msgid "Released"
-msgstr "Datum"
+msgstr "Publicerad"
 
 #: src/gpodder/gtkui/main.py:1019
-#, fuzzy
-#| msgid "Size"
 msgid "Size+"
-msgstr "Storlek"
+msgstr "Storlek+"
 
 #: src/gpodder/gtkui/main.py:1027
-#, fuzzy
-#| msgid "Duration"
 msgid "Duration+"
-msgstr "varaktighet"
+msgstr "Varaktighet+"
 
 #: src/gpodder/gtkui/main.py:1205 src/gpodder/gtkui/main.py:1398
 #: share/gpodder/ui/gtk/gpodder.ui.h:16
@@ -636,16 +610,15 @@ msgstr "Inga avsnitt tillgängliga"
 
 #: src/gpodder/gtkui/main.py:1267
 msgid "No podcasts in this view"
-msgstr "Inga poddsändningar i denna vy"
+msgstr "Inga poddar i denna vy"
 
 #: src/gpodder/gtkui/main.py:1269
 msgid "No subscriptions"
 msgstr "Inga prenumerationer"
 
 #: src/gpodder/gtkui/main.py:1271
-#, fuzzy
 msgid "No active tasks"
-msgstr "Inga aktiva nedladdningar"
+msgstr "Inga aktiva uppgifter"
 
 #: src/gpodder/gtkui/main.py:1402 src/gpodder/gtkui/main.py:1404
 #, python-format
@@ -655,22 +628,18 @@ msgstr[0] "%(count)d aktiv"
 msgstr[1] "%(count)d aktiva"
 
 #: src/gpodder/gtkui/main.py:1406
-#, fuzzy, python-format
-#| msgid "%(count)d second"
-#| msgid_plural "%(count)d seconds"
+#, python-format
 msgid "%(count)d pausing"
 msgid_plural "%(count)d pausing"
-msgstr[0] "%(count)d sekund"
-msgstr[1] "%(count)d sekunder"
+msgstr[0] "%(count)d pausas"
+msgstr[1] "%(count)d pausas"
 
 #: src/gpodder/gtkui/main.py:1408
-#, fuzzy, python-format
-#| msgid "%(count)d active"
-#| msgid_plural "%(count)d active"
+#, python-format
 msgid "%(count)d cancelling"
 msgid_plural "%(count)d cancelling"
-msgstr[0] "%(count)d aktiv"
-msgstr[1] "%(count)d aktiva"
+msgstr[0] "%(count)d avbryts"
+msgstr[1] "%(count)d avbryts"
 
 #: src/gpodder/gtkui/main.py:1410
 #, python-format
@@ -680,13 +649,11 @@ msgstr[0] "%(count)d kölagd"
 msgstr[1] "%(count)d kölagda"
 
 #: src/gpodder/gtkui/main.py:1412
-#, fuzzy, python-format
-#| msgid "%(count)d second"
-#| msgid_plural "%(count)d seconds"
+#, python-format
 msgid "%(count)d paused"
 msgid_plural "%(count)d paused"
-msgstr[0] "%(count)d sekund"
-msgstr[1] "%(count)d sekunder"
+msgstr[0] "%(count)d pausad"
+msgstr[1] "%(count)d pausade"
 
 #: src/gpodder/gtkui/main.py:1414
 #, python-format
@@ -699,116 +666,106 @@ msgstr[1] "%(count)d misslyckade"
 #, python-format
 msgid "downloading %(count)d file"
 msgid_plural "downloading %(count)d files"
-msgstr[0] "laddar ner %(count)d fil"
-msgstr[1] "laddar ner %(count)d filer"
+msgstr[0] "hämtar %(count)d fil"
+msgstr[1] "hämtar %(count)d filer"
 
 #: src/gpodder/gtkui/main.py:1439
 #, python-format
 msgid "synchronizing %(count)d file"
 msgid_plural "synchronizing %(count)d files"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "synkroniserar %(count)d fil"
+msgstr[1] "synkroniserar %(count)d filer"
 
 #: src/gpodder/gtkui/main.py:1443
 #, python-format
 msgid "%(queued)d task queued"
 msgid_plural "%(queued)d tasks queued"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(queued)d uppgift köad"
+msgstr[1] "%(queued)d uppgifter köade"
 
 #: src/gpodder/gtkui/main.py:1470
 msgid "Please report this problem and restart gPodder:"
-msgstr "Var vänlig rapportera detta problemet och starta om gPodder:"
+msgstr "Rapportera det här problemet och starta om gPodder:"
 
 #: src/gpodder/gtkui/main.py:1471
 msgid "Unhandled exception"
-msgstr "Ej hanterat undantag"
+msgstr "Ohanterat undantag"
 
 #: src/gpodder/gtkui/main.py:1564
 #, python-format
 msgid "Feedparser error: %s"
-msgstr "Fel vid tolkning av kanal: %s"
+msgstr "Fel i flödestolkaren: %s"
 
 #: src/gpodder/gtkui/main.py:1580 src/gpodder/gtkui/model.py:444
 #: src/gpodder/gtkui/model.py:787 src/gpodder/gtkui/desktop/channel.py:97
 #, python-format
 msgid "ERROR: %s"
-msgstr ""
+msgstr "FEL: %s"
 
 #: src/gpodder/gtkui/main.py:1694
-#, fuzzy
 msgid "Could not download some episodes:"
-msgstr "Kunde inte lägga till några av poddsändningarna"
+msgstr "Kunde inte hämta vissa avsnitt:"
 
 #: src/gpodder/gtkui/main.py:1696 src/gpodder/gtkui/main.py:1699
 msgid "Downloads finished"
-msgstr "Nedladdningar färdiga"
+msgstr "Hämtningar klara"
 
 #: src/gpodder/gtkui/main.py:1702
 msgid "Downloads failed"
-msgstr "Nedladdningar misslyckades"
+msgstr "Hämtningar misslyckades"
 
 #: src/gpodder/gtkui/main.py:1707
-#, fuzzy
 msgid "Could not sync some episodes:"
-msgstr "Kunde inte lägga till några av poddsändningarna"
+msgstr "Kunde inte synkronisera vissa avsnitt:"
 
 #: src/gpodder/gtkui/main.py:1710 src/gpodder/gtkui/main.py:1714
-#, fuzzy
 msgid "Device synchronization finished"
-msgstr "Synkronisering klar."
+msgstr "Enhetssynkroniseringen är klar."
 
 #: src/gpodder/gtkui/main.py:1718
-#, fuzzy
 msgid "Device synchronization failed"
-msgstr "Enheten synkroniserad"
+msgstr "Enhetssynkroniseringen misslyckades"
 
 #: src/gpodder/gtkui/main.py:1760
 #, python-format
 msgid "%(count)d more episode"
 msgid_plural "%(count)d more episodes"
-msgstr[0] "%(count)d till avsnitt"
-msgstr[1] "%(count)d fler avsnitt"
+msgstr[0] "%(count)d avsnitt till"
+msgstr[1] "%(count)d avsnitt till"
 
 #: src/gpodder/gtkui/main.py:1777 src/gpodder/gtkui/main.py:3252
-#, fuzzy
-#| msgid "Queued"
 msgid "Queueing"
-msgstr "Köad"
+msgstr "Kölägger"
 
 #: src/gpodder/gtkui/main.py:1778
-#, fuzzy
-#| msgid "Removing %s"
 msgid "Removing"
-msgstr "Raderar %s"
+msgstr "Tar bort"
 
 #: src/gpodder/gtkui/main.py:1845 src/gpodder/gtkui/main.py:3281
 #: src/gpodder/gtkui/main.py:3362
-#, fuzzy
-#| msgid "Updating"
 msgid "Updating..."
-msgstr "Uppdatering"
+msgstr "Uppdaterar…"
 
 #: src/gpodder/gtkui/main.py:1879 share/gpodder/ui/gtk/gpodder.ui.h:2
 #: share/gpodder/ui/gtk/menus.ui.h:63
 msgid "Start download now"
-msgstr "Starta nedladdning nu"
+msgstr "Starta hämtning nu"
 
 #: src/gpodder/gtkui/main.py:1881 src/gpodder/gtkui/main.py:2106
 #: src/gpodder/gtkui/desktop/podcastdirectory.py:207
 #: share/gpodder/ui/gtk/gpodder.ui.h:3 share/gpodder/ui/gtk/menus.ui.h:24
 msgid "Download"
-msgstr "Ladda ner"
+msgstr "Hämta"
 
 #: src/gpodder/gtkui/main.py:1978
 msgid "File already exists"
-msgstr ""
+msgstr "Filen finns redan"
 
 #: src/gpodder/gtkui/main.py:1980
 #, python-format
 msgid ""
 "A file named \"%(filename)s\" already exists. Do you want to replace it?"
-msgstr ""
+msgstr "En fil med namnet \"%(filename)s\" finns redan. Vill du ersätta den?"
 
 #: src/gpodder/gtkui/main.py:2025
 #, python-format
@@ -816,16 +773,17 @@ msgid ""
 "Error saving to local folder: %(error)r.\n"
 "Would you like to continue?"
 msgstr ""
+"Fel vid sparning till lokal mapp: %(error)r.\n"
+"Vill du fortsätta?"
 
 #: src/gpodder/gtkui/main.py:2027 src/gpodder/gtkui/main.py:2032
-#, fuzzy
 msgid "Error saving to local folder"
-msgstr "Fel vid konvertering av fil."
+msgstr "Fel vid sparning till lokal mapp"
 
 #: src/gpodder/gtkui/main.py:2031
 #, python-format
 msgid "Error saving to local folder: %(error)r"
-msgstr ""
+msgstr "Fel vid sparning till lokal mapp: %(error)r"
 
 #: src/gpodder/gtkui/main.py:2056
 msgid "Error converting file."
@@ -833,7 +791,7 @@ msgstr "Fel vid konvertering av fil."
 
 #: src/gpodder/gtkui/main.py:2056
 msgid "Bluetooth file transfer"
-msgstr "Bluetooth filöverföring"
+msgstr "Bluetooth-filöverföring"
 
 #: src/gpodder/gtkui/main.py:2091 src/gpodder/gtkui/main.py:2150
 #: src/gpodder/gtkui/desktop/podcastdirectory.py:210
@@ -852,7 +810,7 @@ msgstr "Förhandsgranska"
 
 #: src/gpodder/gtkui/main.py:2098 src/gpodder/gtkui/main.py:2162
 msgid "Stream"
-msgstr "Ström"
+msgstr "Strömma"
 
 #: src/gpodder/gtkui/main.py:2104 share/gpodder/ui/gtk/gpodder.ui.h:4
 #: share/gpodder/ui/gtk/menus.ui.h:25
@@ -862,7 +820,7 @@ msgstr "Pausa"
 #: src/gpodder/gtkui/main.py:2115 src/gpodder/gtkui/desktop/channel.py:206
 #: share/gpodder/ui/gtk/gpodder.ui.h:5 share/gpodder/ui/gtk/menus.ui.h:26
 msgid "Cancel"
-msgstr "A_vbryt"
+msgstr "Avbryt"
 
 #: src/gpodder/gtkui/main.py:2127
 msgid "Send to"
@@ -870,36 +828,36 @@ msgstr "Skicka till"
 
 #: src/gpodder/gtkui/main.py:2321
 msgid "Please check your media player settings in the preferences dialog."
-msgstr "Var vänlig kontrollera spelarens konfiguration under inställningar."
+msgstr "Kontrollera mediaspelarens inställningar i inställningsdialogrutan."
 
 #: src/gpodder/gtkui/main.py:2322
 msgid "Error opening player"
-msgstr "Fel vid öppnande av spelare"
+msgstr "Fel när spelaren skulle öppnas"
 
 #: src/gpodder/gtkui/main.py:2592
 msgid "Adding podcasts"
-msgstr "Lägger till poddsändning"
+msgstr "Lägger till poddar"
 
 #: src/gpodder/gtkui/main.py:2593
 msgid "Please wait while episode information is downloaded."
-msgstr "Var vänlig vänta medan avsnittets information laddas ned."
+msgstr "Vänta medan avsnittsinformationen hämtas."
 
 #: src/gpodder/gtkui/main.py:2601
 msgid "Existing subscriptions skipped"
-msgstr "Hoppar över existerade prenumerationer"
+msgstr "Befintliga prenumerationer hoppades över"
 
 #: src/gpodder/gtkui/main.py:2602
 msgid "You are already subscribed to these podcasts:"
-msgstr "Du prenumererar redan på dessa poddsändningar:"
+msgstr "Du prenumererar redan på dessa poddar:"
 
 #: src/gpodder/gtkui/main.py:2610 bin/gpo:350
 msgid "Podcast requires authentication"
-msgstr "Poddsändningen kräver inloggning"
+msgstr "Podden kräver inloggning"
 
 #: src/gpodder/gtkui/main.py:2611 bin/gpo:351
 #, python-format
 msgid "Please login to %s:"
-msgstr "Logga in till %s:"
+msgstr "Logga in på %s:"
 
 #: src/gpodder/gtkui/main.py:2619 src/gpodder/gtkui/main.py:2717
 msgid "Authentication failed"
@@ -907,7 +865,7 @@ msgstr "Inloggning misslyckades"
 
 #: src/gpodder/gtkui/main.py:2625
 msgid "Website redirection detected"
-msgstr "Upptäckte omdirigering av webbsidan "
+msgstr "Omdirigering till en webbplats upptäcktes"
 
 #: src/gpodder/gtkui/main.py:2626
 #, python-format
@@ -916,15 +874,15 @@ msgstr "Webbadressen %(url)s omdirigeras till %(target)s."
 
 #: src/gpodder/gtkui/main.py:2627
 msgid "Do you want to visit the website now?"
-msgstr "Vill du besöka webbsidan nu ?"
+msgstr "Vill du besöka webbplatsen nu?"
 
 #: src/gpodder/gtkui/main.py:2636
 msgid "Could not add some podcasts"
-msgstr "Kunde inte lägga till några av poddsändningarna"
+msgstr "Kunde inte lägga till vissa poddar"
 
 #: src/gpodder/gtkui/main.py:2637
 msgid "Some podcasts could not be added to your list:"
-msgstr "Några av poddsändningarna kunde inte läggas till din lista:"
+msgstr "Vissa poddar kunde inte läggas till i din lista:"
 
 #: src/gpodder/gtkui/main.py:2639
 msgid "Unknown"
@@ -936,57 +894,50 @@ msgstr "Omdirigering upptäcktes"
 
 #: src/gpodder/gtkui/main.py:2760
 msgid "Merging episode actions"
-msgstr "Sammanfogar aktiviteter för avsnitt"
+msgstr "Sammanfogar avsnittsåtgärder"
 
 #: src/gpodder/gtkui/main.py:2761
 msgid "Episode actions from gpodder.net are merged."
-msgstr "Avsnittsaktiviteter från gpodder.net är nu sammanfogade."
+msgstr "Avsnittsåtgärder från gpodder.net har sammanfogats."
 
 #: src/gpodder/gtkui/main.py:2787
 msgid "Cancelling..."
-msgstr "Avbryter..."
+msgstr "Avbryter…"
 
 #: src/gpodder/gtkui/main.py:2796
 msgid "Please connect to a network, then try again."
-msgstr ""
+msgstr "Anslut till ett nätverk och försök igen."
 
 #: src/gpodder/gtkui/main.py:2797
-#, fuzzy
 msgid "No network connection"
-msgstr "Nytt namn:"
+msgstr "Ingen nätverksanslutning"
 
 #: src/gpodder/gtkui/main.py:2818
 #, python-format
 msgid "Updating %(count)d feed..."
 msgid_plural "Updating %(count)d feeds..."
-msgstr[0] "Uppdaterar %(count)d flöde..."
-msgstr[1] "Uppdaterar %(count)d flöden..."
+msgstr[0] "Uppdaterar %(count)d flöde…"
+msgstr[1] "Uppdaterar %(count)d flöden…"
 
 #: src/gpodder/gtkui/main.py:2835
-#, fuzzy, python-format
+#, python-format
 msgid "Updating %(podcast)s (%(position)d/%(total)d)"
-msgstr "Uppdaterad %(podcast)s (%(position)d/%(total)d)"
+msgstr "Uppdaterar %(podcast)s (%(position)d/%(total)d)"
 
 #: src/gpodder/gtkui/main.py:2881
-#, fuzzy, python-format
-#| msgid "%(count)d failed"
-#| msgid_plural "%(count)d failed"
+#, python-format
 msgid "%(count)d channel failed to update"
 msgid_plural "%(count)d channels failed to update"
-msgstr[0] "%(count)d misslyckad"
-msgstr[1] "%(count)d misslyckade"
+msgstr[0] "%(count)d podd kunde inte uppdateras"
+msgstr[1] "%(count)d poddar kunde inte uppdateras"
 
 #: src/gpodder/gtkui/main.py:2884
-#, fuzzy
-#| msgid "Error while updating feed"
 msgid "Error while updating feeds"
-msgstr "Fel vid uppdatering av kanal"
+msgstr "Fel vid uppdatering av flöden"
 
 #: src/gpodder/gtkui/main.py:2916
-#, fuzzy
-#| msgid "No new episodes available"
 msgid "No new episodes with downloadable content"
-msgstr "Inga nya avsnitt tillgängliga"
+msgstr "Inga nya avsnitt att hämta"
 
 #: src/gpodder/gtkui/main.py:2916
 msgid "No new episodes"
@@ -996,8 +947,8 @@ msgstr "Inga nya avsnitt"
 #, python-format
 msgid "Downloading %(count)d new episode."
 msgid_plural "Downloading %(count)d new episodes."
-msgstr[0] "Laddar ner %(count)d nytt avsnitt."
-msgstr[1] "Laddar ner %(count)d nya avsnitt."
+msgstr[0] "Hämtar %(count)d nytt avsnitt."
+msgstr[1] "Hämtar %(count)d nya avsnitt."
 
 #: src/gpodder/gtkui/main.py:2934 src/gpodder/gtkui/main.py:2941
 #: src/gpodder/gtkui/main.py:3401
@@ -1008,8 +959,8 @@ msgstr "Nya avsnitt finns tillgängliga"
 #, python-format
 msgid "%(count)d new episode added to download list."
 msgid_plural "%(count)d new episodes added to download list."
-msgstr[0] "%(count)d nytt avsnitt tillagt till nerladdningslistan."
-msgstr[1] "%(count)d nya avsnitt tillagda till nerladdningslistan."
+msgstr[0] "%(count)d nytt avsnitt lades till i hämtningslistan."
+msgstr[1] "%(count)d nya avsnitt lades till i hämtningslistan."
 
 #: src/gpodder/gtkui/main.py:2947
 #, python-format
@@ -1031,15 +982,12 @@ msgstr[1] "%(count)d nya avsnitt tillgängliga"
 #: share/gpodder/ui/gtk/gpodderepisodeselector.ui.h:3
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:3
 #: share/gpodder/ui/gtk/gpodderwelcome.ui.h:2
-#, fuzzy
 msgid "_Cancel"
-msgstr "A_vbryt"
+msgstr "_Avbryt"
 
 #: src/gpodder/gtkui/main.py:2976
-#, fuzzy
-#| msgid "Quit"
 msgid "_Quit"
-msgstr "Avsluta"
+msgstr "_Avsluta"
 
 #: src/gpodder/gtkui/main.py:2978
 msgid "Quit gPodder"
@@ -1050,7 +998,7 @@ msgid ""
 "You are downloading episodes. You can resume downloads the next time you "
 "start gPodder. Do you want to quit now?"
 msgstr ""
-"Just nu laddar du ner avsnitt. Du kan återuppta nerladdningen nästa gång du "
+"Just nu hämtar du avsnitt. Du kan återuppta hämtningarna nästa gång du "
 "startar gPodder. Vill du avsluta nu?"
 
 #: src/gpodder/gtkui/main.py:3033 bin/gpo:870
@@ -1062,8 +1010,8 @@ msgid ""
 "The selected episodes are locked. Please unlock the episodes that you want "
 "to delete before trying to delete them."
 msgstr ""
-"De valda avsnitten är låsta. Var vänlig lås upp de avsnitt du önskar radera "
-"innan du försöker radera dem."
+"De valda avsnitten är låsta. Lås upp de avsnitt du vill ta bort innan du "
+"försöker ta bort dem."
 
 #: src/gpodder/gtkui/main.py:3042 bin/gpo:879
 #, python-format
@@ -1074,15 +1022,15 @@ msgstr[1] "Ta bort %(count)d avsnitt?"
 
 #: src/gpodder/gtkui/main.py:3044 bin/gpo:881
 msgid "Deleting episodes removes downloaded files."
-msgstr "Borttagning av avsnitt tar även bort nedladdade filer."
+msgstr "När avsnitt tas bort tas även hämtade filer bort."
 
 #: src/gpodder/gtkui/main.py:3053
 msgid "Deleting episodes"
-msgstr "Raderar avsnitt"
+msgstr "Tar bort avsnitt"
 
 #: src/gpodder/gtkui/main.py:3054 bin/gpo:886
 msgid "Please wait while episodes are deleted"
-msgstr "Var vänlig vänta medan avsnitten raderas"
+msgstr "Vänta medan avsnitten tas bort"
 
 #: src/gpodder/gtkui/main.py:3107
 #, python-format
@@ -1093,147 +1041,141 @@ msgstr[1] "Markera äldre än %(count)d dagar"
 
 #: src/gpodder/gtkui/main.py:3109
 msgid "Select played"
-msgstr "Välj spelade"
+msgstr "Markera spelade"
 
 #: src/gpodder/gtkui/main.py:3110
 msgid "Select finished"
-msgstr "Markera avslutade"
+msgstr "Markera slutförda"
 
 #: src/gpodder/gtkui/main.py:3115
 msgid "Select the episodes you want to delete:"
-msgstr "Välj de avsnitt du önskar radera:"
+msgstr "Välj de avsnitt du vill ta bort:"
 
 #: src/gpodder/gtkui/main.py:3132 share/gpodder/ui/gtk/menus.ui.h:11
 msgid "Delete episodes"
-msgstr "Radera avsnitt"
+msgstr "Ta bort avsnitt"
 
 #: src/gpodder/gtkui/main.py:3135 src/gpodder/gtkui/main.py:3569
-#, fuzzy
 msgid "_Delete"
-msgstr "Radera"
+msgstr "_Ta bort"
 
 #: src/gpodder/gtkui/main.py:3202 src/gpodder/gtkui/main.py:3543
 #: src/gpodder/gtkui/main.py:3652
 msgid "No podcast selected"
-msgstr "Ingen poddsändning vald"
+msgstr "Ingen podd vald"
 
 #: src/gpodder/gtkui/main.py:3203
 msgid "Please select a podcast in the podcasts list to update."
-msgstr "Var vänlig välj en poddsändning i poddsändarlistan för att uppdatera."
+msgstr "Välj den podd i poddlistan som du vill uppdatera."
 
 #: src/gpodder/gtkui/main.py:3335
 #, python-format
 msgid "Download error while downloading %(episode)s: %(message)s"
-msgstr "Nedladdningsfel vid hämtning av %(episode)s: %(message)s"
+msgstr "Fel när %(episode)s hämtades: %(message)s"
 
 #: src/gpodder/gtkui/main.py:3336
 msgid "Download error"
-msgstr "Nedladdningsfel"
+msgstr "Hämtningsfel"
 
 #: src/gpodder/gtkui/main.py:3381
 msgid "Select the episodes you want to download:"
-msgstr "Välj de avsnitt du önskar ladda ned:"
+msgstr "Välj de avsnitt du vill hämta:"
 
 #: src/gpodder/gtkui/main.py:3409
-#, fuzzy
-#| msgid "Mark as old"
 msgid "_Mark as old"
-msgstr "Markera som gammal"
+msgstr "_Markera som gammal"
 
 #: src/gpodder/gtkui/main.py:3416
 msgid "Please check for new episodes later."
-msgstr "Var vänlig sök senare efter nya avsnitt."
+msgstr "Sök efter nya avsnitt senare."
 
 #: src/gpodder/gtkui/main.py:3417
 msgid "No new episodes available"
 msgstr "Inga nya avsnitt tillgängliga"
 
 #: src/gpodder/gtkui/main.py:3506
-#, fuzzy, python-format
+#, python-format
 msgid "Subscriptions on %(server)s"
-msgstr "Prenumerationer på gpodder.net"
+msgstr "Prenumerationer på %(server)s"
 
 #: src/gpodder/gtkui/main.py:3517
 msgid "Login to gpodder.net"
-msgstr "Logga in till gpodder.net"
+msgstr "Logga in på gpodder.net"
 
 #: src/gpodder/gtkui/main.py:3518
 msgid "Please login to download your subscriptions."
-msgstr "Vänligen logga in för att hämta dina prenumerationer."
+msgstr "Logga in för att hämta dina prenumerationer."
 
 #: src/gpodder/gtkui/main.py:3544
 msgid "Please select a podcast in the podcasts list to edit."
-msgstr "Var vänlig välj en poddsändning i listan att redigera."
+msgstr "Välj den podd i poddlistan som du vill redigera."
 
 #: src/gpodder/gtkui/main.py:3558
 #: share/gpodder/extensions/subscription_stats.py:68
 msgid "Podcast"
-msgstr "Poddsändning"
+msgstr "Podd"
 
 #: src/gpodder/gtkui/main.py:3564 share/gpodder/ui/gtk/menus.ui.h:16
-#, fuzzy
 msgid "Delete podcasts"
-msgstr "Radera poddsändning"
+msgstr "Ta bort poddar"
 
 #: src/gpodder/gtkui/main.py:3565
-#, fuzzy
 msgid "Select the podcast you want to delete."
-msgstr "Välj de avsnitt du önskar radera."
+msgstr "Välj podden du vill ta bort."
 
 #: src/gpodder/gtkui/main.py:3578
-#, fuzzy
 msgid "Deleting podcast"
-msgstr "Raderar avsnitt"
+msgstr "Tar bort podd"
 
 #: src/gpodder/gtkui/main.py:3579
-#, fuzzy
 msgid "Please wait while the podcast is deleted"
-msgstr "Vänligen vänta medan poddsändningen raderas"
+msgstr "Vänta medan podden tas bort"
 
 #: src/gpodder/gtkui/main.py:3580
 msgid ""
 "This podcast and all its episodes will be PERMANENTLY DELETED.\n"
 "Are you sure you want to continue?"
 msgstr ""
+"Den här podden och alla dess avsnitt kommer att RADERAS"
+" PERMANENT.\nÄr du säker på att du vill fortsätta?"
 
 #: src/gpodder/gtkui/main.py:3582
-#, fuzzy
 msgid "Deleting podcasts"
-msgstr "Raderar poddsändning"
+msgstr "Tar bort poddar"
 
 #: src/gpodder/gtkui/main.py:3583
-#, fuzzy
 msgid "Please wait while the podcasts are deleted"
-msgstr "Vänligen vänta medan poddsändningarna raderas"
+msgstr "Vänta medan poddarna tas bort"
 
 #: src/gpodder/gtkui/main.py:3584
 msgid ""
 "These podcasts and all their episodes will be PERMANENTLY DELETED.\n"
 "Are you sure you want to continue?"
 msgstr ""
+"Dessa poddar och alla deras avsnitt kommer att RADERAS"
+" PERMANENT.\nÄr du säker på att du vill fortsätta?"
 
 #: src/gpodder/gtkui/main.py:3653
 msgid "Please select a podcast in the podcasts list to remove."
-msgstr "Var vänlig välj en poddsändning att radera i poddsändarlistan"
+msgstr "Välj den podd i poddlistan som du vill ta bort."
 
 #: src/gpodder/gtkui/main.py:3663
 msgid "OPML files"
-msgstr "OPML filer"
+msgstr "OPML-filer"
 
 #: src/gpodder/gtkui/main.py:3668
 msgid "Import from OPML"
-msgstr "Inportera från OPML"
+msgstr "Importera från OPML"
 
 #: src/gpodder/gtkui/main.py:3672 src/gpodder/gtkui/desktop/channel.py:146
 #: src/gpodder/gtkui/desktop/preferences.py:851
 #: src/gpodder/gtkui/desktop/preferences.py:869
-#, fuzzy
 msgid "_Open"
-msgstr "Öppna"
+msgstr "_Öppna"
 
 #: src/gpodder/gtkui/main.py:3682
 msgid "Import podcasts from OPML file"
-msgstr "Importera poddsändningar från en OPML fil"
+msgstr "Importera poddar från en OPML-fil"
 
 #: src/gpodder/gtkui/main.py:3688
 msgid "Nothing to export"
@@ -1244,9 +1186,8 @@ msgid ""
 "Your list of podcast subscriptions is empty. Please subscribe to some "
 "podcasts first before trying to export your subscription list."
 msgstr ""
-"Din lista på prenumerationer av poddsändningar är tom. Du behöver först "
-"prenumerera på en poddsändning innan du kan exportera din "
-"prenumerationslista."
+"Din lista över poddprenumerationer är tom. Prenumerera på "
+"några poddar innan du försöker exportera prenumerationslistan."
 
 #: src/gpodder/gtkui/main.py:3695
 msgid "Export to OPML"
@@ -1258,7 +1199,7 @@ msgstr "Exportera till OPML"
 #: share/gpodder/extensions/concatenate_videos.py:41
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:4
 msgid "_Save"
-msgstr ""
+msgstr "_Spara"
 
 #: src/gpodder/gtkui/main.py:3708
 #, python-format
@@ -1269,68 +1210,63 @@ msgstr[1] "%(count)d prenumerationer exporterade"
 
 #: src/gpodder/gtkui/main.py:3711
 msgid "Your podcast list has been successfully exported."
-msgstr "Din lista på poddsändningar är exporterad."
+msgstr "Din poddlista har exporterats."
 
 #: src/gpodder/gtkui/main.py:3715
 msgid "Could not export OPML to file. Please check your permissions."
 msgstr ""
-"Kunde inte exportera till OMPL-filen. Var vänlig kontrollera dina skriv-"
-"rättigheter."
+"Kunde inte exportera OPML till en fil. Kontrollera dina behörigheter."
 
 #: src/gpodder/gtkui/main.py:3717
 msgid "OPML export failed"
-msgstr "OPML export misslyckades"
+msgstr "OPML-exporten misslyckades"
 
 #: src/gpodder/gtkui/main.py:3730
 msgid "Managed by distribution"
-msgstr ""
+msgstr "Hanteras av distributionen"
 
 #: src/gpodder/gtkui/main.py:3731
 msgid "Please check your distribution for gPodder updates."
-msgstr ""
+msgstr "Kontrollera om din distribution tillhandahåller gPodder-uppdateringar."
 
 #: src/gpodder/gtkui/main.py:3746
-#, fuzzy
 msgid "Could not check for updates"
-msgstr "Kunde inte lägga till några av poddsändningarna"
+msgstr "Kunde inte söka efter uppdateringar"
 
 #: src/gpodder/gtkui/main.py:3747
 msgid "Please try again later."
-msgstr ""
+msgstr "Försök igen senare."
 
 #: src/gpodder/gtkui/main.py:3752
-#, fuzzy
 msgid "No updates available"
-msgstr "Inga avsnitt tillgängliga"
+msgstr "Inga uppdateringar tillgängliga"
 
 #: src/gpodder/gtkui/main.py:3753
 msgid "You have the latest version of gPodder."
-msgstr ""
+msgstr "Du har den senaste versionen av gPodder."
 
 #: src/gpodder/gtkui/main.py:3757
-#, fuzzy
 msgid "New version available"
-msgstr "Nya avsnitt finns tillgängliga"
+msgstr "Ny version tillgänglig"
 
 #: src/gpodder/gtkui/main.py:3759
 #, python-format
 msgid "Installed version: %s"
-msgstr ""
+msgstr "Installerad version: %s"
 
 #: src/gpodder/gtkui/main.py:3760
-#, fuzzy, python-format
+#, python-format
 msgid "Newest version: %s"
-msgstr "Raderar: %s"
+msgstr "Senaste version: %s"
 
 #: src/gpodder/gtkui/main.py:3761
-#, fuzzy, python-format
+#, python-format
 msgid "Release date: %s"
-msgstr "utgivet: %s"
+msgstr "Utgivningsdatum: %s"
 
 #: src/gpodder/gtkui/main.py:3763
-#, fuzzy
 msgid "Download the latest version from gpodder.org?"
-msgstr "Hämta mina prenumerationer från gpodder.net"
+msgstr "Hämta den senaste versionen från gpodder.org?"
 
 #: src/gpodder/gtkui/model.py:58
 #, python-format
@@ -1350,7 +1286,7 @@ msgstr "spelad"
 
 #: src/gpodder/gtkui/model.py:72
 msgid "unplayed"
-msgstr "ej spelad"
+msgstr "ospelad"
 
 #: src/gpodder/gtkui/model.py:75
 msgid "today"
@@ -1359,27 +1295,27 @@ msgstr "idag"
 #: src/gpodder/gtkui/model.py:76
 #, python-format
 msgid "downloaded %s"
-msgstr "nedladdad %s"
+msgstr "hämtad %s"
 
 #: src/gpodder/gtkui/model.py:399
 msgid "Deleted"
-msgstr "Raderad"
+msgstr "Borttagen"
 
 #: src/gpodder/gtkui/model.py:408
 msgid "Downloaded episode"
-msgstr "Nedladdat avsnitt"
+msgstr "Hämtat avsnitt"
 
 #: src/gpodder/gtkui/model.py:411
 msgid "Downloaded video episode"
-msgstr "Nedladdat videoavsnitt"
+msgstr "Hämtat videoavsnitt"
 
 #: src/gpodder/gtkui/model.py:414
 msgid "Downloaded image"
-msgstr "Nedladdad bild"
+msgstr "Hämtad bild"
 
 #: src/gpodder/gtkui/model.py:417
 msgid "Downloaded file"
-msgstr "Nedladdad fil"
+msgstr "Hämtad fil"
 
 #: src/gpodder/gtkui/model.py:421
 msgid "missing file"
@@ -1387,19 +1323,19 @@ msgstr "saknad fil"
 
 #: src/gpodder/gtkui/model.py:425
 msgid "never played"
-msgstr "aldrig spelade"
+msgstr "aldrig spelad"
 
 #: src/gpodder/gtkui/model.py:427
 msgid "never displayed"
-msgstr "aldrig visade"
+msgstr "aldrig visad"
 
 #: src/gpodder/gtkui/model.py:429
 msgid "never opened"
-msgstr "aldrig öppnade"
+msgstr "aldrig öppnad"
 
 #: src/gpodder/gtkui/model.py:434
 msgid "displayed"
-msgstr "visade"
+msgstr "visad"
 
 #: src/gpodder/gtkui/model.py:436
 msgid "opened"
@@ -1407,15 +1343,15 @@ msgstr "öppnad"
 
 #: src/gpodder/gtkui/model.py:438
 msgid "deletion prevented"
-msgstr "radering är förhindrad"
+msgstr "skyddad mot borttagning"
 
 #: src/gpodder/gtkui/model.py:450
 msgid "No downloadable content"
-msgstr ""
+msgstr "Inget innehåll att hämta"
 
 #: src/gpodder/gtkui/model.py:456
 msgid "New episode"
-msgstr "Nytt avsnitt:"
+msgstr "Nytt avsnitt"
 
 #: src/gpodder/gtkui/model.py:506 share/gpodder/ui/gtk/menus.ui.h:42
 msgid "All episodes"
@@ -1423,7 +1359,7 @@ msgstr "Alla avsnitt"
 
 #: src/gpodder/gtkui/model.py:507
 msgid "from all podcasts"
-msgstr "från alla poddsändningar"
+msgstr "från alla poddar"
 
 #: src/gpodder/gtkui/model.py:792
 msgid "Subscription paused"
@@ -1432,20 +1368,19 @@ msgstr "Prenumeration pausad"
 #: src/gpodder/gtkui/shownotes.py:69
 #, python-format
 msgid "%(date)s | %(size)s | %(duration)s"
-msgstr ""
+msgstr "%(date)s | %(size)s | %(duration)s"
 
 #: src/gpodder/gtkui/shownotes.py:156
-#, fuzzy
 msgid "Please select an episode"
-msgstr "Välj avsnitt"
+msgstr "Välj ett avsnitt"
 
 #: src/gpodder/gtkui/shownotes.py:262
 msgid "Open Episode Title Link"
-msgstr ""
+msgstr "Öppna länken i avsnittstiteln"
 
 #: src/gpodder/gtkui/shownotes.py:267
 msgid "Copy Episode Title Link Address"
-msgstr ""
+msgstr "Kopiera länkadressen för avsnittstiteln"
 
 #: src/gpodder/gtkui/shownotes.py:362
 #, python-format
@@ -1455,14 +1390,18 @@ msgid ""
 "<p>%(subheading)s</p>\n"
 "<p>%(details)s</p></div>\n"
 msgstr ""
+"<div id=\"gpodder-title\">\n"
+"%(heading)s\n"
+"<p>%(subheading)s</p>\n"
+"<p>%(details)s</p></div>\n"
 
 #: src/gpodder/gtkui/shownotes.py:402
 msgid "Open shownotes in web browser"
-msgstr ""
+msgstr "Öppna avsnittsanteckningar i webbläsaren"
 
 #: src/gpodder/gtkui/shownotes.py:408
 msgid "Open link in web browser"
-msgstr ""
+msgstr "Öppna länk i webbläsaren"
 
 #: src/gpodder/gtkui/interface/addpodcast.py:82
 msgid "Nothing to paste."
@@ -1470,17 +1409,17 @@ msgstr "Inget att klistra in."
 
 #: src/gpodder/gtkui/interface/addpodcast.py:82
 msgid "Clipboard is empty"
-msgstr "Klippbordet är tomt"
+msgstr "Urklippet är tomt"
 
 #: src/gpodder/gtkui/interface/common.py:129
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:3
 #: share/gpodder/ui/gtk/gpodderepisodeselector.ui.h:4
 msgid "_OK"
-msgstr ""
+msgstr "_OK"
 
 #: src/gpodder/gtkui/interface/common.py:176
 msgid "Username"
-msgstr "Anvädarnamn"
+msgstr "Användarnamn"
 
 #: src/gpodder/gtkui/interface/common.py:179
 msgid "New user"
@@ -1496,21 +1435,19 @@ msgstr "Inloggning krävs"
 
 #: src/gpodder/gtkui/interface/common.py:197
 msgid "hostname or root URL (e.g. https://gpodder.net)"
-msgstr ""
+msgstr "värdnamn eller rot-URL, t.ex. https://gpodder.net"
 
 #: src/gpodder/gtkui/interface/common.py:218
 msgid "Server"
-msgstr ""
+msgstr "Server"
 
 #: src/gpodder/gtkui/interface/common.py:224
 msgid "Password"
 msgstr "Lösenord"
 
 #: src/gpodder/gtkui/interface/common.py:227
-#, fuzzy
-#| msgid "Password"
 msgid "Show Password"
-msgstr "Lösenord"
+msgstr "Visa lösenord"
 
 #: src/gpodder/gtkui/interface/common.py:264
 #: share/gpodder/ui/gtk/gpodderexporttolocalfolder.ui.h:1
@@ -1523,80 +1460,72 @@ msgstr "Inställning"
 
 #: src/gpodder/gtkui/interface/configeditor.py:42
 msgid "Set to"
-msgstr "Sätt till"
+msgstr "Ange som"
 
 #: src/gpodder/gtkui/interface/configeditor.py:87
 #, python-format
 msgid "Cannot set %(field)s to %(value)s. Needed data type: %(datatype)s"
 msgstr ""
-"Kan inte sätta värdet för %(field)s. \"%(value)s\" måste vara av typen "
-"%(datatype)s"
+"Kan inte ange %(field)s som %(value)s."
+" Datatypen måste vara %(datatype)s"
 
 #: src/gpodder/gtkui/interface/configeditor.py:91
 msgid "Error setting option"
-msgstr "Fel: Inställningsalternativ"
+msgstr "Fel vid inställning av alternativ"
 
 #: src/gpodder/gtkui/desktop/channel.py:128
-#, fuzzy
 msgid "Add section"
-msgstr "Händelse"
+msgstr "Lägg till sektion"
 
 #: src/gpodder/gtkui/desktop/channel.py:128
-#, fuzzy
 msgid "New section:"
-msgstr "Nytt namn:"
+msgstr "Ny sektion:"
 
 #: src/gpodder/gtkui/desktop/channel.py:129
 #: share/gpodder/ui/gtk/gpodderaddpodcast.ui.h:3
 msgid "_Add"
-msgstr ""
+msgstr "_Lägg till"
 
 #: src/gpodder/gtkui/desktop/channel.py:142
 msgid "Select new podcast cover artwork"
-msgstr "Välj ny omslagsbild för poddsändning"
+msgstr "Välj ny omslagsbild för podden"
 
 #: src/gpodder/gtkui/desktop/channel.py:174
 msgid "You can only drop a single image or URL here."
-msgstr "Du kan endast släppa en fil eller webbadress åt gången här."
+msgstr "Du kan endast släppa en enda bild eller URL här."
 
 #: src/gpodder/gtkui/desktop/channel.py:175
 #: src/gpodder/gtkui/desktop/channel.py:187
 msgid "Drag and drop"
-msgstr "Drag an drop (drag och släpp)"
+msgstr "Dra och släpp"
 
 #: src/gpodder/gtkui/desktop/channel.py:186
 msgid "You can only drop local files and http:// URLs here."
-msgstr "Du kan endast släppa lokala filer och http:// webbadresser här."
+msgstr "Du kan endast släppa lokala filer och URL:er med http:// här."
 
 #: src/gpodder/gtkui/desktop/episodeselector.py:103
 msgid "Remove"
-msgstr "Radera"
+msgstr "Ta bort"
 
 #: src/gpodder/gtkui/desktop/episodeselector.py:139
-#, fuzzy
-#| msgid "Download"
 msgid "_Download"
-msgstr "Ladda ner"
+msgstr "_Hämta"
 
 #: src/gpodder/gtkui/desktop/episodeselector.py:283
 #: share/gpodder/ui/gtk/gpodderepisodeselector.ui.h:5
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:1
-#, fuzzy
-#| msgid "Select all"
 msgid "Select _all"
-msgstr "Välj alla"
+msgstr "Markera _alla"
 
 #: src/gpodder/gtkui/desktop/episodeselector.py:287
 #: share/gpodder/ui/gtk/gpodderepisodeselector.ui.h:6
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:2
-#, fuzzy
-#| msgid "Select none"
 msgid "Select _none"
-msgstr "Välj ingen"
+msgstr "_Avmarkera alla"
 
 #: src/gpodder/gtkui/desktop/episodeselector.py:319
 msgid "Nothing selected"
-msgstr "Ingenting valt"
+msgstr "Inget markerat"
 
 #: src/gpodder/gtkui/desktop/episodeselector.py:320
 #, python-format
@@ -1616,17 +1545,19 @@ msgid "Export remaining %(count)d episode to this folder with its default name"
 msgid_plural ""
 "Export remaining %(count)d episodes to this folder with their default name"
 msgstr[0] ""
+"Exportera återstående %(count)d avsnitt till den här mappen med "
+"standardnamnet"
 msgstr[1] ""
+"Exportera återstående %(count)d avsnitt till den här mappen med sina "
+"standardnamn"
 
 #: src/gpodder/gtkui/desktop/podcastdirectory.py:203
-#, fuzzy
 msgid "Search:"
-msgstr "Sök efter:"
+msgstr "Sök:"
 
 #: src/gpodder/gtkui/desktop/podcastdirectory.py:204
-#, fuzzy
 msgid "Search"
-msgstr "Sök efter:"
+msgstr "Sök"
 
 #: src/gpodder/gtkui/desktop/podcastdirectory.py:206
 #: share/gpodder/ui/gtk/gpodderaddpodcast.ui.h:4
@@ -1634,39 +1565,35 @@ msgid "URL:"
 msgstr "Webbadress:"
 
 #: src/gpodder/gtkui/desktop/podcastdirectory.py:209
-#, fuzzy
 msgid "Filename:"
-msgstr "Användarnamn:"
+msgstr "Filnamn:"
 
 #: src/gpodder/gtkui/desktop/podcastdirectory.py:230
-#, fuzzy
 msgid "Please wait while the podcast list is downloaded"
-msgstr "Vänligen vänta medan poddsändningen raderas"
+msgstr "Vänta medan poddlistan hämtas"
 
 #: src/gpodder/gtkui/desktop/podcastdirectory.py:263
-#, fuzzy
-#| msgid "Error: %s"
 msgid "Error"
-msgstr "Fel: %s"
+msgstr "Fel"
 
 #: src/gpodder/gtkui/desktop/podcastdirectory.py:267
-#, fuzzy, python-format
-#| msgid "Error: %s"
+#, python-format
 msgid ""
 "Error: %s\n"
 "\n"
 "%s"
-msgstr "Fel: %s"
+msgstr ""
+"Fel: %s\n"
+"\n"
+"%s"
 
 #: src/gpodder/gtkui/desktop/podcastdirectory.py:270
 msgid "No results"
-msgstr ""
+msgstr "Inga resultat"
 
 #: src/gpodder/gtkui/desktop/podcastdirectory.py:271
-#, fuzzy
-#| msgid "No podcasts found."
 msgid "Sorry, no podcasts were found"
-msgstr "Inga podsändningar hittade"
+msgstr "Tyvärr hittades inga poddar"
 
 #: src/gpodder/gtkui/desktop/preferences.py:47
 #: src/gpodder/gtkui/desktop/preferences.py:90
@@ -1679,11 +1606,11 @@ msgstr "Visa avsnittslistan"
 
 #: src/gpodder/gtkui/desktop/preferences.py:49
 msgid "Add to download list"
-msgstr "Lägg till nedladdningslista"
+msgstr "Lägg till i hämtningslistan"
 
 #: src/gpodder/gtkui/desktop/preferences.py:50
 msgid "Download immediately"
-msgstr "Ladda ned omedelbart"
+msgstr "Hämta omedelbart"
 
 #: src/gpodder/gtkui/desktop/preferences.py:69
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:63
@@ -1692,80 +1619,73 @@ msgstr "Ingen"
 
 #: src/gpodder/gtkui/desktop/preferences.py:70
 msgid "iPod"
-msgstr ""
+msgstr "iPod"
 
 #: src/gpodder/gtkui/desktop/preferences.py:71
-#, fuzzy
 msgid "Filesystem-based"
-msgstr "Filsystem-baserad MP3 spelare"
+msgstr "Filsystemsbaserad"
 
 #: src/gpodder/gtkui/desktop/preferences.py:91
-#, fuzzy
 msgid "Mark as played"
-msgstr "Markera som ej spelad"
+msgstr "Markera som spelad"
 
 #: src/gpodder/gtkui/desktop/preferences.py:92
-#, fuzzy
 msgid "Delete from gPodder"
-msgstr "Radera från gPodder"
+msgstr "Ta bort från gPodder"
 
 #: src/gpodder/gtkui/desktop/preferences.py:116
 msgid "Same filename as local"
-msgstr ""
+msgstr "Samma filnamn som den lokala filen"
 
 #: src/gpodder/gtkui/desktop/preferences.py:117
-#, fuzzy
-#| msgid "Show episode list"
 msgid "Use episode title as filename"
-msgstr "Visa avsnittslistan"
+msgstr "Använd avsnittstiteln som filnamn"
 
 #: src/gpodder/gtkui/desktop/preferences.py:118
 msgid "Use custom filename format"
-msgstr ""
+msgstr "Använd anpassat filnamnsformat"
 
 #: src/gpodder/gtkui/desktop/preferences.py:141
 #: src/gpodder/gtkui/desktop/preferences.py:167
-#, fuzzy, python-format
+#, python-format
 msgid "Custom (%(format_ids)s)"
-msgstr "Egenformaterade strängar"
+msgstr "Anpassad (%(format_ids)s)"
 
 #: src/gpodder/gtkui/desktop/preferences.py:213
 msgid "SOCKS5h (Remote DNS)"
-msgstr ""
+msgstr "SOCKS5h (fjärr-DNS)"
 
 #: src/gpodder/gtkui/desktop/preferences.py:214
 msgid "SOCKS5"
-msgstr ""
+msgstr "SOCKS5"
 
 #: src/gpodder/gtkui/desktop/preferences.py:215
 msgid "HTTP"
-msgstr ""
+msgstr "HTTP"
 
 #: src/gpodder/gtkui/desktop/preferences.py:499
 msgid "Name"
 msgstr "Namn"
 
 #: src/gpodder/gtkui/desktop/preferences.py:551
-#, fuzzy
 msgid "Documentation"
-msgstr "varaktighet"
+msgstr "Dokumentation"
 
 #: src/gpodder/gtkui/desktop/preferences.py:556
-#, fuzzy
 msgid "Extension info"
-msgstr "Modulinfo för extension"
+msgstr "Information om tillägg"
 
 #: src/gpodder/gtkui/desktop/preferences.py:561
 msgid "Support the author"
-msgstr ""
+msgstr "Stöd upphovspersonen"
 
 #: src/gpodder/gtkui/desktop/preferences.py:604 bin/gpo:1084
 msgid "Extension cannot be activated"
-msgstr ""
+msgstr "Tillägget kan inte aktiveras"
 
 #: src/gpodder/gtkui/desktop/preferences.py:656
 msgid "Configure audio player"
-msgstr "Ställ in musik spelare"
+msgstr "Ställ in ljudspelare"
 
 #: src/gpodder/gtkui/desktop/preferences.py:657
 #: src/gpodder/gtkui/desktop/preferences.py:667
@@ -1774,7 +1694,7 @@ msgstr "Kommando:"
 
 #: src/gpodder/gtkui/desktop/preferences.py:666
 msgid "Configure video player"
-msgstr "Ställ in video spelare"
+msgstr "Ställ in videospelare"
 
 #: src/gpodder/gtkui/desktop/preferences.py:679
 #: src/gpodder/gtkui/desktop/preferences.py:703
@@ -1797,22 +1717,19 @@ msgid ""
 "Remote podcasts that have not been added locally will be removed on the "
 "server. Continue?"
 msgstr ""
-"Fjärrpoddsändningar som inte har lagts till lokalt kommer att raderas från "
-"servern.Fortsätt?"
+"Poddar på servern som inte finns lokalt kommer att tas bort. Fortsätta?"
 
 #: src/gpodder/gtkui/desktop/preferences.py:847
 msgid "Select folder for mount point"
-msgstr "Välj monteringspunkt för iPod"
+msgstr "Välj mapp för monteringspunkt"
 
 #: src/gpodder/gtkui/desktop/preferences.py:865
-#, fuzzy
 msgid "Select folder for playlists"
-msgstr "Välj monteringspunkt för iPod"
+msgstr "Välj mapp för spellistor"
 
 #: src/gpodder/gtkui/desktop/preferences.py:879
-#, fuzzy
 msgid "The playlists folder must be on the device"
-msgstr "Byt ut lista på server"
+msgstr "Spellistemappen måste finnas på enheten"
 
 #: src/gpodder/plugins/soundcloud.py:166
 msgid "Unknown track"
@@ -1821,161 +1738,153 @@ msgstr "Okänt spår"
 #: src/gpodder/plugins/soundcloud.py:201
 #, python-format
 msgid "%s on Soundcloud"
-msgstr "%s i Soundcloud"
+msgstr "%s på SoundCloud"
 
 #: src/gpodder/plugins/soundcloud.py:210
 #, python-format
 msgid "Tracks published by %s on Soundcloud."
-msgstr "Spår publicerade av %s i Soundcloud."
+msgstr "Spår publicerade av %s på SoundCloud."
 
 #: src/gpodder/plugins/soundcloud.py:244
 #, python-format
 msgid "%s's favorites on Soundcloud"
-msgstr "%ss favoriter i Soundcloud"
+msgstr "%s:s favoriter på SoundCloud"
 
 #: src/gpodder/plugins/soundcloud.py:250
 #, python-format
 msgid "Tracks favorited by %s on Soundcloud."
-msgstr "Spår favoriserade av %s i Soundcloud"
+msgstr "Spår som %s har favoritmarkerat på SoundCloud."
 
 #: share/gpodder/extensions/audio_converter.py:20
-#, fuzzy
 msgid "Convert audio files"
-msgstr "Konverterar fil"
+msgstr "Konvertera ljudfiler"
 
 #: share/gpodder/extensions/audio_converter.py:21
 msgid "Transcode audio files to mp3/ogg"
-msgstr ""
+msgstr "Omkoda ljudfiler till MP3/OGG"
 
 #: share/gpodder/extensions/audio_converter.py:93
 #: share/gpodder/extensions/video_converter.py:84
 #, python-format
 msgid "Convert to %(format)s"
-msgstr ""
+msgstr "Konvertera till %(format)s"
 
 #: share/gpodder/extensions/audio_converter.py:134
 #: share/gpodder/extensions/rockbox_convert2mp4.py:65
 #: share/gpodder/extensions/video_converter.py:115
-#, fuzzy
 msgid "File converted"
-msgstr "iPod OGG konverterare"
+msgstr "Filen konverterades"
 
 #: share/gpodder/extensions/audio_converter.py:137
 #: share/gpodder/extensions/video_converter.py:118
-#, fuzzy
 msgid "Conversion failed"
-msgstr "Konverterar fil"
+msgstr "Konverteringen misslyckades"
 
 #: share/gpodder/extensions/command_on_download.py:17
 msgid "Run a Command on Download"
-msgstr ""
+msgstr "Kör ett kommando efter hämtning"
 
 #: share/gpodder/extensions/command_on_download.py:18
 msgid "Run a predefined external command upon download completion."
-msgstr ""
+msgstr "Kör ett fördefinierat externt kommando när hämtningen är klar."
 
 #: share/gpodder/extensions/command_on_sync.py:17
 msgid "Run a Command on Sync"
-msgstr ""
+msgstr "Kör ett kommando vid synkronisering"
 
 #: share/gpodder/extensions/command_on_sync.py:18
 msgid "Run a custom external command upon sync completion."
-msgstr ""
+msgstr "Kör ett anpassat externt kommando när synkroniseringen är klar."
 
 #: share/gpodder/extensions/concatenate_videos.py:19
 #: share/gpodder/extensions/concatenate_videos.py:103
-#, fuzzy
 msgid "Concatenate videos"
-msgstr "Konverterar fil"
+msgstr "Slå ihop videor"
 
 #: share/gpodder/extensions/concatenate_videos.py:20
 msgid "Add a context menu item for concatenating multiple videos"
-msgstr ""
+msgstr "Lägg till ett snabbmenyalternativ för att slå ihop flera videor"
 
 #: share/gpodder/extensions/concatenate_videos.py:37
 msgid "Save video"
-msgstr ""
+msgstr "Spara video"
 
 #: share/gpodder/extensions/concatenate_videos.py:66
-#, fuzzy
 msgid "Concatenating video files"
-msgstr "Konverterar fil"
+msgstr "Slår ihop videofiler"
 
 #: share/gpodder/extensions/concatenate_videos.py:67
 #, python-format
 msgid "Writing %(filename)s"
-msgstr ""
+msgstr "Skriver %(filename)s"
 
 #: share/gpodder/extensions/concatenate_videos.py:81
 msgid "Videos successfully converted"
-msgstr ""
+msgstr "Videorna konverterades"
 
 #: share/gpodder/extensions/concatenate_videos.py:82
-#, fuzzy
 msgid "Error converting videos"
-msgstr "Fel vid konvertering av fil."
+msgstr "Fel vid konvertering av videor"
 
 #: share/gpodder/extensions/concatenate_videos.py:83
 msgid "Concatenation result"
-msgstr ""
+msgstr "Resultat av sammanslagning"
 
 #: share/gpodder/extensions/enqueue_in_mediaplayer.py:22
 msgid "Enqueue/Resume in media players"
-msgstr ""
+msgstr "Kölägg eller återuppta i mediaspelare"
 
 #: share/gpodder/extensions/enqueue_in_mediaplayer.py:23
 msgid ""
 "Add a context menu item for enqueueing/resuming playback of episodes in "
 "installed media players"
 msgstr ""
+"Lägg till ett snabbmenyalternativ för att kölägga eller återuppta "
+"uppspelning av avsnitt i installerade mediaspelare"
 
 #: share/gpodder/extensions/enqueue_in_mediaplayer.py:41
 msgid "Enqueue in"
-msgstr ""
+msgstr "Kölägg i"
 
 #: share/gpodder/extensions/enqueue_in_mediaplayer.py:101
-#, fuzzy
 msgid "Resume in"
-msgstr "Återuppta alla"
+msgstr "Återuppta i"
 
 #: share/gpodder/extensions/episode_website_context_menu.py:15
 msgid "\"Open website\" episode and podcast context menu"
-msgstr ""
+msgstr "\"Öppna webbplats\" i snabbmenyn för avsnitt och poddar"
 
 #: share/gpodder/extensions/episode_website_context_menu.py:16
 msgid ""
 "Add a context menu item for opening the website of an episode or podcast"
 msgstr ""
+"Lägg till ett snabbmenyalternativ för att öppna webbplatsen för ett avsnitt "
+"eller en podd"
 
 #: share/gpodder/extensions/episode_website_context_menu.py:40
 #: share/gpodder/extensions/episode_website_context_menu.py:43
-#, fuzzy
 msgid "Open website"
-msgstr "Webbsida:"
+msgstr "Öppna webbplats"
 
 #: share/gpodder/extensions/filter.py:15
-#, fuzzy
-#| msgid "Delete episodes"
 msgid "Filter Episodes"
-msgstr "Radera avsnitt"
+msgstr "Filtrera avsnitt"
 
 #: share/gpodder/extensions/filter.py:16
 msgid "Disable automatic downloads based on episode title."
-msgstr ""
+msgstr "Inaktivera automatiska hämtningar baserat på avsnittstitel."
 
 #: share/gpodder/extensions/filter.py:55
 msgid "Regular Expression"
-msgstr ""
+msgstr "Reguljärt uttryck"
 
 #: share/gpodder/extensions/filter.py:58
 msgid "Ignore Case"
-msgstr ""
+msgstr "Ignorera skiftläge"
 
 #: share/gpodder/extensions/filter.py:128
-#, fuzzy
-#| msgid "Filter:"
 msgid "Filter"
-msgstr "Filter:"
+msgstr "Filter"
 
 #: share/gpodder/extensions/filter.py:142
 msgid ""
@@ -1983,14 +1892,16 @@ msgid ""
 "the values they had before. The changes are saved immediately after they are "
 "made."
 msgstr ""
+"<b>Obs:</b> Knappen Avbryt återställer <b>inte</b> filterinställningarna "
+"till de tidigare värdena. Ändringarna sparas direkt när de görs."
 
 #: share/gpodder/extensions/filter.py:152
 msgid "Block"
-msgstr ""
+msgstr "Blockera"
 
 #: share/gpodder/extensions/filter.py:161
 msgid "Except"
-msgstr ""
+msgstr "Undanta"
 
 #: share/gpodder/extensions/filter.py:168
 msgid ""
@@ -1999,161 +1910,145 @@ msgid ""
 "episode title, and an empty pattern matches any title.  The except pattern "
 "unblocks blocked episodes (to block all then unblock some)."
 msgstr ""
+"Om du markerar kryssrutan Blockera och lämnar fältet tomt "
+"inaktiveras automatisk hämtning för alla avsnitt i den här podden."
+" Mönstren matchar delar av avsnittstiteln, och ett tomt mönster "
+"matchar alla titlar. Undantagsmönstret gör undantag för blockerade"
+" avsnitt, så att du kan blockera alla och sedan tillåta vissa."
 
 #: share/gpodder/extensions/filter.py:177
-#, fuzzy
-#| msgid "Delete episodes"
 msgid "Filter episodes now"
-msgstr "Radera avsnitt"
+msgstr "Filtrera avsnitt nu"
 
 #: share/gpodder/extensions/filter.py:181
 msgid "Undoes any episodes you marked as old."
-msgstr ""
+msgstr "Återställer avsnitt som du har markerat som gamla."
 
 #: share/gpodder/extensions/gtk_statusicon.py:19
-#, fuzzy
 msgid "Gtk Status Icon"
-msgstr "Status ikon"
+msgstr "GTK-statusikon"
 
 #: share/gpodder/extensions/gtk_statusicon.py:20
-#, fuzzy
 msgid "Show a status icon for Gtk-based Desktops."
-msgstr "Visa en statusindikator i översta fältet"
+msgstr "Visa en statusikon för GTK-baserade skrivbordsmiljöer."
 
 #: share/gpodder/extensions/minimize_on_start.py:11
 msgid "Minimize on start"
-msgstr ""
+msgstr "Minimera vid start"
 
 #: share/gpodder/extensions/minimize_on_start.py:12
 msgid "Minimizes the gPodder window on startup."
-msgstr ""
+msgstr "Minimerar gPodder-fönstret vid start."
 
 #: share/gpodder/extensions/mpris-listener.py:36
 msgid "MPRIS Listener"
-msgstr ""
+msgstr "MPRIS-lyssnare"
 
 #: share/gpodder/extensions/mpris-listener.py:37
 msgid "Convert MPRIS notifications to gPodder Media Player D-Bus API"
-msgstr ""
+msgstr "Konvertera MPRIS-aviseringar till gPodders D-Bus-API för mediaspelare"
 
 #: share/gpodder/extensions/normalize_audio.py:21
 msgid "Normalize audio with re-encoding"
-msgstr ""
+msgstr "Normalisera ljud med omkodning"
 
 #: share/gpodder/extensions/normalize_audio.py:22
 msgid "Normalize the volume of audio files with normalize-audio"
-msgstr ""
+msgstr "Normalisera volymen för ljudfiler med normalize-audio"
 
 #: share/gpodder/extensions/normalize_audio.py:106
-#, fuzzy
 msgid "File normalized"
-msgstr "Filnamn"
+msgstr "Filen normaliserades"
 
 #: share/gpodder/extensions/notification-win32.py:50
 msgid "Notification Bubbles for Windows"
-msgstr ""
+msgstr "Aviseringsbubblor för Windows"
 
 #: share/gpodder/extensions/notification-win32.py:51
 msgid "Display notification bubbles for different events."
-msgstr ""
+msgstr "Visa aviseringsbubblor för olika händelser."
 
 #: share/gpodder/extensions/podverse.py:23
-#, fuzzy
-#| msgid "Search for:"
 msgid "Search Podverse"
-msgstr "Sök efter:"
+msgstr "Sök i Podverse"
 
 #: share/gpodder/extensions/podverse.py:24
 msgid "Search podverse podcast index"
-msgstr ""
+msgstr "Sök i Podverse-poddindex"
 
 #: share/gpodder/extensions/podverse.py:31
-#, fuzzy
 msgid "Podverse search"
-msgstr "gpodder.net"
+msgstr "Podverse-sökning"
 
 #: share/gpodder/extensions/podverse.py:37
 msgid "Please provide at least 3 characters"
-msgstr ""
+msgstr "Ange minst tre tecken"
 
 #: share/gpodder/extensions/podverse.py:43
-#, fuzzy, python-format
-#| msgid "Error: %s"
+#, python-format
 msgid "Error searching: %s"
-msgstr "Fel: %s"
+msgstr "Fel vid sökning: %s"
 
 #: share/gpodder/extensions/rename_download.py:18
-#, fuzzy
 msgid "Rename episodes after download"
-msgstr "ett avsnitt nerladdat"
+msgstr "Byt namn på avsnitt efter hämtning"
 
 #: share/gpodder/extensions/rename_download.py:19
-#, fuzzy
 msgid "Rename episodes to \"<Episode Title>.<ext>\" on download"
-msgstr "En ny episod är tillgängligt för nedladdning"
+msgstr "Byt namn på avsnitt till \"<Episode Title>.<ext>\" vid hämtning"
 
 #: share/gpodder/extensions/rename_download.py:54
 #: share/gpodder/extensions/rename_download.py:61
 #: share/gpodder/extensions/rename_download.py:83
-#, fuzzy
-#| msgid "Downloaded episodes"
 msgid "Rename all downloaded episodes"
-msgstr "Nedladdade avsnitt"
+msgstr "Byt namn på alla hämtade avsnitt"
 
 #: share/gpodder/extensions/rename_download.py:60
-#, fuzzy
-#| msgid "Downloaded episodes"
 msgid "No downloaded episodes to rename"
-msgstr "Nedladdade avsnitt"
+msgstr "Inga hämtade avsnitt att byta namn på"
 
 #: share/gpodder/extensions/rename_download.py:66
-#, fuzzy
-#| msgid "Downloaded episodes"
 msgid "Renaming all downloaded episodes"
-msgstr "Nedladdade avsnitt"
+msgstr "Byter namn på alla hämtade avsnitt"
 
 #: share/gpodder/extensions/rename_download.py:80
-#, fuzzy, python-format
-#| msgid "%(count)d new episode"
-#| msgid_plural "%(count)d new episodes"
+#, python-format
 msgid "Renamed %(count)d downloaded episode"
 msgid_plural "Renamed %(count)d downloaded episodes"
-msgstr[0] "%(count)d nytt avsnitt"
-msgstr[1] "%(count)d nytt avsnitt"
+msgstr[0] "Bytte namn på %(count)d hämtat avsnitt"
+msgstr[1] "Bytte namn på %(count)d hämtade avsnitt"
 
 #: share/gpodder/extensions/rm_ogg_cover.py:37
-#, fuzzy
 msgid "Remove cover art from OGG files"
-msgstr "Hämta omslagsbild från fil"
+msgstr "Ta bort omslagsbild från OGG-filer"
 
 #: share/gpodder/extensions/rm_ogg_cover.py:38
 msgid "removes coverart from all downloaded ogg files"
-msgstr ""
+msgstr "tar bort omslagsbilder från alla hämtade OGG-filer"
 
 #: share/gpodder/extensions/rm_ogg_cover.py:67
-#, fuzzy
 msgid "Remove cover art"
-msgstr "Radera ny markering"
+msgstr "Ta bort omslagsbild"
 
 #: share/gpodder/extensions/rockbox_convert2mp4.py:26
 msgid "Convert video files to MP4 for Rockbox"
-msgstr ""
+msgstr "Konvertera videofiler till MP4 för Rockbox"
 
 #: share/gpodder/extensions/rockbox_convert2mp4.py:27
 msgid "Converts all videos to a Rockbox-compatible format"
-msgstr ""
+msgstr "Konverterar alla videor till ett Rockbox-kompatibelt format"
 
 #: share/gpodder/extensions/rockbox_coverart.py:25
 msgid "Rockbox Cover Art Sync"
-msgstr ""
+msgstr "Synkronisering av omslagsbilder med Rockbox"
 
 #: share/gpodder/extensions/rockbox_coverart.py:26
 msgid "Copy Cover Art To Rockboxed Media Player"
-msgstr ""
+msgstr "Kopiera omslagsbild till Rockbox-mediaspelare"
 
 #: share/gpodder/extensions/rockbox_coverart.py:173
 msgid "<b><big>Rockbox Coverart Extension</big></b>"
-msgstr ""
+msgstr "<b><big>Rockbox-tillägg för omslagsbilder</big></b>"
 
 #: share/gpodder/extensions/rockbox_coverart.py:178
 msgid ""
@@ -2162,11 +2057,16 @@ msgid ""
 "coverart is written - this extension does not do anything about embedded "
 "cover art."
 msgstr ""
+"Det här tillägget skriver poddomslagsbilder till en "
+"mediaspelare. Det förutsätter att varje podd har en egen "
+"mapp på enheten. Endast en gemensam omslagsbild för hela "
+"mappen skrivs – tillägget påverkar inte inbäddade omslagsbilder."
 
 #: share/gpodder/extensions/rockbox_coverart.py:188
 #: share/gpodder/extensions/tagging.py:641
 msgid "Process art: convert, resize, and make baseline"
 msgstr ""
+"Bearbeta bilder: konvertera, ändra storlek och använd baseline-format"
 
 #: share/gpodder/extensions/rockbox_coverart.py:194
 msgid ""
@@ -2177,20 +2077,26 @@ msgid ""
 " and if format is JPEG, write as Baseline (rather than Progressive) format.\n"
 " If disabled, fall back to simple behavior."
 msgstr ""
+"Aktivera konvertering och storleksändring av "
+"bilder.\n\n Om detta är aktiverat konverteras "
+"bilder till önskat format (standard: JPEG) och"
+" önskad storlek (standard: 500 px),\n och om "
+"formatet är JPEG skrivs bilden i baseline-format"
+" i stället för progressivt format.\n Om detta"
+" är inaktiverat används ett enklare beteende."
 
 #: share/gpodder/extensions/rockbox_coverart.py:201
 msgid "Allow upscaling of art"
-msgstr ""
+msgstr "Tillåt uppskalning av bilder"
 
 #: share/gpodder/extensions/rockbox_coverart.py:217
 #: share/gpodder/extensions/tagging.py:664
 msgid "Image size (px):"
-msgstr ""
+msgstr "Bildstorlek (px):"
 
 #: share/gpodder/extensions/rockbox_coverart.py:228
-#, fuzzy
 msgid "Art name on device:"
-msgstr "Byt ut lista på server"
+msgstr "Namn på omslagsbilden på enheten:"
 
 #: share/gpodder/extensions/rockbox_coverart.py:235
 msgid ""
@@ -2198,148 +2104,143 @@ msgid ""
 "format images, so PNG is not recommended if using a Rockbox player. "
 "Typically, devices look for art named either \"cover.jpg\" or \"folder.jpg\"."
 msgstr ""
+"Endast JPEG- och PNG-format är tillåtna. Observera att Rockbox endast stöder "
+"bilder i JPEG-format, så PNG rekommenderas inte om du använder en Rockbox-"
+"spelare. Vanligen letar enheter efter bilder med namnet \"cover.jpg\" eller "
+"\"folder.jpg\"."
 
 #: share/gpodder/extensions/rockbox_coverart.py:247
-#, fuzzy
 msgid "Rockbox Coverart"
-msgstr "Radera ny markering"
+msgstr "Rockbox-omslagsbild"
 
 #: share/gpodder/extensions/sonos.py:19 share/gpodder/extensions/sonos.py:79
 msgid "Stream to Sonos"
-msgstr ""
+msgstr "Strömma till Sonos"
 
 #: share/gpodder/extensions/sonos.py:20
 msgid "Stream podcasts to Sonos speakers"
-msgstr ""
+msgstr "Strömma poddar till Sonos-högtalare"
 
 #: share/gpodder/extensions/subscription_stats.py:18
 #: share/gpodder/extensions/subscription_stats.py:36
 #: share/gpodder/extensions/subscription_stats.py:146
-#, fuzzy
-#| msgid "Subscription paused"
 msgid "Subscription Statistics"
-msgstr "Prenumeration pausad"
+msgstr "Prenumerationsstatistik"
 
 #: share/gpodder/extensions/subscription_stats.py:19
 msgid "Show publishing statistics for subscriptions."
-msgstr ""
+msgstr "Visa publiceringsstatistik för prenumerationer."
 
 #: share/gpodder/extensions/subscription_stats.py:53
-#, fuzzy
-#| msgid "Update podcast"
 msgid "Updated"
-msgstr "Uppdatera poddsändningar"
+msgstr "Uppdaterad"
 
 #: share/gpodder/extensions/subscription_stats.py:61
 msgid "Days"
-msgstr ""
+msgstr "Dagar"
 
 #: share/gpodder/extensions/subscription_stats.py:154
-#, fuzzy, python-format
-#| msgid "Subscription paused"
+#, python-format
 msgid "%d subscriptions (%d paused)"
-msgstr "Prenumeration pausad"
+msgstr "%d prenumerationer (%d pausade)"
 
 #: share/gpodder/extensions/subscription_stats.py:163
 msgid "daily"
-msgstr ""
+msgstr "dagligen"
 
 #: share/gpodder/extensions/subscription_stats.py:164
 msgid "weekly"
-msgstr ""
+msgstr "veckovis"
 
 #: share/gpodder/extensions/subscription_stats.py:165
 msgid "monthly"
-msgstr ""
+msgstr "månadsvis"
 
 #: share/gpodder/extensions/subscription_stats.py:166
 msgid "yearly"
-msgstr ""
+msgstr "årsvis"
 
 #: share/gpodder/extensions/subscription_stats.py:170
 #, python-format
 msgid "Average days between the last %d episodes."
-msgstr ""
+msgstr "Genomsnittligt antal dagar mellan de senaste %d avsnitten."
 
 #: share/gpodder/extensions/tagging.py:56
 msgid "Tag downloaded files using Mutagen"
-msgstr ""
+msgstr "Tagga hämtade filer med Mutagen"
 
 #: share/gpodder/extensions/tagging.py:57
-#, fuzzy
 msgid "Add episode and podcast titles to MP3/OGG tags"
-msgstr "Visa \"Alla avsnitt\" i poddsändningslistan"
+msgstr "Lägg till avsnitts- och poddtitlar i MP3-/OGG-taggar"
 
 #: share/gpodder/extensions/tagging.py:541
 msgid "<b><big>Tagging Extension</big></b>"
-msgstr ""
+msgstr "<b><big>Taggningstillägg</big></b>"
 
 #: share/gpodder/extensions/tagging.py:546
 msgid "This extension writes tags on MP3/MP4/OGG episodes after download."
 msgstr ""
+"Det här tillägget lägger till taggar i hämtade avsnitt i MP3-, MP4- och OGG-format."
 
 #: share/gpodder/extensions/tagging.py:553
 msgid "Only Remove Existing Tags"
-msgstr ""
+msgstr "Ta endast bort befintliga taggar"
 
 #: share/gpodder/extensions/tagging.py:558
 msgid "Modify tags"
-msgstr ""
+msgstr "Ändra taggar"
 
 #: share/gpodder/extensions/tagging.py:563
 msgid "Remove existing tags before writing"
-msgstr ""
+msgstr "Ta bort befintliga taggar innan nya skrivs"
 
 #: share/gpodder/extensions/tagging.py:570
 msgid "Write Title tag"
-msgstr ""
+msgstr "Skriv titeltagg"
 
 #: share/gpodder/extensions/tagging.py:575
 msgid "Write Album tag"
-msgstr ""
+msgstr "Skriv albumtagg"
 
 #: share/gpodder/extensions/tagging.py:580
 msgid "Write Artist tag (to same as Album)"
-msgstr ""
+msgstr "Skriv artisttagg (samma värde som albumtaggen)"
 
 #: share/gpodder/extensions/tagging.py:585
 msgid "Write Subtitle tag"
-msgstr ""
+msgstr "Skriv undertitelstagg"
 
 #: share/gpodder/extensions/tagging.py:590
 msgid "Write Comments tag (to same as Subtitle)"
-msgstr ""
+msgstr "Skriv kommentarstagg (samma värde som undertiteltaggen)"
 
 #: share/gpodder/extensions/tagging.py:595
 msgid "Note: Subtitle is often very long. Can cause parsing issues."
-msgstr ""
+msgstr "Obs: Undertiteln är ofta mycket lång och kan orsaka tolkningsproblem."
 
 #: share/gpodder/extensions/tagging.py:599
 msgid "Write Genre tag"
-msgstr ""
+msgstr "Skriv genretagg"
 
 #: share/gpodder/extensions/tagging.py:604
 msgid "Write Publish Date tag"
-msgstr ""
+msgstr "Skriv tagg för publiceringsdatum"
 
 #: share/gpodder/extensions/tagging.py:611
-#, fuzzy
-#| msgid "Remove from list"
 msgid "Remove Album from Title (if present)"
-msgstr "Radera från lista"
+msgstr "Ta bort albumnamnet från titeln (om det finns)"
 
 #: share/gpodder/extensions/tagging.py:621
 msgid "Genre tag:"
-msgstr ""
+msgstr "Genretagg:"
 
 #: share/gpodder/extensions/tagging.py:631
-#, fuzzy
 msgid "Embed Coverart"
-msgstr "Radera ny markering"
+msgstr "Bädda in omslagsbild"
 
 #: share/gpodder/extensions/tagging.py:636
 msgid "Prefer channel coverart"
-msgstr ""
+msgstr "Föredra poddens omslagsbild"
 
 #: share/gpodder/extensions/tagging.py:647
 msgid ""
@@ -2350,45 +2251,49 @@ msgid ""
 " and if format is JPEG, write as Baseline (rather than Progressive) format.\n"
 " If disabled, embed art as-is."
 msgstr ""
+"Aktivera konvertering och storleksändring av bilder.\n"
+"\n"
+" Om detta är aktiverat konverteras bilder till önskat format (standard: "
+"JPEG) och önskad storlek (standard: 500 px),\n"
+" och om formatet är JPEG skrivs bilden i Baseline-format i stället för "
+"progressivt format.\n"
+" Om detta är inaktiverat bäddas bilden in som den är."
 
 #: share/gpodder/extensions/tagging.py:677
-#, fuzzy
-#| msgid "Device type:"
 msgid "Image type:"
-msgstr "Enhetstyp:"
+msgstr "Bildtyp:"
 
 #: share/gpodder/extensions/tagging.py:691
 msgid "Tagging"
-msgstr ""
+msgstr "Taggning"
 
 #: share/gpodder/extensions/taskbar_progress.py:42
-#, fuzzy
 msgid "Show download progress on the taskbar"
-msgstr "Visa nedladdningsindikator i Unity:s programstartikon"
+msgstr "Visa hämtningsförlopp i aktivitetsfältet"
 
 #: share/gpodder/extensions/taskbar_progress.py:43
 msgid "Displays the progress on the Windows taskbar."
-msgstr ""
+msgstr "Visar förloppet i Windows-aktivitetsfältet."
 
 #: share/gpodder/extensions/ted_subtitles.py:17
 msgid "Subtitle Downloader for TED Talks"
-msgstr ""
+msgstr "Undertexthämtare för TED Talks"
 
 #: share/gpodder/extensions/ted_subtitles.py:18
 msgid "Downloads .srt subtitles for TED Talks Videos"
-msgstr ""
+msgstr "Hämtar .srt-undertexter för TED Talks-videor"
 
 #: share/gpodder/extensions/ubuntu_appindicator.py:15
 msgid "Ubuntu App Indicator"
-msgstr "Ubuntu programindikator"
+msgstr "Ubuntu-programindikator"
 
 #: share/gpodder/extensions/ubuntu_appindicator.py:16
 msgid "Show a status indicator in the top bar."
-msgstr "Visa en statusindikator i översta fältet"
+msgstr "Visa en statusindikator i översta fältet."
 
 #: share/gpodder/extensions/ubuntu_appindicator.py:47
 msgid "Show main window"
-msgstr "Visa huvudmeny"
+msgstr "Visa huvudfönster"
 
 #: share/gpodder/extensions/ubuntu_appindicator.py:58
 #: share/gpodder/ui/gtk/gpodder.ui.h:7 share/gpodder/ui/gtk/menus.ui.h:7
@@ -2401,32 +2306,31 @@ msgstr "Ubuntu Unity-integration"
 
 #: share/gpodder/extensions/ubuntu_unity.py:19
 msgid "Show download progress in the Unity Launcher icon."
-msgstr "Visa nedladdningsindikator i Unity:s programstartikon"
+msgstr "Visa hämtningsförlopp i ikonen i Unity-startaren."
 
 #: share/gpodder/extensions/update_feeds_on_startup.py:15
-#, fuzzy
 msgid "Search for new episodes on startup"
-msgstr "Sök efter nya avsnitt vid uppstart"
+msgstr "Sök efter nya avsnitt vid start"
 
 #: share/gpodder/extensions/update_feeds_on_startup.py:16
-#, fuzzy
 msgid "Starts the search for new episodes on startup"
-msgstr "Sök efter nya avsnitt vid uppstart"
+msgstr "Startar sökningen efter nya avsnitt vid start."
 
 #: share/gpodder/extensions/video_converter.py:20
-#, fuzzy
 msgid "Convert video files"
-msgstr "Konverterar fil"
+msgstr "Konvertera videofiler"
 
 #: share/gpodder/extensions/video_converter.py:21
 msgid "Transcode video files to avi/mp4/m4v"
-msgstr ""
+msgstr "Omkoda videofiler till AVI/MP4/M4V"
 
 #: share/gpodder/extensions/youtube-dl.py:38
 msgid ""
 "Manage YouTube subscriptions using youtube-dl (pip install youtube_dl) or yt-"
 "dlp (pip install yt-dlp)"
 msgstr ""
+"Hantera YouTube-prenumerationer med youtube-dl (pip install youtube_dl) "
+"eller yt-dlp (pip install yt-dlp)"
 
 #: share/gpodder/extensions/youtube-dl.py:43
 #, python-format
@@ -2434,94 +2338,94 @@ msgid ""
 "Your version of youtube-dl/yt-dlp %(have_version)s has known issues, please "
 "upgrade to %(want_version)s or newer."
 msgstr ""
+"Din version av youtube-dl/yt-dlp %(have_version)s har kända problem. "
+"Uppgradera till %(want_version)s eller senare."
 
 #: share/gpodder/extensions/youtube-dl.py:521
 msgid "Not checked"
-msgstr ""
+msgstr "Inte kontrollerad"
 
 #: share/gpodder/extensions/youtube-dl.py:554
-#, fuzzy
-#| msgid "Download to:"
 msgid "Old youtube-dl"
-msgstr "Ladda ned till:"
+msgstr "Föråldrad youtube-dl-version"
 
 #: share/gpodder/extensions/youtube-dl.py:558
-#, fuzzy
-#| msgid "Download to:"
 msgid "Download with youtube-dl"
-msgstr "Ladda ned till:"
+msgstr "Hämta med youtube-dl"
 
 #: share/gpodder/extensions/youtube-dl.py:611
 #, python-format
 msgid "Available version: %(version)s"
-msgstr ""
+msgstr "Tillgänglig version: %(version)s"
 
 #: share/gpodder/extensions/youtube-dl.py:614
-#, fuzzy
 msgid "No update available"
-msgstr "Inga avsnitt tillgängliga"
+msgstr "Ingen uppdatering tillgänglig"
 
 #: share/gpodder/extensions/youtube-dl.py:617
-#, fuzzy
 msgid "Error checking for update"
-msgstr "Kunde inte lägga till några av poddsändningarna"
+msgstr "Fel vid sökning efter uppdatering"
 
 #: share/gpodder/extensions/youtube-dl.py:641
 msgid ""
 "Parse YouTube channel feeds with youtube-dl to access more than 15 episodes"
 msgstr ""
+"Tolka YouTube-kanalflöden med youtube-dl för att komma åt fler än 15 avsnitt"
 
 #: share/gpodder/extensions/youtube-dl.py:648
-#, fuzzy
-#| msgid "Download to:"
 msgid "Download all supported episodes with youtube-dl"
-msgstr "Ladda ned till:"
+msgstr "Hämta alla avsnitt som stöds med youtube-dl"
 
 #: share/gpodder/extensions/youtube-dl.py:653
 msgid ""
 "youtube-dl provides access to additional YouTube formats and DRM content.  "
 "Episodes from non-YouTube channels, that have youtube-dl support, will "
-"<b>fail</b> to download unless you manually <a href=\"https://gpodder.github."
-"io/docs/youtube.html#formats\">add custom formats</a> for each site.  "
-"<b>Download with youtube-dl</b> appears in the episode menu when this option "
-"is disabled, and can be used to manually download from supported sites."
+"<b>fail</b> to download unless you manually <a href=\"https://"
+"gpodder.github.io/docs/youtube.html#formats\">add custom formats</a> for "
+"each site.  <b>Download with youtube-dl</b> appears in the episode menu when "
+"this option is disabled, and can be used to manually download from supported "
+"sites."
 msgstr ""
+"youtube-dl ger åtkomst till ytterligare YouTube-format och DRM-innehåll. "
+"Avsnitt från icke-YouTube-kanaler som stöds av youtube-dl kommer <b>inte</b> "
+"att kunna hämtas om du inte manuellt <a href=\"https://gpodder.github.io/"
+"docs/youtube.html#formats\">lägger till anpassade format</a> för varje "
+"webbplats. <b>Hämta med youtube-dl</b> visas i avsnittsmenyn när det här "
+"alternativet är inaktiverat och kan användas för att hämta manuellt från "
+"webbplatser som stöds."
 
 #: share/gpodder/extensions/youtube-dl.py:664
 msgid "Embed all available subtitles in downloaded video"
-msgstr ""
+msgstr "Bädda in alla tillgängliga undertexter i den hämtade videon"
 
 #: share/gpodder/extensions/youtube-dl.py:671
 msgid ""
 "The \"ffmpeg\" command was not found. FFmpeg is required for embedding "
 "subtitles."
 msgstr ""
+"Kommandot \"ffmpeg\" hittades inte. FFmpeg krävs för att bädda in "
+"undertexter."
 
 #: share/gpodder/extensions/youtube-dl.py:679
 #, python-format
 msgid "Note: You need to restart gpodder after updating %s"
-msgstr ""
+msgstr "Obs: Du måste starta om gPodder efter att %s har uppdaterats"
 
 #: share/gpodder/extensions/youtube-dl.py:682
-#, fuzzy
 msgid "Check for update"
-msgstr "Kunde inte lägga till några av poddsändningarna"
+msgstr "Sök efter uppdatering"
 
 #: share/gpodder/extensions/youtube-dl.py:684
 msgid "Available version:"
-msgstr ""
+msgstr "Tillgänglig version:"
 
 #: share/gpodder/extensions/youtube-dl.py:685
-#, fuzzy
-#| msgid "Update podcast"
 msgid "Update"
-msgstr "Uppdatera poddsändningar"
+msgstr "Uppdatera"
 
 #: share/gpodder/extensions/youtube-dl.py:699
-#, fuzzy
-#| msgid "Download to:"
 msgid "youtube-dl"
-msgstr "Ladda ned till:"
+msgstr "youtube-dl"
 
 #: share/gpodder/ui/gtk/gpodder.ui.h:6
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:1
@@ -2539,7 +2443,7 @@ msgstr "Filter:"
 
 #: share/gpodder/ui/gtk/gpodder.ui.h:10
 msgid "Podcasts"
-msgstr "Poddsändningar"
+msgstr "Poddar"
 
 #: share/gpodder/ui/gtk/gpodder.ui.h:11
 msgid "Resume all"
@@ -2547,7 +2451,7 @@ msgstr "Återuppta alla"
 
 #: share/gpodder/ui/gtk/gpodder.ui.h:12
 msgid "Incomplete downloads from a previous session were found."
-msgstr "Ofullständiga nedladdningar från förra sessionen upptäcktes."
+msgstr "Ofullständiga hämtningar från förra sessionen upptäcktes."
 
 #: share/gpodder/ui/gtk/gpodder.ui.h:13
 msgid "Limit rate to"
@@ -2559,57 +2463,51 @@ msgstr "KiB/s"
 
 #: share/gpodder/ui/gtk/gpodder.ui.h:15
 msgid "Limit downloads to"
-msgstr "Begränsa nedladdningar till"
+msgstr "Begränsa antalet hämtningar till"
 
 #: share/gpodder/ui/gtk/gpodderaddpodcast.ui.h:1
 msgid "Add a new podcast"
-msgstr "Lägg till en ny poddsändning"
+msgstr "Lägg till en ny podd"
 
 #: share/gpodder/ui/gtk/gpodderaddpodcast.ui.h:5
 msgid "_Paste"
-msgstr ""
+msgstr "_Klistra in"
 
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:1
 msgid "Channel Editor"
-msgstr ""
+msgstr "Poddredigerare"
 
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:5
 msgid "<b>Feed URL</b>"
-msgstr ""
+msgstr "<b>Flödes-URL</b>"
 
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:6
-#, fuzzy
-#| msgid "<b>Locations</b>"
 msgid "<b>Download location</b>"
-msgstr "<b>Platser</b>"
+msgstr "<b>Hämtningsplats</b>"
 
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:7
 msgid "Info"
-msgstr ""
+msgstr "Information"
 
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:8
-#, fuzzy
-#| msgid "No subscriptions"
 msgid "Pause subscription"
-msgstr "Inga prenumerationer"
+msgstr "Pausa prenumeration"
 
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:9
-#, fuzzy
 msgid "Sync to player devices"
-msgstr "Synkroniserar med iPod/spelare"
+msgstr "Synkronisera med uppspelningsenheter"
 
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:10
 msgid "Section:"
-msgstr "Avsnitt:"
+msgstr "Sektion:"
 
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:11
-#, fuzzy
 msgid "Strategy:"
-msgstr "Radera strategi:"
+msgstr "Strategi:"
 
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:12
 msgid "<b>HTTP/FTP Authentication</b>"
-msgstr "<b>HTTP/FTP Inloggning</b>"
+msgstr "<b>HTTP/FTP-autentisering</b>"
 
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:13
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:21
@@ -2622,94 +2520,72 @@ msgid "Password:"
 msgstr "Lösenord:"
 
 #: share/gpodder/ui/gtk/gpodderchannel.ui.h:15
-#, fuzzy
-#| msgid "Setting"
 msgid "Settings"
-msgstr "Inställning"
+msgstr "Inställningar"
 
 #: share/gpodder/ui/gtk/gpodderconfigeditor.ui.h:1
 msgid "gPodder Configuration Editor"
-msgstr "gPodder Redigerare av konfigurationer"
+msgstr "Konfigurationsredigerare för gPodder"
 
 #: share/gpodder/ui/gtk/gpodderconfigeditor.ui.h:3
 msgid "Search for:"
 msgstr "Sök efter:"
 
 #: share/gpodder/ui/gtk/gpodderconfigeditor.ui.h:4
-#, fuzzy
-#| msgid "Show All"
 msgid "_Show All"
-msgstr "Visa Alla "
+msgstr "_Visa alla"
 
 #: share/gpodder/ui/gtk/gpodderepisodeselector.ui.h:1
 msgid "Select episodes"
 msgstr "Välj avsnitt"
 
 #: share/gpodder/ui/gtk/gpodderepisodeselector.ui.h:2
-#, fuzzy
-#| msgid "Remove"
 msgid "_Remove"
-msgstr "Radera"
+msgstr "_Ta bort"
 
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:4
-#, fuzzy
-#| msgid "Added"
 msgid "Add"
-msgstr "Tillagt"
+msgstr "Lägg till"
 
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:5
-#, fuzzy
 msgid "<big>Choose</big>"
-msgstr "<b><big>Välkommen till gPodder</big></b>"
+msgstr "<big>Välj</big>"
 
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:6
-#, fuzzy
 msgid "Select a source for new podcasts"
-msgstr "Välj monteringspunkt för iPod"
+msgstr "Välj en källa för nya poddar"
 
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:7
-#, fuzzy
-#| msgid "Podcast Client"
 msgid "Podcast Providers"
-msgstr "Podcastklient"
+msgstr "Poddleverantörer"
 
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:8
 msgid "label"
-msgstr ""
+msgstr "etikett"
 
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:9
 msgid "..."
-msgstr ""
+msgstr "…"
 
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:10
-#, fuzzy
-#| msgid "Download new episodes"
 msgid "Download in progress..."
-msgstr "Ladda ned nya avsnitt"
+msgstr "Hämtning pågår…"
 
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:11
-#, fuzzy
-#| msgid "Podcast settings"
 msgid "Podcast Retrieve Progress"
-msgstr "Inställningar för Poddsändare"
+msgstr "Hämtningsförlopp för poddar"
 
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:12
-#, fuzzy
-#| msgid "Podcast settings"
 msgid "Podcast Results"
-msgstr "Inställningar för Poddsändare"
+msgstr "Poddresultat"
 
 #: share/gpodder/ui/gtk/gpodderpodcastdirectory.ui.h:13
-#, fuzzy
-#| msgid "Podcast settings"
 msgid "Podcast Selection"
-msgstr "Inställningar för Poddsändare"
+msgstr "Poddval"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:2
-#, fuzzy
-#| msgid "Edit config"
 msgid "_Edit config"
-msgstr "Ändra konfiguration"
+msgstr "_Redigera konfiguration"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:4
 msgid "Video player:"
@@ -2721,23 +2597,23 @@ msgstr "Ljudspelare:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:6
 msgid "Find as you type"
-msgstr ""
+msgstr "Sök medan du skriver"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:7
 msgid "Color scheme:"
-msgstr ""
+msgstr "Färgschema:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:8
 msgid "System"
-msgstr ""
+msgstr "System"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:9
 msgid "Light"
-msgstr ""
+msgstr "Ljust"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:10
 msgid "Dark"
-msgstr ""
+msgstr "Mörkt"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:11
 msgid "General"
@@ -2746,29 +2622,27 @@ msgstr "Allmänt"
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:12
 #: share/gpodder/ui/gtk/menus.ui.h:39
 msgid "Hide podcasts without episodes"
-msgstr "Dölj poddsändningar utan avsnitt"
+msgstr "Dölj poddar utan avsnitt"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:13
 #: share/gpodder/ui/gtk/menus.ui.h:40
 msgid "\"All episodes\" in podcast list"
-msgstr "Visa \"Alla avsnitt\" i poddsändningslistan"
+msgstr "Visa \"Alla avsnitt\" i poddlistan"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:14
 #: share/gpodder/ui/gtk/menus.ui.h:41
 msgid "Use sections for podcast list"
-msgstr "Använd avsnitt för podcast-lista"
+msgstr "Använd sektioner i poddlistan"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:15
 #: share/gpodder/ui/gtk/menus.ui.h:46
-#, fuzzy
-#| msgid "No new episodes"
 msgid "Always show New Episodes"
-msgstr "Inga nya avsnitt"
+msgstr "Visa alltid Nya avsnitt"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:16
 #: share/gpodder/ui/gtk/menus.ui.h:47
 msgid "Trim episode title prefix"
-msgstr ""
+msgstr "Ta bort prefix från avsnittstitlar"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:17
 #: share/gpodder/ui/gtk/menus.ui.h:48
@@ -2777,31 +2651,27 @@ msgstr "Beskrivningar för avsnitt"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:18
 msgid "View"
-msgstr ""
+msgstr "Vy"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:19
 msgid "Synchronize subscriptions and episode actions"
-msgstr "Synkronisera prenumerations och avsnitts aktiviteter"
+msgstr "Synkronisera prenumerationer och avsnittsåtgärder"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:20
 msgid "Server:"
-msgstr ""
+msgstr "Server:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:23
 msgid "Device name:"
 msgstr "Enhetsnamn:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:24
-#, fuzzy
-#| msgid "Replace list on server with local subscriptions"
 msgid "Replace subscription list on server with local subscriptions:"
-msgstr "Ersätt lista på server med lokala prenumerationer"
+msgstr "Ersätt prenumerationslistan på servern med lokala prenumerationer:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:25
-#, fuzzy
-#| msgid "Uploading subscriptions"
 msgid "Upload local subscriptions"
-msgstr "Laddar upp prenumerationer"
+msgstr "Ladda upp lokala prenumerationer"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:26
 msgid "gpodder.net"
@@ -2813,11 +2683,11 @@ msgstr "Uppdateringsintervall:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:28
 msgid "Maximum number of episodes per podcast:"
-msgstr "Maximalt antal avsnitt per poddsändning"
+msgstr "Maximalt antal avsnitt per podd:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:29
 msgid "Consider only episodes added in the update as new"
-msgstr ""
+msgstr "Betrakta endast avsnitt som lades till vid uppdateringen som nya"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:30
 msgid "When new episodes are found:"
@@ -2825,7 +2695,7 @@ msgstr "När nya avsnitt finns tillgängliga:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:31
 msgid "Check connection before updating (if supported)"
-msgstr ""
+msgstr "Kontrollera anslutningen före uppdatering (om det stöds)"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:32
 msgid "Updating"
@@ -2833,19 +2703,19 @@ msgstr "Uppdatering"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:33
 msgid "Delete played episodes:"
-msgstr "Radera spelade avsnitt"
+msgstr "Ta bort spelade avsnitt:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:34
 msgid "Remove played episodes even if unfinished"
-msgstr "Ta bort spelade avsnitt även oavslutade."
+msgstr "Ta bort spelade avsnitt även om de är oavslutade"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:35
 msgid "Also remove unplayed episodes"
-msgstr "Radera även ospelade avsnitt"
+msgstr "Ta även bort ospelade avsnitt"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:36
 msgid "Clean-up"
-msgstr "Rensa"
+msgstr "Rensning"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:37
 msgid "Device type:"
@@ -2857,63 +2727,63 @@ msgstr "Monteringspunkt:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:39
 msgid "Create separate folders for each podcast"
-msgstr ""
+msgstr "Skapa separata mappar för varje podd"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:40
-#, fuzzy
 msgid "Create playlists on device"
-msgstr "Byt ut lista på server"
+msgstr "Skapa spellistor på enheten"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:41
 msgid "Use absolute paths in playlists"
-msgstr ""
+msgstr "Använd absoluta sökvägar i spellistor"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:42
-#, fuzzy
 msgid "Playlists Folder:"
-msgstr "Namn på spellista:"
+msgstr "Mapp för spellistor:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:43
-#, fuzzy
-#| msgid "Episodes are locked"
 msgid "Episode filename method:"
-msgstr "Avsnitten är låsta"
+msgstr "Metod för namngivning av avsnittsfiler:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:44
 msgid "Custom filename format:"
-msgstr ""
+msgstr "Anpassat filnamnsformat:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:45
 msgid "Maximum filename length:"
-msgstr ""
+msgstr "Maximal filnamnslängd:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:46
 msgid "Only sync unplayed episodes"
-msgstr "Synka endast ospelade avsnitt"
+msgstr "Synkronisera endast ospelade avsnitt"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:47
 msgid ""
 "Sync existing episodes on device when file size differs from gPodder "
 "(disable if device modifies files)"
 msgstr ""
+"Synkronisera befintliga avsnitt på enheten när filstorleken skiljer sig från "
+"gPodder (inaktivera om enheten ändrar filer)"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:48
 msgid "Delete episodes from gPodder when deleted on Device"
-msgstr ""
+msgstr "Ta bort avsnitt från gPodder när de tas bort på enheten"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:49
 msgid ""
 "Note: To detect episodes as deleted on the device, \"Create playlists on "
 "device\" must be enabled."
 msgstr ""
+"Obs: För att upptäcka avsnitt som borttagna på enheten måste \"Skapa "
+"spellistor på enheten\" vara aktiverat."
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:50
 msgid "Delete episodes from Device when deleted in gPodder"
-msgstr ""
+msgstr "Ta bort avsnitt från enheten när de tas bort i gPodder"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:51
 msgid "After syncing an episode:"
-msgstr "Efter synkronisering av avsnitt:"
+msgstr "Efter synkronisering av ett avsnitt:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:52
 msgid "Devices"
@@ -2921,73 +2791,67 @@ msgstr "Enheter"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:53
 msgid "Preferred YouTube format:"
-msgstr ""
+msgstr "Föredraget YouTube-format:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:54
 msgid "Preferred YouTube HLS format:"
-msgstr ""
+msgstr "Föredraget YouTube-HLS-format:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:55
 msgid "Preferred Vimeo format:"
-msgstr ""
+msgstr "Föredraget Vimeo-format:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:57
 msgid "Use proxy (Overrides environment variables)"
-msgstr ""
+msgstr "Använd proxy (åsidosätter miljövariabler)"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:58
 msgid "Proxy type:"
-msgstr ""
+msgstr "Proxytyp:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:59
-#, fuzzy
-#| msgid "Username:"
 msgid "Hostname:"
-msgstr "Användarnamn:"
+msgstr "Värdnamn:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:60
 msgid "Port:"
-msgstr ""
+msgstr "Port:"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:61
-#, fuzzy
-#| msgid "Wrong username/password"
 msgid "Use username and password"
-msgstr "Fel användarnamn/lösenord."
+msgstr "Använd användarnamn och lösenord"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:62
 msgid ""
 "Proxies given in environment variables (will be used only if proxy above is "
 "disabled):"
 msgstr ""
+"Proxyservrar angivna i miljövariabler (används endast om proxyn ovan är "
+"inaktiverad):"
 
 #: share/gpodder/ui/gtk/gpodderpreferences.ui.h:64
 msgid "Network"
-msgstr ""
+msgstr "Nätverk"
 
 #: share/gpodder/ui/gtk/gpodderwelcome.ui.h:3
-#, fuzzy
 msgid "<big>Welcome to gPodder</big>"
-msgstr "<b><big>Välkommen till gPodder</big></b>"
+msgstr "<big>Välkommen till gPodder</big>"
 
 #: share/gpodder/ui/gtk/gpodderwelcome.ui.h:4
-#, fuzzy
 msgid "Your podcast list is empty."
-msgstr "Din lista över prenumerationer är tom."
+msgstr "Din poddlista är tom."
 
 #: share/gpodder/ui/gtk/gpodderwelcome.ui.h:5
 msgid "Choose from a list of example podcasts"
-msgstr "Välj från en lista med exempel på poddsändningar"
+msgstr "Välj i en lista över exempelpoddar"
 
 #: share/gpodder/ui/gtk/gpodderwelcome.ui.h:6
-#, fuzzy
 msgid "Add a podcast by entering its URL"
-msgstr "Lägg till poddsändning via webbadress"
+msgstr "Lägg till en podd genom att ange dess URL"
 
 #: share/gpodder/ui/gtk/gpodderwelcome.ui.h:7
-#, fuzzy
 msgid "Restore my subscriptions from gpodder.net"
-msgstr "Hämta mina prenumerationer från gpodder.net"
+msgstr "Återställ mina prenumerationer från gpodder.net"
 
 #: share/gpodder/ui/gtk/menus.ui.h:2
 msgid "Go to gpodder.net"
@@ -2995,187 +2859,163 @@ msgstr "Gå till gpodder.net"
 
 #: share/gpodder/ui/gtk/menus.ui.h:3
 msgid "Software updates"
-msgstr ""
+msgstr "Programuppdateringar"
 
 #: share/gpodder/ui/gtk/menus.ui.h:4
-#, fuzzy
-#| msgid "Open"
 msgid "Open Logs"
-msgstr "Öppna"
+msgstr "Öppna loggar"
 
 #: share/gpodder/ui/gtk/menus.ui.h:5
-#, fuzzy
 msgid "Help"
-msgstr "_Hjälp"
+msgstr "Hjälp"
 
 #: share/gpodder/ui/gtk/menus.ui.h:6
 msgid "About"
-msgstr ""
+msgstr "Om"
 
 #: share/gpodder/ui/gtk/menus.ui.h:8
-#, fuzzy
 msgid "_Podcasts"
-msgstr "Poddsändningar"
+msgstr "_Poddar"
 
 #: share/gpodder/ui/gtk/menus.ui.h:10
 msgid "Download new episodes"
-msgstr "Ladda ned nya avsnitt"
+msgstr "Hämta nya avsnitt"
 
 #: share/gpodder/ui/gtk/menus.ui.h:12
-#, fuzzy
-#| msgid "Find new podcasts"
 msgid "Find Podcast"
-msgstr "Hitta nya poddsändningar"
+msgstr "Sök efter podd"
 
 #: share/gpodder/ui/gtk/menus.ui.h:13
-#, fuzzy
 msgid "_Subscriptions"
-msgstr "Inga prenumerationer"
+msgstr "_Prenumerationer"
 
 #: share/gpodder/ui/gtk/menus.ui.h:14
 msgid "Discover new podcasts"
-msgstr "Upptäck nya poddsändningar"
+msgstr "Upptäck nya poddar"
 
 #: share/gpodder/ui/gtk/menus.ui.h:15
 msgid "Add podcast via URL"
-msgstr "Lägg till poddsändning via webbadress"
+msgstr "Lägg till podd via URL"
 
 #: share/gpodder/ui/gtk/menus.ui.h:17
 msgid "Update podcast"
-msgstr "Uppdatera poddsändningar"
+msgstr "Uppdatera podd"
 
 #: share/gpodder/ui/gtk/menus.ui.h:18
 msgid "Podcast settings"
-msgstr "Inställningar för Poddsändare"
+msgstr "Poddinställningar"
 
 #: share/gpodder/ui/gtk/menus.ui.h:19
 msgid "Import from OPML file"
-msgstr "Importera från OPML fil"
+msgstr "Importera från OPML-fil"
 
 #: share/gpodder/ui/gtk/menus.ui.h:20
 msgid "Export to OPML file"
-msgstr "Exportera till OPML fil"
+msgstr "Exportera till OPML-fil"
 
 #: share/gpodder/ui/gtk/menus.ui.h:21
-#, fuzzy
 msgid "_Episodes"
-msgstr "Avsnitt"
+msgstr "_Avsnitt"
 
 #: share/gpodder/ui/gtk/menus.ui.h:27
 msgid "Delete"
-msgstr "Radera"
+msgstr "Ta bort"
 
 #: share/gpodder/ui/gtk/menus.ui.h:28
 msgid "Toggle new status"
-msgstr "Växla ny status"
+msgstr "Växla statusen Ny"
 
 #: share/gpodder/ui/gtk/menus.ui.h:29
 msgid "Change delete lock"
-msgstr "Ändra raderingslås "
+msgstr "Ändra borttagningslås"
 
 #: share/gpodder/ui/gtk/menus.ui.h:30
 msgid "Open download folder"
-msgstr "Öppna katalog för nedladdningar"
+msgstr "Öppna hämtningsmappen"
 
 #: share/gpodder/ui/gtk/menus.ui.h:31
-#, fuzzy
-#| msgid "Select none"
 msgid "Select channel"
-msgstr "Välj ingen"
+msgstr "Välj podd"
 
 #: share/gpodder/ui/gtk/menus.ui.h:32
-#, fuzzy
-#| msgid "Delete episodes"
 msgid "Find Episode"
-msgstr "Radera avsnitt"
+msgstr "Sök efter avsnitt"
 
 #: share/gpodder/ui/gtk/menus.ui.h:33
 msgid "Episode details"
 msgstr "Detaljer om avsnittet"
 
 #: share/gpodder/ui/gtk/menus.ui.h:34
-#, fuzzy
 msgid "E_xtras"
-msgstr "Övrigt"
+msgstr "Ö_vrigt"
 
 #: share/gpodder/ui/gtk/menus.ui.h:35
-#, fuzzy
 msgid "Sync to device"
-msgstr "Synkronisera med enhet"
+msgstr "Synkronisera med enheten"
 
 #: share/gpodder/ui/gtk/menus.ui.h:36
 msgid "_View"
-msgstr ""
+msgstr "_Visa"
 
 #: share/gpodder/ui/gtk/menus.ui.h:37
 msgid "Toolbar"
-msgstr "Visa verktygsfält"
+msgstr "Verktygsfält"
 
 #: share/gpodder/ui/gtk/menus.ui.h:38
 msgid "Always show Find entries"
-msgstr ""
+msgstr "Visa alltid sökfält"
 
 #: share/gpodder/ui/gtk/menus.ui.h:43
 msgid "Hide deleted episodes"
-msgstr "Dölj raderade avsnitt"
+msgstr "Dölj borttagna avsnitt"
 
 #: share/gpodder/ui/gtk/menus.ui.h:44
 msgid "Downloaded episodes"
-msgstr "Nedladdade avsnitt"
+msgstr "Hämtade avsnitt"
 
 #: share/gpodder/ui/gtk/menus.ui.h:45
 msgid "Unplayed episodes"
-msgstr "Ej spelade avsnitt"
+msgstr "Ospelade avsnitt"
 
 #: share/gpodder/ui/gtk/menus.ui.h:49
-#, fuzzy
-#| msgid "Show episode list"
 msgid "Show episode released time"
-msgstr "Visa avsnittslistan"
+msgstr "Visa avsnittets publiceringstid"
 
 #: share/gpodder/ui/gtk/menus.ui.h:50
 msgid "Right align episode released column"
-msgstr ""
+msgstr "Högerjustera kolumnen för avsnittens publiceringstid"
 
 #: share/gpodder/ui/gtk/menus.ui.h:51
 msgid "Require control click to sort episodes"
-msgstr ""
+msgstr "Kräv Ctrl-klick för att sortera avsnitt"
 
 #: share/gpodder/ui/gtk/menus.ui.h:52
 msgid "Visible columns"
 msgstr "Synliga kolumner"
 
 #: share/gpodder/ui/gtk/menus.ui.h:53
-#, fuzzy
-#| msgid "Update interval:"
 msgid "Update channel"
-msgstr "Uppdateringsintervall:"
+msgstr "Uppdatera podd"
 
 #: share/gpodder/ui/gtk/menus.ui.h:54
-#, fuzzy
-#| msgid "Podcast settings"
 msgid "Channel settings"
-msgstr "Inställningar för Poddsändare"
+msgstr "Poddinställningar"
 
 #: share/gpodder/ui/gtk/menus.ui.h:55
-#, fuzzy
-#| msgid "Select none"
 msgid "Delete channel"
-msgstr "Välj ingen"
+msgstr "Ta bort podd"
 
 #: share/gpodder/ui/gtk/menus.ui.h:56
 msgid "Mark episodes as old"
-msgstr "Markera avsnitt som spelat"
+msgstr "Markera avsnitt som gamla"
 
 #: share/gpodder/ui/gtk/menus.ui.h:57
-#, fuzzy
-#| msgid "All episodes"
 msgid "Archive all episodes"
-msgstr "Alla avsnitt"
+msgstr "Arkivera alla avsnitt"
 
 #: share/gpodder/ui/gtk/menus.ui.h:58
 msgid "Refresh image"
-msgstr ""
+msgstr "Uppdatera bild"
 
 #: share/gpodder/ui/gtk/menus.ui.h:59
 msgid "New"
@@ -3183,7 +3023,7 @@ msgstr "Ny"
 
 #: share/gpodder/ui/gtk/menus.ui.h:60
 msgid "Archive"
-msgstr "Arkiv"
+msgstr "Arkivera"
 
 #: share/gpodder/ui/gtk/menus.ui.h:61
 msgid "Local folder"
@@ -3191,39 +3031,38 @@ msgstr "Lokal mapp"
 
 #: share/gpodder/ui/gtk/menus.ui.h:62
 msgid "Bluetooth device"
-msgstr "Bluetooth enhet"
+msgstr "Bluetooth-enhet"
 
 #: share/gpodder/ui/gtk/menus.ui.h:64
 msgid "Move up"
-msgstr ""
+msgstr "Flytta upp"
 
 #: share/gpodder/ui/gtk/menus.ui.h:65
 msgid "Move down"
-msgstr ""
+msgstr "Flytta ned"
 
 #: share/gpodder/ui/gtk/menus.ui.h:66
 msgid "Remove from list"
-msgstr "Radera från lista"
+msgstr "Ta bort från listan"
 
 #: bin/gpo:273
 msgid "Podcast update requested by extensions."
-msgstr "Podsändningsuppdatering begärd av extension"
+msgstr "Uppdatering av poddar begärd av tillägg."
 
 #: bin/gpo:277
 msgid "Episode download requested by extensions."
-msgstr "Avsnittsnedladdning begärd av extension"
+msgstr "Hämtning av avsnitt begärd av tillägg."
 
 #: bin/gpo:330
-#, fuzzy, python-format
+#, python-format
 msgid "Invalid url: %s"
-msgstr "Ogiltig URL"
+msgstr "Ogiltig URL: %s"
 
 #: bin/gpo:347
 msgid "Wrong username/password"
-msgstr "Fel användarnamn/lösenord."
+msgstr "Felaktigt användarnamn eller lösenord"
 
 #: bin/gpo:352
-#, fuzzy
 msgid "User name:"
 msgstr "Användarnamn:"
 
@@ -3231,12 +3070,12 @@ msgstr "Användarnamn:"
 #: bin/gpo:825
 #, python-format
 msgid "You are not subscribed to %s."
-msgstr "Du är inte prenumerant av %s."
+msgstr "Du prenumererar inte på %s."
 
 #: bin/gpo:375
-#, fuzzy, python-format
+#, python-format
 msgid "Already subscribed to %s."
-msgstr "Kan inte prenumerera på %s."
+msgstr "Du prenumererar redan på %s."
 
 #: bin/gpo:381
 #, python-format
@@ -3250,35 +3089,34 @@ msgstr "%s har lagts till."
 
 #: bin/gpo:415
 msgid "This configuration option does not exist."
-msgstr "Denna konfigurationsinställning finns inte."
+msgstr "Den här konfigurationsinställningen finns inte."
 
 #: bin/gpo:419
 msgid "Can only set leaf configuration nodes."
-msgstr ""
+msgstr "Kan endast ange värden för konfigurationens slutnoder."
 
 #: bin/gpo:433
 #, python-format
 msgid "Renamed %(old_title)s to %(new_title)s."
-msgstr "Döp om %(old_title)s till %(new_title)s"
+msgstr "Bytte namn på %(old_title)s till %(new_title)s."
 
 #: bin/gpo:452
 #, python-format
 msgid "Unsubscribed from %s."
-msgstr "Avsluta prenumeration av %s."
+msgstr "Avslutade prenumerationen på %s."
 
 #: bin/gpo:530
-#, fuzzy
 msgid "Invalid command."
-msgstr "Ogiltigt värde."
+msgstr "Ogiltigt kommando."
 
 #: bin/gpo:535
-#, fuzzy, python-format
+#, python-format
 msgid "Invalid option: %s."
-msgstr "Ogiltig URL"
+msgstr "Ogiltigt alternativ: %s."
 
 #: bin/gpo:560
 msgid "Updates disabled"
-msgstr "Uppdateringar inaktiverad"
+msgstr "Uppdateringar inaktiverade"
 
 #: bin/gpo:571
 #, python-format
@@ -3288,46 +3126,44 @@ msgstr[0] "%(count)d nytt avsnitt"
 msgstr[1] "%(count)d nya avsnitt"
 
 #: bin/gpo:577
-#, fuzzy
 msgid "Checking for new episodes"
-msgstr "Sök efter nya avsnitt..."
+msgstr "Söker efter nya avsnitt…"
 
 #: bin/gpo:586
 #, python-format
 msgid "Skipping %(podcast)s"
-msgstr "Hoppa över %(podcast)s"
+msgstr "Hoppar över %(podcast)s"
 
 #: bin/gpo:715
 msgid "No episode with the specified GUID found."
-msgstr ""
+msgstr "Inget avsnitt med angivet GUID hittades."
 
 #: bin/gpo:719
-#, fuzzy, python-format
+#, python-format
 msgid "Deleted episode \"%s\"."
-msgstr "Radera avsnitt"
+msgstr "Tog bort avsnittet \"%s\"."
 
 #: bin/gpo:721
-#, fuzzy
 msgid "Episode has already been deleted."
-msgstr "Avsnitten är låsta"
+msgstr "Avsnittet har redan tagits bort."
 
 #: bin/gpo:736
 #, python-format
 msgid "Disabling feed update from %s."
-msgstr "Inaktivera flödesuppdatering för %s."
+msgstr "Inaktiverar flödesuppdateringar från %s."
 
 #: bin/gpo:751
 #, python-format
 msgid "Enabling feed update from %s."
-msgstr "Aktivera flödesuppdatering för %s."
+msgstr "Aktiverar flödesuppdateringar från %s."
 
 #: bin/gpo:780
 msgid "No podcasts found."
-msgstr "Inga podsändningar hittade"
+msgstr "Inga poddar hittades."
 
 #: bin/gpo:794
 msgid "Enter index to subscribe, ? for list"
-msgstr "Ange index att prenumerera, ? till lista"
+msgstr "Ange ett indexnummer för att prenumerera, ? för lista"
 
 #: bin/gpo:808 bin/gpo:812 bin/gpo:953 bin/gpo:957
 msgid "Invalid value."
@@ -3336,159 +3172,150 @@ msgstr "Ogiltigt värde."
 #: bin/gpo:816
 #, python-format
 msgid "Adding %s..."
-msgstr "Lägger till %s..."
+msgstr "Lägger till %s…"
 
 #: bin/gpo:829
 #, python-format
 msgid "Invalid URL: %s"
-msgstr "Ogiltig adress:%s."
+msgstr "Ogiltig URL: %s"
 
 #: bin/gpo:832
 #, python-format
 msgid "Changed URL from %(old_url)s to %(new_url)s."
-msgstr "Ändrad adress från %(old_url)s till %(new_url)s."
+msgstr "Ändrade URL:en från %(old_url)s till %(new_url)s."
 
 #: bin/gpo:857
 #, python-format
 msgid "%(title)s: %(msg)s ([yes]/no): "
-msgstr ""
+msgstr "%(title)s: %(msg)s ([ja]/nej): "
 
 #: bin/gpo:861 bin/gpo:1049
 msgid "yes"
-msgstr ""
+msgstr "ja"
 
 #: bin/gpo:898
-#, fuzzy, python-format
+#, python-format
 msgid "Deleting episode: %(episode)s"
-msgstr "Raderar avsnitt"
+msgstr "Tar bort avsnittet: %(episode)s"
 
 #: bin/gpo:931
 msgid ""
 "Enter episode index to toggle, ? for list, X to select all, space to select "
 "none, empty when ready"
 msgstr ""
+"Ange avsnittsindex för att växla, ? för lista, X för att markera alla, "
+"blanksteg för att avmarkera alla och lämna inmatningen tom när du är klar"
 
 #: bin/gpo:963
-#, fuzzy, python-format
+#, python-format
 msgid "Will delete %(episode)s"
-msgstr "Dölj raderade avsnitt"
+msgstr "Kommer att ta bort %(episode)s"
 
 #: bin/gpo:965
-#, fuzzy, python-format
+#, python-format
 msgid "Won't delete %(episode)s"
-msgstr "Radera avsnitt"
+msgstr "Kommer inte att ta bort %(episode)s"
 
 #: bin/gpo:973
 #, python-format
 msgid "mounting volume for file %(file)s failed with: %(error)s"
-msgstr ""
+msgstr "Det gick inte att montera volymen för filen %(file)s: %(error)s"
 
 #: bin/gpo:985
-#, fuzzy, python-format
+#, python-format
 msgid "Syncing %s"
-msgstr "Lägger till %s"
+msgstr "Synkroniserar %s"
 
 #: bin/gpo:1032
 msgid "(enabled)"
-msgstr ""
+msgstr "(aktiverat)"
 
 #: bin/gpo:1043
 msgid "Title:"
-msgstr ""
+msgstr "Titel:"
 
 #: bin/gpo:1044
-#, fuzzy
 msgid "Category:"
-msgstr "Radera strategi:"
+msgstr "Kategori:"
 
 #: bin/gpo:1045
-#, fuzzy
-#| msgid "Section:"
 msgid "Description:"
-msgstr "Avsnitt:"
+msgstr "Beskrivning:"
 
 #: bin/gpo:1046
 msgid "Authors:"
-msgstr ""
+msgstr "Upphovspersoner:"
 
 #: bin/gpo:1048
-#, fuzzy
 msgid "Documentation:"
-msgstr "varaktighet"
+msgstr "Dokumentation:"
 
 #: bin/gpo:1049
 msgid "Enabled:"
-msgstr ""
+msgstr "Aktiverat:"
 
 #: bin/gpo:1049
 msgid "no"
-msgstr ""
+msgstr "nej"
 
 #: bin/gpo:1074
 msgid "enabled"
-msgstr ""
+msgstr "aktiverat"
 
 #: bin/gpo:1074
-#, fuzzy
-#| msgid "Updates disabled"
 msgid "disabled"
-msgstr "Uppdateringar inaktiverad"
+msgstr "inaktiverat"
 
 #: bin/gpo:1077
 #, python-format
 msgid "Extension %(name)s (%(title)s) %(enabled)s"
-msgstr ""
+msgstr "Tillägg %(name)s (%(title)s) %(enabled)s"
 
 #: bin/gpo:1157
 #, python-format
 msgid "Syntax error: %(error)s"
-msgstr "Syntax error: %(error)s"
+msgstr "Syntaxfel: %(error)s"
 
 #: bin/gpo:1275
-#, fuzzy
 msgid "Ambiguous command. Did you mean.."
-msgstr "Tvetydigt kommando. Menade du..."
+msgstr "Tvetydigt kommando. Menade du…"
 
 #: bin/gpo:1279
 msgid "The requested function is not available."
 msgstr "Den efterfrågade funktionen är inte tillgänglig."
 
 #: bin/gpodder:96
-#, fuzzy
 msgid "subscribe to the feed at URL"
-msgstr "Prenumerera på kanal från webbadress"
+msgstr "prenumerera på flödet på en URL"
 
 #: bin/gpodder:103
-#, fuzzy
 msgid "print logging output on the console"
-msgstr "Skriv ut debug data på stdout"
+msgstr "skriv ut loggutdata på konsolen"
 
 #: bin/gpodder:107
-#, fuzzy
 msgid "reduce warnings on the console"
-msgstr "Skriv ut debug data på stdout"
+msgstr "minska varningar i konsolen"
 
 #: bin/gpodder:113
 msgid "exit once started up (for profiling)"
-msgstr ""
+msgstr "avsluta direkt efter start (för profilering)"
 
 #: bin/gpodder:118
 msgid "Mac OS X application process number"
-msgstr "Mac OS X programprocessnummer"
+msgstr "processnummer för Mac OS X-program"
 
 #: share/applications/gpodder-url-handler.desktop.in.h:1
-#, fuzzy
 msgid "gPodder (subscribe to feed)"
-msgstr "Prenumerera på kanal från webbadress"
+msgstr "gPodder (prenumerera på ett flöde)"
 
 #: share/applications/gpodder.desktop.in.h:2
 msgid "gPodder Podcast Client"
-msgstr "gPodder Podcastklient"
+msgstr "gPodder-poddklient"
 
 #: share/applications/gpodder.desktop.in.h:3
 msgid "Podcast Client"
-msgstr "Podcastklient"
+msgstr "Poddklient"
 
 #: share/applications/gpodder.desktop.in.h:4
 msgid "Subscribe to audio and video content from the web"
-msgstr "Prenumerera på ljud och video från webben"
+msgstr "Prenumerera på ljud- och videoinnehåll från webben"
