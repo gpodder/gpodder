@@ -20,10 +20,12 @@
 #  Justin Forest <justin.forest@gmail.com> 2008-10-13
 #
 
+import datetime
 import io
 import json
 import logging
 import re
+import time
 import urllib
 import xml.etree.ElementTree
 from functools import lru_cache
@@ -157,6 +159,17 @@ INITIAL_PLAYER_RESPONSE_RE1 = r'ytInitialPlayerResponse\s*=\s*({.+})\s*;\s*</scr
 INITIAL_PLAYER_RESPONSE_RE2 = r'ytInitialPlayerResponse\s*=\s*({.+?})\s*;'
 
 
+def get_initial_data(page):
+    r = re.compile(r'.*var ytInitialData = (.+?);</script>.*')
+    for line in page.splitlines():
+        m = re.match(r, line)
+        if m is None:
+            continue
+        data = m.group(1)
+        return json.loads(data)
+    return None
+
+
 def get_ipr(page):
     for regex in (INITIAL_PLAYER_RESPONSE_RE1, INITIAL_PLAYER_RESPONSE_RE2):
         ipr = re.search(regex, page)
@@ -232,6 +245,102 @@ def youtube_get_new_endpoint(vid):
             raise YouTubeError('Youtube "%s": No ytInitialPlayerResponse found' % url)
 
     return None, ipr.group(1)
+
+
+def get(xs, *args):
+    for a in args:
+        if isinstance(a, int):
+            if not isinstance(xs, list) or a < 0 or a >= len(xs):
+                return None
+            xs = xs[a]
+        elif isinstance(a, str):
+            if not isinstance(xs, dict) or a not in xs:
+                return None
+            xs = xs[a]
+        else:
+            logger.error('unsupported key or index to get "%s", or unsupported object type "%s"' % (str(a), type(xs)))
+            return None
+    return xs
+
+
+def get_timestamp_description(vid):
+    # use current time if a valid time/date is not found in video page
+    timestamp = int(time.time())
+    description = ''
+
+    try:
+        url = WATCH_ENDPOINT + vid
+        r = util.urlopen(url)
+        if not r.ok:
+            return timestamp, description
+
+        idata = get_initial_data(r.text)
+        if idata is None:
+            url = get_gdpr_consent_url(r.text)
+            r = util.urlopen(url)
+            if not r.ok:
+                return timestamp, description
+
+            idata = get_initial_data(r.text)
+            if idata is None:
+                return timestamp, description
+
+        vs = get(idata, 'contents', 'twoColumnWatchNextResults', 'results', 'results', 'contents')
+        for v in vs:
+            if 'videoPrimaryInfoRenderer' in v:
+                primary_v = get(v, 'videoPrimaryInfoRenderer')
+            elif 'videoSecondaryInfoRenderer' in v:
+                secondary_v = get(v, 'videoSecondaryInfoRenderer')
+
+        description = get(secondary_v, 'attributedDescription', 'content') or ''
+
+        # get partial or relative time
+        if primary_v is None:
+            return timestamp, description
+        t = get(primary_v, 'dateText', 'simpleText')
+        if t is None:
+            t = get(primary_v, 'relativeDateText', 'simpleText')
+            if t is None:
+                return timestamp, description
+
+        # "Jan 1, 1970"
+        # "Premiered Jan 1, 1970"
+        m = re.search(r'(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+([0-9]{1,2}),\s+([0-9]{4})', t)
+        if m is not None:
+            _months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+            months = {month: index + 1 for index, month in enumerate(_months)}
+            timestamp = int(datetime.datetime(int(m[3]), months[m[1]], int(m[2])).timestamp())
+            return timestamp, description
+
+        n = 0
+        # "1 day ago"
+        m = re.search(r'([0-9]+)\s*(seconds?|minutes?|hours?|days?|weeks?|months?|years?)\s+ago', t)
+        if m is not None:
+            n = int(m[1])
+            u = m[2]
+        # "1d"
+        m = re.search(r'^([0-9]+)\s*(s|m|h|d|w|mo|y)$', t)
+        if m is not None:
+            n = int(m[1])
+            u = m[2]
+        if n > 0:
+            if u.startswith('y'):
+                return timestamp - 365.25 * 86400 * n, description
+            elif u.startswith('mo'):
+                return timestamp - 30 * 86400 * n, description
+            elif u.startswith('w'):
+                return timestamp - 7 * 86400 * n, description
+            elif u.startswith('d'):
+                return timestamp - 86400 * n, description
+            elif u.startswith('h'):
+                return timestamp - 3600 * n, description
+            elif u.startswith('m'):
+                return timestamp - 60 * n, description
+            elif u.startswith('s'):
+                return timestamp - n, description
+    except Exception:
+        pass
+    return timestamp, description
 
 
 def get_total_time(episode):

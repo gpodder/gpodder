@@ -236,18 +236,24 @@ class YoutubeFeed(model.Feed):
         return None
 
     def get_new_episodes(self, channel, existing_guids):
+        # TODO: timestamp is not available and thus entries are unlikely to be sorted
         # entries are already sorted by decreasing date
         # trim guids to max episodes
         entries = [e for i, e in enumerate(self._ie_result['entries'])
                    if not self._max_episodes or i < self._max_episodes]
         all_seen_guids = {e['guid'] for e in entries}
+
         # only fetch new ones from youtube since they are so slow to get
-        new_entries = [e for e in entries if e['guid'] not in existing_guids]
+        # changes to existing episodes will not be fetched
+        # however, if total_time was zero (premieres), include episode for update
+        new_entries = [e for e in entries if e['guid'] not in existing_guids or existing_guids[e['guid']].total_time == 0]
+
         logger.debug('%i/%i new entries', len(new_entries), len(all_seen_guids))
         self._ie_result['entries'] = new_entries
         self._downloader.refresh_entries(self._ie_result)
+
         # episodes from entries
-        episodes = []
+        new_episodes = []
         for en in self._ie_result['entries']:
             guid = video_guid(en['id'])
             if en.get('ext'):
@@ -259,23 +265,50 @@ class YoutubeFeed(model.Feed):
             else:
                 filesize = sum(int(f.get('filesize') or 0)
                                for f in en.get('requested_formats', []))
+            if thumbnail := en.get('thumbnails', [{}])[0].get('url'):
+                thumbnail = re.sub(r'[?].*', '', thumbnail)
+            description = en.get('description') or ''
+            if en.get('upload_date'):
+                timestamp = youtube_parsedate(en.get('upload_date'))
+            elif en.get('release_timestamp'):
+                # TODO: unknown if string or unix timestamp
+                timestamp = en.get('release_timestamp')
+            elif en.get('timestamp'):
+                # TODO: unknown if string or unix timestamp
+                timestamp = en.get('timestamp')
+            else:
+                # no timestamp, fetch it directly from the video page
+                # also fetch the full description
+                timestamp, description = youtube.get_timestamp_description(en['id'])
             ep = {
                 'title': en.get('title', guid),
-                'link': en.get('webpage_url'),
-                'episode_art_url': en.get('thumbnail'),
-                'description': util.remove_html_tags(en.get('description') or ''),
+                'link': en.get('webpage_url') or en.get('url'),
+                'episode_art_url': thumbnail,
+                'description': util.remove_html_tags(description),
                 'description_html': '',
-                'url': en.get('webpage_url'),
+                'url': en.get('webpage_url') or en.get('url'),
                 'file_size': filesize,
                 'mime_type': mime_type,
                 'guid': guid,
-                'published': youtube_parsedate(en.get('upload_date', None)),
+                'published': timestamp,
                 'total_time': int(en.get('duration') or 0),
             }
+
             episode = channel.episode_factory(ep)
+
+            # Detect (and update) existing episode based on GUIDs
+            existing_episode = existing_guids.get(episode.guid, None)
+            if existing_episode:
+                # update existing_episode from episode
+                # exclude description since it is either empty or clipped
+                for k in ('title', 'link', 'url', 'episode_art_url', 'total_time'):
+                    setattr(existing_episode, k, getattr(episode, k))
+                episode = existing_episode
+            else:
+                new_episodes.append(episode)
+
             episode.save()
-            episodes.append(episode)
-        return episodes, all_seen_guids
+        return new_episodes, all_seen_guids
 
     def get_next_page(self, channel, max_episodes):
         """Paginated feed support (RFC 5005).
