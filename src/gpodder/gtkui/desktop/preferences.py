@@ -523,8 +523,9 @@ class gPodderPreferences(BuilderWidget):
                 self.extensions_model.append((None, label, None, False))
                 old_category = category
 
-            label = '%s\n<small>%s</small>' % (
+            label = '%s\n<small>Prio: %d; %s</small>' % (
                     html.escape(container.metadata.title),
+                    container.priority,
                     html.escape(container.metadata.description))
             self.extensions_model.append((container.enabled, label, container, True))
 
@@ -609,6 +610,7 @@ class gPodderPreferences(BuilderWidget):
         info = '\n'.join('<b>{}:</b> {}'.format(html.escape(key), html.escape(value))
                          for key, value in container.metadata.get_sorted()
                          if key not in ('title', 'description'))
+        info = info + "\n<b>Run Priority:</b> %d" % (container.priority)
 
         self.show_message_details(container.metadata.title, container.metadata.description, info)
 
