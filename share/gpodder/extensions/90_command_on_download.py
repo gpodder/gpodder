@@ -9,6 +9,10 @@ import os
 import gpodder
 from gpodder import util
 
+import gi  # isort:skip
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
+
 logger = logging.getLogger(__name__)
 
 _ = gpodder.gettext
@@ -65,3 +69,28 @@ class gPodderExtension:
             logger.info("%s succeeded", command)
         else:
             logger.warning("%s run with exit code %i", command, proc.returncode)
+
+    def on_cmd_changed(self, widget):
+        self.container.config.command = widget.get_text()
+
+    def show_preferences(self):
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
+        box.set_border_width(10)
+
+        box.pack_start(Gtk.HSeparator(), False, False, 0)
+
+        self.container.cmd = Gtk.Entry()
+        self.container.cmd.set_text(self.container.config.command)
+        self.container.cmd.connect("changed", self.on_cmd_changed)
+        self.container.cmd.set_halign(Gtk.Align.FILL)
+        self.container.cmd_label = Gtk.Label(_('Command: '))
+        self.container.hbox_cmd = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=0)
+        self.container.hbox_cmd.pack_start(self.container.cmd_label, False, False, 0)
+        self.container.hbox_cmd.pack_start(self.container.cmd, True, True, 0)
+        box.pack_start(self.container.hbox_cmd, False, False, 0)
+
+        box.show_all()
+        return box
+
+    def on_preferences(self):
+        return [(_('CmdOnDwnld'), self.show_preferences, self.container)]

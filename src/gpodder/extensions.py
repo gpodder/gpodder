@@ -645,12 +645,13 @@ class ExtensionManager(object):
         """Called when the preferences dialog is opened.
 
         You can add additional tabs to the preferences dialog here. You have to
-        return a list of tuples, where the first item is a label and the second
-        item is a callable with no parameters and returns a Gtk widget.
+        return a list of tuples, where the first item is a label, the second
+        item is a callable with no parameters and returns a Gtk widget, and the
+        third is the extension's container so the metadata can be printed.
 
         Example return value:
 
-        [('Tab name', lambda: ...)]
+        [('Tab name', lambda: ..., self.container)]
         """  # noqa: D401
 
     @call_extensions

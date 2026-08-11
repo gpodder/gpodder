@@ -536,10 +536,6 @@ class gPodderExtension:
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
         box.set_border_width(10)
 
-        title = Gtk.Label(use_markup=True, label=_('<b><big>Tagging Extension</big></b>'))
-        title.set_halign(Gtk.Align.CENTER)
-        box.add(title)
-
         whatisthis = Gtk.Label(use_markup=True, wrap=True, label=_(
             'This extension writes tags on MP3/MP4/OGG episodes after download.'
         ))
@@ -686,4 +682,4 @@ class gPodderExtension:
         return box
 
     def on_preferences(self):
-        return [(_('Tagging'), self.show_preferences)]
+        return [(_('Tagging'), self.show_preferences, self.container)]
