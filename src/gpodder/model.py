@@ -35,15 +35,21 @@ import shutil
 import string
 import time
 import urllib.parse
+from typing import Optional
 
 import podcastparser
 
 import gpodder
 from gpodder import coverart, feedcore, registry, schema, util, vimeo, youtube
+from gpodder.util import compute_not_before
 
 logger = logging.getLogger(__name__)
 
 _ = gpodder.gettext
+
+
+class FeedNotRefreshed(feedcore.RetryAfterException):
+    """Used to notify that the feed was not refreshed due to 'not before'."""
 
 
 class Feed:
@@ -97,6 +103,14 @@ class Feed:
                                  as a fully parsed Feed or None
         """
         return None
+
+    def get_not_before(self):
+        """Expose the Cache-control / Expires headers to PodcastChannel.
+
+        :return datetime.datetime: next time the channel should be refreshed.
+        This should be saved to DB and gPodder shouldn't refresh before this time by default.
+        datetime should be locale aware.
+        """
 
 
 class PodcastParserFeed(Feed):
@@ -192,6 +206,9 @@ class PodcastParserFeed(Feed):
             return self.fetcher.fetch(url, autodiscovery=False, max_episodes=max_episodes)
         return None
 
+    def get_not_before(self):
+        return compute_not_before(self.feed.get('headers', {}))
+
 
 class gPodderFetcher(feedcore.Fetcher):
     """Implements fetching a channel from custom feed handlers or the default using podcastparser."""
@@ -213,6 +230,11 @@ class gPodderFetcher(feedcore.Fetcher):
         return url
 
     def parse_feed(self, url, feed_data, data_stream, headers, status, max_episodes=0, **kwargs):
+        if status == feedcore.NOT_MODIFIED:
+            feed = {}
+            feed['url'] = url
+            feed['headers'] = headers
+            return feedcore.Result(status, PodcastParserFeed(feed, self, max_episodes))
         self.feed_data = feed_data
         try:
             feed = podcastparser.parse(url, data_stream)
@@ -401,6 +423,8 @@ class PodcastEpisode(PodcastModelObject):
 
         # Timestamp of last playback time
         self.last_playback = 0
+
+        self.not_before = None
 
         self._download_error = None
         self._text_description = ''
@@ -918,9 +942,23 @@ class PodcastEpisode(PodcastModelObject):
         if self.state != gpodder.STATE_DOWNLOADED:
             setattr(self, 'file_size', getattr(episode, 'file_size'))
 
+    def set_not_before(self, not_before_date):
+        # store as isoformat
+        if not_before_date:
+            not_before = not_before_date.isoformat()
+        # (clears a pre-existing not-before)
+        self.not_before = not_before
+
+    @property
+    def not_before_date(self):
+        """Return not_before as a datetime or None."""
+        if self.not_before:
+            return datetime.datetime.fromisoformat(self.not_before)
+        return None
+
 
 class PodcastChannel(PodcastModelObject):
-    __slots__ = schema.PodcastColumns + ('_common_prefix', '_update_error',)
+    __slots__ = schema.PodcastColumns + ('_common_prefix', '_not_refreshed', '_update_error')
 
     UNICODE_TRANSLATE = {ord('ö'): 'o', ord('ä'): 'a', ord('ü'): 'u'}
 
@@ -957,6 +995,7 @@ class PodcastChannel(PodcastModelObject):
 
         self.http_last_modified = None
         self.http_etag = None
+        self.not_before = None
 
         self.auto_archive_episodes = False
         self.download_folder = None
@@ -972,6 +1011,7 @@ class PodcastChannel(PodcastModelObject):
             self.children = self.db.load_episodes(self, self.episode_factory)
             self._determine_common_prefix()
 
+        self._not_refreshed = None
         self._update_error = None
 
     @property
@@ -1184,6 +1224,16 @@ class PodcastChannel(PodcastModelObject):
         self.payment_url = payment_url
         self.save()
 
+    def _consume_refresh_info(self, *, etag: Optional[str], last_modified: Optional[str], not_before: Optional[datetime.datetime]):
+        self.http_etag = etag or self.http_etag
+        self.http_last_modified = last_modified or self.http_last_modified
+        # store as isoformat
+        if not_before:
+            not_before = not_before.isoformat()
+        # (clears a pre-existing not-before)
+        self.not_before = not_before
+        self.save()
+
     def _consume_updated_feed(self, feed, max_episodes=0):
         self._consume_metadata(feed.get_title() or self.url,
                                feed.get_link() or self.link,
@@ -1192,8 +1242,10 @@ class PodcastChannel(PodcastModelObject):
                                feed.get_payment_url() or None)
 
         # Update values for HTTP conditional requests
-        self.http_etag = feed.get_http_etag() or self.http_etag
-        self.http_last_modified = feed.get_http_last_modified() or self.http_last_modified
+        self._consume_refresh_info(
+            etag=feed.get_http_etag(),
+            last_modified=feed.get_http_last_modified(),
+            not_before=feed.get_not_before())
 
         # Load all episodes to update them properly.
         existing = self.get_all_episodes()
@@ -1295,9 +1347,16 @@ class PodcastChannel(PodcastModelObject):
         # Sort episodes by pubdate, descending
         self.children.sort(key=lambda e: e.published, reverse=True)
 
-    def update(self, max_episodes=0):
+    def update(self, max_episodes=0, force=False):
         max_episodes = int(max_episodes)
         new_episodes = []
+        if (not_before_date := self.not_before_date) and not_before_date > datetime.datetime.now(datetime.timezone.utc):
+            if force:
+                logger.info("Feed %s has not-before %s but fetching anyway (force=True)", self.url, self.not_before)
+            else:
+                raise FeedNotRefreshed(self.not_before_date)
+                logger.info("Feed %s has not-before %s so not refreshing it", self.url, self.not_before)
+                return []
         try:
             result = self.feed_fetcher.fetch_channel(self, max_episodes)
 
@@ -1314,8 +1373,11 @@ class PodcastChannel(PodcastModelObject):
                 self.update(max_episodes)
                 return new_episodes
             elif result.status == feedcore.NOT_MODIFIED:
-                pass
-
+                # if 304 with expires info (eg. because user manually cleared the not_before to force the refresh)
+                self._consume_refresh_info(
+                    etag=result.feed.get_http_etag(),
+                    last_modified=result.feed.get_http_last_modified(),
+                    not_before=result.feed.get_not_before())
             self.save()
         except Exception as e:
             #  "Not really" errors
@@ -1330,6 +1392,8 @@ class PodcastChannel(PodcastModelObject):
             # feedcore.NotFound
             # feedcore.InvalidFeed
             # feedcore.UnknownStatusCode
+            if isinstance(e, feedcore.RetryAfterException) and e.data:
+                self._consume_refresh_info(etag=None, last_modified=None, not_before=e.data)
             gpodder.user_extensions.on_podcast_update_failed(self, e)
             raise
 
@@ -1496,6 +1560,13 @@ class PodcastChannel(PodcastModelObject):
     @property
     def cover_file(self):
         return os.path.join(self.save_dir, 'folder')
+
+    @property
+    def not_before_date(self):
+        """Return not_before as a datetime or None."""
+        if self.not_before:
+            return datetime.datetime.fromisoformat(self.not_before)
+        return None
 
 
 class Model(object):

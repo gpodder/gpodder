@@ -24,6 +24,7 @@
 #
 
 import collections
+import datetime
 import html
 import threading
 
@@ -101,6 +102,14 @@ class DownloadStatusModel(Gtk.ListStore):
                     'rate': util.format_filesize(task.speed),
                     'remaining': util.format_time(round((task.total_size * (1 - task.progress)) / task.speed)) if task.speed > 0 else '--:--'
             }
+        elif task.status == task.PAUSED:
+            if (not_before_date := task.episode.not_before_date) and not_before_date > datetime.datetime.now(datetime.timezone.utc):
+                not_before = util.format_datetime_today(not_before_date)
+                status_message = _(
+                        "Please wait after %(not_before)s to retry") \
+                    % {'not_before': not_before}
+            else:
+                status_message = task.STATUS_MESSAGE[task.status]
         else:
             status_message = task.STATUS_MESSAGE[task.status]
 

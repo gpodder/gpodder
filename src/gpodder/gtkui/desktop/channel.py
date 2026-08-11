@@ -75,6 +75,12 @@ class gPodderChannel(BuilderWidget):
             self.FeedPassword.set_text(self.channel.auth_password)
         self.add_password_reveal(self.FeedPassword)
 
+        if self.channel.not_before is None:
+            self.row_not_before.set_visible(False)
+        else:
+            not_before = util.format_datetime_today(self.channel.not_before_date)
+            self.label_not_before.set_markup(_("Don't refresh before <b>%(not_before)s</b>") % {'not_before': not_before})
+
         # Cover image
         ag = Gio.SimpleActionGroup()
         open_cover_action = Gio.SimpleAction.new("openCover", None)
@@ -262,9 +268,15 @@ class gPodderChannel(BuilderWidget):
         new_strategy = self.strategy_list[self.combo_strategy.get_active()][1]
         self.channel.set_download_strategy(new_strategy)
 
+        if not self.row_not_before.is_visible():
+            self.channel.not_before = None
+
         self.channel.save()
 
         self.main_window.destroy()
 
         self.update_podcast_list_model(selected=True,
                 sections_changed=section_changed)
+
+    def on_button_reset_not_before_clicked(self, widget):
+        self.row_not_before.set_visible(False)

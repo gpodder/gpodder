@@ -56,6 +56,18 @@ class WifiLogin(ExceptionWithData):
     pass
 
 
+class RetryAfterException(ExceptionWithData):
+    """Subclass to mark the stored data is tz aware not_before info."""
+
+
+class TooManyRequests(RetryAfterException):
+    pass
+
+
+class ServiceUnavailable(RetryAfterException):
+    pass
+
+
 # Fatal errors
 class Unsubscribe(Exception):
     pass
@@ -141,13 +153,14 @@ class Fetcher(object):
         return None
 
     @staticmethod
-    def _check_statuscode(status, url):
+    def _check_statuscode(status, url, headers):
         if status >= 200 and status < 300:
             return UPDATED_FEED
         elif status == 304:
             return NOT_MODIFIED
         # redirects are handled by requests directly
         # => the status should never be 301, 302, 303, 307, 308
+        # FIXME: Retry-After in 301
 
         if status == 401:
             raise AuthenticationRequired('authentication required', url)
@@ -157,8 +170,12 @@ class Fetcher(object):
             raise NotFound('not found')
         elif status == 410:
             raise Unsubscribe('resource is gone')
+        elif status == 429:
+            raise TooManyRequests(util.get_retry_after(headers))
         elif status >= 400 and status < 500:
             raise BadRequest('bad request')
+        elif status == 503:
+            raise ServiceUnavailable(util.get_retry_after(headers))
         elif status >= 500 and status < 600:
             raise InternalServerError('internal server error')
         else:
@@ -200,9 +217,9 @@ class Fetcher(object):
                 # If max redirects is reached, TooManyRedirects is raised
                 # TODO: since we've got the end contents anyway, modify model.py to accept contents on NEW_LOCATION
                 return Result(NEW_LOCATION, responses[i + 1].url)
-        res = self._check_statuscode(stream.status_code, stream.url)
+        res = self._check_statuscode(stream.status_code, stream.url, stream.headers)
         if res == NOT_MODIFIED:
-            return Result(NOT_MODIFIED, stream.url)
+            return self.parse_feed(stream.url, None, None, stream.headers, NOT_MODIFIED, **kwargs)
 
         if autodiscovery and stream.headers.get('content-type', '').startswith('text/html'):
             ad = FeedAutodiscovery(url)

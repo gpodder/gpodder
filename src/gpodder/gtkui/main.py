@@ -36,7 +36,8 @@ import gpodder
 from gpodder import (common, download, feedcore, my, opml, registry, util,
                      youtube)
 from gpodder.dbusproxy import DBusPodcastsProxy
-from gpodder.model import Model, PodcastEpisode, episode_object_by_uri
+from gpodder.model import (FeedNotRefreshed, Model, PodcastEpisode,
+                           episode_object_by_uri)
 from gpodder.player import MyGPOClientObserver, PlayerInterface
 from gpodder.services import AutoRegisterObserver
 from gpodder.syncui import gPodderSyncUI
@@ -1572,7 +1573,8 @@ class gPodder(BuilderWidget):
                            DownloadStatusModel.C_TASK)) for path in paths]
 
         for row_reference, task in selected_tasks:
-            if task.status != download.DownloadTask.QUEUED:
+            if (task.status != task.QUEUED
+                    and (task.status != task.PAUSED or not task.wait_not_before())):
                 can_force = False
             if not task.can_queue():
                 can_queue = False
@@ -1689,6 +1691,8 @@ class gPodder(BuilderWidget):
     def queue_task(self, task, force_start):
         if force_start:
             self.download_queue_manager.force_start_task(task)
+        elif task.wait_not_before():
+            task.status = task.PAUSED
         else:
             self.download_queue_manager.queue_task(task)
 
@@ -2699,7 +2703,8 @@ class gPodder(BuilderWidget):
             self.show_update_feeds_buttons()
 
     def update_feed_cache(self, channels=None,
-                          show_new_episodes_dialog=True):
+                          show_new_episodes_dialog=True,
+                          force=False):
         if self.config.check_connection and not util.connection_available():
             self.show_message(_('Please connect to a network, then try again.'),
                     _('No network connection'), important=True)
@@ -2746,11 +2751,22 @@ class gPodder(BuilderWidget):
 
                 try:
                     channel._update_error = None
+                    channel._not_refreshed = None
                     util.idle_add(indicate_updating_podcast, channel)
-                    new_episodes.extend(channel.update(max_episodes=self.config.limit.episodes))
+                    new_episodes.extend(channel.update(max_episodes=self.config.limit.episodes, force=force))
                     self._update_cover(channel)
+                except FeedNotRefreshed as e:
+                    not_before = util.format_datetime_today(e.data)
+                    channel._not_refreshed = _("Not refreshed, wait after %(not_before)s") % {'not_before': not_before}
                 except Exception as e:
-                    message = str(e)
+                    if isinstance(e, feedcore.RetryAfterException):
+                        not_before = util.format_datetime_today(e.data)
+                        message = \
+                            _("%(error)s: Retry after %(not_before)s") \
+                            % {'error': e.__class__.__name__, 'not_before': not_before}
+                    else:
+                        message = str(e)
+
                     if message:
                         channel._update_error = message
                     else:
@@ -3112,18 +3128,25 @@ class gPodder(BuilderWidget):
             self.show_message(message, title, widget=self.treeChannels)
             return
 
+        # shift-click menu item or button
+        has_event_state, state = Gtk.get_current_event_state()
+        force_refresh = has_event_state and (state & Gdk.ModifierType.SHIFT_MASK)
+
         # Dirty hack to check for "All episodes" (see gpodder.gtkui.model)
         if getattr(self.active_channel, 'ALL_EPISODES_PROXY', False):
-            self.update_feed_cache()
+            self.update_feed_cache(force=force_refresh)
         else:
-            self.update_feed_cache(channels=[self.active_channel])
+            self.update_feed_cache(channels=[self.active_channel], force=force_refresh)
 
     def on_itemUpdate_activate(self, action=None, param=None):
         # Check if we have outstanding subscribe/unsubscribe actions
         self.on_add_remove_podcasts_mygpo()
 
         if self.channels:
-            self.update_feed_cache()
+            # shift-click menu item or button
+            has_event_state, state = Gtk.get_current_event_state()
+            force_refresh = has_event_state and (state & Gdk.ModifierType.SHIFT_MASK)
+            self.update_feed_cache(force=force_refresh)
         else:
             def show_welcome_window():
                 def on_show_example_podcasts(widget):
@@ -3150,7 +3173,7 @@ class gPodder(BuilderWidget):
             util.idle_add(show_welcome_window)
 
     def download_episode_list_paused(self, episodes, hide_progress=False):
-        self.download_episode_list(episodes, True, hide_progress=hide_progress)
+        self.download_episode_list(episodes, add_paused=True, hide_progress=hide_progress)
 
     def download_episode_list(self, episodes, add_paused=False, force_start=False, downloader=None, hide_progress=False):
         # Start progress indicator to queue existing tasks
@@ -3176,7 +3199,7 @@ class gPodder(BuilderWidget):
 
                 for task in tasks:
                     with task:
-                        if add_paused:
+                        if add_paused or (not force_start and task.wait_not_before()):
                             task.status = task.PAUSED
                         else:
                             self.mygpo_client.on_download([task.episode])
