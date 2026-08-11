@@ -289,11 +289,17 @@ class iPodTrack(object):
         self.db = db
         self.track = track
 
-        self.episode_title = track[0].title.decode()
-        self.podcast_title = track[0].album.decode()
+        def string_or_none(c_char_p):
+            if c_char_p:
+                return c_char_p.decode()
+            else:
+                return None
 
-        self.podcast_url = track[0].podcasturl.decode()
-        self.podcast_rss = track[0].podcastrss.decode()
+        self.episode_title = string_or_none(track[0].title)
+        self.podcast_title = string_or_none(track[0].album)
+
+        self.podcast_url = string_or_none(track[0].podcasturl)
+        self.podcast_rss = string_or_none(track[0].podcastrss)
 
         self.playcount = track[0].playcount
         self.bookmark_time = track[0].bookmark_time
@@ -302,7 +308,7 @@ class iPodTrack(object):
         # around a bit and take a copy of the string before free'ing it again.
         filename_ptr = libgpod.itdb_filename_on_ipod(track)
         if filename_ptr:
-            self.filename_on_ipod = ctypes.string_at(filename_ptr).decode()
+            self.filename_on_ipod = string_or_none(ctypes.string_at(filename_ptr))
             libglib.g_free(filename_ptr)
         else:
             self.filename_on_ipod = None
