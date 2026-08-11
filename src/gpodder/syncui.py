@@ -22,6 +22,7 @@
 # Ported to gPodder 3 by Joseph Wickremasinghe in June 2012
 
 import logging
+import re
 
 import gpodder
 from gpodder import sync, util
@@ -255,10 +256,22 @@ class gPodderSyncUI(object):
                                 # if playlist doesn't exist (yet) episodes_in_playlist will be empty
                                 if episodes_in_playlists:
                                     for episode_filename in episodes_in_playlists:
+                                        abs_path_episode_noslash = re.sub(r'^/', '', episode_filename)
+
+                                        # check if episodes exist based on the absolute path setting and querying
+                                        # the path found in the playlist.
+                                        # NOTE: If the use_absolute_path setting is changed between last sync and this sync,
+                                        # the path will fail to be found and the episode could be considered deleted, HOWEVER:
+                                        # Because the episode dictionary also relies on the path, gPodder will not be able to
+                                        # match the on-device episode to the episode in the database, so the episode will simply
+                                        # be re-added to the device.
+                                        # This quirk is acceptable because if only the file basenames are used to determine whether
+                                        # a file matches, then the matching could potentially be too broad (across different podcasts).
+                                        # This is the lesser of two evils.
                                         if ((not self._config.device_sync.playlists.use_absolute_path
                                         and not playlist.playlist_folder.resolve_relative_path(episode_filename).query_exists())
                                         or (self._config.device_sync.playlists.use_absolute_path
-                                        and not playlist.mountpoint.resolve_relative_path(episode_filename).query_exists())):
+                                        and not playlist.mountpoint.resolve_relative_path(abs_path_episode_noslash).query_exists())):
                                             # episode was synced but no longer on device
                                             # i.e. must have been deleted by user, so delete from gpodder
                                             try:
