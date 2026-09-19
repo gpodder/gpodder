@@ -463,7 +463,7 @@ class gPodderPreferences(BuilderWidget):
         # add preferences buttons for all extensions
         result = gpodder.user_extensions.on_preferences()
         if result:
-            for label, callback in result:
+            for (label, callback), _container in result:
                 page = callback()
                 name = "extension." + label
                 page.set_name(name)
