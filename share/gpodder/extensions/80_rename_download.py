@@ -20,7 +20,7 @@ _ = gpodder.gettext
 N_ = gpodder.ngettext
 
 __title__ = _('Rename episodes after download')
-__description__ = _('Rename episodes to "&lt;Episode Title&gt;.&lt;ext&gt;" on download')
+__description__ = _('Rename episodes to "<Episode Title>.<ext>" on download')
 __authors__ = 'Bernd Schlapsi <brot@gmx.info>, Thomas Perl <thp@gpodder.org>'
 __doc__ = 'https://gpodder.github.io/docs/extensions/renameafterdownload.html'
 __category__ = 'post-download'
