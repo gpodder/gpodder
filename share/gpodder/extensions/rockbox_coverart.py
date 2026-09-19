@@ -170,21 +170,6 @@ class gPodderExtension:
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
         box.set_border_width(10)
 
-        title = Gtk.Label(use_markup=True, label=_('<b><big>Rockbox Coverart Extension</big></b>'))
-        title.set_halign(Gtk.Align.CENTER)
-        box.add(title)
-
-        whatisthis = Gtk.Label(use_markup=True, wrap=True, label=_(
-            'This extension writes podcast cover art to a media player.'
-            ' This extension assumes that each podcast has its own folder on device.'
-            ' Only folder-wide coverart is written - this extension does not do anything'
-            ' about embedded cover art.'
-        ))
-        whatisthis.set_property('xalign', 0.0)
-        box.add(whatisthis)
-
-        box.pack_start(Gtk.HSeparator(), False, False, 0)
-
         self.container.convert_enable = Gtk.CheckButton(_('Process art: convert, resize, and make baseline'))
         self.container.convert_enable.set_active(self.config.convert_and_resize_art)
         self.container.convert_enable.connect('toggled', self.toggle_convert_and_resize_art)
@@ -211,10 +196,10 @@ class gPodderExtension:
         self.container.convert_size.set_snap_to_ticks(True)
         self.container.convert_size.set_value(float(self.config.convert_size))
         self.container.convert_size.set_halign(Gtk.Align.END)
-        self.container.convert_size.set_size_request(200, -1)
+        self.container.convert_size.set_size_request(150, -1)
         self.container.convert_size.connect("value-changed", self.on_convert_size_changed)
         self.container.convert_size.set_sensitive(self.config.convert_and_resize_art)
-        self.container.convert_size_label = Gtk.Label(_('Image size (px):'))
+        self.container.convert_size_label = Gtk.Label(wrap=True, label=_('Image size (px):'))
         self.container.hbox_convert_size = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=0)
         self.container.hbox_convert_size.pack_start(self.container.convert_size_label, False, False, 0)
         self.container.hbox_convert_size.pack_start(self.container.convert_size, True, True, 0)
@@ -224,8 +209,8 @@ class gPodderExtension:
         self.container.art_name_on_device.set_text(self.config.art_name_on_device)
         self.container.art_name_on_device.connect("changed", self.on_art_name_on_device_changed)
         self.container.art_name_on_device.set_halign(Gtk.Align.END)
-        self.container.art_name_on_device.set_size_request(200, -1)
-        self.container.art_name_on_device_label = Gtk.Label(_('Art name on device:'))
+        self.container.art_name_on_device.set_size_request(150, -1)
+        self.container.art_name_on_device_label = Gtk.Label(wrap=True, label=_('Art name on device:'))
         self.container.hbox_art_name = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=0)
         self.container.hbox_art_name.pack_start(self.container.art_name_on_device_label, False, False, 0)
         self.container.hbox_art_name.pack_start(self.container.art_name_on_device, True, True, 0)
