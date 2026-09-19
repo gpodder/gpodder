@@ -21,7 +21,7 @@ import html
 import logging
 from urllib.request import getproxies
 
-from gi.repository import Gdk, Gtk, Pango
+from gi.repository import Gdk, GLib, Gtk, Pango
 
 import gpodder
 from gpodder import util, vimeo, youtube
@@ -466,9 +466,12 @@ class gPodderPreferences(BuilderWidget):
             for (label, callback), container in result:
                 page = callback()
 
-                title_display = Gtk.Label(use_markup=True, wrap=True, label='<b><big>{}</big></b>'.format(_(container.metadata.title)))
+                title_display = Gtk.Label(use_markup=True, wrap=True,
+                                          label='<b><big>{}</big></b>'.format(
+                                              GLib.markup_escape_text(_(container.metadata.title))))
                 title_display.set_halign(Gtk.Align.CENTER)
-                desc_display = Gtk.Label(use_markup=True, wrap=True, xalign=0.0, label=_(container.metadata.description))
+                desc_display = Gtk.Label(use_markup=True, wrap=True, xalign=0.0,
+                                         label=GLib.markup_escape_text(_(container.metadata.description)))
 
                 metadata_display = Gtk.Button(label=_('Extension info'))
                 metadata_display.connect('clicked', self.show_extension_info, container)
