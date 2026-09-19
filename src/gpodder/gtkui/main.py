@@ -18,6 +18,7 @@
 #
 
 import collections
+import functools
 import html
 import logging
 import os
@@ -373,6 +374,7 @@ class gPodder(BuilderWidget):
             ('downloadAllNew', self.on_itemDownloadAllNew_activate),
             ('removeOldEpisodes', self.on_itemRemoveOldEpisodes_activate),
             ('findPodcast', self.on_find_podcast_activate),
+            ('forceUpdate', functools.partial(self.on_itemUpdate_activate, force_refresh=True)),
             # Subscriptions
             ('discover', self.on_itemImportChannels_activate),
             ('addChannel', self.on_itemAddChannel_activate),
@@ -416,6 +418,8 @@ class gPodder(BuilderWidget):
         # gPodder
         # Podcasts
         self.update_action = g.lookup_action('update')
+        self.force_update_action = g.lookup_action('forceUpdate')
+        self.application.set_accels_for_action('win.forceUpdate', ['<Primary><Shift>r'])
         # Subscriptions
         self.update_channel_action = g.lookup_action('updateChannel')
         self.edit_channel_action = g.lookup_action('editChannel')
@@ -2692,6 +2696,7 @@ class gPodder(BuilderWidget):
         if not self.application.want_headerbar:
             self.btnUpdateFeeds.show()
         self.update_action.set_enabled(True)
+        self.force_update_action.set_enabled(True)
         self.update_channel_action.set_enabled(True)
 
     def on_btnCancelFeedUpdate_clicked(self, widget):
@@ -2718,6 +2723,7 @@ class gPodder(BuilderWidget):
             channels = [c for c in self.channels if not c.pause_subscription]
 
         self.update_action.set_enabled(False)
+        self.force_update_action.set_enabled(False)
         self.update_channel_action.set_enabled(False)
 
         self.feed_cache_update_cancelled = False
@@ -2842,6 +2848,7 @@ class gPodder(BuilderWidget):
                     self.btnCancelFeedUpdate.show()
                     self.btnCancelFeedUpdate.set_sensitive(True)
                     self.update_action.set_enabled(True)
+                    self.force_update_action.set_enabled(True)
                     self.btnCancelFeedUpdate.set_image(Gtk.Image.new_from_icon_name('edit-clear', Gtk.IconSize.BUTTON))
                 else:
                     episodes = downloadable_episodes
@@ -3138,14 +3145,14 @@ class gPodder(BuilderWidget):
         else:
             self.update_feed_cache(channels=[self.active_channel], force=force_refresh)
 
-    def on_itemUpdate_activate(self, action=None, param=None):
+    def on_itemUpdate_activate(self, action=None, param=None, force_refresh=False):
         # Check if we have outstanding subscribe/unsubscribe actions
         self.on_add_remove_podcasts_mygpo()
 
         if self.channels:
             # shift-click menu item or button
             has_event_state, state = Gtk.get_current_event_state()
-            force_refresh = has_event_state and (state & Gdk.ModifierType.SHIFT_MASK)
+            force_refresh |= has_event_state and (state & Gdk.ModifierType.SHIFT_MASK)
             self.update_feed_cache(force=force_refresh)
         else:
             def show_welcome_window():
