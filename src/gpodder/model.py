@@ -213,8 +213,8 @@ class PodcastParserFeed(Feed):
 class gPodderFetcher(feedcore.Fetcher):
     """Implements fetching a channel from custom feed handlers or the default using podcastparser."""
 
-    def fetch_channel(self, channel, max_episodes):
-        custom_feed = registry.feed_handler.resolve(channel, None, max_episodes)
+    def fetch_channel(self, channel, max_episodes, force=False):
+        custom_feed = registry.feed_handler.resolve(channel, None, max_episodes, force=force)
         if custom_feed is not None:
             return custom_feed
         # TODO: revisit authenticate_url: pass auth as kwarg
@@ -222,7 +222,7 @@ class gPodderFetcher(feedcore.Fetcher):
         # Note: using a HTTPBasicAuthHandler would be pain because we need to
         # know the realm. It can be done, but I think this method works, too
         url = channel.authenticate_url(channel.url)
-        return self.fetch(url, channel.http_etag, channel.http_last_modified, max_episodes=max_episodes)
+        return self.fetch(url, channel.http_etag, channel.http_last_modified, max_episodes=max_episodes, force=force)
 
     def _resolve_url(self, url):
         url = youtube.get_real_channel_url(url)
@@ -1358,7 +1358,7 @@ class PodcastChannel(PodcastModelObject):
                 logger.info("Feed %s has not-before %s so not refreshing it", self.url, self.not_before)
                 return []
         try:
-            result = self.feed_fetcher.fetch_channel(self, max_episodes)
+            result = self.feed_fetcher.fetch_channel(self, max_episodes, force=force)
 
             if result.status == feedcore.UPDATED_FEED:
                 new_episodes = self._consume_updated_feed(result.feed, max_episodes)

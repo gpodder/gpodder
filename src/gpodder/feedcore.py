@@ -193,7 +193,7 @@ class Fetcher(object):
         """
         raise NotImplementedError("Implement parse_feed()")
 
-    def fetch(self, url, etag=None, modified=None, autodiscovery=True, **kwargs):
+    def fetch(self, url, etag=None, modified=None, autodiscovery=True, force=False, **kwargs):
         """Use kwargs to pass extra data to parse_feed in Fetcher subclasses."""
         # handle local file first
         if url.startswith('file://'):
@@ -203,9 +203,9 @@ class Fetcher(object):
 
         # remote feed
         headers = {}
-        if modified is not None:
+        if not force and modified is not None:
             headers['If-Modified-Since'] = modified
-        if etag is not None:
+        if not force and etag is not None:
             headers['If-None-Match'] = etag
 
         stream = util.urlopen(url, headers)
