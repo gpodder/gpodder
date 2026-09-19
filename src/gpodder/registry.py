@@ -27,9 +27,9 @@ class Resolver(object):
         self._resolvers = []
         self._observers = set()
 
-    def resolve(self, item, default, *args):
+    def resolve(self, item, default, *args, **kwargs):
         for resolver in self._resolvers:
-            result = resolver(item, *args)
+            result = resolver(item, *args, **kwargs)
             if result is not None:
                 logger.info('{} resolved by {}: {} -> {}'.format(self.name, self._info(resolver),
                                                                  default, result))
@@ -37,14 +37,14 @@ class Resolver(object):
 
         return default
 
-    def each(self, *args):
+    def each(self, *args, **kwargs):
         for resolver in self._resolvers:
-            result = resolver(*args)
+            result = resolver(*args, **kwargs)
             if result is not None:
                 yield result
 
-    def call_each(self, *args):
-        list(self.each(*args))
+    def call_each(self, *args, **kwargs):
+        list(self.each(*args, **kwargs))
 
     def select(self, selector=None):
         for resolver in self._resolvers:
