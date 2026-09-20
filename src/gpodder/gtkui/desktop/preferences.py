@@ -21,7 +21,7 @@ import html
 import logging
 from urllib.request import getproxies
 
-from gi.repository import Gdk, Gtk, Pango
+from gi.repository import Gdk, GLib, Gtk, Pango
 
 import gpodder
 from gpodder import util, vimeo, youtube
@@ -463,8 +463,24 @@ class gPodderPreferences(BuilderWidget):
         # add preferences buttons for all extensions
         result = gpodder.user_extensions.on_preferences()
         if result:
-            for (label, callback), _container in result:
+            for (label, callback), container in result:
                 page = callback()
+
+                title_display = Gtk.Label(use_markup=True, wrap=True,
+                                          label='<b><big>{}</big></b>'.format(
+                                              GLib.markup_escape_text(_(container.metadata.title))))
+                title_display.set_halign(Gtk.Align.CENTER)
+                desc_display = Gtk.Label(use_markup=True, wrap=True, xalign=0.0,
+                                         label=GLib.markup_escape_text(_(container.metadata.description)))
+
+                metadata_display = Gtk.Button(label=_('Extension info'))
+                metadata_display.connect('clicked', self.show_extension_info, container)
+
+                for i, child in enumerate([title_display, desc_display, metadata_display]):
+                    page.add(child)
+                    page.reorder_child(child, i)
+                page.show_all()
+
                 name = "extension." + label
                 page.set_name(name)
                 page.foreach(self._wrap_checkbox_labels)
@@ -557,7 +573,7 @@ class gPodderPreferences(BuilderWidget):
             menu.append(menu_item)
 
         menu_item = Gtk.MenuItem(_('Extension info'))
-        menu_item.connect('activate', self.show_extension_info, model, container)
+        menu_item.connect('activate', self.show_extension_info, container)
         menu.append(menu_item)
 
         menu.show_all()
@@ -602,8 +618,8 @@ class gPodderPreferences(BuilderWidget):
                     _('Extension cannot be activated'), important=True)
             model.set_value(it, self.C_TOGGLE, False)
 
-    def show_extension_info(self, w, model, container):
-        if not container or not model:
+    def show_extension_info(self, w, container):
+        if not container:
             return
 
         info = '\n'.join('<b>{}:</b> {}'.format(html.escape(key), html.escape(value))
