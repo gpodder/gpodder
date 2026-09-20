@@ -565,7 +565,7 @@ class gPodderCli(object):
 
     def _update_podcast(self, podcast):
         with self._action(' %s' % podcast.title):
-            podcast.update()
+            podcast.update(max_episodes=self._config.limit.episodes)
 
     def _pending_message(self, count):
         return N_('%(count)d new episode', '%(count)d new episodes',

@@ -1314,7 +1314,11 @@ class PodcastChannel(PodcastModelObject):
                 self.update(max_episodes)
                 return new_episodes
             elif result.status == feedcore.NOT_MODIFIED:
-                pass
+                # This *might* cause episodes to be skipped if there were more than
+                # limit.episodes items added to the feed between updates.
+                # The benefit is that it prevents old episodes from appearing as new
+                # in certain situations (see bug #340).
+                self.db.purge(max_episodes, self.id)  # TODO: Remove from self.children!
 
             self.save()
         except Exception as e:
