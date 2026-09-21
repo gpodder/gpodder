@@ -492,7 +492,7 @@ class gPodderYoutubeDL(download.CustomDownloader):
         return feedcore.Result(feedcore.UPDATED_FEED,
             YoutubeFeed(url, cover_url, description, max_episodes, ie_result, self))
 
-    def fetch_channel(self, channel, max_episodes=0):
+    def fetch_channel(self, channel, max_episodes=0, force=False):
         """Return a custom feed. Called by model.gPodderFetcher.
 
         :returns feedcore.Result: A YoutubeFeed or None if channel is not
