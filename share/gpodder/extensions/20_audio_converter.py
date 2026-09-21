@@ -9,6 +9,7 @@
 import logging
 import os
 import subprocess
+from concurrent.futures import ThreadPoolExecutor
 
 import gpodder
 from gpodder import util
@@ -17,57 +18,123 @@ logger = logging.getLogger(__name__)
 
 _ = gpodder.gettext
 
-__title__ = _('Convert audio files')
-__description__ = _('Transcode audio files to mp3/ogg')
-__authors__ = 'Bernd Schlapsi <brot@gmx.info>, Thomas Perl <thp@gpodder.org>'
-__doc__ = 'https://gpodder.github.io/docs/extensions/audioconverter.html'
-__category__ = 'post-download'
+__title__ = _("Convert audio files")
+__description__ = _("Transcode audio files to mp3, ogg, or opus")
+__authors__ = "Bernd Schlapsi <brot@gmx.info>, Thomas Perl <thp@gpodder.org>, Zachary Spector <public@zacharyspector.com>"
+__doc__ = "https://gpodder.github.io/docs/extensions/audioconverter.html"
+__category__ = "post-download"
 
 
 DefaultConfig = {
-    'use_opus': False,  # Set to True to convert to .opus
-    'use_ogg': False,  # Set to True to convert to .ogg
-    'context_menu': True,  # Show the conversion option in the context menu
+    "use_opus": False,  # Set to True to convert to .opus
+    "use_ogg": False,  # Set to True to convert to .ogg
+    "context_menu": True,  # Show the conversion option in the context menu
+    "batch_notify": True,  # Set to False to notify after every conversion
+    "processes": 0,  # Maximum simultaneous conversion processes.
+    # Defaults to the value from os.cpu_count()
 }
 
 
 class gPodderExtension:
-    MIME_TYPES = ('audio/x-m4a', 'audio/mp4', 'audio/mp4a-latm', 'audio/mpeg', 'audio/ogg', 'audio/opus')
-    EXT = ('.m4a', '.ogg', '.opus', '.mp3')
-    CMD = {'avconv': {'.mp3': ['-n', '-i', '%(old_file)s', '-q:a', '2', '-id3v2_version', '3', '-write_id3v1', '1', '%(new_file)s'],
-                      '.ogg': ['-n', '-i', '%(old_file)s', '-q:a', '2', '%(new_file)s'],
-                      '.opus': ['-n', '-i', '%(old_file)s', '-b:a', '64k', '%(new_file)s']
-                      },
-           'ffmpeg': {'.mp3': ['-n', '-i', '%(old_file)s', '-q:a', '2', '-id3v2_version', '3', '-write_id3v1', '1', '%(new_file)s'],
-                      '.ogg': ['-n', '-i', '%(old_file)s', '-q:a', '2', '%(new_file)s'],
-                      '.opus': ['-n', '-i', '%(old_file)s', '-b:a', '64k', '%(new_file)s']
-                      }
-           }
+    MIME_TYPES = (
+        "audio/x-m4a",
+        "audio/mp4",
+        "audio/mp4a-latm",
+        "audio/mpeg",
+        "audio/ogg",
+        "audio/opus",
+    )
+    EXT = (".m4a", ".ogg", ".opus", ".mp3")
+    CMD = {
+        "avconv": {
+            ".mp3": [
+                "-n",
+                "-i",
+                "%(old_file)s",
+                "-q:a",
+                "2",
+                "-id3v2_version",
+                "3",
+                "-write_id3v1",
+                "1",
+                "%(new_file)s",
+            ],
+            ".ogg": ["-n", "-i", "%(old_file)s", "-q:a", "2", "%(new_file)s"],
+            ".opus": [
+                "-n",
+                "-i",
+                "%(old_file)s",
+                "-b:a",
+                "24k",
+                "-application",
+                "voip",
+                "%(new_file)s",
+            ],
+        },
+        "ffmpeg": {
+            ".mp3": [
+                "-n",
+                "-i",
+                "%(old_file)s",
+                "-q:a",
+                "2",
+                "-id3v2_version",
+                "3",
+                "-write_id3v1",
+                "1",
+                "%(new_file)s",
+            ],
+            ".ogg": ["-n", "-i", "%(old_file)s", "-q:a", "2", "%(new_file)s"],
+            ".opus": [
+                "-n",
+                "-i",
+                "%(old_file)s",
+                "-b:a",
+                "24k",
+                "-application",
+                "voip",
+                "%(new_file)s",
+            ],
+        },
+    }
 
     def __init__(self, container):
         self.container = container
         self.config = self.container.config
 
         # Dependency checks
-        self.command = self.container.require_any_command(['avconv', 'ffmpeg'])
+        self.command = self.container.require_any_command(["avconv", "ffmpeg"])
 
         # extract command without extension (.exe on Windows) from command-string
         self.command_without_ext = os.path.basename(os.path.splitext(self.command)[0])
+
+        # Currently ongoing conversion tasks
+        self.futures = {}
+        # Finished conversion tasks not yet reported to the user
+        self.finished = []
+
+        # Use this thread pool to monitor subprocesses.
+        # We'll never run more simultaneous subprocesses than we have cores to run them on.
+        self.pool = ThreadPoolExecutor(self.config.processes or os.cpu_count() or 1)
 
     def on_episode_downloaded(self, episode):
         self._convert_episode(episode)
 
     def _get_new_extension(self):
         if self.config.use_ogg:
-            extension = '.ogg'
+            extension = ".ogg"
         elif self.config.use_opus:
-            extension = '.opus'
+            extension = ".opus"
         else:
-            extension = '.mp3'
+            extension = ".mp3"
         return extension
 
     def _check_source(self, episode):
         if episode.extension() == self._get_new_extension():
+            return False
+
+        if episode.local_filename(create=False) in self.futures:
+            # Conversion already in progress
             return False
 
         if episode.mime_type in self.MIME_TYPES:
@@ -89,54 +156,73 @@ class gPodderExtension:
         if not any(self._check_source(episode) for episode in episodes):
             return None
 
-        menu_item = _('Convert to %(format)s') % {'format': self._target_format()}
+        menu_item = _("Convert to %(format)s") % {"format": self._target_format()}
 
         return [(menu_item, self._convert_episodes)]
 
     def _target_format(self):
         if self.config.use_ogg:
-            target_format = 'OGG'
+            target_format = "OGG"
         elif self.config.use_opus:
-            target_format = 'OPUS'
+            target_format = "OPUS"
         else:
-            target_format = 'MP3'
+            target_format = "MP3"
         return target_format
 
-    def _convert_episode(self, episode):
-        if not self._check_source(episode):
-            return
-
+    def _do_conversion(self, episode):
         new_extension = self._get_new_extension()
         old_filename = episode.local_filename(create=False)
         filename, old_extension = os.path.splitext(old_filename)
         new_filename = filename + new_extension
 
         cmd_param = self.CMD[self.command_without_ext][new_extension]
-        cmd = [self.command] + \
-            [param % {'old_file': old_filename, 'new_file': new_filename}
-                for param in cmd_param]
-
+        cmd = [self.command] + [
+            param % {"old_file": old_filename, "new_file": new_filename}
+            for param in cmd_param
+        ]
         if gpodder.ui.win32:
             ffmpeg = util.Popen(cmd)
             ffmpeg.wait()
             stdout, stderr = ("<unavailable>",) * 2
         else:
-            ffmpeg = util.Popen(cmd, stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE)
+            ffmpeg = util.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             stdout, stderr = ffmpeg.communicate()
-
         if ffmpeg.returncode == 0:
             util.rename_episode_file(episode, new_filename)
             os.remove(old_filename)
 
-            logger.info('Converted audio file to %(format)s.' % {'format': new_extension})
-            gpodder.user_extensions.on_notification_show(_('File converted'), episode.title)
+            logger.info(
+                "Converted audio file to %(format)s." % {"format": new_extension}
+            )
         else:
-            logger.warning('Error converting audio file: %s / %s', stdout, stderr)
-            gpodder.user_extensions.on_notification_show(_('Conversion failed'), episode.title)
+            logger.warning("Error converting audio file: %s / %s", stdout, stderr)
+            gpodder.user_extensions.on_notification_show(
+                _("Conversion failed"),
+                "%s: %s" % (episode.title, stderr[stderr.rfind("Error") :]),
+            )
+        del self.futures[old_filename]
+
+    def _notify_all_converted(self, fut):
+        self.finished.append(fut)
+        if self.config.batch_notify and not all(
+            fut.done() for fut in self.futures.values()
+        ):
+            return
+        gpodder.user_extensions.on_notification_show(
+            _("Episodes converted"),
+            ",\n".join(sorted(fut.episode.title for fut in self.finished)),
+        )
+        self.finished.clear()
+
+    def _convert_episode(self, episode):
+        if not self._check_source(episode):
+            return
+
+        fut = self.pool.submit(self._do_conversion, episode)
+        fut.episode = episode
+        fut.add_done_callback(self._notify_all_converted)
+        self.futures[episode.local_filename(create=False)] = fut
 
     def _convert_episodes(self, episodes):
-        # not running in background because there is no feedback to the user
-        # which one is being converted and nothing prevents from clicking convert twice.
         for episode in episodes:
             self._convert_episode(episode)

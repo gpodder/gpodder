@@ -84,7 +84,6 @@ class SoundcloudUser(object):
         json.dump(self.cache, open(self.cache_file, 'w'))
 
     def get_user_info(self):
-        global CONSUMER_KEY
         key = ':'.join((self.username, 'user_info'))
         if key in self.cache:
             if self.cache[key].get('code', 200) == 200:
@@ -130,7 +129,6 @@ class SoundcloudUser(object):
         The generator will give you a dictionary for every
         track it can find for its user.
         """
-        global CONSUMER_KEY
         try:
             json_url = ('https://api.soundcloud.com/users/%(user)s/%(feed)s.'
                         'json?consumer_key=%'
