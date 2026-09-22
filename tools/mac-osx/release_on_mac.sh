@@ -82,7 +82,7 @@ cp share/dbus-1/services/org.gpodder.service{.in,}
 export GPODDER_INSTALL_UIS="cli gtk"
 
 # compile translations
-for po in po/*; do
+for po in po/*.po; do
 	lang=$(basename ${po%.po})
 	msgdir=$resources/share/locale/$lang/LC_MESSAGES
 	mkdir -p "$msgdir"
