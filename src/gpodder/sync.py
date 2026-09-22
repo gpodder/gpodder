@@ -27,6 +27,7 @@ import logging
 import os.path
 import threading
 import time
+from subprocess import PIPE
 
 import gpodder
 from gpodder import download, services, util
@@ -47,6 +48,8 @@ try:
 except:
     logger.info('iPod sync not available')
     gpod_available = False
+
+ffmpeg_available = True if util.find_command('ffmpeg') is not None else False
 
 mplayer_available = True if util.find_command('mplayer') is not None else False
 
@@ -77,14 +80,6 @@ def open_device(gui):
 def get_track_length(filename):
     attempted = False
 
-    if mplayer_available:
-        try:
-            mplayer_output = os.popen('mplayer -msglevel all=-1 -identify -vo null -ao null -frames 0 "%s" 2>/dev/null' % filename).read()
-            return int(float(mplayer_output[mplayer_output.index('ID_LENGTH'):].splitlines()[0][10:]) * 1000)
-        except Exception:
-            logger.error('MPlayer could not determine length: %s', filename, exc_info=True)
-            attempted = True
-
     if eyed3mp3_available:
         try:
             length = int(eyed3.mp3.Mp3AudioFile(filename).info.time_secs * 1000)
@@ -95,6 +90,24 @@ def get_track_length(filename):
             return length
         except Exception:
             logger.error('eyed3.mp3 could not determine length: %s', filename, exc_info=True)
+            attempted = True
+
+    if ffmpeg_available:
+        try:
+            _x, ffmpeg_output = util.Popen(['ffmpeg', '-i', filename], stderr=PIPE).communicate()
+            len_str = ffmpeg_output[ffmpeg_output.index(b'Duration:'):].split(b',')[0][10:].decode()
+            logger.debug("ffmpeg found length string for '%s': %s", filename, len_str)
+            return int(sum(float(s) * t for s, t in zip(len_str.split(':'), [3600, 60, 1])) * 1000)
+        except Exception:
+            logger.error('ffmpeg could not determine length: %s', filename, exc_info=True)
+            attempted = True
+
+    if mplayer_available:
+        try:
+            mplayer_output = os.popen('mplayer -msglevel all=-1 -identify -vo null -ao null -frames 0 "%s" 2>/dev/null' % filename).read()
+            return int(float(mplayer_output[mplayer_output.index('ID_LENGTH'):].splitlines()[0][10:]) * 1000)
+        except Exception:
+            logger.error('MPlayer could not determine length: %s', filename, exc_info=True)
             attempted = True
 
     if not attempted:
@@ -311,6 +324,7 @@ class iPodDevice(Device):
             logger.error('Please install libgpod 0.8.3 to sync with an iPod device.')
             return False
         if not os.path.isdir(self.mountpoint):
+            logger.error(f"iPod mountpoint '{self.mountpoint}' is not a directory")
             return False
 
         self.notify('status', _('Opening iPod database'))
