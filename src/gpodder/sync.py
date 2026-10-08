@@ -27,7 +27,7 @@ import logging
 import os.path
 import threading
 import time
-from subprocess import PIPE
+from subprocess import DEVNULL, PIPE
 
 import gpodder
 from gpodder import download, services, util
@@ -104,8 +104,10 @@ def get_track_length(filename):
 
     if mplayer_available:
         try:
-            mplayer_output = os.popen('mplayer -msglevel all=-1 -identify -vo null -ao null -frames 0 "%s" 2>/dev/null' % filename).read()
-            return int(float(mplayer_output[mplayer_output.index('ID_LENGTH'):].splitlines()[0][10:]) * 1000)
+            mplayer_output, _stderr = util.Popen(
+                ['mplayer', '-msglevel', 'all=-1', '-identify', '-vo', 'null', '-ao', 'null', '-frames', '0', filename],
+                stdout=PIPE, stderr=DEVNULL, close_fds=False).communicate()
+            return int(float(mplayer_output[mplayer_output.index(b'ID_LENGTH'):].splitlines()[0][10:]) * 1000)
         except Exception:
             logger.error('MPlayer could not determine length: %s', filename, exc_info=True)
             attempted = True
