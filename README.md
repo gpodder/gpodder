@@ -51,8 +51,10 @@ to install dependencies.
 - Bluetooth file sending: gnome-obex-send or bluetooth-sendto
 - Size detection on Windows: PyWin32
 - Native OS X support: ige-mac-integration
-- MP3 Player Sync Support: python-eyed3 (0.7 or newer)
-- iPod Sync Support: libgpod (tested with 0.8.3)
+- iPod Sync Support: libgpod (tested with 0.8.3) and at least one of:
+  - FFmpeg (`ffprobe`)
+  - MPlayer
+  - python-eyed3 (0.7 or newer)
 - Clickable links in GTK UI show notes: html5lib
 - HTML show notes: WebKit2 gobject bindings
     (webkit2gtk, webkitgtk4 or gir1.2-webkit2-4.0 packages).
