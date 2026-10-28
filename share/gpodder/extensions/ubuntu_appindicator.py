@@ -56,13 +56,20 @@ class gPodderExtension:
                 self.gpodder.main_window.hide()
         toggle_visible.connect('activate', on_toggle_visible)
         menu.append(toggle_visible)
+
+        update = Gtk.MenuItem(_('Check for new episodes'))
+        update.connect('activate', lambda menu_item: self.gpodder.update_feed_cache())
+        menu.append(update)
+
         menu.append(Gtk.SeparatorMenuItem())
+
         quit_gpodder = Gtk.MenuItem(_('Quit'))
 
         def on_quit(menu_item):
             self.gpodder.on_gPodder_delete_event(self.gpodder.main_window)
         quit_gpodder.connect('activate', on_quit)
         menu.append(quit_gpodder)
+
         menu.show_all()
         self.indicator.set_menu(menu)
 
