@@ -46,6 +46,8 @@ logger = logging.getLogger(__name__)
 
 CATEGORY_DICT = {
     'desktop-integration': _('Desktop Integration'),
+    'device-sync': _('Device Sync'),
+    'download': _('Download'),
     'interface': _('Interface'),
     'post-download': _('Post download'),
 }

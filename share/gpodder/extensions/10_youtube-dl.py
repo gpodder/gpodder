@@ -39,6 +39,7 @@ __description__ = _('Manage YouTube subscriptions using youtube-dl (pip install 
 __only_for__ = 'gtk, cli'
 __authors__ = 'Eric Le Lay <elelay.fr:contact>'
 __doc__ = 'https://gpodder.github.io/docs/extensions/youtubedl.html'
+__category__ = 'download'
 
 want_ytdl_version_msg = _('Your version of youtube-dl/yt-dlp %(have_version)s has known issues, please upgrade to %(want_version)s or newer.')
 
