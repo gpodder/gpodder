@@ -631,8 +631,12 @@ class gPodderExtension:
     def check_for_update(self, widget):
         success = False
         try:
+            # sys.executable is the 'gpodder.exe' in the Windows and Mac builds, see https://github.com/gpodder/gpodder/pull/1822
+            # This method is only called in the Mac and Windows builds.
+            # 'pythonw' runs scripts in a GUI without opening a terminal window.
+            python = 'pythonw' if gpodder.ui.win32 else os.path.join(os.path.dirname(sys.executable), "run-python")
             output = subprocess.check_output(
-                    [sys.executable, '-m', 'pip', 'index', 'versions', program_name],
+                    [python, '-m', 'pip', 'index', 'versions', program_name],
                     stderr=subprocess.STDOUT,
                     encoding='utf-8',
                     close_fds=True,
@@ -665,8 +669,12 @@ class gPodderExtension:
 
     def do_update(self, widget):
         try:
+            # sys.executable is the 'gpodder.exe' in the Windows and Mac builds, see https://github.com/gpodder/gpodder/pull/1822
+            # This method is only called in the Mac and Windows builds.
+            # 'pythonw' runs scripts in a GUI without opening a terminal window.
+            python = 'pythonw' if gpodder.ui.win32 else os.path.join(os.path.dirname(sys.executable), "run-python")
             subprocess.check_output(
-                    [sys.executable, '-m', 'pip', 'install', '--upgrade', program_name],
+                    [python, '-m', 'pip', 'install', '--upgrade', program_name],
                     stderr=subprocess.STDOUT,
                     encoding='utf-8',
                     close_fds=True,
