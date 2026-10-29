@@ -473,19 +473,32 @@ class gPodderYoutubeDL(download.CustomDownloader):
 
         with youtube_dl.YoutubeDL(opts) as ydl:
             ie_result = ydl.extract_info(url, download=False, process=False)
-            result_type, has_playlist = extract_type(ie_result)
-            while not has_playlist:
-                if result_type in ('url', 'url_transparent'):
-                    ie_result['url'] = youtube_dl.utils.sanitize_url(ie_result['url'])
-                if result_type == 'url':
-                    logger.debug("extract_info(%s) to get the video list", ie_result['url'])
-                    # We have to add extra_info to the results because it may be
-                    # contained in a playlist
-                    ie_result = ydl.extract_info(ie_result['url'],
-                                                 download=False,
-                                                 process=False,
-                                                 ie_key=ie_result.get('ie_key'))
+            if ie_result is not None:
                 result_type, has_playlist = extract_type(ie_result)
+                while not has_playlist:
+                    if result_type in ('url', 'url_transparent'):
+                        ie_result['url'] = youtube_dl.utils.sanitize_url(ie_result['url'])
+                    if result_type == 'url':
+                        logger.debug("extract_info(%s) to get the video list", ie_result['url'])
+                        # We have to add extra_info to the results because it may be
+                        # contained in a playlist
+                        ie_result = ydl.extract_info(ie_result['url'],
+                                                     download=False,
+                                                     process=False,
+                                                     ie_key=ie_result.get('ie_key'))
+                    result_type, has_playlist = extract_type(ie_result)
+            else:
+                # yt-dlp shows a "This channel does not have a videos tab" error in terminal
+                ie_result = {'no_videos_tab': True}
+
+                # Must fetch webpage to get channel title when adding new channels
+                title = youtube.get_channel_title(channel_url)
+                if title is not None:
+                    ie_result['title'] = title
+
+                # And set URL
+                ie_result['webpage_url'] = url
+
         thumbnails = ie_result.get('thumbnails', [])
         cover_url = (thumbnails[0].get('url') if thumbnails else None) or youtube.get_cover(channel_url)
         description = ie_result.get('description') or youtube.get_channel_desc(channel_url)
@@ -514,7 +527,12 @@ class gPodderYoutubeDL(download.CustomDownloader):
                     url = 'https://www.youtube.com/playlist?list={}'.format(m.group(1))
         if url:
             logger.info('youtube-dl handling %s => %s', channel.url, url)
-            return self.refresh(url, channel.url, max_episodes)
+            result = self.refresh(url, channel.url, max_episodes)
+            if result.feed._ie_result.get('no_videos_tab', False):
+                # New channels that have not yet released content will throw this error on each update
+                # However, channels that have deleted all of their content should be unsubscribed from
+                channel._update_error = _('This channel does not have a videos tab')
+            return result
         return None
 
     def is_supported_url(self, url):
