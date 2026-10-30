@@ -479,7 +479,7 @@ class gPodderPreferences(BuilderWidget):
                 for i, child in enumerate([title_display, desc_display, metadata_display]):
                     page.add(child)
                     page.reorder_child(child, i)
-                page.show_all()
+                    child.show()
 
                 name = "extension." + label
                 page.set_name(name)
