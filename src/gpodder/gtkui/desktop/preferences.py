@@ -473,8 +473,11 @@ class gPodderPreferences(BuilderWidget):
                 desc_display = Gtk.Label(use_markup=True, wrap=True, xalign=0.0,
                                          label=GLib.markup_escape_text(_(container.metadata.description)))
 
-                metadata_display = Gtk.Button(label=_('Extension info'))
-                metadata_display.connect('clicked', self.show_extension_info, container)
+                metadata_display = Gtk.Expander(label=_('Extension info'))
+                metadata_display_label = Gtk.Label(use_markup=True, wrap=True, xalign=0.0, margin_left=15,
+                                                   label=self.show_extension_info(self, container, False))
+                metadata_display.add(metadata_display_label)
+                metadata_display_label.show()
 
                 for i, child in enumerate([title_display, desc_display, metadata_display]):
                     page.add(child)
@@ -618,7 +621,7 @@ class gPodderPreferences(BuilderWidget):
                     _('Extension cannot be activated'), important=True)
             model.set_value(it, self.C_TOGGLE, False)
 
-    def show_extension_info(self, w, container):
+    def show_extension_info(self, w, container, ownwindow=True):
         if not container:
             return
 
@@ -626,7 +629,10 @@ class gPodderPreferences(BuilderWidget):
                          for key, value in container.metadata.get_sorted()
                          if key not in ('title', 'description'))
 
-        self.show_message_details(container.metadata.title, container.metadata.description, info)
+        if ownwindow:
+            self.show_message_details(container.metadata.title, container.metadata.description, info)
+        else:
+            return info
 
     def open_weblink(self, w, url):
         util.open_website(url)
