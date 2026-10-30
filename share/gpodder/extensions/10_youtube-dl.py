@@ -717,6 +717,12 @@ class gPodderExtension:
         checkbox.set_active(self.container.config.read_config_file)
         checkbox.connect('toggled', self.toggle_read_config_file)
         box.pack_start(checkbox, False, False, 0)
+        note = Gtk.Label(use_markup=True, wrap=True, label=_(
+            'The <a href="https://gpodder.github.io/docs/extensions/youtubedl.html#read-settings-from-youtube-dl-or-yt-dlp-config-file"'
+            '>config file</a> must be <b>created</b> if you do not already have one.'))
+        note.connect('activate-link', lambda label, url: util.open_website(url))
+        note.set_property('xalign', 0.0)
+        box.add(note)
 
         infobar = Gtk.InfoBar()
         infobar.get_content_area().add(Gtk.Label(wrap=True, label=_(
