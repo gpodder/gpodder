@@ -536,18 +536,6 @@ class gPodderExtension:
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
         box.set_border_width(10)
 
-        title = Gtk.Label(use_markup=True, label=_('<b><big>Tagging Extension</big></b>'))
-        title.set_halign(Gtk.Align.CENTER)
-        box.add(title)
-
-        whatisthis = Gtk.Label(use_markup=True, wrap=True, label=_(
-            'This extension writes tags on MP3/MP4/OGG episodes after download.'
-        ))
-        whatisthis.set_property('xalign', 0.0)
-        box.add(whatisthis)
-
-        box.pack_start(Gtk.HSeparator(), False, False, 0)
-
         self.container.always_remove_tags = Gtk.CheckButton(_('Only Remove Existing Tags'))
         self.container.always_remove_tags.set_active(self.container.config.always_remove_tags)
         self.container.always_remove_tags.connect('toggled', self.toggle_always_remove_tags)
@@ -590,7 +578,7 @@ class gPodderExtension:
         self.container.write_comments.connect('toggled', self.toggle_write_comments)
         box.pack_start(self.container.write_comments, False, False, 0)
 
-        self.container.write_comments_note = Gtk.Label(_('Note: Subtitle is often very long. Can cause parsing issues.'))
+        self.container.write_comments_note = Gtk.Label(wrap=True, label=_('Note: Subtitle is often very long. Can cause parsing issues.'))
         self.container.write_comments_note.set_property('xalign', 0.0)
         box.add(self.container.write_comments_note)
 
@@ -657,9 +645,9 @@ class gPodderExtension:
         self.container.episode_coverart_size.set_snap_to_ticks(True)
         self.container.episode_coverart_size.set_value(float(self.container.config.episode_coverart_size))
         self.container.episode_coverart_size.set_halign(Gtk.Align.END)
-        self.container.episode_coverart_size.set_size_request(200, -1)
+        self.container.episode_coverart_size.set_size_request(100, -1)
         self.container.episode_coverart_size.connect("value-changed", self.on_episode_coverart_size_changed)
-        self.container.episode_coverart_size_label = Gtk.Label(_('Image size (px):'))
+        self.container.episode_coverart_size_label = Gtk.Label(wrap=True, label=_('Image size (px):'))
         self.container.hbox_convert_size = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=0)
         self.container.hbox_convert_size.pack_start(self.container.episode_coverart_size_label, False, False, 0)
         self.container.hbox_convert_size.pack_start(self.container.episode_coverart_size, True, True, 0)
@@ -671,8 +659,8 @@ class gPodderExtension:
         self.container.episode_coverart_filetype.set_active(self.container.config.episode_coverart_filetype)
         self.container.episode_coverart_filetype.connect("changed", self.on_episode_coverart_filetype_changed)
         self.container.episode_coverart_filetype.set_halign(Gtk.Align.END)
-        self.container.episode_coverart_filetype.set_size_request(200, -1)
-        self.container.episode_coverart_filetype_label = Gtk.Label(_('Image type:'))
+        self.container.episode_coverart_filetype.set_size_request(100, -1)
+        self.container.episode_coverart_filetype_label = Gtk.Label(wrap=True, label=_('Image type:'))
         self.container.hbox_art_name = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=0)
         self.container.hbox_art_name.pack_start(self.container.episode_coverart_filetype_label, False, False, 0)
         self.container.hbox_art_name.pack_start(self.container.episode_coverart_filetype, True, True, 0)
