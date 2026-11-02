@@ -474,7 +474,7 @@ class gPodderPreferences(BuilderWidget):
                                          label=GLib.markup_escape_text(_(container.metadata.description)))
 
                 metadata_display = Gtk.Expander(label=_('Extension info'))
-                metadata_display_label = Gtk.Label(use_markup=True, wrap=True, xalign=0.0, margin_left=15,
+                metadata_display_label = Gtk.Label(selectable=True, use_markup=True, wrap=True, xalign=0.0, margin_left=15,
                                                    label=self.show_extension_info(self, container, False))
                 metadata_display.add(metadata_display_label)
                 metadata_display_label.show()
