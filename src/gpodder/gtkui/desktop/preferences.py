@@ -627,7 +627,13 @@ class gPodderPreferences(BuilderWidget):
 
         info = '\n'.join('<b>{}:</b> {}'.format(html.escape(key), html.escape(value))
                          for key, value in container.metadata.get_sorted()
-                         if key not in ('title', 'description'))
+                         if key not in ('title', 'description', 'doc'))
+        if container.metadata.doc:
+            link = GLib.markup_escape_text(container.metadata.doc)
+            if ownwindow:
+                info += '\n<b>{}:</b> {}'.format(GLib.markup_escape_text('doc'), link)
+            else:
+                info += '\n<b>{}:</b> <a href="{}">{}</a>'.format(GLib.markup_escape_text('doc'), link, link)
 
         if ownwindow:
             self.show_message_details(container.metadata.title, container.metadata.description, info)
