@@ -322,7 +322,7 @@ class MPRISDBusReceiver(PlayerInterface):
             except GLib.Error:
                 pass
         # DeaDBeeF doesn't emit rate, grab it
-        if 'rate' not in collected_info and collected_info['status'] != 'Stopped':
+        if 'rate' not in collected_info and 'status' in collected_info and collected_info['status'] != 'Stopped':
             try:
                 collected_info['rate'] = self.query_property(
                     sender, 'Rate')
