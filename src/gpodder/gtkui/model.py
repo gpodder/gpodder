@@ -524,6 +524,7 @@ class PodcastChannelProxy:
         self.auto_archive_episodes = False
         self.model = model
 
+        self._not_refreshed = None
         self._update_error = None
 
     def get_statistics(self):
@@ -589,6 +590,7 @@ class PodcastListModel(Gtk.ListStore):
         self.icon_theme = Gtk.IconTheme.get_default()
         self.ICON_DISABLED = 'media-playback-pause'
         self.ICON_ERROR = 'dialog-warning'
+        self.ICON_NOT_REFRESHED = 'power-profile-power-saver-symbolic'  # weather-clear-night-symbolic preferences-system-time-symbolic
 
     def _filter_visible_func(self, model, iterator, misc):
         channel = model.get_value(iterator, self.C_CHANNEL)
@@ -765,6 +767,8 @@ class PodcastListModel(Gtk.ListStore):
         if add_overlay:
             if getattr(channel, '_update_error', None) is not None:
                 pixbuf_overlay = self._overlay_pixbuf(pixbuf_overlay, self.ICON_ERROR)
+            elif getattr(channel, '_not_refreshed', None) is not None:
+                pixbuf_overlay = self._overlay_pixbuf(pixbuf_overlay, self.ICON_NOT_REFRESHED)
             elif channel.pause_subscription:
                 pixbuf_overlay = self._overlay_pixbuf(pixbuf_overlay, self.ICON_DISABLED)
                 pixbuf_overlay.saturate_and_pixelate(pixbuf_overlay, 0.0, False)
@@ -785,6 +789,8 @@ class PodcastListModel(Gtk.ListStore):
         title_markup = html.escape(channel.title)
         if channel._update_error is not None:
             description_markup = html.escape(_('ERROR: %s') % channel._update_error)
+        elif channel._not_refreshed is not None:
+            description_markup = html.escape(channel._not_refreshed)
         elif not channel.pause_subscription:
             description_markup = html.escape(
                 util.get_first_line(util.remove_html_tags(channel.description)) or ' ')

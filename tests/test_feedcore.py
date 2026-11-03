@@ -21,7 +21,7 @@ import io
 import pytest
 import requests.exceptions
 
-from gpodder.feedcore import Fetcher, NEW_LOCATION, Result, UPDATED_FEED
+from gpodder.feedcore import Fetcher, NEW_LOCATION, Result, ServiceUnavailable, UPDATED_FEED
 
 
 class MyFetcher(Fetcher):
@@ -109,8 +109,5 @@ def test_redirect_loop(httpserver):
 def test_temporary_error_retry(httpserver):
     httpserver.expect_ordered_request('/feed').respond_with_data(status=503)
     httpserver.expect_ordered_request('/feed').respond_with_data(SIMPLE_RSS, content_type='text/xml')
-    res = MyFetcher().fetch(httpserver.url_for('/feed'))
-    assert res.status == UPDATED_FEED
-    args = res.feed['parse_feed']
-    assert args['headers']['content-type'] == 'text/xml'
-    assert args['url'] == httpserver.url_for('/feed')
+    with pytest.raises(ServiceUnavailable):
+        MyFetcher().fetch(httpserver.url_for('/feed'))
