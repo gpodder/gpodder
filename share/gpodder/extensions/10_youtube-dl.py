@@ -4,6 +4,7 @@
 # (c) 2019-08-17 Eric Le Lay <elelay.fr:contact>
 # Released under the same license terms as gPodder itself.
 
+import copy
 import logging
 import os
 import re
@@ -389,7 +390,9 @@ class gPodderYoutubeDL(download.CustomDownloader):
 
     def fetch_info(self, url, tempname, reporthook):
         subs = self.my_config.embed_subtitles
-        opts = self._ydl_opts.copy()
+        # deep copy: the nested 'paths' and 'postprocessors' must not be shared
+        # with self._ydl_opts and with concurrent downloads
+        opts = copy.deepcopy(self._ydl_opts)
         opts['paths'].update({'home': os.path.dirname(tempname)})
         # Postprocessing in yt-dlp breaks without ext
         opts['outtmpl'] = ({'default': os.path.basename(tempname) + '.%(ext)s'} if program_name == 'yt-dlp'
