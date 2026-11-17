@@ -975,6 +975,7 @@ class DownloadTask(object):
 
             # Model- and database-related updates after a download has finished
             self.__episode.on_downloaded(self.filename)
+            self.__episode.db.commit()
         except DownloadCancelledException:
             logger.info('Download has been cancelled/paused: %s', self)
             if self.status == DownloadTask.CANCELLING:
