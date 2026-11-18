@@ -244,6 +244,9 @@ class gPodderApplication(Gtk.Application):
                     self.on_portal_setting_changed, "SettingChanged", None,
                     "org.freedesktop.portal.Desktop", "/org/freedesktop/portal/desktop")
 
+        # Set font from config
+        Gtk.Settings.get_default().props.gtk_font_name = self.window.config.ui.gtk.font_name
+
         self.window.gPodder.present()
 
     def _set_default_color_scheme(self, default):

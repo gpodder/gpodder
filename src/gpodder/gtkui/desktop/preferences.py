@@ -263,6 +263,7 @@ class gPodderPreferences(BuilderWidget):
             else:
                 self.combo_color_scheme.set_active_id(cs)
         self._config.connect_gtk_combo_box_text('ui.gtk.color_scheme', self.combo_color_scheme)
+        self._config.connect_gtk_fontbutton_font('ui.gtk.font_name', self.fontbutton_font)
 
         self.preferred_youtube_format_model = YouTubeVideoFormatListModel(self._config)
         self.combobox_preferred_youtube_format.set_model(self.preferred_youtube_format_model)
