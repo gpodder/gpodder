@@ -188,7 +188,7 @@ defaults = {
 
             'html_shownotes': True,  # enable webkit renderer
             'color_scheme': None,  # system, light or dark. Initialized in app.py
-            'font_name': 'Sans 10',
+            'font_name': None,
         },
     },
 

@@ -161,7 +161,10 @@ class UIConfig(config.Config):
         combo_text.connect('changed', _combo_box_text_changed)
 
     def connect_gtk_fontbutton_font(self, name, fontbutton):
-        fontbutton.set_font(getattr(self, name))
+        current_font = getattr(self, name)
+        if current_font is None:
+            current_font = Gtk.Settings.get_default().props.gtk_font_name
+        fontbutton.set_font(current_font)
 
         def _fontbutton_font_activated(btn):
             font_name = btn.get_font()
