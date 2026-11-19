@@ -286,9 +286,9 @@ class gPodderExtension:
 
         # needs dbus, doesn't handle more than 1 episode
         # and no point in using DBus when episode is not played.
-        # TODO: Detect Dbus availability with GDBus
-        if not hasattr(gpodder.dbus_session_bus, 'fake') and \
-                len(episodes) == 1 and episodes[0].current_position > 0:
+        if (gpodder.dbus_session_bus is not None
+                and len(episodes) == 1
+                and episodes[0].current_position > 0):
             ret.extend([(p.title, functools.partial(p.resume_episode, config=self.gpodder_config))
                         for p in self.resumers])
 
