@@ -244,8 +244,9 @@ class gPodderApplication(Gtk.Application):
                     self.on_portal_setting_changed, "SettingChanged", None,
                     "org.freedesktop.portal.Desktop", "/org/freedesktop/portal/desktop")
 
-        # Set font from config only if it is not None to keep the default
-        if self.window.config.ui.gtk.font_name:
+        self.system_font = Gtk.Settings.get_default().props.gtk_font_name
+        # Set font from config only if custom font is enabled
+        if self.window.config.ui.gtk.custom_font:
             Gtk.Settings.get_default().props.gtk_font_name = self.window.config.ui.gtk.font_name
 
         self.window.gPodder.present()
@@ -372,7 +373,8 @@ class gPodderApplication(Gtk.Application):
                 on_itemExportChannels_activate=self.window.on_itemExportChannels_activate,
                 on_extension_enabled=self.on_extension_enabled,
                 on_extension_disabled=self.on_extension_disabled,
-                have_settings_portal=self.have_settings_portal)
+                have_settings_portal=self.have_settings_portal,
+                system_font=self.system_font)
 
     def on_goto_mygpo(self, action, param):
         self.window.mygpo_client.open_website()
