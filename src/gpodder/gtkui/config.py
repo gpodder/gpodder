@@ -160,6 +160,15 @@ class UIConfig(config.Config):
             setattr(self, name, combo.get_active_id())
         combo_text.connect('changed', _combo_box_text_changed)
 
+    def connect_gtk_fontbutton_font(self, name, fontbutton):
+        current_font = getattr(self, name)
+        fontbutton.set_font(current_font)
+
+        def _fontbutton_font_activated(btn):
+            font_name = btn.get_font()
+            setattr(self, name, font_name)
+        fontbutton.connect('font-set', _fontbutton_font_activated)
+
     def connect_gtk_window(self, window, config_prefix, show_window=False):
         cfg = getattr(self.ui.gtk.state, config_prefix)
 

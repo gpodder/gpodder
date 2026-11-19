@@ -263,6 +263,12 @@ class gPodderPreferences(BuilderWidget):
             else:
                 self.combo_color_scheme.set_active_id(cs)
         self._config.connect_gtk_combo_box_text('ui.gtk.color_scheme', self.combo_color_scheme)
+        self._config.connect_gtk_fontbutton_font('ui.gtk.font_name', self.fontbutton_font)
+        self._config.connect_gtk_togglebutton('ui.gtk.custom_font', self.checkbutton_custom_font)
+        self.fontbutton_font.connect('font-set', self.font_preference_changed)
+        self.checkbutton_custom_font.connect('toggled', self.font_preference_changed)
+        self.checkbutton_custom_font.connect('toggled', self.on_checkbutton_custom_font_toggled)
+        self.on_checkbutton_custom_font_toggled(self.checkbutton_custom_font)  # disable it if it's unchecked
 
         self.preferred_youtube_format_model = YouTubeVideoFormatListModel(self._config)
         self.combobox_preferred_youtube_format.set_model(self.preferred_youtube_format_model)
@@ -786,6 +792,17 @@ class gPodderPreferences(BuilderWidget):
         self.episode_filename_model.set_index(index)
         self.entry_custom_sync_name.set_sensitive(
             self._config.device_sync.custom_sync_name_enabled)
+
+    def font_preference_changed(self, _widget):
+        font_name = getattr(self._config, 'ui.gtk.font_name')
+        custom_font = getattr(self._config, 'ui.gtk.custom_font')
+        if custom_font:
+            Gtk.Settings.get_default().props.gtk_font_name = font_name
+        else:
+            Gtk.Settings.get_default().props.gtk_font_name = self.system_font
+
+    def on_checkbutton_custom_font_toggled(self, widget):
+        self.fontbutton_font.set_sensitive(widget.get_active())
 
     def on_checkbutton_create_playlists_toggled(
             self, widget, device_type_changed=False):
