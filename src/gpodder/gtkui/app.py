@@ -85,6 +85,8 @@ class gPodderApplication(Gtk.Application):
                          flags=Gio.ApplicationFlags.FLAGS_NONE)
         self.window = None
         self.options = options
+        self.connect('startup', self.on_startup)
+        self.connect('activate', self.on_activate)
         self.gdbus_connection = None
         self.connect('window-removed', self.on_window_removed)
         self.connect('notify::is-registered', self.on_notify_is_registered)
@@ -126,9 +128,7 @@ class gPodderApplication(Gtk.Application):
         action.connect('activate', self.on_subscribe_to_url_activate)
         self.add_action(action)
 
-    def do_startup(self):
-        Gtk.Application.do_startup(self)
-
+    def on_startup(self, application):
         self.create_actions()
 
         builder = Gtk.Builder()
@@ -219,7 +219,7 @@ class gPodderApplication(Gtk.Application):
             logger.warning("Name Already clamed: %r", e, exc_info=True)
         util.idle_add(self.check_root_folder_path_gui)
 
-    def do_activate(self):
+    def on_activate(self, application):
         # We only allow a single window and raise any existing ones
         if not self.window:
             # Windows are associated with the application
