@@ -87,7 +87,6 @@ class gPodderApplication(Gtk.Application):
         self.options = options
         self.connect('startup', self.on_startup)
         self.connect('activate', self.on_activate)
-        self.gdbus_connection = None
         self.connect('window-removed', self.on_window_removed)
         self.connect('notify::is-registered', self.on_notify_is_registered)
 
@@ -197,26 +196,23 @@ class gPodderApplication(Gtk.Application):
             dlg.destroy()
             sys.exit(0)
 
-        # Using GDBus
-        try:
-            self.loop = GLib.MainLoop()
-            self.owner_id = Gio.bus_own_name(
-                # Specify connection to the session bus:
-                Gio.BusType.SESSION,
-                # Set the well-known name:
-                gpodder.dbus_bus_name,
-                # Provide any flags
-                # (for example, to allow replacement):
-                Gio.BusNameOwnerFlags.DO_NOT_QUEUE,
-                # Provide handler 1 (bus_acquired):
-                self.on_bus_acquired,
-                # Provide handler 2 (name_acquired):
-                None,
-                # Provide handler 3 (name_lost):
-                None,
-            )
-        except Exception as e:
-            logger.warning("Name Already clamed: %r", e, exc_info=True)
+        logger.debug("Claiming D-Bus name %r" % gpodder.dbus_bus_name)
+        self.owner_id = Gio.bus_own_name(
+            # Specify connection to the session bus:
+            Gio.BusType.SESSION,
+            # Set the well-known name:
+            gpodder.dbus_bus_name,
+            # Provide any flags
+            # (for example, to allow replacement):
+            Gio.BusNameOwnerFlags.DO_NOT_QUEUE,
+            # Provide handler 1 (bus_acquired):
+            self.on_bus_acquired,
+            # Provide handler 2 (name_acquired):
+            None,
+            # Provide handler 3 (name_lost):
+            None,
+        )
+
         util.idle_add(self.check_root_folder_path_gui)
 
     def on_activate(self, application):
@@ -389,7 +385,6 @@ class gPodderApplication(Gtk.Application):
         self.window.on_extension_disabled(extension)
 
     def on_bus_acquired(self, conn, name):
-        self.gdbus_connection = conn
         if self.window:
             self.window.on_bus_acquired(conn)
 
