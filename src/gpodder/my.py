@@ -137,10 +137,30 @@ class UpdateDeviceAction(object):
         self.device_type = device_type
 
 
+def int_truncate(s):
+    """Tolerate floating point representations, returning int value or None.
+
+    MPRIS events generate floats for "started" and "total", which are stored
+    in the local minidb but can never be retrieved when slots are
+    declared as int because `int("8.0")` raises ValueError.
+
+    """
+    if s is None:
+        return None
+    try:
+        return int(s)
+    except ValueError:
+        try:
+            return int(float(s))
+        except ValueError:
+            return None
+
+
 class EpisodeAction(object):
     __slots__ = {'podcast_url': str, 'episode_url': str, 'device_id': str,
                  'action': str, 'timestamp': int,
-                 'started': int, 'position': int, 'total': int}
+                 'started': int_truncate, 'position': int_truncate,
+                 'total': int_truncate}
 
     def __init__(self, podcast_url, episode_url, device_id,
             action, timestamp, started, position, total):
@@ -149,9 +169,9 @@ class EpisodeAction(object):
         self.device_id = device_id
         self.action = action
         self.timestamp = timestamp
-        self.started = started
-        self.position = position
-        self.total = total
+        self.started = int_truncate(started)
+        self.position = int_truncate(position)
+        self.total = int_truncate(total)
 
 
 # New entity name for "received" actions
@@ -601,7 +621,7 @@ class MygPoClient(object):
 
             # Actions have been uploaded to the server - remove them
             self._store.remove(actions)
-            logger.debug('All actions have been uploaded to the server.')
+            logger.debug('All subscription actions have been uploaded to the server.')
             return True
 
         except (MissingCredentials, mygpoclient.http.Unauthorized):
