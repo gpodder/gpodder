@@ -67,7 +67,7 @@ function install_pre_deps {
         wget \
         libidn2 \
         libopenssl \
-        intltool \
+        gettext \
         "${MINGW_PACKAGE_PREFIX}"-nsis \
         "${MINGW_PACKAGE_PREFIX}"-toolchain \
         "${MINGW_PACKAGE_PREFIX}"-python

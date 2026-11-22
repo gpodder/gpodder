@@ -13,7 +13,7 @@ function main {
 
     pacman --noconfirm -S --needed \
         git \
-        intltool \
+        gettext \
         base-devel \
         "${MINGW_PACKAGE_PREFIX}"-gdk-pixbuf2 \
         "${MINGW_PACKAGE_PREFIX}"-librsvg \

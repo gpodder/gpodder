@@ -66,7 +66,7 @@ to install dependencies.
     `make install`
 - [installer](https://github.com/pypa/installer/) only if using `make install`
 - help2man
-- intltool
+- gettext
 
 
 ### Test Dependencies
