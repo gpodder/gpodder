@@ -2665,6 +2665,7 @@ class gPodder(BuilderWidget):
         the server to the local database and update the
         status of the affected episodes as necessary.
         """
+        # FIXME: self.mygpo_client.process_episode_actions not called from gpo
         indicator = ProgressIndicator(_('Merging episode actions'),
                 _('Episode actions from gpodder.net are merged.'),
                 False, self.get_dialog_parent())
