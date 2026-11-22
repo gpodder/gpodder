@@ -62,6 +62,15 @@ for cmd in ${CMDS}; do
     ln -s $(basename $app)/Contents/MacOS/$cmd "$workspace/"
 done
 
+
+otool -L $(basename $app)/Contents/MacOS/gpodder
+echo
+otool -L $(basename $app)/Contents/MacOS/gpo
+echo
+install_name_tool -change /lib/libglib-2.0.0.dylib @executable_path/../Resources/lib/libglib-2.0.0.dylib $(basename $app)/Contents/MacOS/gpo
+otool -L $(basename $app)/Contents/MacOS/gpo
+
+
 cp -a "$checkout"/tools/mac-osx/launcher.py "$resources"/
 cp -a "$checkout"/tools/mac-osx/make_cert_pem.py "$resources"/bin
 
