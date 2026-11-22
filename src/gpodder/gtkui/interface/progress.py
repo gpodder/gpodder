@@ -71,7 +71,6 @@ class ProgressIndicator(object):
     def _create_progress(self):
         self.dialog = Gtk.MessageDialog(self.parent,
                 0, 0, Gtk.ButtonsType.CANCEL, self.subtitle or self.title)
-        self.dialog.set_modal(True)
         self.dialog.connect('delete-event', self._on_delete_event)
         if self.cancellable:
             def cancel_callback(dialog, response):
