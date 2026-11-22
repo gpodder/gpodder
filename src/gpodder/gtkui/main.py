@@ -1416,7 +1416,9 @@ class gPodder(BuilderWidget):
             self.update_episode_list_columns_visibility()
         elif name == 'ui.gtk.color_scheme':
             if new_value == 'system':
-                self.application.read_portal_color_scheme()
+                color_scheme = self.application.read_settings_portal_color_scheme()
+                if color_scheme is not None:
+                    self.application.set_dark_mode(color_scheme == 1)
             else:
                 self.application.set_dark_mode(new_value == 'dark')
         elif name == 'limit.downloads.concurrent_max':
