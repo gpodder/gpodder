@@ -299,6 +299,13 @@ class DownloadURLOpener:
                 else:
                     raise gPodderDownloadHTTPError(url, resp.status_code, str(e))
 
+            if resp.status_code == 202:
+                # 202 Accepted means the server only queued the request, so the
+                # body is not the episode; writing it would save e.g. a status
+                # page as the audio file (see #1769)
+                raise gPodderDownloadHTTPError(url, resp.status_code,
+                        _('Server is still processing the request, please try again later'))
+
             headers = resp.headers
 
             if current_size > 0:
