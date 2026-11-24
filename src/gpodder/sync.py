@@ -25,9 +25,9 @@
 
 import logging
 import os.path
+import subprocess
 import threading
 import time
-from subprocess import DEVNULL, PIPE
 
 import gpodder
 from gpodder import download, services, util
@@ -49,9 +49,8 @@ except:
     logger.info('iPod sync not available')
     gpod_available = False
 
-ffmpeg_available = True if util.find_command('ffmpeg') is not None else False
-
-mplayer_available = True if util.find_command('mplayer') is not None else False
+mplayer_command = util.find_command('mplayer')
+ffprobe_command = util.find_command('ffprobe')
 
 eyed3mp3_available = True
 try:
@@ -80,6 +79,43 @@ def open_device(gui):
 def get_track_length(filename):
     attempted = False
 
+    if ffprobe_command is not None:
+        try:
+            process = util.Popen([ffprobe_command,
+                                  '-v', 'error',
+                                  '-show_entries', 'format=duration',
+                                  '-of', 'default=noprint_wrappers=1:nokey=1',
+                                  filename], close_fds=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+            stdout, _ = process.communicate()
+            ffprobe_output = stdout.decode()
+            return int(float(ffprobe_output) * 1000)
+        except:
+            logger.error('ffprobe could not determine length: %s', filename, exc_info=True)
+            attempted = True
+
+    if mplayer_command is not None:
+        try:
+            process = util.Popen([mplayer_command,
+                             '-msglevel', 'all=-1',
+                             '-identify',
+                             '-vo', 'null',
+                             '-ao', 'null',
+                             '-frames', '0',
+                             filename], close_fds=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+            stdout, _ = process.communicate()
+            mplayer_output = stdout.decode()
+            mplayer_metadata = {}
+            for line in mplayer_output.splitlines():
+                parts = line.split('=', 1)
+                if len(parts) == 2:
+                    key, value = parts
+                    mplayer_metadata[key] = value
+
+            return int(float(mplayer_metadata.get('ID_LENGTH')) * 1000)
+        except Exception:
+            logger.error('MPlayer could not determine length: %s', filename, exc_info=True)
+            attempted = True
+
     if eyed3mp3_available:
         try:
             length = int(eyed3.mp3.Mp3AudioFile(filename).info.time_secs * 1000)
@@ -90,26 +126,6 @@ def get_track_length(filename):
             return length
         except Exception:
             logger.error('eyed3.mp3 could not determine length: %s', filename, exc_info=True)
-            attempted = True
-
-    if ffmpeg_available:
-        try:
-            _stdin, ffmpeg_output = util.Popen(['ffmpeg', '-i', filename], stderr=PIPE, close_fds=False).communicate()
-            len_str = ffmpeg_output[ffmpeg_output.index(b'Duration:'):].split(b',')[0][10:].decode()
-            logger.debug("ffmpeg found length string for '%s': %s", filename, len_str)
-            return int(sum(float(s) * t for s, t in zip(len_str.split(':'), [3600, 60, 1])) * 1000)
-        except Exception:
-            logger.error('ffmpeg could not determine length: %s', filename, exc_info=True)
-            attempted = True
-
-    if mplayer_available:
-        try:
-            mplayer_output, _stderr = util.Popen(
-                ['mplayer', '-msglevel', 'all=-1', '-identify', '-vo', 'null', '-ao', 'null', '-frames', '0', filename],
-                stdout=PIPE, stderr=DEVNULL, close_fds=False).communicate()
-            return int(float(mplayer_output[mplayer_output.index(b'ID_LENGTH'):].splitlines()[0][10:]) * 1000)
-        except Exception:
-            logger.error('MPlayer could not determine length: %s', filename, exc_info=True)
             attempted = True
 
     if not attempted:
