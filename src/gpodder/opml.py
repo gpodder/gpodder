@@ -88,13 +88,16 @@ class Importer(object):
                     'url':
                         outline.getAttribute('xmlUrl')
                         or outline.getAttribute('url'),
+                    # The OPML spec says text may be edited by the user and should be read
+                    # before title, but gPodder used to write the description into text.
                     'title':
                         outline.getAttribute('title')
                         or outline.getAttribute('text')
                         or outline.getAttribute('xmlUrl')
                         or outline.getAttribute('url'),
                     'description':
-                        outline.getAttribute('text')
+                        outline.getAttribute('description')
+                        or outline.getAttribute('text')
                         or outline.getAttribute('xmlUrl')
                         or outline.getAttribute('url'),
                     'section': section,
@@ -140,7 +143,8 @@ class Exporter(object):
         """Return an OPML outline as XML Element node in the supplied document."""
         outline = doc.createElement('outline')
         outline.setAttribute('title', channel.title)
-        outline.setAttribute('text', channel.description)
+        outline.setAttribute('text', channel.title)
+        outline.setAttribute('description', channel.description)
         outline.setAttribute('xmlUrl', channel.url)
         outline.setAttribute('type', self.FEED_TYPE)
         return outline
