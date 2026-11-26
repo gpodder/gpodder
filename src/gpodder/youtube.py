@@ -599,6 +599,9 @@ def get_cover(url, feed_data=None):
                 self.url = []
 
             def handle_starttag(self, tag, attributes):
+                if tag != 'link' and tag != 'img':
+                    return
+
                 attribute_dict = {attribute[0]: attribute[1] for attribute in attributes}
 
                 # Look for 900x900px image first.
@@ -643,7 +646,11 @@ def get_gdpr_consent_url(html_data):
             self.consentForm = False
 
         def handle_starttag(self, tag, attributes):
+            if tag != 'form' and tag != 'input':
+                return
+
             attribute_dict = {attribute[0]: attribute[1] for attribute in attributes}
+
             if tag == 'form' and attribute_dict['action'] == 'https://consent.youtube.com/s':
                 self.consentForm = True
                 self.url = 'https://consent.google.com/s?'
@@ -680,12 +687,13 @@ def get_channel_desc(url, feed_data=None):
                 self.description = ''
 
             def handle_starttag(self, tag, attributes):
+                if self.description or tag != 'meta':
+                    return
+
                 attribute_dict = {attribute[0]: attribute[1] for attribute in attributes}
 
                 # Get YouTube channel description.
-                if tag == 'meta' \
-                        and 'name' in attribute_dict \
-                        and attribute_dict['name'] == "description":
+                if 'name' in attribute_dict and attribute_dict['name'] == "description":
                     self.description = attribute_dict['content']
 
         try:
