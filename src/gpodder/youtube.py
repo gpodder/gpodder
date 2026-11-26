@@ -599,6 +599,9 @@ def get_cover(url, feed_data=None):
                 self.url = []
 
             def handle_starttag(self, tag, attributes):
+                if tag != 'link' and tag != 'img':
+                    return
+
                 attribute_dict = {attribute[0]: attribute[1] for attribute in attributes}
 
                 # Look for 900x900px image first.
@@ -643,7 +646,11 @@ def get_gdpr_consent_url(html_data):
             self.consentForm = False
 
         def handle_starttag(self, tag, attributes):
+            if tag != 'form' and tag != 'input':
+                return
+
             attribute_dict = {attribute[0]: attribute[1] for attribute in attributes}
+
             if tag == 'form' and attribute_dict['action'] == 'https://consent.youtube.com/s':
                 self.consentForm = True
                 self.url = 'https://consent.google.com/s?'
@@ -669,6 +676,44 @@ def get_gdpr_consent_url(html_data):
         raise YouTubeError('No acceptable GDPR consent URL')
 
 
+def get_channel_title(url, feed_data=None):
+    if 'youtube.com' in url:
+
+        class YouTubeHTMLTitle(HTMLParser):
+            """This custom html parser searches for the YouTube channel title."""
+
+            def __init__(self):
+                super().__init__()
+                self.title = ''
+
+            def handle_starttag(self, tag, attributes):
+                if self.title or tag != 'meta':
+                    return
+
+                attribute_dict = {attribute[0]: attribute[1] for attribute in attributes}
+
+                # Get YouTube channel title.
+                if 'property' in attribute_dict and attribute_dict['property'] == "og:title":
+                    self.title = attribute_dict['content']
+
+        try:
+            channel_url = get_channel_id_url(url, feed_data)
+            r = util.urlopen(channel_url)
+            if not r.ok:
+                raise YouTubeError('Youtube "%s": %d %s' % (url, r.status_code, r.reason))
+            html_data = util.response_text(r)
+            parser = YouTubeHTMLTitle()
+            parser.feed(html_data)
+            if parser.title:
+                logger.debug('YouTube title for %s is: %s', url, parser.title)
+                return parser.title
+            else:
+                logger.warning('YouTube title for %s is not provided.', url)
+
+        except Exception:
+            logger.warning('Could not retrieve YouTube channel title for %s.' % url, exc_info=True)
+
+
 def get_channel_desc(url, feed_data=None):
     if 'youtube.com' in url:
 
@@ -680,12 +725,13 @@ def get_channel_desc(url, feed_data=None):
                 self.description = ''
 
             def handle_starttag(self, tag, attributes):
+                if self.description or tag != 'meta':
+                    return
+
                 attribute_dict = {attribute[0]: attribute[1] for attribute in attributes}
 
                 # Get YouTube channel description.
-                if tag == 'meta' \
-                        and 'name' in attribute_dict \
-                        and attribute_dict['name'] == "description":
+                if 'name' in attribute_dict and attribute_dict['name'] == "description":
                     self.description = attribute_dict['content']
 
         try:
